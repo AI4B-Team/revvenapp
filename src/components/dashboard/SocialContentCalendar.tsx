@@ -73,6 +73,7 @@ interface SocialContentCalendarProps {
   isGenerating: boolean;
   onDeletePost?: (postId: string) => void;
   onDeleteAllPosts?: () => void;
+  onUpdatePost?: (updatedPost: ContentItem) => void;
 }
 
 type ViewMode = 'calendar' | 'list' | 'kanban' | 'grid';
@@ -83,6 +84,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   isGenerating,
   onDeletePost,
   onDeleteAllPosts,
+  onUpdatePost,
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
@@ -644,6 +646,14 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         post={selectedPost}
+        onSave={(updatedPost) => {
+          onUpdatePost?.(updatedPost);
+          setSelectedPost(updatedPost);
+          toast({
+            title: "Post updated",
+            description: "Your changes have been saved.",
+          });
+        }}
       />
 
       {/* Delete All Confirmation Dialog */}
