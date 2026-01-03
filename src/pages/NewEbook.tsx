@@ -956,7 +956,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   <span className="hidden md:inline">Share</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-xl bg-white p-0 gap-0">
+              <DialogContent className="max-w-2xl bg-white p-0 gap-0">
                 <DialogHeader className="p-4 pb-0">
                   <DialogTitle className="text-lg font-semibold text-gray-900">Share</DialogTitle>
                 </DialogHeader>
@@ -1041,9 +1041,10 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   <div className="pt-2">
                     <h4 className="text-sm font-semibold text-gray-900 mb-3">Download</h4>
                     <p className="text-xs text-gray-500 mb-3">Select The Format</p>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-5 gap-2">
                       {[
                         { id: 'pdf', name: 'PDF', ext: '.pdf', icon: FileText, color: 'text-green-600' },
+                        { id: 'png', name: 'PNG', ext: '.png', icon: FileText, color: 'text-gray-500' },
                         { id: 'word', name: 'Word', ext: '.docx', icon: FileText, color: 'text-gray-500' },
                         { id: 'text', name: 'Text', ext: '.txt', icon: FileText, color: 'text-gray-500' },
                         { id: 'srt', name: 'SRT', ext: '.srt', icon: FileText, color: 'text-gray-500' },
