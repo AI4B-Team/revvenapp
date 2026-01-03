@@ -2343,7 +2343,7 @@ const EbookCanvasEditor = ({
                                 setSelectedElement(null);
                               }
                             }}
-                            className={`bg-white shadow-xl relative flex-shrink-0 overflow-visible cursor-pointer transition-all ${
+                            className={`bg-white shadow-xl relative flex-shrink-0 overflow-visible cursor-pointer transition-all group ${
                               isSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300'
                             }`}
                             style={{
@@ -2353,6 +2353,14 @@ const EbookCanvasEditor = ({
                               transformOrigin: 'top center',
                             }}
                           >
+                            {/* Locked Page Hover Overlay */}
+                            {page.locked && (
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity z-50 flex items-center justify-center pointer-events-none">
+                                <div className="px-4 py-2 bg-gray-700/90 text-white text-sm rounded-lg font-medium">
+                                  This Page Is Locked. Unlock To Make Edits.
+                                </div>
+                              </div>
+                            )}
                             {/* Grid Overlay */}
                             {showGrid && (
                               <div 

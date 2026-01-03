@@ -1461,7 +1461,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                   <div className="space-y-3">
                     <button className="w-full py-8 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex flex-col items-center gap-2">
                       <Image className="w-6 h-6" />
-                      <span className="text-xs">Click to upload image</span>
+                      <span className="text-xs">Click To Upload Image</span>
                     </button>
                   </div>
                 )}
