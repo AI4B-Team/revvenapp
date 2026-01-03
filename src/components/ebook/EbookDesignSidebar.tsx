@@ -115,18 +115,38 @@ const TEMPLATES = [
   },
 ];
 
-// Browse categories with colorful icons - consolidated main categories
+// Browse categories with solid colorful icons - Widgets first
 const BROWSE_CATEGORIES = [
-  { id: 'shapes', name: 'Shapes', bgColor: 'bg-gradient-to-br from-violet-100 to-purple-200', iconColor: 'text-violet-600', icon: Hexagon },
-  { id: 'icons', name: 'Icons', bgColor: 'bg-gradient-to-br from-blue-100 to-cyan-200', iconColor: 'text-blue-600', icon: Sun },
-  { id: 'widgets', name: 'Widgets', bgColor: 'bg-gradient-to-br from-emerald-100 to-teal-200', iconColor: 'text-emerald-600', icon: LayoutGrid },
-  { id: 'charts', name: 'Charts', bgColor: 'bg-gradient-to-br from-purple-100 to-pink-200', iconColor: 'text-purple-600', icon: BarChart3 },
-  { id: 'tables', name: 'Tables', bgColor: 'bg-gradient-to-br from-orange-100 to-amber-200', iconColor: 'text-orange-600', icon: Table },
-  { id: 'stickers', name: 'Stickers', bgColor: 'bg-gradient-to-br from-yellow-100 to-orange-200', iconColor: 'text-yellow-600', icon: Smile },
+  { id: 'widgets', name: 'Widgets', bgColor: 'bg-emerald-100', iconColor: 'text-emerald-600', icon: LayoutGrid },
+  { id: 'shapes', name: 'Shapes', bgColor: 'bg-violet-100', iconColor: 'text-violet-600', icon: Hexagon },
+  { id: 'icons', name: 'Icons', bgColor: 'bg-blue-100', iconColor: 'text-blue-600', icon: Sun },
+  { id: 'charts', name: 'Charts', bgColor: 'bg-purple-100', iconColor: 'text-purple-600', icon: BarChart3 },
+  { id: 'tables', name: 'Tables', bgColor: 'bg-orange-100', iconColor: 'text-orange-600', icon: Table },
+  { id: 'stickers', name: 'Stickers', bgColor: 'bg-yellow-100', iconColor: 'text-yellow-600', icon: Smile },
 ];
 
+// Ordered category keys for rendering (Widgets first)
+const ELEMENT_CATEGORY_ORDER = ['widgets', 'shapes', 'linesArrows', 'icons', 'charts', 'tables', 'stickers', 'buttons', 'actions'];
+
 // Categorized Elements - consolidated and organized with colors
-const ELEMENT_CATEGORIES = {
+const ELEMENT_CATEGORIES: Record<string, { title: string; items: { id: string; name: string; icon: any; color: string }[] }> = {
+  widgets: {
+    title: 'Widgets',
+    items: [
+      { id: 'text-to-image', name: 'AI Image', icon: ImagePlus, color: '#A855F7' },
+      { id: 'map', name: 'Map', icon: MapPin, color: '#EF4444' },
+      { id: 'table-widget', name: 'Table', icon: Table, color: '#10B981' },
+      { id: 'page-no', name: 'Page Number', icon: Hash, color: '#6B7280' },
+      { id: 'embed', name: 'Embed', icon: CodeSquare, color: '#3B82F6' },
+      { id: 'tooltip', name: 'Tooltip', icon: Info, color: '#06B6D4' },
+      { id: 'auto-toc', name: 'Auto TOC', icon: ListTree, color: '#8B5CF6' },
+      { id: 'qr-code', name: 'QR Code', icon: QrCode, color: '#1F2937' },
+      { id: 'countdown', name: 'Countdown', icon: Timer, color: '#EF4444' },
+      { id: 'quiz', name: 'Quiz', icon: HelpCircle, color: '#F59E0B' },
+      { id: 'slideshow', name: 'Slideshow', icon: Images, color: '#EC4899' },
+      { id: 'video-player', name: 'Video Player', icon: Play, color: '#EF4444' },
+    ]
+  },
   shapes: {
     title: 'Shapes',
     items: [
@@ -165,23 +185,6 @@ const ELEMENT_CATEGORIES = {
       { id: 'calendar', name: 'Calendar', icon: Calendar, color: '#8B5CF6' },
       { id: 'settings', name: 'Settings', icon: Settings, color: '#6B7280' },
       { id: 'share', name: 'Share', icon: Share2, color: '#3B82F6' },
-    ]
-  },
-  widgets: {
-    title: 'Widgets',
-    items: [
-      { id: 'text-to-image', name: 'AI Image', icon: ImagePlus, color: '#A855F7' },
-      { id: 'map', name: 'Map', icon: MapPin, color: '#EF4444' },
-      { id: 'table-widget', name: 'Table', icon: Table, color: '#10B981' },
-      { id: 'page-no', name: 'Page Number', icon: Hash, color: '#6B7280' },
-      { id: 'embed', name: 'Embed', icon: CodeSquare, color: '#3B82F6' },
-      { id: 'tooltip', name: 'Tooltip', icon: Info, color: '#06B6D4' },
-      { id: 'auto-toc', name: 'Auto TOC', icon: ListTree, color: '#8B5CF6' },
-      { id: 'qr-code', name: 'QR Code', icon: QrCode, color: '#1F2937' },
-      { id: 'countdown', name: 'Countdown', icon: Timer, color: '#EF4444' },
-      { id: 'quiz', name: 'Quiz', icon: HelpCircle, color: '#F59E0B' },
-      { id: 'slideshow', name: 'Slideshow', icon: Images, color: '#EC4899' },
-      { id: 'video-player', name: 'Video Player', icon: Play, color: '#EF4444' },
     ]
   },
   charts: {
@@ -1198,20 +1201,25 @@ const EbookDesignSidebar = ({
                 />
               </div>
 
-              {/* Browse Categories - Colorful Icons Grid */}
+              {/* Browse Categories - Solid Color Icons Grid */}
               <div className="mb-6">
-                <h4 className="text-sm font-semibold text-gray-800 mb-3">Browse categories</h4>
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Browse Categories</h4>
                 <div className="grid grid-cols-3 gap-3">
                   {BROWSE_CATEGORIES.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => toast.success(`Opening ${category.name}`)}
+                      onClick={() => {
+                        const element = document.getElementById(`element-category-${category.id}`);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
                       className="group flex flex-col items-center gap-2 cursor-pointer"
                     >
-                      <div className={`w-16 h-16 ${category.bgColor} rounded-2xl flex items-center justify-center shadow-sm transition-all duration-300 group-hover:shadow-lg group-hover:scale-110 group-hover:-rotate-3`}>
-                        <category.icon className={`w-7 h-7 ${category.iconColor} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12`} />
+                      <div className={`w-16 h-16 ${category.bgColor} rounded-2xl flex items-center justify-center shadow-sm transition-all duration-300 group-hover:shadow-lg group-hover:scale-110`}>
+                        <category.icon className={`w-7 h-7 ${category.iconColor} transition-transform duration-300 group-hover:scale-110`} />
                       </div>
-                      <span className="text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                         {category.name}
                       </span>
                     </button>
@@ -1219,40 +1227,44 @@ const EbookDesignSidebar = ({
                 </div>
               </div>
 
-              {/* Element Categories - Detailed Lists */}
-              {Object.entries(ELEMENT_CATEGORIES).map(([key, category]) => (
-                <div key={key} className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-semibold text-gray-800">{category.title}</h4>
-                    <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
-                      More
-                    </button>
+              {/* Element Categories - Detailed Lists (ordered) */}
+              {ELEMENT_CATEGORY_ORDER.map((key) => {
+                const category = ELEMENT_CATEGORIES[key];
+                if (!category) return null;
+                return (
+                  <div key={key} id={`element-category-${key}`} className="mb-4 scroll-mt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">{category.title}</h4>
+                      <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
+                        More
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {category.items.map((element) => (
+                        <Tooltip key={element.id}>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => toast.success(`Added ${element.name} to canvas`)}
+                              className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 dark:border-gray-700 dark:hover:bg-emerald-900/20 transition-all"
+                            >
+                              <element.icon 
+                                className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" 
+                                style={{ color: element.color }}
+                              />
+                              <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 text-center leading-tight group-hover:text-emerald-700 dark:group-hover:text-emerald-400">
+                                {element.name}
+                              </span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <p>{element.name}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {category.items.map((element) => (
-                      <Tooltip key={element.id}>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => toast.success(`Added ${element.name} to canvas`)}
-                            className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 dark:border-gray-700 dark:hover:bg-emerald-900/20 transition-all"
-                          >
-                            <element.icon 
-                              className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" 
-                              style={{ color: (element as any).color || '#6B7280' }}
-                            />
-                            <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 text-center leading-tight group-hover:text-emerald-700 dark:group-hover:text-emerald-400">
-                              {element.name}
-                            </span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top">
-                          <p>{element.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
