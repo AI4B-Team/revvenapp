@@ -13,7 +13,7 @@ import {
   ScanLine, Blend, ImagePlus, CircleDot, Star, Heart, Hexagon, Pentagon,
   RectangleHorizontal, Scaling, ChevronsLeft, ChevronsRight, LayoutGrid,
   FileText, Table, ImageIcon as ImagePlaceholder, Presentation, CheckSquare,
-  Pencil, Link, StickyNote
+  Pencil, Link, StickyNote, Files
 } from 'lucide-react';
 import PageSettingsPanel from './PageSettingsPanel';
 import { 
@@ -2992,7 +2992,12 @@ const EbookCanvasEditor = ({
                       <div
                         className="flex flex-col items-center transition-all duration-200 ease-out"
                         onMouseEnter={() => !draggedPageId && setGridHoveredPageId(page.id)}
-                        onMouseLeave={() => {
+                        onMouseLeave={(e) => {
+                          // Don't close if moving to the popover content
+                          const relatedTarget = e.relatedTarget as HTMLElement;
+                          if (relatedTarget?.closest('[data-radix-popper-content-wrapper]')) {
+                            return;
+                          }
                           setGridHoveredPageId(null);
                           setGridMenuOpenId(null);
                         }}
@@ -3032,8 +3037,8 @@ const EbookCanvasEditor = ({
                             isSelected 
                               ? 'ring-2 ring-brand-green ring-offset-2' 
                               : isHovered && !draggedPageId
-                                ? 'ring-2 ring-gray-300' 
-                                : 'ring-1 ring-gray-200 hover:ring-gray-300'
+                                ? 'ring-2 ring-brand-green' 
+                                : 'ring-1 ring-gray-200 hover:ring-brand-green'
                           } ${isDragging ? 'ring-2 ring-brand-green shadow-lg' : ''}`}
                         >
                         {/* Page Content Preview */}
@@ -3086,128 +3091,81 @@ const EbookCanvasEditor = ({
                                 <MoreHorizontal className="w-4 h-4 text-white" />
                               </button>
                             </PopoverTrigger>
-                            <PopoverContent align="end" className="w-56 p-0">
-                              <div className="p-3 border-b border-gray-100">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-900">Add page title</span>
-                                  <Pencil className="w-3.5 h-3.5 text-gray-400" />
-                                </div>
-                                <span className="text-xs text-gray-500">{page.type.charAt(0).toUpperCase() + page.type.slice(1)}</span>
-                              </div>
-                              <div className="py-1">
-                                <button
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(JSON.stringify(page));
-                                    toast.success('Page copied');
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
-                                >
-                                  <span className="flex items-center gap-2">
-                                    <Copy className="w-4 h-4" />
-                                    Copy
-                                  </span>
-                                  <span className="text-xs text-gray-400">⌘C</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    toast.info('Paste coming soon');
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
-                                >
-                                  <span className="flex items-center gap-2">
-                                    <ClipboardPaste className="w-4 h-4" />
-                                    Paste
-                                  </span>
-                                  <span className="text-xs text-gray-400">⌘V</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    handleDuplicatePage(page.id);
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
-                                >
-                                  <span className="flex items-center gap-2">
-                                    <Copy className="w-4 h-4" />
-                                    Duplicate page
-                                  </span>
-                                  <span className="text-xs text-gray-400">⌘D</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    handleDeletePage(page.id);
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
-                                >
-                                  <span className="flex items-center gap-2">
-                                    <Trash2 className="w-4 h-4" />
-                                    Delete page
-                                  </span>
-                                  <span className="text-xs text-gray-400">DELETE</span>
-                                </button>
-                              </div>
-                              <div className="border-t border-gray-100 py-1">
-                                <button
-                                  onClick={() => {
-                                    toast.info('Hide page coming soon');
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                >
-                                  <EyeOff className="w-4 h-4" />
-                                  Hide page
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    handleAddPage(page.id);
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
-                                >
-                                  <span className="flex items-center gap-2">
-                                    <Plus className="w-4 h-4" />
-                                    Add page
-                                  </span>
-                                  <span className="text-xs text-gray-400">⌘↵</span>
-                                </button>
-                              </div>
-                              <div className="border-t border-gray-100 py-1">
-                                <button
-                                  onClick={() => {
-                                    toast.info('Download page coming soon');
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                >
-                                  <Download className="w-4 h-4" />
-                                  Download page
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    toast.info('Copy link coming soon');
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                >
-                                  <Link className="w-4 h-4" />
-                                  Copy link to this page
-                                </button>
-                              </div>
-                              <div className="border-t border-gray-100 py-1">
-                                <button
-                                  onClick={() => {
-                                    toast.info('Notes coming soon');
-                                    setGridMenuOpenId(null);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                >
-                                  <StickyNote className="w-4 h-4" />
-                                  Notes
-                                </button>
-                              </div>
+                            <PopoverContent 
+                              align="end" 
+                              className="w-48 p-1"
+                              onMouseLeave={() => {
+                                setGridMenuOpenId(null);
+                                setGridHoveredPageId(null);
+                              }}
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard.writeText(JSON.stringify(page));
+                                  toast.success('Page copied');
+                                  setGridMenuOpenId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-md flex items-center gap-3"
+                              >
+                                <Copy className="w-4 h-4" />
+                                Copy
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDuplicatePage(page.id);
+                                  setGridMenuOpenId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-md flex items-center gap-3"
+                              >
+                                <Files className="w-4 h-4" />
+                                Duplicate
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast.info('Hide page coming soon');
+                                  setGridMenuOpenId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-md flex items-center gap-3"
+                              >
+                                <EyeOff className="w-4 h-4" />
+                                Hide
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddPage(page.id);
+                                  setGridMenuOpenId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-md flex items-center gap-3"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Add Page
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast.info('Download page coming soon');
+                                  setGridMenuOpenId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-md flex items-center gap-3"
+                              >
+                                <Download className="w-4 h-4" />
+                                Download Page
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeletePage(page.id);
+                                  setGridMenuOpenId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-md flex items-center gap-3"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Delete
+                              </button>
                             </PopoverContent>
                           </Popover>
                         )}
