@@ -1393,18 +1393,20 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                       
                       {/* Recently Used Colors */}
                       {recentColors.length > 0 && (
-                        <div className="flex gap-1.5 items-center">
-                          <span className="text-xs text-gray-500 whitespace-nowrap">Recent:</span>
-                          {recentColors.slice(0, 6).map((color, idx) => (
-                            <button
-                              key={`recent-main-${idx}`}
-                              onClick={() => handleColorSelect(color)}
-                              className={`w-7 h-7 rounded-full border-2 transition-all ${
-                                backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
-                              }`}
-                              style={{ backgroundColor: color }}
-                            />
-                          ))}
+                        <div className="space-y-2">
+                          <span className="text-sm font-semibold text-gray-800">Recent</span>
+                          <div className="flex gap-1.5 flex-wrap">
+                            {recentColors.slice(0, 6).map((color, idx) => (
+                              <button
+                                key={`recent-main-${idx}`}
+                                onClick={() => handleColorSelect(color)}
+                                className={`w-7 h-7 rounded-full border-2 transition-all ${
+                                  backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                                style={{ backgroundColor: color }}
+                              />
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
