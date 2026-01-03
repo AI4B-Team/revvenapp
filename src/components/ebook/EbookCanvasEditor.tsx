@@ -3541,7 +3541,7 @@ const EbookCanvasEditor = ({
           )}
 
           {/* Page Navigator (Right Side) - Only visible when showPagesPanel is true and page settings closed */}
-          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${!showPagesPanel || rightPanelCollapsed || pageSettingsOpenId ? 'w-0 border-l-0' : 'w-64'}`}>
+          <div className={`relative isolate z-20 bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${!showPagesPanel || rightPanelCollapsed || pageSettingsOpenId ? 'w-0 border-l-0' : 'w-64'}`}>
             
             {!rightPanelCollapsed && (
               <>
@@ -3708,7 +3708,7 @@ const EbookCanvasEditor = ({
             </div>
             
                 {/* Static Footer Navigation */}
-                <div className="flex-shrink-0 border-t border-gray-200 bg-white p-2">
+                <div className="relative z-30 flex-shrink-0 border-t border-gray-200 bg-white p-2">
                   <div className="flex items-center justify-center gap-1">
                     {/* First Page */}
                     <Tooltip>
