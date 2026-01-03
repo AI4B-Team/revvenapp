@@ -2938,7 +2938,7 @@ const EbookCanvasEditor = ({
                     >
                       {/* Drop indicator line - shown when dragging over this position */}
                       <div
-                        className={`absolute -left-3 top-0 w-1 rounded-full bg-purple-500 transition-all duration-200 ease-out ${
+                        className={`absolute -left-3 top-0 w-1 rounded-full bg-brand-green transition-all duration-200 ease-out ${
                           isDropTarget ? 'opacity-100 h-full' : 'opacity-0 h-0'
                         }`}
                         style={{ zIndex: 50 }}
@@ -3030,11 +3030,11 @@ const EbookCanvasEditor = ({
                         }}
                         className={`relative w-44 aspect-[8.5/11] bg-white rounded-lg shadow-sm cursor-grab active:cursor-grabbing transition-all duration-200 ease-out overflow-hidden ${
                           isSelected 
-                            ? 'ring-2 ring-purple-500 ring-offset-2' 
+                            ? 'ring-2 ring-brand-green ring-offset-2' 
                             : isHovered && !draggedPageId
                               ? 'ring-2 ring-gray-300' 
                               : 'ring-1 ring-gray-200 hover:ring-gray-300'
-                        } ${isDragging ? 'ring-2 ring-purple-400 shadow-lg' : ''}`}
+                        } ${isDragging ? 'ring-2 ring-brand-green shadow-lg' : ''}`}
                       >
                         {/* Page Content Preview */}
                         <div className="absolute inset-0 overflow-hidden">
@@ -3257,7 +3257,7 @@ const EbookCanvasEditor = ({
             {/* Floating drag preview */}
             {draggedPageId && dragPosition && (
               <div
-                className="fixed pointer-events-none z-[100] w-44 aspect-[8.5/11] bg-white rounded-lg shadow-2xl ring-2 ring-purple-500 opacity-90"
+                className="fixed pointer-events-none z-[100] w-44 aspect-[8.5/11] bg-white rounded-lg shadow-2xl ring-2 ring-brand-green opacity-90"
                 style={{
                   left: dragPosition.x - 88,
                   top: dragPosition.y - 120,
