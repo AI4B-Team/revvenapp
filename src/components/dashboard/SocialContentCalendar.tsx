@@ -470,7 +470,13 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                     {content.slice(0, 2).map(item => renderContentCard(item))}
                     
                     {content.length > 2 && (
-                      <button className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2">
+                      <button 
+                        className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2"
+                        onClick={() => {
+                          // Show the first hidden post when clicking "+X more"
+                          handlePostClick(content[2]);
+                        }}
+                      >
                         +{content.length - 2} more
                       </button>
                     )}
