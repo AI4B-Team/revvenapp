@@ -11,6 +11,7 @@ interface InviteCode {
   is_used: boolean;
   used_at: string | null;
   used_by_email: string | null;
+  used_by_name: string | null;
   created_at: string;
 }
 
@@ -215,8 +216,15 @@ export default function InvitesTab() {
 
                     {/* Signed Up User */}
                     <td className="px-8 py-5">
-                      {invite.used_by_email ? (
-                        <span className="text-foreground font-medium">{invite.used_by_email}</span>
+                      {invite.is_used && (invite.used_by_name || invite.used_by_email) ? (
+                        <div>
+                          <span className="text-foreground font-medium block">
+                            {invite.used_by_name || 'Unknown'}
+                          </span>
+                          {invite.used_by_email && (
+                            <span className="text-sm text-muted-foreground">{invite.used_by_email}</span>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}

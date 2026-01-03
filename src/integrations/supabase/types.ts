@@ -343,6 +343,7 @@ export type Database = {
           is_used: boolean
           used_at: string | null
           used_by_email: string | null
+          used_by_name: string | null
           used_by_user_id: string | null
         }
         Insert: {
@@ -353,6 +354,7 @@ export type Database = {
           is_used?: boolean
           used_at?: string | null
           used_by_email?: string | null
+          used_by_name?: string | null
           used_by_user_id?: string | null
         }
         Update: {
@@ -363,6 +365,7 @@ export type Database = {
           is_used?: boolean
           used_at?: string | null
           used_by_email?: string | null
+          used_by_name?: string | null
           used_by_user_id?: string | null
         }
         Relationships: []
