@@ -183,12 +183,13 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     { id: 'grid' as ViewMode, icon: LayoutGrid, label: 'Grid' },
   ];
 
-  // Render calendar cell content uniformly
+  // Render calendar cell content uniformly with animation
   const renderContentCard = (item: ContentItem, compact: boolean = true) => (
     <div
       key={item.id}
       onClick={() => handlePostClick(item)}
-      className="group relative bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all"
+      className="group relative bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
+      style={{ animationFillMode: 'both' }}
     >
       <div className="flex items-center gap-2 text-xs">
         <span className="text-emerald-600 dark:text-emerald-400 font-medium">
@@ -586,14 +587,23 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       {viewMode === 'kanban' && renderKanbanView()}
       {viewMode === 'grid' && renderGridView()}
 
-      {/* Generation Status */}
+      {/* Generation Status with Live Counter */}
       {isGenerating && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-50">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-50 animate-in fade-in slide-in-from-bottom-4">
           <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           <div>
             <p className="font-medium">Generating content...</p>
-            <p className="text-sm opacity-70">Creating your social media calendar</p>
+            <p className="text-sm opacity-70">
+              {allContent.length > 0 
+                ? `${allContent.length} posts created` 
+                : 'Starting AI generation...'}
+            </p>
           </div>
+          {allContent.length > 0 && (
+            <div className="ml-2 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+              {allContent.length}
+            </div>
+          )}
         </div>
       )}
 
