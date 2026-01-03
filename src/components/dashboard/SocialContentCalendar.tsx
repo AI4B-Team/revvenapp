@@ -12,7 +12,9 @@ import {
   LayoutGrid,
   Sparkles,
   Clock,
-  Plus
+  Plus,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { getPlatformIcon } from './SocialIcons';
 import { Button } from '@/components/ui/button';
@@ -21,9 +23,21 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import PostDetailModal from './PostDetailModal';
 import { CalendarContentItem } from '@/data/sampleCalendarContent';
+import { useToast } from '@/hooks/use-toast';
 
 interface ContentItem {
   id: string;
@@ -42,6 +56,8 @@ interface ContentItem {
 interface SocialContentCalendarProps {
   generatedContent?: ContentItem[];
   isGenerating: boolean;
+  onDeletePost?: (postId: string) => void;
+  onDeleteAllPosts?: () => void;
 }
 
 type ViewMode = 'calendar' | 'list' | 'kanban' | 'grid';
@@ -49,18 +65,41 @@ type TimeRange = 'week' | 'month';
 
 const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({ 
   generatedContent = [],
-  isGenerating 
+  isGenerating,
+  onDeletePost,
+  onDeleteAllPosts,
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [timeRange, setTimeRange] = useState<TimeRange>('month');
   const [selectedPost, setSelectedPost] = useState<ContentItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Use only generated content (no mock data)
   const allContent = useMemo(() => {
     return [...generatedContent] as ContentItem[];
   }, [generatedContent]);
+
+  const handleDeletePost = (postId: string) => {
+    onDeletePost?.(postId);
+    toast({
+      title: "Post deleted",
+      description: "The post has been removed from your content plan.",
+    });
+    setPostToDelete(null);
+  };
+
+  const handleDeleteAllPosts = () => {
+    onDeleteAllPosts?.();
+    toast({
+      title: "All content deleted",
+      description: "Your content plan has been cleared.",
+    });
+    setIsDeleteAllDialogOpen(false);
+  };
 
   // Calendar helpers
   const getDaysInMonth = (date: Date) => {
@@ -168,7 +207,17 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             <DropdownMenuItem>Edit</DropdownMenuItem>
             <DropdownMenuItem>Reschedule</DropdownMenuItem>
             <DropdownMenuItem>Duplicate</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              className="text-destructive focus:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeletePost(item.id);
+              }}
+            >
+              <Trash2 className="w-3 h-3 mr-2" />
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -272,7 +321,17 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                     <DropdownMenuContent align="end" className="bg-popover border-border">
                       <DropdownMenuItem>Edit</DropdownMenuItem>
                       <DropdownMenuItem>Reschedule</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="text-destructive focus:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeletePost(item.id);
+                        }}
+                      >
+                        <Trash2 className="w-3 h-3 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -423,6 +482,17 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-3">
+            {allContent.length > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
+                onClick={() => setIsDeleteAllDialogOpen(true)}
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete All
+              </Button>
+            )}
             <Button variant="outline" size="sm" className="gap-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30">
               <Sparkles className="w-4 h-4" />
               Best Time To Post
@@ -533,6 +603,31 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         onClose={() => setIsModalOpen(false)}
         post={selectedPost}
       />
+
+      {/* Delete All Confirmation Dialog */}
+      <AlertDialog open={isDeleteAllDialogOpen} onOpenChange={setIsDeleteAllDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Delete All Content?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all {allContent.length} posts from your content plan. 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleDeleteAllPosts}
+            >
+              Delete All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
