@@ -577,6 +577,8 @@ const EbookCanvasEditor = ({
   const [selectedGridPages, setSelectedGridPages] = useState<Set<string>>(new Set());
   const [gridHoveredPageId, setGridHoveredPageId] = useState<string | null>(null);
   const [gridMenuOpenId, setGridMenuOpenId] = useState<string | null>(null);
+  const [gridInsertHoveredIndex, setGridInsertHoveredIndex] = useState<number | null>(null);
+  const [addPageHovered, setAddPageHovered] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Notify parent when grid view changes
@@ -2864,6 +2866,7 @@ const EbookCanvasEditor = ({
                 {currentPages.map((page, index) => {
                   const isSelected = selectedGridPages.has(page.id);
                   const isHovered = gridHoveredPageId === page.id;
+                  const isInsertHovered = gridInsertHoveredIndex === index;
                   const pageElements = getPageElements(page);
                   
                   // Get page type icon
@@ -2889,13 +2892,64 @@ const EbookCanvasEditor = ({
                   return (
                     <div
                       key={page.id}
-                      className="flex flex-col items-center"
-                      onMouseEnter={() => setGridHoveredPageId(page.id)}
-                      onMouseLeave={() => {
-                        setGridHoveredPageId(null);
-                        setGridMenuOpenId(null);
-                      }}
+                      className="flex items-start"
                     >
+                      {/* Insert Between Affordance - shows before each page */}
+                      <div
+                        className="relative flex items-center justify-center h-full"
+                        onMouseEnter={() => setGridInsertHoveredIndex(index)}
+                        onMouseLeave={() => setGridInsertHoveredIndex(null)}
+                      >
+                        <div
+                          className={`w-6 h-36 flex items-center justify-center transition-all duration-200 ${
+                            isInsertHovered ? 'w-10' : ''
+                          }`}
+                        >
+                          {isInsertHovered && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Insert before this page
+                                    if (index === 0) {
+                                      // Insert at beginning
+                                      const newPage = {
+                                        id: `page-${Date.now()}`,
+                                        title: 'New Page',
+                                        type: 'chapter-page' as const,
+                                      };
+                                      onPagesChange([newPage, ...currentPages]);
+                                    } else {
+                                      // Insert after the previous page
+                                      handleAddPage(currentPages[index - 1].id);
+                                    }
+                                    setGridInsertHoveredIndex(null);
+                                  }}
+                                  className="w-8 h-8 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center hover:border-purple-500 hover:bg-purple-50 transition-all shadow-sm"
+                                >
+                                  <Plus className="w-4 h-4 text-gray-500 hover:text-purple-600" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>Add Page</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Page Column */}
+                      <div
+                        className={`flex flex-col items-center transition-all duration-200 ${
+                          isInsertHovered ? 'ml-2' : ''
+                        } ${
+                          gridInsertHoveredIndex === index + 1 ? 'mr-2' : ''
+                        }`}
+                        onMouseEnter={() => setGridHoveredPageId(page.id)}
+                        onMouseLeave={() => {
+                          setGridHoveredPageId(null);
+                          setGridMenuOpenId(null);
+                        }}
+                      >
                       {/* Page Card */}
                       <div
                         onClick={(e) => {
@@ -3109,58 +3163,34 @@ const EbookCanvasEditor = ({
                         </span>
                       </div>
                     </div>
+                  </div>
                   );
                 })}
 
                 {/* Add Page Placeholder */}
-                <div className="flex flex-col items-center">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="w-44 aspect-[8.5/11] bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-250 transition-all flex flex-col items-center justify-center gap-2 group">
-                        <div className="flex items-center gap-3">
-                          <Plus className="w-6 h-6 text-gray-400 group-hover:text-gray-500" />
-                          <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-gray-500" />
-                        </div>
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" className="w-48 p-1">
-                      <div className="text-xs font-medium text-gray-500 px-2 py-1">Add page type</div>
-                      <button
+                <div 
+                  className="flex flex-col items-center"
+                  onMouseEnter={() => setAddPageHovered(true)}
+                  onMouseLeave={() => setAddPageHovered(false)}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
                         onClick={() => {
                           const lastPage = currentPages[currentPages.length - 1];
                           if (lastPage) handleAddPage(lastPage.id);
                         }}
-                        className="w-full px-2 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center gap-2"
+                        className="w-44 aspect-[8.5/11] bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-400 hover:bg-gray-100 transition-all flex items-center justify-center group"
                       >
-                        <FileText className="w-4 h-4" />
-                        Blank page
+                        <Plus className="w-8 h-8 text-gray-400 group-hover:text-purple-500 transition-colors" />
                       </button>
-                      <button
-                        onClick={() => {
-                          const lastPage = currentPages[currentPages.length - 1];
-                          if (lastPage) handleAddPage(lastPage.id);
-                        }}
-                        className="w-full px-2 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center gap-2"
-                      >
-                        <Presentation className="w-4 h-4" />
-                        Chapter page
-                      </button>
-                      <button
-                        onClick={() => {
-                          const lastPage = currentPages[currentPages.length - 1];
-                          if (lastPage) handleAddPage(lastPage.id);
-                        }}
-                        className="w-full px-2 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center gap-2"
-                      >
-                        <Table className="w-4 h-4" />
-                        Table page
-                      </button>
-                    </PopoverContent>
-                  </Popover>
+                    </TooltipTrigger>
+                    <TooltipContent>Add Page</TooltipContent>
+                  </Tooltip>
                   
-                  {/* Placeholder text */}
-                  <div className="mt-2 px-3 py-1 bg-gray-800 text-white text-xs font-medium rounded-md">
-                    Add page
+                  {/* Placeholder text - only shows on hover */}
+                  <div className={`mt-2 px-3 py-1 bg-gray-800 text-white text-xs font-medium rounded-md transition-opacity duration-200 ${addPageHovered ? 'opacity-100' : 'opacity-0'}`}>
+                    Add Page
                   </div>
                 </div>
               </div>
