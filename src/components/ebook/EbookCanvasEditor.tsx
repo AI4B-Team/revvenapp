@@ -3061,7 +3061,7 @@ const EbookCanvasEditor = ({
             {!rightPanelCollapsed && (
               <>
                 <div className="p-2 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-                  <span className="text-xs font-medium text-gray-600">Pages</span>
+                  <span className="font-semibold text-base text-gray-900">Pages</span>
                   <button 
                     onClick={() => {
                       // Add page after the last page
