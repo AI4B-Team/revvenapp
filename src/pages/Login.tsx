@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,15 +6,20 @@ import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Session } from '@supabase/supabase-js';
+import { Camera, User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -78,6 +83,18 @@ export default function LoginPage() {
     }
   };
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvatarPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -121,7 +138,7 @@ export default function LoginPage() {
     }
 
     // Proceed with signup
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -141,6 +158,35 @@ export default function LoginPage() {
         variant: "destructive",
       });
       return;
+    }
+
+    // Upload avatar if provided
+    let avatarUrl = '';
+    if (avatarFile && authData.user) {
+      const fileExt = avatarFile.name.split('.').pop();
+      const fileName = `${authData.user.id}/avatar.${fileExt}`;
+      
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, avatarFile, { upsert: true });
+
+      if (!uploadError && uploadData) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+        avatarUrl = publicUrl;
+
+        // Update user metadata with avatar URL
+        await supabase.auth.updateUser({
+          data: { avatar_url: avatarUrl }
+        });
+
+        // Update profile with avatar URL
+        await supabase
+          .from('profiles')
+          .update({ avatar_url: avatarUrl })
+          .eq('id', authData.user.id);
+      }
     }
 
     // Mark the invite code as used and store the new user's info
@@ -300,6 +346,34 @@ export default function LoginPage() {
 
           {/* Login/Signup Form */}
           <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
+            {/* Profile Picture - Only for Sign Up */}
+            {isSignUp && (
+              <div className="flex flex-col items-center mb-2">
+                <div 
+                  className="relative cursor-pointer group"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Avatar className="w-20 h-20 border-2 border-gray-300 group-hover:border-green-500 transition-colors">
+                    <AvatarImage src={avatarPreview} alt="Profile" />
+                    <AvatarFallback className="bg-gray-100">
+                      <User className="w-10 h-10 text-gray-400" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute bottom-0 right-0 bg-green-600 rounded-full p-1.5 border-2 border-white">
+                    <Camera className="w-3 h-3 text-white" />
+                  </div>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+                <p className="text-xs text-gray-500 mt-2">Add profile picture (optional)</p>
+              </div>
+            )}
+
             {/* Full Name Input - Only for Sign Up */}
             {isSignUp && (
               <div>
