@@ -205,15 +205,17 @@ export default function SignupPage() {
       
       console.log('Verifying OTP:', { email, code });
       
-      // Mark invite code as used and store the email of the person who signed up
+      // Mark invite code as used and store the name and email of the person who signed up
       const pendingInviteCode = localStorage.getItem('pendingInviteCode');
       if (pendingInviteCode) {
+        const fullName = `${firstName} ${lastName}`.trim();
         await supabase
           .from('invite_codes')
           .update({ 
             is_used: true, 
             used_at: new Date().toISOString(),
-            used_by_email: email
+            used_by_email: email,
+            used_by_name: fullName
           })
           .eq('code', pendingInviteCode);
         

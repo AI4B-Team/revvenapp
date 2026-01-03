@@ -59,9 +59,56 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   const [languageSearch, setLanguageSearch] = React.useState('');
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isRewardsModalOpen, setIsRewardsModalOpen] = React.useState(false);
+  const [userName, setUserName] = React.useState('');
+  const [userEmail, setUserEmail] = React.useState('');
+  const [userAvatar, setUserAvatar] = React.useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+
+  // Fetch user data on mount
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email || '');
+        // Try to get name from user metadata or profile
+        const fullName = user.user_metadata?.full_name || 
+                        user.user_metadata?.name ||
+                        user.email?.split('@')[0] || '';
+        setUserName(fullName);
+        setUserAvatar(user.user_metadata?.avatar_url || '');
+        
+        // Also check profiles table for more data
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          if (profile.full_name) setUserName(profile.full_name);
+          if (profile.avatar_url) setUserAvatar(profile.avatar_url);
+        }
+      }
+    };
+    
+    fetchUserData();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserEmail(session.user.email || '');
+        const fullName = session.user.user_metadata?.full_name || 
+                        session.user.user_metadata?.name ||
+                        session.user.email?.split('@')[0] || '';
+        setUserName(fullName);
+        setUserAvatar(session.user.user_metadata?.avatar_url || '');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Helper function to check if a top menu item should be active
   const isMenuActive = (menuType: 'create' | 'monetize' | 'automate') => {
@@ -262,9 +309,9 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             <div className="flex items-start gap-2 mb-3">
               <div className="relative">
                 <Avatar className="h-10 w-10 ring-2 ring-emerald-500">
-                  <AvatarImage src="" />
+                  <AvatarImage src={userAvatar} />
                   <AvatarFallback className="bg-secondary">
-                    <User size={18} />
+                    {userName ? userName.charAt(0).toUpperCase() : <User size={18} />}
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute -top-1 -right-1 bg-brand-yellow rounded-full p-0.5">
@@ -272,8 +319,8 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-base font-semibold text-white truncate">dolmarcross</h3>
-                <p className="text-xs text-gray-400 truncate">dolmarcross@gmail.com</p>
+                <h3 className="text-base font-semibold text-white truncate">{userName || 'User'}</h3>
+                <p className="text-xs text-gray-400 truncate">{userEmail || 'No email'}</p>
               </div>
             </div>
 
