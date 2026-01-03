@@ -826,31 +826,77 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                 {/* Divider */}
                                 <div className="border-t border-gray-200 my-3" />
                                 
-                                {/* Color Gradient Picker */}
-                                <div className="relative h-40 rounded-lg overflow-hidden mb-3">
-                                  <div 
-                                    className="absolute inset-0"
-                                    style={{
-                                      background: `linear-gradient(to right, #fff, ${backgroundColor !== 'transparent' ? backgroundColor : '#2563eb'}), linear-gradient(to bottom, transparent, #000)`,
-                                      backgroundBlendMode: 'multiply'
-                                    }}
-                                  />
-                                  <div className="absolute right-2 top-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md" />
-                                  {/* Hue slider on right */}
-                                  <div className="absolute right-0 top-0 bottom-0 w-6 flex flex-col items-center justify-center">
+                                {/* Color Gradient Picker with Sliders */}
+                                <div className="flex gap-2 mb-3">
+                                  {/* Saturation/Brightness Picker */}
+                                  <div className="relative flex-1 h-32 rounded-lg overflow-hidden cursor-crosshair">
+                                    {/* Base color layer */}
                                     <div 
-                                      className="w-4 h-full rounded-full"
+                                      className="absolute inset-0"
                                       style={{
-                                        background: 'linear-gradient(to bottom, #ff0000, #ff00ff, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000)'
+                                        background: `linear-gradient(to right, #fff, ${backgroundColor !== 'transparent' ? backgroundColor : '#ef4444'})`
+                                      }}
+                                    />
+                                    {/* Black gradient overlay */}
+                                    <div 
+                                      className="absolute inset-0"
+                                      style={{
+                                        background: 'linear-gradient(to bottom, transparent, #000)'
+                                      }}
+                                    />
+                                    {/* Selection circle */}
+                                    <div 
+                                      className="absolute w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none"
+                                      style={{ 
+                                        top: '15%', 
+                                        right: '10%',
+                                        transform: 'translate(50%, -50%)'
                                       }}
                                     />
                                   </div>
-                                  {/* Lightness slider on far right */}
-                                  <div className="absolute right-8 top-0 bottom-0 w-4 flex flex-col items-center justify-center">
+                                  
+                                  {/* Hue Slider */}
+                                  <div className="relative w-5 h-32 rounded-full overflow-hidden cursor-pointer">
                                     <div 
-                                      className="w-3 h-full rounded-full border border-gray-200"
+                                      className="absolute inset-0"
                                       style={{
-                                        background: 'linear-gradient(to bottom, #fff, #000)'
+                                        background: 'linear-gradient(to bottom, #ff0000, #ff8000, #ffff00, #80ff00, #00ff00, #00ff80, #00ffff, #0080ff, #0000ff, #8000ff, #ff00ff, #ff0080, #ff0000)'
+                                      }}
+                                    />
+                                    {/* Hue selector */}
+                                    <div 
+                                      className="absolute left-1/2 w-5 h-3 border-2 border-white rounded-sm shadow-md pointer-events-none"
+                                      style={{ 
+                                        top: '60%',
+                                        transform: 'translate(-50%, -50%)'
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  {/* Alpha/Opacity Slider */}
+                                  <div className="relative w-5 h-32 rounded-full overflow-hidden cursor-pointer">
+                                    {/* Checkered background for transparency */}
+                                    <div 
+                                      className="absolute inset-0"
+                                      style={{
+                                        backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                                        backgroundSize: '6px 6px',
+                                        backgroundPosition: '0 0, 0 3px, 3px -3px, -3px 0px'
+                                      }}
+                                    />
+                                    {/* Color to transparent gradient */}
+                                    <div 
+                                      className="absolute inset-0"
+                                      style={{
+                                        background: `linear-gradient(to bottom, ${backgroundColor !== 'transparent' ? backgroundColor : '#ef4444'}, transparent)`
+                                      }}
+                                    />
+                                    {/* Alpha selector */}
+                                    <div 
+                                      className="absolute left-1/2 w-5 h-3 border-2 border-white rounded-sm shadow-md pointer-events-none"
+                                      style={{ 
+                                        top: '5%',
+                                        transform: 'translate(-50%, -50%)'
                                       }}
                                     />
                                   </div>
@@ -862,7 +908,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                     <Pipette className="w-4 h-4 text-gray-600" />
                                   </button>
                                   <Select defaultValue="hex">
-                                    <SelectTrigger className="w-20 h-8 text-xs">
+                                    <SelectTrigger className="w-20 h-8 text-xs bg-gray-100 border-0">
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -880,9 +926,11 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                         setBackgroundColor(e.target.value);
                                       }
                                     }}
-                                    className="flex-1 h-8 text-xs"
+                                    className="flex-1 h-8 text-xs bg-gray-100 border-0"
                                   />
-                                  <span className="text-sm text-gray-600">{bgOpacity}%</span>
+                                  <div className="px-3 py-1.5 bg-gray-100 rounded text-sm text-gray-600">
+                                    {bgOpacity}%
+                                  </div>
                                 </div>
                               </>
                             )}
