@@ -1217,6 +1217,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       
       // Generate 30-day content plan using AI
       setIsGeneratingContent(true);
+      setGeneratedContent([]); // Clear existing content
+      setShowSocialButtons(false); // Hide platform selection immediately
+      
       toast({
         title: "Generating AI content plan",
         description: `Creating 30 days of AI-powered content for ${selectedPlatforms.length} platform${selectedPlatforms.length > 1 ? 's' : ''}...`,
@@ -1239,17 +1242,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         }
 
         // Transform dates from ISO strings to Date objects
-        const newContent = data.posts.map((post: any) => ({
+        const allPosts = data.posts.map((post: any) => ({
           ...post,
           date: new Date(post.date),
         }));
         
-        setGeneratedContent(newContent);
-        setShowSocialButtons(false); // Hide platform selection after generation
+        // Add posts one by one with animation effect
+        for (let i = 0; i < allPosts.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay between posts
+          setGeneratedContent(prev => [...prev, allPosts[i]]);
+        }
         
         toast({
           title: "Content plan generated!",
-          description: `Created ${newContent.length} AI-powered posts for the next 30 days`,
+          description: `Created ${allPosts.length} AI-powered posts for the next 30 days`,
         });
       } catch (error: any) {
         console.error('Error generating content:', error);
@@ -1258,6 +1264,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           description: error.message || "Failed to generate content plan. Please try again.",
           variant: "destructive",
         });
+        setShowSocialButtons(true); // Show platform selection again on error
       } finally {
         setIsGeneratingContent(false);
       }
