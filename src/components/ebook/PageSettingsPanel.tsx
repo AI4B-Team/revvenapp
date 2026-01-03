@@ -60,19 +60,43 @@ const PATTERNS = [
   { id: 'none', name: 'None' },
   { id: 'waves', name: 'Waves' },
   { id: 'waves-soft', name: 'Soft Waves' },
+  { id: 'waves-zigzag', name: 'Zigzag Waves' },
   { id: 'diagonal-waves', name: 'Diagonal Waves' },
   { id: 'scallops', name: 'Scallops' },
   { id: 'scallops-soft', name: 'Soft Scallops' },
-  { id: 'lines', name: 'Lines' },
+  { id: 'scallops-overlap', name: 'Overlapping Scallops' },
+  { id: 'lines', name: 'Horizontal Lines' },
+  { id: 'lines-vertical', name: 'Vertical Lines' },
   { id: 'grid', name: 'Grid' },
+  { id: 'grid-thick', name: 'Thick Grid' },
   { id: 'bricks', name: 'Bricks' },
+  { id: 'bricks-offset', name: 'Offset Bricks' },
   { id: 'chevron', name: 'Chevron' },
+  { id: 'herringbone', name: 'Herringbone' },
   { id: 'geometric-star', name: 'Geometric Star' },
+  { id: 'star-pattern', name: 'Star Pattern' },
   { id: 'plus-grid', name: 'Plus Grid' },
+  { id: 'cross-hatch', name: 'Cross Hatch' },
   { id: 'dots', name: 'Dots' },
+  { id: 'dots-large', name: 'Large Dots' },
   { id: 'circles', name: 'Circles' },
+  { id: 'circles-concentric', name: 'Concentric Circles' },
+  { id: 'rings', name: 'Rings' },
   { id: 'diamonds', name: 'Diamonds' },
+  { id: 'diamond-grid', name: 'Diamond Grid' },
   { id: 'hexagons', name: 'Hexagons' },
+  { id: 'hexagons-filled', name: 'Filled Hexagons' },
+  { id: 'triangles', name: 'Triangles' },
+  { id: 'triangles-mosaic', name: 'Triangle Mosaic' },
+  { id: 'geometric-lines', name: 'Geometric Lines' },
+  { id: 'art-deco', name: 'Art Deco' },
+  { id: 'puzzle', name: 'Puzzle Pieces' },
+  { id: 'moroccan', name: 'Moroccan' },
+  { id: 'quatrefoil', name: 'Quatrefoil' },
+  { id: 'ogee', name: 'Ogee' },
+  { id: 'lattice', name: 'Lattice' },
+  { id: 'diagonal-stripes', name: 'Diagonal Stripes' },
+  { id: 'weave', name: 'Weave' },
 ];
 
 const GRADIENTS = [
@@ -513,28 +537,178 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   };
 
   const renderPatternPreview = (patternId: string) => {
-    const patternStyles: Record<string, string> = {
-      'none': 'bg-white border border-gray-300 relative overflow-hidden',
-      'waves': 'bg-white',
-      'lines': 'bg-white',
-      'grid': 'bg-white',
-      'dots': 'bg-white',
+    const getPatternStyle = (id: string): { backgroundImage: string; backgroundSize: string } => {
+      const stroke = '%23d1d5db';
+      const patterns: Record<string, { backgroundImage: string; backgroundSize: string }> = {
+        'none': { backgroundImage: 'none', backgroundSize: 'auto' },
+        'waves': { 
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q10 0 20 10 T40 10' fill='none' stroke='${stroke}' stroke-width='1.5'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 20px'
+        },
+        'waves-soft': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='20' viewBox='0 0 60 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q15 2 30 10 T60 10' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '60px 20px'
+        },
+        'waves-zigzag': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='12' viewBox='0 0 40 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 6 L10 2 L20 6 L30 2 L40 6' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 12px'
+        },
+        'diagonal-waves': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 Q10 30 20 40 M0 30 Q10 20 20 30 T40 30 M0 20 Q10 10 20 20 T40 20 M0 10 Q10 0 20 10 T40 10' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'scallops': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q10 0 20 20 Q30 0 40 20' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 20px'
+        },
+        'scallops-soft': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='30' viewBox='0 0 60 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30 Q15 5 30 30 Q45 5 60 30' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '60px 30px'
+        },
+        'scallops-overlap': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='0' cy='20' r='18' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='40' cy='20' r='18' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='20' cy='40' r='18' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'lines': {
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, #e5e7eb 3px, #e5e7eb 4px)',
+          backgroundSize: '100% 8px'
+        },
+        'lines-vertical': {
+          backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 3px, #e5e7eb 3px, #e5e7eb 4px)',
+          backgroundSize: '8px 100%'
+        },
+        'grid': {
+          backgroundImage: 'linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)',
+          backgroundSize: '8px 8px'
+        },
+        'grid-thick': {
+          backgroundImage: 'linear-gradient(#d1d5db 2px, transparent 2px), linear-gradient(90deg, #d1d5db 2px, transparent 2px)',
+          backgroundSize: '12px 12px'
+        },
+        'bricks': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='40' height='10' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Crect x='20' y='10' width='40' height='10' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 20px'
+        },
+        'bricks-offset': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='30' viewBox='0 0 60 30' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='30' height='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Crect x='30' y='0' width='30' height='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Crect x='15' y='15' width='30' height='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Crect x='-15' y='15' width='30' height='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Crect x='45' y='15' width='30' height='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '60px 30px'
+        },
+        'chevron': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='24' viewBox='0 0 40 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 12 L20 0 L40 12 M0 24 L20 12 L40 24' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 24px'
+        },
+        'herringbone': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 L20 0 M20 0 L40 20 M0 40 L20 20 M20 20 L40 40 M20 40 L40 20 M0 20 L20 40' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'geometric-star': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20 Z M10 10 L30 10 L30 30 L10 30 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'star-pattern': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='20,0 25,15 40,15 28,24 33,40 20,30 7,40 12,24 0,15 15,15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'plus-grid': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 5 L15 25 M5 15 L25 15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '30px 30px'
+        },
+        'cross-hatch': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L20 20 M20 0 L0 20' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '20px 20px'
+        },
+        'dots': {
+          backgroundImage: 'radial-gradient(circle, #d1d5db 2px, transparent 2px)',
+          backgroundSize: '12px 12px'
+        },
+        'dots-large': {
+          backgroundImage: 'radial-gradient(circle, #d1d5db 4px, transparent 4px)',
+          backgroundSize: '20px 20px'
+        },
+        'circles': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='15' r='8' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '30px 30px'
+        },
+        'circles-concentric': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='18' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='20' cy='20' r='12' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='20' cy='20' r='6' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'rings': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='0' cy='0' r='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='40' cy='0' r='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='0' cy='40' r='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='40' cy='40' r='15' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'diamonds': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 0 L30 15 L15 30 L0 15 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '30px 30px'
+        },
+        'diamond-grid': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 L20 0 L40 20 L20 40 Z M20 20 L30 10 M20 20 L10 10 M20 20 L30 30 M20 20 L10 30' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'hexagons': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='50' viewBox='0 0 56 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 0 L42 0 L56 25 L42 50 L14 50 L0 25 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '56px 50px'
+        },
+        'hexagons-filled': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='28' height='50' viewBox='0 0 28 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 0 L28 12 L28 38 L14 50 L0 38 L0 12 Z' fill='%23f3f4f6' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '28px 50px'
+        },
+        'triangles': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='35' viewBox='0 0 40 35' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 35 L20 0 L40 35 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 35px'
+        },
+        'triangles-mosaic': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L20 20 L0 40 M0 0 L40 0 L20 20 M40 0 L40 40 L20 20 M0 40 L40 40 L20 20' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'geometric-lines': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L40 40 M40 0 L0 40 M20 0 L20 40 M0 20 L40 20' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'art-deco': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Cpath d='M30 10 L50 30 L30 50 L10 30 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Cpath d='M30 20 L40 30 L30 40 L20 30 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '60px 60px'
+        },
+        'puzzle': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 L15 20 Q15 10 25 10 Q35 10 35 20 L60 20 L60 40 Q50 40 50 50 Q50 60 60 60 L0 60 L0 40 Q10 40 10 30 Q10 20 0 20 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '60px 60px'
+        },
+        'moroccan': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25 0 Q50 25 25 50 Q0 25 25 0 M0 25 Q25 0 50 25 Q25 50 0 25' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '50px 50px'
+        },
+        'quatrefoil': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='10' r='8' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='20' cy='30' r='8' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='10' cy='20' r='8' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3Ccircle cx='30' cy='20' r='8' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'ogee': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='80' viewBox='0 0 40 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 Q20 20 40 0 M0 40 Q20 20 40 40 Q20 60 0 40 M0 80 Q20 60 40 80' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 80px'
+        },
+        'lattice': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q10 10 20 20 Q30 30 40 20 M0 20 Q10 30 20 20 Q30 10 40 20' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+        'diagonal-stripes': {
+          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 5px, #e5e7eb 5px, #e5e7eb 6px)',
+          backgroundSize: '15px 15px'
+        },
+        'weave': {
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L10 0 L10 10 L0 10 Z M20 0 L30 0 L30 10 L20 10 Z M10 10 L20 10 L20 20 L10 20 Z M30 10 L40 10 L40 20 L30 20 Z M0 20 L10 20 L10 30 L0 30 Z M20 20 L30 20 L30 30 L20 30 Z M10 30 L20 30 L20 40 L10 40 Z M30 30 L40 30 L40 40 L30 40 Z' fill='none' stroke='${stroke}' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        },
+      };
+      return patterns[id] || { backgroundImage: 'none', backgroundSize: 'auto' };
     };
+
+    const patternStyle = getPatternStyle(patternId);
 
     return (
       <div
-        className={`w-full h-full rounded border ${selectedPattern === patternId ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'} ${patternStyles[patternId] || 'bg-gray-50'}`}
+        className={`w-full h-full rounded border bg-white ${selectedPattern === patternId ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'} ${patternId === 'none' ? 'relative overflow-hidden' : ''}`}
         style={{
-          backgroundImage: patternId === 'lines' ? 'repeating-linear-gradient(0deg, transparent, transparent 3px, #e5e7eb 3px, #e5e7eb 4px)' :
-                          patternId === 'grid' ? 'linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)' :
-                          patternId === 'dots' ? 'radial-gradient(circle, #d1d5db 1px, transparent 1px)' :
-                          patternId === 'waves' ? 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'20\' viewBox=\'0 0 40 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 10 Q10 0 20 10 T40 10\' fill=\'none\' stroke=\'%23d1d5db\' stroke-width=\'1\'/%3E%3C/svg%3E")' :
-                          'none',
-          backgroundSize: patternId === 'lines' ? '100% 8px' :
-                          patternId === 'grid' ? '8px 8px' :
-                          patternId === 'dots' ? '6px 6px' :
-                          patternId === 'waves' ? '40px 20px' :
-                          'auto',
+          backgroundImage: patternStyle.backgroundImage,
+          backgroundSize: patternStyle.backgroundSize,
         }}
       >
         {patternId === 'none' && (
