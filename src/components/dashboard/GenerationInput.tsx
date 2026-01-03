@@ -7265,6 +7265,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           <SocialContentCalendar 
             generatedContent={generatedContent}
             isGenerating={isGeneratingContent}
+            onDeletePost={(postId) => {
+              setGeneratedContent(prev => prev.filter(post => post.id !== postId));
+            }}
+            onDeleteAllPosts={() => {
+              setGeneratedContent([]);
+              setShowSocialButtons(true); // Show platform selection again
+            }}
           />
         </div>
       )}
