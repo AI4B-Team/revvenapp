@@ -73,12 +73,32 @@ async function generateContentInBackground(
     const batchSize = 5;
     let postIndex = 0;
     let totalPostsGenerated = 0;
+    const postsPerDay: Record<number, boolean> = {}; // Track which days have posts
     
     for (let startDay = 0; startDay < days; startDay += batchSize) {
       const endDay = Math.min(startDay + batchSize, days);
+      const batchDays = endDay - startDay;
       const platformNames = platforms.join(', ');
+      const platformCount = platforms.length;
+      
+      // Calculate exact posts needed for this batch
+      const postsNeeded = batchDays * platformCount;
+      
+      // Build explicit day requirements
+      const dayRequirements = [];
+      for (let d = startDay + 1; d <= endDay; d++) {
+        dayRequirements.push(`Day ${d}: 1 post for EACH of these platforms: ${platformNames}`);
+      }
       
       const systemPrompt = `You are a social media content strategist. Generate a content calendar for days ${startDay + 1} to ${endDay}.
+
+MANDATORY REQUIREMENTS:
+- You MUST generate EXACTLY ${postsNeeded} posts total
+- You MUST generate EXACTLY 1 post per platform per day
+- Every single day from ${startDay + 1} to ${endDay} MUST have posts for ALL platforms
+
+Required posts breakdown:
+${dayRequirements.join('\n')}
 
 For each post, provide:
 - A catchy title (max 60 chars)
@@ -86,51 +106,35 @@ For each post, provide:
 - 4-6 relevant hashtags (without #)
 - Post type: post, carousel, reel, or story
 
-IMPORTANT PLATFORM-SPECIFIC RULES:
+PLATFORM-SPECIFIC RULES:
 - For TikTok: ALWAYS use type "reel" with videoScript
 - For YouTube/YouTube Shorts: ALWAYS use type "reel" with videoScript
 - For Instagram: Mix between "post", "carousel", "story", and "reel" (at least 30% should be "reel" type)
 - For Facebook: Mix between "post" and "reel" (at least 25% should be "reel" type)
 - For other platforms: Use appropriate mix of types
 
-CRITICAL: For ALL "reel" type posts (video content), you MUST include a "videoScript" field with a full video script including timestamps. The script should be structured like this:
+CRITICAL: For ALL "reel" type posts, you MUST include a "videoScript" field:
 {
   "videoScript": {
     "duration": "30s",
     "scenes": [
-      { "timestamp": "0:00-0:03", "visual": "Hook shot - attention grabber", "audio": "Wait, you need to see this...", "text_overlay": "🤯 WATCH THIS" },
-      { "timestamp": "0:03-0:10", "visual": "Main content reveal", "audio": "Here's what happened...", "text_overlay": null },
-      { "timestamp": "0:10-0:25", "visual": "Demonstration or story", "audio": "Detailed explanation...", "text_overlay": "Key point here" },
-      { "timestamp": "0:25-0:30", "visual": "Call to action", "audio": "Follow for more!", "text_overlay": "👆 FOLLOW" }
+      { "timestamp": "0:00-0:03", "visual": "Hook shot", "audio": "Hook text...", "text_overlay": "🤯 WATCH" },
+      { "timestamp": "0:03-0:10", "visual": "Main content", "audio": "Main text...", "text_overlay": null },
+      { "timestamp": "0:10-0:25", "visual": "Details", "audio": "Details...", "text_overlay": "Key point" },
+      { "timestamp": "0:25-0:30", "visual": "CTA", "audio": "Follow!", "text_overlay": "👆 FOLLOW" }
     ]
   }
 }
 
-Return ONLY valid JSON array with this structure:
-[
-  {
-    "day": ${startDay + 1},
-    "platform": "instagram",
-    "title": "...",
-    "caption": "...",
-    "hashtags": ["tag1", "tag2"],
-    "type": "reel",
-    "videoScript": {
-      "duration": "30s",
-      "scenes": [...]
-    }
-  }
-]
+Return ONLY a valid JSON array. VERIFY you have exactly ${postsNeeded} posts covering all ${batchDays} days and all ${platformCount} platforms.`;
 
-Generate 1-2 posts per platform per day. Make sure to include REELS for Instagram, Facebook, TikTok, and YouTube. Make content specific to each platform's style.`;
-
-      const userPrompt = `Create content for days ${startDay + 1} to ${endDay} for these platforms: ${platformNames}
-
+      const userPrompt = `Create EXACTLY ${postsNeeded} posts for days ${startDay + 1} to ${endDay}.
+Platforms: ${platformNames}
 Theme/Topic: ${prompt}
 
-Generate engaging, platform-specific content. Each post should be unique and valuable.`;
+IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day or platform.`;
 
-      console.log(`Generating batch: days ${startDay + 1} to ${endDay} for job ${jobId}...`);
+      console.log(`Generating batch: days ${startDay + 1} to ${endDay}, expecting ${postsNeeded} posts for job ${jobId}...`);
       
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -178,9 +182,45 @@ Generate engaging, platform-specific content. Each post should be unique and val
         continue;
       }
 
+      // Validate and fill missing day/platform combinations
+      const generatedCombos = new Set(posts.map((p: any) => `${p.day}-${p.platform.toLowerCase()}`));
+      const missingPosts: any[] = [];
+      
+      for (let d = startDay + 1; d <= endDay; d++) {
+        for (const platform of platforms) {
+          const key = `${d}-${platform.toLowerCase()}`;
+          if (!generatedCombos.has(key)) {
+            console.log(`Missing post for day ${d}, platform ${platform} - generating fallback`);
+            missingPosts.push({
+              day: d,
+              platform: platform.toLowerCase(),
+              title: `${prompt.slice(0, 40)} - Day ${d}`,
+              caption: `Check out today's content! ${prompt.slice(0, 100)}... 🔥`,
+              hashtags: ['content', 'daily', platform.toLowerCase()],
+              type: ['tiktok', 'youtube'].includes(platform.toLowerCase()) ? 'reel' : 'post',
+              videoScript: ['tiktok', 'youtube'].includes(platform.toLowerCase()) ? {
+                duration: '30s',
+                scenes: [
+                  { timestamp: '0:00-0:05', visual: 'Hook shot', audio: 'Hey! Check this out...', text_overlay: '👀 Watch!' },
+                  { timestamp: '0:05-0:25', visual: 'Main content', audio: prompt.slice(0, 100), text_overlay: null },
+                  { timestamp: '0:25-0:30', visual: 'CTA', audio: 'Follow for more!', text_overlay: '👆 Follow!' }
+                ]
+              } : null
+            });
+          }
+        }
+      }
+      
+      // Add missing posts to the array
+      posts = [...posts, ...missingPosts];
+      console.log(`Batch has ${posts.length} posts after filling gaps (${missingPosts.length} fallbacks added)`);
+
       // Transform and save each post
       const today = new Date();
       for (const post of posts) {
+        // Track this day as having posts
+        postsPerDay[post.day] = true;
+        
         const postDate = new Date(today);
         postDate.setDate(today.getDate() + (post.day - 1));
         
