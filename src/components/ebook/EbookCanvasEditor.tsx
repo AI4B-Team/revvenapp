@@ -1554,112 +1554,7 @@ const EbookCanvasEditor = ({
       <div className="bg-white rounded-lg shadow-lg border border-gray-200 flex items-center gap-1 px-2 py-1.5 whitespace-nowrap">
         {currentElement.type === 'image' && (
           <>
-            <button 
-              onClick={() => toast.info('Replace image')}
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 rounded flex items-center gap-2"
-            >
-              Replace
-            </button>
-            
-            <div className="w-px h-6 bg-gray-200 mx-1" />
-            
-            {/* Fill Color */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="p-1 rounded hover:bg-gray-100">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div 
-                        className="w-5 h-5 rounded border border-gray-300"
-                        style={{ backgroundColor: currentElement.fill || '#dc2525' }}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>Color Fill</p></TooltipContent>
-                  </Tooltip>
-                </button>
-              </PopoverTrigger>
-              <ColorPickerPopover 
-                label="Fill Color" 
-                value={currentElement.fill || '#dc2525'} 
-                onChange={(color) => updateElement(currentElement.id, { fill: color })}
-              />
-            </Popover>
-            
-            {/* Border Color */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="p-1 rounded hover:bg-gray-100">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div 
-                        className="w-5 h-5 rounded border-2"
-                        style={{ borderColor: currentElement.stroke || '#dc2525', backgroundColor: 'transparent' }}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>Border Color</p></TooltipContent>
-                  </Tooltip>
-                </button>
-              </PopoverTrigger>
-              <ColorPickerPopover 
-                label="Border Color" 
-                value={currentElement.stroke || '#dc2525'} 
-                onChange={(color) => updateElement(currentElement.id, { stroke: color })}
-                isBorder
-              />
-            </Popover>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
-                  <Droplet className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom"><p>Transparency</p></TooltipContent>
-            </Tooltip>
-            
-            <div className="w-px h-6 bg-gray-200 mx-1" />
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
-                  <Crop className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom"><p>Crop</p></TooltipContent>
-            </Tooltip>
-            
-            {/* Border Style */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <AlignJustify className="w-4 h-4" />
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>Border Style</p></TooltipContent>
-                  </Tooltip>
-                </button>
-              </PopoverTrigger>
-              <BorderStylePopover />
-            </Popover>
-            
-            {/* Border Width */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Minus className="w-4 h-4" />
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>Border Width</p></TooltipContent>
-                  </Tooltip>
-                </button>
-              </PopoverTrigger>
-              <BorderWidthPopover />
-            </Popover>
-            
-            <div className="w-px h-6 bg-gray-200 mx-1" />
-            
+            {/* Link */}
             <Popover>
               <PopoverTrigger asChild>
                 <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
@@ -1674,58 +1569,156 @@ const EbookCanvasEditor = ({
               <LinkPopover />
             </Popover>
             
+            {/* Transparency/Opacity */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
-                  Layers
-                </button>
-              </PopoverTrigger>
-              <LayersPopover />
-            </Popover>
-            
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
-                  Align
-                </button>
-              </PopoverTrigger>
-              <AlignPopover />
-            </Popover>
-            
-            <div className="w-px h-6 bg-gray-200 mx-1" />
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => toggleLock(currentElement.id)}
-                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
-                >
-                  {currentElement.locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
-            </Tooltip>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
                 <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
-                  <Copy className="w-4 h-4" />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Grid3X3 className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Opacity</p></TooltipContent>
+                  </Tooltip>
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom"><p>Duplicate</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm font-medium text-gray-700">Opacity</span>
+                  <Slider 
+                    defaultValue={[100]} 
+                    max={100} 
+                    step={1}
+                    onValueChange={(val) => toast.info(`Opacity: ${val[0]}%`)}
+                    className="flex-1"
+                  />
+                  <div className="text-center text-sm text-gray-500">100%</div>
+                </div>
+              </PopoverContent>
+            </Popover>
             
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => deleteElement(currentElement.id)}
-                  className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-red-500"
-                >
-                  <Trash2 className="w-4 h-4" />
+            {/* Flip */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                  Flip
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom"><p>Delete</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <PopoverContent className="w-36 p-1 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+                <button 
+                  onClick={() => toast.info('Flip horizontal')}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                >
+                  <FlipHorizontal className="w-4 h-4" />
+                  <span>Horizontal</span>
+                </button>
+                <button 
+                  onClick={() => toast.info('Flip vertical')}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                >
+                  <FlipVertical className="w-4 h-4" />
+                  <span>Vertical</span>
+                </button>
+              </PopoverContent>
+            </Popover>
+            
+            {/* Position */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                  Position
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+                {/* Arrangement */}
+                <div className="mb-4">
+                  <span className="text-sm font-medium text-gray-700 mb-2 block">Arrangement</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button 
+                      onClick={() => bringToFront(currentElement.id)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded border border-gray-200"
+                    >
+                      <ArrowUpToLine className="w-4 h-4" />
+                      <span>To Front</span>
+                    </button>
+                    <button 
+                      onClick={() => sendToBack(currentElement.id)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded border border-gray-200"
+                    >
+                      <ArrowDownToLine className="w-4 h-4" />
+                      <span>To Back</span>
+                    </button>
+                    <button 
+                      onClick={() => toast.info('Move forward')}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded border border-gray-200"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                      <span>Forward</span>
+                    </button>
+                    <button 
+                      onClick={() => toast.info('Move backward')}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded border border-gray-200"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                      <span>Backward</span>
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Align To Page */}
+                <div className="mb-4">
+                  <span className="text-sm font-medium text-gray-700 mb-2 block">Align To Page</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+                      <AlignLeft className="w-4 h-4" />
+                      <span className="text-xs">Left</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+                      <ArrowUpToLine className="w-4 h-4 -rotate-90" />
+                      <span className="text-xs">Top</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+                      <AlignCenter className="w-4 h-4" />
+                      <span className="text-xs">Center</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+                      <ArrowUpDown className="w-4 h-4" />
+                      <span className="text-xs">Middle</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+                      <AlignRight className="w-4 h-4" />
+                      <span className="text-xs">Right</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+                      <ArrowDownToLine className="w-4 h-4 -rotate-90" />
+                      <span className="text-xs">Bottom</span>
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Distribution */}
+                <div className="border-t border-gray-100 pt-3">
+                  <span className="text-sm font-medium text-gray-700 mb-2 block">Distribution</span>
+                  <div className="flex gap-2">
+                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:bg-gray-100 rounded">
+                      <GripVertical className="w-4 h-4" />
+                      <span>Horizontally</span>
+                    </button>
+                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:bg-gray-100 rounded">
+                      <Minus className="w-4 h-4" />
+                      <span>Vertically</span>
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
+            {/* Save to Library */}
+            <button 
+              onClick={() => toast.success('Image saved to library')}
+              className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded"
+            >
+              Save to Library
+            </button>
           </>
         )}
 
@@ -2214,13 +2207,6 @@ const EbookCanvasEditor = ({
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize z-20" />
-              {/* Lock icon - inside top right, not overlapping corners */}
-              <button 
-                onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
-                className="absolute top-1 right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-sm flex items-center justify-center shadow-sm"
-              >
-                {element.locked ? <Unlock className="w-3 h-3 text-white" /> : <Lock className="w-3 h-3 text-white" />}
-              </button>
               {/* Rotation and Move handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
                 <div 
@@ -2267,13 +2253,6 @@ const EbookCanvasEditor = ({
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-sw-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-s-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-se-resize z-20" />
-              {/* Lock icon - inside top right */}
-              <button 
-                onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
-                className="absolute top-1 right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-sm flex items-center justify-center shadow-sm"
-              >
-                {element.locked ? <Unlock className="w-3 h-3 text-white" /> : <Lock className="w-3 h-3 text-white" />}
-              </button>
               {/* Rotation and Move handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
                 <div 
@@ -2324,13 +2303,6 @@ const EbookCanvasEditor = ({
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize z-20" />
-              {/* Lock icon - inside top right */}
-              <button 
-                onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
-                className="absolute top-1 right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-sm flex items-center justify-center shadow-sm z-10"
-              >
-                {element.locked ? <Unlock className="w-3 h-3 text-white" /> : <Lock className="w-3 h-3 text-white" />}
-              </button>
               {/* Rotation and Move handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
                 <div 
