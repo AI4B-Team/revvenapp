@@ -93,6 +93,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [contentTabView, setContentTabView] = useState<'calendar' | 'plan'>('calendar');
   const [generatedContent, setGeneratedContent] = useState<any[]>([]);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+  const [contentDays, setContentDays] = useState(30);
   
   // Animate mode dropdown state (Video)
   const [selectedAnimateMode, setSelectedAnimateMode] = useState('Animate');
@@ -1245,7 +1246,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           body: JSON.stringify({
             prompt: prompt.trim(),
             platforms: selectedPlatforms,
-            days: 30,
+            days: contentDays,
           }),
         });
 
@@ -6202,6 +6203,56 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </div>
                   </PopoverContent>
                 </Popover>
+                
+                {/* Days Selector */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap bg-emerald-500 hover:bg-emerald-600 text-white">
+                      <Calendar size={14} />
+                      {contentDays} Days
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 bg-background border-border z-50 p-4">
+                    <div className="space-y-4">
+                      <p className="text-sm font-medium text-foreground">Content Duration</p>
+                      <p className="text-xs text-muted-foreground">Select how many days of content to generate</p>
+                      
+                      <div className="grid grid-cols-3 gap-2">
+                        {[7, 14, 21, 30, 60, 90].map((days) => (
+                          <button
+                            key={days}
+                            onClick={() => setContentDays(days)}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                              contentDays === days 
+                                ? 'bg-emerald-500 text-white' 
+                                : 'bg-muted hover:bg-muted/80 text-foreground'
+                            }`}
+                          >
+                            {days} days
+                          </button>
+                        ))}
+                      </div>
+                      
+                      <div className="pt-2 border-t border-border">
+                        <p className="text-xs text-muted-foreground mb-2">Custom days</p>
+                        <input
+                          type="number"
+                          min="1"
+                          max="365"
+                          value={contentDays}
+                          onChange={(e) => setContentDays(Math.max(1, Math.min(365, parseInt(e.target.value) || 1)))}
+                          className="w-full px-3 py-2 bg-muted rounded-lg text-sm border-none outline-none focus:ring-2 focus:ring-emerald-500"
+                          placeholder="Enter days..."
+                        />
+                      </div>
+                      
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                        ≈ {selectedPlatforms.length > 0 ? selectedPlatforms.length * contentDays : contentDays} posts will be generated
+                      </p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </>
             ) : isDocumentMode ? (
               <>
@@ -7287,7 +7338,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       {isContentMode && showSocialButtons && (
         <div className="mt-6 p-6 bg-card rounded-xl border-2 border-border shadow-sm" style={{ width: '100vw', maxWidth: '1400px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
           <p className="text-foreground font-semibold mb-6 text-center text-xl">
-            Choose Your Platforms To Generate 30 Days Of Content For Each One
+            Choose Your Platforms To Generate {contentDays} Days Of Content For Each One
           </p>
           
           <div className="flex items-center justify-center gap-4 flex-nowrap overflow-x-auto pb-2">
@@ -7347,7 +7398,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           
           {selectedPlatforms.length > 0 && (
             <p className="text-base text-muted-foreground mt-4 text-center">
-              {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected • {selectedPlatforms.length * 30} posts will be generated
+              {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected • {selectedPlatforms.length * contentDays} posts will be generated
             </p>
           )}
         </div>
