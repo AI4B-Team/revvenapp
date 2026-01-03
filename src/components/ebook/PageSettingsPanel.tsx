@@ -35,6 +35,7 @@ import {
 
 interface PageSettingsPanelProps {
   pageNumber: number;
+  totalPages?: number;
   onClose: () => void;
   onSettingsChange?: (settings: PageSettings) => void;
 }
@@ -179,7 +180,7 @@ const PAGE_FORMAT_CATEGORIES = [
 
 type SectionType = 'size' | 'style' | 'border' | 'background' | null;
 
-const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettingsPanelProps) => {
+const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChange }: PageSettingsPanelProps) => {
   const [openSection, setOpenSection] = useState<SectionType>(null);
   const [backgroundTab, setBackgroundTab] = useState<'color' | 'pattern' | 'image'>('color');
   const [colorType, setColorType] = useState<'solid' | 'gradient'>('solid');
@@ -201,7 +202,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   const [pageHeight, setPageHeight] = useState(1131);
   const [linkDimensions, setLinkDimensions] = useState(false);
   const [resizeContent, setResizeContent] = useState(true);
-
+  const [applyTo, setApplyTo] = useState<'all' | 'selected'>('all');
   // Shape Settings state
   const [shapeBackgroundColor, setShapeBackgroundColor] = useState('#2563eb');
   const [radiusEnabled, setRadiusEnabled] = useState(false);
@@ -953,6 +954,26 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                   <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
                     Resize Content
                   </label>
+                </div>
+                
+                {/* Apply To dropdown */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-600">Apply To</label>
+                  <Select value={applyTo} onValueChange={(value: 'all' | 'selected') => setApplyTo(value)}>
+                    <SelectTrigger className="w-full h-9 text-sm bg-white border-gray-300">
+                      <SelectValue>
+                        {applyTo === 'all' ? `All Pages (1-${totalPages})` : `Selected Page (${pageNumber})`}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white z-50">
+                      <SelectItem value="all">All Pages (1-{totalPages})</SelectItem>
+                      <SelectItem value="selected">
+                        <span className="flex items-center gap-2">
+                          Selected Page ({pageNumber})
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 {/* Confirm Button */}
