@@ -2522,6 +2522,9 @@ const EbookCanvasEditor = ({
         );
       }
 
+      // Determine if this is a small image (e.g., banner strip images)
+      const isSmallImage = element.width < 20 || element.height < 25;
+      
       return (
         <div
           key={element.id}
@@ -2536,35 +2539,67 @@ const EbookCanvasEditor = ({
             className="w-full h-full object-cover"
             draggable={false}
           />
-          {/* Hover overlay with actions - Recreate, Edit, Delete */}
+          {/* Hover overlay with actions - Replace, Edit, Delete */}
           <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover/image:opacity-100 z-10">
-            <div className="flex items-center gap-1 bg-white rounded-full shadow-xl px-2 py-1.5">
-              <button 
-                onClick={(e) => { 
-                  e.stopPropagation();
-                  updateElement(element.id, { src: undefined, isPlaceholder: true });
-                  onOpenImageSection?.();
-                }}
-                className="px-3 py-1.5 bg-white hover:bg-gray-100 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-colors"
-              >
-                <ImagePlus className="w-3.5 h-3.5 text-gray-500" />
-                Replace
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleEditWithAI(element.id); }}
-                className="px-3 py-1.5 bg-white hover:bg-gray-100 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-colors"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-                Edit
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); deleteElement(element.id); }}
-                className="px-3 py-1.5 bg-white hover:bg-red-50 rounded-full text-xs font-medium text-red-600 flex items-center gap-1.5 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Delete
-              </button>
-            </div>
+            {isSmallImage ? (
+              /* Compact overlay for small images - vertical icons only */
+              <div className="flex flex-col items-center gap-1 bg-white/95 rounded-lg shadow-xl p-1.5">
+                <button 
+                  onClick={(e) => { 
+                    e.stopPropagation();
+                    updateElement(element.id, { src: undefined, isPlaceholder: true });
+                    onOpenImageSection?.();
+                  }}
+                  className="w-6 h-6 bg-white hover:bg-gray-100 rounded flex items-center justify-center transition-colors"
+                  title="Replace"
+                >
+                  <ImagePlus className="w-3.5 h-3.5 text-gray-600" />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleEditWithAI(element.id); }}
+                  className="w-6 h-6 bg-white hover:bg-gray-100 rounded flex items-center justify-center transition-colors"
+                  title="Edit with AI"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); deleteElement(element.id); }}
+                  className="w-6 h-6 bg-white hover:bg-red-50 rounded flex items-center justify-center transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                </button>
+              </div>
+            ) : (
+              /* Standard overlay for larger images */
+              <div className="flex items-center gap-1 bg-white rounded-full shadow-xl px-2 py-1.5">
+                <button 
+                  onClick={(e) => { 
+                    e.stopPropagation();
+                    updateElement(element.id, { src: undefined, isPlaceholder: true });
+                    onOpenImageSection?.();
+                  }}
+                  className="px-3 py-1.5 bg-white hover:bg-gray-100 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-colors"
+                >
+                  <ImagePlus className="w-3.5 h-3.5 text-gray-500" />
+                  Replace
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleEditWithAI(element.id); }}
+                  className="px-3 py-1.5 bg-white hover:bg-gray-100 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-colors"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                  Edit
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); deleteElement(element.id); }}
+                  className="px-3 py-1.5 bg-white hover:bg-red-50 rounded-full text-xs font-medium text-red-600 flex items-center gap-1.5 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
           {/* Crop overlay with controls */}
           {isCropping && croppingElement === element.id && (
