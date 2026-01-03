@@ -2947,7 +2947,7 @@ const EbookCanvasEditor = ({
                           <div
                             className="absolute top-0 h-full z-20"
                             style={{
-                              left: gridInsertHoveredIndex === index ? '-60px' : '-18px',
+                              left: gridInsertHoveredIndex === index ? '-36px' : '-18px',
                               width: gridInsertHoveredIndex === index ? '72px' : '36px',
                               transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
