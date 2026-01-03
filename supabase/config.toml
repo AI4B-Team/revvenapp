@@ -125,3 +125,6 @@ verify_jwt = true
 
 [functions.ai-story-helper]
 verify_jwt = true
+
+[functions.suggest-ebook-images]
+verify_jwt = false

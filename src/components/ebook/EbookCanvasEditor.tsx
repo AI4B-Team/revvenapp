@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   MousePointer2, Type, Square, Circle, Image as ImageIcon, 
   Minus, Undo2, Redo2, ZoomIn, ZoomOut, Hand, Layers, ChevronLeft, ChevronRight, 
@@ -124,11 +125,29 @@ const FONT_SIZES = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72, 96];
 
 const COVER_IMAGE = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop';
 
-const SUGGESTED_IMAGES = [
+const FALLBACK_SUGGESTED_IMAGES = [
   'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop',
 ];
+
+interface SmartImageSuggestion {
+  id: string;
+  url: string;
+  thumbnailUrl: string;
+  source: 'ai' | 'stock' | 'user';
+  prompt?: string;
+  alt?: string;
+}
+
+interface SmartSuggestionsCache {
+  [elementId: string]: {
+    stockImages: SmartImageSuggestion[];
+    aiPrompts: SmartImageSuggestion[];
+    loading: boolean;
+    fetched: boolean;
+  };
+}
 
 // Sample elements for different page types
 const createCoverElements = (): CanvasElement[] => [
@@ -251,7 +270,7 @@ const createChapterElements = (chapterNum: number, title: string): CanvasElement
     y: 3,
     width: 14,
     height: 18,
-    src: SUGGESTED_IMAGES[(chapterNum - 1 + idx) % SUGGESTED_IMAGES.length]
+    src: FALLBACK_SUGGESTED_IMAGES[(chapterNum - 1 + idx) % FALLBACK_SUGGESTED_IMAGES.length]
   })),
   {
     id: `chapter${chapterNum}-number`,
@@ -312,7 +331,7 @@ const createChapterPageElements = (chapterNum: number, title: string): CanvasEle
     y: 0,
     width: 100,
     height: 100,
-    src: SUGGESTED_IMAGES[(chapterNum - 1) % SUGGESTED_IMAGES.length]
+    src: FALLBACK_SUGGESTED_IMAGES[(chapterNum - 1) % FALLBACK_SUGGESTED_IMAGES.length]
   },
   {
     id: `chapterpage${chapterNum}-overlay`,
@@ -628,6 +647,9 @@ const EbookCanvasEditor = ({
   const [cropBounds, setCropBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [originalImageData, setOriginalImageData] = useState<{ src: string; x: number; y: number; width: number; height: number } | null>(null);
   
+  // Smart image suggestions cache
+  const [smartSuggestionsCache, setSmartSuggestionsCache] = useState<SmartSuggestionsCache>({});
+  
   // Track page elements state per page
   const [pageElementsState, setPageElementsState] = useState<Record<string, CanvasElement[]>>({});
   
@@ -724,6 +746,79 @@ const EbookCanvasEditor = ({
   }, []);
 
   const selectedPage = currentPages.find(p => p.id === selectedPageId) || currentPages[0];
+  
+  // Fetch smart image suggestions for a placeholder element
+  const fetchSmartSuggestions = useCallback(async (elementId: string, pageTitle: string, pageContent: string) => {
+    // Check if already fetched or loading
+    if (smartSuggestionsCache[elementId]?.fetched || smartSuggestionsCache[elementId]?.loading) {
+      return;
+    }
+    
+    // Mark as loading
+    setSmartSuggestionsCache(prev => ({
+      ...prev,
+      [elementId]: { stockImages: [], aiPrompts: [], loading: true, fetched: false }
+    }));
+    
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/suggest-ebook-images`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pageTitle,
+            pageContent,
+            bookTitle,
+            pageType: selectedPage?.type || 'chapter'
+          }),
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch suggestions');
+      }
+      
+      const data = await response.json();
+      
+      setSmartSuggestionsCache(prev => ({
+        ...prev,
+        [elementId]: {
+          stockImages: data.stockImages || [],
+          aiPrompts: data.aiPrompts || [],
+          loading: false,
+          fetched: true
+        }
+      }));
+    } catch (error) {
+      console.error('Error fetching smart suggestions:', error);
+      // Fall back to default images
+      setSmartSuggestionsCache(prev => ({
+        ...prev,
+        [elementId]: {
+          stockImages: FALLBACK_SUGGESTED_IMAGES.map((url, idx) => ({
+            id: `fallback-${idx}`,
+            url,
+            thumbnailUrl: url,
+            source: 'stock' as const,
+            alt: 'Suggested image'
+          })),
+          aiPrompts: [],
+          loading: false,
+          fetched: true
+        }
+      }));
+    }
+  }, [bookTitle, selectedPage?.type, smartSuggestionsCache]);
+  
+  // Get content from page elements for AI analysis
+  const getPageContentForAnalysis = useCallback((page: Page): { title: string; content: string } => {
+    const elements = getPageElements(page);
+    const textElements = elements.filter(el => el.type === 'text');
+    const title = page.title || textElements[0]?.content || 'Untitled';
+    const content = textElements.map(el => el.content || '').join(' ').substring(0, 500);
+    return { title, content };
+  }, [pageElementsState, currentPages]);
   
   // Get page elements - use stored state or generate default
   const getPageElements = (page: Page): CanvasElement[] => {
@@ -2343,6 +2438,23 @@ const EbookCanvasEditor = ({
     if (element.type === 'image') {
       // Check if this is a placeholder
       if (element.isPlaceholder || !element.src) {
+        // Get cached suggestions or trigger fetch
+        const cachedSuggestions = smartSuggestionsCache[element.id];
+        const isLoading = cachedSuggestions?.loading;
+        const hasFetched = cachedSuggestions?.fetched;
+        const stockImages = cachedSuggestions?.stockImages || [];
+        
+        // Trigger fetch if not already done
+        if (!hasFetched && !isLoading) {
+          const { title, content } = getPageContentForAnalysis(selectedPage);
+          fetchSmartSuggestions(element.id, title, content);
+        }
+        
+        // Determine which images to display
+        const displayImages = stockImages.length > 0 
+          ? stockImages.slice(0, 6).map(img => img.thumbnailUrl || img.url)
+          : FALLBACK_SUGGESTED_IMAGES;
+        
         return (
           <div
             key={element.id}
@@ -2353,25 +2465,49 @@ const EbookCanvasEditor = ({
           }`}
         >
           <SelectionLabel />
-            <p className="text-sm font-medium text-gray-600 mb-4 text-center">Select A Recommended Image</p>
-            <div className="flex gap-3 mb-4">
-              {SUGGESTED_IMAGES.map((imgSrc, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    selectSuggestedImage(element.id, imgSrc);
-                  }}
-                  className="w-24 h-24 rounded-lg border-2 border-transparent hover:border-emerald-500 overflow-hidden transition-all duration-200 hover:scale-110 hover:shadow-lg group"
-                >
-                  <img 
-                    src={imgSrc} 
-                    alt={`Suggestion ${idx + 1}`} 
-                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
-                  />
-                </button>
-              ))}
-            </div>
+            <p className="text-sm font-medium text-gray-600 mb-2 text-center">Select A Recommended Image</p>
+            {isLoading ? (
+              <div className="flex flex-col items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 text-gray-500 text-sm">
+                  <Sparkles className="w-4 h-4 animate-pulse text-purple-500" />
+                  <span>Analyzing content for smart suggestions...</span>
+                </div>
+                <div className="flex gap-3">
+                  {[1, 2, 3].map((idx) => (
+                    <div key={idx} className="w-24 h-24 rounded-lg bg-gray-200 animate-pulse" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                {stockImages.length > 0 && (
+                  <p className="text-xs text-purple-600 mb-3 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    AI-matched to your content
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-3 mb-4 justify-center max-w-md">
+                  {displayImages.map((imgSrc, idx) => (
+                    <button
+                      key={idx}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Use full URL from stock images if available
+                        const fullUrl = stockImages[idx]?.url || imgSrc;
+                        selectSuggestedImage(element.id, fullUrl);
+                      }}
+                      className="w-24 h-24 rounded-lg border-2 border-transparent hover:border-emerald-500 overflow-hidden transition-all duration-200 hover:scale-110 hover:shadow-lg group"
+                    >
+                      <img 
+                        src={imgSrc} 
+                        alt={stockImages[idx]?.alt || `Suggestion ${idx + 1}`} 
+                        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
+                      />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();
