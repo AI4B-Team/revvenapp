@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { 
   Pencil, ChevronDown, Check, Eye, MessageSquare, Settings,
-  UserPlus, MoreVertical, Loader2, Book, Lightbulb, Cpu, Palette
+  UserPlus, MoreVertical, Loader2, Book, Lightbulb, Cpu, Palette,
+  Wand2, Headphones, Presentation
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -242,6 +243,33 @@ const EbookHeader = ({
             ))}
           </div>
           
+          {/* Create button */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-green hover:bg-brand-green/90 rounded-lg text-sm text-white font-semibold transition-colors">
+                <Wand2 className="w-4 h-4" strokeWidth={2.5} />
+                <span className="hidden md:inline">Create</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 z-50">
+              <DropdownMenuItem 
+                onClick={() => toast.success('AudioBook creation coming soon')}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <Headphones className="w-4 h-4" />
+                AudioBook
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => toast.success('Video Presentation coming soon')}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <Presentation className="w-4 h-4" />
+                Video Presentation
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Share button */}
           <button 
             onClick={() => toast.success('Share dialog coming soon')}
