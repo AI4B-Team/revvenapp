@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
 import InvitesTab from '@/components/settings/InvitesTab';
+import AccountSidebar from '@/components/settings/AccountSidebar';
 
 export default function Settings() {
   const [searchParams] = useSearchParams();
@@ -52,21 +53,99 @@ export default function Settings() {
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         <div className="flex-1 bg-gray-50 overflow-auto">
-          <div className="max-w-6xl mx-auto p-4 md:p-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900">Account</h1>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search"
-              className="pl-10 w-80 bg-white border-gray-200"
-            />
-          </div>
-        </div>
+          <div className="max-w-7xl mx-auto p-4 md:p-8">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="text-3xl font-semibold text-gray-900">Account</h1>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search"
+                  className="pl-10 w-80 bg-white border-gray-200"
+                />
+              </div>
+            </div>
 
-        {/* Settings Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            {/* Main Content with Sidebar */}
+            <div className="flex gap-8">
+              {/* Account Sidebar */}
+              <div className="hidden lg:block flex-shrink-0">
+                <AccountSidebar 
+                  activeTab={activeTab} 
+                  onTabChange={setActiveTab}
+                />
+              </div>
+
+              {/* Settings Tabs */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-w-0">
+                <TabsList className="bg-transparent border-b border-gray-200 w-full justify-start rounded-none h-auto p-0 space-x-6 overflow-x-auto flex-nowrap">
+                  <TabsTrigger
+                    value="my-details"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Details
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="profile"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Profile
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="password"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Password
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="plan"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Plan
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="billing"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Subscription
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="email"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Email
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="notifications"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Notifications
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="integrations"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Integrations
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="api"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    API
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="white-label"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    White Label
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="invites"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                  >
+                    Invites
+                  </TabsTrigger>
+                </TabsList>
           <TabsList className="bg-transparent border-b border-gray-200 w-full justify-start rounded-none h-auto p-0 space-x-6">
             <TabsTrigger
               value="my-details"
@@ -1155,8 +1234,9 @@ export default function Settings() {
           <TabsContent value="invites" className="mt-8">
             <InvitesTab />
           </TabsContent>
-        </Tabs>
-      </div>
+              </Tabs>
+            </div>
+          </div>
         </div>
       </div>
     </div>
