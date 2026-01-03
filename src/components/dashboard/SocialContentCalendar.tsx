@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import PostDetailModal from './PostDetailModal';
-import { sampleCalendarContent, CalendarContentItem } from '@/data/sampleCalendarContent';
+import { CalendarContentItem } from '@/data/sampleCalendarContent';
 
 interface ContentItem {
   id: string;
@@ -57,9 +57,9 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   const [selectedPost, setSelectedPost] = useState<ContentItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Merge generated content with sample content
+  // Use only generated content (no mock data)
   const allContent = useMemo(() => {
-    return [...sampleCalendarContent, ...generatedContent] as ContentItem[];
+    return [...generatedContent] as ContentItem[];
   }, [generatedContent]);
 
   // Calendar helpers
