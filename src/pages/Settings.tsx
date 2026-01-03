@@ -78,142 +78,75 @@ export default function Settings() {
 
               {/* Settings Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-w-0">
-                <TabsList className="bg-transparent border-b border-gray-200 w-full justify-start rounded-none h-auto p-0 space-x-6 overflow-x-auto flex-nowrap">
+                {/* Hide tabs on lg screens where sidebar provides navigation */}
+                <TabsList className="lg:hidden bg-transparent border-b border-gray-200 w-full justify-start rounded-none h-auto p-0 space-x-4 overflow-x-auto flex-nowrap scrollbar-hide">
                   <TabsTrigger
                     value="my-details"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Details
                   </TabsTrigger>
                   <TabsTrigger
                     value="profile"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Profile
                   </TabsTrigger>
                   <TabsTrigger
                     value="password"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Password
                   </TabsTrigger>
                   <TabsTrigger
                     value="plan"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Plan
                   </TabsTrigger>
                   <TabsTrigger
                     value="billing"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Subscription
                   </TabsTrigger>
                   <TabsTrigger
                     value="email"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Email
                   </TabsTrigger>
                   <TabsTrigger
                     value="notifications"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Notifications
                   </TabsTrigger>
                   <TabsTrigger
                     value="integrations"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Integrations
                   </TabsTrigger>
                   <TabsTrigger
                     value="api"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     API
                   </TabsTrigger>
                   <TabsTrigger
                     value="white-label"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     White Label
                   </TabsTrigger>
                   <TabsTrigger
                     value="invites"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Invites
                   </TabsTrigger>
                 </TabsList>
-          <TabsList className="bg-transparent border-b border-gray-200 w-full justify-start rounded-none h-auto p-0 space-x-6">
-            <TabsTrigger
-              value="my-details"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Details
-            </TabsTrigger>
-            <TabsTrigger
-              value="profile"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Profile
-            </TabsTrigger>
-            <TabsTrigger
-              value="password"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Password
-            </TabsTrigger>
-            <TabsTrigger
-              value="plan"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Plan
-            </TabsTrigger>
-            <TabsTrigger
-              value="billing"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Subscription
-            </TabsTrigger>
-            <TabsTrigger
-              value="email"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Email
-            </TabsTrigger>
-            <TabsTrigger
-              value="notifications"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger
-              value="integrations"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Integrations
-            </TabsTrigger>
-            <TabsTrigger
-              value="api"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              API
-            </TabsTrigger>
-            <TabsTrigger
-              value="white-label"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              White Label
-            </TabsTrigger>
-            <TabsTrigger
-              value="invites"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Invites
-            </TabsTrigger>
-          </TabsList>
 
           <TabsContent value="profile" className="mt-8">
             <div className="bg-white rounded-lg border border-gray-200 p-6">
