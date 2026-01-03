@@ -11,6 +11,37 @@ interface ContentRequest {
   days: number;
 }
 
+// Fetch related stock photos from Pexels
+async function fetchPexelsPhotos(query: string, count: number = 1): Promise<string[]> {
+  const PEXELS_API_KEY = Deno.env.get('PEXELS_API_KEY');
+  if (!PEXELS_API_KEY) {
+    console.log('PEXELS_API_KEY not configured, skipping photo fetch');
+    return [];
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=square`,
+      {
+        headers: {
+          'Authorization': PEXELS_API_KEY,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('Pexels API error:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.photos?.map((photo: any) => photo.src?.medium || photo.src?.small) || [];
+  } catch (error) {
+    console.error('Error fetching Pexels photos:', error);
+    return [];
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -178,6 +209,12 @@ Generate engaging, platform-specific content. Each post should be unique and val
               const minute = Math.floor(Math.random() * 4) * 15;
               postDate.setHours(hour, minute, 0, 0);
 
+              // Fetch related photos from Pexels
+              // For carousel, fetch 4 photos; for others fetch 1
+              const photoCount = post.type === 'carousel' ? 4 : 1;
+              const searchQuery = post.title || prompt;
+              const photos = await fetchPexelsPhotos(searchQuery, photoCount);
+
               const formattedPost = {
                 id: `ai-${Date.now()}-${postIndex}`,
                 title: post.title || `Day ${post.day} ${post.platform} post`,
@@ -190,13 +227,15 @@ Generate engaging, platform-specific content. Each post should be unique and val
                 accountName: 'Your Brand',
                 accountHandle: '@yourbrand',
                 videoScript: post.videoScript || null,
+                imageUrl: photos[0] || null,
+                carouselImages: post.type === 'carousel' ? photos : null,
               };
 
               sendPost(formattedPost);
               postIndex++;
               
               // Small delay between posts for visual effect
-              await new Promise(resolve => setTimeout(resolve, 30));
+              await new Promise(resolve => setTimeout(resolve, 50));
             }
 
             console.log(`Batch complete: ${posts.length} posts sent`);

@@ -518,6 +518,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             accountHandle: post.account_handle || '@yourbrand',
             videoScript: post.video_script || null,
             imageUrl: post.image_url || undefined,
+            carouselImages: post.carousel_images || null,
           }));
           setGeneratedContent(posts);
           setShowSocialButtons(false); // Hide platform selection if we have posts
@@ -1359,6 +1360,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     account_name: parsed.accountName || 'Your Brand',
                     account_handle: parsed.accountHandle || '@yourbrand',
                     video_script: parsed.videoScript || null,
+                    image_url: parsed.imageUrl || null,
+                    carousel_images: parsed.carouselImages || null,
                   })
                   .select()
                   .single();

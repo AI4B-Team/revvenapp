@@ -471,6 +471,7 @@ export type Database = {
           account_handle: string | null
           account_name: string | null
           caption: string | null
+          carousel_images: string[] | null
           created_at: string
           hashtags: string[] | null
           id: string
@@ -488,6 +489,7 @@ export type Database = {
           account_handle?: string | null
           account_name?: string | null
           caption?: string | null
+          carousel_images?: string[] | null
           created_at?: string
           hashtags?: string[] | null
           id?: string
@@ -505,6 +507,7 @@ export type Database = {
           account_handle?: string | null
           account_name?: string | null
           caption?: string | null
+          carousel_images?: string[] | null
           created_at?: string
           hashtags?: string[] | null
           id?: string
