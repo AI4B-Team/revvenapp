@@ -69,6 +69,43 @@ All colors MUST be HSL.
     --pill-gray: 220 13% 95%;
     --pill-gray-text: 220 9% 40%;
   }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 153 47% 49%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 153 47% 49%;
+
+    /* Sidebar colors - same in dark mode */
+    --sidebar-background: 215 28% 17%;
+    --sidebar-hover: 215 28% 22%;
+    --sidebar-active: 215 28% 20%;
+    --sidebar-text: 0 0% 98%;
+    --sidebar-text-muted: 220 9% 60%;
+  }
 }
 
 @layer base {
