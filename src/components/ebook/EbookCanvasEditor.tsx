@@ -3287,6 +3287,12 @@ const EbookCanvasEditor = ({
                       <input
                         type="text"
                         value={currentPages.findIndex(p => p.id === selectedPageId) + 1}
+                        onFocus={(e) => {
+                          // Move cursor to end of input
+                          const val = e.target.value;
+                          e.target.value = '';
+                          e.target.value = val;
+                        }}
                         onChange={(e) => {
                           const pageNum = parseInt(e.target.value);
                           if (pageNum >= 1 && pageNum <= currentPages.length) {
