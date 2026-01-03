@@ -547,7 +547,7 @@ const EbookCanvasEditor = ({
   const [canRedo, setCanRedo] = useState(true);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [hoveredPageId, setHoveredPageId] = useState<string | null>(null);
-  const [hoveredElement, setHoveredElement] = useState<string | null>(null);
+  
   const [isMoving, setIsMoving] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -1875,7 +1875,6 @@ const EbookCanvasEditor = ({
 
   const renderCanvasElement = (element: CanvasElement) => {
     const isSelected = selectedElement === element.id;
-    const isHovered = hoveredElement === element.id && !isSelected;
     const selectionBorderColor = element.type === 'shape' ? '#dc2626' : '#3b82f6';
     
     // Get element type label
@@ -1898,10 +1897,10 @@ const EbookCanvasEditor = ({
       transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
     };
     
-    // Hover label component
-    const HoverLabel = () => (
-      isHovered && (
-        <div className="absolute -top-6 left-0 bg-yellow-400 text-black text-xs font-semibold px-2 py-0.5 rounded-sm shadow-sm z-30 whitespace-nowrap">
+    // Selection label component - only shows when selected
+    const SelectionLabel = () => (
+      isSelected && (
+        <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-sm shadow-sm z-30 whitespace-nowrap">
           {getTypeLabel()}
         </div>
       )
@@ -1914,14 +1913,12 @@ const EbookCanvasEditor = ({
           <div
             key={element.id}
             onClick={(e) => handleElementClick(e, element.id)}
-            onMouseEnter={() => setHoveredElement(element.id)}
-            onMouseLeave={() => setHoveredElement(null)}
-            style={baseStyle}
-            className={`bg-gray-100 border-2 border-dashed flex flex-col items-center justify-center p-4 ${
-              isHovered ? 'border-yellow-400' : 'border-gray-300'
-            }`}
-          >
-            <HoverLabel />
+          style={baseStyle}
+          className={`bg-gray-100 border-2 border-dashed flex flex-col items-center justify-center p-4 ${
+            isSelected ? 'border-blue-500' : 'border-gray-300'
+          }`}
+        >
+          <SelectionLabel />
             <p className="text-xs text-gray-500 mb-3 text-center">Select an image</p>
             <div className="flex gap-2 mb-3">
               {SUGGESTED_IMAGES.map((imgSrc, idx) => (
@@ -1955,12 +1952,10 @@ const EbookCanvasEditor = ({
         <div
           key={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
-          onMouseEnter={() => setHoveredElement(element.id)}
-          onMouseLeave={() => setHoveredElement(null)}
           style={baseStyle}
-          className={`transition-all group/image ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''} ${isHovered ? 'ring-2 ring-yellow-400' : ''}`}
+          className={`transition-all group/image ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : 'hover:ring-2 hover:ring-gray-300'}`}
         >
-          <HoverLabel />
+          <SelectionLabel />
           <img 
             src={element.src} 
             alt="Element" 
@@ -2040,17 +2035,15 @@ const EbookCanvasEditor = ({
         <div
           key={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
-          onMouseEnter={() => setHoveredElement(element.id)}
-          onMouseLeave={() => setHoveredElement(null)}
           style={{
             ...baseStyle,
             backgroundColor: element.fill,
             border: element.stroke !== 'transparent' ? `2px solid ${element.stroke}` : 'none',
-            boxShadow: isSelected ? `0 0 0 2px ${selectionBorderColor}` : isHovered ? '0 0 0 2px #facc15' : 'none',
+            boxShadow: isSelected ? `0 0 0 2px ${selectionBorderColor}` : undefined,
           }}
-          className="transition-all"
+          className={`transition-all ${!isSelected ? 'hover:shadow-[0_0_0_2px_#d1d5db]' : ''}`}
         >
-          <HoverLabel />
+          <SelectionLabel />
           {isSelected && (
             <>
               {/* Selection handles with resize functionality */}
@@ -2095,8 +2088,6 @@ const EbookCanvasEditor = ({
         <div
           key={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
-          onMouseEnter={() => setHoveredElement(element.id)}
-          onMouseLeave={() => setHoveredElement(null)}
           style={{
             ...baseStyle,
             fontFamily: element.fontFamily,
@@ -2106,9 +2097,9 @@ const EbookCanvasEditor = ({
             lineHeight: 1.2,
             whiteSpace: 'pre-wrap',
           }}
-          className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''} ${isHovered ? 'ring-2 ring-yellow-400' : ''}`}
+          className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300'}`}
         >
-          <HoverLabel />
+          <SelectionLabel />
           {element.content}
           {isSelected && (
             <>
