@@ -61,8 +61,7 @@ export default function InvitesTab() {
   };
 
   const copyToClipboard = (code: string) => {
-    const shareUrl = `${window.location.origin}/signup?invite=${code}`;
-    navigator.clipboard.writeText(shareUrl);
+    navigator.clipboard.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
