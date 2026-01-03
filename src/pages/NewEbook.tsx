@@ -987,7 +987,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   </button>
                   
                   {/* Separator */}
-                  <div className="border-t border-gray-200" />
+                  <div className="border-t border-gray-300" />
                   
                   {/* Privately with password */}
                   <div className="flex items-start justify-between gap-3 py-3">
@@ -1035,7 +1035,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   )}
                   
                   {/* Separator */}
-                  <div className="border-t border-gray-200" />
+                  <div className="border-t border-gray-300" />
                   
                   {/* Download Section */}
                   <div className="pt-2">
@@ -1071,7 +1071,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   </div>
                   
                   {/* Separator */}
-                  <div className="border-t border-gray-200" />
+                  <div className="border-t border-gray-300" />
                   
                   {/* Publish to Social Media */}
                   <div className="pt-2">
@@ -1126,7 +1126,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   </div>
                   
                   {/* Separator */}
-                  <div className="border-t border-gray-200" />
+                  <div className="border-t border-gray-300" />
                   
                   {/* More Section */}
                   <div className="pt-2">
