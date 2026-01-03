@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info, Pipette } from 'lucide-react';
+import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info, PenLine } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -1286,9 +1286,16 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                 
                                 {/* HEX Input Row */}
                                 <div className="flex items-center gap-2">
-                                  <button className="p-2 hover:bg-gray-100 rounded transition-colors">
-                                    <Pipette className="w-4 h-4 text-gray-600" />
-                                  </button>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                                        <PenLine className="w-4 h-4 text-gray-600" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Pick A Color</p>
+                                    </TooltipContent>
+                                  </Tooltip>
                                   <Select defaultValue="hex">
                                     <SelectTrigger className="w-20 h-8 text-xs bg-gray-100 border-0">
                                       <SelectValue />
