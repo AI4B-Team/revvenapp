@@ -449,7 +449,7 @@ export default function SignupPage() {
                       placeholder="Enter your invite code"
                       value={inviteCode}
                       onChange={(e) => handleInviteCodeChange(e.target.value)}
-                      className={`h-12 pl-10 uppercase ${
+                      className={`h-12 pl-10 uppercase bg-white text-gray-900 border-gray-300 ${
                         inviteCodeValid === true 
                           ? 'border-green-500 focus:border-green-500' 
                           : inviteCodeValid === false 
