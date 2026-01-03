@@ -868,7 +868,7 @@ const EbookDesignSidebar = ({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full min-h-0 flex-shrink-0 relative z-30 overflow-visible">
+      <div className="w-[420px] bg-white border-r border-gray-200 flex flex-col h-full min-h-0 flex-shrink-0 relative z-30 overflow-visible">
         {/* Collapse Arrow - positioned on canvas edge, matching right panel style */}
         <button
           onClick={() => setIsCollapsed(true)}
