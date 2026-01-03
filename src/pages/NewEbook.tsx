@@ -904,6 +904,15 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               ))}
             </div>
             
+            {/* Invite button */}
+            <button 
+              onClick={() => toast.success('Invite dialog coming soon')}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
+            >
+              <UserPlus className="w-5 h-5" strokeWidth={2.5} />
+              <span className="hidden md:inline">Invite</span>
+            </button>
+            
             {/* Create button with dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
