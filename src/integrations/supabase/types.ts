@@ -334,6 +334,36 @@ export type Database = {
         }
         Relationships: []
       }
+      invite_codes: {
+        Row: {
+          code: string
+          created_at: string
+          creator_user_id: string
+          id: string
+          is_used: boolean
+          used_at: string | null
+          used_by_user_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          creator_user_id: string
+          id?: string
+          is_used?: boolean
+          used_at?: string | null
+          used_by_user_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          creator_user_id?: string
+          id?: string
+          is_used?: boolean
+          used_at?: string | null
+          used_by_user_id?: string | null
+        }
+        Relationships: []
+      }
       lead_generation_history: {
         Row: {
           created_at: string
