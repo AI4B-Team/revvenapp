@@ -299,6 +299,7 @@ const NewEbook = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [showPagesPanel, setShowPagesPanel] = useState(true);
+  const [isCanvasGridView, setIsCanvasGridView] = useState(false);
   
   // Unified page data type definitions
   type PageType = 'cover' | 'toc' | 'chapter' | 'chapter-page' | 'back';
@@ -1192,26 +1193,28 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
             {/* Canvas Editor Area */}
             <div className="flex-1 flex overflow-hidden min-h-0 relative">
-              {/* Left Sidebar - Design Tools */}
-              <EbookDesignSidebar
-                bookTitle={bookData.selectedTitle || 'Untitled eBook'}
-                chapters={getSidebarChapters()}
-                selectedChapterId={selectedPageId}
-                onChapterSelect={setSelectedPageId}
-                onChapterAdd={(afterId) => console.log('Add chapter after:', afterId)}
-                onChapterTitleEdit={(id, title) => {
-                  setEbookPages(prev => prev.map(p => p.id === id ? { ...p, title } : p));
-                }}
-                onChapterReorder={(from, to) => {
-                  setEbookPages(prev => {
-                    const newPages = [...prev];
-                    const [removed] = newPages.splice(from, 1);
-                    newPages.splice(to, 0, removed);
-                    return newPages;
-                  });
-                }}
-                onContentSectionChange={setShowPagesPanel}
-              />
+              {/* Left Sidebar - Design Tools (hidden in grid view) */}
+              {!isCanvasGridView && (
+                <EbookDesignSidebar
+                  bookTitle={bookData.selectedTitle || 'Untitled eBook'}
+                  chapters={getSidebarChapters()}
+                  selectedChapterId={selectedPageId}
+                  onChapterSelect={setSelectedPageId}
+                  onChapterAdd={(afterId) => console.log('Add chapter after:', afterId)}
+                  onChapterTitleEdit={(id, title) => {
+                    setEbookPages(prev => prev.map(p => p.id === id ? { ...p, title } : p));
+                  }}
+                  onChapterReorder={(from, to) => {
+                    setEbookPages(prev => {
+                      const newPages = [...prev];
+                      const [removed] = newPages.splice(from, 1);
+                      newPages.splice(to, 0, removed);
+                      return newPages;
+                    });
+                  }}
+                  onContentSectionChange={setShowPagesPanel}
+                />
+              )}
 
               {/* Main Canvas Editor */}
               <EbookCanvasEditor
@@ -1231,6 +1234,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 onUndoStateChange={handleUndoStateChange}
                 undoRef={undoRef}
                 redoRef={redoRef}
+                onGridViewChange={setIsCanvasGridView}
               />
 
               {/* Generation Overlay */}
