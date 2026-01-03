@@ -3,16 +3,15 @@ import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { 
   Upload, Mic, Sparkles, ArrowLeft, BookOpen, Headphones, Presentation,
   Lightbulb, Settings, Palette, Send, Info, CheckCircle2, Globe, MessageSquare,
-  Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon,
+  Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image, Image as ImageIcon,
   Briefcase, Coffee, GraduationCap, Heart, Shield, Flame, Search, ChevronDown,
-  Check, Pencil, Eye, UserPlus, Download, MoreVertical, Loader2, Wand2, RefreshCw,
+  Check, Pencil, Eye, UserPlus, MoreVertical, Loader2, Wand2, RefreshCw,
   ArrowRight, PenLine, Target, Zap, Award, Undo2, Redo2, ZoomIn, ZoomOut, Replace, Minus,
-  Share2, Lock as LockIcon
+  Share2, Lock as LockIcon, Cloud, Calendar, Copy, Code, Monitor, Rss, MoreHorizontal
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiLoom, SiZoom } from 'react-icons/si';
-import { Rss, MoreHorizontal } from 'lucide-react';
 import EbookDesignSidebar from '@/components/ebook/EbookDesignSidebar';
 import EbookContentPreview from '@/components/ebook/EbookContentPreview';
 import EbookCanvasEditor from '@/components/ebook/EbookCanvasEditor';
@@ -27,6 +26,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -323,6 +323,12 @@ const NewEbook = () => {
   const [findText, setFindText] = useState('');
   const [replaceText, setReplaceText] = useState('');
   const [matchCount, setMatchCount] = useState(0);
+  
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [passwordProtectionEnabled, setPasswordProtectionEnabled] = useState(false);
+  const [sharePassword, setSharePassword] = useState('');
+  const [selectedDownloadFormat, setSelectedDownloadFormat] = useState<string>('pdf');
   const [currentMatch, setCurrentMatch] = useState(0);
 
   // Zoom handlers
@@ -940,80 +946,199 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               </DropdownMenuContent>
             </DropdownMenu>
             
-            {/* Share button with popover */}
-            <Popover>
-              <PopoverTrigger asChild>
+            {/* Share button with modal */}
+            <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
+              <DialogTrigger asChild>
                 <button 
                   className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
                 >
                   <Share2 className="w-5 h-5" strokeWidth={2.5} />
                   <span className="hidden md:inline">Share</span>
                 </button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-80 p-4 bg-white border border-gray-200 shadow-xl" sideOffset={8}>
-                <h3 className="font-semibold text-gray-900 mb-4">Share your design</h3>
+              </DialogTrigger>
+              <DialogContent className="max-w-md bg-white p-0 gap-0">
+                <DialogHeader className="p-4 pb-0">
+                  <DialogTitle className="text-lg font-semibold text-gray-900">Share</DialogTitle>
+                </DialogHeader>
                 
-                {/* Public on the web */}
-                <div className="flex items-start justify-between gap-3 py-3 border-b border-gray-100">
-                  <div className="flex items-start gap-3">
-                    <Globe className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Public on the web</p>
-                      <p className="text-xs text-gray-500">Anyone with the link can view this visual</p>
+                <div className="p-4 space-y-4">
+                  {/* Anyone with link can view */}
+                  <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-700">Anyone With The Link Can</span>
                     </div>
+                    <button className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-gray-900">
+                      View
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button 
-                    className="w-11 h-6 bg-gray-200 rounded-full relative transition-colors flex-shrink-0 hover:bg-gray-300"
-                    onClick={() => toast.success('Public sharing toggled')}
-                  >
-                    <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform" />
-                  </button>
-                </div>
-                
-                {/* Privately with password */}
-                <div className="flex items-start justify-between gap-3 py-3">
-                  <div className="flex items-start gap-3">
-                    <LockIcon className="w-5 h-5 text-pink-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-gray-900">Privately with password</p>
-                        <span className="px-1.5 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded uppercase">Upgrade</span>
-                      </div>
-                      <p className="text-xs text-gray-500">Only those with password can view the visual</p>
-                    </div>
-                  </div>
-                  <button 
-                    className="w-11 h-6 bg-gray-200 rounded-full relative transition-colors flex-shrink-0 opacity-50 cursor-not-allowed"
-                    disabled
-                  >
-                    <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow" />
-                  </button>
-                </div>
-                
-                {/* Copy Link Button */}
-                <div className="flex justify-end pt-3 border-t border-gray-100 mt-3">
+                  
+                  {/* Copy Link Button */}
                   <button 
                     onClick={() => {
                       navigator.clipboard.writeText(window.location.href);
                       toast.success('Link copied to clipboard!');
                     }}
-                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <Link2 className="w-4 h-4" />
                     Copy Link
                   </button>
+                  
+                  {/* Privately with password */}
+                  <div className="flex items-start justify-between gap-3 py-3">
+                    <div className="flex items-start gap-3">
+                      <LockIcon className="w-5 h-5 text-pink-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Privately With Password</p>
+                        <p className="text-xs text-gray-500">Only Those With Password Can View The Visual</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setPasswordProtectionEnabled(!passwordProtectionEnabled)}
+                      className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${passwordProtectionEnabled ? 'bg-brand-green' : 'bg-gray-200 hover:bg-gray-300'}`}
+                    >
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${passwordProtectionEnabled ? 'left-6' : 'left-1'}`} />
+                    </button>
+                  </div>
+                  
+                  {/* Password input when enabled */}
+                  {passwordProtectionEnabled && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-gray-600">Set Password</label>
+                      <input
+                        type="password"
+                        value={sharePassword}
+                        onChange={(e) => setSharePassword(e.target.value)}
+                        placeholder="Enter password"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/50"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Download Section */}
+                  <div className="pt-2">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Download</h4>
+                    <p className="text-xs text-gray-500 mb-3">Select The Format</p>
+                    <div className="grid grid-cols-5 gap-2">
+                      {[
+                        { id: 'png', name: 'PNG', ext: '.png', icon: Image },
+                        { id: 'pdf', name: 'PDF', ext: '.pdf', icon: FileText },
+                        { id: 'gdrive', name: 'Google Drive', ext: '', icon: Cloud },
+                        { id: 'onedrive', name: 'One Drive', ext: '', icon: Cloud },
+                        { id: 'more', name: 'See All', ext: '', icon: MoreHorizontal },
+                      ].map((format) => (
+                        <button
+                          key={format.id}
+                          onClick={() => {
+                            if (format.id === 'more') {
+                              toast.info('More download options coming soon');
+                            } else {
+                              setSelectedDownloadFormat(format.id);
+                              toast.success(`Downloading as ${format.name}`);
+                            }
+                          }}
+                          className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
+                            selectedDownloadFormat === format.id 
+                              ? 'border-brand-green bg-brand-green/5' 
+                              : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
+                        >
+                          <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${
+                            format.id === 'pdf' ? 'text-red-500' : 
+                            format.id === 'gdrive' ? 'text-green-500' : 
+                            format.id === 'onedrive' ? 'text-blue-500' : 
+                            'text-gray-500'
+                          }`}>
+                            <format.icon className="w-5 h-5" />
+                          </div>
+                          <span className="text-xs font-medium text-gray-700 text-center leading-tight">{format.name}</span>
+                          {format.ext && <span className="text-[10px] text-gray-400">{format.ext}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Publish to Social Media */}
+                  <div className="pt-2">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Publish To Social Media</h4>
+                    <div className="grid grid-cols-5 gap-2">
+                      <button
+                        onClick={() => toast.info('Schedule integration coming soon')}
+                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 bg-white transition-all"
+                      >
+                        <div className="w-8 h-8 flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-gray-500" />
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 text-center leading-tight">Schedule</span>
+                      </button>
+                      <button
+                        onClick={() => toast.info('Facebook integration coming soon')}
+                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 bg-white transition-all"
+                      >
+                        <div className="w-8 h-8 flex items-center justify-center">
+                          <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">f</div>
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 text-center leading-tight">Facebook</span>
+                      </button>
+                      <button
+                        onClick={() => toast.info('Linkedin integration coming soon')}
+                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 bg-white transition-all"
+                      >
+                        <div className="w-8 h-8 flex items-center justify-center">
+                          <div className="w-5 h-5 bg-blue-700 rounded flex items-center justify-center text-white text-xs font-bold">in</div>
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 text-center leading-tight">Linkedin</span>
+                      </button>
+                      <button
+                        onClick={() => toast.info('X integration coming soon')}
+                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 bg-white transition-all"
+                      >
+                        <div className="w-8 h-8 flex items-center justify-center">
+                          <div className="w-5 h-5 bg-black rounded flex items-center justify-center text-white text-xs font-bold">X</div>
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 text-center leading-tight">X</span>
+                      </button>
+                      <button
+                        onClick={() => toast.info('More options coming soon')}
+                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 bg-white transition-all"
+                      >
+                        <div className="w-8 h-8 flex items-center justify-center">
+                          <MoreHorizontal className="w-5 h-5 text-gray-500" />
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 text-center leading-tight">See All</span>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* More Section */}
+                  <div className="pt-2">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">More</h4>
+                    <div className="grid grid-cols-5 gap-2">
+                      {[
+                        { id: 'copy', name: 'Copy', icon: Copy },
+                        { id: 'embed', name: 'Embed', icon: Code },
+                        { id: 'template', name: 'Template Link', icon: Link2 },
+                        { id: 'present', name: 'Present', icon: Monitor },
+                        { id: 'more', name: 'See All', icon: MoreHorizontal },
+                      ].map((action) => (
+                        <button
+                          key={action.id}
+                          onClick={() => toast.info(`${action.name} coming soon`)}
+                          className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 bg-white transition-all"
+                        >
+                          <div className="w-8 h-8 flex items-center justify-center">
+                            <action.icon className="w-5 h-5 text-gray-500" />
+                          </div>
+                          <span className="text-xs font-medium text-gray-700 text-center leading-tight">{action.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </PopoverContent>
-            </Popover>
-            
-            {/* Download button */}
-            <button 
-              onClick={() => toast.success('Download options coming soon')}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400"
-            >
-              <Download className="w-5 h-5" strokeWidth={2.5} />
-              <span className="hidden md:inline">Download</span>
-            </button>
+              </DialogContent>
+            </Dialog>
             
             {/* 3-dot menu */}
             <DropdownMenu>
