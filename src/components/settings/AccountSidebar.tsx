@@ -53,7 +53,7 @@ export default function AccountSidebar({
 
   const handleTabClick = (tabId: string) => {
     onTabChange(tabId);
-    navigate(`/settings?tab=${tabId}`);
+    navigate(`/account?tab=${tabId}`);
   };
 
   return (

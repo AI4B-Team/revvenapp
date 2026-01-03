@@ -294,7 +294,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             {/* Menu Items */}
             <div className="space-y-1">
               <DropdownMenuItem asChild className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <Link to="/settings?tab=billing" className="flex items-center justify-between w-full">
+                <Link to="/account?tab=billing" className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-3">
                     <CreditCard size={20} />
                     <span>Subscription</span>
@@ -306,21 +306,21 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <Link to="/settings?tab=my-details" className="flex items-center gap-3 w-full">
+                <Link to="/account?tab=my-details" className="flex items-center gap-3 w-full">
                   <Settings size={20} />
                   <span>Account</span>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <Link to="/settings?tab=invites" className="flex items-center gap-3 w-full">
+                <Link to="/account?tab=invites" className="flex items-center gap-3 w-full">
                   <Mail size={20} />
                   <span>Invites</span>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <Link to="/settings?tab=integrations" className="flex items-center gap-3 w-full">
+                <Link to="/account?tab=integrations" className="flex items-center gap-3 w-full">
                   <Plug size={20} />
                   <span>Integrations</span>
                 </Link>
