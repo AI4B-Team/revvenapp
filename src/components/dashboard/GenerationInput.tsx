@@ -1187,8 +1187,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   };
   
   const handleGenerate = async () => {
-    // Handle social content generation
-    if (isContentMode && showSocialButtons) {
+    // Handle Content mode - never fall through to image generation
+    if (isContentMode) {
+      if (!showSocialButtons) {
+        // Already generated content, regenerate option
+        toast({
+          title: "Content already generated",
+          description: "Your 30-day content plan is displayed in the calendar below.",
+        });
+        return;
+      }
+      
       if (selectedPlatforms.length === 0) {
         toast({
           title: "Platforms required",
