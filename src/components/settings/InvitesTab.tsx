@@ -10,6 +10,7 @@ interface InviteCode {
   code: string;
   is_used: boolean;
   used_at: string | null;
+  used_by_email: string | null;
   created_at: string;
 }
 
@@ -178,8 +179,8 @@ export default function InvitesTab() {
                 <tr className="bg-muted/50 border-b border-border">
                   <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Code</th>
                   <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Status</th>
+                  <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Signed Up User</th>
                   <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Created</th>
-                  <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Used At</th>
                   <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
@@ -212,16 +213,18 @@ export default function InvitesTab() {
                       </Badge>
                     </td>
 
+                    {/* Signed Up User */}
+                    <td className="px-8 py-5">
+                      {invite.used_by_email ? (
+                        <span className="text-foreground font-medium">{invite.used_by_email}</span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </td>
+
                     {/* Created */}
                     <td className="px-8 py-5">
                       <span className="text-muted-foreground">{formatDate(invite.created_at)}</span>
-                    </td>
-
-                    {/* Used At */}
-                    <td className="px-8 py-5">
-                      <span className="text-muted-foreground">
-                        {invite.used_at ? formatDate(invite.used_at) : '-'}
-                      </span>
                     </td>
 
                     {/* Actions */}
