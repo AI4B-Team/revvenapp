@@ -1205,8 +1205,90 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         });
         return;
       }
-      // Call the social generate callback
-      onSocialGenerate?.(selectedPlatforms, prompt.trim());
+      
+      // Generate 30-day content plan
+      setIsGeneratingContent(true);
+      toast({
+        title: "Generating content plan",
+        description: `Creating 30 days of content for ${selectedPlatforms.length} platform${selectedPlatforms.length > 1 ? 's' : ''}...`,
+      });
+      
+      try {
+        const today = new Date();
+        const newContent: any[] = [];
+        
+        // Post types for variety
+        const postTypes = ['post', 'carousel', 'reel', 'story'] as const;
+        const statuses = ['scheduled', 'draft'] as const;
+        
+        // Generate content for each day (30 days)
+        for (let day = 0; day < 30; day++) {
+          const postDate = new Date(today);
+          postDate.setDate(today.getDate() + day);
+          
+          // Each platform gets 1-2 posts per day
+          for (const platformId of selectedPlatforms) {
+            const platform = socialPlatforms.find(p => p.id === platformId);
+            if (!platform) continue;
+            
+            // Create 1-2 posts per platform per day
+            const postsPerDay = Math.random() > 0.5 ? 2 : 1;
+            for (let p = 0; p < postsPerDay; p++) {
+              const hour = 8 + Math.floor(Math.random() * 12); // 8am to 8pm
+              const minute = Math.floor(Math.random() * 4) * 15; // 0, 15, 30, or 45
+              
+              const postDateTime = new Date(postDate);
+              postDateTime.setHours(hour, minute, 0, 0);
+              
+              const postType = postTypes[Math.floor(Math.random() * postTypes.length)];
+              const status = statuses[Math.floor(Math.random() * statuses.length)];
+              
+              // Generate content title based on prompt and platform
+              const titles = [
+                `${prompt.trim()} - ${platform.name} ${postType}`,
+                `Day ${day + 1}: ${prompt.trim()} tips`,
+                `${platform.name} exclusive: ${prompt.trim()}`,
+                `Quick ${prompt.trim()} update for ${platform.name}`,
+                `Behind the scenes: ${prompt.trim()}`,
+                `${prompt.trim()} insights you need to know`,
+                `${platform.name} feature: ${prompt.trim()}`,
+                `${prompt.trim()} - what you're missing`,
+              ];
+              
+              newContent.push({
+                id: `gen-${Date.now()}-${day}-${platformId}-${p}`,
+                title: titles[Math.floor(Math.random() * titles.length)],
+                platform: platformId,
+                date: postDateTime,
+                status: status,
+                type: postType,
+                caption: `${prompt.trim()} - ${platform.name} content for day ${day + 1}`,
+                hashtags: [`${prompt.replace(/\s+/g, '')}`, platform.name, 'ContentPlan', 'Day' + (day + 1)],
+                accountName: 'Your Brand',
+                accountHandle: '@yourbrand',
+              });
+            }
+          }
+        }
+        
+        setGeneratedContent(newContent);
+        setShowSocialButtons(false); // Hide platform selection after generation
+        
+        toast({
+          title: "Content plan generated!",
+          description: `Created ${newContent.length} posts for the next 30 days`,
+        });
+      } catch (error) {
+        console.error('Error generating content:', error);
+        toast({
+          title: "Generation failed",
+          description: "Failed to generate content plan. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsGeneratingContent(false);
+      }
+      
       return;
     }
 
