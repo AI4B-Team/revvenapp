@@ -91,6 +91,7 @@ interface EbookCanvasEditorProps {
   undoRef?: React.MutableRefObject<(() => void) | null>;
   redoRef?: React.MutableRefObject<(() => void) | null>;
   onGridViewChange?: (isGridView: boolean) => void;
+  onOpenImageSection?: () => void;
 }
 
 const TOOLS = [
@@ -414,7 +415,8 @@ const EbookCanvasEditor = ({
   onUndoStateChange,
   undoRef,
   redoRef,
-  onGridViewChange
+  onGridViewChange,
+  onOpenImageSection
 }: EbookCanvasEditorProps) => {
   // Internal pages state if no onPagesChange is provided
   const [internalPages, setInternalPages] = useState<Page[]>(pages);
@@ -1589,6 +1591,7 @@ const EbookCanvasEditor = ({
             <button 
               onClick={() => {
                 updateElement(currentElement.id, { src: undefined, isPlaceholder: true });
+                onOpenImageSection?.();
                 toast.info('Select a new image');
               }}
               className="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 rounded flex items-center gap-2"
@@ -2350,8 +2353,8 @@ const EbookCanvasEditor = ({
           }`}
         >
           <SelectionLabel />
-            <p className="text-xs text-gray-500 mb-3 text-center">Select an image</p>
-            <div className="flex gap-2 mb-3">
+            <p className="text-sm font-medium text-gray-600 mb-4 text-center">Select A Recommended Image</p>
+            <div className="flex gap-3 mb-4">
               {SUGGESTED_IMAGES.map((imgSrc, idx) => (
                 <button
                   key={idx}
@@ -2359,9 +2362,13 @@ const EbookCanvasEditor = ({
                     e.stopPropagation();
                     selectSuggestedImage(element.id, imgSrc);
                   }}
-                  className="w-12 h-12 rounded border-2 border-transparent hover:border-emerald-500 overflow-hidden transition-all"
+                  className="w-24 h-24 rounded-lg border-2 border-transparent hover:border-emerald-500 overflow-hidden transition-all duration-200 hover:scale-110 hover:shadow-lg group"
                 >
-                  <img src={imgSrc} alt={`Suggestion ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img 
+                    src={imgSrc} 
+                    alt={`Suggestion ${idx + 1}`} 
+                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
+                  />
                 </button>
               ))}
             </div>
@@ -2370,9 +2377,9 @@ const EbookCanvasEditor = ({
                 e.stopPropagation();
                 handleImageUpload(element.id);
               }}
-              className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-medium rounded hover:bg-emerald-600 flex items-center gap-1.5"
+              className="px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 flex items-center gap-2 transition-colors"
             >
-              <Upload className="w-3.5 h-3.5" />
+              <Upload className="w-4 h-4" />
               Upload Image
             </button>
           </div>
@@ -2393,18 +2400,19 @@ const EbookCanvasEditor = ({
             className="w-full h-full object-cover"
             draggable={false}
           />
-          {/* Hover overlay with actions */}
+          {/* Hover overlay with actions - Recreate, Edit, Delete */}
           <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover/image:opacity-100 z-10">
             <div className="flex items-center gap-1 bg-white rounded-full shadow-xl px-2 py-1.5">
               <button 
                 onClick={(e) => { 
                   e.stopPropagation();
                   updateElement(element.id, { src: undefined, isPlaceholder: true });
+                  onOpenImageSection?.();
                 }}
                 className="px-3 py-1.5 bg-white hover:bg-gray-100 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-colors"
               >
                 <ImagePlus className="w-3.5 h-3.5 text-gray-500" />
-                Replace
+                Recreate
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleEditWithAI(element.id); }}
