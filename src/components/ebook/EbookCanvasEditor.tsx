@@ -1465,36 +1465,24 @@ const EbookCanvasEditor = ({
       </PopoverContent>
     );
 
-    // Layers popover with keyboard shortcuts
+    // Layers popover
     const LayersPopover = () => (
-      <PopoverContent className="w-56 p-1 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
-        <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-          <div className="flex items-center gap-2">
-            <ArrowUpToLine className="w-4 h-4" /> 
-            <span>Move To Front</span>
-          </div>
-          <span className="text-xs text-gray-400">ctrl + shift + &gt;</span>
+      <PopoverContent className="w-40 p-1 bg-white border border-gray-200 shadow-lg z-50" align="center" sideOffset={8}>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap">
+          <ArrowUpToLine className="w-4 h-4" /> 
+          <span>Move To Front</span>
         </button>
-        <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-          <div className="flex items-center gap-2">
-            <ChevronUp className="w-4 h-4" /> 
-            <span>Move Forward</span>
-          </div>
-          <span className="text-xs text-gray-400">ctrl + &gt;</span>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap">
+          <ChevronUp className="w-4 h-4" /> 
+          <span>Move Forward</span>
         </button>
-        <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-          <div className="flex items-center gap-2">
-            <ChevronDown className="w-4 h-4" /> 
-            <span>Move Backwards</span>
-          </div>
-          <span className="text-xs text-gray-400">ctrl + &lt;</span>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap">
+          <ChevronDown className="w-4 h-4" /> 
+          <span>Move Backwards</span>
         </button>
-        <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-          <div className="flex items-center gap-2">
-            <ArrowDownToLine className="w-4 h-4" /> 
-            <span>Move To Back</span>
-          </div>
-          <span className="text-xs text-gray-400">ctrl + shift + &lt;</span>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap">
+          <ArrowDownToLine className="w-4 h-4" /> 
+          <span>Move To Back</span>
         </button>
       </PopoverContent>
     );
