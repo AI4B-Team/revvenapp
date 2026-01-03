@@ -489,6 +489,47 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     fetchSavedProducts();
   }, []);
 
+  // Fetch saved social posts on mount
+  useEffect(() => {
+    const fetchSavedSocialPosts = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        const { data, error } = await supabase
+          .from('social_posts')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('scheduled_date', { ascending: true });
+          
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          const posts = data.map(post => ({
+            id: post.id,
+            title: post.title,
+            platform: post.platform,
+            date: new Date(post.scheduled_date),
+            status: post.status,
+            type: post.type || 'post',
+            caption: post.caption || '',
+            hashtags: post.hashtags || [],
+            accountName: post.account_name || 'Your Brand',
+            accountHandle: post.account_handle || '@yourbrand',
+            videoScript: post.video_script || null,
+            imageUrl: post.image_url || undefined,
+          }));
+          setGeneratedContent(posts);
+          setShowSocialButtons(false); // Hide platform selection if we have posts
+        }
+      } catch (error) {
+        console.error('Error fetching social posts:', error);
+      }
+    };
+    
+    fetchSavedSocialPosts();
+  }, []);
+
   // Fetch saved videos for Recast on mount
   useEffect(() => {
     const fetchSavedVideos = async () => {
@@ -1289,9 +1330,37 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   continue;
                 }
 
-                // Add the post with date converted
+                // Get user for saving to database
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) continue;
+
+                // Save post to database
+                const { data: savedPost, error: saveError } = await supabase
+                  .from('social_posts')
+                  .insert({
+                    user_id: user.id,
+                    title: parsed.title,
+                    platform: parsed.platform,
+                    scheduled_date: parsed.date,
+                    status: parsed.status || 'draft',
+                    type: parsed.type || 'post',
+                    caption: parsed.caption || '',
+                    hashtags: parsed.hashtags || [],
+                    account_name: parsed.accountName || 'Your Brand',
+                    account_handle: parsed.accountHandle || '@yourbrand',
+                    video_script: parsed.videoScript || null,
+                  })
+                  .select()
+                  .single();
+
+                if (saveError) {
+                  console.error('Error saving post:', saveError);
+                }
+
+                // Add the post with date converted and database ID
                 const post = {
                   ...parsed,
+                  id: savedPost?.id || parsed.id,
                   date: new Date(parsed.date),
                 };
                 
@@ -1305,8 +1374,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         }
 
         toast({
-          title: "Content plan generated!",
-          description: `Created ${totalPosts} AI-powered posts for the next 30 days`,
+          title: "Content plan generated & saved!",
+          description: `Created ${totalPosts} AI-powered posts for ${contentDays} days`,
         });
       } catch (error: any) {
         console.error('Error generating content:', error);
@@ -7410,10 +7479,54 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           <SocialContentCalendar 
             generatedContent={generatedContent}
             isGenerating={isGeneratingContent}
-            onDeletePost={(postId) => {
+            onDeletePost={async (postId) => {
+              // Delete from database
+              try {
+                const { error } = await supabase
+                  .from('social_posts')
+                  .delete()
+                  .eq('id', postId);
+                
+                if (error) {
+                  console.error('Error deleting post:', error);
+                  toast({
+                    title: "Delete failed",
+                    description: "Failed to delete post. Please try again.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+              } catch (err) {
+                console.error('Error deleting post:', err);
+              }
+              
+              // Update local state
               setGeneratedContent(prev => prev.filter(post => post.id !== postId));
             }}
-            onDeleteAllPosts={() => {
+            onDeleteAllPosts={async () => {
+              // Delete all posts from database for this user
+              try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                  const { error } = await supabase
+                    .from('social_posts')
+                    .delete()
+                    .eq('user_id', user.id);
+                  
+                  if (error) {
+                    console.error('Error deleting all posts:', error);
+                    toast({
+                      title: "Delete failed",
+                      description: "Failed to delete posts. Please try again.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                }
+              } catch (err) {
+                console.error('Error deleting all posts:', err);
+              }
+              
               setGeneratedContent([]);
               setShowSocialButtons(true); // Show platform selection again
             }}
