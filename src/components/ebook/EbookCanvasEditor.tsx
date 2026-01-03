@@ -2947,20 +2947,24 @@ const EbookCanvasEditor = ({
                           <div
                             className="absolute top-0 h-full z-20"
                             style={{
-                              left: gridInsertHoveredIndex === index ? '-48px' : '-12px',
-                              width: gridInsertHoveredIndex === index ? '48px' : '24px',
+                              left: gridInsertHoveredIndex === index ? '-60px' : '-18px',
+                              width: gridInsertHoveredIndex === index ? '72px' : '36px',
                               transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
                             onMouseEnter={() => setGridInsertHoveredIndex(index)}
                             onMouseLeave={() => setGridInsertHoveredIndex(null)}
                           >
-                            {/* Centered + button inside hover zone */}
+                            {/* Centered + button inside hover zone - accounting for gap-6 (24px) + margin (48px) = 72px total */}
                             <div
-                              className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ease-out ${
+                              className={`absolute top-1/2 -translate-y-1/2 transition-all duration-200 ease-out ${
                                 gridInsertHoveredIndex === index
                                   ? 'opacity-100 scale-100'
                                   : 'opacity-0 scale-75 pointer-events-none'
                               }`}
+                              style={{
+                                left: '50%',
+                                transform: `translate(-50%, -50%)`
+                              }}
                             >
                               <Tooltip open={gridInsertHoveredIndex === index}>
                                 <TooltipTrigger asChild>
