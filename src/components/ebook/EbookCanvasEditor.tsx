@@ -2743,7 +2743,25 @@ const EbookCanvasEditor = ({
 
         {/* Grid View Mode */}
         {isGridView ? (
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-100">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-100 relative">
+            {/* Close X Button - Top Right */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsGridView(false);
+                    setSelectedGridPages(new Set());
+                  }}
+                  className="absolute top-4 right-4 z-50 w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-colors"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="text-xs">
+                <p>Close Grid View</p>
+              </TooltipContent>
+            </Tooltip>
+
             {/* Grid View Toolbar */}
             {selectedGridPages.size > 0 && (
               <div className="flex items-center justify-center gap-2 py-3 bg-white border-b border-gray-200 flex-shrink-0">
@@ -3139,6 +3157,29 @@ const EbookCanvasEditor = ({
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Cancel/Confirm Footer */}
+            <div className="flex-shrink-0 border-t border-gray-200 bg-white px-6 py-4 flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setIsGridView(false);
+                  setSelectedGridPages(new Set());
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setIsGridView(false);
+                  setSelectedGridPages(new Set());
+                  toast.success('Changes confirmed');
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+              >
+                Confirm
+              </button>
             </div>
           </div>
         ) : (
@@ -3678,28 +3719,35 @@ const EbookCanvasEditor = ({
                     </Tooltip>
 
                     {/* Page Number Input */}
-                    <div className="flex items-center gap-0.5 px-1">
-                      <input
-                        type="text"
-                        value={currentPages.findIndex(p => p.id === selectedPageId) + 1}
-                        onFocus={(e) => {
-                          // Move cursor to end of input
-                          const val = e.target.value;
-                          e.target.value = '';
-                          e.target.value = val;
-                        }}
-                        onChange={(e) => {
-                          const pageNum = parseInt(e.target.value);
-                          if (pageNum >= 1 && pageNum <= currentPages.length) {
-                            const targetPage = currentPages[pageNum - 1];
-                            onPageSelect(targetPage.id);
-                            scrollToPage(targetPage.id);
-                          }
-                        }}
-                        className="w-6 h-6 text-center text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-500"
-                      />
-                      <span className="text-xs text-gray-500">/{currentPages.length}</span>
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-0.5 px-1">
+                          <input
+                            type="text"
+                            value={currentPages.findIndex(p => p.id === selectedPageId) + 1}
+                            onFocus={(e) => {
+                              // Move cursor to end of input
+                              const val = e.target.value;
+                              e.target.value = '';
+                              e.target.value = val;
+                            }}
+                            onChange={(e) => {
+                              const pageNum = parseInt(e.target.value);
+                              if (pageNum >= 1 && pageNum <= currentPages.length) {
+                                const targetPage = currentPages[pageNum - 1];
+                                onPageSelect(targetPage.id);
+                                scrollToPage(targetPage.id);
+                              }
+                            }}
+                            className="w-6 h-6 text-center text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-500"
+                          />
+                          <span className="text-xs text-gray-500">/{currentPages.length}</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        <p>Go To Page</p>
+                      </TooltipContent>
+                    </Tooltip>
 
                     {/* Next Page */}
                     <Tooltip>

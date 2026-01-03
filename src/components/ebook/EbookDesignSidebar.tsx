@@ -1100,7 +1100,7 @@ const EbookDesignSidebar = ({
                                   </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="text-xs">
-                                  <p>Delete chapter</p>
+                                  <p>Delete Page</p>
                                 </TooltipContent>
                               </Tooltip>
                             </div>

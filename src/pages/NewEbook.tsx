@@ -440,15 +440,17 @@ const NewEbook = () => {
   const getDefaultPages = (): UnifiedPage[] => [
     { id: '1', title: bookData.selectedTitle || 'The Ultimate Guide to AI Marketing', type: 'cover' },
     { id: '2', title: 'Table of Contents', type: 'toc' },
-    { id: '3', title: 'Executive Summary', type: 'chapter-page' },
-    { id: '4', title: 'Executive Summary', type: 'chapter' },
-    { id: '5', title: 'Market Analysis', type: 'chapter-page' },
-    { id: '6', title: 'Market Analysis', type: 'chapter' },
-    { id: '7', title: 'Investment Strategy', type: 'chapter-page' },
-    { id: '8', title: 'Investment Strategy', type: 'chapter' },
-    { id: '9', title: 'Financial Projections', type: 'chapter-page' },
-    { id: '10', title: 'Financial Projections', type: 'chapter' },
-    { id: '11', title: 'Back Cover', type: 'back' },
+    { id: '3', title: 'Introduction', type: 'chapter-page' },
+    { id: '4', title: 'Introduction', type: 'chapter' },
+    { id: '5', title: 'Executive Summary', type: 'chapter-page' },
+    { id: '6', title: 'Executive Summary', type: 'chapter' },
+    { id: '7', title: 'Market Analysis', type: 'chapter-page' },
+    { id: '8', title: 'Market Analysis', type: 'chapter' },
+    { id: '9', title: 'Investment Strategy', type: 'chapter-page' },
+    { id: '10', title: 'Investment Strategy', type: 'chapter' },
+    { id: '11', title: 'Financial Projections', type: 'chapter-page' },
+    { id: '12', title: 'Financial Projections', type: 'chapter' },
+    { id: '13', title: 'Back Cover', type: 'back' },
   ];
   
   const [ebookPages, setEbookPages] = useState<UnifiedPage[]>(getDefaultPages);
