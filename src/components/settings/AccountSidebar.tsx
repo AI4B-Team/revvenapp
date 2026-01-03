@@ -133,26 +133,26 @@ export default function AccountSidebar({
   const getThemeIcon = () => {
     switch (theme) {
       case 'light':
-        return <Sun className="w-5 h-5 text-gray-300" />;
+        return <Sun className="w-5 h-5 text-muted-foreground" />;
       case 'dark':
-        return <Moon className="w-5 h-5 text-gray-300" />;
+        return <Moon className="w-5 h-5 text-muted-foreground" />;
       default:
-        return <Monitor className="w-5 h-5 text-gray-300" />;
+        return <Monitor className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
   return (
-    <div className="w-72 bg-[#1a1f2e] text-white rounded-xl p-4 flex flex-col gap-4">
+    <div className="w-72 bg-card text-card-foreground border border-border rounded-xl p-4 flex flex-col gap-4">
       {/* User Profile Section */}
       <div className="flex flex-col items-center text-center pb-4">
         <Avatar className="w-16 h-16 mb-3 border-2 border-emerald-500">
           <AvatarImage src={userAvatar} alt={userName} />
-          <AvatarFallback className="bg-[#2a3142] text-white text-xl">
+          <AvatarFallback className="bg-muted text-muted-foreground text-xl">
             {userName ? userName.charAt(0).toUpperCase() : <User className="w-8 h-8" />}
           </AvatarFallback>
         </Avatar>
         <h3 className="font-semibold text-lg">{userName || 'User'}</h3>
-        <p className="text-sm text-gray-400">{userEmail || 'No email'}</p>
+        <p className="text-sm text-muted-foreground">{userEmail || 'No email'}</p>
       </div>
 
       {/* Action Buttons */}
@@ -166,7 +166,7 @@ export default function AccountSidebar({
         </Button>
         <Button 
           variant="outline" 
-          className="w-full bg-transparent border-gray-600 text-white hover:bg-[#2a3142] hover:text-white"
+          className="w-full"
           onClick={() => handleTabClick('invites')}
         >
           <UserPlus className="w-4 h-4 mr-2" />
@@ -186,8 +186,8 @@ export default function AccountSidebar({
               onClick={() => handleTabClick(item.id)}
               className={`flex items-center justify-between w-full px-3 py-2.5 rounded-lg transition-colors ${
                 isActive 
-                  ? 'bg-[#2a3142] text-white' 
-                  : 'text-gray-300 hover:bg-[#2a3142] hover:text-white'
+                  ? 'bg-accent text-accent-foreground' 
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -195,7 +195,7 @@ export default function AccountSidebar({
                 <span className="text-sm font-medium">{item.label}</span>
               </div>
               {item.badge && (
-                <Badge className="bg-gray-600 text-white text-xs px-2 py-0.5">
+                <Badge className="bg-muted text-muted-foreground text-xs px-2 py-0.5">
                   {item.badge}
                 </Badge>
               )}
@@ -205,26 +205,26 @@ export default function AccountSidebar({
       </nav>
 
       {/* Preferences Section */}
-      <div className="flex flex-col gap-1 mt-2 pt-4 border-t border-gray-700">
+      <div className="flex flex-col gap-1 mt-2 pt-4 border-t border-border">
         {/* Language Selector */}
-        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#2a3142]">
+        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-accent">
           <div className="flex items-center gap-3">
-            <Languages className="w-5 h-5 text-gray-300" />
-            <span className="text-sm font-medium text-gray-300">Language:</span>
+            <Languages className="w-5 h-5 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">Language:</span>
           </div>
           <Select value={language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-auto border-none bg-transparent text-white p-0 h-auto gap-1 focus:ring-0">
+            <SelectTrigger className="w-auto border-none bg-transparent p-0 h-auto gap-1 focus:ring-0">
               <SelectValue>
                 {languages.find(l => l.value === language)?.label || 'English'}
               </SelectValue>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1f2e] border-gray-700">
+            <SelectContent className="bg-popover border-border">
               {languages.map((lang) => (
                 <SelectItem 
                   key={lang.value} 
                   value={lang.value} 
-                  className="text-white hover:bg-[#2a3142] focus:bg-[#2a3142] focus:text-white"
+                  className="hover:bg-accent focus:bg-accent"
                 >
                   <span className="flex items-center gap-2">
                     <span>{lang.flag}</span>
@@ -237,32 +237,32 @@ export default function AccountSidebar({
         </div>
 
         {/* Theme Selector */}
-        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#2a3142]">
+        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-accent">
           <div className="flex items-center gap-3">
             {getThemeIcon()}
-            <span className="text-sm font-medium text-gray-300">Theme:</span>
+            <span className="text-sm font-medium text-muted-foreground">Theme:</span>
           </div>
           <Select value={theme || 'system'} onValueChange={handleThemeChange}>
-            <SelectTrigger className="w-auto border-none bg-transparent text-white p-0 h-auto gap-1 focus:ring-0">
+            <SelectTrigger className="w-auto border-none bg-transparent p-0 h-auto gap-1 focus:ring-0">
               <SelectValue>
                 {theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : 'System'}
               </SelectValue>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1f2e] border-gray-700">
-              <SelectItem value="light" className="text-white hover:bg-[#2a3142] focus:bg-[#2a3142] focus:text-white">
+            <SelectContent className="bg-popover border-border">
+              <SelectItem value="light" className="hover:bg-accent focus:bg-accent">
                 <span className="flex items-center gap-2">
                   <Sun className="w-4 h-4" />
                   <span>Light</span>
                 </span>
               </SelectItem>
-              <SelectItem value="dark" className="text-white hover:bg-[#2a3142] focus:bg-[#2a3142] focus:text-white">
+              <SelectItem value="dark" className="hover:bg-accent focus:bg-accent">
                 <span className="flex items-center gap-2">
                   <Moon className="w-4 h-4" />
                   <span>Dark</span>
                 </span>
               </SelectItem>
-              <SelectItem value="system" className="text-white hover:bg-[#2a3142] focus:bg-[#2a3142] focus:text-white">
+              <SelectItem value="system" className="hover:bg-accent focus:bg-accent">
                 <span className="flex items-center gap-2">
                   <Monitor className="w-4 h-4" />
                   <span>System</span>
