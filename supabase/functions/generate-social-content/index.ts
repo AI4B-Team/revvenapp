@@ -63,6 +63,19 @@ For each post, provide:
 - 4-6 relevant hashtags (without #)
 - Post type: post, carousel, reel, or story
 
+IMPORTANT: For "reel" type posts (video content), you MUST also include a "videoScript" field with a full video script including timestamps. The script should be structured like this:
+{
+  "videoScript": {
+    "duration": "30s",
+    "scenes": [
+      { "timestamp": "0:00-0:03", "visual": "Hook shot - attention grabber", "audio": "Wait, you need to see this...", "text_overlay": "🤯 WATCH THIS" },
+      { "timestamp": "0:03-0:10", "visual": "Main content reveal", "audio": "Here's what happened...", "text_overlay": null },
+      { "timestamp": "0:10-0:25", "visual": "Demonstration or story", "audio": "Detailed explanation...", "text_overlay": "Key point here" },
+      { "timestamp": "0:25-0:30", "visual": "Call to action", "audio": "Follow for more!", "text_overlay": "👆 FOLLOW" }
+    ]
+  }
+}
+
 Return ONLY valid JSON array with this structure:
 [
   {
@@ -72,10 +85,22 @@ Return ONLY valid JSON array with this structure:
     "caption": "...",
     "hashtags": ["tag1", "tag2"],
     "type": "post"
+  },
+  {
+    "day": ${startDay + 1},
+    "platform": "tiktok",
+    "title": "...",
+    "caption": "...",
+    "hashtags": ["tag1", "tag2"],
+    "type": "reel",
+    "videoScript": {
+      "duration": "30s",
+      "scenes": [...]
+    }
   }
 ]
 
-Generate 1-2 posts per platform per day. Mix post types for variety. Make content specific to each platform's style.`;
+Generate 1-2 posts per platform per day. Mix post types for variety. Make content specific to each platform's style. For TikTok and YouTube Shorts, ALWAYS use type "reel" with videoScript.`;
 
             const userPrompt = `Create content for days ${startDay + 1} to ${endDay} for these platforms: ${platformNames}
 
@@ -153,6 +178,7 @@ Generate engaging, platform-specific content. Each post should be unique and val
                 hashtags: post.hashtags || [],
                 accountName: 'Your Brand',
                 accountHandle: '@yourbrand',
+                videoScript: post.videoScript || null,
               };
 
               sendPost(formattedPost);

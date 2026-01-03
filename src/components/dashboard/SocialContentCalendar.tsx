@@ -14,7 +14,9 @@ import {
   Clock,
   Plus,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  Film,
+  Play
 } from 'lucide-react';
 import { getPlatformIcon } from './SocialIcons';
 import { Button } from '@/components/ui/button';
@@ -39,6 +41,18 @@ import PostDetailModal from './PostDetailModal';
 import { CalendarContentItem } from '@/data/sampleCalendarContent';
 import { useToast } from '@/hooks/use-toast';
 
+interface VideoScene {
+  timestamp: string;
+  visual: string;
+  audio: string;
+  text_overlay: string | null;
+}
+
+interface VideoScript {
+  duration: string;
+  scenes: VideoScene[];
+}
+
 interface ContentItem {
   id: string;
   title: string;
@@ -51,6 +65,7 @@ interface ContentItem {
   hashtags?: string[];
   accountName?: string;
   accountHandle?: string;
+  videoScript?: VideoScript | null;
 }
 
 interface SocialContentCalendarProps {
@@ -226,7 +241,18 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         <div className="flex-shrink-0 w-5 h-5 rounded bg-emerald-100 dark:bg-emerald-800/50 flex items-center justify-center">
           {getPlatformIcon(item.platform, "w-3 h-3")}
         </div>
-        <p className="text-xs text-foreground line-clamp-2 leading-relaxed">{item.title}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-foreground line-clamp-2 leading-relaxed">{item.title}</p>
+          {/* Video script indicator */}
+          {item.type === 'reel' && item.videoScript && (
+            <div className="flex items-center gap-1 mt-1">
+              <Film className="w-3 h-3 text-purple-500" />
+              <span className="text-[10px] text-purple-500 font-medium">
+                {item.videoScript.duration} • {item.videoScript.scenes?.length || 0} scenes
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Send, Clock, Calendar, Edit, Trash2, Copy, ExternalLink } from 'lucide-react';
+import { X, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Send, Clock, Calendar, Edit, Trash2, Copy, ExternalLink, Film, Play } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { getPlatformIcon } from './SocialIcons';
@@ -10,6 +10,18 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+
+interface VideoScene {
+  timestamp: string;
+  visual: string;
+  audio: string;
+  text_overlay: string | null;
+}
+
+interface VideoScript {
+  duration: string;
+  scenes: VideoScene[];
+}
 
 interface ContentItem {
   id: string;
@@ -24,6 +36,7 @@ interface ContentItem {
   accountName?: string;
   accountHandle?: string;
   accountAvatar?: string;
+  videoScript?: VideoScript | null;
 }
 
 interface PostDetailModalProps {
@@ -332,6 +345,45 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                     <span key={index} className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-sm rounded">
                       #{tag}
                     </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Video Script - Only for reel type */}
+            {post.type === 'reel' && post.videoScript && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Film className="w-4 h-4 text-emerald-500" />
+                  <h4 className="text-sm font-medium text-muted-foreground">Video Script</h4>
+                  <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs rounded-full">
+                    {post.videoScript.duration}
+                  </span>
+                </div>
+                <div className="space-y-3 bg-muted/50 rounded-lg p-4">
+                  {post.videoScript.scenes.map((scene, index) => (
+                    <div key={index} className="relative pl-4 border-l-2 border-emerald-500/50">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-mono bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded">
+                          {scene.timestamp}
+                        </span>
+                        {scene.text_overlay && (
+                          <span className="text-xs bg-purple-500/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded">
+                            📝 {scene.text_overlay}
+                          </span>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-xs text-muted-foreground">Visual:</span>
+                          <p className="text-foreground">{scene.visual}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs text-muted-foreground">Audio/Script:</span>
+                          <p className="text-foreground italic">"{scene.audio}"</p>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
