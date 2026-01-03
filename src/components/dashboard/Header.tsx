@@ -257,244 +257,85 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <DropdownMenuContent className="w-80 bg-sidebar border-sidebar-hover p-6" align="end">
+          <DropdownMenuContent className="w-64 bg-sidebar border-sidebar-hover p-4" align="end">
             {/* Header Section */}
-            <div className="flex items-start gap-3 mb-4">
+            <div className="flex items-start gap-2 mb-3">
               <div className="relative">
-                <Avatar className="h-12 w-12 ring-2 ring-emerald-500">
+                <Avatar className="h-10 w-10 ring-2 ring-emerald-500">
                   <AvatarImage src="" />
                   <AvatarFallback className="bg-secondary">
-                    <User size={24} />
+                    <User size={18} />
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -top-1 -right-1 bg-brand-yellow rounded-full p-1">
-                  <Crown size={12} className="text-background" />
+                <div className="absolute -top-1 -right-1 bg-brand-yellow rounded-full p-0.5">
+                  <Crown size={10} className="text-background" />
                 </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white">dolmarcross</h3>
-                <p className="text-sm text-gray-400">dolmarcross@gmail.com</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-white truncate">dolmarcross</h3>
+                <p className="text-xs text-gray-400 truncate">dolmarcross@gmail.com</p>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-2 mb-4">
-              <Button className="w-full bg-brand-green hover:bg-brand-green/90 text-white h-12">
-                <Zap size={18} className="mr-2" />
+            <div className="space-y-1.5 mb-3">
+              <Button className="w-full bg-brand-green hover:bg-brand-green/90 text-white h-9 text-sm">
+                <Zap size={14} className="mr-1.5" />
                 Upgrade
               </Button>
-              <Button variant="outline" className="w-full bg-transparent border-2 border-white/30 hover:bg-white hover:text-slate-900 text-white h-12 transition-all">
-                <UserPlus size={18} className="mr-2" />
+              <Button variant="outline" className="w-full bg-transparent border border-white/30 hover:bg-white hover:text-slate-900 text-white h-9 text-sm transition-all">
+                <UserPlus size={14} className="mr-1.5" />
                 Add Members
               </Button>
             </div>
 
-            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
+            <DropdownMenuSeparator className="bg-sidebar-hover my-2" />
 
             {/* Menu Items */}
-            <div className="space-y-1">
-              <DropdownMenuItem asChild className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
+            <div className="space-y-0.5">
+              <DropdownMenuItem asChild className="flex items-center justify-between py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
                 <Link to="/account?tab=billing" className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-3">
-                    <CreditCard size={20} />
+                  <div className="flex items-center gap-2">
+                    <CreditCard size={16} />
                     <span>Subscription</span>
                   </div>
-                  <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700">
+                  <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700 text-xs px-1.5 py-0">
                     Pro
                   </Badge>
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <Link to="/account?tab=my-details" className="flex items-center gap-3 w-full">
-                  <Settings size={20} />
+              <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
+                <Link to="/account?tab=my-details" className="flex items-center gap-2 w-full">
+                  <Settings size={16} />
                   <span>Account</span>
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <Link to="/account?tab=invites" className="flex items-center gap-3 w-full">
-                  <Mail size={20} />
+              <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
+                <Link to="/account?tab=invites" className="flex items-center gap-2 w-full">
+                  <Mail size={16} />
                   <span>Invites</span>
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <Link to="/account?tab=integrations" className="flex items-center gap-3 w-full">
-                  <Plug size={20} />
+              <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
+                <Link to="/account?tab=integrations" className="flex items-center gap-2 w-full">
+                  <Plug size={16} />
                   <span>Integrations</span>
                 </Link>
               </DropdownMenuItem>
 
-              {/* Logout - moved up for visibility */}
+              <DropdownMenuSeparator className="bg-sidebar-hover my-1.5" />
+
+              {/* Logout */}
               <DropdownMenuItem 
                 onClick={handleSignOut}
-                className="flex items-center gap-3 py-3 px-3 rounded-md cursor-pointer text-red-400 hover:bg-sidebar-hover hover:text-red-300"
+                className="flex items-center gap-2 py-2 px-2 rounded-md cursor-pointer text-red-400 hover:bg-sidebar-hover hover:text-red-300 text-sm"
               >
-                <Power size={20} />
+                <Power size={16} />
                 <span>Log Out</span>
               </DropdownMenuItem>
-
-              {/* Language Selector */}
-              <div className="px-3 py-2">
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="group w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-white cursor-pointer bg-sidebar">
-                    <Languages size={24} className="text-white group-hover:text-slate-900 flex-shrink-0" />
-                    <span className="text-white group-hover:text-slate-900 font-medium flex-shrink-0">Language:</span>
-                    <div className="flex-1" />
-                    <div className="flex items-center gap-2">
-                      <span className="text-white group-hover:text-slate-900 font-medium">{selectedLanguage}</span>
-                      <ChevronRight size={20} className="text-white group-hover:text-slate-900" />
-                    </div>
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="bg-sidebar border-border/20 w-80 p-2">
-                    <div className="px-2 pb-2">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-                        <Input
-                          type="text"
-                          placeholder="Search By"
-                          value={languageSearch}
-                          onChange={(e) => setLanguageSearch(e.target.value)}
-                          className="pl-10 bg-sidebar-active border-border/20 text-white placeholder:text-muted-foreground"
-                        />
-                      </div>
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {filteredLanguages.map((language) => (
-                        <DropdownMenuItem
-                          key={language.name}
-                          onClick={() => {
-                            setSelectedLanguage(language.name);
-                            setLanguageSearch('');
-                          }}
-                          className="flex items-center justify-between py-3 px-4 rounded-md hover:bg-sidebar-hover cursor-pointer text-white"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">{language.flag}</span>
-                            <span className="font-medium">{language.name}</span>
-                          </div>
-                          {selectedLanguage === language.name && (
-                            <Check size={18} className="text-blue-500" />
-                          )}
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-              </div>
-
-              {/* Theme Selector */}
-              <div className="px-3 py-2">
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger hideArrow className="group w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-white cursor-pointer bg-sidebar">
-                    {selectedTheme === 'light' && <Sun size={24} className="text-white group-hover:text-slate-900 flex-shrink-0" />}
-                    {selectedTheme === 'dark' && <Moon size={24} className="text-white group-hover:text-slate-900 flex-shrink-0" />}
-                    {selectedTheme === 'split' && <SplitIcon />}
-                    <span className="text-white group-hover:text-slate-900 font-medium flex-shrink-0">Theme:</span>
-                    <div className="flex-1" />
-                    <div className="flex items-center gap-2">
-                      <span className="text-white group-hover:text-slate-900 font-medium capitalize">{selectedTheme}</span>
-                      <ChevronRight size={20} className="text-white group-hover:text-slate-900" />
-                    </div>
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="bg-sidebar border-border/20 w-64 p-2">
-                    {themes.map((theme) => {
-                      const Icon = theme.icon;
-                      return (
-                        <DropdownMenuItem
-                          key={theme.name}
-                          onClick={() => setSelectedTheme(theme.name)}
-                          className="flex items-center justify-between py-3 px-4 rounded-md hover:bg-sidebar-hover cursor-pointer text-white"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Icon size={20} />
-                            <span className="font-medium">{theme.label}</span>
-                          </div>
-                          {selectedTheme === theme.name && (
-                            <Check size={18} className="text-blue-500" />
-                          )}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-              </div>
-            </div>
-
-            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
-
-            {/* Affiliate Program */}
-            <div className="px-3 py-3">
-              <button 
-                onClick={() => window.location.href = '/affiliate'}
-                className="w-full px-6 py-3 bg-transparent border-2 border-brand-yellow text-brand-yellow hover:bg-brand-yellow/10 rounded-lg font-medium transition flex items-center justify-center gap-2"
-              >
-                <span>Join Affiliate Program</span>
-              </button>
-            </div>
-
-
-            {/* Footer */}
-            <div className="px-3 py-4">
-              <div className="flex items-center justify-between">
-                {/* Left Side - Terms & Privacy Links */}
-                <div className="flex items-center gap-2">
-                  <a
-                    href="/terms"
-                    className="text-sm text-gray-400 hover:text-white transition-colors"
-                  >
-                    Terms
-                  </a>
-                  <span className="text-gray-400">|</span>
-                  <a
-                    href="/privacy"
-                    className="text-sm text-gray-400 hover:text-white transition-colors"
-                  >
-                    Privacy
-                  </a>
-                </div>
-
-                {/* Right Side - Social Media Icons */}
-                <div className="flex items-center gap-3">
-                  <a
-                    href="https://discord.gg/your-server"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition-colors"
-                    title="Discord"
-                  >
-                    <DiscordIcon size={20} />
-                  </a>
-                  <a
-                    href="https://twitter.com/yourhandle"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition-colors"
-                    title="Twitter"
-                  >
-                    <TwitterIcon size={20} />
-                  </a>
-                  <a
-                    href="https://youtube.com/yourchannel"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition-colors"
-                    title="YouTube"
-                  >
-                    <YouTubeIcon size={20} />
-                  </a>
-                  <a
-                    href="https://instagram.com/yourhandle"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition-colors"
-                    title="Instagram"
-                  >
-                    <InstagramIcon size={20} />
-                  </a>
-                </div>
-              </div>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
