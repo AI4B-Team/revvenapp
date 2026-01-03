@@ -466,6 +466,51 @@ export type Database = {
         }
         Relationships: []
       }
+      social_content_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          days: number
+          error_message: string | null
+          generated_posts: number | null
+          id: string
+          platforms: string[]
+          prompt: string
+          status: string
+          total_posts: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          days?: number
+          error_message?: string | null
+          generated_posts?: number | null
+          id?: string
+          platforms: string[]
+          prompt: string
+          status?: string
+          total_posts?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          days?: number
+          error_message?: string | null
+          generated_posts?: number | null
+          id?: string
+          platforms?: string[]
+          prompt?: string
+          status?: string
+          total_posts?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       social_posts: {
         Row: {
           account_handle: string | null
