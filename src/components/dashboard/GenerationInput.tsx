@@ -489,13 +489,85 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     fetchSavedProducts();
   }, []);
 
-  // Fetch saved social posts on mount
+  // Fetch saved social posts on mount and check for active jobs
   useEffect(() => {
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+    
+    const formatPost = (post: any) => ({
+      id: post.id,
+      title: post.title,
+      platform: post.platform,
+      date: new Date(post.scheduled_date),
+      status: post.status,
+      type: post.type || 'post',
+      caption: post.caption || '',
+      hashtags: post.hashtags || [],
+      accountName: post.account_name || 'Your Brand',
+      accountHandle: post.account_handle || '@yourbrand',
+      videoScript: post.video_script || null,
+      imageUrl: post.image_url || undefined,
+      carouselImages: post.carousel_images || null,
+    });
+
     const fetchSavedSocialPosts = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         
+        // Check for any active generation jobs first
+        const { data: activeJobs } = await supabase
+          .from('social_content_jobs')
+          .select('*')
+          .eq('user_id', user.id)
+          .in('status', ['pending', 'processing'])
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (activeJobs && activeJobs.length > 0) {
+          const activeJob = activeJobs[0];
+          console.log('Found active job:', activeJob.id);
+          setIsGeneratingContent(true);
+          setShowSocialButtons(false);
+          
+          // Resume polling for this job
+          pollInterval = setInterval(async () => {
+            try {
+              const { data: job } = await supabase
+                .from('social_content_jobs')
+                .select('*')
+                .eq('id', activeJob.id)
+                .single();
+
+              if (!job) return;
+
+              // Fetch all posts for the user
+              const { data: posts } = await supabase
+                .from('social_posts')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('scheduled_date', { ascending: true });
+
+              if (posts) {
+                setGeneratedContent(posts.map(formatPost));
+              }
+
+              if (job.status === 'completed') {
+                if (pollInterval) clearInterval(pollInterval);
+                setIsGeneratingContent(false);
+              } else if (job.status === 'failed') {
+                if (pollInterval) clearInterval(pollInterval);
+                setIsGeneratingContent(false);
+                setShowSocialButtons(true);
+              }
+            } catch (pollError) {
+              console.error('Polling error:', pollError);
+            }
+          }, 2000);
+          
+          return;
+        }
+        
+        // No active jobs, just fetch existing posts
         const { data, error } = await supabase
           .from('social_posts')
           .select('*')
@@ -505,23 +577,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         if (error) throw error;
         
         if (data && data.length > 0) {
-          const posts = data.map(post => ({
-            id: post.id,
-            title: post.title,
-            platform: post.platform,
-            date: new Date(post.scheduled_date),
-            status: post.status,
-            type: post.type || 'post',
-            caption: post.caption || '',
-            hashtags: post.hashtags || [],
-            accountName: post.account_name || 'Your Brand',
-            accountHandle: post.account_handle || '@yourbrand',
-            videoScript: post.video_script || null,
-            imageUrl: post.image_url || undefined,
-            carouselImages: post.carousel_images || null,
-          }));
-          setGeneratedContent(posts);
-          setShowSocialButtons(false); // Hide platform selection if we have posts
+          setGeneratedContent(data.map(formatPost));
+          setShowSocialButtons(false);
         }
       } catch (error) {
         console.error('Error fetching social posts:', error);
@@ -529,6 +586,35 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     };
     
     fetchSavedSocialPosts();
+    
+    // Set up realtime subscription for social posts
+    const channel = supabase
+      .channel('social_posts_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'social_posts',
+        },
+        async (payload) => {
+          console.log('New social post inserted:', payload);
+          const newPost = formatPost(payload.new);
+          setGeneratedContent(prev => {
+            // Avoid duplicates
+            if (prev.some(p => p.id === newPost.id)) return prev;
+            return [...prev, newPost].sort((a, b) => 
+              new Date(a.date).getTime() - new Date(b.date).getTime()
+            );
+          });
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Fetch saved videos for Recast on mount
@@ -1258,147 +1344,107 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
       
-      // Generate content plan using AI with real-time streaming
+      // Generate content plan using AI in background
       setIsGeneratingContent(true);
       setGeneratedContent([]); // Clear existing content
       setShowSocialButtons(false); // Hide platform selection immediately
       
-      // Delete existing posts before generating new ones
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase.from('social_posts').delete().eq('user_id', user.id);
-        }
-      } catch (err) {
-        console.error('Error clearing old posts:', err);
-      }
-      
       toast({
         title: "Generating AI content plan",
-        description: `Creating ${contentDays} days of AI-powered content for ${selectedPlatforms.length} platform${selectedPlatforms.length > 1 ? 's' : ''}...`,
+        description: `Creating ${contentDays} days of content. You can navigate away - generation continues in background.`,
       });
       
       try {
-        // Get auth token for the request
-        const { data: { session } } = await supabase.auth.getSession();
-        const authToken = session?.access_token;
-        
-        if (!authToken) {
-          throw new Error('Not authenticated');
-        }
-
-        // Use fetch with streaming for SSE
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-social-content`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({
+        // Start background generation job
+        const { data, error } = await supabase.functions.invoke('generate-social-content', {
+          body: {
             prompt: prompt.trim(),
             platforms: selectedPlatforms,
             days: contentDays,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error: ${response.status}`);
-        }
-
-        const reader = response.body?.getReader();
-        if (!reader) {
-          throw new Error('No response body');
-        }
-
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let totalPosts = 0;
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          
-          // Process complete SSE messages
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ''; // Keep incomplete line in buffer
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6).trim();
-              
-              if (data === '[DONE]') {
-                continue;
-              }
-
-              try {
-                const parsed = JSON.parse(data);
-                
-                if (parsed.error) {
-                  console.error('Stream error:', parsed.error);
-                  continue;
-                }
-
-                // Get user for saving to database
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) continue;
-
-                // Save post to database
-                const { data: savedPost, error: saveError } = await supabase
-                  .from('social_posts')
-                  .insert({
-                    user_id: user.id,
-                    title: parsed.title,
-                    platform: parsed.platform,
-                    scheduled_date: parsed.date,
-                    status: parsed.status || 'draft',
-                    type: parsed.type || 'post',
-                    caption: parsed.caption || '',
-                    hashtags: parsed.hashtags || [],
-                    account_name: parsed.accountName || 'Your Brand',
-                    account_handle: parsed.accountHandle || '@yourbrand',
-                    video_script: parsed.videoScript || null,
-                    image_url: parsed.imageUrl || null,
-                    carousel_images: parsed.carouselImages || null,
-                  })
-                  .select()
-                  .single();
-
-                if (saveError) {
-                  console.error('Error saving post:', saveError);
-                }
-
-                // Add the post with date converted and database ID
-                const post = {
-                  ...parsed,
-                  id: savedPost?.id || parsed.id,
-                  date: new Date(parsed.date),
-                };
-                
-                setGeneratedContent(prev => [...prev, post]);
-                totalPosts++;
-              } catch (e) {
-                // Ignore parse errors for incomplete JSON
-              }
-            }
           }
+        });
+
+        if (error) throw error;
+        
+        if (!data?.jobId) {
+          throw new Error('No job ID returned');
         }
 
-        toast({
-          title: "Content plan generated & saved!",
-          description: `Created ${totalPosts} AI-powered posts for ${contentDays} days`,
-        });
+        const jobId = data.jobId;
+        console.log('Started background job:', jobId);
+
+        // Poll for job completion and new posts
+        const pollInterval = setInterval(async () => {
+          try {
+            // Check job status
+            const { data: job } = await supabase
+              .from('social_content_jobs')
+              .select('*')
+              .eq('id', jobId)
+              .single();
+
+            if (!job) return;
+
+            // Fetch all posts for the user
+            const { data: posts } = await supabase
+              .from('social_posts')
+              .select('*')
+              .order('scheduled_date', { ascending: true });
+
+            if (posts) {
+              const formattedPosts = posts.map(post => ({
+                id: post.id,
+                title: post.title,
+                platform: post.platform,
+                date: new Date(post.scheduled_date),
+                status: post.status,
+                type: post.type || 'post',
+                caption: post.caption || '',
+                hashtags: post.hashtags || [],
+                accountName: post.account_name || 'Your Brand',
+                accountHandle: post.account_handle || '@yourbrand',
+                videoScript: post.video_script,
+                imageUrl: post.image_url,
+                carouselImages: post.carousel_images,
+              }));
+              setGeneratedContent(formattedPosts);
+            }
+
+            // Check if job is complete
+            if (job.status === 'completed') {
+              clearInterval(pollInterval);
+              setIsGeneratingContent(false);
+              toast({
+                title: "Content plan generated & saved!",
+                description: `Created ${job.generated_posts} AI-powered posts for ${contentDays} days`,
+              });
+            } else if (job.status === 'failed') {
+              clearInterval(pollInterval);
+              setIsGeneratingContent(false);
+              toast({
+                title: "Generation failed",
+                description: job.error_message || "Failed to generate content plan.",
+                variant: "destructive",
+              });
+              setShowSocialButtons(true);
+            }
+          } catch (pollError) {
+            console.error('Polling error:', pollError);
+          }
+        }, 2000); // Poll every 2 seconds
+
+        // Store interval ID for cleanup
+        const cleanup = () => clearInterval(pollInterval);
+        window.addEventListener('beforeunload', cleanup, { once: true });
+
       } catch (error: any) {
-        console.error('Error generating content:', error);
+        console.error('Error starting content generation:', error);
         toast({
           title: "Generation failed",
-          description: error.message || "Failed to generate content plan. Please try again.",
+          description: error.message || "Failed to start content generation. Please try again.",
           variant: "destructive",
         });
-        setShowSocialButtons(true); // Show platform selection again on error
-      } finally {
+        setShowSocialButtons(true);
         setIsGeneratingContent(false);
       }
       
