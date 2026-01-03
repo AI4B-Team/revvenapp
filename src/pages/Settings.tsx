@@ -591,6 +591,8 @@ export default function Settings() {
                   <div className="col-span-2">
                     <Input
                       type="email"
+                      value={userEmail}
+                      onChange={(e) => setUserEmail(e.target.value)}
                       placeholder="john.doe@example.com"
                       className="bg-white border-gray-200"
                     />
