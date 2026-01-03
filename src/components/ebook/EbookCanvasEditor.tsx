@@ -82,6 +82,9 @@ interface EbookCanvasEditorProps {
   onPagesChange?: (pages: Page[]) => void;
   bookTitle: string;
   showPagesPanel?: boolean;
+  onUndoStateChange?: (canUndo: boolean, canRedo: boolean) => void;
+  undoRef?: React.MutableRefObject<(() => void) | null>;
+  redoRef?: React.MutableRefObject<(() => void) | null>;
 }
 
 const TOOLS = [
@@ -401,7 +404,10 @@ const EbookCanvasEditor = ({
   onPageReorder,
   onPagesChange,
   bookTitle,
-  showPagesPanel = true
+  showPagesPanel = true,
+  onUndoStateChange,
+  undoRef,
+  redoRef
 }: EbookCanvasEditorProps) => {
   // Internal pages state if no onPagesChange is provided
   const [internalPages, setInternalPages] = useState<Page[]>(pages);
@@ -579,6 +585,61 @@ const EbookCanvasEditor = ({
   // Track page elements state per page
   const [pageElementsState, setPageElementsState] = useState<Record<string, CanvasElement[]>>({});
   
+  // Undo/Redo history
+  const [undoStack, setUndoStack] = useState<Record<string, CanvasElement[]>[]>([]);
+  const [redoStack, setRedoStack] = useState<Record<string, CanvasElement[]>[]>([]);
+  const isUndoRedoAction = useRef(false);
+  
+  // Save state to history before changes
+  const saveToHistory = (currentState: Record<string, CanvasElement[]>) => {
+    if (isUndoRedoAction.current) return;
+    setUndoStack(prev => [...prev.slice(-49), currentState]); // Keep last 50 states
+    setRedoStack([]); // Clear redo stack on new action
+  };
+  
+  // Undo handler
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+    
+    isUndoRedoAction.current = true;
+    const previousState = undoStack[undoStack.length - 1];
+    setRedoStack(prev => [...prev, pageElementsState]);
+    setPageElementsState(previousState);
+    setUndoStack(prev => prev.slice(0, -1));
+    toast.info('Undo');
+    
+    setTimeout(() => {
+      isUndoRedoAction.current = false;
+    }, 0);
+  };
+  
+  // Redo handler
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+    
+    isUndoRedoAction.current = true;
+    const nextState = redoStack[redoStack.length - 1];
+    setUndoStack(prev => [...prev, pageElementsState]);
+    setPageElementsState(nextState);
+    setRedoStack(prev => prev.slice(0, -1));
+    toast.info('Redo');
+    
+    setTimeout(() => {
+      isUndoRedoAction.current = false;
+    }, 0);
+  };
+  
+  // Expose undo/redo handlers to parent via refs
+  useEffect(() => {
+    if (undoRef) undoRef.current = handleUndo;
+    if (redoRef) redoRef.current = handleRedo;
+  }, [undoRef, redoRef, undoStack, redoStack, pageElementsState]);
+  
+  // Notify parent of undo/redo state changes
+  useEffect(() => {
+    onUndoStateChange?.(undoStack.length > 0, redoStack.length > 0);
+  }, [undoStack.length, redoStack.length, onUndoStateChange]);
+  
   const canvasRef = useRef<HTMLDivElement>(null);
   const pageCanvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -647,9 +708,14 @@ const EbookCanvasEditor = ({
   const currentPageElements = getPageElements(selectedPage);
   const currentElement = currentPageElements.find(el => el.id === selectedElement);
 
-  const updateElement = (elementId: string, updates: Partial<CanvasElement>) => {
+  const updateElement = (elementId: string, updates: Partial<CanvasElement>, skipHistory = false) => {
     const pageId = selectedPageId || selectedPage?.id;
     if (!pageId) return;
+    
+    // Save current state to history before update (skip during drag operations)
+    if (!skipHistory && !isUndoRedoAction.current) {
+      saveToHistory(pageElementsState);
+    }
     
     setPageElementsState(prev => {
       const pageElements = prev[pageId] || currentPageElements;
@@ -665,6 +731,11 @@ const EbookCanvasEditor = ({
   const deleteElement = (elementId: string) => {
     const pageId = selectedPageId || selectedPage?.id;
     if (!pageId) return;
+    
+    // Save current state to history before delete
+    if (!isUndoRedoAction.current) {
+      saveToHistory(pageElementsState);
+    }
     
     const element = currentPageElements.find(el => el.id === elementId);
     const isCoverOrChapterImage = element?.type === 'image' && 
@@ -724,6 +795,8 @@ const EbookCanvasEditor = ({
     e.preventDefault();
     const element = currentPageElements.find(el => el.id === elementId);
     if (element && !element.locked) {
+      // Save state before starting drag
+      saveToHistory(pageElementsState);
       setIsDragging(true);
       setDragStart({
         x: e.clientX,
@@ -741,6 +814,8 @@ const EbookCanvasEditor = ({
     e.preventDefault();
     const element = currentPageElements.find(el => el.id === elementId);
     if (element && !element.locked && pageCanvasRef.current) {
+      // Save state before starting rotation
+      saveToHistory(pageElementsState);
       const rect = pageCanvasRef.current.getBoundingClientRect();
       const centerX = rect.left + (element.x + element.width / 2) * rect.width / 100;
       const centerY = rect.top + (element.y + element.height / 2) * rect.height / 100;
@@ -761,6 +836,8 @@ const EbookCanvasEditor = ({
     e.preventDefault();
     const element = currentPageElements.find(el => el.id === elementId);
     if (element && !element.locked) {
+      // Save state before starting resize
+      saveToHistory(pageElementsState);
       setIsResizing(true);
       setResizeHandle(handle);
       setResizeStart({
@@ -782,12 +859,12 @@ const EbookCanvasEditor = ({
       const deltaX = (clientX - dragStart.x) / rect.width * 100;
       const deltaY = (clientY - dragStart.y) / rect.height * 100;
 
-      // Use requestAnimationFrame for smoother dragging
+      // Use requestAnimationFrame for smoother dragging, skip history during drag
       requestAnimationFrame(() => {
         updateElement(selectedElement, {
           x: Math.max(0, Math.min(100 - (currentElement?.width || 0), dragStart.elementX + deltaX)),
           y: Math.max(0, Math.min(100 - (currentElement?.height || 0), dragStart.elementY + deltaY))
-        });
+        }, true); // skipHistory = true
       });
     }
 
@@ -802,7 +879,7 @@ const EbookCanvasEditor = ({
 
         updateElement(selectedElement, {
           rotation: rotateStart.elementRotation + deltaAngle
-        });
+        }, true); // skipHistory = true
       }
     }
 
@@ -848,7 +925,7 @@ const EbookCanvasEditor = ({
         y: newY,
         width: newWidth,
         height: newHeight
-      });
+      }, true); // skipHistory = true
     }
   };
 

@@ -312,8 +312,10 @@ const NewEbook = () => {
   const [zoom, setZoom] = useState(75);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
-  const [undoStack, setUndoStack] = useState<any[]>([]);
-  const [redoStack, setRedoStack] = useState<any[]>([]);
+  
+  // Refs for undo/redo handlers from canvas editor
+  const undoRef = useRef<(() => void) | null>(null);
+  const redoRef = useRef<(() => void) | null>(null);
   
   // Find and Replace state
   const [findReplaceOpen, setFindReplaceOpen] = useState(false);
@@ -327,27 +329,23 @@ const NewEbook = () => {
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 25));
   const handleZoomFit = () => setZoom(75);
 
-  // Undo/Redo handlers
+  // Undo/Redo handlers - delegate to canvas editor
   const handleUndo = () => {
-    if (undoStack.length > 0) {
-      const prevState = undoStack[undoStack.length - 1];
-      setRedoStack(prev => [...prev, prevState]);
-      setUndoStack(prev => prev.slice(0, -1));
-      setCanUndo(undoStack.length > 1);
-      setCanRedo(true);
-      toast.info('Undo');
+    if (undoRef.current) {
+      undoRef.current();
     }
   };
 
   const handleRedo = () => {
-    if (redoStack.length > 0) {
-      const nextState = redoStack[redoStack.length - 1];
-      setUndoStack(prev => [...prev, nextState]);
-      setRedoStack(prev => prev.slice(0, -1));
-      setCanRedo(redoStack.length > 1);
-      setCanUndo(true);
-      toast.info('Redo');
+    if (redoRef.current) {
+      redoRef.current();
     }
+  };
+  
+  // Callback from canvas editor to update undo/redo state
+  const handleUndoStateChange = (canUndoNow: boolean, canRedoNow: boolean) => {
+    setCanUndo(canUndoNow);
+    setCanRedo(canRedoNow);
   };
 
   // Find and Replace handlers
@@ -1228,6 +1226,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 }}
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
                 showPagesPanel={showPagesPanel}
+                onUndoStateChange={handleUndoStateChange}
+                undoRef={undoRef}
+                redoRef={redoRef}
               />
 
               {/* Generation Overlay */}
