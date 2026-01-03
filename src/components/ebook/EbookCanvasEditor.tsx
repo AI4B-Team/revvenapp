@@ -72,6 +72,7 @@ interface CanvasElement {
   locked?: boolean;
   rotation?: number;
   isPlaceholder?: boolean;
+  zIndex?: number;
 }
 
 interface EbookCanvasEditorProps {
@@ -1873,7 +1874,7 @@ const EbookCanvasEditor = ({
     );
   };
 
-  const renderCanvasElement = (element: CanvasElement) => {
+  const renderCanvasElement = (element: CanvasElement, index: number) => {
     const isSelected = selectedElement === element.id;
     const selectionBorderColor = element.type === 'shape' ? '#dc2626' : '#3b82f6';
     
@@ -1887,6 +1888,10 @@ const EbookCanvasEditor = ({
       }
     };
     
+    // Use explicit zIndex if set, otherwise use array index. Selected elements get boosted z-index.
+    const elementZIndex = element.zIndex ?? index;
+    const finalZIndex = isSelected ? 1000 + elementZIndex : elementZIndex;
+    
     const baseStyle: React.CSSProperties = {
       position: 'absolute',
       left: `${element.x}%`,
@@ -1895,6 +1900,7 @@ const EbookCanvasEditor = ({
       height: `${element.height}%`,
       cursor: element.locked ? 'not-allowed' : (isMoving && isSelected ? 'move' : 'pointer'),
       transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
+      zIndex: finalZIndex,
     };
     
     // Selection label component - only shows when selected
@@ -2446,8 +2452,8 @@ const EbookCanvasEditor = ({
                             {/* Canvas Content */}
                             <div className="absolute inset-0 overflow-visible">
                               {isSelected 
-                                ? currentPageElements.map(el => renderCanvasElement(el))
-                                : pageElements.map(el => (
+                                ? currentPageElements.map((el, idx) => renderCanvasElement(el, idx))
+                                : pageElements.map((el, idx) => (
                                   <div 
                                     key={el.id}
                                     className="absolute pointer-events-none"
@@ -2457,6 +2463,7 @@ const EbookCanvasEditor = ({
                                       width: `${el.width}%`,
                                       height: `${el.height}%`,
                                       transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
+                                      zIndex: el.zIndex ?? idx,
                                     }}
                                   >
                                     {el.type === 'image' && el.src && (
