@@ -579,6 +579,12 @@ const EbookCanvasEditor = ({
   const [gridMenuOpenId, setGridMenuOpenId] = useState<string | null>(null);
   const [gridInsertHoveredIndex, setGridInsertHoveredIndex] = useState<number | null>(null);
   const [addPageHovered, setAddPageHovered] = useState(false);
+  
+  // Drag and drop state for page reordering
+  const [draggedPageId, setDraggedPageId] = useState<string | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Notify parent when grid view changes
@@ -2861,12 +2867,43 @@ const EbookCanvasEditor = ({
             )}
 
             {/* Grid View Canvas */}
-            <div className="flex-1 overflow-auto p-8">
+            <div 
+              className="flex-1 overflow-auto p-8"
+              ref={gridContainerRef}
+              onMouseMove={(e) => {
+                if (draggedPageId && dragPosition) {
+                  setDragPosition({ x: e.clientX, y: e.clientY });
+                }
+              }}
+              onMouseUp={() => {
+                if (draggedPageId !== null && dragOverIndex !== null) {
+                  const draggedIndex = currentPages.findIndex(p => p.id === draggedPageId);
+                  if (draggedIndex !== -1 && draggedIndex !== dragOverIndex) {
+                    const newPages = [...currentPages];
+                    const [removed] = newPages.splice(draggedIndex, 1);
+                    const insertIndex = dragOverIndex > draggedIndex ? dragOverIndex - 1 : dragOverIndex;
+                    newPages.splice(insertIndex, 0, removed);
+                    onPagesChange(newPages);
+                  }
+                }
+                setDraggedPageId(null);
+                setDragOverIndex(null);
+                setDragPosition(null);
+              }}
+              onMouseLeave={() => {
+                if (draggedPageId) {
+                  setDraggedPageId(null);
+                  setDragOverIndex(null);
+                  setDragPosition(null);
+                }
+              }}
+            >
               <div className="flex flex-wrap gap-6 justify-start items-start">
                 {currentPages.map((page, index) => {
                   const isSelected = selectedGridPages.has(page.id);
                   const isHovered = gridHoveredPageId === page.id;
-                  const isInsertHovered = gridInsertHoveredIndex === index;
+                  const isDragging = draggedPageId === page.id;
+                  const isDropTarget = dragOverIndex === index && draggedPageId !== null && draggedPageId !== page.id;
                   const pageElements = getPageElements(page);
                   
                   // Get page type icon
@@ -2892,60 +2929,72 @@ const EbookCanvasEditor = ({
                   return (
                     <div
                       key={page.id}
-                      className="flex items-start"
+                      className={`flex items-start relative transition-transform duration-200 ease-out ${isDragging ? 'opacity-40 scale-95' : ''}`}
+                      onMouseEnter={() => {
+                        if (draggedPageId && draggedPageId !== page.id) {
+                          setDragOverIndex(index);
+                        }
+                      }}
                     >
-                      {/* Insert Between Affordance - shows before each page */}
+                      {/* Drop indicator line - shown when dragging over this position */}
                       <div
-                        className="relative flex items-center justify-center self-stretch"
-                        onMouseEnter={() => setGridInsertHoveredIndex(index)}
-                        onMouseLeave={() => setGridInsertHoveredIndex(null)}
-                      >
+                        className={`absolute -left-3 top-0 w-1 rounded-full bg-purple-500 transition-all duration-200 ease-out ${
+                          isDropTarget ? 'opacity-100 h-full' : 'opacity-0 h-0'
+                        }`}
+                        style={{ zIndex: 50 }}
+                      />
+                      
+                      {/* Insert Between Affordance - shows before each page when NOT dragging */}
+                      {!draggedPageId && (
                         <div
-                          className={`w-6 flex items-center justify-center transition-all duration-200 ${
-                            isInsertHovered ? 'w-10' : ''
-                          }`}
-                          style={{ height: 'calc(44 * 11 / 8.5 * 4px + 32px)' }}
+                          className="relative flex items-center justify-center self-stretch group"
+                          style={{ width: gridInsertHoveredIndex === index ? '40px' : '24px', transition: 'width 200ms ease-out' }}
                         >
-                          {isInsertHovered && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    // Insert before this page
-                                    if (index === 0) {
-                                      // Insert at beginning
-                                      const newPage = {
-                                        id: `page-${Date.now()}`,
-                                        title: 'New Page',
-                                        type: 'chapter-page' as const,
-                                      };
-                                      onPagesChange([newPage, ...currentPages]);
-                                    } else {
-                                      // Insert after the previous page
-                                      handleAddPage(currentPages[index - 1].id);
-                                    }
-                                    setGridInsertHoveredIndex(null);
-                                  }}
-                                  className="w-8 h-8 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center hover:border-purple-500 hover:bg-purple-50 transition-all shadow-sm"
-                                >
-                                  <Plus className="w-4 h-4 text-gray-500 hover:text-purple-600" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom">Add Page</TooltipContent>
-                            </Tooltip>
-                          )}
+                          {/* Invisible hover zone for stable hover detection */}
+                          <div 
+                            className="absolute inset-0 z-10"
+                            onMouseEnter={() => setGridInsertHoveredIndex(index)}
+                            onMouseLeave={() => setGridInsertHoveredIndex(null)}
+                          />
+                          
+                          <div
+                            className="flex items-center justify-center h-full"
+                            style={{ height: 'calc(44 * 11 / 8.5 * 4px + 32px)' }}
+                          >
+                            <div className={`transition-all duration-200 ease-out ${gridInsertHoveredIndex === index ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
+                              <Tooltip open={gridInsertHoveredIndex === index}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (index === 0) {
+                                        const newPage = {
+                                          id: `page-${Date.now()}`,
+                                          title: 'New Page',
+                                          type: 'chapter-page' as const,
+                                        };
+                                        onPagesChange([newPage, ...currentPages]);
+                                      } else {
+                                        handleAddPage(currentPages[index - 1].id);
+                                      }
+                                      setGridInsertHoveredIndex(null);
+                                    }}
+                                    className="w-8 h-8 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center hover:border-purple-500 hover:bg-purple-50 transition-all shadow-md"
+                                  >
+                                    <Plus className="w-4 h-4 text-gray-500" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">Add Page</TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Page Column */}
                       <div
-                        className={`flex flex-col items-center transition-all duration-200 ${
-                          isInsertHovered ? 'ml-2' : ''
-                        } ${
-                          gridInsertHoveredIndex === index + 1 ? 'mr-2' : ''
-                        }`}
-                        onMouseEnter={() => setGridHoveredPageId(page.id)}
+                        className="flex flex-col items-center transition-all duration-200 ease-out"
+                        onMouseEnter={() => !draggedPageId && setGridHoveredPageId(page.id)}
                         onMouseLeave={() => {
                           setGridHoveredPageId(null);
                           setGridMenuOpenId(null);
@@ -2954,6 +3003,7 @@ const EbookCanvasEditor = ({
                       {/* Page Card */}
                       <div
                         onClick={(e) => {
+                          if (draggedPageId) return; // Don't handle click when dragging
                           if (e.shiftKey || e.metaKey || e.ctrlKey) {
                             // Multi-select
                             setSelectedGridPages(prev => {
@@ -2971,13 +3021,21 @@ const EbookCanvasEditor = ({
                             setIsGridView(false);
                           }
                         }}
-                        className={`relative w-44 aspect-[8.5/11] bg-white rounded-lg shadow-sm cursor-pointer transition-all overflow-hidden ${
+                        onMouseDown={(e) => {
+                          // Start drag
+                          if (e.button === 0 && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+                            e.preventDefault();
+                            setDraggedPageId(page.id);
+                            setDragPosition({ x: e.clientX, y: e.clientY });
+                          }
+                        }}
+                        className={`relative w-44 aspect-[8.5/11] bg-white rounded-lg shadow-sm cursor-grab active:cursor-grabbing transition-all duration-200 ease-out overflow-hidden ${
                           isSelected 
                             ? 'ring-2 ring-purple-500 ring-offset-2' 
-                            : isHovered 
+                            : isHovered && !draggedPageId
                               ? 'ring-2 ring-gray-300' 
                               : 'ring-1 ring-gray-200 hover:ring-gray-300'
-                        }`}
+                        } ${isDragging ? 'ring-2 ring-purple-400 shadow-lg' : ''}`}
                       >
                         {/* Page Content Preview */}
                         <div className="absolute inset-0 overflow-hidden">
@@ -3018,8 +3076,8 @@ const EbookCanvasEditor = ({
                           ))}
                         </div>
 
-                        {/* Hover Menu Button */}
-                        {isHovered && (
+                        {/* Hover Menu Button - hide when dragging */}
+                        {isHovered && !draggedPageId && (
                           <Popover open={gridMenuOpenId === page.id} onOpenChange={(open) => setGridMenuOpenId(open ? page.id : null)}>
                             <PopoverTrigger asChild>
                               <button
@@ -3196,8 +3254,63 @@ const EbookCanvasEditor = ({
                 </div>
               </div>
             </div>
+            
+            {/* Floating drag preview */}
+            {draggedPageId && dragPosition && (
+              <div
+                className="fixed pointer-events-none z-[100] w-44 aspect-[8.5/11] bg-white rounded-lg shadow-2xl ring-2 ring-purple-500 opacity-90"
+                style={{
+                  left: dragPosition.x - 88,
+                  top: dragPosition.y - 120,
+                }}
+              >
+                {(() => {
+                  const draggedPage = currentPages.find(p => p.id === draggedPageId);
+                  if (!draggedPage) return null;
+                  const draggedElements = getPageElements(draggedPage);
+                  return (
+                    <div className="absolute inset-0 overflow-hidden rounded-lg">
+                      {draggedElements.map((el, idx) => (
+                        <div
+                          key={el.id}
+                          className="absolute pointer-events-none"
+                          style={{
+                            left: `${el.x}%`,
+                            top: `${el.y}%`,
+                            width: `${el.width}%`,
+                            height: `${el.height}%`,
+                            transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
+                            zIndex: el.zIndex ?? idx,
+                          }}
+                        >
+                          {el.type === 'image' && el.src && (
+                            <img src={el.src} alt="" className="w-full h-full object-cover" />
+                          )}
+                          {el.type === 'shape' && (
+                            <div className="w-full h-full" style={{ backgroundColor: el.fill }} />
+                          )}
+                          {el.type === 'text' && (
+                            <div
+                              className="w-full h-full overflow-hidden"
+                              style={{
+                                fontFamily: el.fontFamily,
+                                fontSize: `${(el.fontSize || 12) * 0.18}px`,
+                                color: el.textColor,
+                                lineHeight: 1.2,
+                                whiteSpace: 'pre-wrap',
+                              }}
+                            >
+                              {el.content}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
 
-            {/* Cancel/Confirm Footer */}
             <div className="flex-shrink-0 border-t border-gray-200 bg-white px-6 py-4 flex items-center justify-end gap-3">
               <button
                 onClick={() => {
