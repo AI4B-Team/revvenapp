@@ -11,7 +11,7 @@ import {
   Move, RotateCw, Scale, ArrowUpToLine, ArrowDownToLine, ArrowUpDown,
   Wand2, Filter, Droplet, Eraser, PenTool, MoreHorizontal, GripVertical,
   ScanLine, Blend, ImagePlus, CircleDot, Star, Heart, Hexagon, Pentagon,
-  RectangleHorizontal, Scaling
+  RectangleHorizontal, Scaling, ChevronsLeft, ChevronsRight, LayoutGrid
 } from 'lucide-react';
 import PageSettingsPanel from './PageSettingsPanel';
 import { 
@@ -3233,6 +3233,137 @@ const EbookCanvasEditor = ({
                 </div>
               ))}
             </div>
+            
+                {/* Static Footer Navigation */}
+                <div className="flex-shrink-0 border-t border-gray-200 bg-white p-2">
+                  <div className="flex items-center justify-center gap-1">
+                    {/* First Page */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            const firstPage = currentPages[0];
+                            if (firstPage) {
+                              onPageSelect(firstPage.id);
+                              scrollToPage(firstPage.id);
+                            }
+                          }}
+                          disabled={currentPages.length === 0 || selectedPageId === currentPages[0]?.id}
+                          className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <ChevronsLeft className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        <p>First</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Previous Page */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            const currentIndex = currentPages.findIndex(p => p.id === selectedPageId);
+                            if (currentIndex > 0) {
+                              const prevPage = currentPages[currentIndex - 1];
+                              onPageSelect(prevPage.id);
+                              scrollToPage(prevPage.id);
+                            }
+                          }}
+                          disabled={currentPages.length === 0 || selectedPageId === currentPages[0]?.id}
+                          className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <ChevronLeft className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        <p>Previous</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Page Number Input */}
+                    <div className="flex items-center gap-0.5 px-1">
+                      <input
+                        type="text"
+                        value={currentPages.findIndex(p => p.id === selectedPageId) + 1}
+                        onChange={(e) => {
+                          const pageNum = parseInt(e.target.value);
+                          if (pageNum >= 1 && pageNum <= currentPages.length) {
+                            const targetPage = currentPages[pageNum - 1];
+                            onPageSelect(targetPage.id);
+                            scrollToPage(targetPage.id);
+                          }
+                        }}
+                        className="w-6 h-6 text-center text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-500"
+                      />
+                      <span className="text-xs text-gray-500">/{currentPages.length}</span>
+                    </div>
+
+                    {/* Next Page */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            const currentIndex = currentPages.findIndex(p => p.id === selectedPageId);
+                            if (currentIndex < currentPages.length - 1) {
+                              const nextPage = currentPages[currentIndex + 1];
+                              onPageSelect(nextPage.id);
+                              scrollToPage(nextPage.id);
+                            }
+                          }}
+                          disabled={currentPages.length === 0 || selectedPageId === currentPages[currentPages.length - 1]?.id}
+                          className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <ChevronRight className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        <p>Next</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Last Page */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            const lastPage = currentPages[currentPages.length - 1];
+                            if (lastPage) {
+                              onPageSelect(lastPage.id);
+                              scrollToPage(lastPage.id);
+                            }
+                          }}
+                          disabled={currentPages.length === 0 || selectedPageId === currentPages[currentPages.length - 1]?.id}
+                          className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <ChevronsRight className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        <p>Last</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Grid View Toggle */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            // Toggle grid view - for now just show toast
+                            toast.info('Grid view coming soon');
+                          }}
+                          className="p-1.5 rounded hover:bg-gray-100 ml-1"
+                        >
+                          <LayoutGrid className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        <p>Grid View</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
               </>
             )}
           </div>
