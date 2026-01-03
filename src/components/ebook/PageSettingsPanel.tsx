@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
-import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info, PenLine } from 'lucide-react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info, Pipette } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -255,7 +255,28 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   ];
   
   const STANDARD_COLORS = ['#000000', '#ffffff', '#ef4444', '#f97316', '#22c55e', '#3b82f6', '#a855f7'];
-  const [recentColors, setRecentColors] = useState<string[]>(['#ef4444', '#f97316']);
+  
+  // Load recent colors from localStorage
+  const [recentColors, setRecentColors] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('ebook-recent-colors');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  
+  // Save recent colors to localStorage when they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('ebook-recent-colors', JSON.stringify(recentColors));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [recentColors]);
+  
+  // Check if EyeDropper API is supported
+  const isEyeDropperSupported = typeof window !== 'undefined' && 'EyeDropper' in window;
 
   const toggleSection = (section: SectionType) => {
     setOpenSection(openSection === section ? null : section);
@@ -499,11 +520,47 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
       setBrightness(hsb.b);
     }
     
-    // Add to recent colors if not already there
-    if (!recentColors.includes(color) && color !== 'transparent') {
-      setRecentColors(prev => [color, ...prev.slice(0, 6)]);
+    // Add to recent colors - move to front if already exists, otherwise add new
+    if (color !== 'transparent') {
+      setRecentColors(prev => {
+        const filtered = prev.filter(c => c.toLowerCase() !== color.toLowerCase());
+        return [color, ...filtered].slice(0, 8);
+      });
     }
   };
+  
+  // Handle eyedropper color pick
+  const handleEyeDropper = useCallback(async () => {
+    if (!isEyeDropperSupported) {
+      console.warn('EyeDropper API is not supported in this browser');
+      return;
+    }
+    
+    try {
+      // @ts-ignore - EyeDropper API types
+      const eyeDropper = new window.EyeDropper();
+      const result = await eyeDropper.open();
+      const color = result.sRGBHex;
+      setBackgroundColor(color);
+      setHexInput(color.toUpperCase());
+      setSelectedGradient(null);
+      
+      // Update HSB values from hex
+      const hsb = hexToHsb(color);
+      setHue(hsb.h);
+      setSaturation(hsb.s);
+      setBrightness(hsb.b);
+      
+      // Add to recent colors
+      setRecentColors(prev => {
+        const filtered = prev.filter(c => c.toLowerCase() !== color.toLowerCase());
+        return [color, ...filtered].slice(0, 8);
+      });
+    } catch (e) {
+      // User cancelled or error occurred
+      console.log('EyeDropper cancelled or error:', e);
+    }
+  }, [isEyeDropperSupported, hexToHsb]);
 
   const handleGradientSelect = (gradientId: string) => {
     setSelectedGradient(gradientId);
@@ -1288,12 +1345,16 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                 <div className="flex items-center gap-2">
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <button className="p-2 hover:bg-gray-100 rounded transition-colors">
-                                        <PenLine className="w-4 h-4 text-gray-600" />
+                                      <button 
+                                        onClick={handleEyeDropper}
+                                        className={`p-2 hover:bg-gray-100 rounded transition-colors ${!isEyeDropperSupported ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={!isEyeDropperSupported}
+                                      >
+                                        <Pipette className="w-4 h-4 text-gray-600" />
                                       </button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>Pick A Color</p>
+                                      <p>{isEyeDropperSupported ? 'Pick A Color' : 'Not supported in this browser'}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                   <Select defaultValue="hex">
