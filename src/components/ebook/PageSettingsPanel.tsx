@@ -437,7 +437,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                       <SelectValue>{getFormatDisplayName()}</SelectValue>
                     </SelectTrigger>
                     <SelectContent className="max-h-80">
-                      <SelectItem value="custom" className="justify-center">Format</SelectItem>
+                      <SelectItem value="custom" className="justify-center">Custom</SelectItem>
                       {PAGE_FORMAT_CATEGORIES.map((category) => (
                         <SelectGroup key={category.label}>
                           <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
