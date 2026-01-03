@@ -63,7 +63,14 @@ For each post, provide:
 - 4-6 relevant hashtags (without #)
 - Post type: post, carousel, reel, or story
 
-IMPORTANT: For "reel" type posts (video content), you MUST also include a "videoScript" field with a full video script including timestamps. The script should be structured like this:
+IMPORTANT PLATFORM-SPECIFIC RULES:
+- For TikTok: ALWAYS use type "reel" with videoScript
+- For YouTube/YouTube Shorts: ALWAYS use type "reel" with videoScript
+- For Instagram: Mix between "post", "carousel", "story", and "reel" (at least 30% should be "reel" type)
+- For Facebook: Mix between "post" and "reel" (at least 25% should be "reel" type)
+- For other platforms: Use appropriate mix of types
+
+CRITICAL: For ALL "reel" type posts (video content), you MUST include a "videoScript" field with a full video script including timestamps. The script should be structured like this:
 {
   "videoScript": {
     "duration": "30s",
@@ -84,11 +91,15 @@ Return ONLY valid JSON array with this structure:
     "title": "...",
     "caption": "...",
     "hashtags": ["tag1", "tag2"],
-    "type": "post"
+    "type": "reel",
+    "videoScript": {
+      "duration": "30s",
+      "scenes": [...]
+    }
   },
   {
     "day": ${startDay + 1},
-    "platform": "tiktok",
+    "platform": "facebook",
     "title": "...",
     "caption": "...",
     "hashtags": ["tag1", "tag2"],
@@ -100,7 +111,7 @@ Return ONLY valid JSON array with this structure:
   }
 ]
 
-Generate 1-2 posts per platform per day. Mix post types for variety. Make content specific to each platform's style. For TikTok and YouTube Shorts, ALWAYS use type "reel" with videoScript.`;
+Generate 1-2 posts per platform per day. Make sure to include REELS for Instagram, Facebook, TikTok, and YouTube. Make content specific to each platform's style.`;
 
             const userPrompt = `Create content for days ${startDay + 1} to ${endDay} for these platforms: ${platformNames}
 
