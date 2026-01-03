@@ -2896,14 +2896,15 @@ const EbookCanvasEditor = ({
                     >
                       {/* Insert Between Affordance - shows before each page */}
                       <div
-                        className="relative flex items-center justify-center h-full"
+                        className="relative flex items-center justify-center self-stretch"
                         onMouseEnter={() => setGridInsertHoveredIndex(index)}
                         onMouseLeave={() => setGridInsertHoveredIndex(null)}
                       >
                         <div
-                          className={`w-6 h-36 flex items-center justify-center transition-all duration-200 ${
+                          className={`w-6 flex items-center justify-center transition-all duration-200 ${
                             isInsertHovered ? 'w-10' : ''
                           }`}
+                          style={{ height: 'calc(44 * 11 / 8.5 * 4px + 32px)' }}
                         >
                           {isInsertHovered && (
                             <Tooltip>
@@ -2931,7 +2932,7 @@ const EbookCanvasEditor = ({
                                   <Plus className="w-4 h-4 text-gray-500 hover:text-purple-600" />
                                 </button>
                               </TooltipTrigger>
-                              <TooltipContent>Add Page</TooltipContent>
+                              <TooltipContent side="bottom">Add Page</TooltipContent>
                             </Tooltip>
                           )}
                         </div>
@@ -3173,25 +3174,25 @@ const EbookCanvasEditor = ({
                   onMouseEnter={() => setAddPageHovered(true)}
                   onMouseLeave={() => setAddPageHovered(false)}
                 >
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => {
-                          const lastPage = currentPages[currentPages.length - 1];
-                          if (lastPage) handleAddPage(lastPage.id);
-                        }}
-                        className="w-44 aspect-[8.5/11] bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-400 hover:bg-gray-100 transition-all flex items-center justify-center group"
-                      >
-                        <Plus className="w-8 h-8 text-gray-400 group-hover:text-purple-500 transition-colors" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Add Page</TooltipContent>
-                  </Tooltip>
+                  <button 
+                    onClick={() => {
+                      const lastPage = currentPages[currentPages.length - 1];
+                      if (lastPage) handleAddPage(lastPage.id);
+                    }}
+                    className="w-44 aspect-[8.5/11] bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-400 hover:bg-gray-100 transition-all flex items-center justify-center group"
+                  >
+                    <Plus className="w-8 h-8 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                  </button>
                   
-                  {/* Placeholder text - only shows on hover */}
-                  <div className={`mt-2 px-3 py-1 bg-gray-800 text-white text-xs font-medium rounded-md transition-opacity duration-200 ${addPageHovered ? 'opacity-100' : 'opacity-0'}`}>
-                    Add Page
-                  </div>
+                  {/* Tooltip - only shows on hover */}
+                  <Tooltip open={addPageHovered}>
+                    <TooltipTrigger asChild>
+                      <div className="h-0 w-0" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className={`transition-opacity duration-200 ${addPageHovered ? 'opacity-100' : 'opacity-0'}`}>
+                      Add Page
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             </div>
@@ -3213,7 +3214,7 @@ const EbookCanvasEditor = ({
                   setSelectedGridPages(new Set());
                   toast.success('Changes confirmed');
                 }}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-white bg-brand-green hover:bg-brand-green/90 rounded-lg transition-colors"
               >
                 Confirm
               </button>
