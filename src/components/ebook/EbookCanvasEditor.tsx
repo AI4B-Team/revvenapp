@@ -591,6 +591,20 @@ const EbookCanvasEditor = ({
   useEffect(() => {
     onGridViewChange?.(isGridView);
   }, [isGridView, onGridViewChange]);
+  
+  // Global mouseup handler to release drag even if mouse leaves container
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (draggedPageId !== null) {
+        setDraggedPageId(null);
+        setDragOverIndex(null);
+        setDragPosition(null);
+      }
+    };
+    
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+  }, [draggedPageId]);
   // Drag state for element movement
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number; elementX: number; elementY: number } | null>(null);
@@ -2759,23 +2773,6 @@ const EbookCanvasEditor = ({
         {/* Grid View Mode */}
         {isGridView ? (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-100 relative">
-            {/* Close X Button - Top Right */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => {
-                    setIsGridView(false);
-                    setSelectedGridPages(new Set());
-                  }}
-                  className="absolute top-4 right-4 z-50 w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-colors"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="text-xs">
-                <p>Close Grid View</p>
-              </TooltipContent>
-            </Tooltip>
 
             {/* Grid View Toolbar */}
             {selectedGridPages.size > 0 && (
@@ -2876,29 +2873,24 @@ const EbookCanvasEditor = ({
                 }
               }}
               onMouseUp={() => {
-                if (draggedPageId !== null && dragOverIndex !== null) {
-                  const draggedIndex = currentPages.findIndex(p => p.id === draggedPageId);
-                  if (draggedIndex !== -1 && draggedIndex !== dragOverIndex) {
-                    const newPages = [...currentPages];
-                    const [removed] = newPages.splice(draggedIndex, 1);
-                    const insertIndex = dragOverIndex > draggedIndex ? dragOverIndex - 1 : dragOverIndex;
-                    newPages.splice(insertIndex, 0, removed);
-                    onPagesChange(newPages);
+                if (draggedPageId !== null) {
+                  if (dragOverIndex !== null) {
+                    const draggedIndex = currentPages.findIndex(p => p.id === draggedPageId);
+                    if (draggedIndex !== -1 && draggedIndex !== dragOverIndex) {
+                      const newPages = [...currentPages];
+                      const [removed] = newPages.splice(draggedIndex, 1);
+                      const insertIndex = dragOverIndex > draggedIndex ? dragOverIndex - 1 : dragOverIndex;
+                      newPages.splice(insertIndex, 0, removed);
+                      onPagesChange(newPages);
+                    }
                   }
-                }
-                setDraggedPageId(null);
-                setDragOverIndex(null);
-                setDragPosition(null);
-              }}
-              onMouseLeave={() => {
-                if (draggedPageId) {
                   setDraggedPageId(null);
                   setDragOverIndex(null);
                   setDragPosition(null);
                 }
               }}
             >
-              <div className="flex flex-wrap gap-6 justify-start items-start">
+              <div className="flex flex-wrap gap-6 justify-center items-start">
                 {currentPages.map((page, index) => {
                   const isSelected = selectedGridPages.has(page.id);
                   const isHovered = gridHoveredPageId === page.id;
