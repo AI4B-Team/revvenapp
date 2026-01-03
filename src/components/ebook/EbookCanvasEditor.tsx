@@ -2921,7 +2921,11 @@ const EbookCanvasEditor = ({
                   return (
                     <div
                       key={page.id}
-                      className={`flex items-start relative transition-transform duration-200 ease-out ${isDragging ? 'opacity-40 scale-95' : ''}`}
+                      className={`flex items-start relative ${isDragging ? 'opacity-40 scale-95' : ''}`}
+                      style={{
+                        marginLeft: gridInsertHoveredIndex === index && !draggedPageId ? '48px' : '0px',
+                        transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease-out, opacity 0.2s ease-out'
+                      }}
                       onMouseEnter={() => {
                         if (draggedPageId && draggedPageId !== page.id) {
                           setDragOverIndex(index);
@@ -2936,8 +2940,53 @@ const EbookCanvasEditor = ({
                         style={{ zIndex: 50 }}
                       />
                       
-                      {/* Insert Between Affordance is rendered as an overlay on each card */}
+                      {/* Insert Between - Hover zone and + button */}
+                      {!draggedPageId && (
+                        <>
+                          {/* Hover zone between pages */}
+                          <div
+                            className="absolute -left-6 top-0 h-full w-8 z-20"
+                            onMouseEnter={() => setGridInsertHoveredIndex(index)}
+                            onMouseLeave={() => setGridInsertHoveredIndex(null)}
+                          />
 
+                          {/* Centered + button */}
+                          <div
+                            className={`absolute top-1/2 -translate-y-1/2 z-30 transition-all duration-300 ease-out ${
+                              gridInsertHoveredIndex === index
+                                ? 'opacity-100 scale-100 pointer-events-auto -left-10'
+                                : 'opacity-0 scale-75 pointer-events-none -left-7'
+                            }`}
+                            onMouseEnter={() => setGridInsertHoveredIndex(index)}
+                            onMouseLeave={() => setGridInsertHoveredIndex(null)}
+                          >
+                            <Tooltip open={gridInsertHoveredIndex === index}>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (index === 0) {
+                                      const newPage = {
+                                        id: `page-${Date.now()}`,
+                                        title: 'New Page',
+                                        type: 'chapter-page' as const,
+                                      };
+                                      onPagesChange([newPage, ...currentPages]);
+                                    } else {
+                                      handleAddPage(currentPages[index - 1].id);
+                                    }
+                                    setGridInsertHoveredIndex(null);
+                                  }}
+                                  className="w-10 h-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:border-brand-green hover:bg-brand-green/10 transition-all shadow-lg"
+                                >
+                                  <Plus className="w-5 h-5 text-gray-500" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">Add Page</TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </>
+                      )}
 
                       {/* Page Column */}
                       <div
@@ -2948,55 +2997,8 @@ const EbookCanvasEditor = ({
                           setGridMenuOpenId(null);
                         }}
                       >
-                      {/* Card + Insert Between */}
+                      {/* Card */}
                       <div className="relative w-44">
-                        {!draggedPageId && (
-                          <>
-                            {/* Hover zone between pages (matches grid gap) */}
-                            <div
-                              className="absolute -left-6 top-0 h-full w-6 z-20"
-                              onMouseEnter={() => setGridInsertHoveredIndex(index)}
-                              onMouseLeave={() => setGridInsertHoveredIndex(null)}
-                            />
-
-                            {/* Centered + button (overlaps both pages) */}
-                            <div
-                              className={`absolute -left-7 top-1/2 -translate-y-1/2 z-30 transition-all duration-200 ease-out ${
-                                gridInsertHoveredIndex === index
-                                  ? 'opacity-100 scale-100 pointer-events-auto'
-                                  : 'opacity-0 scale-75 pointer-events-none'
-                              }`}
-                              onMouseEnter={() => setGridInsertHoveredIndex(index)}
-                              onMouseLeave={() => setGridInsertHoveredIndex(null)}
-                            >
-                              <Tooltip open={gridInsertHoveredIndex === index}>
-                                <TooltipTrigger asChild>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (index === 0) {
-                                        const newPage = {
-                                          id: `page-${Date.now()}`,
-                                          title: 'New Page',
-                                          type: 'chapter-page' as const,
-                                        };
-                                        onPagesChange([newPage, ...currentPages]);
-                                      } else {
-                                        handleAddPage(currentPages[index - 1].id);
-                                      }
-                                      setGridInsertHoveredIndex(null);
-                                    }}
-                                    className="w-10 h-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:border-brand-green hover:bg-brand-green/10 transition-all shadow-lg"
-                                  >
-                                    <Plus className="w-5 h-5 text-gray-500" />
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom">Add Page</TooltipContent>
-                              </Tooltip>
-                            </div>
-                          </>
-                        )}
-
                         {/* Page Card */}
                         <div
                           onClick={(e) => {
