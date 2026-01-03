@@ -904,20 +904,38 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               ))}
             </div>
             
-            {/* Invite button (previously Share) */}
-            <button 
-              onClick={() => toast.success('Invite dialog coming soon')}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
-            >
-              <UserPlus className="w-5 h-5" strokeWidth={2.5} />
-              <span className="hidden md:inline">Invite</span>
-            </button>
+            {/* Create button with dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-green hover:bg-brand-green/90 rounded-lg text-sm text-white font-semibold transition-colors">
+                  <Wand2 className="w-4 h-4" strokeWidth={2.5} />
+                  <span className="hidden md:inline">Create</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 z-50">
+                <DropdownMenuItem 
+                  onClick={() => toast.success('AudioBook creation coming soon')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Headphones className="w-4 h-4" />
+                  AudioBook
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => toast.success('Video Presentation creation coming soon')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Presentation className="w-4 h-4" />
+                  Video Presentation
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
-            {/* Share button (previously Preview) with popover */}
+            {/* Share button with popover */}
             <Popover>
               <PopoverTrigger asChild>
                 <button 
-                  className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-green hover:bg-brand-green/90 rounded-lg text-sm text-white font-semibold transition-colors"
+                  className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
                 >
                   <Share2 className="w-5 h-5" strokeWidth={2.5} />
                   <span className="hidden md:inline">Share</span>
