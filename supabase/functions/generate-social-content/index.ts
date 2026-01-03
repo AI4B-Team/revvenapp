@@ -228,9 +228,16 @@ IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day o
         const minute = Math.floor(Math.random() * 4) * 15;
         postDate.setHours(hour, minute, 0, 0);
 
-        // Fetch related photos from Pexels
+        // Fetch related photos from Pexels - use caption for more relevant results
         const photoCount = post.type === 'carousel' ? 4 : 1;
-        const searchQuery = post.title || prompt;
+        // Extract key words from caption (remove emojis, hashtags, and limit length)
+        const cleanCaption = (post.caption || '')
+          .replace(/[^\w\s]/g, ' ')  // Remove emojis and special chars
+          .replace(/\s+/g, ' ')       // Normalize spaces
+          .trim()
+          .slice(0, 80);              // Limit to first 80 chars for better search
+        const searchQuery = cleanCaption || post.title || prompt;
+        console.log(`Fetching photos for: "${searchQuery}"`);
         const photos = await fetchPexelsPhotos(searchQuery, photoCount);
 
         // Save post to database
