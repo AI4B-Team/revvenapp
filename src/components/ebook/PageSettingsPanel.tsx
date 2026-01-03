@@ -921,7 +921,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                         </TooltipContent>
                                       </Tooltip>
                                     </div>
-                                    <button className="text-sm text-teal-500 hover:text-teal-600">Edit</button>
+                                    <button className="text-sm text-teal-500 hover:text-teal-600">Apply To All Pages</button>
                                   </div>
                                   <div className="space-y-1">
                                     {THEME_COLORS.map((row, rowIdx) => (
