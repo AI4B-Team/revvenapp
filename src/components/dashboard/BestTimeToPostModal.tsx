@@ -56,6 +56,7 @@ const DAY_FULL_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
 
 // Sample accounts
 const ACCOUNTS = [
+  { id: 'all', name: 'All Accounts', handle: '', platform: 'all' },
   { id: '1', name: 'Main Account', handle: '@yourbrand', platform: 'instagram' },
   { id: '2', name: 'Business Page', handle: '@yourbusiness', platform: 'facebook' },
   { id: '3', name: 'Twitter Profile', handle: '@yourtwitter', platform: 'twitter' },
@@ -229,7 +230,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
+      <DialogContent className="max-w-5xl max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
         {/* Compact Header */}
         <div className="px-6 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
@@ -246,7 +247,112 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
             </div>
             
             <div className="flex items-center gap-3">
-              {/* View Mode Toggle */}
+              {/* Account Selector - Compact */}
+              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                <SelectTrigger className="w-[180px] h-9">
+                  <div className="flex items-center gap-2">
+                    {account?.platform !== 'all' && (
+                      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                        {getPlatformIcon(account?.platform || 'instagram', 'w-3 h-3')}
+                      </div>
+                    )}
+                    <span className="text-sm truncate">{account?.name}</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  {ACCOUNTS.map((acc) => (
+                    <SelectItem key={acc.id} value={acc.id}>
+                      <div className="flex items-center gap-2">
+                        {acc.platform !== 'all' && getPlatformIcon(acc.platform, 'w-4 h-4')}
+                        <span>{acc.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <div className="px-6 border-b border-border bg-muted/10">
+            <TabsList className="bg-transparent h-auto p-0 gap-6">
+              <TabsTrigger 
+                value="general" 
+                className="bg-transparent px-0 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                General
+              </TabsTrigger>
+              <TabsTrigger 
+                value="schedule" 
+                className="bg-transparent px-0 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Schedule
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics" 
+                className="bg-transparent px-0 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* General Tab */}
+          <TabsContent value="general" className="flex-1 overflow-auto m-0 p-6">
+            <div className="max-w-2xl space-y-6">
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-muted-foreground" />
+                  Timezone Settings
+                </h3>
+                <Select defaultValue="utc-8">
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border">
+                    <SelectItem value="utc-8">Pacific Time (UTC-8)</SelectItem>
+                    <SelectItem value="utc-5">Eastern Time (UTC-5)</SelectItem>
+                    <SelectItem value="utc+0">UTC</SelectItem>
+                    <SelectItem value="utc+1">Central European Time (UTC+1)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Target className="w-5 h-5 text-muted-foreground" />
+                  Posting Preferences
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Auto-Schedule Posts</p>
+                      <p className="text-xs text-muted-foreground">Automatically schedule based on optimal times</p>
+                    </div>
+                    <Button variant="outline" size="sm">Enable</Button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Smart Suggestions</p>
+                      <p className="text-xs text-muted-foreground">Get AI recommendations for posting times</p>
+                    </div>
+                    <Button variant="outline" size="sm">Enable</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Schedule Tab */}
+          <TabsContent value="schedule" className="flex-1 overflow-hidden m-0 flex flex-col">
+            {/* View Mode Toggle */}
+            <div className="px-6 py-3 border-b border-border flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">View:</span>
               <div className="flex items-center bg-muted rounded-lg p-1">
                 <button
                   onClick={() => setViewMode('day')}
@@ -268,40 +374,16 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                   }`}
                 >
                   <LayoutGrid className="w-3.5 h-3.5" />
-                  Week Grid
+                  Week
                 </button>
               </div>
-
-              {/* Account Selector - Compact */}
-              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-                <SelectTrigger className="w-[180px] h-9">
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
-                      {getPlatformIcon(account?.platform || 'instagram', 'w-3 h-3')}
-                    </div>
-                    <span className="text-sm truncate">{account?.name}</span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  {ACCOUNTS.map((acc) => (
-                    <SelectItem key={acc.id} value={acc.id}>
-                      <div className="flex items-center gap-2">
-                        {getPlatformIcon(acc.platform, 'w-4 h-4')}
-                        <span>{acc.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
-          </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="flex-1 overflow-hidden flex">
-          {viewMode === 'day' ? (
-            <>
-              {/* Left Sidebar - Day Navigator */}
+            {/* Main Content */}
+            <div className="flex-1 overflow-hidden flex">
+              {viewMode === 'day' ? (
+                <>
+                  {/* Left Sidebar - Day Navigator */}
               <div className="w-48 border-r border-border bg-muted/20 p-4 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Days</span>
@@ -600,7 +682,45 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
               </div>
             </div>
           )}
-        </div>
+            </div>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="flex-1 overflow-auto m-0 p-6">
+            <div className="max-w-3xl space-y-6">
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-muted-foreground" />
+                  Engagement Trends
+                </h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-muted/30 rounded-lg p-4 text-center">
+                    <div className="text-2xl font-bold text-emerald-600">2.4K</div>
+                    <div className="text-xs text-muted-foreground mt-1">Avg. Peak Reach</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg p-4 text-center">
+                    <div className="text-2xl font-bold text-blue-600">1.5K</div>
+                    <div className="text-xs text-muted-foreground mt-1">Avg. Good Reach</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg p-4 text-center">
+                    <div className="text-2xl font-bold">18%</div>
+                    <div className="text-xs text-muted-foreground mt-1">Engagement Rate</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-muted-foreground" />
+                  Audience Activity
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Your audience is most active on <strong>Wednesdays</strong> and <strong>Sundays</strong> between 6-8 PM.
+                </p>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-border bg-muted/20 flex items-center justify-between">
