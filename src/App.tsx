@@ -80,6 +80,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPosts from "./pages/admin/AdminPosts";
 import AdminImages from "./pages/admin/AdminImages";
 import AdminVideos from "./pages/admin/AdminVideos";
+import AdminAudio from "./pages/admin/AdminAudio";
 import AdminRoles from "./pages/admin/AdminRoles";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -166,6 +167,7 @@ const App = () => (
             <Route path="/manage/posts" element={<AdminPosts />} />
             <Route path="/manage/images" element={<AdminImages />} />
             <Route path="/manage/videos" element={<AdminVideos />} />
+            <Route path="/manage/audio" element={<AdminAudio />} />
             <Route path="/manage/roles" element={<AdminRoles />} />
             <Route path="/manage/analytics" element={<AdminAnalytics />} />
             <Route path="/manage/settings" element={<AdminSettings />} />
