@@ -6,7 +6,7 @@ import ControlChip from './ControlChip';
 import type { LucideIcon } from 'lucide-react';
 
 const placeholdersByIntent: Record<Intent | 'default', string> = {
-  default: 'What do you want to do?',
+  default: 'Ask anything...',
   Create: 'Describe what you want to create…',
   Research: 'What do you want to research or understand?',
   Plan: 'What do you want to plan or map out?',
@@ -91,7 +91,7 @@ interface PromptInputProps {
 
 const PromptInput = ({ onGenerate }: PromptInputProps) => {
   const [prompt, setPrompt] = useState('');
-  const [intent, setIntent] = useState<Intent | null>('Create');
+  const [intent, setIntent] = useState<Intent | null>(null);
   const [selectedOption, setSelectedOption] = useState<AutoOption | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOption | null>(null);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
