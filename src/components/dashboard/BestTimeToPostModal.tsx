@@ -379,7 +379,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                 <>
                   {/* Left Sidebar - Day Navigator */}
               <div className="w-48 border-r border-border bg-muted/20 p-4 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Days</span>
                   <Button 
                     variant="ghost" 
@@ -390,6 +390,18 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                     <Zap className="w-3 h-3 mr-1 text-amber-500" />
                     AI
                   </Button>
+                </div>
+                
+                {/* Legend */}
+                <div className="flex items-center gap-3 mb-3 text-[10px] text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30" />
+                    <span>Peak</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">#</span>
+                    <span>Total</span>
+                  </div>
                 </div>
                 
                 <div className="space-y-1 flex-1">
@@ -409,15 +421,15 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                         }`}
                       >
                         <span className="font-medium text-sm">{DAY_FULL_LABELS[idx]}</span>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5" title={`${highCount} Peak · ${daySlots.length} Total`}>
                           {highCount > 0 && (
                             <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-medium ${
                               isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                            }`}>
+                            }`} title="Peak Times">
                               {highCount}
                             </span>
                           )}
-                          <span className={`text-xs ${isSelected ? 'text-white/70' : 'text-muted-foreground'}`}>
+                          <span className={`text-xs ${isSelected ? 'text-white/70' : 'text-muted-foreground'}`} title="Total Slots">
                             {daySlots.length}
                           </span>
                         </div>
