@@ -1251,7 +1251,7 @@ const EbookDesignSidebar = ({
                                 className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" 
                                 style={{ color: element.color }}
                               />
-                              <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 text-center leading-tight group-hover:text-emerald-700 dark:group-hover:text-emerald-400">
+                              <span className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center leading-tight group-hover:text-emerald-700 dark:group-hover:text-emerald-400">
                                 {element.name}
                               </span>
                             </button>
