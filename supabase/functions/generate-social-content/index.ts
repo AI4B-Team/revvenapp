@@ -70,7 +70,7 @@ async function generateContentInBackground(
       .delete()
       .eq('user_id', userId);
 
-    const batchSize = 5;
+    const batchSize = 2; // Reduced from 5 to ensure responses fit within token limits
     let postIndex = 0;
     let totalPostsGenerated = 0;
     const postsPerDay: Record<number, boolean> = {}; // Track which days have posts
@@ -150,7 +150,7 @@ IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day o
             { role: 'user', content: userPrompt }
           ],
           temperature: 0.8,
-          max_tokens: 4000,
+          max_tokens: 8000, // Increased to handle video scripts
         }),
       });
 
