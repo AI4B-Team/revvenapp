@@ -1091,15 +1091,54 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                     {content.slice(0, 2).map(item => renderContentCard(item))}
                     
                     {content.length > 2 && (
-                      <button 
-                        className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2"
-                        onClick={() => {
-                          // Show the first hidden post when clicking "+X more"
-                          handlePostClick(content[2]);
-                        }}
-                      >
-                        +{content.length - 2} more
-                      </button>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button 
+                            className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2"
+                          >
+                            +{content.length - 2} more
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          align="start" 
+                          className="w-72 p-2 bg-popover border-border shadow-lg z-50 max-h-80 overflow-y-auto"
+                        >
+                          <div className="space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground px-2 pb-1 border-b border-border">
+                              {content.length - 2} more post{content.length - 2 > 1 ? 's' : ''} on {date?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </p>
+                            {content.slice(2).map(item => (
+                              <div
+                                key={item.id}
+                                onClick={() => handlePostClick(item)}
+                                className="group bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all"
+                              >
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                                    {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                  </span>
+                                </div>
+                                <div className="mt-1 flex items-start gap-2">
+                                  <div className="flex-shrink-0 w-5 h-5 rounded bg-emerald-100 dark:bg-emerald-800/50 flex items-center justify-center">
+                                    {getPlatformIcon(item.platform, "w-3 h-3")}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs text-foreground line-clamp-2 leading-relaxed">{item.title}</p>
+                                    {item.type === 'reel' && item.videoScript && (
+                                      <div className="flex items-center gap-1 mt-1">
+                                        <Film className="w-3 h-3 text-purple-500" />
+                                        <span className="text-[10px] text-purple-500 font-medium">
+                                          {item.videoScript.duration}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     )}
                   </div>
                 </>
