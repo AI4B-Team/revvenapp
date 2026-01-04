@@ -6315,15 +6315,29 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       
                       <div className="pt-2 border-t border-border">
                         <p className="text-xs text-muted-foreground mb-2">Custom days</p>
-                        <input
-                          type="number"
-                          min="1"
-                          max="365"
-                          value={contentDays}
-                          onChange={(e) => setContentDays(Math.max(1, Math.min(365, parseInt(e.target.value) || 1)))}
-                          className="w-full px-3 py-2 bg-muted rounded-lg text-sm border-none outline-none focus:ring-2 focus:ring-emerald-500"
-                          placeholder="Enter days..."
-                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setContentDays(Math.max(1, contentDays - 1))}
+                            className="w-10 h-10 flex items-center justify-center bg-muted hover:bg-muted/80 rounded-lg text-foreground font-bold text-lg transition"
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            max="365"
+                            value={contentDays}
+                            onChange={(e) => setContentDays(Math.max(1, Math.min(365, parseInt(e.target.value) || 1)))}
+                            className="flex-1 px-3 py-2 bg-muted rounded-lg text-sm text-center border-none outline-none focus:ring-2 focus:ring-emerald-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="Enter days..."
+                          />
+                          <button
+                            onClick={() => setContentDays(Math.min(365, contentDays + 1))}
+                            className="w-10 h-10 flex items-center justify-center bg-muted hover:bg-muted/80 rounded-lg text-foreground font-bold text-lg transition"
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
                       
                       <p className="text-xs text-emerald-600 dark:text-emerald-400">
