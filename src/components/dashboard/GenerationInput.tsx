@@ -6276,7 +6276,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
                         };
                         return langFlags[contentLanguage] || '🌐';
-                      })()}
+                      })()}{' '}
                       {contentLanguage}
                       <ChevronDown size={14} />
                     </button>
@@ -6287,7 +6287,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                         <input
                           type="text"
-                          placeholder="Search languages..."
+                          placeholder="Search Languages..."
                           className="w-full pl-7 pr-3 py-1.5 text-sm bg-muted rounded-md border-none outline-none focus:ring-2 focus:ring-emerald-500"
                           onChange={(e) => {
                             const searchInput = e.target.parentElement?.parentElement?.nextElementSibling;
