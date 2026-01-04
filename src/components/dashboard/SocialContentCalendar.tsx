@@ -69,6 +69,7 @@ import AddAccountModal from './calendar/AddAccountModal';
 import TemplatesModal from './calendar/TemplatesModal';
 import ContentRecyclingModal from './calendar/ContentRecyclingModal';
 import FeedPreviewModal from './calendar/FeedPreviewModal';
+import FeedPreviewView from './calendar/FeedPreviewView';
 import BulkActionsBar from './calendar/BulkActionsBar';
 import PlatformWarnings, { generateWarnings } from './calendar/PlatformWarnings';
 import EngagementOverlay, { generateMockEngagement } from './calendar/EngagementOverlay';
@@ -168,7 +169,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false);
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
   const [isRecyclingModalOpen, setIsRecyclingModalOpen] = useState(false);
-  const [isFeedPreviewOpen, setIsFeedPreviewOpen] = useState(false);
+  
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const [reschedulePostId, setReschedulePostId] = useState<string | null>(null);
   
@@ -1388,8 +1389,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             <Button
               variant={viewMode === 'feed' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setIsFeedPreviewOpen(true)}
-              className="gap-2"
+              onClick={() => setViewMode('feed')}
+              className={viewMode === 'feed' 
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white gap-2' 
+                : 'gap-2'}
             >
               <Grid3x3 className="w-4 h-4" />
               Feed
@@ -1650,10 +1653,6 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem onClick={() => setIsFeedPreviewOpen(true)} className="gap-2">
-                <Maximize className="w-4 h-4" />
-                Open Full Screen
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setIsAddAccountModalOpen(true)} className="gap-2">
                 <UserPlus className="w-4 h-4" />
                 Add Account
@@ -1687,6 +1686,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       {viewMode === 'list' && renderListView()}
       {viewMode === 'kanban' && renderKanbanView()}
       {viewMode === 'grid' && renderGridView()}
+      {viewMode === 'feed' && <FeedPreviewView posts={filteredContent} />}
 
       {/* Generation Status - shown in header, removed from fixed bottom */}
 
@@ -1773,11 +1773,6 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         onRecyclePost={handleRecyclePost}
       />
       
-      <FeedPreviewModal
-        isOpen={isFeedPreviewOpen}
-        onClose={() => setIsFeedPreviewOpen(false)}
-        posts={filteredContent}
-      />
 
       {/* Bulk Actions Bar */}
       <BulkActionsBar
