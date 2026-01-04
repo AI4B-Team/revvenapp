@@ -33,12 +33,14 @@ import {
   Eye,
   LayoutGrid,
   List,
-  Loader2
+  Loader2,
+  Check
 } from 'lucide-react';
 import { getPlatformIcon } from './SocialIcons';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { Switch } from '@/components/ui/switch';
 
 interface TimeSlot {
   id: string;
@@ -118,14 +120,111 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
   const [newTimeDay, setNewTimeDay] = useState<string>('everyday');
   const [newTimeHour, setNewTimeHour] = useState('9:00 AM');
 
+  // Posting preferences state
+  const [autoScheduleEnabled, setAutoScheduleEnabled] = useState(false);
+  const [smartSuggestionsEnabled, setSmartSuggestionsEnabled] = useState(true);
+  const [selectedTimezone, setSelectedTimezone] = useState('utc-8');
+
   const account = ACCOUNTS.find(a => a.id === selectedAccount);
 
-  // Load schedules from database
+  // Load schedules and preferences from database
   useEffect(() => {
     if (isOpen) {
       loadSchedules();
+      loadPreferences();
     }
   }, [isOpen]);
+
+  const loadPreferences = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('user_posting_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading preferences:', error);
+        return;
+      }
+
+      if (data) {
+        setAutoScheduleEnabled(data.auto_schedule_enabled);
+        setSmartSuggestionsEnabled(data.smart_suggestions_enabled);
+        setSelectedTimezone(data.timezone || 'utc-8');
+      }
+    } catch (error) {
+      console.error('Error loading preferences:', error);
+    }
+  };
+
+  const toggleAutoSchedule = async () => {
+    const newValue = !autoScheduleEnabled;
+    setAutoScheduleEnabled(newValue);
+    await savePreference('auto_schedule_enabled', newValue);
+    toast({
+      title: newValue ? "Auto-Schedule Enabled" : "Auto-Schedule Disabled",
+      description: newValue 
+        ? "Posts will be automatically scheduled at optimal times." 
+        : "Auto-scheduling has been turned off.",
+    });
+  };
+
+  const toggleSmartSuggestions = async () => {
+    const newValue = !smartSuggestionsEnabled;
+    setSmartSuggestionsEnabled(newValue);
+    await savePreference('smart_suggestions_enabled', newValue);
+    toast({
+      title: newValue ? "Smart Suggestions Enabled" : "Smart Suggestions Disabled",
+      description: newValue 
+        ? "You'll receive AI recommendations for posting times." 
+        : "AI suggestions have been turned off.",
+    });
+  };
+
+  const handleTimezoneChange = async (value: string) => {
+    setSelectedTimezone(value);
+    await savePreference('timezone', value);
+    toast({
+      title: "Timezone Updated",
+      description: "Your timezone preference has been saved.",
+    });
+  };
+
+  const savePreference = async (key: string, value: boolean | string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Login required",
+          description: "Please sign in to save your preferences.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('user_posting_preferences')
+        .upsert({
+          user_id: user.id,
+          [key]: value,
+        }, {
+          onConflict: 'user_id',
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error saving preference:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save preference. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const loadSchedules = async () => {
     setIsLoading(true);
@@ -414,7 +513,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                       <Globe className="w-5 h-5 text-muted-foreground" />
                       Timezone Settings
                     </h3>
-                    <Select defaultValue="utc-8">
+                    <Select value={selectedTimezone} onValueChange={handleTimezoneChange}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select timezone" />
                       </SelectTrigger>
@@ -440,14 +539,22 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                           <p className="font-medium text-sm">Auto-Schedule Posts</p>
                           <p className="text-xs text-muted-foreground">Automatically schedule based on optimal times</p>
                         </div>
-                        <Button variant="outline" size="sm">Enable</Button>
+                        <Switch 
+                          checked={autoScheduleEnabled} 
+                          onCheckedChange={toggleAutoSchedule}
+                          className="data-[state=checked]:bg-emerald-500"
+                        />
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-sm">Smart Suggestions</p>
                           <p className="text-xs text-muted-foreground">Get AI recommendations for posting times</p>
                         </div>
-                        <Button variant="outline" size="sm">Enable</Button>
+                        <Switch 
+                          checked={smartSuggestionsEnabled} 
+                          onCheckedChange={toggleSmartSuggestions}
+                          className="data-[state=checked]:bg-emerald-500"
+                        />
                       </div>
                     </div>
                   </div>

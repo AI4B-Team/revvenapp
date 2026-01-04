@@ -757,6 +757,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_posting_preferences: {
+        Row: {
+          auto_schedule_enabled: boolean
+          created_at: string
+          id: string
+          smart_suggestions_enabled: boolean
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_schedule_enabled?: boolean
+          created_at?: string
+          id?: string
+          smart_suggestions_enabled?: boolean
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_schedule_enabled?: boolean
+          created_at?: string
+          id?: string
+          smart_suggestions_enabled?: boolean
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_products: {
         Row: {
           cloudinary_public_id: string | null
