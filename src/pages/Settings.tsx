@@ -46,23 +46,44 @@ export default function Settings() {
     const fetchUserData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setUserEmail(user.email || '');
+        // Get email from user object first
+        const email = user.email || '';
+        setUserEmail(email);
+        
+        // Get full name from various possible sources (Google OAuth uses 'name', regular signup uses 'full_name')
         const fullName = user.user_metadata?.full_name || 
                         user.user_metadata?.name ||
                         user.email?.split('@')[0] || '';
         setUserFullName(fullName);
-        setProfilePhoto(user.user_metadata?.avatar_url || '');
         
-        // Check profiles table
+        // Get avatar from Google OAuth or user metadata
+        const avatarUrl = user.user_metadata?.avatar_url || 
+                         user.user_metadata?.picture || // Google OAuth provides 'picture'
+                         '';
+        setProfilePhoto(avatarUrl);
+        
+        // Check profiles table for stored data (takes priority over metadata)
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, avatar_url')
+          .select('full_name, avatar_url, email')
           .eq('id', user.id)
           .single();
         
         if (profile) {
+          // Use profile data if available, otherwise keep the metadata values
           if (profile.full_name) setUserFullName(profile.full_name);
+          if (profile.email) setUserEmail(profile.email);
           if (profile.avatar_url) setProfilePhoto(profile.avatar_url);
+        } else {
+          // Profile doesn't exist for this user (Google OAuth first login) - create it
+          const newProfile = {
+            id: user.id,
+            email: email,
+            full_name: fullName,
+            avatar_url: avatarUrl || null,
+          };
+          
+          await supabase.from('profiles').upsert(newProfile, { onConflict: 'id' });
         }
       }
     };
