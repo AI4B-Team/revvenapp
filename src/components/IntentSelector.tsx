@@ -12,6 +12,7 @@ interface IntentConfig {
   selectedBg: string;
   selectedBorder: string;
   selectedTextColor: string;
+  selectedIconColor: string;
   hoverBg: string;
   hoverBorder: string;
 }
@@ -24,16 +25,18 @@ const intents: IntentConfig[] = [
     selectedBg: 'bg-emerald-50', 
     selectedBorder: 'border-emerald-400',
     selectedTextColor: 'text-slate-800',
+    selectedIconColor: 'text-emerald-500',
     hoverBg: 'hover:bg-emerald-50',
     hoverBorder: 'hover:border-emerald-300'
   },
   { 
     label: 'Research', 
     icon: Search, 
-    iconColor: 'text-slate-600', 
-    selectedBg: 'bg-slate-800', 
-    selectedBorder: 'border-slate-800',
+    iconColor: 'text-slate-500', 
+    selectedBg: 'bg-slate-900', 
+    selectedBorder: 'border-slate-900',
     selectedTextColor: 'text-white',
+    selectedIconColor: 'text-white',
     hoverBg: 'hover:bg-slate-100',
     hoverBorder: 'hover:border-slate-300'
   },
@@ -44,6 +47,7 @@ const intents: IntentConfig[] = [
     selectedBg: 'bg-amber-50', 
     selectedBorder: 'border-amber-300',
     selectedTextColor: 'text-slate-800',
+    selectedIconColor: 'text-amber-500',
     hoverBg: 'hover:bg-amber-50',
     hoverBorder: 'hover:border-amber-300'
   },
@@ -54,6 +58,7 @@ const intents: IntentConfig[] = [
     selectedBg: 'bg-rose-50', 
     selectedBorder: 'border-rose-300',
     selectedTextColor: 'text-slate-800',
+    selectedIconColor: 'text-rose-500',
     hoverBg: 'hover:bg-rose-50',
     hoverBorder: 'hover:border-rose-300'
   },
@@ -84,7 +89,7 @@ const IntentSelector = ({ selectedIntent, onIntentChange }: IntentSelectorProps)
           >
             <intent.icon 
               size={18} 
-              className={isResearchSelected ? "text-white" : intent.iconColor} 
+              className={isSelected ? intent.selectedIconColor : intent.iconColor} 
             />
             <span>{intent.label}</span>
           </button>

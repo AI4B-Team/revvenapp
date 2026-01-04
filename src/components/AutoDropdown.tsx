@@ -13,12 +13,12 @@ export interface AutoOption {
 
 const optionsByIntent: Record<Intent, AutoOption[]> = {
   Create: [
-    { id: 'image', label: 'Image', icon: Image, color: 'text-blue-500' },
-    { id: 'video', label: 'Video', icon: Video, color: 'text-rose-500' },
+    { id: 'image', label: 'Image', icon: Image, color: 'text-sky-500' },
+    { id: 'video', label: 'Video', icon: Video, color: 'text-rose-400' },
     { id: 'audio', label: 'Audio', icon: Music, color: 'text-emerald-500' },
-    { id: 'design', label: 'Design', icon: Palette, color: 'text-pink-500' },
+    { id: 'design', label: 'Design', icon: Palette, color: 'text-fuchsia-500' },
     { id: 'content', label: 'Content', icon: Calendar, color: 'text-blue-500' },
-    { id: 'document', label: 'Document', icon: FileText, color: 'text-blue-500' },
+    { id: 'document', label: 'Document', icon: FileText, color: 'text-cyan-500' },
     { id: 'apps', label: 'Apps', icon: Code, color: 'text-slate-500' },
   ],
   Research: [
