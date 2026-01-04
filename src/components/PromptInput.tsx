@@ -169,8 +169,10 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
           {/* Bottom bar */}
           <div className="flex items-center justify-between px-4 pb-4">
             <div className="flex items-center gap-2">
-              {/* Auto dropdown or selected chip */}
-              <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
+              {/* Auto dropdown - only shown when an intent is selected */}
+              {intent && (
+                <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
+              )}
               
               {/* Selected option chip */}
               {selectedOption && (
