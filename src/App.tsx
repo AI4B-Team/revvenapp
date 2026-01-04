@@ -36,6 +36,7 @@ import Complete from "./pages/brand/Complete";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import SignupFlow from "./pages/SignupFlow";
+import InviteVerification from "./pages/InviteVerification";
 import OnboardingDashboard from "./pages/OnboardingDashboard";
 import AIInfluencer from "./pages/AIInfluencer";
 import Marketing from "./pages/Marketing";
@@ -126,6 +127,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signup/flow" element={<SignupFlow />} />
+            <Route path="/invite-verification" element={<InviteVerification />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
             <Route path="/account" element={<Settings />} />

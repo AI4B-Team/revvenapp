@@ -449,6 +449,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          invite_code_validated: boolean | null
           updated_at: string
         }
         Insert: {
@@ -457,6 +458,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          invite_code_validated?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -465,6 +467,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          invite_code_validated?: boolean | null
           updated_at?: string
         }
         Relationships: []
