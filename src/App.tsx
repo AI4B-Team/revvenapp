@@ -97,8 +97,7 @@ const App = () => (
           <BrowserRouter>
             <VisitorTracker>
               <Routes>
-              <Route path="/" element={<Landing />} />
-            <Route path="/landing" element={<Landing />} />
+              <Route path="/sales" element={<Landing />} />
             <Route path="/dashboard" element={<Index />} />
             <Route path="/create" element={<Create />} />
             <Route path="/edit" element={<Edit />} />
