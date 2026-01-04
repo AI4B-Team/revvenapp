@@ -198,8 +198,8 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
       <IntentSelector selectedIntent={intent} onIntentChange={setIntent} />
       
       {/* Prompt Input Box */}
-      <div className="relative w-full">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[140px] flex flex-col">
+      <div className="relative w-fit max-w-full mx-auto">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-fit max-w-full min-w-[340px] sm:min-w-[520px] md:min-w-[640px]">
           {/* Left side icons - only shown when an option is selected */}
           {selectedOption && (
             <div className="flex flex-col gap-1 absolute left-4 top-4">
@@ -348,7 +348,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
 
         {/* Type Dropdown Panel - below the prompt box */}
         {showTypeDropdown && showSubTypeSelector && (
-          <div className="mt-3 bg-white border border-slate-200 rounded-2xl shadow-lg p-5 z-50">
+          <div className="absolute left-0 right-0 top-full mt-3 bg-white border border-slate-200 rounded-2xl shadow-lg p-5 z-50">
             <div className="grid grid-cols-4 gap-x-6 gap-y-3">
               {getSubTypeOptions().map((option) => (
                 <button
