@@ -1361,6 +1361,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             prompt: prompt.trim(),
             platforms: selectedPlatforms,
             days: contentDays,
+            goal: contentGoal,
+            language: contentLanguage,
           }
         });
 

@@ -10,6 +10,8 @@ interface ContentRequest {
   prompt: string;
   platforms: string[];
   days: number;
+  goal?: string;
+  language?: string;
   jobId?: string;
 }
 
@@ -51,7 +53,9 @@ async function generateContentInBackground(
   jobId: string,
   prompt: string,
   platforms: string[],
-  days: number
+  days: number,
+  goal: string = 'Engagement',
+  language: string = 'English'
 ) {
   const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
   
@@ -92,18 +96,35 @@ async function generateContentInBackground(
       
       const systemPrompt = `You are a social media content strategist. Generate a content calendar for days ${startDay + 1} to ${endDay}.
 
+CONTENT GOAL: ${goal}
+- If goal is "Engagement": Focus on questions, polls, interactive content, conversation starters, and content that encourages likes/comments/shares
+- If goal is "Awareness": Focus on brand storytelling, educational content, reaching new audiences, and shareable information
+- If goal is "Traffic": Include clear calls-to-action, link mentions, and content that drives clicks to websites/landing pages
+- If goal is "Sales": Focus on product highlights, promotions, testimonials, urgency, and purchase incentives
+- If goal is "Education": Create informative, tutorial-style, how-to content that teaches the audience
+
+LANGUAGE: Write ALL content (titles, captions, text overlays) in ${language}. 
+- Use ${language} naturally with appropriate idioms and expressions
+- Keep hashtags in ${language} where appropriate, but popular English hashtags can be mixed in
+${language === 'Bengali' ? '- For Bengali, use proper বাংলা script with appropriate Unicode characters' : ''}
+${language === 'Arabic' ? '- For Arabic, use proper عربي script with right-to-left text' : ''}
+${language === 'Hindi' ? '- For Hindi, use proper हिंदी script with Devanagari characters' : ''}
+${language === 'Chinese' ? '- For Chinese, use simplified Chinese characters (简体中文)' : ''}
+${language === 'Japanese' ? '- For Japanese, use appropriate mix of hiragana, katakana, and kanji' : ''}
+
 MANDATORY REQUIREMENTS:
 - You MUST generate EXACTLY ${postsNeeded} posts total
 - You MUST generate EXACTLY 1 post per platform per day
 - Every single day from ${startDay + 1} to ${endDay} MUST have posts for ALL platforms
+- ALL text content MUST be in ${language}
 
 Required posts breakdown:
 ${dayRequirements.join('\n')}
 
 For each post, provide:
-- A catchy title (max 60 chars)
-- An engaging caption with emojis (150-280 chars)
-- 4-6 relevant hashtags (without #)
+- A catchy title in ${language} (max 60 chars)
+- An engaging caption with emojis in ${language} (150-280 chars) - optimize for ${goal}
+- 4-6 relevant hashtags (can mix ${language} and English hashtags)
 - Post type: post, carousel, reel, or story
 
 PLATFORM-SPECIFIC RULES:
@@ -113,15 +134,15 @@ PLATFORM-SPECIFIC RULES:
 - For Facebook: Mix between "post" and "reel" (at least 25% should be "reel" type)
 - For other platforms: Use appropriate mix of types
 
-CRITICAL: For ALL "reel" type posts, you MUST include a "videoScript" field:
+CRITICAL: For ALL "reel" type posts, you MUST include a "videoScript" field with ALL text in ${language}:
 {
   "videoScript": {
     "duration": "30s",
     "scenes": [
-      { "timestamp": "0:00-0:03", "visual": "Hook shot", "audio": "Hook text...", "text_overlay": "🤯 WATCH" },
-      { "timestamp": "0:03-0:10", "visual": "Main content", "audio": "Main text...", "text_overlay": null },
-      { "timestamp": "0:10-0:25", "visual": "Details", "audio": "Details...", "text_overlay": "Key point" },
-      { "timestamp": "0:25-0:30", "visual": "CTA", "audio": "Follow!", "text_overlay": "👆 FOLLOW" }
+      { "timestamp": "0:00-0:03", "visual": "Hook shot", "audio": "Hook text in ${language}...", "text_overlay": "🤯 ${language === 'Bengali' ? 'দেখুন' : language === 'Hindi' ? 'देखो' : language === 'Spanish' ? 'MIRA' : 'WATCH'}" },
+      { "timestamp": "0:03-0:10", "visual": "Main content", "audio": "Main text in ${language}...", "text_overlay": null },
+      { "timestamp": "0:10-0:25", "visual": "Details", "audio": "Details in ${language}...", "text_overlay": "Key point in ${language}" },
+      { "timestamp": "0:25-0:30", "visual": "CTA", "audio": "Follow call in ${language}!", "text_overlay": "👆 ${language === 'Bengali' ? 'ফলো করুন' : language === 'Hindi' ? 'फॉलो करें' : language === 'Spanish' ? 'SÍGUEME' : 'FOLLOW'}" }
     ]
   }
 }
@@ -131,8 +152,10 @@ Return ONLY a valid JSON array. VERIFY you have exactly ${postsNeeded} posts cov
       const userPrompt = `Create EXACTLY ${postsNeeded} posts for days ${startDay + 1} to ${endDay}.
 Platforms: ${platformNames}
 Theme/Topic: ${prompt}
+Goal: ${goal} (optimize content for this goal)
+Language: ${language} (write ALL content in this language)
 
-IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day or platform.`;
+IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day or platform. Write everything in ${language}.`;
 
       console.log(`Generating batch: days ${startDay + 1} to ${endDay}, expecting ${postsNeeded} posts for job ${jobId}...`);
       
@@ -331,12 +354,14 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, platforms, days = 30, jobId }: ContentRequest = await req.json();
+    const { prompt, platforms, days = 30, goal = 'Engagement', language = 'English', jobId }: ContentRequest = await req.json();
     
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     if (!OPENROUTER_API_KEY) {
       throw new Error('OPENROUTER_API_KEY is not configured');
     }
+
+    console.log(`Received request: goal=${goal}, language=${language}, days=${days}, platforms=${platforms.join(',')}`);
 
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -377,12 +402,12 @@ serve(async (req) => {
       throw new Error(`Failed to create job: ${jobError.message}`);
     }
 
-    console.log(`Created job ${job.id} for user ${user.id}`);
+    console.log(`Created job ${job.id} for user ${user.id} with goal=${goal}, language=${language}`);
 
     // Start background processing using EdgeRuntime.waitUntil
     // @ts-ignore - EdgeRuntime is available in Supabase Edge Functions
     EdgeRuntime.waitUntil(
-      generateContentInBackground(supabaseAdmin, user.id, job.id, prompt, platforms, days)
+      generateContentInBackground(supabaseAdmin, user.id, job.id, prompt, platforms, days, goal, language)
     );
 
     // Return immediately with job ID
