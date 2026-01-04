@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Link, Copy, Hash, X, ChevronDown } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Link, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, Mic2, PenTool } from 'lucide-react';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
@@ -21,8 +21,14 @@ interface SubOption {
   color?: string;
 }
 
-// Control icons that appear when a sub-type is selected
-const controlIcons = [
+interface ControlIcon {
+  id: string;
+  icon: LucideIcon;
+  tooltip: string;
+}
+
+// Control icons for Image types
+const imageControlIcons: ControlIcon[] = [
   { id: 'model', icon: Box, tooltip: 'Model' },
   { id: 'style', icon: Brush, tooltip: 'Style' },
   { id: 'character', icon: User, tooltip: 'Character' },
@@ -31,19 +37,29 @@ const controlIcons = [
   { id: 'number', icon: Hash, tooltip: 'Number' },
 ];
 
-// Video type options
+// Control icons for Video types
+const videoControlIcons: ControlIcon[] = [
+  { id: 'model', icon: Box, tooltip: 'Model' },
+  { id: 'character', icon: User, tooltip: 'Character' },
+  { id: 'reference', icon: Link, tooltip: 'Reference' },
+  { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
+  { id: 'duration', icon: Clock, tooltip: 'Duration' },
+  { id: 'quality', icon: SlidersHorizontal, tooltip: 'Quality' },
+];
+
+// Video type options - matching screenshot exactly
 const videoTypes: SubOption[] = [
-  { id: 'story', label: 'Story', icon: BookOpen, color: 'text-indigo-500' },
-  { id: 'presentation', label: 'Presentation', icon: Presentation, color: 'text-teal-500' },
-  { id: 'vsl', label: 'VSL', icon: BarChart, color: 'text-red-500' },
-  { id: 'avatar', label: 'Avatar', icon: User, color: 'text-emerald-500' },
+  { id: 'story', label: 'Story', icon: BookOpen, color: 'text-blue-500' },
+  { id: 'presentation', label: 'Presentation', icon: Monitor, color: 'text-violet-500' },
+  { id: 'vsl', label: 'VSL', icon: BarChart, color: 'text-blue-500' },
+  { id: 'avatar', label: 'Avatar', icon: User, color: 'text-violet-500' },
   { id: 'ugc', label: 'UGC', icon: Users, color: 'text-amber-500' },
-  { id: 'recast', label: 'Recast', icon: RefreshCw, color: 'text-cyan-500' },
-  { id: 'animate', label: 'Animate', icon: Video, color: 'text-violet-500' },
+  { id: 'recast', label: 'Recast', icon: RefreshCw, color: 'text-emerald-500' },
+  { id: 'animate', label: 'Animate', icon: Video, color: 'text-red-500' },
   { id: 'draw', label: 'Draw', icon: Pencil, color: 'text-orange-500' },
-  { id: 'lip-sync', label: 'Lip-Sync', icon: Mic2, color: 'text-red-500' },
-  { id: 'motion-sync', label: 'Motion-Sync', icon: Move, color: 'text-blue-500' },
-  { id: 'podcast', label: 'Podcast', icon: Headphones, color: 'text-purple-500' },
+  { id: 'lip-sync', label: 'Lip-Sync', icon: PenTool, color: 'text-red-500' },
+  { id: 'motion-sync', label: 'Motion-Sync', icon: Move, color: 'text-violet-500' },
+  { id: 'podcast', label: 'Podcast', icon: Headphones, color: 'text-blue-500' },
 ];
 
 // Image type options - matching screenshot exactly
@@ -93,7 +109,7 @@ const documentTypes: SubOption[] = [
   { id: 'proposal', label: 'Proposal', icon: FileText, color: 'text-purple-500' },
   { id: 'case-study', label: 'Case Study', icon: FileText, color: 'text-teal-500' },
   { id: 'cover-letter', label: 'Cover Letter', icon: FileText, color: 'text-red-500' },
-  { id: 'presentation', label: 'Presentation', icon: Presentation, color: 'text-orange-500' },
+  { id: 'presentation', label: 'Presentation', icon: Monitor, color: 'text-orange-500' },
 ];
 
 interface PromptInputProps {
@@ -148,6 +164,12 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
     if (selectedOption?.id === 'content') return contentTypes;
     if (selectedOption?.id === 'document') return documentTypes;
     return [];
+  };
+
+  // Get control icons based on selected option type
+  const getControlIcons = (): ControlIcon[] => {
+    if (selectedOption?.id === 'video') return videoControlIcons;
+    return imageControlIcons; // Default to image control icons
   };
 
   const showSubTypeSelector = selectedOption !== null;
@@ -238,7 +260,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
 
                       {/* Control icons with tooltips */}
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        {controlIcons.map((control) => (
+                        {getControlIcons().map((control) => (
                           <Tooltip key={control.id}>
                             <TooltipTrigger asChild>
                               <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
