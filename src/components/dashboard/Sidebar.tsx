@@ -7,8 +7,9 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield
 } from 'lucide-react';
+import { useUserRole } from '@/hooks/useUserRole';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,9 +57,12 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     return nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   };
   
+  const { isAdminOrModerator } = useUserRole();
+  
   const sidebarItems = [
     { icon: <Home size={18} />, label: 'Dashboard', link: '/dashboard' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
+    ...(isAdminOrModerator ? [{ icon: <Shield size={18} />, label: 'Admin Panel', link: '/manage' }] : []),
   ];
 
   const dashboardNavItems: Array<{ icon: JSX.Element; label: string; color: string; link: string }> = [];

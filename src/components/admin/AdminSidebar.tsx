@@ -15,14 +15,14 @@ import {
 import { Button } from '@/components/ui/button';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-  { icon: Users, label: 'Users', path: '/admin/users' },
-  { icon: FileText, label: 'Posts', path: '/admin/posts' },
-  { icon: Image, label: 'Images', path: '/admin/images' },
-  { icon: Video, label: 'Videos', path: '/admin/videos' },
-  { icon: Shield, label: 'Roles', path: '/admin/roles' },
-  { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
-  { icon: Settings, label: 'Settings', path: '/admin/settings' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/manage' },
+  { icon: Users, label: 'Users', path: '/manage/users' },
+  { icon: FileText, label: 'Posts', path: '/manage/posts' },
+  { icon: Image, label: 'Images', path: '/manage/images' },
+  { icon: Video, label: 'Videos', path: '/manage/videos' },
+  { icon: Shield, label: 'Roles', path: '/manage/roles' },
+  { icon: BarChart3, label: 'Analytics', path: '/manage/analytics' },
+  { icon: Settings, label: 'Settings', path: '/manage/settings' },
 ];
 
 const AdminSidebar = () => {
