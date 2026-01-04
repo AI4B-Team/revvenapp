@@ -392,14 +392,12 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                   </Button>
                 </div>
                 
-                {/* Legend */}
-                <div className="flex items-center gap-4 mb-3 text-[10px] text-muted-foreground">
-                  <div className="flex items-center gap-1" title="High engagement times with peak audience activity">
-                    <div className="w-3 h-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30" />
-                    <span>Peak</span>
-                  </div>
-                  <div className="flex items-center gap-1" title="Total number of scheduled posting times">
-                    <span>Total</span>
+                {/* Legend - aligned with numbers below */}
+                <div className="flex items-center justify-between mb-3 text-[10px] text-muted-foreground pr-3">
+                  <span></span>
+                  <div className="flex items-center gap-3">
+                    <span title="High engagement times with peak audience activity" className="w-5 text-center">Peak</span>
+                    <span title="Total number of scheduled posting times" className="w-5 text-center">Total</span>
                   </div>
                 </div>
                 
