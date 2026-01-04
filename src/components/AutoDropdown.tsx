@@ -89,7 +89,7 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-44 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
+        <div className="absolute top-full left-0 mt-2 w-40 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
           {options.map((option) => (
             <button
               key={option.id}
@@ -97,9 +97,9 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
                 onSelect(option);
                 setIsOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
             >
-              <option.icon size={18} className={option.color} />
+              <option.icon size={16} className={option.color} />
               {option.label}
             </button>
           ))}
