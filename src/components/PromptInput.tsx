@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, Grid3X3 } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, Grid3X3, Lightbulb, Wand2, AtSign, Link2, Copy, Hash } from 'lucide-react';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
@@ -105,8 +105,13 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
 
   const handleOptionSelect = (option: AutoOption | null) => {
     setSelectedOption(option);
-    setSelectedSubType(null);
     setShowTypeDropdown(false);
+    // Auto-select "Create" subtype when Image is selected
+    if (option?.id === 'image') {
+      setSelectedSubType(imageTypes[0]); // Select "Create" by default
+    } else {
+      setSelectedSubType(null);
+    }
   };
 
   const handleRemoveOption = () => {
@@ -140,20 +145,18 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
       {/* Prompt Input Box */}
       <div className="relative">
         <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col">
-          {/* Top icons - shown when option is selected */}
-          {selectedOption && (
-            <div className="flex flex-col gap-1 absolute left-4 top-4">
-              <button className="p-1.5 rounded-lg text-emerald-500 hover:bg-slate-50 transition-colors">
-                <Image size={18} />
-              </button>
-              <button className="p-1.5 rounded-lg text-emerald-500 hover:bg-slate-50 transition-colors">
-                <Shuffle size={18} />
-              </button>
-            </div>
-          )}
+          {/* Left side icons */}
+          <div className="flex flex-col gap-1 absolute left-4 top-4">
+            <button className="p-1.5 rounded-lg text-emerald-500 hover:bg-slate-50 transition-colors">
+              <Image size={18} />
+            </button>
+            <button className="p-1.5 rounded-lg text-emerald-500 hover:bg-slate-50 transition-colors">
+              <Shuffle size={18} />
+            </button>
+          </div>
 
           {/* Input area */}
-          <div className={`px-6 pt-5 pb-3 flex-1 ${selectedOption ? 'pl-14' : ''}`}>
+          <div className="px-6 pt-5 pb-3 flex-1 pl-14">
             <input
               type="text"
               placeholder={placeholdersByIntent[intent || 'default']}
@@ -179,15 +182,41 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                 />
               )}
 
-              {/* Type button - shown when option is selected */}
-              {showSubTypeSelector && (
-                <button
-                  onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
-                >
-                  <Grid3X3 size={14} />
-                  Type
-                </button>
+              {/* Selected sub-type chip */}
+              {selectedSubType && (
+                <ControlChip 
+                  label={selectedSubType.label} 
+                  icon={selectedSubType.icon} 
+                  iconColor={selectedSubType.color} 
+                  onRemove={() => setSelectedSubType(null)} 
+                />
+              )}
+
+              {/* Vertical divider and control icons - shown when option is selected */}
+              {selectedOption && (
+                <>
+                  <div className="w-px h-6 bg-slate-200 mx-1" />
+                  <div className="flex items-center gap-1">
+                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
+                      <Lightbulb size={18} />
+                    </button>
+                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
+                      <Wand2 size={18} />
+                    </button>
+                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
+                      <AtSign size={18} />
+                    </button>
+                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
+                      <Link2 size={18} />
+                    </button>
+                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
+                      <Copy size={18} />
+                    </button>
+                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
+                      <Hash size={18} />
+                    </button>
+                  </div>
+                </>
               )}
             </div>
 
