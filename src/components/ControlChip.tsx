@@ -26,26 +26,41 @@ const ControlChip = ({
   // Derive colors from iconColor if not explicitly provided
   const derivedBgColor = iconColor?.includes('blue') ? 'bg-blue-50' : 
                          iconColor?.includes('red') ? 'bg-red-50' :
+                         iconColor?.includes('emerald') ? 'bg-emerald-50' :
                          iconColor?.includes('green') ? 'bg-green-50' :
                          iconColor?.includes('orange') ? 'bg-orange-50' :
                          iconColor?.includes('purple') ? 'bg-purple-50' :
+                         iconColor?.includes('violet') ? 'bg-violet-50' :
                          iconColor?.includes('amber') ? 'bg-amber-50' :
+                         iconColor?.includes('cyan') ? 'bg-cyan-50' :
+                         iconColor?.includes('indigo') ? 'bg-indigo-50' :
+                         iconColor?.includes('teal') ? 'bg-teal-50' :
                          bgColor;
   
   const derivedBorderColor = iconColor?.includes('blue') ? 'border-blue-200' : 
                               iconColor?.includes('red') ? 'border-red-200' :
+                              iconColor?.includes('emerald') ? 'border-emerald-200' :
                               iconColor?.includes('green') ? 'border-green-200' :
                               iconColor?.includes('orange') ? 'border-orange-200' :
                               iconColor?.includes('purple') ? 'border-purple-200' :
+                              iconColor?.includes('violet') ? 'border-violet-200' :
                               iconColor?.includes('amber') ? 'border-amber-200' :
+                              iconColor?.includes('cyan') ? 'border-cyan-200' :
+                              iconColor?.includes('indigo') ? 'border-indigo-200' :
+                              iconColor?.includes('teal') ? 'border-teal-200' :
                               borderColor;
   
   const derivedTextColor = iconColor?.includes('blue') ? 'text-blue-600' : 
                            iconColor?.includes('red') ? 'text-red-600' :
+                           iconColor?.includes('emerald') ? 'text-emerald-600' :
                            iconColor?.includes('green') ? 'text-green-600' :
                            iconColor?.includes('orange') ? 'text-orange-600' :
                            iconColor?.includes('purple') ? 'text-purple-600' :
+                           iconColor?.includes('violet') ? 'text-violet-600' :
                            iconColor?.includes('amber') ? 'text-amber-600' :
+                           iconColor?.includes('cyan') ? 'text-cyan-600' :
+                           iconColor?.includes('indigo') ? 'text-indigo-600' :
+                           iconColor?.includes('teal') ? 'text-teal-600' :
                            textColor;
 
   return (
