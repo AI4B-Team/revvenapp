@@ -213,9 +213,14 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-colors">
-                <Mic size={18} />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-colors">
+                    <Mic size={18} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Speak</TooltipContent>
+              </Tooltip>
               <button 
                 onClick={onGenerate}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium bg-emerald-100 hover:bg-emerald-200 text-emerald-600 transition-colors"
