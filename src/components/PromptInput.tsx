@@ -65,7 +65,7 @@ const videoTypes: SubOption[] = [
 
 // Image type options - matching screenshot exactly
 const imageTypes: SubOption[] = [
-  { id: 'create', label: 'Create', icon: Sparkles, color: 'text-amber-500' },
+  { id: 'generate', label: 'Generate', icon: Sparkles, color: 'text-amber-500' },
   { id: 'batch', label: 'Batch', icon: Layers, color: 'text-emerald-500' },
   { id: 'draw', label: 'Draw', icon: Pencil, color: 'text-orange-500' },
   { id: 'swap', label: 'Swap', icon: ArrowRightLeft, color: 'text-blue-500' },
