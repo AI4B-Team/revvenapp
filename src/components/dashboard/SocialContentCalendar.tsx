@@ -22,8 +22,16 @@ import {
   CalendarClock,
   Hand,
   Users,
-  MoreVertical
+  MoreVertical,
+  RotateCcw,
+  Image as ImageIcon
 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { getPlatformIcon } from './SocialIcons';
 import { Button } from '@/components/ui/button';
 import {
@@ -85,7 +93,29 @@ interface SocialContentCalendarProps {
 }
 
 type ViewMode = 'calendar' | 'list' | 'kanban' | 'grid';
-type TimeRange = 'week' | 'month';
+type TimeRange = 'day' | 'week' | 'month';
+
+// Filter types
+interface FilterState {
+  statuses: string[];
+  labels: string[];
+}
+
+const STATUS_OPTIONS = [
+  { id: 'scheduled', label: 'Scheduled', color: 'bg-emerald-500' },
+  { id: 'draft', label: 'Draft', color: 'bg-slate-500' },
+  { id: 'published', label: 'Published', color: 'bg-green-600' },
+  { id: 'awaiting', label: 'Awaiting Approval', color: 'bg-amber-500' },
+  { id: 'failed', label: 'Failed', color: 'bg-red-500' },
+];
+
+const LABEL_OPTIONS = [
+  { id: 'influencer', label: 'INFLUENCER', color: 'bg-slate-800 dark:bg-slate-700' },
+  { id: 'educational', label: 'EDUCATIONAL', color: 'bg-blue-600' },
+  { id: 'promotional', label: 'PROMOTIONAL', color: 'bg-purple-600' },
+  { id: 'engagement', label: 'ENGAGEMENT', color: 'bg-pink-600' },
+  { id: 'behind-scenes', label: 'BEHIND THE SCENES', color: 'bg-amber-600' },
+];
 
 const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({ 
   generatedContent = [],
@@ -95,6 +125,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   onUpdatePost,
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [timeRange, setTimeRange] = useState<TimeRange>('month');
   const [selectedPost, setSelectedPost] = useState<ContentItem | null>(null);
@@ -102,12 +133,66 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   const [isBestTimeModalOpen, setIsBestTimeModalOpen] = useState(false);
   const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    statuses: [],
+    labels: [],
+  });
+  const [previewPost, setPreviewPost] = useState<ContentItem | null>(null);
   const { toast } = useToast();
 
   // Use only generated content (no mock data)
   const allContent = useMemo(() => {
     return [...generatedContent] as ContentItem[];
   }, [generatedContent]);
+
+  // Get pillar/label for content item
+  const getPillarId = (item: ContentItem): string => {
+    if (item.type === 'reel') return 'influencer';
+    if (item.type === 'carousel') return 'educational';
+    if (item.type === 'story') return 'engagement';
+    // Default random assignment for demo
+    const pillars = ['influencer', 'educational', 'promotional', 'engagement', 'behind-scenes'];
+    return pillars[Math.abs(item.id.charCodeAt(0)) % pillars.length];
+  };
+
+  // Filter content based on selected filters
+  const filteredContent = useMemo(() => {
+    if (filters.statuses.length === 0 && filters.labels.length === 0) {
+      return allContent;
+    }
+    
+    return allContent.filter(item => {
+      const statusMatch = filters.statuses.length === 0 || filters.statuses.includes(item.status);
+      const labelMatch = filters.labels.length === 0 || filters.labels.includes(getPillarId(item));
+      return statusMatch && labelMatch;
+    });
+  }, [allContent, filters]);
+
+  // Filter helpers
+  const toggleStatusFilter = (statusId: string) => {
+    setFilters(prev => ({
+      ...prev,
+      statuses: prev.statuses.includes(statusId)
+        ? prev.statuses.filter(s => s !== statusId)
+        : [...prev.statuses, statusId]
+    }));
+  };
+
+  const toggleLabelFilter = (labelId: string) => {
+    setFilters(prev => ({
+      ...prev,
+      labels: prev.labels.includes(labelId)
+        ? prev.labels.filter(l => l !== labelId)
+        : [...prev.labels, labelId]
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilters({ statuses: [], labels: [] });
+  };
+
+  const hasActiveFilters = filters.statuses.length > 0 || filters.labels.length > 0;
 
   const handleDeletePost = (postId: string) => {
     onDeletePost?.(postId);
@@ -168,11 +253,63 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   const goToToday = () => {
     setCurrentMonth(new Date());
+    setCurrentDate(new Date());
+  };
+
+  // Day/Week navigation
+  const navigateDay = (direction: 'prev' | 'next') => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev);
+      if (direction === 'prev') {
+        newDate.setDate(prev.getDate() - 1);
+      } else {
+        newDate.setDate(prev.getDate() + 1);
+      }
+      return newDate;
+    });
+  };
+
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev);
+      if (direction === 'prev') {
+        newDate.setDate(prev.getDate() - 7);
+      } else {
+        newDate.setDate(prev.getDate() + 7);
+      }
+      return newDate;
+    });
+  };
+
+  // Get week days starting from Monday
+  const getWeekDays = (date: Date) => {
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
+    const monday = new Date(date);
+    monday.setDate(diff);
+    
+    const weekDays: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      weekDays.push(d);
+    }
+    return weekDays;
+  };
+
+  const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
+
+  // Get content for a specific hour on a date
+  const getContentForHour = (date: Date, hour: number) => {
+    return filteredContent.filter(item => {
+      const itemDate = item.date;
+      return itemDate.toDateString() === date.toDateString() && itemDate.getHours() === hour;
+    });
   };
 
   const getContentForDate = (date: Date | null) => {
     if (!date) return [];
-    return allContent.filter(
+    return filteredContent.filter(
       item => item.date.toDateString() === date.toDateString()
     );
   };
@@ -265,10 +402,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   // Render Kanban View
   const renderKanbanView = () => {
     const columns = [
-      { id: 'draft', label: 'Drafts', items: allContent.filter(c => c.status === 'draft'), color: 'bg-slate-500' },
-      { id: 'awaiting', label: 'Awaiting Approval', items: allContent.filter(c => c.status === 'awaiting'), color: 'bg-amber-500' },
-      { id: 'scheduled', label: 'Scheduled', items: allContent.filter(c => c.status === 'scheduled'), color: 'bg-emerald-500' },
-      { id: 'published', label: 'Published', items: allContent.filter(c => c.status === 'published'), color: 'bg-green-600' },
+      { id: 'draft', label: 'Drafts', items: filteredContent.filter(c => c.status === 'draft'), color: 'bg-slate-500' },
+      { id: 'awaiting', label: 'Awaiting Approval', items: filteredContent.filter(c => c.status === 'awaiting'), color: 'bg-amber-500' },
+      { id: 'scheduled', label: 'Scheduled', items: filteredContent.filter(c => c.status === 'scheduled'), color: 'bg-emerald-500' },
+      { id: 'published', label: 'Published', items: filteredContent.filter(c => c.status === 'published'), color: 'bg-green-600' },
     ];
 
     // Content pillars for tagging
@@ -444,7 +581,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   // Render List View
   const renderListView = () => {
-    const sortedContent = [...allContent].sort((a, b) => a.date.getTime() - b.date.getTime());
+    const sortedContent = [...filteredContent].sort((a, b) => a.date.getTime() - b.date.getTime());
     
     return (
       <div className="p-4">
@@ -526,12 +663,12 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   // Render Grid View
   const renderGridView = () => (
     <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {allContent.length === 0 ? (
+      {filteredContent.length === 0 ? (
         <div className="col-span-full text-center py-12 text-muted-foreground">
-          No content created yet
+          {hasActiveFilters ? 'No content matches your filters' : 'No content created yet'}
         </div>
       ) : (
-        allContent.map(item => (
+        filteredContent.map(item => (
           <div 
             key={item.id} 
             onClick={() => handlePostClick(item)}
@@ -561,7 +698,292 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     </div>
   );
 
-  // Render Calendar View
+  // Render Day View
+  const renderDayView = () => {
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+    const dayContent = getContentForDate(currentDate);
+    const formattedDate = currentDate.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    }).toUpperCase().replace(',', '');
+    
+    // Get pillar info for preview
+    const getPillarInfo = (item: ContentItem) => {
+      const pillarId = getPillarId(item);
+      return LABEL_OPTIONS.find(l => l.id === pillarId);
+    };
+
+    return (
+      <div className="flex h-[600px]">
+        {/* Timeline */}
+        <div className="flex-1 overflow-y-auto border-r border-border">
+          {hours.map(hour => {
+            const hourContent = getContentForHour(currentDate, hour);
+            const formattedHour = hour === 0 
+              ? '12:00 AM' 
+              : hour < 12 
+                ? `${hour}:00 AM` 
+                : hour === 12 
+                  ? '12:00 PM' 
+                  : `${hour - 12}:00 PM`;
+            
+            return (
+              <div key={hour} className="flex min-h-[60px] border-b border-border/50">
+                <div className="w-24 flex-shrink-0 px-4 py-2 text-sm text-muted-foreground border-r border-border/50">
+                  {formattedHour}
+                </div>
+                <div className="flex-1 p-2 hover:bg-muted/20 transition-colors">
+                  {hourContent.map(item => {
+                    const pillar = getPillarInfo(item);
+                    return (
+                      <div 
+                        key={item.id}
+                        onClick={() => {
+                          setPreviewPost(item);
+                          handlePostClick(item);
+                        }}
+                        className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-lg p-3 cursor-pointer hover:shadow-md transition-all group"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                            {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                          </span>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <button className="p-1 hover:bg-muted rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-popover border-border">
+                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeletePost(item.id);
+                                }}
+                              >
+                                <Trash2 className="w-3 h-3 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        {pillar && (
+                          <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-2 ${pillar.color} text-white`}>
+                            {pillar.label}
+                          </span>
+                        )}
+                        <div className="flex items-start gap-2">
+                          <div className="w-5 h-5 rounded bg-emerald-100 dark:bg-emerald-800/50 flex items-center justify-center flex-shrink-0">
+                            {getPlatformIcon(item.platform, "w-3 h-3")}
+                          </div>
+                          <p className="text-sm text-foreground line-clamp-2">{item.caption || item.title}</p>
+                        </div>
+                        {item.accountHandle && (
+                          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                            <Users className="w-3 h-3" />
+                            {item.accountHandle}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Preview Panel */}
+        <div className="w-80 bg-muted/20 p-4 flex flex-col items-center justify-center">
+          {previewPost ? (
+            <div className="w-full max-w-xs">
+              <div className="aspect-square bg-muted rounded-xl overflow-hidden mb-4">
+                {previewPost.imageUrl ? (
+                  <img src={previewPost.imageUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <ImageIcon className="w-12 h-12 text-muted-foreground/50" />
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-foreground line-clamp-4">{previewPost.caption || previewPost.title}</p>
+            </div>
+          ) : (
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-4 bg-muted rounded-xl flex items-center justify-center">
+                <div className="w-8 h-4 bg-muted-foreground/30 rounded mb-1" />
+              </div>
+              <div className="w-16 h-8 bg-muted rounded mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Select post to preview</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Week View
+  const renderWeekView = () => {
+    const weekLabel = `${weekDays[0].toLocaleDateString('en-US', { month: 'long' })} ${weekDays[0].getFullYear()}`;
+    
+    // Get pillar info for cards
+    const getPillarInfo = (item: ContentItem) => {
+      const pillarId = getPillarId(item);
+      return LABEL_OPTIONS.find(l => l.id === pillarId);
+    };
+    
+    return (
+      <div className="p-4">
+        {/* Day Headers */}
+        <div className="grid grid-cols-7 mb-2">
+          {weekDays.map((date, index) => {
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+            const today = isToday(date);
+            return (
+              <div key={index} className="text-center border-b border-border py-2">
+                <div className="text-sm font-medium text-muted-foreground">{dayName}</div>
+                <div className={`mt-1 inline-flex items-center justify-center text-lg font-semibold ${
+                  today 
+                    ? 'bg-emerald-500 text-white w-8 h-8 rounded-full' 
+                    : 'text-foreground'
+                }`}>
+                  {date.getDate()}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Week Content Grid */}
+        <div className="grid grid-cols-7 min-h-[500px]">
+          {weekDays.map((date, index) => {
+            const content = getContentForDate(date);
+            const holidays = getHolidaysForDate(date);
+            const today = isToday(date);
+            
+            return (
+              <div 
+                key={index} 
+                className={`border-r border-b border-border p-2 ${
+                  index === 0 ? 'border-l' : ''
+                } ${today ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : ''}`}
+              >
+                {/* Add button */}
+                <button className="w-full flex items-center justify-center p-1 mb-2 rounded-lg hover:bg-muted transition-colors opacity-0 hover:opacity-100">
+                  <Plus className="w-4 h-4 text-muted-foreground" />
+                </button>
+                
+                {/* Holidays */}
+                {holidays.map((holiday, i) => (
+                  <div 
+                    key={i} 
+                    className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 mb-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    {holiday}
+                  </div>
+                ))}
+                
+                {/* Content Cards */}
+                <div className="space-y-2">
+                  {content.map(item => {
+                    const pillar = getPillarInfo(item);
+                    return (
+                      <div 
+                        key={item.id}
+                        onClick={() => handlePostClick(item)}
+                        className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-all group"
+                      >
+                        {/* Time & Menu */}
+                        <div className="px-2 pt-2 flex items-center justify-between">
+                          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                            {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                          </span>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <button className="p-0.5 hover:bg-muted rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-popover border-border">
+                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeletePost(item.id);
+                                }}
+                              >
+                                <Trash2 className="w-3 h-3 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        
+                        {/* Pillar Label */}
+                        {pillar && (
+                          <div className="px-2 pt-1">
+                            <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${pillar.color} text-white`}>
+                              {pillar.label}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {/* Content */}
+                        <div className="p-2">
+                          <div className="flex items-start gap-1.5">
+                            <div className="w-4 h-4 rounded bg-emerald-100 dark:bg-emerald-800/50 flex items-center justify-center flex-shrink-0">
+                              {getPlatformIcon(item.platform, "w-2.5 h-2.5")}
+                            </div>
+                            <p className="text-xs text-foreground line-clamp-2">{item.caption || item.title}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Image Preview */}
+                        {item.imageUrl && (
+                          <div className="aspect-[4/3] overflow-hidden">
+                            <img 
+                              src={item.imageUrl} 
+                              alt="" 
+                              className="w-full h-full object-cover"
+                            />
+                            {item.type === 'reel' && (
+                              <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                <Play className="w-6 h-6 text-white" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Account */}
+                        {item.accountHandle && (
+                          <div className="px-2 pb-2 flex items-center gap-1 text-[10px] text-muted-foreground">
+                            <Users className="w-3 h-3" />
+                            {item.accountHandle}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Calendar View (Month)
   const renderCalendarView = () => (
     <div className="p-4">
       {/* Day Headers */}
@@ -734,11 +1156,12 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 px-3 py-1.5 bg-background border border-border rounded-lg text-sm font-medium hover:bg-muted/50 transition-colors">
                 <LayoutGrid className="w-4 h-4" />
-                {timeRange === 'month' ? 'Month' : 'Week'}
+                {timeRange === 'month' ? 'Month' : timeRange === 'week' ? 'Week' : 'Day'}
                 <ChevronRight className="w-3 h-3 rotate-90" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-popover border-border">
+              <DropdownMenuItem onClick={() => setTimeRange('day')}>Day</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimeRange('week')}>Week</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimeRange('month')}>Month</DropdownMenuItem>
             </DropdownMenuContent>
@@ -754,22 +1177,45 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               <CalendarIcon className="w-4 h-4 text-emerald-600" />
             </button>
             <button 
-              onClick={() => navigateMonth('prev')}
+              onClick={() => {
+                if (timeRange === 'day') navigateDay('prev');
+                else if (timeRange === 'week') navigateWeek('prev');
+                else navigateMonth('prev');
+              }}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
             >
               <ChevronLeft className="w-4 h-4 text-muted-foreground" />
             </button>
             <button 
-              onClick={() => navigateMonth('next')}
+              onClick={() => {
+                if (timeRange === 'day') navigateDay('next');
+                else if (timeRange === 'week') navigateWeek('next');
+                else navigateMonth('next');
+              }}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
             >
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
 
-          {/* Month Year */}
+          {/* Date Display */}
           <h2 className="text-lg font-semibold text-foreground">
-            {monthName} <span className="text-muted-foreground font-normal">{year}</span>
+            {timeRange === 'day' ? (
+              <>
+                {currentDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()},{' '}
+                {currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}{' '}
+                <span className="text-muted-foreground font-normal">{currentDate.getFullYear()}</span>
+              </>
+            ) : timeRange === 'week' ? (
+              <>
+                {weekDays[0].toLocaleDateString('en-US', { month: 'long' })}{' '}
+                <span className="text-muted-foreground font-normal">{weekDays[0].getFullYear()}</span>
+              </>
+            ) : (
+              <>
+                {monthName} <span className="text-muted-foreground font-normal">{year}</span>
+              </>
+            )}
           </h2>
         </div>
 
@@ -789,9 +1235,86 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
           <button className="p-2 hover:bg-muted rounded-lg transition-colors">
             <Search className="w-4 h-4 text-muted-foreground" />
           </button>
-          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-            <Filter className="w-4 h-4 text-muted-foreground" />
-          </button>
+          
+          {/* Filter Popover */}
+          <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+            <PopoverTrigger asChild>
+              <button className={`p-2 rounded-lg transition-colors relative ${
+                hasActiveFilters 
+                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' 
+                  : 'hover:bg-muted text-muted-foreground'
+              }`}>
+                <Filter className="w-4 h-4" />
+                {hasActiveFilters && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full" />
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-64 p-0 bg-popover border-border">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <h3 className="font-semibold text-foreground">Filters</h3>
+                {hasActiveFilters && (
+                  <button 
+                    onClick={resetFilters}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Reset
+                  </button>
+                )}
+              </div>
+              
+              {/* Status Filters */}
+              <div className="px-4 py-3 border-b border-border">
+                <h4 className="text-sm font-medium text-foreground mb-3">Status</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={filters.statuses.length === 0}
+                      onCheckedChange={() => setFilters(prev => ({ ...prev, statuses: [] }))}
+                    />
+                    <span className="text-sm text-foreground">Select All</span>
+                  </label>
+                  {STATUS_OPTIONS.map(status => (
+                    <label key={status.id} className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={filters.statuses.includes(status.id)}
+                        onCheckedChange={() => toggleStatusFilter(status.id)}
+                      />
+                      <div className={`w-2 h-2 rounded-full ${status.color}`} />
+                      <span className="text-sm text-foreground">{status.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Labels Filters */}
+              <div className="px-4 py-3">
+                <h4 className="text-sm font-medium text-foreground mb-3">Labels</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={filters.labels.length === 0}
+                      onCheckedChange={() => setFilters(prev => ({ ...prev, labels: [] }))}
+                    />
+                    <span className="text-sm text-foreground">Select All</span>
+                  </label>
+                  {LABEL_OPTIONS.map(label => (
+                    <label key={label.id} className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={filters.labels.includes(label.id)}
+                        onCheckedChange={() => toggleLabelFilter(label.id)}
+                      />
+                      <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${label.color} text-white`}>
+                        {label.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+          
           <button className="p-2 hover:bg-muted rounded-lg transition-colors">
             <Download className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -802,7 +1325,9 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       </div>
 
       {/* View Content */}
-      {viewMode === 'calendar' && renderCalendarView()}
+      {viewMode === 'calendar' && timeRange === 'day' && renderDayView()}
+      {viewMode === 'calendar' && timeRange === 'week' && renderWeekView()}
+      {viewMode === 'calendar' && timeRange === 'month' && renderCalendarView()}
       {viewMode === 'list' && renderListView()}
       {viewMode === 'kanban' && renderKanbanView()}
       {viewMode === 'grid' && renderGridView()}
