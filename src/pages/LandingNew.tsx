@@ -43,7 +43,7 @@ const LandingNew = () => {
           <p className="text-lg text-slate-400 mb-2 tracking-wide">
             Create Anything — Automate Everything
           </p>
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight max-w-[52rem] mx-auto">
             What Would You Like To Do Today?
           </h1>
         </div>

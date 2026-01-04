@@ -199,7 +199,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
       
       {/* Prompt Input Box */}
       <div className="relative w-fit max-w-full mx-auto">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col max-w-full w-[340px] sm:w-[520px] md:w-[64rem] lg:w-fit lg:min-w-[64rem]">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-fit max-w-full min-w-[340px] sm:min-w-[520px] md:min-w-[54rem]">
           {/* Left side icons - only shown when an option is selected */}
           {selectedOption && (
             <div className="flex flex-col gap-1 absolute left-4 top-4">
