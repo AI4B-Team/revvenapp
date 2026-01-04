@@ -8,7 +8,7 @@ import {
   LayoutDashboard,
   Image,
   Video,
-  MessageSquare,
+  Music,
   BarChart3,
   ArrowLeft,
 } from 'lucide-react';
@@ -20,6 +20,7 @@ const menuItems = [
   { icon: FileText, label: 'Posts', path: '/manage/posts' },
   { icon: Image, label: 'Images', path: '/manage/images' },
   { icon: Video, label: 'Videos', path: '/manage/videos' },
+  { icon: Music, label: 'Audio', path: '/manage/audio' },
   { icon: Shield, label: 'Roles', path: '/manage/roles' },
   { icon: BarChart3, label: 'Analytics', path: '/manage/analytics' },
   { icon: Settings, label: 'Settings', path: '/manage/settings' },
