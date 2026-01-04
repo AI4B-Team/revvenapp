@@ -150,12 +150,12 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
 
   const handleOptionSelect = (option: AutoOption | null) => {
     setSelectedOption(option);
-    setShowTypeDropdown(false);
-    // Auto-select "Create" subtype when Image is selected
-    if (option?.id === 'image') {
-      setSelectedSubType(imageTypes[0]); // Select "Create" by default
+    setSelectedSubType(null);
+    // Auto-show Type dropdown when an option with sub-types is selected
+    if (option?.id === 'image' || option?.id === 'video' || option?.id === 'audio' || option?.id === 'design' || option?.id === 'document') {
+      setShowTypeDropdown(true);
     } else {
-      setSelectedSubType(null);
+      setShowTypeDropdown(false);
     }
   };
 
