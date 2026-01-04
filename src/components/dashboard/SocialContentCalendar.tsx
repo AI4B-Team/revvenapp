@@ -1171,6 +1171,16 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               <Grid3x3 className="w-4 h-4" />
               Feed
             </Button>
+
+            {/* Generating Status Indicator - beside Feed */}
+            {isGenerating && (
+              <div className="flex items-center gap-2 ml-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg animate-in fade-in slide-in-from-left-2">
+                <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">
+                  Generating{allContent.length > 0 ? ` (${allContent.length})` : '...'}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Right: Actions */}
@@ -1455,25 +1465,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       {viewMode === 'kanban' && renderKanbanView()}
       {viewMode === 'grid' && renderGridView()}
 
-      {/* Generation Status with Live Counter */}
-      {isGenerating && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-50 animate-in fade-in slide-in-from-bottom-4">
-          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-          <div>
-            <p className="font-medium">Generating content...</p>
-            <p className="text-sm opacity-70">
-              {allContent.length > 0 
-                ? `${allContent.length} posts created` 
-                : 'Starting AI generation...'}
-            </p>
-          </div>
-          {allContent.length > 0 && (
-            <div className="ml-2 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-              {allContent.length}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Generation Status - shown in header, removed from fixed bottom */}
 
       {/* Post Detail Modal */}
       <PostDetailModal
