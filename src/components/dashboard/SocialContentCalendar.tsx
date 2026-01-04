@@ -495,51 +495,51 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       <div className="px-6 py-4 border-b border-border">
         <div className="flex items-center justify-between">
           {/* Left: View Mode Tabs */}
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            <button
+          <div className="flex items-center gap-2">
+            <Button
+              variant={viewMode === 'calendar' ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setViewMode('calendar')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                viewMode === 'calendar' 
-                  ? 'bg-emerald-500 text-white shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
-              }`}
+              className={viewMode === 'calendar' 
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white gap-2' 
+                : 'gap-2'}
             >
               <CalendarIcon className="w-4 h-4" />
               Calendar
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setViewMode('list')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                viewMode === 'list' 
-                  ? 'bg-emerald-500 text-white shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
-              }`}
+              className={viewMode === 'list' 
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white gap-2' 
+                : 'gap-2'}
             >
               <List className="w-4 h-4" />
               Plan
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={viewMode === 'kanban' ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setViewMode('kanban')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                viewMode === 'kanban' 
-                  ? 'bg-emerald-500 text-white shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
-              }`}
+              className={viewMode === 'kanban' 
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white gap-2' 
+                : 'gap-2'}
             >
               <Columns3 className="w-4 h-4" />
               Kanban
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setViewMode('grid')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                viewMode === 'grid' 
-                  ? 'bg-emerald-500 text-white shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
-              }`}
+              className={viewMode === 'grid' 
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white gap-2' 
+                : 'gap-2'}
             >
               <LayoutGrid className="w-4 h-4" />
               Grid
-            </button>
+            </Button>
           </div>
 
           {/* Right: Actions */}
