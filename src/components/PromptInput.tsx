@@ -278,7 +278,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             </div>
 
             {/* Right side controls - flex shrink disabled */}
-            <div className="flex items-center gap-4 flex-shrink-0 ml-auto">
+            <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto">
               {/* AI Enhance button - only shown when there's text in prompt */}
               {prompt.trim() && (
                 <Tooltip>
