@@ -151,12 +151,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
   const handleOptionSelect = (option: AutoOption | null) => {
     setSelectedOption(option);
     setSelectedSubType(null);
-    // Auto-show Type dropdown when an option with sub-types is selected
-    if (option?.id === 'image' || option?.id === 'video' || option?.id === 'audio' || option?.id === 'design' || option?.id === 'document') {
-      setShowTypeDropdown(true);
-    } else {
-      setShowTypeDropdown(false);
-    }
+    setShowTypeDropdown(false);
   };
 
   const handleRemoveOption = () => {
@@ -209,7 +204,9 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                     <selectedOption.icon size={18} />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="right">{selectedOption.label}</TooltipContent>
+                <TooltipContent side="right">
+                  {selectedOption.id === 'image' ? 'Image-To-Prompt' : selectedOption.label}
+                </TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
