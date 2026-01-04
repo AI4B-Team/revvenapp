@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Trash2, Eye, Download, Loader2, User } from 'lucide-react';
+import { Search, Trash2, Eye, Loader2, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getSignedCloudinaryUrls } from '@/hooks/useSignedCloudinaryUrl';
 
 interface Profile {
   id: string;
@@ -37,6 +38,7 @@ const AdminImages = () => {
   const [images, setImages] = useState<GeneratedImageWithProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchImages();
@@ -75,6 +77,16 @@ const AdminImages = () => {
       })) || [];
 
       setImages(imagesWithProfiles);
+
+      // Fetch signed URLs for all completed images
+      const urlsToSign = imagesWithProfiles
+        .filter(img => img.image_url && img.status === 'completed')
+        .map(img => img.image_url as string);
+      
+      if (urlsToSign.length > 0) {
+        const signed = await getSignedCloudinaryUrls(urlsToSign);
+        setSignedUrls(signed);
+      }
     } catch (error) {
       console.error('Error fetching images:', error);
       toast({
@@ -169,9 +181,15 @@ const AdminImages = () => {
                 <Card key={image.id} className="overflow-hidden">
                   <div className="aspect-square bg-muted relative overflow-hidden">
                     {image.image_url && image.status === 'completed' ? (
-                      <div 
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${image.image_url})` }}
+                      <img 
+                        src={signedUrls[image.image_url] || image.image_url}
+                        alt={image.prompt}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          console.log('Image load error:', image.image_url);
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -210,7 +228,7 @@ const AdminImages = () => {
                       <div className="flex gap-1">
                         {image.image_url && (
                           <Button variant="ghost" size="icon" asChild>
-                            <a href={image.image_url} target="_blank" rel="noopener noreferrer">
+                            <a href={signedUrls[image.image_url] || image.image_url} target="_blank" rel="noopener noreferrer">
                               <Eye className="w-4 h-4" />
                             </a>
                           </Button>
