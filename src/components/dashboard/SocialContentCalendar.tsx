@@ -24,7 +24,15 @@ import {
   Users,
   MoreVertical,
   RotateCcw,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Grid3x3,
+  RefreshCw,
+  Layout,
+  Tag,
+  Expand,
+  UserPlus,
+  ListChecks,
+  Maximize
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -32,6 +40,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
 import { getPlatformIcon } from './SocialIcons';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,6 +62,16 @@ import {
 } from '@/components/ui/alert-dialog';
 import PostDetailModal from './PostDetailModal';
 import BestTimeToPostModal from './BestTimeToPostModal';
+import ExportPostsModal from './calendar/ExportPostsModal';
+import EventsModal from './calendar/EventsModal';
+import LabelsModal from './calendar/LabelsModal';
+import AddAccountModal from './calendar/AddAccountModal';
+import TemplatesModal from './calendar/TemplatesModal';
+import ContentRecyclingModal from './calendar/ContentRecyclingModal';
+import FeedPreviewModal from './calendar/FeedPreviewModal';
+import BulkActionsBar from './calendar/BulkActionsBar';
+import PlatformWarnings, { generateWarnings } from './calendar/PlatformWarnings';
+import EngagementOverlay, { generateMockEngagement } from './calendar/EngagementOverlay';
 import { CalendarContentItem } from '@/data/sampleCalendarContent';
 import { useToast } from '@/hooks/use-toast';
 
@@ -92,7 +111,7 @@ interface SocialContentCalendarProps {
   onUpdatePost?: (updatedPost: ContentItem) => void;
 }
 
-type ViewMode = 'calendar' | 'list' | 'kanban' | 'grid';
+type ViewMode = 'calendar' | 'list' | 'kanban' | 'grid' | 'feed';
 type TimeRange = 'day' | 'week' | 'month';
 
 // Filter types
@@ -139,6 +158,33 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     labels: [],
   });
   const [previewPost, setPreviewPost] = useState<ContentItem | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
+  // New feature modals
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isEventsModalOpen, setIsEventsModalOpen] = useState(false);
+  const [isLabelsModalOpen, setIsLabelsModalOpen] = useState(false);
+  const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false);
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [isRecyclingModalOpen, setIsRecyclingModalOpen] = useState(false);
+  const [isFeedPreviewOpen, setIsFeedPreviewOpen] = useState(false);
+  
+  // Labels state
+  const [labels, setLabels] = useState([
+    { id: 'influencer', name: 'INFLUENCER', color: 'bg-slate-800 dark:bg-slate-700' },
+    { id: 'educational', name: 'EDUCATIONAL', color: 'bg-blue-600' },
+    { id: 'promotional', name: 'PROMOTIONAL', color: 'bg-purple-600' },
+    { id: 'engagement', name: 'ENGAGEMENT', color: 'bg-pink-600' },
+    { id: 'behind-scenes', name: 'BEHIND THE SCENES', color: 'bg-amber-600' },
+  ]);
+  
+  // Bulk selection
+  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
+  
+  // Platform warnings
+  const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
+  
   const { toast } = useToast();
 
   // Use only generated content (no mock data)
@@ -1116,6 +1162,15 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               <LayoutGrid className="w-4 h-4" />
               Grid
             </Button>
+            <Button
+              variant={viewMode === 'feed' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setIsFeedPreviewOpen(true)}
+              className="gap-2"
+            >
+              <Grid3x3 className="w-4 h-4" />
+              Feed
+            </Button>
           </div>
 
           {/* Right: Actions */}
@@ -1140,10 +1195,29 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               <Sparkles className="w-4 h-4" />
               Best Time To Post
             </Button>
-            <Button size="sm" className="gap-2 bg-emerald-500 text-white hover:bg-emerald-600">
-              <Plus className="w-4 h-4" />
-              New Post
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" className="gap-2 bg-emerald-500 text-white hover:bg-emerald-600">
+                  <Plus className="w-4 h-4" />
+                  New Post
+                  <ChevronRight className="w-3 h-3 rotate-90" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem className="gap-2">
+                  <Pencil className="w-4 h-4" />
+                  Create Post
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsTemplatesModalOpen(true)} className="gap-2">
+                  <Layout className="w-4 h-4" />
+                  Use Template
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsRecyclingModalOpen(true)} className="gap-2">
+                  <RefreshCw className="w-4 h-4" />
+                  Recycle Content
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
@@ -1231,10 +1305,22 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             </span>
           </div>
 
-          {/* Tools */}
-          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-            <Search className="w-4 h-4 text-muted-foreground" />
-          </button>
+          {/* Search */}
+          <Popover open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+            <PopoverTrigger asChild>
+              <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                <Search className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72 p-2">
+              <Input 
+                placeholder="Search posts..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-background"
+              />
+            </PopoverContent>
+          </Popover>
           
           {/* Filter Popover */}
           <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
@@ -1290,15 +1376,16 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               
               {/* Labels Filters */}
               <div className="px-4 py-3">
-                <h4 className="text-sm font-medium text-foreground mb-3">Labels</h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-foreground">Labels</h4>
+                  <button 
+                    onClick={() => { setIsFilterOpen(false); setIsLabelsModalOpen(true); }}
+                    className="text-xs text-emerald-600 hover:underline"
+                  >
+                    Manage
+                  </button>
+                </div>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox
-                      checked={filters.labels.length === 0}
-                      onCheckedChange={() => setFilters(prev => ({ ...prev, labels: [] }))}
-                    />
-                    <span className="text-sm text-foreground">Select All</span>
-                  </label>
                   {LABEL_OPTIONS.map(label => (
                     <label key={label.id} className="flex items-center gap-2 cursor-pointer">
                       <Checkbox
@@ -1315,12 +1402,48 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             </PopoverContent>
           </Popover>
           
-          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+          <button 
+            onClick={() => setIsExportModalOpen(true)}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
+          >
             <Download className="w-4 h-4 text-muted-foreground" />
           </button>
-          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-          </button>
+          
+          {/* More Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem onClick={() => setIsFeedPreviewOpen(true)} className="gap-2">
+                <Maximize className="w-4 h-4" />
+                Open Full Screen
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsAddAccountModalOpen(true)} className="gap-2">
+                <UserPlus className="w-4 h-4" />
+                Add Account
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setIsEventsModalOpen(true)} className="gap-2">
+                <CalendarIcon className="w-4 h-4" />
+                Calendar Events
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsLabelsModalOpen(true)} className="gap-2">
+                <Tag className="w-4 h-4" />
+                Manage Labels
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsTemplatesModalOpen(true)} className="gap-2">
+                <Layout className="w-4 h-4" />
+                Templates
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsRecyclingModalOpen(true)} className="gap-2">
+                <RefreshCw className="w-4 h-4" />
+                Content Recycling
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -1397,6 +1520,54 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* New Feature Modals */}
+      <ExportPostsModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        posts={filteredContent}
+      />
+      
+      <EventsModal
+        isOpen={isEventsModalOpen}
+        onClose={() => setIsEventsModalOpen(false)}
+      />
+      
+      <LabelsModal
+        isOpen={isLabelsModalOpen}
+        onClose={() => setIsLabelsModalOpen(false)}
+        labels={labels}
+        onLabelsChange={setLabels}
+      />
+      
+      <AddAccountModal
+        isOpen={isAddAccountModalOpen}
+        onClose={() => setIsAddAccountModalOpen(false)}
+      />
+      
+      <TemplatesModal
+        isOpen={isTemplatesModalOpen}
+        onClose={() => setIsTemplatesModalOpen(false)}
+        onSelectTemplate={(template) => {
+          toast({ title: "Template selected", description: `Using "${template.name}" template` });
+          setIsTemplatesModalOpen(false);
+        }}
+      />
+      
+      <ContentRecyclingModal
+        isOpen={isRecyclingModalOpen}
+        onClose={() => setIsRecyclingModalOpen(false)}
+        topPerformingPosts={[]}
+        onRecyclePost={(postId, date) => {
+          toast({ title: "Content recycled", description: `Post scheduled for ${date.toLocaleDateString()}` });
+        }}
+      />
+      
+      <FeedPreviewModal
+        isOpen={isFeedPreviewOpen}
+        onClose={() => setIsFeedPreviewOpen(false)}
+        posts={filteredContent}
+      />
     </div>
   );
 };
