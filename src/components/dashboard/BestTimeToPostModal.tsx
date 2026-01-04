@@ -230,7 +230,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
+      <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
         {/* Compact Header */}
         <div className="px-6 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
@@ -241,7 +241,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                 </div>
                 <div>
                   <h2 className="font-semibold text-lg">Posting Schedule</h2>
-                  <p className="text-xs text-muted-foreground">Optimize when you post for maximum reach</p>
+                  <p className="text-xs text-muted-foreground">Optimize When You Post For Maximum Reach</p>
                 </div>
               </div>
             </div>
@@ -378,7 +378,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
               {viewMode === 'day' ? (
                 <>
                   {/* Left Sidebar - Day Navigator */}
-              <div className="w-48 border-r border-border bg-muted/20 p-4 flex flex-col">
+              <div className="w-56 border-r border-border bg-muted/20 p-4 flex flex-col">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Days</span>
                   <Button 
@@ -393,14 +393,14 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                 </div>
                 
                 {/* Legend */}
-                <div className="flex items-center gap-3 mb-3 text-[10px] text-muted-foreground">
+                <div className="flex items-center gap-4 mb-3 text-[10px] text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <div className="w-3 h-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30" />
                     <span>Peak</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground">#</span>
                     <span>Total</span>
+                    <span className="text-muted-foreground">#</span>
                   </div>
                 </div>
                 
@@ -458,7 +458,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                   <div>
                     <h3 className="text-xl font-semibold capitalize">{selectedDay}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {getTimesForDay(selectedDay).length} posting times scheduled
+                      {getTimesForDay(selectedDay).length} Posting Times Scheduled
                     </p>
                   </div>
                   <Button
@@ -501,9 +501,9 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                             {getEngagementBadge(slot.engagement)}
                           </div>
                           <p className="text-sm text-muted-foreground mt-0.5">
-                            {slot.engagement === 'high' && 'Highest audience activity expected'}
-                            {slot.engagement === 'medium' && 'Good engagement potential'}
-                            {slot.engagement === 'low' && 'Lower activity, less competition'}
+                            {slot.engagement === 'high' && 'Highest Audience Activity Expected'}
+                            {slot.engagement === 'medium' && 'Good Engagement Potential'}
+                            {slot.engagement === 'low' && 'Lower Activity, Less Competition'}
                           </p>
                         </div>
 
