@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Lightbulb, Wand2, AtSign, Link2, Copy, Hash } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid } from 'lucide-react';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
@@ -159,8 +159,8 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors">
-                    <Wand2 size={18} />
+                  <button className="p-1.5 rounded-lg text-emerald-500 hover:bg-slate-50 transition-colors">
+                    <Shuffle size={18} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="right">Auto Prompt</TooltipContent>
@@ -182,55 +182,32 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
           {/* Bottom bar */}
           <div className="flex items-center justify-between px-4 pb-4">
             <div className="flex items-center gap-2">
-              {/* Auto dropdown - only shown when an intent is selected */}
-              {intent && (
+              {/* Auto dropdown - only shown when intent is selected AND no option is selected yet */}
+              {intent && !selectedOption && (
                 <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
               )}
               
-              {/* Selected option chip */}
-              {selectedOption && (
-                <ControlChip 
-                  label={selectedOption.label} 
-                  icon={selectedOption.icon} 
-                  iconColor={selectedOption.color} 
-                  onRemove={handleRemoveOption} 
-                />
-              )}
-
-              {/* Selected sub-type chip */}
-              {selectedSubType && (
-                <ControlChip 
-                  label={selectedSubType.label} 
-                  icon={selectedSubType.icon} 
-                  iconColor={selectedSubType.color} 
-                  onRemove={() => setSelectedSubType(null)} 
-                />
-              )}
-
-              {/* Vertical divider and control icons - shown when option is selected */}
+              {/* Selected option chip - shown when an option is selected */}
               {selectedOption && (
                 <>
-                  <div className="w-px h-6 bg-slate-200 mx-1" />
-                  <div className="flex items-center gap-1">
-                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
-                      <Lightbulb size={18} />
-                    </button>
-                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
-                      <Wand2 size={18} />
-                    </button>
-                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
-                      <AtSign size={18} />
-                    </button>
-                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
-                      <Link2 size={18} />
-                    </button>
-                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
-                      <Copy size={18} />
-                    </button>
-                    <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
-                      <Hash size={18} />
-                    </button>
-                  </div>
+                  <ControlChip 
+                    label={selectedOption.label} 
+                    icon={selectedOption.icon} 
+                    iconColor={selectedOption.color} 
+                    onRemove={handleRemoveOption} 
+                  />
+
+                  {/* Vertical divider */}
+                  <div className="w-px h-8 bg-slate-200 mx-1" />
+
+                  {/* Type button */}
+                  <button 
+                    onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full text-sm font-medium transition-colors"
+                  >
+                    <LayoutGrid size={16} className="text-slate-500" />
+                    <span>Type</span>
+                  </button>
                 </>
               )}
             </div>
