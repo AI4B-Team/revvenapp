@@ -122,6 +122,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
   const [selectedOption, setSelectedOption] = useState<AutoOption | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOption | null>(null);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   // Reset chips when intent changes
   useEffect(() => {
@@ -294,11 +295,21 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               )}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
-                    <Mic size={18} />
+                  <button 
+                    onClick={() => setIsRecording(!isRecording)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isRecording 
+                        ? 'bg-red-100 text-red-500' 
+                        : 'text-slate-400 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Mic 
+                      size={18} 
+                      className={isRecording ? 'animate-pulse' : ''} 
+                    />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>Speak</TooltipContent>
+                <TooltipContent>{isRecording ? 'Stop Recording' : 'Speak'}</TooltipContent>
               </Tooltip>
               <button 
                 onClick={onGenerate}
