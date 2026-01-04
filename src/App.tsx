@@ -13,6 +13,7 @@ const VisitorTracker = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 import Landing from "./pages/Landing";
+import LandingNew from "./pages/LandingNew";
 import Index from "./pages/Index";
 import Create from "./pages/Create";
 import AIAgents from "./pages/AIAgents";
@@ -98,7 +99,9 @@ const App = () => (
             <VisitorTracker>
               <Routes>
               <Route path="/sales" element={<Landing />} />
-            <Route path="/dashboard" element={<Index />} />
+              <Route path="/landing" element={<LandingNew />} />
+              <Route path="/" element={<LandingNew />} />
+              <Route path="/dashboard" element={<Index />} />
             <Route path="/create" element={<Create />} />
             <Route path="/edit" element={<Edit />} />
             <Route path="/ai-influencer" element={<AIInfluencer />} />
