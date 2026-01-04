@@ -52,6 +52,20 @@ const LandingNew = () => {
         <PromptInput onGenerate={handleGenerate} />
       </main>
 
+      {/* Legal Disclaimer */}
+      <footer className="w-full py-6 text-center">
+        <p className="text-[11px] text-slate-400">
+          By using REVVEN, you agree to our{' '}
+          <Link to="/terms" className="underline hover:text-slate-600 transition-colors">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link to="/privacy" className="underline hover:text-slate-600 transition-colors">
+            Privacy Policy
+          </Link>.
+        </p>
+      </footer>
+
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
