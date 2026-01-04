@@ -8,15 +8,15 @@ export type CreateTab = 'Apps' | 'Creations' | 'Templates' | 'Community' | 'Coll
 interface IntentConfig {
   label: Intent;
   icon: LucideIcon;
-  color: string;
-  activeColor: string;
+  iconColor: string;
+  selectedBg: string;
 }
 
 const intents: IntentConfig[] = [
-  { label: 'Create', icon: Palette, color: 'text-success', activeColor: 'border-success bg-success/10' },
-  { label: 'Research', icon: Search, color: 'text-info', activeColor: 'border-info bg-info/10' },
-  { label: 'Plan', icon: Map, color: 'text-warning', activeColor: 'border-warning bg-warning/10' },
-  { label: 'Automate', icon: Zap, color: 'text-destructive', activeColor: 'border-destructive bg-destructive/10' },
+  { label: 'Create', icon: Palette, iconColor: 'text-emerald-500', selectedBg: 'bg-slate-800' },
+  { label: 'Research', icon: Search, iconColor: 'text-blue-500', selectedBg: 'bg-slate-800' },
+  { label: 'Plan', icon: Map, iconColor: 'text-amber-500', selectedBg: 'bg-amber-100' },
+  { label: 'Automate', icon: Zap, iconColor: 'text-rose-500', selectedBg: 'bg-rose-100' },
 ];
 
 interface IntentSelectorProps {
@@ -29,21 +29,24 @@ const IntentSelector = ({ selectedIntent, onIntentChange }: IntentSelectorProps)
     <div className="flex flex-wrap justify-center gap-3">
       {intents.map((intent) => {
         const isSelected = selectedIntent === intent.label;
+        const usesDarkBg = intent.label === 'Create' || intent.label === 'Research';
+        
         return (
           <button
             key={intent.label}
             onClick={() => onIntentChange(isSelected ? null : intent.label)}
             className={cn(
-              "flex items-center gap-2.5 px-6 py-3 text-base font-medium rounded-lg border transition-all duration-200",
+              "flex items-center gap-2.5 px-5 py-2.5 text-[15px] font-medium rounded-full border transition-all duration-200",
               isSelected
-                ? intent.activeColor
-                : "bg-background border-border hover:border-muted-foreground/50"
+                ? cn(intent.selectedBg, "border-transparent", usesDarkBg ? "text-white" : "text-slate-800")
+                : "bg-white border-slate-200 text-slate-700 hover:border-slate-300"
             )}
           >
-            <intent.icon size={20} className={intent.color} />
-            <span className={isSelected ? intent.color : 'text-foreground'}>
-              {intent.label}
-            </span>
+            <intent.icon 
+              size={18} 
+              className={isSelected && usesDarkBg ? "text-white" : intent.iconColor} 
+            />
+            <span>{intent.label}</span>
           </button>
         );
       })}

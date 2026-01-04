@@ -13,23 +13,23 @@ const LandingNew = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex flex-col">
       {/* Header */}
-      <header className="w-full px-6 py-4 flex items-center justify-between border-b border-border">
-        <div className="flex items-center gap-3">
+      <header className="w-full px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
           <RevvenLogo />
-          <span className="text-xl font-display font-bold text-foreground">REVVEN</span>
+          <span className="text-lg font-bold text-slate-900 tracking-tight">REVVEN</span>
         </div>
         
         {/* Right side buttons */}
         <div className="flex items-center gap-3">
           <Link to="/login">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-slate-600 font-medium">
               Login
             </Button>
           </Link>
           <Link to="/signup">
-            <Button size="sm">
+            <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-4">
               Start Free
             </Button>
           </Link>
@@ -37,18 +37,18 @@ const LandingNew = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+      <main className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
         {/* Greeting */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-3">
+          <p className="text-base text-slate-500 mb-2">
             Create Anything — Automate Everything
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            What Would You Like To Do Today?
           </p>
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
+            What Would You Like To Do Today?
+          </h1>
         </div>
 
-        {/* Intent Selector + Prompt Input - using same component */}
+        {/* Intent Selector + Prompt Input */}
         <PromptInput onGenerate={handleGenerate} />
       </main>
 
