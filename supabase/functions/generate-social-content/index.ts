@@ -145,10 +145,15 @@ async function generateContentInBackground(
 
 CONTENT GOAL: ${goal}
 - If goal is "Engagement": Focus on questions, polls, interactive content, conversation starters, and content that encourages likes/comments/shares
-- If goal is "Awareness": Focus on brand storytelling, educational content, reaching new audiences, and shareable information
+- If goal is "Awareness": Focus on brand storytelling, reaching new audiences, and highly shareable content that builds recognition
 - If goal is "Traffic": Include clear calls-to-action, link mentions, and content that drives clicks to websites/landing pages
+- If goal is "Followers": Create follow-worthy content, teasers, series, and reasons to hit the follow button
+- If goal is "Community": Foster discussions, user connections, replies, group activities, and belonging
+- If goal is "Education": Create informative, tutorial-style, how-to content that teaches the audience valuable skills
+- If goal is "Entertainment": Fun, viral, humorous, relatable content that people want to share for enjoyment
+- If goal is "Authority": Thought leadership, expert insights, industry analysis, and credibility-building content
+- If goal is "Leads": Lead magnets, sign-up incentives, gated content teasers, and email list building
 - If goal is "Sales": Focus on product highlights, promotions, testimonials, urgency, and purchase incentives
-- If goal is "Education": Create informative, tutorial-style, how-to content that teaches the audience
 
 LANGUAGE: Write ALL content (titles, captions, text overlays) in ${language}. 
 - Use ${language} naturally with appropriate idioms and expressions
