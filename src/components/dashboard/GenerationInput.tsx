@@ -6314,7 +6314,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </div>
                       
                       <div className="pt-2 border-t border-border">
-                        <p className="text-xs text-muted-foreground mb-2">Custom days</p>
+                        <p className="text-xs text-muted-foreground mb-2">Custom Days</p>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => setContentDays(Math.max(1, contentDays - 1))}
@@ -6341,7 +6341,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </div>
                       
                       <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                        ≈ {selectedPlatforms.length > 0 ? selectedPlatforms.length * contentDays : contentDays} posts will be generated
+                        ≈ {selectedPlatforms.length > 0 ? selectedPlatforms.length * contentDays : contentDays} Posts Will Be Generated
                       </p>
                     </div>
                   </PopoverContent>
