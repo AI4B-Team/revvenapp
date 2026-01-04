@@ -198,8 +198,8 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
       <IntentSelector selectedIntent={intent} onIntentChange={setIntent} />
       
       {/* Prompt Input Box */}
-      <div className="relative w-full">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col">
+      <div className="relative w-fit max-w-full mx-auto">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-fit min-w-[520px] max-w-full">
           {/* Left side icons - only shown when an option is selected */}
           {selectedOption && (
             <div className="flex flex-col gap-1 absolute left-4 top-4">
@@ -233,8 +233,8 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             />
           </div>
 
-          {/* Bottom bar - no wrapping, expands as needed */}
-          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-nowrap whitespace-nowrap">
+          {/* Bottom bar - expands dynamically as content is added */}
+          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-nowrap whitespace-nowrap min-w-0">
             {/* Left side controls - flex shrink disabled */}
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Auto dropdown - only shown when intent is selected AND no option is selected yet */}
