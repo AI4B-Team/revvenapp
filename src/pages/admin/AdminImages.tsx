@@ -167,12 +167,19 @@ const AdminImages = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredImages.map((image) => (
                 <Card key={image.id} className="overflow-hidden">
-                  <div className="aspect-square bg-muted relative">
+                  <div className="aspect-square bg-muted relative overflow-hidden">
                     {image.image_url ? (
                       <img
                         src={image.image_url}
                         alt={image.prompt}
                         className="w-full h-full object-cover"
+                        crossOrigin="anonymous"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.style.display = 'none';
+                          target.parentElement?.classList.add('flex', 'items-center', 'justify-center');
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
