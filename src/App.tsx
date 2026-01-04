@@ -5,6 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { useTrackVisitor } from "@/hooks/useLiveVisitors";
+
+// Component to track visitor presence
+const VisitorTracker = ({ children }: { children: React.ReactNode }) => {
+  useTrackVisitor();
+  return <>{children}</>;
+};
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Create from "./pages/Create";
@@ -87,8 +94,9 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-            <Route path="/" element={<Landing />} />
+            <VisitorTracker>
+              <Routes>
+              <Route path="/" element={<Landing />} />
             <Route path="/landing" element={<Landing />} />
             <Route path="/dashboard" element={<Index />} />
             <Route path="/create" element={<Create />} />
@@ -161,9 +169,10 @@ const App = () => (
             <Route path="/manage/roles" element={<AdminRoles />} />
             <Route path="/manage/analytics" element={<AdminAnalytics />} />
             <Route path="/manage/settings" element={<AdminSettings />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-            </Routes>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+              </Routes>
+            </VisitorTracker>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
