@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Trash2, Eye, Loader2, Video, Play } from 'lucide-react';
+import { Search, Trash2, Eye, Loader2, Video, Play, User } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -15,6 +15,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+interface Profile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+}
 
 interface AIVideo {
   id: string;
@@ -28,12 +36,16 @@ interface AIVideo {
   user_id: string;
 }
 
+interface AIVideoWithProfile extends AIVideo {
+  profile?: Profile;
+}
+
 const AdminVideos = () => {
   const { toast } = useToast();
-  const [videos, setVideos] = useState<AIVideo[]>([]);
+  const [videos, setVideos] = useState<AIVideoWithProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedVideo, setSelectedVideo] = useState<AIVideo | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<AIVideoWithProfile | null>(null);
 
   useEffect(() => {
     fetchVideos();
@@ -42,14 +54,36 @@ const AdminVideos = () => {
   const fetchVideos = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: videosData, error: videosError } = await supabase
         .from('ai_videos')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (error) throw error;
-      setVideos(data || []);
+      if (videosError) throw videosError;
+
+      // Get unique user IDs
+      const userIds = [...new Set(videosData?.map(vid => vid.user_id) || [])];
+      
+      // Fetch profiles for these users
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, avatar_url')
+        .in('id', userIds);
+
+      // Create a map of profiles
+      const profilesMap = new Map<string, Profile>();
+      profilesData?.forEach(profile => {
+        profilesMap.set(profile.id, profile);
+      });
+
+      // Combine videos with profiles
+      const videosWithProfiles = videosData?.map(vid => ({
+        ...vid,
+        profile: profilesMap.get(vid.user_id)
+      })) || [];
+
+      setVideos(videosWithProfiles);
     } catch (error) {
       console.error('Error fetching videos:', error);
       toast({
@@ -175,6 +209,23 @@ const AdminVideos = () => {
                     <p className="text-sm text-muted-foreground mb-2">
                       Character: {video.character_name}
                     </p>
+                    {/* Owner info */}
+                    <div className="flex items-center gap-2 mb-2 p-2 rounded-md bg-muted/50">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={video.profile?.avatar_url || ''} />
+                        <AvatarFallback>
+                          <User className="h-3 w-3" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-medium truncate">
+                          {video.profile?.full_name || 'Unknown'}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {video.profile?.email || 'No email'}
+                        </p>
+                      </div>
+                    </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
                         {video.created_at && format(new Date(video.created_at), 'MMM d, yyyy')}
@@ -237,6 +288,18 @@ const AdminVideos = () => {
                 <div>
                   <span className="text-muted-foreground">Status:</span>{' '}
                   {selectedVideo?.status}
+                </div>
+                <div className="col-span-2">
+                  <span className="text-muted-foreground">Owner:</span>{' '}
+                  <span className="inline-flex items-center gap-2">
+                    <Avatar className="h-5 w-5">
+                      <AvatarImage src={selectedVideo?.profile?.avatar_url || ''} />
+                      <AvatarFallback>
+                        <User className="h-3 w-3" />
+                      </AvatarFallback>
+                    </Avatar>
+                    {selectedVideo?.profile?.full_name || 'Unknown'} ({selectedVideo?.profile?.email || 'No email'})
+                  </span>
                 </div>
               </div>
             </DialogContent>

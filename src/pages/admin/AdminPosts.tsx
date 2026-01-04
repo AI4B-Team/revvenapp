@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Trash2, Eye, MoreVertical } from 'lucide-react';
+import { Search, Trash2, Eye, MoreVertical, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +31,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import { getPlatformIcon } from '@/components/dashboard/SocialIcons';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+interface Profile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+}
 
 interface Post {
   id: string;
@@ -42,9 +50,13 @@ interface Post {
   caption: string | null;
 }
 
+interface PostWithProfile extends Post {
+  profile?: Profile;
+}
+
 const AdminPosts = () => {
   const { toast } = useToast();
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostWithProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -56,14 +68,36 @@ const AdminPosts = () => {
   const fetchPosts = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: postsData, error: postsError } = await supabase
         .from('social_posts')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (error) throw error;
-      setPosts(data || []);
+      if (postsError) throw postsError;
+
+      // Get unique user IDs
+      const userIds = [...new Set(postsData?.map(post => post.user_id) || [])];
+      
+      // Fetch profiles for these users
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, avatar_url')
+        .in('id', userIds);
+
+      // Create a map of profiles
+      const profilesMap = new Map<string, Profile>();
+      profilesData?.forEach(profile => {
+        profilesMap.set(profile.id, profile);
+      });
+
+      // Combine posts with profiles
+      const postsWithProfiles = postsData?.map(post => ({
+        ...post,
+        profile: profilesMap.get(post.user_id)
+      })) || [];
+
+      setPosts(postsWithProfiles);
     } catch (error) {
       console.error('Error fetching posts:', error);
       toast({
@@ -162,7 +196,8 @@ const AdminPosts = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Title</TableHead>
+                  <TableHead>Title</TableHead>
+                    <TableHead>Owner</TableHead>
                     <TableHead>Platform</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Scheduled</TableHead>
@@ -172,13 +207,13 @@ const AdminPosts = () => {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
+                      <TableCell colSpan={6} className="text-center py-8">
                         Loading posts...
                       </TableCell>
                     </TableRow>
                   ) : filteredPosts.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                         No posts found.
                       </TableCell>
                     </TableRow>
@@ -191,6 +226,24 @@ const AdminPosts = () => {
                             {post.caption && (
                               <p className="text-xs text-muted-foreground truncate">{post.caption}</p>
                             )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={post.profile?.avatar_url || ''} />
+                              <AvatarFallback>
+                                <User className="h-3 w-3" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <p className="text-xs font-medium truncate">
+                                {post.profile?.full_name || 'Unknown'}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {post.profile?.email || 'No email'}
+                              </p>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
