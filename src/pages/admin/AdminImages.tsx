@@ -7,8 +7,16 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Trash2, Eye, Download, Loader2 } from 'lucide-react';
+import { Search, Trash2, Eye, Download, Loader2, User } from 'lucide-react';
 import { format } from 'date-fns';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+interface Profile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+}
 
 interface GeneratedImage {
   id: string;
@@ -20,9 +28,13 @@ interface GeneratedImage {
   user_id: string;
 }
 
+interface GeneratedImageWithProfile extends GeneratedImage {
+  profile?: Profile;
+}
+
 const AdminImages = () => {
   const { toast } = useToast();
-  const [images, setImages] = useState<GeneratedImage[]>([]);
+  const [images, setImages] = useState<GeneratedImageWithProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -33,14 +45,36 @@ const AdminImages = () => {
   const fetchImages = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: imagesData, error: imagesError } = await supabase
         .from('generated_images')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (error) throw error;
-      setImages(data || []);
+      if (imagesError) throw imagesError;
+
+      // Get unique user IDs
+      const userIds = [...new Set(imagesData?.map(img => img.user_id) || [])];
+      
+      // Fetch profiles for these users
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, avatar_url')
+        .in('id', userIds);
+
+      // Create a map of profiles
+      const profilesMap = new Map<string, Profile>();
+      profilesData?.forEach(profile => {
+        profilesMap.set(profile.id, profile);
+      });
+
+      // Combine images with profiles
+      const imagesWithProfiles = imagesData?.map(img => ({
+        ...img,
+        profile: profilesMap.get(img.user_id)
+      })) || [];
+
+      setImages(imagesWithProfiles);
     } catch (error) {
       console.error('Error fetching images:', error);
       toast({
@@ -153,6 +187,23 @@ const AdminImages = () => {
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                       {image.prompt}
                     </p>
+                    {/* Owner info */}
+                    <div className="flex items-center gap-2 mb-2 p-2 rounded-md bg-muted/50">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={image.profile?.avatar_url || ''} />
+                        <AvatarFallback>
+                          <User className="h-3 w-3" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-medium truncate">
+                          {image.profile?.full_name || 'Unknown'}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {image.profile?.email || 'No email'}
+                        </p>
+                      </div>
+                    </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
                         {image.created_at && format(new Date(image.created_at), 'MMM d, yyyy')}
