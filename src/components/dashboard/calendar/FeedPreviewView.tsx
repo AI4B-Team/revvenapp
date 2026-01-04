@@ -208,11 +208,11 @@ const FeedPreviewView: React.FC<FeedPreviewViewProps> = ({ posts }) => {
               onClick={() => setSelectedPlatform(platform)}
               className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                 selectedPlatform === platform
-                  ? 'bg-emerald-500 text-white shadow-md'
-                  : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                  ? 'bg-white dark:bg-zinc-800 shadow-md ring-2 ring-emerald-500'
+                  : 'hover:bg-muted/80'
               }`}
             >
-              {getPlatformIcon(platform, 'w-5 h-5')}
+              {getPlatformIcon(platform, 'w-6 h-6')}
             </button>
           ))}
         </div>
