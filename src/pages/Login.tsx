@@ -24,21 +24,44 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    const checkInviteCodeValidation = async (userId: string) => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('invite_code_validated')
+        .eq('id', userId)
+        .single();
+      
+      return profile?.invite_code_validated === true;
+    };
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         if (session) {
-          navigate('/onboarding-dashboard');
+          // Check if user has validated invite code
+          setTimeout(async () => {
+            const isValidated = await checkInviteCodeValidation(session.user.id);
+            if (isValidated) {
+              navigate('/onboarding-dashboard');
+            } else {
+              navigate('/invite-verification');
+            }
+          }, 0);
         }
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       if (session) {
-        navigate('/onboarding-dashboard');
+        const isValidated = await checkInviteCodeValidation(session.user.id);
+        if (isValidated) {
+          navigate('/onboarding-dashboard');
+        } else {
+          navigate('/invite-verification');
+        }
       }
     });
 
@@ -197,8 +220,17 @@ export default function LoginPage() {
         used_at: new Date().toISOString(),
         used_by_email: email,
         used_by_name: fullName,
+        used_by_user_id: authData.user?.id,
       })
       .eq('code', inviteCode.toUpperCase());
+
+    // Mark the user's invite code as validated in their profile
+    if (authData.user) {
+      await supabase
+        .from('profiles')
+        .update({ invite_code_validated: true })
+        .eq('id', authData.user.id);
+    }
 
     setIsLoading(false);
     toast({
@@ -211,7 +243,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/onboarding-dashboard`,
+        redirectTo: `${window.location.origin}/invite-verification`,
       }
     });
 
