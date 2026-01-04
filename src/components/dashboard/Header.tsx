@@ -23,6 +23,7 @@ import SearchDialog from './SearchDialog';
 import InviteRewardsModalUpdated from './InviteRewardsModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface HeaderProps {
   onCreateClick?: () => void;
@@ -65,6 +66,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // Fetch user data on mount
   React.useEffect(() => {
@@ -212,7 +214,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             className="flex items-center gap-2 px-3 md:px-6 py-2 bg-white hover:bg-gray-50 rounded-lg transition-colors border-2 border-gray-300 w-full max-w-[200px] md:max-w-[320px]"
           >
             <Search size={18} className="text-gray-400" />
-            <span className="text-sm text-gray-500 hidden sm:inline">Search</span>
+            <span className="text-sm text-gray-500 hidden sm:inline">{t('nav.search')}</span>
             <kbd className="ml-auto hidden md:inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-400 bg-gray-100 rounded border border-gray-200">
               <Command size={12} />
               <span>F</span>
@@ -228,7 +230,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               isMenuActive('create') ? 'text-emerald-500' : 'text-muted-foreground'
             }`}
           >
-            Create
+            {t('nav.create')}
           </Link>
           <span className="text-muted hidden lg:inline">|</span>
           <Link 
@@ -237,7 +239,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               isMenuActive('monetize') ? 'text-emerald-500' : 'text-muted-foreground'
             }`}
           >
-            Monetize
+            {t('nav.monetize')}
           </Link>
           <span className="text-muted hidden lg:inline">|</span>
           <Link 
@@ -246,7 +248,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               isMenuActive('automate') ? 'text-emerald-500' : 'text-muted-foreground'
             }`}
           >
-            Automate
+            {t('nav.automate')}
           </Link>
         </nav>
       </div>
@@ -257,11 +259,11 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             <TooltipTrigger asChild>
               <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-amber-200">
                 <Crown size={14} />
-                <span className="font-semibold hidden md:inline">Upgrade</span>
+                <span className="font-semibold hidden md:inline">{t('nav.upgrade')}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Upgrade To Pro</p>
+              <p>{t('nav.upgrade')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -275,11 +277,11 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                 className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-emerald-200"
               >
                 <Gift size={14} />
-                <span className="font-semibold hidden md:inline">Earn</span>
+                <span className="font-semibold hidden md:inline">{t('nav.earn')}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Earn Rewards</p>
+              <p>{t('nav.earn')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -300,7 +302,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                 </DropdownMenuTrigger>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Profile</p>
+                <p>{t('user.profile')}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -328,11 +330,11 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             <div className="space-y-1.5 mb-3">
               <Button className="w-full bg-brand-green hover:bg-brand-green/90 text-white h-9 text-sm">
                 <Zap size={14} className="mr-1.5" />
-                Upgrade
+                {t('nav.upgrade')}
               </Button>
               <Button variant="outline" className="w-full bg-transparent border border-white/30 hover:bg-white hover:text-slate-900 text-white h-9 text-sm transition-all">
                 <UserPlus size={14} className="mr-1.5" />
-                Add Members
+                {t('settings.addMembers')}
               </Button>
             </div>
 
@@ -344,7 +346,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                 <Link to="/account?tab=billing" className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
                     <CreditCard size={16} />
-                    <span>Subscription</span>
+                    <span>{t('settings.subscription')}</span>
                   </div>
                   <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700 text-xs px-1.5 py-0">
                     Pro
@@ -355,21 +357,21 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
                 <Link to="/account?tab=my-details" className="flex items-center gap-2 w-full">
                   <Settings size={16} />
-                  <span>Account</span>
+                  <span>{t('settings.account')}</span>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
                 <Link to="/account?tab=invites" className="flex items-center gap-2 w-full">
                   <Mail size={16} />
-                  <span>Invites</span>
+                  <span>{t('settings.invites')}</span>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
                 <Link to="/account?tab=integrations" className="flex items-center gap-2 w-full">
                   <Plug size={16} />
-                  <span>Integrations</span>
+                  <span>{t('settings.integrations')}</span>
                 </Link>
               </DropdownMenuItem>
 
@@ -381,7 +383,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                 className="flex items-center gap-2 py-2 px-2 rounded-md cursor-pointer text-red-400 hover:bg-sidebar-hover hover:text-red-300 text-sm"
               >
                 <Power size={16} />
-                <span>Log Out</span>
+                <span>{t('user.logout')}</span>
               </DropdownMenuItem>
             </div>
           </DropdownMenuContent>

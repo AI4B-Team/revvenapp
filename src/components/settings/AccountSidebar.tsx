@@ -27,6 +27,7 @@ import {
 import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface AccountSidebarProps {
   activeTab: string;
@@ -34,19 +35,12 @@ interface AccountSidebarProps {
   planType?: string;
 }
 
-const menuItems = [
-  { id: 'billing', label: 'Subscription', icon: CreditCard, badge: 'Pro' },
-  { id: 'my-details', label: 'Account', icon: Settings },
-  { id: 'invites', label: 'Invites', icon: Mail },
-  { id: 'integrations', label: 'Integrations', icon: Plug },
-];
-
 const languages = [
   { value: 'en', label: 'English', flag: '🇺🇸' },
-  { value: 'es', label: 'Spanish', flag: '🇪🇸' },
-  { value: 'fr', label: 'French', flag: '🇫🇷' },
-  { value: 'de', label: 'German', flag: '🇩🇪' },
-  { value: 'pt', label: 'Portuguese', flag: '🇵🇹' },
+  { value: 'es', label: 'Español', flag: '🇪🇸' },
+  { value: 'fr', label: 'Français', flag: '🇫🇷' },
+  { value: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { value: 'pt', label: 'Português', flag: '🇵🇹' },
 ];
 
 export default function AccountSidebar({
@@ -57,12 +51,17 @@ export default function AccountSidebar({
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('app-language') || 'en';
-  });
+  const { t, language, setLanguage: setAppLanguage } = useTranslation();
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userAvatar, setUserAvatar] = useState('');
+
+  const menuItems = [
+    { id: 'billing', label: t('settings.subscription'), icon: CreditCard, badge: 'Pro' },
+    { id: 'my-details', label: t('settings.account'), icon: Settings },
+    { id: 'invites', label: t('settings.invites'), icon: Mail },
+    { id: 'integrations', label: t('settings.integrations'), icon: Plug },
+  ];
 
   // Fetch user data on mount
   useEffect(() => {
@@ -113,20 +112,19 @@ export default function AccountSidebar({
   };
 
   const handleLanguageChange = (value: string) => {
-    setLanguage(value);
-    localStorage.setItem('app-language', value);
+    setAppLanguage(value);
     const langLabel = languages.find(l => l.value === value)?.label || value;
     toast({
-      title: "Language Updated",
-      description: `Language set to ${langLabel}`,
+      title: t('message.languageUpdated'),
+      description: `${t('message.languageSetTo')} ${langLabel}`,
     });
   };
 
   const handleThemeChange = (value: string) => {
     setTheme(value);
     toast({
-      title: "Theme Updated",
-      description: `Theme set to ${value.charAt(0).toUpperCase() + value.slice(1)}`,
+      title: t('message.themeUpdated'),
+      description: `${t('message.themeSetTo')} ${value.charAt(0).toUpperCase() + value.slice(1)}`,
     });
   };
 
@@ -162,7 +160,7 @@ export default function AccountSidebar({
           onClick={() => handleTabClick('plan')}
         >
           <Zap className="w-4 h-4 mr-2" />
-          Upgrade
+          {t('nav.upgrade')}
         </Button>
         <Button 
           variant="outline" 
@@ -170,7 +168,7 @@ export default function AccountSidebar({
           onClick={() => handleTabClick('invites')}
         >
           <UserPlus className="w-4 h-4 mr-2" />
-          Add Members
+          {t('settings.addMembers')}
         </Button>
       </div>
 
@@ -210,7 +208,7 @@ export default function AccountSidebar({
         <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-accent">
           <div className="flex items-center gap-3">
             <Languages className="w-5 h-5 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Language:</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('settings.language')}:</span>
           </div>
           <Select value={language} onValueChange={handleLanguageChange}>
             <SelectTrigger className="w-auto border-none bg-transparent p-0 h-auto gap-1 focus:ring-0">
@@ -240,7 +238,7 @@ export default function AccountSidebar({
         <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-accent">
           <div className="flex items-center gap-3">
             {getThemeIcon()}
-            <span className="text-sm font-medium text-muted-foreground">Theme:</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('settings.theme')}:</span>
           </div>
           <Select value={theme || 'system'} onValueChange={handleThemeChange}>
             <SelectTrigger className="w-auto border-none bg-transparent p-0 h-auto gap-1 focus:ring-0">
@@ -253,19 +251,19 @@ export default function AccountSidebar({
               <SelectItem value="light" className="hover:bg-accent focus:bg-accent">
                 <span className="flex items-center gap-2">
                   <Sun className="w-4 h-4" />
-                  <span>Light</span>
+                  <span>{t('settings.theme.light')}</span>
                 </span>
               </SelectItem>
               <SelectItem value="dark" className="hover:bg-accent focus:bg-accent">
                 <span className="flex items-center gap-2">
                   <Moon className="w-4 h-4" />
-                  <span>Dark</span>
+                  <span>{t('settings.theme.dark')}</span>
                 </span>
               </SelectItem>
               <SelectItem value="system" className="hover:bg-accent focus:bg-accent">
                 <span className="flex items-center gap-2">
                   <Monitor className="w-4 h-4" />
-                  <span>System</span>
+                  <span>{t('settings.theme.system')}</span>
                 </span>
               </SelectItem>
             </SelectContent>
