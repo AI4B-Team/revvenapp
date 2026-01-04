@@ -175,13 +175,13 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
   const showSubTypeSelector = selectedOption !== null;
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full mx-auto space-y-6">
       {/* Intent Selector */}
       <IntentSelector selectedIntent={intent} onIntentChange={setIntent} />
       
       {/* Prompt Input Box */}
-      <div className="relative">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col">
+      <div className="relative inline-block w-full min-w-fit">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col min-w-fit">
           {/* Left side icons - only shown when an option is selected */}
           {selectedOption && (
             <div className="flex flex-col gap-1 absolute left-4 top-4">
@@ -215,8 +215,8 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             />
           </div>
 
-          {/* Bottom bar - dynamically expands */}
-          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-wrap-reverse">
+          {/* Bottom bar - no wrapping, expands as needed */}
+          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-nowrap whitespace-nowrap">
             {/* Left side controls - flex shrink disabled */}
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Auto dropdown - only shown when intent is selected AND no option is selected yet */}
