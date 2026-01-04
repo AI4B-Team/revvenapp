@@ -187,7 +187,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             <div className="flex flex-col gap-1 absolute left-4 top-4">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className={`p-1.5 rounded-lg ${selectedOption.color} hover:bg-slate-50 transition-colors`}>
+                  <button className={`p-1.5 rounded-lg bg-slate-100 ${selectedOption.color} hover:bg-slate-200 transition-colors`}>
                     <selectedOption.icon size={18} />
                   </button>
                 </TooltipTrigger>
@@ -195,7 +195,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded-lg text-emerald-500 hover:bg-slate-50 transition-colors">
+                  <button className="p-1.5 rounded-lg bg-slate-100 text-emerald-500 hover:bg-slate-200 transition-colors">
                     <Shuffle size={18} />
                   </button>
                 </TooltipTrigger>
@@ -256,14 +256,14 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                   {selectedSubType && (
                     <>
                       {/* Vertical divider */}
-                      <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+                      <div className="w-px h-8 bg-slate-200 mx-1 flex-shrink-0" />
 
                       {/* Control icons with tooltips */}
-                      <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
                         {getControlIcons().map((control) => (
                           <Tooltip key={control.id}>
                             <TooltipTrigger asChild>
-                              <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                              <button className="p-2 rounded-lg bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
                                 <control.icon size={18} />
                               </button>
                             </TooltipTrigger>
