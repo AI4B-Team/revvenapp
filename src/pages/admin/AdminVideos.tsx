@@ -187,12 +187,7 @@ const AdminVideos = () => {
                           src={video.video_url}
                           className="w-full h-full object-cover"
                           muted
-                          crossOrigin="anonymous"
                           preload="metadata"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            target.style.display = 'none';
-                          }}
                         />
                         <div 
                           className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"

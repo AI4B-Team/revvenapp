@@ -173,13 +173,7 @@ const AdminImages = () => {
                         src={image.image_url}
                         alt={image.prompt}
                         className="w-full h-full object-cover"
-                        crossOrigin="anonymous"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.style.display = 'none';
-                          target.parentElement?.classList.add('flex', 'items-center', 'justify-center');
-                        }}
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
