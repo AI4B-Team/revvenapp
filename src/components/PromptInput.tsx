@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, Grid3X3, Lightbulb, Wand2, AtSign, Link2, Copy, Hash } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Lightbulb, Wand2, AtSign, Link2, Copy, Hash } from 'lucide-react';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import type { LucideIcon } from 'lucide-react';
 
 const placeholdersByIntent: Record<Intent | 'default', string> = {
@@ -145,18 +146,30 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
       {/* Prompt Input Box */}
       <div className="relative">
         <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col">
-          {/* Left side icons */}
-          <div className="flex flex-col gap-1 absolute left-4 top-4">
-            <button className="p-1.5 rounded-lg text-emerald-500 hover:bg-slate-50 transition-colors">
-              <Image size={18} />
-            </button>
-            <button className="p-1.5 rounded-lg text-emerald-500 hover:bg-slate-50 transition-colors">
-              <Shuffle size={18} />
-            </button>
-          </div>
+          {/* Left side icons - only shown when an option is selected */}
+          {selectedOption && (
+            <div className="flex flex-col gap-1 absolute left-4 top-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className={`p-1.5 rounded-lg ${selectedOption.color} hover:bg-slate-50 transition-colors`}>
+                    <selectedOption.icon size={18} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">{selectedOption.label}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors">
+                    <Wand2 size={18} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Auto Prompt</TooltipContent>
+              </Tooltip>
+            </div>
+          )}
 
           {/* Input area */}
-          <div className="px-6 pt-5 pb-3 flex-1 pl-14">
+          <div className={`px-6 pt-5 pb-3 flex-1 ${selectedOption ? 'pl-14' : ''}`}>
             <input
               type="text"
               placeholder={placeholdersByIntent[intent || 'default']}
