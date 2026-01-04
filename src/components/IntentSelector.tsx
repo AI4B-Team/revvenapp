@@ -24,7 +24,7 @@ const intents: IntentConfig[] = [
     iconColor: 'text-emerald-500', 
     selectedBg: 'bg-emerald-50', 
     selectedBorder: 'border-emerald-400',
-    selectedTextColor: 'text-slate-800',
+    selectedTextColor: 'text-slate-600',
     selectedIconColor: 'text-emerald-500',
     hoverBg: 'hover:bg-emerald-50',
     hoverBorder: 'hover:border-emerald-300'
@@ -32,12 +32,12 @@ const intents: IntentConfig[] = [
   { 
     label: 'Research', 
     icon: Search, 
-    iconColor: 'text-slate-500', 
-    selectedBg: 'bg-slate-900', 
-    selectedBorder: 'border-slate-900',
-    selectedTextColor: 'text-white',
-    selectedIconColor: 'text-white',
-    hoverBg: 'hover:bg-slate-100',
+    iconColor: 'text-slate-400', 
+    selectedBg: 'bg-slate-50', 
+    selectedBorder: 'border-slate-400',
+    selectedTextColor: 'text-slate-600',
+    selectedIconColor: 'text-slate-500',
+    hoverBg: 'hover:bg-slate-50',
     hoverBorder: 'hover:border-slate-300'
   },
   { 
@@ -46,7 +46,7 @@ const intents: IntentConfig[] = [
     iconColor: 'text-amber-500', 
     selectedBg: 'bg-amber-50', 
     selectedBorder: 'border-amber-300',
-    selectedTextColor: 'text-slate-800',
+    selectedTextColor: 'text-slate-600',
     selectedIconColor: 'text-amber-500',
     hoverBg: 'hover:bg-amber-50',
     hoverBorder: 'hover:border-amber-300'
@@ -57,7 +57,7 @@ const intents: IntentConfig[] = [
     iconColor: 'text-rose-500', 
     selectedBg: 'bg-rose-50', 
     selectedBorder: 'border-rose-300',
-    selectedTextColor: 'text-slate-800',
+    selectedTextColor: 'text-slate-600',
     selectedIconColor: 'text-rose-500',
     hoverBg: 'hover:bg-rose-50',
     hoverBorder: 'hover:border-rose-300'

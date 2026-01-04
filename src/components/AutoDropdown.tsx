@@ -66,16 +66,17 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Return null if no intent is selected or if an option is already selected
-  if (!intent || selectedOption) {
+  // Only show Auto dropdown for Create intent, and only when no option is selected
+  if (intent !== 'Create' || selectedOption) {
     return null;
   }
 
-  const options = optionsByIntent[intent];
+  const options = optionsByIntent.Create;
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-colors",
@@ -89,15 +90,16 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-44 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
+        <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-[999]">
           {options.map((option) => (
             <button
+              type="button"
               key={option.id}
               onClick={() => {
                 onSelect(option);
                 setIsOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
               <option.icon size={16} className={option.color} />
               {option.label}
