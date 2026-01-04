@@ -3,9 +3,10 @@ import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, FileText, Image, Video, TrendingUp, Activity, Clock } from 'lucide-react';
+import { Users, FileText, Image, Video, TrendingUp, Activity, Clock, Radio } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
+import { useLiveVisitors } from '@/hooks/useLiveVisitors';
 
 interface Stats {
   totalUsers: number;
@@ -22,6 +23,7 @@ interface RecentActivity {
 }
 
 const AdminDashboard = () => {
+  const { visitorCount } = useLiveVisitors();
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     totalPosts: 0,
@@ -139,6 +141,32 @@ const AdminDashboard = () => {
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="text-muted-foreground">Welcome to the admin panel. Here's an overview of your platform.</p>
           </div>
+
+          {/* Live Visitors Card */}
+          <Card className="mb-6 border-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="p-3 rounded-full bg-green-500/20">
+                      <Radio className="w-6 h-6 text-green-500" />
+                    </div>
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Live Visitors</p>
+                    <p className="text-3xl font-bold text-green-500">{visitorCount}</p>
+                  </div>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Users currently on the platform
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {statCards.map((stat) => (
