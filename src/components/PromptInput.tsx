@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Link, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, Mic2, PenTool } from 'lucide-react';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import type { LucideIcon } from 'lucide-react';
 
 const placeholdersByIntent: Record<Intent | 'default', string> = {
@@ -122,7 +123,23 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
   const [selectedOption, setSelectedOption] = useState<AutoOption | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOption | null>(null);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+
+  // Speech recognition hook
+  const handleTranscriptResult = useCallback((transcript: string) => {
+    setPrompt(transcript);
+  }, []);
+
+  const { isListening, isSupported, startListening, stopListening } = useSpeechRecognition({
+    onResult: handleTranscriptResult,
+  });
+
+  const handleMicClick = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening(prompt);
+    }
+  };
 
   // Reset chips when intent changes
   useEffect(() => {
@@ -293,24 +310,26 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                   <TooltipContent>Enhance Prompt</TooltipContent>
                 </Tooltip>
               )}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button 
-                    onClick={() => setIsRecording(!isRecording)}
-                    className={`p-2 rounded-lg transition-colors ${
-                      isRecording 
-                        ? 'bg-red-100 text-red-500' 
-                        : 'text-slate-400 hover:bg-slate-100'
-                    }`}
-                  >
-                    <Mic 
-                      size={18} 
-                      className={isRecording ? 'animate-pulse' : ''} 
-                    />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>{isRecording ? 'Stop Recording' : 'Speak'}</TooltipContent>
-              </Tooltip>
+              {isSupported && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={handleMicClick}
+                      className={`p-2 rounded-lg transition-colors ${
+                        isListening 
+                          ? 'bg-red-100 text-red-500' 
+                          : 'text-slate-400 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Mic 
+                        size={18} 
+                        className={isListening ? 'animate-pulse' : ''} 
+                      />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{isListening ? 'Stop Recording' : 'Speak'}</TooltipContent>
+                </Tooltip>
+              )}
               <button 
                 onClick={onGenerate}
                 disabled={!prompt.trim()}
