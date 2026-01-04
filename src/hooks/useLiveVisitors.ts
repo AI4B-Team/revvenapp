@@ -62,17 +62,14 @@ export const useLiveVisitors = () => {
 
 export const useTrackVisitor = () => {
   useEffect(() => {
-    const channel = supabase.channel('live-visitors', {
-      config: {
-        presence: {
-          key: 'visitors',
-        },
-      },
-    });
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let isMounted = true;
 
     const trackPresence = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
+      if (!isMounted) return;
+
       let userInfo: VisitorInfo = {
         user_id: user?.id || `anonymous-${Math.random().toString(36).substr(2, 9)}`,
         online_at: new Date().toISOString(),
@@ -86,7 +83,7 @@ export const useTrackVisitor = () => {
           .eq('id', user.id)
           .single();
 
-        if (profile) {
+        if (profile && isMounted) {
           userInfo = {
             ...userInfo,
             email: profile.email || user.email,
@@ -96,16 +93,30 @@ export const useTrackVisitor = () => {
         }
       }
       
-      await channel.subscribe(async (status) => {
-        if (status !== 'SUBSCRIBED') return;
-        await channel.track(userInfo);
+      if (!isMounted) return;
+
+      channel = supabase.channel('live-visitors', {
+        config: {
+          presence: {
+            key: 'visitors',
+          },
+        },
+      });
+      
+      channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED' && isMounted) {
+          await channel?.track(userInfo);
+        }
       });
     };
 
     trackPresence();
 
     return () => {
-      supabase.removeChannel(channel);
+      isMounted = false;
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, []);
 };
