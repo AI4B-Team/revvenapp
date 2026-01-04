@@ -6222,38 +6222,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
+                  <PopoverContent className="w-48 bg-background border-border z-50 max-h-80 overflow-y-auto">
                     <div className="space-y-1">
-                      <button 
-                        onClick={() => setContentGoal('Engagement')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Engagement' ? 'bg-secondary' : ''}`}
-                      >
-                        Engagement
-                      </button>
-                      <button 
-                        onClick={() => setContentGoal('Authority')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Authority' ? 'bg-secondary' : ''}`}
-                      >
-                        Authority
-                      </button>
-                      <button 
-                        onClick={() => setContentGoal('Followers')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Followers' ? 'bg-secondary' : ''}`}
-                      >
-                        Followers
-                      </button>
-                      <button 
-                        onClick={() => setContentGoal('Leads')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Leads' ? 'bg-secondary' : ''}`}
-                      >
-                        Leads
-                      </button>
-                      <button 
-                        onClick={() => setContentGoal('Sales')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Sales' ? 'bg-secondary' : ''}`}
-                      >
-                        Sales
-                      </button>
+                      {['Engagement', 'Awareness', 'Traffic', 'Followers', 'Community', 'Education', 'Entertainment', 'Authority', 'Leads', 'Sales'].map((goal) => (
+                        <button 
+                          key={goal}
+                          onClick={() => setContentGoal(goal)}
+                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === goal ? 'bg-secondary' : ''}`}
+                        >
+                          {goal}
+                        </button>
+                      ))}
                     </div>
                   </PopoverContent>
                 </Popover>
