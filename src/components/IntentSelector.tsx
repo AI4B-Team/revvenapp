@@ -10,13 +10,14 @@ interface IntentConfig {
   icon: LucideIcon;
   iconColor: string;
   selectedBg: string;
+  selectedTextColor: string;
 }
 
 const intents: IntentConfig[] = [
-  { label: 'Create', icon: Palette, iconColor: 'text-emerald-500', selectedBg: 'bg-slate-800' },
-  { label: 'Research', icon: Search, iconColor: 'text-blue-500', selectedBg: 'bg-slate-800' },
-  { label: 'Plan', icon: Map, iconColor: 'text-amber-500', selectedBg: 'bg-amber-100' },
-  { label: 'Automate', icon: Zap, iconColor: 'text-rose-500', selectedBg: 'bg-rose-100' },
+  { label: 'Create', icon: Palette, iconColor: 'text-emerald-500', selectedBg: 'bg-emerald-500', selectedTextColor: 'text-white' },
+  { label: 'Research', icon: Search, iconColor: 'text-slate-700', selectedBg: 'bg-slate-800', selectedTextColor: 'text-white' },
+  { label: 'Plan', icon: Map, iconColor: 'text-amber-500', selectedBg: 'bg-amber-100', selectedTextColor: 'text-slate-800' },
+  { label: 'Automate', icon: Zap, iconColor: 'text-rose-500', selectedBg: 'bg-rose-100', selectedTextColor: 'text-slate-800' },
 ];
 
 interface IntentSelectorProps {
@@ -36,10 +37,10 @@ const IntentSelector = ({ selectedIntent, onIntentChange }: IntentSelectorProps)
             key={intent.label}
             onClick={() => onIntentChange(isSelected ? null : intent.label)}
             className={cn(
-              "flex items-center gap-2.5 px-5 py-2.5 text-[15px] font-medium rounded-full border transition-all duration-200",
+              "flex items-center gap-2.5 px-6 py-3 text-[15px] font-medium rounded-xl border transition-all duration-200",
               isSelected
-                ? cn(intent.selectedBg, "border-transparent", usesDarkBg ? "text-white" : "text-slate-800")
-                : "bg-white border-slate-200 text-slate-700 hover:border-slate-300"
+                ? cn(intent.selectedBg, "border-transparent", intent.selectedTextColor)
+                : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
             )}
           >
             <intent.icon 

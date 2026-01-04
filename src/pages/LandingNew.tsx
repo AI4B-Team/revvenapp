@@ -37,10 +37,10 @@ const LandingNew = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
+      <main className="flex-1 flex flex-col items-center px-6 pt-24">
         {/* Greeting */}
-        <div className="text-center mb-8">
-          <p className="text-base text-slate-500 mb-2">
+        <div className="text-center mb-6">
+          <p className="text-lg text-slate-400 mb-3 font-medium tracking-wide">
             Create Anything — Automate Everything
           </p>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
