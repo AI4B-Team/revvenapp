@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -7,35 +7,142 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Save, 
   Globe, 
   Bell, 
   Shield, 
-  Palette,
-  Mail,
-  Lock
+  Lock,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 
-const AdminSettings = () => {
-  const { toast } = useToast();
-  const [settings, setSettings] = useState({
-    siteName: 'My App',
+interface Settings {
+  general: {
+    siteName: string;
+    siteDescription: string;
+  };
+  security: {
+    maintenanceMode: boolean;
+    allowRegistrations: boolean;
+    requireEmailVerification: boolean;
+  };
+  notifications: {
+    enableNotifications: boolean;
+  };
+  limits: {
+    maxUploadSize: number;
+  };
+}
+
+const defaultSettings: Settings = {
+  general: {
+    siteName: 'REVVEN',
     siteDescription: 'AI-powered content creation platform',
+  },
+  security: {
     maintenanceMode: false,
     allowRegistrations: true,
     requireEmailVerification: false,
+  },
+  notifications: {
     enableNotifications: true,
+  },
+  limits: {
     maxUploadSize: 50,
-  });
+  },
+};
 
-  const handleSave = () => {
-    toast({
-      title: 'Settings Saved',
-      description: 'Your settings have been updated successfully.',
-    });
+const AdminSettings = () => {
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<Settings>(defaultSettings);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('key, value');
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const loadedSettings = { ...defaultSettings };
+        data.forEach((item) => {
+          if (item.key === 'general') loadedSettings.general = item.value as Settings['general'];
+          if (item.key === 'security') loadedSettings.security = item.value as Settings['security'];
+          if (item.key === 'notifications') loadedSettings.notifications = item.value as Settings['notifications'];
+          if (item.key === 'limits') loadedSettings.limits = item.value as Settings['limits'];
+        });
+        setSettings(loadedSettings);
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load settings.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const updates = [
+        { key: 'general', value: settings.general },
+        { key: 'security', value: settings.security },
+        { key: 'notifications', value: settings.notifications },
+        { key: 'limits', value: settings.limits },
+      ];
+
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('admin_settings')
+          .update({ value: update.value })
+          .eq('key', update.key);
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: 'Settings Saved',
+        description: 'Your settings have been updated successfully.',
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save settings.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <AdminGuard requiredRole="admin">
+        <div className="flex min-h-screen bg-background">
+          <AdminSidebar />
+          <main className="flex-1 p-8 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </main>
+        </div>
+      </AdminGuard>
+    );
+  }
 
   return (
     <AdminGuard requiredRole="admin">
@@ -47,10 +154,16 @@ const AdminSettings = () => {
               <h1 className="text-3xl font-bold">Settings</h1>
               <p className="text-muted-foreground">Configure your platform settings.</p>
             </div>
-            <Button onClick={handleSave} className="gap-2">
-              <Save className="w-4 h-4" />
-              Save Changes
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={fetchSettings} disabled={isLoading}>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+              <Button onClick={handleSave} disabled={isSaving} className="gap-2">
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Save Changes
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-6 max-w-3xl">
@@ -68,16 +181,22 @@ const AdminSettings = () => {
                   <Label htmlFor="siteName">Site Name</Label>
                   <Input
                     id="siteName"
-                    value={settings.siteName}
-                    onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                    value={settings.general.siteName}
+                    onChange={(e) => setSettings({ 
+                      ...settings, 
+                      general: { ...settings.general, siteName: e.target.value } 
+                    })}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="siteDescription">Site Description</Label>
                   <Input
                     id="siteDescription"
-                    value={settings.siteDescription}
-                    onChange={(e) => setSettings({ ...settings, siteDescription: e.target.value })}
+                    value={settings.general.siteDescription}
+                    onChange={(e) => setSettings({ 
+                      ...settings, 
+                      general: { ...settings.general, siteDescription: e.target.value } 
+                    })}
                   />
                 </div>
               </CardContent>
@@ -101,8 +220,11 @@ const AdminSettings = () => {
                     </p>
                   </div>
                   <Switch
-                    checked={settings.maintenanceMode}
-                    onCheckedChange={(checked) => setSettings({ ...settings, maintenanceMode: checked })}
+                    checked={settings.security.maintenanceMode}
+                    onCheckedChange={(checked) => setSettings({ 
+                      ...settings, 
+                      security: { ...settings.security, maintenanceMode: checked } 
+                    })}
                   />
                 </div>
                 <Separator />
@@ -114,8 +236,11 @@ const AdminSettings = () => {
                     </p>
                   </div>
                   <Switch
-                    checked={settings.allowRegistrations}
-                    onCheckedChange={(checked) => setSettings({ ...settings, allowRegistrations: checked })}
+                    checked={settings.security.allowRegistrations}
+                    onCheckedChange={(checked) => setSettings({ 
+                      ...settings, 
+                      security: { ...settings.security, allowRegistrations: checked } 
+                    })}
                   />
                 </div>
                 <Separator />
@@ -127,8 +252,11 @@ const AdminSettings = () => {
                     </p>
                   </div>
                   <Switch
-                    checked={settings.requireEmailVerification}
-                    onCheckedChange={(checked) => setSettings({ ...settings, requireEmailVerification: checked })}
+                    checked={settings.security.requireEmailVerification}
+                    onCheckedChange={(checked) => setSettings({ 
+                      ...settings, 
+                      security: { ...settings.security, requireEmailVerification: checked } 
+                    })}
                   />
                 </div>
               </CardContent>
@@ -152,8 +280,11 @@ const AdminSettings = () => {
                     </p>
                   </div>
                   <Switch
-                    checked={settings.enableNotifications}
-                    onCheckedChange={(checked) => setSettings({ ...settings, enableNotifications: checked })}
+                    checked={settings.notifications.enableNotifications}
+                    onCheckedChange={(checked) => setSettings({ 
+                      ...settings, 
+                      notifications: { ...settings.notifications, enableNotifications: checked } 
+                    })}
                   />
                 </div>
               </CardContent>
@@ -174,8 +305,11 @@ const AdminSettings = () => {
                   <Input
                     id="maxUpload"
                     type="number"
-                    value={settings.maxUploadSize}
-                    onChange={(e) => setSettings({ ...settings, maxUploadSize: Number(e.target.value) })}
+                    value={settings.limits.maxUploadSize}
+                    onChange={(e) => setSettings({ 
+                      ...settings, 
+                      limits: { ...settings.limits, maxUploadSize: Number(e.target.value) } 
+                    })}
                     className="w-32"
                   />
                 </div>
