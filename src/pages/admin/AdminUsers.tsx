@@ -54,6 +54,7 @@ const AdminUsers = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>('user');
 
   useEffect(() => {
@@ -253,7 +254,10 @@ const AdminUsers = () => {
                                 <Shield className="w-4 h-4 mr-2" />
                                 Change Role
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => {
+                                setSelectedUser(user);
+                                setIsDetailsModalOpen(true);
+                              }}>
                                 <Eye className="w-4 h-4 mr-2" />
                                 View Details
                               </DropdownMenuItem>
@@ -294,6 +298,64 @@ const AdminUsers = () => {
                   Cancel
                 </Button>
                 <Button onClick={handleChangeRole}>Save Changes</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* User Details Modal */}
+          <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>User Details</DialogTitle>
+              </DialogHeader>
+              {selectedUser && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                      {selectedUser.avatar_url ? (
+                        <img src={selectedUser.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <UserIcon className="w-8 h-8 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">{selectedUser.full_name || 'No name'}</h3>
+                      <p className="text-sm text-muted-foreground">{selectedUser.email || 'No email'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-3 pt-2">
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="text-muted-foreground">User ID</span>
+                      <span className="font-mono text-xs">{selectedUser.id.substring(0, 8)}...</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="text-muted-foreground">Role</span>
+                      {getRoleBadge(selectedUser.role || 'user')}
+                    </div>
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="text-muted-foreground">Joined</span>
+                      <span>{format(new Date(selectedUser.created_at), 'MMMM d, yyyy')}</span>
+                    </div>
+                    <div className="flex justify-between py-2">
+                      <span className="text-muted-foreground">Join Time</span>
+                      <span>{format(new Date(selectedUser.created_at), 'h:mm a')}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDetailsModalOpen(false)}>
+                  Close
+                </Button>
+                <Button onClick={() => {
+                  setIsDetailsModalOpen(false);
+                  setSelectedRole(selectedUser?.role || 'user');
+                  setIsRoleModalOpen(true);
+                }}>
+                  <Shield className="w-4 h-4 mr-2" />
+                  Change Role
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
