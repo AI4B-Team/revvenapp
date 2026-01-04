@@ -41,6 +41,7 @@ const languages = [
   { value: 'fr', label: 'Français', flag: '🇫🇷' },
   { value: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { value: 'pt', label: 'Português', flag: '🇵🇹' },
+  { value: 'bn', label: 'বাংলা', flag: '🇧🇩' },
 ];
 
 export default function AccountSidebar({
