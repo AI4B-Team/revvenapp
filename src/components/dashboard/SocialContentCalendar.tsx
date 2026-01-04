@@ -16,7 +16,13 @@ import {
   Trash2,
   AlertTriangle,
   Film,
-  Play
+  Play,
+  Pencil,
+  Share2,
+  CalendarClock,
+  Hand,
+  Users,
+  MoreVertical
 } from 'lucide-react';
 import { getPlatformIcon } from './SocialIcons';
 import { Button } from '@/components/ui/button';
@@ -259,26 +265,174 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   // Render Kanban View
   const renderKanbanView = () => {
     const columns = [
-      { id: 'draft', label: 'Drafts', items: allContent.filter(c => c.status === 'draft') },
-      { id: 'scheduled', label: 'Scheduled', items: allContent.filter(c => c.status === 'scheduled') },
-      { id: 'published', label: 'Published', items: allContent.filter(c => c.status === 'published') },
+      { id: 'draft', label: 'Drafts', items: allContent.filter(c => c.status === 'draft'), color: 'bg-slate-500' },
+      { id: 'awaiting', label: 'Awaiting Approval', items: allContent.filter(c => c.status === 'awaiting'), color: 'bg-amber-500' },
+      { id: 'scheduled', label: 'Scheduled', items: allContent.filter(c => c.status === 'scheduled'), color: 'bg-emerald-500' },
+      { id: 'published', label: 'Published', items: allContent.filter(c => c.status === 'published'), color: 'bg-green-600' },
     ];
 
-    return (
-      <div className="p-4 grid grid-cols-3 gap-4 min-h-[500px]">
-        {columns.map(column => (
-          <div key={column.id} className="bg-muted/30 rounded-xl p-3">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium text-sm text-foreground">{column.label}</h3>
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                {column.items.length}
+    // Content pillars for tagging
+    const getPillarForContent = (item: ContentItem): { label: string; color: string } | null => {
+      const pillars = [
+        { label: 'INFLUENCER', color: 'bg-slate-800 dark:bg-slate-700 text-white' },
+        { label: 'EDUCATIONAL', color: 'bg-blue-600 text-white' },
+        { label: 'PROMOTIONAL', color: 'bg-purple-600 text-white' },
+        { label: 'ENGAGEMENT', color: 'bg-pink-600 text-white' },
+        { label: 'BEHIND THE SCENES', color: 'bg-amber-600 text-white' },
+      ];
+      // Assign pillar based on content type or randomly for demo
+      if (item.type === 'reel') return pillars[0];
+      if (item.type === 'carousel') return pillars[1];
+      if (item.type === 'story') return pillars[3];
+      return pillars[Math.floor(Math.random() * pillars.length)];
+    };
+
+    const renderKanbanCard = (item: ContentItem) => {
+      const pillar = getPillarForContent(item);
+      
+      return (
+        <div 
+          key={item.id}
+          className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+          onClick={() => handlePostClick(item)}
+        >
+          {/* Card Header */}
+          <div className="p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {/* Account Avatar with Platform Badge */}
+              <div className="relative">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-semibold text-sm">
+                  {item.accountName?.charAt(0) || 'U'}
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-card border border-border flex items-center justify-center">
+                  {getPlatformIcon(item.platform, 'w-2.5 h-2.5')}
+                </div>
+              </div>
+              <span className="text-sm font-medium text-foreground truncate max-w-[120px]">
+                {item.accountHandle || item.accountName || 'Your Account'}
               </span>
             </div>
-            <div className="space-y-2">
-              {column.items.map(item => renderContentCard(item))}
+            
+            {/* Actions Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <button className="p-1.5 hover:bg-muted rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-popover border-border w-48">
+                <DropdownMenuItem className="gap-2">
+                  <Hand className="w-4 h-4" />
+                  Request Approval
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2">
+                  <CalendarClock className="w-4 h-4" />
+                  Schedule
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2">
+                  <Pencil className="w-4 h-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2">
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2">
+                  <Users className="w-4 h-4" />
+                  Client Review
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="gap-2 text-destructive focus:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeletePost(item.id);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Date/Time Row */}
+          <div className="px-3 pb-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <Pencil className="w-3 h-3" />
+            <span className="font-medium">
+              {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+            </span>
+            <span className="uppercase">
+              {item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </span>
+          </div>
+
+          {/* Caption Preview */}
+          {(item.caption || item.title) && (
+            <div className="px-3 pb-2">
+              <p className="text-sm text-foreground line-clamp-2">
+                {item.caption || item.title}
+              </p>
+            </div>
+          )}
+
+          {/* Image Preview */}
+          {item.imageUrl && (
+            <div className="relative aspect-[4/3] overflow-hidden">
+              <img 
+                src={item.imageUrl} 
+                alt={item.title}
+                className="w-full h-full object-cover"
+              />
+              {item.type === 'reel' && (
+                <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+                    <Play className="w-5 h-5 text-foreground ml-0.5" />
+                  </div>
+                </div>
+              )}
+              {item.type === 'carousel' && item.carouselImages && (
+                <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
+                  1/{item.carouselImages.length + 1}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Content Pillar Tag */}
+          {pillar && (
+            <div className="p-3 pt-2">
+              <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded ${pillar.color}`}>
+                {pillar.label}
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    return (
+      <div className="p-4 flex gap-4 min-h-[500px] overflow-x-auto">
+        {columns.map(column => (
+          <div key={column.id} className="flex-shrink-0 w-80 bg-muted/30 rounded-xl p-3 flex flex-col">
+            {/* Column Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-foreground">{column.label}</h3>
+                <span className="text-sm text-muted-foreground">{column.items.length}</span>
+              </div>
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Cards */}
+            <div className="space-y-3 flex-1 overflow-y-auto">
+              {column.items.map(item => renderKanbanCard(item))}
               {column.items.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  No content
+                <div className="text-center py-12 text-muted-foreground text-sm border-2 border-dashed border-border rounded-xl">
+                  <p className="font-medium">No Content</p>
+                  <p className="text-xs mt-1">Drag Posts Here Or Click + To Add</p>
                 </div>
               )}
             </div>
