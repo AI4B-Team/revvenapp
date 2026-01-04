@@ -36,8 +36,8 @@ const LandingNew = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center px-6 pt-24">
+      {/* Main Content - positioned higher so dropdowns don't go below fold */}
+      <main className="flex-1 flex flex-col items-center px-6 pt-12 pb-24 max-w-4xl mx-auto w-full">
         {/* Greeting */}
         <div className="text-center mb-6">
           <p className="text-lg text-slate-400 mb-3 tracking-wide">
@@ -49,7 +49,9 @@ const LandingNew = () => {
         </div>
 
         {/* Intent Selector + Prompt Input */}
-        <PromptInput onGenerate={handleGenerate} />
+        <div className="w-full">
+          <PromptInput onGenerate={handleGenerate} />
+        </div>
       </main>
 
 
