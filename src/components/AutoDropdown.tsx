@@ -23,10 +23,10 @@ const optionsByIntent: Record<Intent, AutoOption[]> = {
   ],
   Research: [
     { id: 'explain', label: 'Explain', icon: Search, color: 'text-blue-500' },
-    { id: 'compare', label: 'Compare', icon: GitCompare, color: 'text-purple-500' },
-    { id: 'summarize', label: 'Summarize', icon: FileText, color: 'text-emerald-500' },
-    { id: 'analyze', label: 'Analyze', icon: BarChart3, color: 'text-amber-500' },
-    { id: 'deep-dive', label: 'Deep Dive', icon: Sparkles, color: 'text-violet-500' },
+    { id: 'compare', label: 'Compare', icon: GitCompare, color: 'text-teal-500' },
+    { id: 'summarize', label: 'Summarize', icon: FileText, color: 'text-amber-500' },
+    { id: 'analyze', label: 'Analyze', icon: BarChart3, color: 'text-purple-500' },
+    { id: 'deep-dive', label: 'Deep Dive', icon: Sparkles, color: 'text-purple-500' },
   ],
   Plan: [
     { id: 'checklist', label: 'Checklist', icon: CheckSquare, color: 'text-emerald-500' },
@@ -66,12 +66,12 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Only show Auto dropdown for Create intent, and only when no option is selected
-  if (intent !== 'Create' || selectedOption) {
+  // Only show Auto dropdown when an intent is selected and no option is selected yet
+  if (!intent || selectedOption) {
     return null;
   }
 
-  const options = optionsByIntent.Create;
+  const options = optionsByIntent[intent];
 
   return (
     <div className="relative" ref={dropdownRef}>
