@@ -29,12 +29,12 @@ const optionsByIntent: Record<Intent, AutoOption[]> = {
     { id: 'deep-dive', label: 'Deep Dive', icon: Sparkles, color: 'text-blue-500' },
   ],
   Plan: [
-    { id: 'checklist', label: 'Checklist', icon: CheckSquare, color: 'text-emerald-500' },
+    { id: 'checklist', label: 'Checklist', icon: CheckSquare, color: 'text-green-500' },
     { id: 'roadmap', label: 'Roadmap', icon: Map, color: 'text-blue-500' },
     { id: 'sop', label: 'SOP', icon: FileCheck, color: 'text-purple-500' },
-    { id: 'timeline', label: 'Timeline', icon: Clock, color: 'text-amber-500' },
-    { id: 'workflow', label: 'Workflow', icon: Workflow, color: 'text-violet-500' },
-    { id: 'funnel', label: 'Funnel', icon: Target, color: 'text-emerald-500' },
+    { id: 'timeline', label: 'Timeline', icon: Clock, color: 'text-orange-500' },
+    { id: 'workflow', label: 'Workflow', icon: Workflow, color: 'text-purple-500' },
+    { id: 'funnel', label: 'Funnel', icon: Target, color: 'text-green-500' },
   ],
   Automate: [
     { id: 'workflow', label: 'Workflow', icon: Workflow, color: 'text-blue-500' },
