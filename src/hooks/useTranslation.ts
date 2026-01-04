@@ -591,6 +591,124 @@ const translations: Record<string, Record<string, string>> = {
     'sidebar.templates': 'Modelos',
     'sidebar.community': 'Comunidade',
   },
+  
+  bn: {
+    // Navigation
+    'nav.create': 'তৈরি করুন',
+    'nav.monetize': 'আয় করুন',
+    'nav.automate': 'স্বয়ংক্রিয়',
+    'nav.upgrade': 'আপগ্রেড',
+    'nav.earn': 'উপার্জন',
+    'nav.search': 'অনুসন্ধান...',
+    
+    // Content Types
+    'content.image': 'ছবি',
+    'content.video': 'ভিডিও',
+    'content.audio': 'অডিও',
+    'content.design': 'ডিজাইন',
+    'content.content': 'কন্টেন্ট',
+    'content.document': 'ডকুমেন্ট',
+    'content.apps': 'অ্যাপস',
+    
+    // Common Actions
+    'action.save': 'সংরক্ষণ',
+    'action.cancel': 'বাতিল',
+    'action.delete': 'মুছুন',
+    'action.edit': 'সম্পাদনা',
+    'action.create': 'তৈরি করুন',
+    'action.generate': 'জেনারেট',
+    'action.download': 'ডাউনলোড',
+    'action.share': 'শেয়ার',
+    'action.copy': 'কপি',
+    'action.close': 'বন্ধ',
+    'action.back': 'পিছনে',
+    'action.next': 'পরবর্তী',
+    'action.submit': 'জমা দিন',
+    'action.confirm': 'নিশ্চিত করুন',
+    'action.upload': 'আপলোড',
+    'action.browse': 'ব্রাউজ',
+    'action.select': 'নির্বাচন',
+    'action.apply': 'প্রয়োগ',
+    'action.reset': 'রিসেট',
+    'action.clear': 'পরিষ্কার',
+    'action.view': 'দেখুন',
+    'action.preview': 'প্রিভিউ',
+    'action.publish': 'প্রকাশ',
+    'action.schedule': 'সময়সূচি',
+    
+    // Settings
+    'settings.account': 'অ্যাকাউন্ট',
+    'settings.subscription': 'সাবস্ক্রিপশন',
+    'settings.invites': 'আমন্ত্রণ',
+    'settings.integrations': 'ইন্টিগ্রেশন',
+    'settings.language': 'ভাষা',
+    'settings.theme': 'থিম',
+    'settings.theme.light': 'হালকা',
+    'settings.theme.dark': 'গাঢ়',
+    'settings.theme.system': 'সিস্টেম',
+    'settings.addMembers': 'সদস্য যোগ করুন',
+    
+    // Calendar
+    'calendar.today': 'আজ',
+    'calendar.week': 'সপ্তাহ',
+    'calendar.month': 'মাস',
+    'calendar.scheduled': 'নির্ধারিত',
+    'calendar.draft': 'খসড়া',
+    'calendar.published': 'প্রকাশিত',
+    'calendar.more': 'আরও',
+    'calendar.posts': 'পোস্ট',
+    'calendar.noPosts': 'কোন পোস্ট নির্ধারিত নেই',
+    
+    // Generation
+    'generate.prompt': 'আপনার প্রম্পট লিখুন...',
+    'generate.generating': 'জেনারেট হচ্ছে...',
+    'generate.success': 'সফলভাবে জেনারেট হয়েছে!',
+    'generate.error': 'জেনারেশন ব্যর্থ',
+    'generate.enhance': 'প্রম্পট উন্নত করুন',
+    
+    // User
+    'user.profile': 'প্রোফাইল',
+    'user.settings': 'সেটিংস',
+    'user.logout': 'লগ আউট',
+    'user.login': 'লগ ইন',
+    'user.signup': 'সাইন আপ',
+    
+    // Messages
+    'message.success': 'সফল',
+    'message.error': 'ত্রুটি',
+    'message.warning': 'সতর্কতা',
+    'message.info': 'তথ্য',
+    'message.loading': 'লোড হচ্ছে...',
+    'message.noResults': 'কোন ফলাফল পাওয়া যায়নি',
+    'message.languageUpdated': 'ভাষা আপডেট হয়েছে',
+    'message.languageSetTo': 'ভাষা সেট করা হয়েছে',
+    'message.themeUpdated': 'থিম আপডেট হয়েছে',
+    'message.themeSetTo': 'থিম সেট করা হয়েছে',
+    
+    // Help
+    'help.title': 'সাহায্য ও সহায়তা',
+    'help.tutorials': 'টিউটোরিয়াল',
+    'help.documentation': 'ডকুমেন্টেশন',
+    'help.feedback': 'মতামত পাঠান',
+    
+    // Notifications
+    'notifications.title': 'বিজ্ঞপ্তি',
+    'notifications.whatsNew': 'নতুন কী',
+    'notifications.inbox': 'ইনবক্স',
+    'notifications.markAllRead': 'সব পঠিত হিসেবে চিহ্নিত করুন',
+    'notifications.noNotifications': 'কোন বিজ্ঞপ্তি নেই',
+    
+    // Chat
+    'chat.newChat': 'নতুন চ্যাট',
+    'chat.recents': 'সাম্প্রতিক',
+    'chat.assistant': 'এআই সহকারী',
+    
+    // Sidebar
+    'sidebar.dashboard': 'ড্যাশবোর্ড',
+    'sidebar.assets': 'অ্যাসেট',
+    'sidebar.templates': 'টেমপ্লেট',
+    'sidebar.community': 'কমিউনিটি',
+  },
 };
 
 // Get current language from localStorage
