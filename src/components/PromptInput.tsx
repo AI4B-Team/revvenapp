@@ -274,10 +274,10 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                   {selectedSubType && (
                     <>
                       {/* Vertical divider */}
-                      <div className="w-px h-8 bg-slate-200 mx-1 flex-shrink-0" />
+                      <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
                       {/* Control icons with tooltips */}
-                      <div className="flex items-center gap-0.5 flex-shrink-0">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         {getControlIcons().map((control) => (
                           <Tooltip key={control.id}>
                             <TooltipTrigger asChild>
@@ -296,7 +296,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             </div>
 
             {/* Right side controls - flex shrink disabled */}
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto">
+            <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto pl-6">
               {/* AI Enhance button - only shown when there's text in prompt */}
               {prompt.trim() && (
                 <Tooltip>

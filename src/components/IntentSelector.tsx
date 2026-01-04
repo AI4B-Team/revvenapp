@@ -71,7 +71,7 @@ interface IntentSelectorProps {
 
 const IntentSelector = ({ selectedIntent, onIntentChange }: IntentSelectorProps) => {
   return (
-    <div className="flex flex-wrap justify-center gap-3">
+    <div className="flex flex-wrap justify-center gap-4">
       {intents.map((intent) => {
         const isSelected = selectedIntent === intent.label;
         const isResearchSelected = isSelected && intent.label === 'Research';
