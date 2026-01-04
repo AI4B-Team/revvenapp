@@ -168,17 +168,28 @@ IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day o
         continue;
       }
 
-      // Parse the JSON from the response
+      // Parse the JSON from the response - handle markdown code fences
       let posts: any[];
       try {
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        // Remove markdown code fences if present (```json ... ```)
+        let cleanContent = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+        
+        const jsonMatch = cleanContent.match(/\[[\s\S]*\]/);
         if (!jsonMatch) {
           console.error('No JSON array found in response');
           continue;
         }
         posts = JSON.parse(jsonMatch[0]);
+        
+        // Normalize post_type to type if needed
+        posts = posts.map((p: any) => ({
+          ...p,
+          type: p.type || p.post_type || 'post'
+        }));
+        
+        console.log(`Parsed ${posts.length} posts from AI response`);
       } catch (parseError) {
-        console.error('Failed to parse AI response:', content);
+        console.error('Failed to parse AI response:', content.slice(0, 500));
         continue;
       }
 
