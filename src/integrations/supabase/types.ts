@@ -409,6 +409,39 @@ export type Database = {
         }
         Relationships: []
       }
+      posting_schedules: {
+        Row: {
+          account_id: string | null
+          created_at: string
+          day: string
+          engagement: string
+          id: string
+          time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string
+          day: string
+          engagement?: string
+          id?: string
+          time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string
+          day?: string
+          engagement?: string
+          id?: string
+          time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

@@ -46,6 +46,31 @@ async function fetchPexelsPhotos(query: string, count: number = 1): Promise<stri
   }
 }
 
+// Get posting schedule for a specific day of the week
+function getDayOfWeek(date: Date): string {
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  return days[date.getDay()];
+}
+
+// Parse time string like "9:00 AM" to hours and minutes
+function parseTimeString(timeStr: string): { hours: number; minutes: number } {
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) {
+    return { hours: 9, minutes: 0 }; // Default
+  }
+  let hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const period = match[3].toUpperCase();
+  
+  if (period === 'PM' && hours !== 12) {
+    hours += 12;
+  } else if (period === 'AM' && hours === 12) {
+    hours = 0;
+  }
+  
+  return { hours, minutes };
+}
+
 // Background task to generate social content
 async function generateContentInBackground(
   supabaseAdmin: any,
@@ -74,10 +99,32 @@ async function generateContentInBackground(
       .delete()
       .eq('user_id', userId);
 
+    // Fetch user's posting schedule
+    const { data: userSchedule } = await supabaseAdmin
+      .from('posting_schedules')
+      .select('*')
+      .eq('user_id', userId);
+    
+    // Organize schedule by day of week
+    const scheduleByDay: Record<string, Array<{ time: string; engagement: string }>> = {};
+    if (userSchedule && userSchedule.length > 0) {
+      for (const slot of userSchedule) {
+        if (!scheduleByDay[slot.day]) {
+          scheduleByDay[slot.day] = [];
+        }
+        scheduleByDay[slot.day].push({ time: slot.time, engagement: slot.engagement });
+      }
+      console.log(`Loaded ${userSchedule.length} posting schedule slots for user`);
+    } else {
+      console.log('No custom posting schedule found, using default times');
+    }
+
     const batchSize = 2; // Reduced from 5 to ensure responses fit within token limits
     let postIndex = 0;
     let totalPostsGenerated = 0;
     const postsPerDay: Record<number, boolean> = {}; // Track which days have posts
+    // Track how many times we've used for each day
+    const usedTimesPerDay: Record<string, number> = {};
     
     for (let startDay = 0; startDay < days; startDay += batchSize) {
       const endDay = Math.min(startDay + batchSize, days);
@@ -263,9 +310,35 @@ IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day o
         const postDate = new Date(today.getTime());
         postDate.setDate(today.getDate() + (post.day - 1));
         
-        // Add random time for scheduling
-        const hour = 8 + Math.floor(Math.random() * 12);
-        const minute = Math.floor(Math.random() * 4) * 15;
+        // Get the day of week for this post date
+        const dayOfWeek = getDayOfWeek(postDate);
+        const daySchedule = scheduleByDay[dayOfWeek] || [];
+        const dateKey = postDate.toDateString();
+        
+        // Initialize counter for this date if not exists
+        if (!usedTimesPerDay[dateKey]) {
+          usedTimesPerDay[dateKey] = 0;
+        }
+        
+        // Try to use the user's schedule times, cycling through them
+        let hour: number;
+        let minute: number;
+        
+        if (daySchedule.length > 0) {
+          // Use schedule times in order, cycling if more posts than times
+          const scheduleIndex = usedTimesPerDay[dateKey] % daySchedule.length;
+          const scheduledTime = daySchedule[scheduleIndex];
+          const parsed = parseTimeString(scheduledTime.time);
+          hour = parsed.hours;
+          minute = parsed.minutes;
+          usedTimesPerDay[dateKey]++;
+          console.log(`Using scheduled time ${scheduledTime.time} for ${dayOfWeek}`);
+        } else {
+          // Fallback to random time if no schedule
+          hour = 8 + Math.floor(Math.random() * 12);
+          minute = Math.floor(Math.random() * 4) * 15;
+        }
+        
         postDate.setHours(hour, minute, 0, 0);
 
         // Fetch related photos from Pexels - use caption for more relevant results
