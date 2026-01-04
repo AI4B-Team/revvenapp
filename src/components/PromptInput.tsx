@@ -139,7 +139,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
       
       {/* Prompt Input Box */}
       <div className="relative">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-hidden">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-hidden min-h-[160px] flex flex-col">
           {/* Top icons - shown when option is selected */}
           {selectedOption && (
             <div className="flex flex-col gap-1 absolute left-4 top-4">
@@ -153,7 +153,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
           )}
 
           {/* Input area */}
-          <div className={`px-6 pt-5 pb-3 ${selectedOption ? 'pl-14' : ''}`}>
+          <div className={`px-6 pt-5 pb-3 flex-1 ${selectedOption ? 'pl-14' : ''}`}>
             <input
               type="text"
               placeholder={placeholdersByIntent[intent || 'default']}
@@ -183,7 +183,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               {showSubTypeSelector && (
                 <button
                   onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
                 >
                   <Grid3X3 size={14} />
                   Type
@@ -192,12 +192,12 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="p-2 rounded-full text-slate-400 hover:bg-slate-100 transition-colors">
+              <button className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-colors">
                 <Mic size={18} />
               </button>
               <button 
                 onClick={onGenerate}
-                className="flex items-center gap-2 px-4 py-2 rounded-full font-medium bg-emerald-100 hover:bg-emerald-200 text-emerald-600 transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium bg-emerald-100 hover:bg-emerald-200 text-emerald-600 transition-colors"
               >
                 <Send size={16} />
                 <span>Generate For Free!</span>

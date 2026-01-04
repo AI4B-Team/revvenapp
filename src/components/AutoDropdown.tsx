@@ -19,7 +19,7 @@ const optionsByIntent: Record<Intent, AutoOption[]> = {
     { id: 'design', label: 'Design', icon: Palette, color: 'text-pink-500' },
     { id: 'content', label: 'Content', icon: Calendar, color: 'text-blue-500' },
     { id: 'document', label: 'Document', icon: FileText, color: 'text-blue-500' },
-    { id: 'apps', label: 'Apps', icon: Code, color: 'text-slate-600' },
+    { id: 'apps', label: 'Apps', icon: Code, color: 'text-slate-500' },
   ],
   Research: [
     { id: 'explain', label: 'Explain', icon: Search, color: 'text-blue-500' },
@@ -78,8 +78,8 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full transition-colors",
-          "text-slate-600 bg-slate-100 hover:bg-slate-200",
+          "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-colors",
+          "text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200",
           isOpen && "bg-slate-200"
         )}
       >
@@ -89,7 +89,7 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-40 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
+        <div className="absolute top-full left-0 mt-2 w-44 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
           {options.map((option) => (
             <button
               key={option.id}
