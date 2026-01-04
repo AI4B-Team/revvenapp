@@ -353,30 +353,24 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
             {/* View Mode Toggle */}
             <div className="px-6 py-3 border-b border-border flex items-center gap-3">
               <span className="text-sm text-muted-foreground">View:</span>
-              <div className="flex items-center bg-muted rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('day')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    viewMode === 'day' 
-                      ? 'bg-background shadow-sm text-foreground' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <List className="w-3.5 h-3.5" />
-                  Day
-                </button>
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    viewMode === 'grid' 
-                      ? 'bg-background shadow-sm text-foreground' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <LayoutGrid className="w-3.5 h-3.5" />
-                  Week
-                </button>
-              </div>
+              <Button
+                variant={viewMode === 'day' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('day')}
+                className={viewMode === 'day' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''}
+              >
+                <List className="w-3.5 h-3.5 mr-1.5" />
+                Day
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className={viewMode === 'grid' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''}
+              >
+                <LayoutGrid className="w-3.5 h-3.5 mr-1.5" />
+                Week
+              </Button>
             </div>
 
             {/* Main Content */}
@@ -435,11 +429,11 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                 {/* Stats Summary */}
                 <div className="mt-4 pt-4 border-t border-border space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Total slots</span>
+                    <span className="text-muted-foreground">Total Slots</span>
                     <span className="font-semibold">{getTotalSlots()}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Peak times</span>
+                    <span className="text-muted-foreground">Peak Times</span>
                     <span className="font-semibold text-emerald-600">{getHighEngagementSlots()}</span>
                   </div>
                 </div>
@@ -461,11 +455,11 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                     className="text-muted-foreground hover:text-destructive"
                     onClick={() => {
                       setTimeSlots(prev => prev.filter(s => s.day !== selectedDay));
-                      toast({ title: "Day cleared", description: `All times for ${selectedDay} removed.` });
+                      toast({ title: "Day Cleared", description: `All times for ${selectedDay} removed.` });
                     }}
                   >
                     <Trash2 className="w-4 h-4 mr-1" />
-                    Clear day
+                    Clear Day
                   </Button>
                 </div>
 
@@ -474,8 +468,8 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                   {getTimesForDay(selectedDay).length === 0 ? (
                     <div className="text-center py-12 bg-muted/30 rounded-xl border-2 border-dashed border-border">
                       <Clock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-muted-foreground font-medium">No times scheduled</p>
-                      <p className="text-sm text-muted-foreground mt-1">Add a posting time below</p>
+                      <p className="text-muted-foreground font-medium">No Times Scheduled</p>
+                      <p className="text-sm text-muted-foreground mt-1">Add A Posting Time Below</p>
                     </div>
                   ) : (
                     getTimesForDay(selectedDay).map((slot) => (
@@ -539,9 +533,9 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border">
-                        <SelectItem value="everyday">Every day</SelectItem>
+                        <SelectItem value="everyday">Every Day</SelectItem>
                         <SelectItem value={selectedDay} className="font-medium">
-                          This day only
+                          This Day Only
                         </SelectItem>
                         {DAYS_OF_WEEK.filter(d => d !== selectedDay).map((day, idx) => (
                           <SelectItem key={day} value={day}>
@@ -620,7 +614,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                         {daySlots.length === 0 ? (
                           <div className="flex flex-col items-center justify-center h-[160px] text-muted-foreground">
                             <Clock className="w-6 h-6 mb-1 opacity-50" />
-                            <span className="text-xs">No times</span>
+                            <span className="text-xs">No Times</span>
                           </div>
                         ) : (
                           daySlots.map((slot) => (
