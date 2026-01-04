@@ -66,6 +66,17 @@ import ViralShorts from "./pages/ViralShorts";
 import Sessions from "./pages/Sessions";
 import AIStory from "./pages/AIStory";
 import LeadGeneration from "./pages/LeadGeneration";
+
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPosts from "./pages/admin/AdminPosts";
+import AdminImages from "./pages/admin/AdminImages";
+import AdminVideos from "./pages/admin/AdminVideos";
+import AdminRoles from "./pages/admin/AdminRoles";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminSettings from "./pages/admin/AdminSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -141,6 +152,15 @@ const App = () => (
               <Route path="review" element={<Review />} />
               <Route path="complete" element={<Complete />} />
             </Route>
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/posts" element={<AdminPosts />} />
+            <Route path="/admin/images" element={<AdminImages />} />
+            <Route path="/admin/videos" element={<AdminVideos />} />
+            <Route path="/admin/roles" element={<AdminRoles />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>
