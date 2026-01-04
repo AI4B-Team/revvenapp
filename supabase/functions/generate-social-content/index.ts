@@ -216,14 +216,20 @@ IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day o
       console.log(`Batch has ${posts.length} posts after filling gaps (${missingPosts.length} fallbacks added)`);
 
       // Transform and save each post
-      const today = new Date();
+      // Use a fixed "today" reference based on midnight to ensure consistent date calculation
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
       for (const post of posts) {
         // Track this day as having posts
         postsPerDay[post.day] = true;
         
-        const postDate = new Date(today);
+        // Day 1 = today, Day 2 = tomorrow, etc.
+        // Create a new date object and set the correct date
+        const postDate = new Date(today.getTime());
         postDate.setDate(today.getDate() + (post.day - 1));
         
+        // Add random time for scheduling
         const hour = 8 + Math.floor(Math.random() * 12);
         const minute = Math.floor(Math.random() * 4) * 15;
         postDate.setHours(hour, minute, 0, 0);
