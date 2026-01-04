@@ -33,11 +33,11 @@ const intents: IntentConfig[] = [
     label: 'Research', 
     icon: Search, 
     iconColor: 'text-slate-400', 
-    selectedBg: 'bg-slate-50', 
-    selectedBorder: 'border-slate-400',
-    selectedTextColor: 'text-slate-600',
-    selectedIconColor: 'text-slate-500',
-    hoverBg: 'hover:bg-slate-50',
+    selectedBg: 'bg-slate-800', 
+    selectedBorder: 'border-slate-800',
+    selectedTextColor: 'text-white',
+    selectedIconColor: 'text-white',
+    hoverBg: 'hover:bg-slate-100',
     hoverBorder: 'hover:border-slate-300'
   },
   { 
