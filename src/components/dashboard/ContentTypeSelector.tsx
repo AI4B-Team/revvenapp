@@ -1,4 +1,5 @@
 import { Image, Video, Music, FileText, Code, Palette, Calendar } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ContentTypeSelectorProps {
   selectedType: string;
@@ -6,14 +7,16 @@ interface ContentTypeSelectorProps {
 }
 
 const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelectorProps) => {
+  const { t } = useTranslation();
+
   const contentTypes = [
-    { icon: <Image size={18} />, label: 'Image', color: 'text-brand-blue' },
-    { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
-    { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-green' },
-    { icon: <Palette size={18} />, label: 'Design', color: 'text-brand-yellow' },
-    { icon: <Calendar size={18} />, label: 'Content', color: 'text-brand-purple' },
-    { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-blue' },
-    { icon: <Code size={18} />, label: 'Apps', color: 'text-brand-red' },
+    { icon: <Image size={18} />, label: t('content.image'), key: 'Image', color: 'text-brand-blue' },
+    { icon: <Video size={18} />, label: t('content.video'), key: 'Video', color: 'text-brand-red' },
+    { icon: <Music size={18} />, label: t('content.audio'), key: 'Audio', color: 'text-brand-green' },
+    { icon: <Palette size={18} />, label: t('content.design'), key: 'Design', color: 'text-brand-yellow' },
+    { icon: <Calendar size={18} />, label: t('content.content'), key: 'Content', color: 'text-brand-purple' },
+    { icon: <FileText size={18} />, label: t('content.document'), key: 'Document', color: 'text-brand-blue' },
+    { icon: <Code size={18} />, label: t('content.apps'), key: 'Apps', color: 'text-brand-red' },
   ];
 
   return (
@@ -22,14 +25,14 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
         {contentTypes.map((type, idx) => (
           <button
             key={idx}
-            onClick={() => onTypeChange(type.label)}
+            onClick={() => onTypeChange(type.key)}
             className={`px-5 py-3 rounded-xl transition flex items-center gap-2 ${
-              selectedType === type.label
+              selectedType === type.key
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary hover:bg-secondary/80'
             }`}
           >
-            <span className={selectedType === type.label ? '' : type.color}>{type.icon}</span>
+            <span className={selectedType === type.key ? '' : type.color}>{type.icon}</span>
             <span className="text-sm font-medium">{type.label}</span>
           </button>
         ))}
