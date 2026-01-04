@@ -29,14 +29,25 @@ import {
 } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, UserPlus, MoreVertical, Shield, User as UserIcon, Eye } from 'lucide-react';
+import { Search, UserPlus, MoreVertical, Shield, User as UserIcon, Eye, Ban, Power, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface UserProfile {
   id: string;
@@ -45,6 +56,7 @@ interface UserProfile {
   avatar_url: string | null;
   created_at: string;
   role?: string;
+  account_status?: string;
 }
 
 const AdminUsers = () => {
@@ -55,6 +67,7 @@ const AdminUsers = () => {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>('user');
 
   useEffect(() => {
@@ -64,7 +77,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      // Fetch profiles
+      // Fetch profiles with account_status
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -100,6 +113,59 @@ const AdminUsers = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleUpdateAccountStatus = async (userId: string, status: 'active' | 'suspended' | 'disabled') => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ account_status: status })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Status Updated',
+        description: `User account has been ${status}.`,
+      });
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update account status.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      // Delete user's profile (this should cascade delete related data)
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', selectedUser.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'User Deleted',
+        description: `${selectedUser.full_name || selectedUser.email} has been deleted.`,
+      });
+      setIsDeleteDialogOpen(false);
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete user.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -154,6 +220,17 @@ const AdminUsers = () => {
       user.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'suspended':
+        return <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Suspended</Badge>;
+      case 'disabled':
+        return <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Disabled</Badge>;
+      default:
+        return <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Active</Badge>;
+    }
+  };
+
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'admin':
@@ -201,6 +278,7 @@ const AdminUsers = () => {
                     <TableHead>User</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead className="w-12"></TableHead>
                   </TableRow>
@@ -208,13 +286,13 @@ const AdminUsers = () => {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
+                      <TableCell colSpan={6} className="text-center py-8">
                         Loading users...
                       </TableCell>
                     </TableRow>
                   ) : filteredUsers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                         No users found.
                       </TableCell>
                     </TableRow>
@@ -235,6 +313,7 @@ const AdminUsers = () => {
                         </TableCell>
                         <TableCell className="text-muted-foreground">{user.email || '—'}</TableCell>
                         <TableCell>{getRoleBadge(user.role || 'user')}</TableCell>
+                        <TableCell>{getStatusBadge(user.account_status || 'active')}</TableCell>
                         <TableCell className="text-muted-foreground">
                           {format(new Date(user.created_at), 'MMM d, yyyy')}
                         </TableCell>
@@ -248,18 +327,57 @@ const AdminUsers = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => {
                                 setSelectedUser(user);
+                                setIsDetailsModalOpen(true);
+                              }}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => {
+                                setSelectedUser(user);
                                 setSelectedRole(user.role || 'user');
                                 setIsRoleModalOpen(true);
                               }}>
                                 <Shield className="w-4 h-4 mr-2" />
                                 Change Role
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => {
-                                setSelectedUser(user);
-                                setIsDetailsModalOpen(true);
-                              }}>
-                                <Eye className="w-4 h-4 mr-2" />
-                                View Details
+                              <DropdownMenuSeparator />
+                              {user.account_status !== 'suspended' && (
+                                <DropdownMenuItem 
+                                  onClick={() => handleUpdateAccountStatus(user.id, 'suspended')}
+                                  className="text-yellow-600"
+                                >
+                                  <Ban className="w-4 h-4 mr-2" />
+                                  Suspend
+                                </DropdownMenuItem>
+                              )}
+                              {user.account_status !== 'disabled' && (
+                                <DropdownMenuItem 
+                                  onClick={() => handleUpdateAccountStatus(user.id, 'disabled')}
+                                  className="text-orange-600"
+                                >
+                                  <Power className="w-4 h-4 mr-2" />
+                                  Disable
+                                </DropdownMenuItem>
+                              )}
+                              {user.account_status !== 'active' && (
+                                <DropdownMenuItem 
+                                  onClick={() => handleUpdateAccountStatus(user.id, 'active')}
+                                  className="text-green-600"
+                                >
+                                  <Power className="w-4 h-4 mr-2" />
+                                  Activate
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete User
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -334,6 +452,10 @@ const AdminUsers = () => {
                       {getRoleBadge(selectedUser.role || 'user')}
                     </div>
                     <div className="flex justify-between py-2 border-b">
+                      <span className="text-muted-foreground">Status</span>
+                      {getStatusBadge(selectedUser.account_status || 'active')}
+                    </div>
+                    <div className="flex justify-between py-2 border-b">
                       <span className="text-muted-foreground">Joined</span>
                       <span>{format(new Date(selectedUser.created_at), 'MMMM d, yyyy')}</span>
                     </div>
@@ -359,6 +481,28 @@ const AdminUsers = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Delete Confirmation Dialog */}
+          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete User</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete <strong>{selectedUser?.full_name || selectedUser?.email}</strong>? 
+                  This action cannot be undone and will remove all their data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDeleteUser}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete User
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </main>
       </div>
     </AdminGuard>
