@@ -252,6 +252,9 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                     onRemove={handleRemoveOption} 
                   />
 
+                  {/* Vertical divider between option chip and type */}
+                  <div className="w-px h-8 bg-slate-200 mx-1 flex-shrink-0" />
+
                   {/* Selected sub-type chip OR Type button */}
                   {selectedSubType ? (
                     <ControlChip 
