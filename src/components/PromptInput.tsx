@@ -277,7 +277,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                       <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
                       {/* Control icons with tooltips */}
-                      <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
                         {getControlIcons().map((control) => (
                           <Tooltip key={control.id}>
                             <TooltipTrigger asChild>
