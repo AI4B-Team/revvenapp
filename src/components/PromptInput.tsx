@@ -284,7 +284,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium transition-colors">
-                      <Sparkles size={16} className="text-amber-500" />
+                      <Sparkles size={16} className="text-violet-500" />
                       <span>AI</span>
                       <ChevronDown size={14} className="text-slate-400" />
                     </button>
