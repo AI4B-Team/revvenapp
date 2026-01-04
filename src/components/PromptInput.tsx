@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Link, Copy, Hash, X } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, Mic2, Move, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Presentation, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Link, Copy, Hash, X, ChevronDown } from 'lucide-react';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
@@ -153,7 +153,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
   const showSubTypeSelector = selectedOption !== null;
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-6">
+    <div className="w-full max-w-4xl mx-auto space-y-6">
       {/* Intent Selector */}
       <IntentSelector selectedIntent={intent} onIntentChange={setIntent} />
       
@@ -193,9 +193,10 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             />
           </div>
 
-          {/* Bottom bar */}
-          <div className="flex items-center justify-between px-4 pb-4">
-            <div className="flex items-center gap-2">
+          {/* Bottom bar - dynamically expands */}
+          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-wrap-reverse">
+            {/* Left side controls - flex shrink disabled */}
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Auto dropdown - only shown when intent is selected AND no option is selected yet */}
               {intent && !selectedOption && (
                 <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
@@ -233,10 +234,10 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                   {selectedSubType && (
                     <>
                       {/* Vertical divider */}
-                      <div className="w-px h-8 bg-slate-200 mx-2" />
+                      <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
                       {/* Control icons with tooltips */}
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         {controlIcons.map((control) => (
                           <Tooltip key={control.id}>
                             <TooltipTrigger asChild>
@@ -254,7 +255,21 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               )}
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* Right side controls - flex shrink disabled */}
+            <div className="flex items-center gap-4 flex-shrink-0 ml-auto">
+              {/* AI Enhance button - only shown when there's text in prompt */}
+              {prompt.trim() && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium transition-colors">
+                      <Sparkles size={16} className="text-amber-500" />
+                      <span>AI</span>
+                      <ChevronDown size={14} className="text-slate-400" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Enhance Prompt</TooltipContent>
+                </Tooltip>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
@@ -266,7 +281,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               <button 
                 onClick={onGenerate}
                 disabled={!prompt.trim()}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors whitespace-nowrap ${
                   prompt.trim() 
                     ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
                     : 'bg-emerald-500/40 text-white/70 cursor-not-allowed'
