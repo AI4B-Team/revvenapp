@@ -6266,68 +6266,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
+                  <PopoverContent className="w-48 bg-background border-border z-50 max-h-80 overflow-y-auto">
                     <div className="space-y-1">
-                      <button 
-                        onClick={() => setContentLanguage('English')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'English' ? 'bg-secondary' : ''}`}
-                      >
-                        English
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('Spanish')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Spanish' ? 'bg-secondary' : ''}`}
-                      >
-                        Spanish
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('French')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'French' ? 'bg-secondary' : ''}`}
-                      >
-                        French
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('German')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'German' ? 'bg-secondary' : ''}`}
-                      >
-                        German
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('Portuguese')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Portuguese' ? 'bg-secondary' : ''}`}
-                      >
-                        Portuguese
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('Italian')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Italian' ? 'bg-secondary' : ''}`}
-                      >
-                        Italian
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('Chinese')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Chinese' ? 'bg-secondary' : ''}`}
-                      >
-                        Chinese
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('Japanese')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Japanese' ? 'bg-secondary' : ''}`}
-                      >
-                        Japanese
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('Arabic')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Arabic' ? 'bg-secondary' : ''}`}
-                      >
-                        Arabic
-                      </button>
-                      <button 
-                        onClick={() => setContentLanguage('Hindi')}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Hindi' ? 'bg-secondary' : ''}`}
-                      >
-                        Hindi
-                      </button>
+                      {['English', 'Spanish', 'French', 'German', 'Portuguese', 'Bengali', 'Italian', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi', 'Russian'].map((lang) => (
+                        <button 
+                          key={lang}
+                          onClick={() => setContentLanguage(lang)}
+                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === lang ? 'bg-secondary' : ''}`}
+                        >
+                          {lang}
+                        </button>
+                      ))}
                     </div>
                   </PopoverContent>
                 </Popover>
