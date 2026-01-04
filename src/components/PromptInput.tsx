@@ -223,7 +223,12 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               </Tooltip>
               <button 
                 onClick={onGenerate}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium bg-emerald-100 hover:bg-emerald-200 text-emerald-600 transition-colors"
+                disabled={!prompt.trim()}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-colors ${
+                  prompt.trim() 
+                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                    : 'bg-emerald-500/40 text-white/70 cursor-not-allowed'
+                }`}
               >
                 <Send size={16} />
                 <span>Generate For Free!</span>
