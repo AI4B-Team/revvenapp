@@ -38,6 +38,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import PostDetailModal from './PostDetailModal';
+import BestTimeToPostModal from './BestTimeToPostModal';
 import { CalendarContentItem } from '@/data/sampleCalendarContent';
 import { useToast } from '@/hooks/use-toast';
 
@@ -92,6 +93,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   const [timeRange, setTimeRange] = useState<TimeRange>('month');
   const [selectedPost, setSelectedPost] = useState<ContentItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBestTimeModalOpen, setIsBestTimeModalOpen] = useState(false);
   const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const { toast } = useToast();
@@ -529,7 +531,12 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 Delete All
               </Button>
             )}
-            <Button variant="outline" size="sm" className="gap-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              onClick={() => setIsBestTimeModalOpen(true)}
+            >
               <Sparkles className="w-4 h-4" />
               Best Time To Post
             </Button>
@@ -655,6 +662,12 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             description: "Your changes have been saved.",
           });
         }}
+      />
+
+      {/* Best Time To Post Modal */}
+      <BestTimeToPostModal
+        isOpen={isBestTimeModalOpen}
+        onClose={() => setIsBestTimeModalOpen(false)}
       />
 
       {/* Delete All Confirmation Dialog */}
