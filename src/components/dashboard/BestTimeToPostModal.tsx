@@ -30,7 +30,9 @@ import {
   BarChart3,
   Calendar,
   Settings,
-  Eye
+  Eye,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { getPlatformIcon } from './SocialIcons';
 import { useToast } from '@/hooks/use-toast';
@@ -103,6 +105,7 @@ const AI_SUGGESTED_TIMES: Record<string, Array<{ time: string; engagement: 'high
 const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClose }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('schedule');
+  const [viewMode, setViewMode] = useState<'day' | 'grid'>('day');
   const [selectedAccount, setSelectedAccount] = useState(ACCOUNTS[0].id);
   const [selectedDay, setSelectedDay] = useState<string>('monday');
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(() => {
@@ -242,220 +245,361 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
               </div>
             </div>
             
-            {/* Account Selector - Compact */}
-            <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-              <SelectTrigger className="w-[180px] h-9">
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
-                    {getPlatformIcon(account?.platform || 'instagram', 'w-3 h-3')}
-                  </div>
-                  <span className="text-sm truncate">{account?.name}</span>
-                </div>
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
-                {ACCOUNTS.map((acc) => (
-                  <SelectItem key={acc.id} value={acc.id}>
-                    <div className="flex items-center gap-2">
-                      {getPlatformIcon(acc.platform, 'w-4 h-4')}
-                      <span>{acc.name}</span>
+            <div className="flex items-center gap-3">
+              {/* View Mode Toggle */}
+              <div className="flex items-center bg-muted rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('day')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    viewMode === 'day' 
+                      ? 'bg-background shadow-sm text-foreground' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <List className="w-3.5 h-3.5" />
+                  Day
+                </button>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    viewMode === 'grid' 
+                      ? 'bg-background shadow-sm text-foreground' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  Week Grid
+                </button>
+              </div>
+
+              {/* Account Selector - Compact */}
+              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                <SelectTrigger className="w-[180px] h-9">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                      {getPlatformIcon(account?.platform || 'instagram', 'w-3 h-3')}
                     </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                    <span className="text-sm truncate">{account?.name}</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  {ACCOUNTS.map((acc) => (
+                    <SelectItem key={acc.id} value={acc.id}>
+                      <div className="flex items-center gap-2">
+                        {getPlatformIcon(acc.platform, 'w-4 h-4')}
+                        <span>{acc.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden flex">
-          {/* Left Sidebar - Day Navigator */}
-          <div className="w-48 border-r border-border bg-muted/20 p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Days</span>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-7 px-2 text-xs"
-                onClick={refreshAISuggestions}
-              >
-                <Zap className="w-3 h-3 mr-1 text-amber-500" />
-                AI
-              </Button>
-            </div>
-            
-            <div className="space-y-1 flex-1">
-              {DAYS_OF_WEEK.map((day, idx) => {
-                const daySlots = getTimesForDay(day);
-                const highCount = daySlots.filter(s => s.engagement === 'high').length;
-                const isSelected = selectedDay === day;
-                
-                return (
-                  <button
-                    key={day}
-                    onClick={() => setSelectedDay(day)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-all ${
-                      isSelected 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'hover:bg-muted text-foreground'
-                    }`}
+          {viewMode === 'day' ? (
+            <>
+              {/* Left Sidebar - Day Navigator */}
+              <div className="w-48 border-r border-border bg-muted/20 p-4 flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Days</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-7 px-2 text-xs"
+                    onClick={refreshAISuggestions}
                   >
-                    <span className="font-medium text-sm">{DAY_FULL_LABELS[idx]}</span>
-                    <div className="flex items-center gap-1.5">
-                      {highCount > 0 && (
-                        <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-medium ${
-                          isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                        }`}>
-                          {highCount}
-                        </span>
-                      )}
-                      <span className={`text-xs ${isSelected ? 'text-white/70' : 'text-muted-foreground'}`}>
-                        {daySlots.length}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Stats Summary */}
-            <div className="mt-4 pt-4 border-t border-border space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Total slots</span>
-                <span className="font-semibold">{getTotalSlots()}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Peak times</span>
-                <span className="font-semibold text-emerald-600">{getHighEngagementSlots()}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Content - Time Slots */}
-          <div className="flex-1 overflow-auto p-6">
-            {/* Day Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-xl font-semibold capitalize">{selectedDay}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {getTimesForDay(selectedDay).length} posting times scheduled
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive"
-                onClick={() => {
-                  setTimeSlots(prev => prev.filter(s => s.day !== selectedDay));
-                  toast({ title: "Day cleared", description: `All times for ${selectedDay} removed.` });
-                }}
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Clear day
-              </Button>
-            </div>
-
-            {/* Time Slots Grid */}
-            <div className="space-y-3 mb-8">
-              {getTimesForDay(selectedDay).length === 0 ? (
-                <div className="text-center py-12 bg-muted/30 rounded-xl border-2 border-dashed border-border">
-                  <Clock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground font-medium">No times scheduled</p>
-                  <p className="text-sm text-muted-foreground mt-1">Add a posting time below</p>
+                    <Zap className="w-3 h-3 mr-1 text-amber-500" />
+                    AI
+                  </Button>
                 </div>
-              ) : (
-                getTimesForDay(selectedDay).map((slot) => (
-                  <div
-                    key={slot.id}
-                    className="group flex items-center gap-4 p-4 bg-card border border-border rounded-xl hover:shadow-md transition-all"
-                  >
-                    {/* Time Indicator */}
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${getEngagementColor(slot.engagement)}`}>
-                      <Clock className="w-5 h-5" />
-                    </div>
+                
+                <div className="space-y-1 flex-1">
+                  {DAYS_OF_WEEK.map((day, idx) => {
+                    const daySlots = getTimesForDay(day);
+                    const highCount = daySlots.filter(s => s.engagement === 'high').length;
+                    const isSelected = selectedDay === day;
                     
-                    {/* Time Details */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg font-semibold">{slot.time}</span>
-                        {getEngagementBadge(slot.engagement)}
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        {slot.engagement === 'high' && 'Highest audience activity expected'}
-                        {slot.engagement === 'medium' && 'Good engagement potential'}
-                        {slot.engagement === 'low' && 'Lower activity, less competition'}
-                      </p>
-                    </div>
-
-                    {/* Engagement Indicator */}
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>
-                            {slot.engagement === 'high' && '~2.4K reach'}
-                            {slot.engagement === 'medium' && '~1.5K reach'}
-                            {slot.engagement === 'low' && '~800 reach'}
+                    return (
+                      <button
+                        key={day}
+                        onClick={() => setSelectedDay(day)}
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-all ${
+                          isSelected 
+                            ? 'bg-emerald-500 text-white' 
+                            : 'hover:bg-muted text-foreground'
+                        }`}
+                      >
+                        <span className="font-medium text-sm">{DAY_FULL_LABELS[idx]}</span>
+                        <div className="flex items-center gap-1.5">
+                          {highCount > 0 && (
+                            <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-medium ${
+                              isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                            }`}>
+                              {highCount}
+                            </span>
+                          )}
+                          <span className={`text-xs ${isSelected ? 'text-white/70' : 'text-muted-foreground'}`}>
+                            {daySlots.length}
                           </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Stats Summary */}
+                <div className="mt-4 pt-4 border-t border-border space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Total slots</span>
+                    <span className="font-semibold">{getTotalSlots()}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Peak times</span>
+                    <span className="font-semibold text-emerald-600">{getHighEngagementSlots()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Content - Time Slots */}
+              <div className="flex-1 overflow-auto p-6">
+                {/* Day Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-semibold capitalize">{selectedDay}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {getTimesForDay(selectedDay).length} posting times scheduled
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={() => {
+                      setTimeSlots(prev => prev.filter(s => s.day !== selectedDay));
+                      toast({ title: "Day cleared", description: `All times for ${selectedDay} removed.` });
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Clear day
+                  </Button>
+                </div>
+
+                {/* Time Slots Grid */}
+                <div className="space-y-3 mb-8">
+                  {getTimesForDay(selectedDay).length === 0 ? (
+                    <div className="text-center py-12 bg-muted/30 rounded-xl border-2 border-dashed border-border">
+                      <Clock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-muted-foreground font-medium">No times scheduled</p>
+                      <p className="text-sm text-muted-foreground mt-1">Add a posting time below</p>
+                    </div>
+                  ) : (
+                    getTimesForDay(selectedDay).map((slot) => (
+                      <div
+                        key={slot.id}
+                        className="group flex items-center gap-4 p-4 bg-card border border-border rounded-xl hover:shadow-md transition-all"
+                      >
+                        {/* Time Indicator */}
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${getEngagementColor(slot.engagement)}`}>
+                          <Clock className="w-5 h-5" />
+                        </div>
+                        
+                        {/* Time Details */}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg font-semibold">{slot.time}</span>
+                            {getEngagementBadge(slot.engagement)}
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-0.5">
+                            {slot.engagement === 'high' && 'Highest audience activity expected'}
+                            {slot.engagement === 'medium' && 'Good engagement potential'}
+                            {slot.engagement === 'low' && 'Lower activity, less competition'}
+                          </p>
+                        </div>
+
+                        {/* Engagement Indicator */}
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>
+                                {slot.engagement === 'high' && '~2.4K reach'}
+                                {slot.engagement === 'medium' && '~1.5K reach'}
+                                {slot.engagement === 'low' && '~800 reach'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Remove Button */}
+                          <button
+                            onClick={() => removeTimeSlot(slot.id)}
+                            className="opacity-0 group-hover:opacity-100 p-2 hover:bg-destructive/10 rounded-lg transition-all"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Add Time Section */}
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    Add Posting Time
+                  </h4>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Select value={newTimeDay} onValueChange={setNewTimeDay}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border">
+                        <SelectItem value="everyday">Every day</SelectItem>
+                        <SelectItem value={selectedDay} className="font-medium">
+                          This day only
+                        </SelectItem>
+                        {DAYS_OF_WEEK.filter(d => d !== selectedDay).map((day, idx) => (
+                          <SelectItem key={day} value={day}>
+                            {DAY_FULL_LABELS[DAYS_OF_WEEK.indexOf(day)]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={newTimeHour} onValueChange={setNewTimeHour}>
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border max-h-[200px]">
+                        {timeOptions.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Button onClick={addTimepoint} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add Time
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Week Grid View */
+            <div className="flex-1 overflow-auto p-6">
+              {/* Grid Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold">Weekly Overview</h3>
+                  <p className="text-sm text-muted-foreground">
+                    All posting times across the week
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={refreshAISuggestions}
+                  className="gap-2"
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                  Refresh AI Times
+                </Button>
+              </div>
+
+              {/* Week Grid */}
+              <div className="grid grid-cols-7 gap-3">
+                {DAYS_OF_WEEK.map((day, idx) => {
+                  const daySlots = getTimesForDay(day);
+                  const highCount = daySlots.filter(s => s.engagement === 'high').length;
+                  
+                  return (
+                    <div key={day} className="bg-card border border-border rounded-xl overflow-hidden">
+                      {/* Day Header */}
+                      <div className="px-3 py-2.5 bg-muted/50 border-b border-border flex items-center justify-between">
+                        <span className="font-semibold text-sm">{DAY_LABELS[idx]}</span>
+                        <div className="flex items-center gap-1">
+                          {highCount > 0 && (
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] flex items-center justify-center font-medium">
+                              {highCount}
+                            </span>
+                          )}
+                          <span className="text-xs text-muted-foreground">{daySlots.length}</span>
                         </div>
                       </div>
                       
-                      {/* Remove Button */}
-                      <button
-                        onClick={() => removeTimeSlot(slot.id)}
-                        className="opacity-0 group-hover:opacity-100 p-2 hover:bg-destructive/10 rounded-lg transition-all"
-                      >
-                        <X className="w-4 h-4 text-destructive" />
-                      </button>
+                      {/* Time Slots */}
+                      <div className="p-2 space-y-1.5 min-h-[180px] max-h-[280px] overflow-y-auto">
+                        {daySlots.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center h-[160px] text-muted-foreground">
+                            <Clock className="w-6 h-6 mb-1 opacity-50" />
+                            <span className="text-xs">No times</span>
+                          </div>
+                        ) : (
+                          daySlots.map((slot) => (
+                            <div
+                              key={slot.id}
+                              className="group relative flex items-center gap-2 px-2 py-1.5 rounded-lg bg-muted/40 hover:bg-muted transition-all"
+                            >
+                              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                slot.engagement === 'high' ? 'bg-emerald-500' :
+                                slot.engagement === 'medium' ? 'bg-blue-500' : 'bg-slate-400'
+                              }`} />
+                              <span className="text-xs font-medium flex-1">{slot.time}</span>
+                              <button
+                                onClick={() => removeTimeSlot(slot.id)}
+                                className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-destructive/10 rounded transition-all"
+                              >
+                                <X className="w-3 h-3 text-destructive" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      
+                      {/* Quick Add */}
+                      <div className="px-2 py-2 border-t border-border">
+                        <button 
+                          onClick={() => {
+                            setNewTimeDay(day);
+                            setViewMode('day');
+                            setSelectedDay(day);
+                          }}
+                          className="w-full flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground py-1 rounded-md hover:bg-muted transition-all"
+                        >
+                          <Plus className="w-3 h-3" />
+                          Add
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
+                  );
+                })}
+              </div>
 
-            {/* Add Time Section */}
-            <div className="bg-muted/30 rounded-xl p-4 border border-border">
-              <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Add Posting Time
-              </h4>
-              <div className="flex items-center gap-3 flex-wrap">
-                <Select value={newTimeDay} onValueChange={setNewTimeDay}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border">
-                    <SelectItem value="everyday">Every day</SelectItem>
-                    <SelectItem value={selectedDay} className="font-medium">
-                      This day only
-                    </SelectItem>
-                    {DAYS_OF_WEEK.filter(d => d !== selectedDay).map((day, idx) => (
-                      <SelectItem key={day} value={day}>
-                        {DAY_FULL_LABELS[DAYS_OF_WEEK.indexOf(day)]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select value={newTimeHour} onValueChange={setNewTimeHour}>
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border max-h-[200px]">
-                    {timeOptions.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Button onClick={addTimepoint} className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Time
-                </Button>
+              {/* Quick Stats Row */}
+              <div className="mt-6 flex items-center justify-center gap-8 py-4 bg-muted/30 rounded-xl">
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{getTotalSlots()}</div>
+                  <div className="text-xs text-muted-foreground">Total Times</div>
+                </div>
+                <div className="w-px h-8 bg-border" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-emerald-600">{getHighEngagementSlots()}</div>
+                  <div className="text-xs text-muted-foreground">Peak Times</div>
+                </div>
+                <div className="w-px h-8 bg-border" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{timeSlots.filter(s => s.engagement === 'medium').length}</div>
+                  <div className="text-xs text-muted-foreground">Good Times</div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Footer */}
