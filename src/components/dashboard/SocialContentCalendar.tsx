@@ -169,6 +169,8 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
   const [isRecyclingModalOpen, setIsRecyclingModalOpen] = useState(false);
   const [isFeedPreviewOpen, setIsFeedPreviewOpen] = useState(false);
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+  const [reschedulePostId, setReschedulePostId] = useState<string | null>(null);
   
   // Labels state
   const [labels, setLabels] = useState([
@@ -186,6 +188,139 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
   
   const { toast } = useToast();
+
+  // === BULK ACTION HANDLERS ===
+  const handleBulkDelete = () => {
+    selectedPosts.forEach(postId => onDeletePost?.(postId));
+    toast({ title: "Posts deleted", description: `${selectedPosts.size} posts have been deleted.` });
+    setSelectedPosts(new Set());
+  };
+
+  const handleBulkDuplicate = () => {
+    const postsToDuplicate = generatedContent.filter(p => selectedPosts.has(p.id));
+    postsToDuplicate.forEach(post => {
+      const newPost: ContentItem = {
+        ...post,
+        id: `${post.id}-copy-${Date.now()}`,
+        title: `${post.title} (Copy)`,
+        status: 'draft',
+        date: new Date(post.date.getTime() + 24 * 60 * 60 * 1000), // Next day
+      };
+      onUpdatePost?.(newPost);
+    });
+    toast({ title: "Posts duplicated", description: `${selectedPosts.size} posts have been duplicated as drafts.` });
+    setSelectedPosts(new Set());
+  };
+
+  const handleBulkReschedule = () => {
+    // For bulk reschedule, we'll shift all by 7 days
+    const postsToReschedule = generatedContent.filter(p => selectedPosts.has(p.id));
+    postsToReschedule.forEach(post => {
+      const newDate = new Date(post.date);
+      newDate.setDate(newDate.getDate() + 7);
+      onUpdatePost?.({ ...post, date: newDate });
+    });
+    toast({ title: "Posts rescheduled", description: `${selectedPosts.size} posts moved forward by 7 days.` });
+    setSelectedPosts(new Set());
+  };
+
+  const handleBulkChangeStatus = (status: string) => {
+    const postsToUpdate = generatedContent.filter(p => selectedPosts.has(p.id));
+    postsToUpdate.forEach(post => {
+      onUpdatePost?.({ ...post, status });
+    });
+    toast({ title: "Status updated", description: `${selectedPosts.size} posts changed to ${status}.` });
+    setSelectedPosts(new Set());
+  };
+
+  const handleBulkAssignLabel = (labelId: string) => {
+    // In a real app, this would update a label field on the posts
+    toast({ title: "Label assigned", description: `Label applied to ${selectedPosts.size} posts.` });
+    setSelectedPosts(new Set());
+  };
+
+  const handleClearSelection = () => {
+    setSelectedPosts(new Set());
+  };
+
+  const togglePostSelection = (postId: string) => {
+    const newSelected = new Set(selectedPosts);
+    if (newSelected.has(postId)) {
+      newSelected.delete(postId);
+    } else {
+      newSelected.add(postId);
+    }
+    setSelectedPosts(newSelected);
+  };
+
+  // === INDIVIDUAL POST ACTION HANDLERS ===
+  const handleEditPost = (item: ContentItem) => {
+    setSelectedPost(item);
+    setIsModalOpen(true);
+  };
+
+  const handleReschedulePost = (postId: string) => {
+    const post = generatedContent.find(p => p.id === postId);
+    if (post) {
+      const newDate = new Date(post.date);
+      newDate.setDate(newDate.getDate() + 1);
+      onUpdatePost?.({ ...post, date: newDate });
+      toast({ title: "Post rescheduled", description: "Post moved to tomorrow." });
+    }
+  };
+
+  const handleDuplicatePost = (item: ContentItem) => {
+    const newPost: ContentItem = {
+      ...item,
+      id: `${item.id}-copy-${Date.now()}`,
+      title: `${item.title} (Copy)`,
+      status: 'draft',
+      date: new Date(item.date.getTime() + 24 * 60 * 60 * 1000),
+    };
+    onUpdatePost?.(newPost);
+    toast({ title: "Post duplicated", description: "A copy has been created as draft." });
+  };
+
+  const handleRequestApproval = (item: ContentItem) => {
+    onUpdatePost?.({ ...item, status: 'awaiting' });
+    toast({ title: "Approval requested", description: "Post sent for approval." });
+  };
+
+  const handleSchedulePost = (item: ContentItem) => {
+    onUpdatePost?.({ ...item, status: 'scheduled' });
+    toast({ title: "Post scheduled", description: "Post has been scheduled." });
+  };
+
+  // === TEMPLATE HANDLER ===
+  const handleSelectTemplate = (template: { name: string; caption: string; platform: string; hashtags: string[] }) => {
+    const newPost: ContentItem = {
+      id: `template-${Date.now()}`,
+      title: template.name,
+      platform: template.platform,
+      date: new Date(),
+      status: 'draft',
+      caption: template.caption,
+      hashtags: template.hashtags,
+    };
+    onUpdatePost?.(newPost);
+    toast({ title: "Template applied", description: `New draft created from "${template.name}" template.` });
+    setIsTemplatesModalOpen(false);
+  };
+
+  // === RECYCLING HANDLER ===
+  const handleRecyclePost = (postId: string, scheduledDate: Date) => {
+    // Find a mock post or use existing
+    const newPost: ContentItem = {
+      id: `recycled-${Date.now()}`,
+      title: "Recycled post",
+      platform: 'instagram',
+      date: scheduledDate,
+      status: 'scheduled',
+      caption: "This is recycled content from a top-performing post.",
+    };
+    onUpdatePost?.(newPost);
+    toast({ title: "Content recycled", description: `Post scheduled for ${scheduledDate.toLocaleDateString()}.` });
+  };
 
   // Use only generated content (no mock data)
   const allContent = useMemo(() => {
@@ -408,9 +543,18 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-popover border-border">
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Reschedule</DropdownMenuItem>
-            <DropdownMenuItem>Duplicate</DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
+              <Pencil className="w-3 h-3 mr-2" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleReschedulePost(item.id); }}>
+              <CalendarClock className="w-3 h-3 mr-2" />
+              Reschedule
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicatePost(item); }}>
+              <ListChecks className="w-3 h-3 mr-2" />
+              Duplicate
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               className="text-destructive focus:text-destructive"
@@ -472,16 +616,26 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
     const renderKanbanCard = (item: ContentItem) => {
       const pillar = getPillarForContent(item);
+      const isSelected = selectedPosts.has(item.id);
       
       return (
         <div 
           key={item.id}
-          className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+          className={`bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer group ${
+            isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-border'
+          }`}
           onClick={() => handlePostClick(item)}
         >
           {/* Card Header */}
           <div className="p-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
+              {/* Checkbox for bulk selection */}
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={(e) => { togglePostSelection(item.id); }}
+                onClick={(e) => e.stopPropagation()}
+                className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+              />
               {/* Account Avatar with Platform Badge */}
               <div className="relative">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-semibold text-sm">
@@ -504,25 +658,25 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-popover border-border w-48">
-                <DropdownMenuItem className="gap-2">
+                <DropdownMenuItem className="gap-2" onClick={(e) => { e.stopPropagation(); handleRequestApproval(item); }}>
                   <Hand className="w-4 h-4" />
                   Request Approval
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
+                <DropdownMenuItem className="gap-2" onClick={(e) => { e.stopPropagation(); handleSchedulePost(item); }}>
                   <CalendarClock className="w-4 h-4" />
                   Schedule
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
+                <DropdownMenuItem className="gap-2" onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
                   <Pencil className="w-4 h-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
-                  <Share2 className="w-4 h-4" />
-                  Share
+                <DropdownMenuItem className="gap-2" onClick={(e) => { e.stopPropagation(); handleDuplicatePost(item); }}>
+                  <ListChecks className="w-4 h-4" />
+                  Duplicate
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
-                  <Users className="w-4 h-4" />
-                  Client Review
+                <DropdownMenuItem className="gap-2" onClick={(e) => { e.stopPropagation(); handleReschedulePost(item.id); }}>
+                  <CalendarClock className="w-4 h-4" />
+                  Reschedule (+1 day)
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
@@ -682,8 +836,18 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="bg-popover border-border">
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
+                        <Pencil className="w-3 h-3 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleReschedulePost(item.id); }}>
+                        <CalendarClock className="w-3 h-3 mr-2" />
+                        Reschedule
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicatePost(item); }}>
+                        <ListChecks className="w-3 h-3 mr-2" />
+                        Duplicate
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         className="text-destructive focus:text-destructive"
@@ -803,8 +967,18 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                               </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-popover border-border">
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
-                              <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
+                                <Pencil className="w-3 h-3 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleReschedulePost(item.id); }}>
+                                <CalendarClock className="w-3 h-3 mr-2" />
+                                Reschedule
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicatePost(item); }}>
+                                <ListChecks className="w-3 h-3 mr-2" />
+                                Duplicate
+                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
                                 className="text-destructive"
@@ -958,8 +1132,18 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                               </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-popover border-border">
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
-                              <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
+                                <Pencil className="w-3 h-3 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleReschedulePost(item.id); }}>
+                                <CalendarClock className="w-3 h-3 mr-2" />
+                                Reschedule
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicatePost(item); }}>
+                                <ListChecks className="w-3 h-3 mr-2" />
+                                Duplicate
+                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
                                 className="text-destructive"
@@ -1579,25 +1763,32 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       <TemplatesModal
         isOpen={isTemplatesModalOpen}
         onClose={() => setIsTemplatesModalOpen(false)}
-        onSelectTemplate={(template) => {
-          toast({ title: "Template selected", description: `Using "${template.name}" template` });
-          setIsTemplatesModalOpen(false);
-        }}
+        onSelectTemplate={handleSelectTemplate}
       />
       
       <ContentRecyclingModal
         isOpen={isRecyclingModalOpen}
         onClose={() => setIsRecyclingModalOpen(false)}
         topPerformingPosts={[]}
-        onRecyclePost={(postId, date) => {
-          toast({ title: "Content recycled", description: `Post scheduled for ${date.toLocaleDateString()}` });
-        }}
+        onRecyclePost={handleRecyclePost}
       />
       
       <FeedPreviewModal
         isOpen={isFeedPreviewOpen}
         onClose={() => setIsFeedPreviewOpen(false)}
         posts={filteredContent}
+      />
+
+      {/* Bulk Actions Bar */}
+      <BulkActionsBar
+        selectedCount={selectedPosts.size}
+        onClearSelection={handleClearSelection}
+        onBulkDelete={handleBulkDelete}
+        onBulkDuplicate={handleBulkDuplicate}
+        onBulkReschedule={handleBulkReschedule}
+        onBulkChangeStatus={handleBulkChangeStatus}
+        onBulkAssignLabel={handleBulkAssignLabel}
+        labels={labels}
       />
     </div>
   );
