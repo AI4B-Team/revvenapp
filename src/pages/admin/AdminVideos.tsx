@@ -181,13 +181,14 @@ const AdminVideos = () => {
               {filteredVideos.map((video) => (
                 <Card key={video.id} className="overflow-hidden">
                   <div className="aspect-video bg-muted relative group overflow-hidden">
-                    {video.video_url ? (
+                    {video.video_url && video.status === 'completed' ? (
                       <>
-                        <video
-                          src={video.video_url}
-                          className="w-full h-full object-cover"
-                          muted
-                          preload="metadata"
+                        <div 
+                          className="w-full h-full bg-cover bg-center"
+                          style={{ 
+                            backgroundImage: `url(${video.video_url.replace('.mp4', '.jpg').replace('.webm', '.jpg')})`,
+                            backgroundColor: '#1a1a2e'
+                          }}
                         />
                         <div 
                           className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
@@ -197,7 +198,7 @@ const AdminVideos = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-full h-full flex items-center justify-center bg-slate-800">
                         <Video className="w-12 h-12 text-muted-foreground" />
                       </div>
                     )}

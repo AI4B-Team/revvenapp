@@ -168,12 +168,10 @@ const AdminImages = () => {
               {filteredImages.map((image) => (
                 <Card key={image.id} className="overflow-hidden">
                   <div className="aspect-square bg-muted relative overflow-hidden">
-                    {image.image_url ? (
-                      <img
-                        src={image.image_url}
-                        alt={image.prompt}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                    {image.image_url && image.status === 'completed' ? (
+                      <div 
+                        className="w-full h-full bg-cover bg-center"
+                        style={{ backgroundImage: `url(${image.image_url})` }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
