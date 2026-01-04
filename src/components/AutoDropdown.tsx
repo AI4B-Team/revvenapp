@@ -37,12 +37,12 @@ const optionsByIntent: Record<Intent, AutoOption[]> = {
     { id: 'funnel', label: 'Funnel', icon: Target, color: 'text-green-500' },
   ],
   Automate: [
-    { id: 'workflow', label: 'Workflow', icon: Workflow, color: 'text-blue-500' },
-    { id: 'sop', label: 'SOP', icon: FileCheck, color: 'text-emerald-500' },
-    { id: 'agent', label: 'Agent', icon: Bot, color: 'text-purple-500' },
-    { id: 'zapier', label: 'Zapier', icon: Zap, color: 'text-amber-500' },
-    { id: 'make', label: 'Make', icon: Link, color: 'text-violet-500' },
-    { id: 'api-script', label: 'API / Script', icon: Code, color: 'text-slate-600' },
+    { id: 'workflow', label: 'Workflow', icon: Workflow, color: 'text-red-500' },
+    { id: 'sop', label: 'SOP', icon: FileCheck, color: 'text-green-500' },
+    { id: 'agent', label: 'Agent', icon: Bot, color: 'text-blue-500' },
+    { id: 'zapier', label: 'Zapier', icon: Zap, color: 'text-orange-500' },
+    { id: 'make', label: 'Make', icon: Link, color: 'text-purple-500' },
+    { id: 'api-script', label: 'API / Script', icon: Code, color: 'text-teal-500' },
   ],
 };
 
