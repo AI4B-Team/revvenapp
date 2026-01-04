@@ -24,7 +24,7 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkInviteCodeValidation = async (userId: string) => {
+    const checkInviteCodeValidation = async (userId: string): Promise<boolean> => {
       const { data: profile } = await supabase
         .from('profiles')
         .select('invite_code_validated')
@@ -34,34 +34,33 @@ export default function LoginPage() {
       return profile?.invite_code_validated === true;
     };
 
+    const handleAuthRedirect = async (session: Session) => {
+      const isValidated = await checkInviteCodeValidation(session.user.id);
+      if (isValidated) {
+        navigate('/onboarding-dashboard');
+      } else {
+        navigate('/invite-verification');
+      }
+    };
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        if (session) {
-          // Check if user has validated invite code
-          setTimeout(async () => {
-            const isValidated = await checkInviteCodeValidation(session.user.id);
-            if (isValidated) {
-              navigate('/onboarding-dashboard');
-            } else {
-              navigate('/invite-verification');
-            }
+        if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          // Defer to avoid Supabase deadlock
+          setTimeout(() => {
+            handleAuthRedirect(session);
           }, 0);
         }
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Check for existing session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
-        const isValidated = await checkInviteCodeValidation(session.user.id);
-        if (isValidated) {
-          navigate('/onboarding-dashboard');
-        } else {
-          navigate('/invite-verification');
-        }
+        handleAuthRedirect(session);
       }
     });
 
