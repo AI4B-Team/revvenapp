@@ -37,10 +37,10 @@ const LandingNew = () => {
       </header>
 
       {/* Main Content - positioned higher so dropdowns don't go below fold */}
-      <main className="flex-1 flex flex-col items-center px-6 pt-12 pb-24 max-w-4xl mx-auto w-full">
+      <main className="flex-1 flex flex-col items-center px-6 pt-8 pb-16 max-w-5xl mx-auto w-full">
         {/* Greeting */}
-        <div className="text-center mb-6">
-          <p className="text-lg text-slate-400 mb-3 tracking-wide">
+        <div className="text-center mb-5">
+          <p className="text-lg text-slate-400 mb-2 tracking-wide">
             Create Anything — Automate Everything
           </p>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
