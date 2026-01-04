@@ -1,11 +1,13 @@
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
-import { Share2, Send, DollarSign, Target, Calendar } from 'lucide-react';
+import { Share2, Send, DollarSign, Target, Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
+import BestTimeToPostModal from '@/components/dashboard/BestTimeToPostModal';
 
 const Marketing = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isPostingScheduleOpen, setIsPostingScheduleOpen] = useState(false);
   
   return (
     <div className="flex min-h-screen bg-background">
@@ -20,7 +22,7 @@ const Marketing = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <Button 
               variant="outline" 
               className="h-24 flex flex-col items-center justify-center gap-2 hover:bg-accent"
@@ -60,9 +62,23 @@ const Marketing = () => {
               <Calendar className="h-6 w-6" />
               <span>Calendar</span>
             </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col items-center justify-center gap-2 hover:bg-accent border-emerald-500/50 hover:border-emerald-500"
+              onClick={() => setIsPostingScheduleOpen(true)}
+            >
+              <Clock className="h-6 w-6 text-emerald-500" />
+              <span>Posting Schedule</span>
+            </Button>
           </div>
         </main>
       </div>
+      
+      <BestTimeToPostModal 
+        isOpen={isPostingScheduleOpen} 
+        onClose={() => setIsPostingScheduleOpen(false)} 
+      />
     </div>
   );
 };
