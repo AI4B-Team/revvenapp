@@ -3,10 +3,18 @@ import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, FileText, Image, Video, TrendingUp, Activity, Clock, Radio } from 'lucide-react';
+import { Users, FileText, Image, Video, TrendingUp, Activity, Clock, Radio, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useLiveVisitors } from '@/hooks/useLiveVisitors';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Stats {
   totalUsers: number;
@@ -23,7 +31,7 @@ interface RecentActivity {
 }
 
 const AdminDashboard = () => {
-  const { visitorCount } = useLiveVisitors();
+  const { visitorCount, visitors } = useLiveVisitors();
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     totalPosts: 0,
@@ -32,6 +40,7 @@ const AdminDashboard = () => {
   });
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVisitorsModalOpen, setIsVisitorsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -142,8 +151,11 @@ const AdminDashboard = () => {
             <p className="text-muted-foreground">Welcome to the admin panel. Here's an overview of your platform.</p>
           </div>
 
-          {/* Live Visitors Card */}
-          <Card className="mb-6 border-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent">
+          {/* Live Visitors Card - Clickable */}
+          <Card 
+            className="mb-6 border-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent cursor-pointer hover:border-green-500/50 transition-colors"
+            onClick={() => setIsVisitorsModalOpen(true)}
+          >
             <CardContent className="py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -162,7 +174,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Users currently on the platform
+                  Click to see who's online
                 </div>
               </div>
             </CardContent>
@@ -251,6 +263,52 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </div>
+          {/* Live Visitors Modal */}
+          <Dialog open={isVisitorsModalOpen} onOpenChange={setIsVisitorsModalOpen}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Radio className="w-5 h-5 text-green-500" />
+                  Live Visitors ({visitorCount})
+                </DialogTitle>
+              </DialogHeader>
+              <ScrollArea className="max-h-[400px]">
+                {visitors.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No visitors online</p>
+                ) : (
+                  <div className="space-y-3">
+                    {visitors.map((visitor, index) => (
+                      <div 
+                        key={visitor.user_id || index} 
+                        className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
+                      >
+                        <div className="relative">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={visitor.avatar_url || ''} />
+                            <AvatarFallback>
+                              <User className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full"></span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
+                            {visitor.full_name || 'Anonymous User'}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {visitor.email || visitor.user_id?.startsWith('anonymous') ? 'Guest Visitor' : visitor.email}
+                          </p>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {format(new Date(visitor.online_at), 'h:mm a')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </AdminGuard>

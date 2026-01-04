@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, MoreVertical, Camera, User, Trash2 } from 'lucide-react';
+import { Search, MoreVertical, Camera, User, Trash2, AlertTriangle, Ban, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
@@ -32,6 +33,7 @@ export default function Settings() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [userFullName, setUserFullName] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [accountStatus, setAccountStatus] = useState<string>('active');
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -65,7 +67,7 @@ export default function Settings() {
         // Check profiles table for stored data (takes priority over metadata)
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, avatar_url, email')
+          .select('full_name, avatar_url, email, account_status')
           .eq('id', user.id)
           .single();
         
@@ -74,6 +76,7 @@ export default function Settings() {
           if (profile.full_name) setUserFullName(profile.full_name);
           if (profile.email) setUserEmail(profile.email);
           if (profile.avatar_url) setProfilePhoto(profile.avatar_url);
+          if (profile.account_status) setAccountStatus(profile.account_status);
         } else {
           // Profile doesn't exist for this user (Google OAuth first login) - create it
           const newProfile = {
@@ -203,6 +206,28 @@ export default function Settings() {
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         <div className="flex-1 bg-gray-50 overflow-auto">
           <div className="max-w-7xl mx-auto p-4 md:p-8">
+            {/* Account Status Banner */}
+            {accountStatus === 'suspended' && (
+              <Alert className="mb-6 border-yellow-500/50 bg-yellow-500/10">
+                <Ban className="h-4 w-4 text-yellow-600" />
+                <AlertTitle className="text-yellow-600">Account Suspended</AlertTitle>
+                <AlertDescription className="text-yellow-600/80">
+                  Your account has been temporarily suspended. Some features may be limited. 
+                  Please contact support if you believe this is an error.
+                </AlertDescription>
+              </Alert>
+            )}
+            {accountStatus === 'disabled' && (
+              <Alert className="mb-6 border-red-500/50 bg-red-500/10">
+                <XCircle className="h-4 w-4 text-red-600" />
+                <AlertTitle className="text-red-600">Account Disabled</AlertTitle>
+                <AlertDescription className="text-red-600/80">
+                  Your account has been disabled. You cannot access most features. 
+                  Please contact support for more information.
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <h1 className="text-3xl font-semibold text-gray-900">Account</h1>
