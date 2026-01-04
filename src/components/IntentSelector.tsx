@@ -54,13 +54,13 @@ const intents: IntentConfig[] = [
   { 
     label: 'Automate', 
     icon: Zap, 
-    iconColor: 'text-rose-500', 
-    selectedBg: 'bg-rose-50', 
-    selectedBorder: 'border-rose-300',
+    iconColor: 'text-red-500', 
+    selectedBg: 'bg-red-50', 
+    selectedBorder: 'border-red-300',
     selectedTextColor: 'text-slate-600',
-    selectedIconColor: 'text-rose-500',
-    hoverBg: 'hover:bg-rose-50',
-    hoverBorder: 'hover:border-rose-300'
+    selectedIconColor: 'text-red-500',
+    hoverBg: 'hover:bg-red-50',
+    hoverBorder: 'hover:border-red-300'
   },
 ];
 
@@ -81,7 +81,7 @@ const IntentSelector = ({ selectedIntent, onIntentChange }: IntentSelectorProps)
             key={intent.label}
             onClick={() => onIntentChange(isSelected ? null : intent.label)}
             className={cn(
-              "flex items-center gap-2.5 px-7 py-3.5 text-[15px] font-medium rounded-xl border transition-all duration-200",
+              "flex items-center gap-2.5 px-7 py-3.5 text-[15px] font-medium rounded-lg border transition-all duration-200",
               isSelected
                 ? cn(intent.selectedBg, intent.selectedBorder, intent.selectedTextColor)
                 : cn("bg-white border-slate-200 text-slate-500", intent.hoverBg, intent.hoverBorder)
