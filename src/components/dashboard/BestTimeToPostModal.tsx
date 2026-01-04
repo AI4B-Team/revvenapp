@@ -232,7 +232,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
         {/* Compact Header */}
-        <div className="px-6 py-4 border-b border-border bg-muted/30">
+        <div className="pl-6 pr-14 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
@@ -393,12 +393,10 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                 </div>
                 
                 {/* Legend - aligned with numbers below */}
-                <div className="flex items-center justify-between mb-3 text-[10px] text-muted-foreground pr-3">
-                  <span></span>
-                  <div className="flex items-center gap-3">
-                    <span title="High engagement times with peak audience activity" className="w-5 text-center">Peak</span>
-                    <span title="Total number of scheduled posting times" className="w-5 text-center">Total</span>
-                  </div>
+                <div className="grid grid-cols-[1fr,3rem,3rem] items-center mb-3 px-3 text-[10px] text-muted-foreground">
+                  <span />
+                  <span title="High Engagement Times With Peak Audience Activity" className="text-center">Peak</span>
+                  <span title="Total Number Of Scheduled Posting Times" className="text-center">Total</span>
                 </div>
                 
                 <div className="space-y-1 flex-1">
@@ -411,25 +409,36 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                       <button
                         key={day}
                         onClick={() => setSelectedDay(day)}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-all ${
+                        title={`${highCount} Peak · ${daySlots.length} Total`}
+                        className={`w-full grid grid-cols-[1fr,3rem,3rem] items-center px-3 py-2.5 rounded-lg text-left transition-all ${
                           isSelected 
                             ? 'bg-emerald-500 text-white' 
                             : 'hover:bg-muted text-foreground'
                         }`}
                       >
                         <span className="font-medium text-sm">{DAY_FULL_LABELS[idx]}</span>
-                        <div className="flex items-center gap-1.5" title={`${highCount} Peak · ${daySlots.length} Total`}>
-                          {highCount > 0 && (
-                            <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-medium ${
-                              isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                            }`} title="Peak Times">
-                              {highCount}
-                            </span>
-                          )}
-                          <span className={`text-xs ${isSelected ? 'text-white/70' : 'text-muted-foreground'}`} title="Total Slots">
-                            {daySlots.length}
+
+                        {highCount > 0 ? (
+                          <span
+                            className={`w-5 h-5 justify-self-center rounded-full text-[10px] flex items-center justify-center font-medium ${
+                              isSelected
+                                ? 'bg-white/20 text-white'
+                                : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                            }`}
+                            title="Peak Times"
+                          >
+                            {highCount}
                           </span>
-                        </div>
+                        ) : (
+                          <span className="w-5 h-5 justify-self-center" aria-hidden="true" />
+                        )}
+
+                        <span
+                          className={`text-xs justify-self-center ${isSelected ? 'text-white/70' : 'text-muted-foreground'}`}
+                          title="Total Slots"
+                        >
+                          {daySlots.length}
+                        </span>
                       </button>
                     );
                   })}
