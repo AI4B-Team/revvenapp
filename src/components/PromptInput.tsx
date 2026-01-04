@@ -31,7 +31,7 @@ const videoTypes: SubOption[] = [
   { id: 'recast', label: 'Recast', icon: RefreshCw, color: 'text-cyan-500' },
   { id: 'animate', label: 'Animate', icon: Video, color: 'text-violet-500' },
   { id: 'draw', label: 'Draw', icon: Pencil, color: 'text-orange-500' },
-  { id: 'lip-sync', label: 'Lip-Sync', icon: Mic2, color: 'text-rose-500' },
+  { id: 'lip-sync', label: 'Lip-Sync', icon: Mic2, color: 'text-red-500' },
   { id: 'motion-sync', label: 'Motion-Sync', icon: Move, color: 'text-blue-500' },
   { id: 'podcast', label: 'Podcast', icon: Headphones, color: 'text-purple-500' },
 ];
@@ -42,7 +42,7 @@ const imageTypes: SubOption[] = [
   { id: 'batch', label: 'Batch', icon: Layers, color: 'text-emerald-500' },
   { id: 'draw', label: 'Draw', icon: Pencil, color: 'text-orange-500' },
   { id: 'swap', label: 'Swap', icon: ArrowRightLeft, color: 'text-blue-500' },
-  { id: 'photoshoot', label: 'Photoshoot', icon: Camera, color: 'text-rose-500' },
+  { id: 'photoshoot', label: 'Photoshoot', icon: Camera, color: 'text-violet-500' },
 ];
 
 // Audio type options
@@ -50,7 +50,7 @@ const audioTypes: SubOption[] = [
   { id: 'voiceover', label: 'Voiceover', icon: Mic, color: 'text-emerald-500' },
   { id: 'clone', label: 'Clone', icon: User, color: 'text-violet-500' },
   { id: 'revoice', label: 'Revoice', icon: RefreshCw, color: 'text-cyan-500' },
-  { id: 'sound-effects', label: 'Sound Effects', icon: AudioLines, color: 'text-rose-500' },
+  { id: 'sound-effects', label: 'Sound Effects', icon: AudioLines, color: 'text-amber-500' },
   { id: 'music', label: 'Music', icon: Music, color: 'text-blue-500' },
   { id: 'audiobook', label: 'AudioBook', icon: Headphones, color: 'text-indigo-500' },
 ];
@@ -61,11 +61,11 @@ const designTypes: SubOption[] = [
   { id: 'business-card', label: 'Business Card', icon: CreditCard, color: 'text-purple-500' },
   { id: 'cover', label: 'Cover', icon: ImageIcon, color: 'text-blue-500' },
   { id: 'flyer', label: 'Flyer', icon: FileText, color: 'text-amber-500' },
-  { id: 'infographic', label: 'Infographic', icon: TableCellsMerge, color: 'text-fuchsia-500' },
+  { id: 'infographic', label: 'Infographic', icon: TableCellsMerge, color: 'text-violet-500' },
   { id: 'invitation', label: 'Invitation', icon: Mail, color: 'text-cyan-500' },
   { id: 'logo', label: 'Logo', icon: Sparkles, color: 'text-yellow-500' },
   { id: 'poster', label: 'Poster', icon: LayoutTemplate, color: 'text-indigo-500' },
-  { id: 'thumbnail', label: 'Thumbnail', icon: ImageIcon, color: 'text-rose-500' },
+  { id: 'thumbnail', label: 'Thumbnail', icon: ImageIcon, color: 'text-red-500' },
 ];
 
 // Content type options
@@ -82,7 +82,7 @@ const documentTypes: SubOption[] = [
   { id: 'handbook', label: 'Handbook', icon: BookOpen, color: 'text-emerald-500' },
   { id: 'proposal', label: 'Proposal', icon: FileText, color: 'text-purple-500' },
   { id: 'case-study', label: 'Case Study', icon: FileText, color: 'text-teal-500' },
-  { id: 'cover-letter', label: 'Cover Letter', icon: FileText, color: 'text-rose-500' },
+  { id: 'cover-letter', label: 'Cover Letter', icon: FileText, color: 'text-red-500' },
   { id: 'presentation', label: 'Presentation', icon: Presentation, color: 'text-orange-500' },
 ];
 
@@ -203,7 +203,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                   {/* Type button */}
                   <button 
                     onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium transition-colors"
                   >
                     <LayoutGrid size={16} className="text-slate-500" />
                     <span>Type</span>
@@ -215,7 +215,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             <div className="flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-colors">
+                  <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors">
                     <Mic size={18} />
                   </button>
                 </TooltipTrigger>
@@ -224,7 +224,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               <button 
                 onClick={onGenerate}
                 disabled={!prompt.trim()}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-colors ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors ${
                   prompt.trim() 
                     ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
                     : 'bg-emerald-500/40 text-white/70 cursor-not-allowed'
@@ -245,7 +245,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                 <button
                   key={option.id}
                   onClick={() => handleSubTypeSelect(option)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
                 >
                   <option.icon size={18} className={option.color} />
                   {option.label}

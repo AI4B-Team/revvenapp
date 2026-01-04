@@ -79,7 +79,7 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-colors",
+          "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
           "text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200",
           isOpen && "bg-slate-200"
         )}
@@ -90,7 +90,7 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-[999]">
+        <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl py-2 z-[999]">
           {options.map((option) => (
             <button
               type="button"
