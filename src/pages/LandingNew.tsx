@@ -40,7 +40,7 @@ const LandingNew = () => {
       <main className="flex-1 flex flex-col items-center px-6 pt-24">
         {/* Greeting */}
         <div className="text-center mb-6">
-          <p className="text-lg text-slate-400 mb-3 font-medium tracking-wide">
+          <p className="text-lg text-slate-400 mb-3 tracking-wide">
             Create Anything — Automate Everything
           </p>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
