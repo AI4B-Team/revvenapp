@@ -42,9 +42,71 @@ const ExportPostsModal: React.FC<ExportPostsModalProps> = ({ isOpen, onClose, po
   };
 
   const handleExport = () => {
-    // Mock export logic
     const selectedItems = posts.filter(p => selectedPosts.has(p.id));
-    console.log(`Exporting ${selectedItems.length} posts as ${exportFormat}`);
+    
+    if (exportFormat === 'json') {
+      const jsonData = JSON.stringify(selectedItems.map(p => ({
+        id: p.id,
+        title: p.title,
+        platform: p.platform,
+        date: p.date.toISOString(),
+        status: p.status,
+        caption: p.caption,
+        hashtags: p.hashtags,
+      })), null, 2);
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `content-export-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else if (exportFormat === 'csv') {
+      const headers = ['Title', 'Platform', 'Date', 'Time', 'Status', 'Caption', 'Hashtags'];
+      const rows = selectedItems.map(p => [
+        `"${p.title.replace(/"/g, '""')}"`,
+        p.platform,
+        p.date.toLocaleDateString(),
+        p.date.toLocaleTimeString(),
+        p.status,
+        `"${(p.caption || '').replace(/"/g, '""')}"`,
+        `"${(p.hashtags || []).join(', ')}"`,
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `content-export-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      // PDF - create a simple text-based PDF alternative (HTML to print)
+      const printContent = selectedItems.map(p => `
+        <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
+          <h3 style="margin: 0 0 10px 0;">${p.title}</h3>
+          <p><strong>Platform:</strong> ${p.platform}</p>
+          <p><strong>Date:</strong> ${p.date.toLocaleDateString()} at ${p.date.toLocaleTimeString()}</p>
+          <p><strong>Status:</strong> ${p.status}</p>
+          ${p.caption ? `<p><strong>Caption:</strong> ${p.caption}</p>` : ''}
+          ${p.hashtags?.length ? `<p><strong>Hashtags:</strong> ${p.hashtags.join(', ')}</p>` : ''}
+        </div>
+      `).join('');
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head><title>Content Export</title></head>
+            <body style="font-family: system-ui, sans-serif; padding: 20px;">
+              <h1>Content Export - ${new Date().toLocaleDateString()}</h1>
+              ${printContent}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
     onClose();
   };
 
