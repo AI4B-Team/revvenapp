@@ -23,10 +23,10 @@ const optionsByIntent: Record<Intent, AutoOption[]> = {
   ],
   Research: [
     { id: 'explain', label: 'Explain', icon: Search, color: 'text-blue-500' },
-    { id: 'compare', label: 'Compare', icon: GitCompare, color: 'text-teal-500' },
-    { id: 'summarize', label: 'Summarize', icon: FileText, color: 'text-amber-500' },
-    { id: 'analyze', label: 'Analyze', icon: BarChart3, color: 'text-purple-500' },
-    { id: 'deep-dive', label: 'Deep Dive', icon: Sparkles, color: 'text-purple-500' },
+    { id: 'compare', label: 'Compare', icon: GitCompare, color: 'text-purple-500' },
+    { id: 'summarize', label: 'Summarize', icon: FileText, color: 'text-green-500' },
+    { id: 'analyze', label: 'Analyze', icon: BarChart3, color: 'text-orange-500' },
+    { id: 'deep-dive', label: 'Deep Dive', icon: Sparkles, color: 'text-blue-500' },
   ],
   Plan: [
     { id: 'checklist', label: 'Checklist', icon: CheckSquare, color: 'text-emerald-500' },
