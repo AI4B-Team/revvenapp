@@ -1861,7 +1861,7 @@ const EbookDesignSidebar = ({
                           onClick={() => toast.success('Audio added to canvas')}
                           className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all group"
                         >
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0">
                             <Play className="w-4 h-4 text-white" />
                           </div>
                           <div className="flex-1 text-left">
@@ -1929,7 +1929,7 @@ const EbookDesignSidebar = ({
                           onClick={() => toast.success('Audio added to canvas')}
                           className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all group"
                         >
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
                             <Music className="w-4 h-4 text-white" />
                           </div>
                           <div className="flex-1 text-left">
