@@ -196,12 +196,6 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     return holidays[key] ? [holidays[key]] : [];
   };
 
-  const viewModeButtons = [
-    { id: 'calendar' as ViewMode, icon: CalendarIcon, label: 'Calendar' },
-    { id: 'list' as ViewMode, icon: List, label: 'Plan' },
-    { id: 'kanban' as ViewMode, icon: Columns3, label: 'Kanban' },
-    { id: 'grid' as ViewMode, icon: LayoutGrid, label: 'Grid' },
-  ];
 
   // Render calendar cell content uniformly with animation
   const renderContentCard = (item: ContentItem, compact: boolean = true) => (
@@ -502,20 +496,50 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         <div className="flex items-center justify-between">
           {/* Left: View Mode Tabs */}
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            {viewModeButtons.map(({ id, icon: Icon, label }) => (
-              <button
-                key={id}
-                onClick={() => setViewMode(id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  viewMode === id 
-                    ? 'bg-emerald-500 text-white shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </button>
-            ))}
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                viewMode === 'calendar' 
+                  ? 'bg-emerald-500 text-white shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+              }`}
+            >
+              <CalendarIcon className="w-4 h-4" />
+              Calendar
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                viewMode === 'list' 
+                  ? 'bg-emerald-500 text-white shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+              }`}
+            >
+              <List className="w-4 h-4" />
+              Plan
+            </button>
+            <button
+              onClick={() => setViewMode('kanban')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                viewMode === 'kanban' 
+                  ? 'bg-emerald-500 text-white shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+              }`}
+            >
+              <Columns3 className="w-4 h-4" />
+              Kanban
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                viewMode === 'grid' 
+                  ? 'bg-emerald-500 text-white shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Grid
+            </button>
           </div>
 
           {/* Right: Actions */}
