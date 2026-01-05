@@ -496,34 +496,6 @@ export default function LoginPage() {
 
           {/* Login/Signup Form */}
           <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
-            {/* Profile Picture - Only for Sign Up */}
-            {isSignUp && (
-              <div className="flex flex-col items-center mb-2">
-                <div 
-                  className="relative cursor-pointer group"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Avatar className="w-20 h-20 border-2 border-gray-300 group-hover:border-green-500 transition-colors">
-                    <AvatarImage src={avatarPreview} alt="Profile" />
-                    <AvatarFallback className="bg-gray-100">
-                      <User className="w-10 h-10 text-gray-400" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute bottom-0 right-0 bg-green-600 rounded-full p-1.5 border-2 border-white">
-                    <Camera className="w-3 h-3 text-white" />
-                  </div>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  className="hidden"
-                />
-                <p className="text-xs text-gray-500 mt-2">Add profile picture (optional)</p>
-              </div>
-            )}
-
             {/* Full Name Input - Only for Sign Up */}
             {isSignUp && (
               <div>
