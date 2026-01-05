@@ -14,7 +14,7 @@ const showcaseSlides = [
     title: "Idea To Video In Seconds",
     description: "Stop waiting weeks for video content. Type your idea, and watch AI transform it into scroll-stopping videos that captivate your audience instantly.",
     features: ["Text-to-Video", "AI Scripts", "Auto Editing"],
-    bgColor: "bg-gradient-to-br from-violet-100 via-purple-50 to-fuchsia-100",
+    bgColor: "bg-violet-50",
     accentColor: "text-violet-700",
     pillBg: "bg-violet-200/60",
   },
@@ -22,7 +22,7 @@ const showcaseSlides = [
     title: "Create Digital Products",
     description: "Launch eBooks and courses in minutes, not months. AI writes, designs, and packages your expertise into products that sell while you sleep.",
     features: ["eBook Creator", "Course Builder", "Instant Design"],
-    bgColor: "bg-gradient-to-br from-rose-100 via-pink-50 to-red-100",
+    bgColor: "bg-rose-50",
     accentColor: "text-rose-700",
     pillBg: "bg-rose-200/60",
   },
@@ -30,7 +30,7 @@ const showcaseSlides = [
     title: "AI Music & Audio Studio",
     description: "Compose original soundtracks, jingles, and audio that's 100% yours. No licensing fees. No copyright strikes. Just pure creativity.",
     features: ["Music Generation", "Sound Effects", "Voice Cloning"],
-    bgColor: "bg-gradient-to-br from-cyan-100 via-teal-50 to-emerald-100",
+    bgColor: "bg-teal-50",
     accentColor: "text-teal-700",
     pillBg: "bg-teal-200/60",
   },
@@ -38,7 +38,7 @@ const showcaseSlides = [
     title: "Professional Video Editing",
     description: "Hollywood-level editing without the learning curve. AI handles the cuts, transitions, and effects—you just approve the magic.",
     features: ["Smart Cuts", "Auto Captions", "Effects Library"],
-    bgColor: "bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100",
+    bgColor: "bg-amber-50",
     accentColor: "text-amber-700",
     pillBg: "bg-amber-200/60",
   },
@@ -46,7 +46,7 @@ const showcaseSlides = [
     title: "Product Video Photoshoot",
     description: "Turn any product photo into a stunning video ad. No studio. No crew. No budget. Just upload and let AI create video magic.",
     features: ["Product Ads", "Lifestyle Shots", "Brand Videos"],
-    bgColor: "bg-gradient-to-br from-blue-100 via-indigo-50 to-sky-100",
+    bgColor: "bg-blue-50",
     accentColor: "text-blue-700",
     pillBg: "bg-blue-200/60",
   },
@@ -54,7 +54,7 @@ const showcaseSlides = [
     title: "AI Digital Characters",
     description: "Create lifelike AI influencers and spokespersons that work 24/7. Your brand's new face never takes a day off.",
     features: ["AI Avatars", "Voice Cloning", "Talking Photos"],
-    bgColor: "bg-gradient-to-br from-fuchsia-100 via-pink-50 to-purple-100",
+    bgColor: "bg-fuchsia-50",
     accentColor: "text-fuchsia-700",
     pillBg: "bg-fuchsia-200/60",
   },
@@ -62,7 +62,7 @@ const showcaseSlides = [
     title: "Build Apps In Minutes",
     description: "No coding required. Describe your dream app and watch AI build it before your eyes. From idea to launch in a single session.",
     features: ["No-Code Builder", "AI Development", "Instant Deploy"],
-    bgColor: "bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100",
+    bgColor: "bg-emerald-50",
     accentColor: "text-emerald-700",
     pillBg: "bg-emerald-200/60",
   },
@@ -70,7 +70,7 @@ const showcaseSlides = [
     title: "Custom Business CRM",
     description: "Manage leads, automate follow-ups, and close more deals. Your AI-powered command center for unstoppable business growth.",
     features: ["Lead Tracking", "Auto Follow-ups", "Smart Analytics"],
-    bgColor: "bg-gradient-to-br from-slate-100 via-gray-50 to-zinc-100",
+    bgColor: "bg-slate-100",
     accentColor: "text-slate-700",
     pillBg: "bg-slate-200/60",
   },
@@ -78,7 +78,7 @@ const showcaseSlides = [
     title: "Social Content Empire",
     description: "30 days of content in 30 seconds. AI creates, schedules, and posts across every platform. Dominate social while you focus on business.",
     features: ["Auto Scheduling", "Multi-Platform", "Viral Content"],
-    bgColor: "bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-100",
+    bgColor: "bg-sky-50",
     accentColor: "text-sky-700",
     pillBg: "bg-sky-200/60",
   },
@@ -86,7 +86,7 @@ const showcaseSlides = [
     title: "AI Image Generation",
     description: "Create stunning visuals that stop thumbs and turn heads. Professional-quality images for ads, posts, and products—generated in seconds.",
     features: ["Photo-Realistic", "Art Styles", "Brand Assets"],
-    bgColor: "bg-gradient-to-br from-indigo-100 via-violet-50 to-purple-100",
+    bgColor: "bg-indigo-50",
     accentColor: "text-indigo-700",
     pillBg: "bg-indigo-200/60",
   },
@@ -94,7 +94,7 @@ const showcaseSlides = [
     title: "Voice & Audio Magic",
     description: "Clone any voice. Generate voiceovers. Create podcasts. Your audio content game is about to become absolutely unstoppable.",
     features: ["Voice Cloning", "AI Voiceovers", "Podcast Creation"],
-    bgColor: "bg-gradient-to-br from-red-100 via-rose-50 to-pink-100",
+    bgColor: "bg-red-50",
     accentColor: "text-red-700",
     pillBg: "bg-red-200/60",
   },
@@ -102,7 +102,7 @@ const showcaseSlides = [
     title: "Video Translation",
     description: "Reach the world in 90+ languages. AI translates your videos with perfect lip-sync—your content, every language, zero barriers.",
     features: ["90+ Languages", "Lip-Sync", "Voice Matching"],
-    bgColor: "bg-gradient-to-br from-lime-100 via-green-50 to-emerald-100",
+    bgColor: "bg-lime-50",
     accentColor: "text-lime-700",
     pillBg: "bg-lime-200/60",
   },
@@ -565,7 +565,7 @@ export default function LoginPage() {
             {/* Forgot Password - Only for Sign In */}
             {!isSignUp && (
               <div className="flex justify-end">
-                <a href="#" className="text-sm text-green-600 hover:text-green-700">
+                <a href="#" className="text-sm text-brand-green hover:opacity-80">
                   Forgot Password?
                 </a>
               </div>
@@ -574,7 +574,7 @@ export default function LoginPage() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium"
+              className="w-full h-12 bg-brand-green hover:opacity-90 text-white font-medium rounded-xl"
               disabled={isLoading}
             >
               {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
@@ -624,7 +624,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setIsSignUp(!isSignUp)}
-                className="text-green-600 hover:text-green-700 font-medium"
+                className="text-brand-green hover:opacity-80 font-medium"
               >
                 {isSignUp ? 'Sign In' : 'Create Your Account'}
               </button>
@@ -637,7 +637,7 @@ export default function LoginPage() {
                 to="/terms-of-service" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-green-600 hover:text-green-700 underline"
+                className="text-brand-green hover:opacity-80 underline"
               >
                 Terms of Service
               </Link>
@@ -646,7 +646,7 @@ export default function LoginPage() {
                 to="/privacy-policy" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-green-600 hover:text-green-700 underline"
+                className="text-brand-green hover:opacity-80 underline"
               >
                 Privacy Policy
               </Link>
