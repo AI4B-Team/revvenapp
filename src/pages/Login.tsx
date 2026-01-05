@@ -8,31 +8,103 @@ import { Session } from '@supabase/supabase-js';
 import { Camera, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Showcase slides data
+// Showcase slides data - Pastel color backgrounds with hypnotic copy
 const showcaseSlides = [
   {
-    title: "AI-Powered Content Creation",
-    description: "Generate stunning images, videos, and copy in seconds. Let AI handle the creative heavy lifting while you focus on strategy.",
-    features: ["Image Generation", "Video Creation", "Copywriting"],
-    gradient: "from-emerald-500 to-teal-600",
+    title: "Idea To Video In Seconds",
+    description: "Stop waiting weeks for video content. Type your idea, and watch AI transform it into scroll-stopping videos that captivate your audience instantly.",
+    features: ["Text-to-Video", "AI Scripts", "Auto Editing"],
+    bgColor: "bg-gradient-to-br from-violet-100 via-purple-50 to-fuchsia-100",
+    accentColor: "text-violet-700",
+    pillBg: "bg-violet-200/60",
   },
   {
-    title: "Smart Social Scheduling",
-    description: "Plan, schedule, and auto-post across all platforms. Your content goes live even while you sleep.",
-    features: ["Multi-Platform", "Auto-Posting", "Analytics"],
-    gradient: "from-blue-500 to-indigo-600",
+    title: "Create Digital Products",
+    description: "Launch eBooks and courses in minutes, not months. AI writes, designs, and packages your expertise into products that sell while you sleep.",
+    features: ["eBook Creator", "Course Builder", "Instant Design"],
+    bgColor: "bg-gradient-to-br from-rose-100 via-pink-50 to-red-100",
+    accentColor: "text-rose-700",
+    pillBg: "bg-rose-200/60",
+  },
+  {
+    title: "AI Music & Audio Studio",
+    description: "Compose original soundtracks, jingles, and audio that's 100% yours. No licensing fees. No copyright strikes. Just pure creativity.",
+    features: ["Music Generation", "Sound Effects", "Voice Cloning"],
+    bgColor: "bg-gradient-to-br from-cyan-100 via-teal-50 to-emerald-100",
+    accentColor: "text-teal-700",
+    pillBg: "bg-teal-200/60",
+  },
+  {
+    title: "Professional Video Editing",
+    description: "Hollywood-level editing without the learning curve. AI handles the cuts, transitions, and effects—you just approve the magic.",
+    features: ["Smart Cuts", "Auto Captions", "Effects Library"],
+    bgColor: "bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100",
+    accentColor: "text-amber-700",
+    pillBg: "bg-amber-200/60",
+  },
+  {
+    title: "Product Video Photoshoot",
+    description: "Turn any product photo into a stunning video ad. No studio. No crew. No budget. Just upload and let AI create video magic.",
+    features: ["Product Ads", "Lifestyle Shots", "Brand Videos"],
+    bgColor: "bg-gradient-to-br from-blue-100 via-indigo-50 to-sky-100",
+    accentColor: "text-blue-700",
+    pillBg: "bg-blue-200/60",
   },
   {
     title: "AI Digital Characters",
-    description: "Create lifelike AI avatars and influencers that represent your brand 24/7 with consistent messaging.",
-    features: ["Custom Avatars", "Voice Cloning", "Personality AI"],
-    gradient: "from-purple-500 to-pink-600",
+    description: "Create lifelike AI influencers and spokespersons that work 24/7. Your brand's new face never takes a day off.",
+    features: ["AI Avatars", "Voice Cloning", "Talking Photos"],
+    bgColor: "bg-gradient-to-br from-fuchsia-100 via-pink-50 to-purple-100",
+    accentColor: "text-fuchsia-700",
+    pillBg: "bg-fuchsia-200/60",
   },
   {
-    title: "Automated Engagement",
-    description: "Reply to comments, DMs, and mentions automatically with AI that sounds just like you.",
-    features: ["Auto-Reply", "Smart Responses", "24/7 Active"],
-    gradient: "from-orange-500 to-red-600",
+    title: "Build Apps In Minutes",
+    description: "No coding required. Describe your dream app and watch AI build it before your eyes. From idea to launch in a single session.",
+    features: ["No-Code Builder", "AI Development", "Instant Deploy"],
+    bgColor: "bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100",
+    accentColor: "text-emerald-700",
+    pillBg: "bg-emerald-200/60",
+  },
+  {
+    title: "Custom Business CRM",
+    description: "Manage leads, automate follow-ups, and close more deals. Your AI-powered command center for unstoppable business growth.",
+    features: ["Lead Tracking", "Auto Follow-ups", "Smart Analytics"],
+    bgColor: "bg-gradient-to-br from-slate-100 via-gray-50 to-zinc-100",
+    accentColor: "text-slate-700",
+    pillBg: "bg-slate-200/60",
+  },
+  {
+    title: "Social Content Empire",
+    description: "30 days of content in 30 minutes. AI creates, schedules, and posts across every platform. Dominate social while you focus on business.",
+    features: ["Auto Scheduling", "Multi-Platform", "Viral Content"],
+    bgColor: "bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-100",
+    accentColor: "text-sky-700",
+    pillBg: "bg-sky-200/60",
+  },
+  {
+    title: "AI Image Generation",
+    description: "Create stunning visuals that stop thumbs and turn heads. Professional-quality images for ads, posts, and products—generated in seconds.",
+    features: ["Photo-Realistic", "Art Styles", "Brand Assets"],
+    bgColor: "bg-gradient-to-br from-indigo-100 via-violet-50 to-purple-100",
+    accentColor: "text-indigo-700",
+    pillBg: "bg-indigo-200/60",
+  },
+  {
+    title: "Voice & Audio Magic",
+    description: "Clone any voice. Generate voiceovers. Create podcasts. Your audio content game is about to become absolutely unstoppable.",
+    features: ["Voice Cloning", "AI Voiceovers", "Podcast Creation"],
+    bgColor: "bg-gradient-to-br from-red-100 via-rose-50 to-pink-100",
+    accentColor: "text-red-700",
+    pillBg: "bg-red-200/60",
+  },
+  {
+    title: "Video Translation",
+    description: "Reach the world in 90+ languages. AI translates your videos with perfect lip-sync—your content, every language, zero barriers.",
+    features: ["90+ Languages", "Lip-Sync", "Voice Matching"],
+    bgColor: "bg-gradient-to-br from-lime-100 via-green-50 to-emerald-100",
+    accentColor: "text-lime-700",
+    pillBg: "bg-lime-200/60",
   },
 ];
 
@@ -295,18 +367,18 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Auto-Sliding Showcase */}
-      <div className={`hidden lg:flex flex-1 bg-gradient-to-br ${showcaseSlides[currentSlide].gradient} p-12 flex-col justify-center relative overflow-hidden transition-all duration-700`}>
+      {/* Left Side - Auto-Sliding Showcase with Pastel Backgrounds */}
+      <div className={`hidden lg:flex flex-1 ${showcaseSlides[currentSlide].bgColor} p-12 flex-col justify-center relative overflow-hidden transition-all duration-700`}>
         {/* Slide Content */}
         <div className="max-w-xl relative z-10">
           <div className="mb-8">
-            <span className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6">
-              ✨ Powered by AI
+            <span className={`inline-block px-4 py-1.5 ${showcaseSlides[currentSlide].pillBg} backdrop-blur-sm rounded-full ${showcaseSlides[currentSlide].accentColor} text-sm font-medium mb-6`}>
+              ✨ Powered By AI
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight transition-all duration-500">
+            <h2 className={`text-4xl md:text-5xl font-bold ${showcaseSlides[currentSlide].accentColor} mb-4 leading-tight transition-all duration-500`}>
               {showcaseSlides[currentSlide].title}
             </h2>
-            <p className="text-white/90 text-lg leading-relaxed transition-all duration-500">
+            <p className="text-gray-700 text-lg leading-relaxed transition-all duration-500">
               {showcaseSlides[currentSlide].description}
             </p>
           </div>
@@ -316,7 +388,7 @@ export default function LoginPage() {
             {showcaseSlides[currentSlide].features.map((feature, idx) => (
               <span 
                 key={idx}
-                className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium"
+                className={`px-4 py-2 ${showcaseSlides[currentSlide].pillBg} backdrop-blur-sm rounded-full ${showcaseSlides[currentSlide].accentColor} text-sm font-medium`}
               >
                 {feature}
               </span>
@@ -331,8 +403,8 @@ export default function LoginPage() {
                 onClick={() => setCurrentSlide(idx)}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   idx === currentSlide 
-                    ? 'w-8 bg-white' 
-                    : 'w-2 bg-white/40 hover:bg-white/60'
+                    ? `w-8 ${showcaseSlides[currentSlide].accentColor.replace('text-', 'bg-').replace('-700', '-500')}` 
+                    : 'w-2 bg-gray-300 hover:bg-gray-400'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
@@ -341,9 +413,9 @@ export default function LoginPage() {
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute top-20 right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute top-1/2 right-10 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
+        <div className="absolute top-20 right-20 w-64 h-64 bg-white/40 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-10 w-48 h-48 bg-white/30 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 right-10 w-32 h-32 bg-white/20 rounded-full blur-xl"></div>
       </div>
 
       {/* Right Side - Login Form */}
