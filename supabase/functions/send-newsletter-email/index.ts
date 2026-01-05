@@ -29,12 +29,32 @@ serve(async (req) => {
     
     console.log(`Sending ${type || 'subscribe'} request for ${email} via n8n webhook`);
 
-    // Send to n8n webhook
+    // For unsubscribe, fire and forget - don't wait for response
+    if (type === 'unsubscribe') {
+      // Fire and forget - don't await
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          name: name || '',
+          type: 'unsubscribe',
+          timestamp: new Date().toISOString(),
+          source: 'revven-newsletter',
+        }),
+      }).then(res => console.log('Unsubscribe webhook completed:', res.status))
+        .catch(err => console.error('Unsubscribe webhook error:', err));
+
+      return new Response(
+        JSON.stringify({ success: true, message: 'Unsubscribe request submitted' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // For subscribe, wait for response
     const response = await fetch(webhookUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email,
         name: name || '',
