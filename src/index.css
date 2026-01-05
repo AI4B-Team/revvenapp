@@ -66,6 +66,14 @@ All colors MUST be HSL.
     --pill-orange-text: 30 80% 45%;
     --pill-green: 142 70% 92%;
     --pill-green-text: 142 70% 35%;
+    --pill-purple: 271 76% 94%;
+    --pill-purple-text: 271 76% 50%;
+    --pill-cyan: 190 85% 94%;
+    --pill-cyan-text: 190 85% 38%;
+    --pill-amber: 45 100% 94%;
+    --pill-amber-text: 45 93% 40%;
+    --pill-red: 0 84% 94%;
+    --pill-red-text: 0 84% 50%;
     --pill-gray: 220 13% 95%;
     --pill-gray-text: 220 9% 40%;
   }
@@ -98,6 +106,24 @@ All colors MUST be HSL.
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 153 47% 49%;
+
+    /* Prompt box pill button colors (dark mode) */
+    --pill-blue: 210 55% 20%;
+    --pill-blue-text: 210 90% 75%;
+    --pill-orange: 30 55% 20%;
+    --pill-orange-text: 30 90% 75%;
+    --pill-green: 142 45% 20%;
+    --pill-green-text: 142 80% 72%;
+    --pill-purple: 271 45% 22%;
+    --pill-purple-text: 271 90% 78%;
+    --pill-cyan: 190 45% 20%;
+    --pill-cyan-text: 190 90% 78%;
+    --pill-amber: 45 55% 20%;
+    --pill-amber-text: 45 90% 78%;
+    --pill-red: 0 50% 20%;
+    --pill-red-text: 0 90% 78%;
+    --pill-gray: 217 33% 17%;
+    --pill-gray-text: 215 20% 75%;
 
     /* Sidebar colors - same in dark mode */
     --sidebar-background: 215 28% 17%;
