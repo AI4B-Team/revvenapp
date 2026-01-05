@@ -778,6 +778,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [externalPrompt, externalAnimateMode, selectedAnimateMode, isVideoMode, onExternalPromptUsed]);
 
+  // Auto-set model to "auto" when Image mode "Create" is selected
+  useEffect(() => {
+    if (!isVideoMode && !isAudioMode && !isDesignMode && !isContentMode && !isAppsMode && !isDocumentMode) {
+      // We're in Image mode
+      if (selectedCreateMode === 'Create') {
+        setSelectedModel('auto');
+      }
+    }
+  }, [selectedCreateMode, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
+
   // Delete cloned voice handler
   const handleDeleteClonedVoice = async (voiceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -3339,7 +3349,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   };
   
   return (
-    <div className="mx-auto mb-12 transition-all duration-300" style={{ width: promptWidth ?? DEFAULT_PROMPT_WIDTH, maxWidth: '90vw' }}>
+    <div className="mx-auto mb-12 transition-all duration-300 w-full" style={{ maxWidth: 'calc(100% - 2rem)' }}>
       <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg">
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">
@@ -6559,9 +6569,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
                     <button className={`p-2.5 rounded-full transition ${
-                      selectedModel !== 'auto' 
+                      selectedModel === 'auto' && selectedCreateMode === 'Create'
                         ? 'bg-emerald-100 text-emerald-600' 
-                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                        : selectedModel !== 'auto' 
+                          ? 'bg-emerald-100 text-emerald-600' 
+                          : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
                     }`}>
                       <Box size={18} />
                     </button>
@@ -7354,6 +7366,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </div>
               </PopoverContent>
             </Popover>
+            
+            {/* Mic Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2.5 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition">
+                  <Mic size={18} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Voice Input</TooltipContent>
+            </Tooltip>
+            
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
