@@ -225,7 +225,7 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
       
       {/* Prompt Input Box */}
       <div className="relative w-fit max-w-full mx-auto">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-fit max-w-full min-w-[340px] sm:min-w-[520px] md:min-w-[50rem]">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-full min-w-[900px]">
           {/* Left side icons - only shown when an option is selected */}
           {selectedOption && (
             <div className="flex flex-col gap-1 absolute left-4 top-4">
@@ -262,7 +262,7 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
           </div>
 
           {/* Bottom bar */}
-          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-wrap min-w-0">
+          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-nowrap min-w-0">
             {/* Left side controls */}
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Auto dropdown - always visible when intent is selected */}
