@@ -433,6 +433,39 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          status: string
+          subscribed_at: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       posting_schedules: {
         Row: {
           account_id: string | null
