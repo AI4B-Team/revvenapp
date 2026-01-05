@@ -514,6 +514,13 @@ const Create = () => {
       emoji: '📚',
       onClick: () => navigate('/ebook-creator')
     },
+    { 
+      name: 'Newsletter', 
+      description: 'Build & manage email newsletters',
+      bgColor: 'bg-tool-pink',
+      emoji: '📰',
+      onClick: () => navigate('/newsletter')
+    },
   ];
 
   const appTools = [
