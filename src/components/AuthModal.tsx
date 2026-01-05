@@ -37,14 +37,14 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           <div className="flex flex-col w-full gap-3 pt-4">
             <Button 
               onClick={handleSignUp} 
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-3 text-base rounded-full"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-3 text-base rounded-xl"
             >
               Sign Up For Free
             </Button>
             <Button 
               onClick={handleSignIn} 
               variant="outline" 
-              className="w-full bg-white hover:bg-slate-50 text-slate-700 font-medium py-3 text-base border-slate-200 rounded-full"
+              className="w-full bg-white hover:bg-slate-50 text-slate-700 font-medium py-3 text-base border-slate-200 rounded-xl"
             >
               Login
             </Button>
