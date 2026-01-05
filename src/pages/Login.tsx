@@ -188,8 +188,8 @@ const showcaseSlides = [
   },
   {
     title: "And So Much More...",
-    description: "Voice cloning, AI dubbing, image upscaling, background removal, transcription, translations, CRM, email automation, affiliate programs—everything you need to dominate.",
-    features: ["50+ AI Tools", "Unlimited Potential", "Always Evolving"],
+    description: "Clone yourself with AI avatars. Build entire agencies on autopilot. Scale to 7 figures without hiring. This isn't just a tool—it's an unfair advantage.",
+    features: ["Replace Entire Teams", "Scale Without Limits", "Unfair Advantage"],
     bgColor: "bg-gradient-to-br from-brand-green/10 to-emerald-50",
     accentColor: "text-brand-green",
     pillBg: "bg-brand-green/20",
