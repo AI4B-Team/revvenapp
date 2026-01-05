@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Link, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, Mic2, PenTool } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Link, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, Mic2, PenTool, Check } from 'lucide-react';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
@@ -129,7 +129,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
     setPrompt(transcript);
   }, []);
 
-  const { isListening, isSupported, startListening, stopListening } = useSpeechRecognition({
+  const { isListening, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition({
     onResult: handleTranscriptResult,
   });
 
@@ -312,12 +312,24 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
               )}
               {isSupported && (
                 isListening ? (
-                  /* Audio waveform replaces mic button when recording */
-                  <button 
-                    onClick={handleMicClick}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded-lg transition-colors hover:bg-red-100"
-                  >
-                    <div className="flex items-center gap-[2px]">
+                  /* Audio waveform with approve/cancel buttons when recording */
+                  <div className="flex items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => {
+                            stopListening();
+                            resetTranscript();
+                            setPrompt('');
+                          }}
+                          className="p-1.5 rounded-lg transition-colors bg-red-50 hover:bg-red-100"
+                        >
+                          <X size={16} className="text-red-500" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Cancel</TooltipContent>
+                    </Tooltip>
+                    <div className="flex items-center gap-[2px] px-2">
                       {[...Array(12)].map((_, i) => (
                         <div
                           key={i}
@@ -330,8 +342,18 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                         />
                       ))}
                     </div>
-                    <X size={14} className="text-red-500 ml-1" />
-                  </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleMicClick}
+                          className="p-1.5 rounded-lg transition-colors bg-green-50 hover:bg-green-100"
+                        >
+                          <Check size={16} className="text-green-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Done</TooltipContent>
+                    </Tooltip>
+                  </div>
                 ) : (
                   <Tooltip>
                     <TooltipTrigger asChild>
