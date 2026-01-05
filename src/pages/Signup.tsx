@@ -307,9 +307,9 @@ export default function SignupPage() {
           {step === 'form' && (
             <div>
               <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your Account</h1>
                 <p className="text-gray-600">
-                  Start automating your business in under 3 minutes
+                  Start Automating Your Business In Under 3 Minutes
                 </p>
               </div>
 
