@@ -108,7 +108,7 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl py-2 z-[999]">
+          <div className="fixed mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl py-2 z-[9999]" style={{ top: dropdownRef.current?.getBoundingClientRect().bottom, left: dropdownRef.current?.getBoundingClientRect().left }}>
             {options.map((option) => (
               <button
                 type="button"
@@ -149,7 +149,7 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl py-2 z-[999]">
+        <div className="fixed mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl py-2 z-[9999]" style={{ top: dropdownRef.current?.getBoundingClientRect().bottom, left: dropdownRef.current?.getBoundingClientRect().left }}>
           {options.map((option) => (
             <button
               type="button"
