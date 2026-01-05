@@ -1,13 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Session } from '@supabase/supabase-js';
 import { Camera, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+// Showcase slides data
+const showcaseSlides = [
+  {
+    title: "AI-Powered Content Creation",
+    description: "Generate stunning images, videos, and copy in seconds. Let AI handle the creative heavy lifting while you focus on strategy.",
+    features: ["Image Generation", "Video Creation", "Copywriting"],
+    gradient: "from-emerald-500 to-teal-600",
+  },
+  {
+    title: "Smart Social Scheduling",
+    description: "Plan, schedule, and auto-post across all platforms. Your content goes live even while you sleep.",
+    features: ["Multi-Platform", "Auto-Posting", "Analytics"],
+    gradient: "from-blue-500 to-indigo-600",
+  },
+  {
+    title: "AI Digital Characters",
+    description: "Create lifelike AI avatars and influencers that represent your brand 24/7 with consistent messaging.",
+    features: ["Custom Avatars", "Voice Cloning", "Personality AI"],
+    gradient: "from-purple-500 to-pink-600",
+  },
+  {
+    title: "Automated Engagement",
+    description: "Reply to comments, DMs, and mentions automatically with AI that sounds just like you.",
+    features: ["Auto-Reply", "Smart Responses", "24/7 Active"],
+    gradient: "from-orange-500 to-red-600",
+  },
+];
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -255,87 +282,68 @@ export default function LoginPage() {
     }
   };
 
+  // Auto-sliding carousel state
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-advance slides
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % showcaseSlides.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Green Gradient */}
-      <div className="flex-1 bg-gradient-to-br from-green-600 via-emerald-500 to-green-700 p-12 flex flex-col justify-center relative overflow-hidden">
-        {/* Main Content */}
-        <div className="max-w-xl">
-          <h2 className="text-5xl font-bold text-white mb-4 leading-tight">
-            Let REVVEN Run Your Business While You Sleep
-          </h2>
-          <h3 className="text-2xl font-semibold text-green-100 mb-6 whitespace-nowrap">
-            Your 24/7 AI Engine For Content, Connection & Growth
-          </h3>
-          <p className="text-green-50 text-lg mb-12 leading-relaxed">
-            Automate your entire business with intelligent AI that never clocks out. 
-            Write, design, post, and reply in seconds while your business grows on autopilot.
-          </p>
+      {/* Left Side - Auto-Sliding Showcase */}
+      <div className={`hidden lg:flex flex-1 bg-gradient-to-br ${showcaseSlides[currentSlide].gradient} p-12 flex-col justify-center relative overflow-hidden transition-all duration-700`}>
+        {/* Slide Content */}
+        <div className="max-w-xl relative z-10">
+          <div className="mb-8">
+            <span className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6">
+              ✨ Powered by AI
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight transition-all duration-500">
+              {showcaseSlides[currentSlide].title}
+            </h2>
+            <p className="text-white/90 text-lg leading-relaxed transition-all duration-500">
+              {showcaseSlides[currentSlide].description}
+            </p>
+          </div>
 
-          {/* Feature Cards */}
-          <div className="space-y-4">
-            <Card className="bg-white p-4 rounded-xl shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl">💰</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    Create Digital Products With AI
-                  </h3>
-                  <p className="text-gray-600 text-xs">
-                    Create eBooks, guides, and offers ready to sell 24/7.
-                  </p>
-                </div>
-              </div>
-            </Card>
+          {/* Feature Pills */}
+          <div className="flex flex-wrap gap-3 mb-12">
+            {showcaseSlides[currentSlide].features.map((feature, idx) => (
+              <span 
+                key={idx}
+                className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium"
+              >
+                {feature}
+              </span>
+            ))}
+          </div>
 
-            <Card className="bg-white p-4 rounded-xl shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl">💡</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    Create Social Content
-                  </h3>
-                  <p className="text-gray-600 text-xs">
-                    Turn ideas into scroll-stopping posts, videos, and carousels in seconds.
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-white p-4 rounded-xl shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl">🚀</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    Post Social Content
-                  </h3>
-                  <p className="text-gray-600 text-xs">
-                    Schedule and publish automatically across every platform for nonstop visibility.
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-white p-4 rounded-xl shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl">💬</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    Reply To Comments, DMs & Stories
-                  </h3>
-                  <p className="text-gray-600 text-xs">
-                    Keep your followers engaged with instant AI replies that sound like you.
-                  </p>
-                </div>
-              </div>
-            </Card>
+          {/* Slide Indicators */}
+          <div className="flex items-center gap-2">
+            {showcaseSlides.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  idx === currentSlide 
+                    ? 'w-8 bg-white' 
+                    : 'w-2 bg-white/40 hover:bg-white/60'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
           </div>
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute bottom-0 right-0 w-96 h-96 opacity-10">
-          <div className="absolute inset-0 bg-white rounded-full blur-3xl"></div>
-        </div>
+        <div className="absolute top-20 right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 right-10 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
       </div>
 
       {/* Right Side - Login Form */}
@@ -538,6 +546,29 @@ export default function LoginPage() {
                 {isSignUp ? 'Sign In' : 'Create Your Account'}
               </button>
             </div>
+
+            {/* Terms & Privacy */}
+            <p className="text-center text-xs text-gray-500 mt-6">
+              By continuing, you agree to our{' '}
+              <Link 
+                to="/terms-of-service" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-green-600 hover:text-green-700 underline"
+              >
+                Terms of Service
+              </Link>
+              {' & '}
+              <Link 
+                to="/privacy-policy" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-green-600 hover:text-green-700 underline"
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
           </form>
         </div>
       </div>
