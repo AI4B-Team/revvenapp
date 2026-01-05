@@ -209,7 +209,7 @@ export default function AuthShowcase() {
   const currentSlideData = showcaseSlides[currentSlide];
 
   return (
-    <div className={`hidden lg:flex flex-1 ${currentSlideData.bgColor} p-12 flex-col justify-center relative overflow-hidden transition-colors duration-700 min-h-screen`}>
+    <div className={`hidden lg:flex flex-1 h-full min-h-0 ${currentSlideData.bgColor} p-12 flex-col justify-center relative overflow-hidden transition-colors duration-700`}>
       {/* Slide Content - Fixed height container to prevent layout shifts */}
       <div className="max-w-xl relative z-10 h-[400px] flex flex-col justify-center">
         <div className="mb-8">
