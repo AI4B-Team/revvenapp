@@ -195,7 +195,7 @@ export default function RevvenLandingPage() {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button 
                   className="bg-brand-green hover:bg-brand-green/90 text-white rounded-full px-6"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/signup')}
                 >
                   Start Free
                 </Button>
