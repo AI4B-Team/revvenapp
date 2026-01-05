@@ -263,13 +263,6 @@ export default function LoginPage() {
       <div className="flex-1 min-h-0 bg-white p-8 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center">
           <div className="w-full max-w-md">
-          {/* Logo */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2.5 justify-center">
-              <RevvenLogo size={40} />
-              <span className="text-2xl font-bold text-gray-900 tracking-tight">REVVEN</span>
-            </div>
-          </div>
 
           {/* Login / Sign Up Toggle Tabs */}
           <div className="mb-8">
