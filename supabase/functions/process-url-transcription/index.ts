@@ -252,11 +252,13 @@ serve(async (req) => {
         console.log(`[BG-TRANSCRIBE] ✅ Successfully completed processing for record ${recordId}`);
 
       } catch (error) {
-        console.error(`[BG-TRANSCRIBE] ❌ Error processing record ${recordId}:`, error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        console.error(`[BG-TRANSCRIBE] ❌ Error processing record ${recordId}:`, errorMessage);
         
-        // Update record with error status
+        // Update record with error status and store error message in prompt field for debugging
         await supabase.from('user_voices').update({
           status: 'error',
+          prompt: `Error: ${errorMessage}`,
         }).eq('id', recordId);
       }
     };
