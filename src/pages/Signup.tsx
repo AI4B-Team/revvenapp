@@ -283,13 +283,6 @@ export default function SignupPage() {
       <div className="flex-1 min-h-0 bg-white p-8 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center">
           <div className="w-full max-w-md">
-          {/* Logo (mobile only) */}
-          <div className="lg:hidden mb-8">
-            <div className="flex items-center gap-2.5 justify-center">
-              <RevvenLogo size={32} />
-              <span className="text-xl font-bold text-gray-900 tracking-tight">REVVEN</span>
-            </div>
-          </div>
 
           {/* Step 1: Signup Form */}
           {step === 'form' && (

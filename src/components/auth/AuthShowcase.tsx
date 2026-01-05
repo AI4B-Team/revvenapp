@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Pause, Play } from 'lucide-react';
+import RevvenLogo from '@/components/RevvenLogo';
 
 // Showcase slides data - Logical flow: Content Creation → Social Automation → Business Tools → Scale
 export const showcaseSlides = [
@@ -209,9 +210,15 @@ export default function AuthShowcase() {
   const currentSlideData = showcaseSlides[currentSlide];
 
   return (
-    <div className={`hidden lg:flex flex-1 h-full min-h-0 ${currentSlideData.bgColor} p-12 flex-col justify-center relative overflow-hidden transition-colors duration-700`}>
+    <div className={`hidden lg:flex flex-1 h-full min-h-0 ${currentSlideData.bgColor} p-12 flex-col relative overflow-hidden transition-colors duration-700`}>
+      {/* Logo at top left */}
+      <div className="flex items-center gap-2.5 mb-8">
+        <RevvenLogo size={40} />
+        <span className="text-2xl font-bold text-gray-900 tracking-tight">REVVEN</span>
+      </div>
+
       {/* Slide Content - Fixed height container to prevent layout shifts */}
-      <div className="max-w-xl relative z-10 h-[400px] flex flex-col justify-center">
+      <div className="max-w-xl relative z-10 h-[400px] flex flex-col justify-center flex-1">
         <div className="mb-8">
           <span className={`inline-block px-4 py-1.5 ${currentSlideData.pillBg} backdrop-blur-sm rounded-full ${currentSlideData.accentColor} text-sm font-medium mb-6`}>
             ✨ Powered By AI
@@ -238,7 +245,7 @@ export default function AuthShowcase() {
       </div>
 
       {/* Slide Navigation */}
-      <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between z-10">
+      <div className="absolute bottom-12 left-12 right-12 flex items-center z-10">
         <div className="flex items-center gap-3">
           {/* Progress dots */}
           <div className="flex gap-1.5">
@@ -262,11 +269,6 @@ export default function AuthShowcase() {
             {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
           </button>
         </div>
-        
-        {/* Slide counter */}
-        <span className={`text-sm font-medium ${currentSlideData.accentColor}`}>
-          {currentSlide + 1} / {showcaseSlides.length}
-        </span>
       </div>
 
       {/* Subtle animated background elements */}
