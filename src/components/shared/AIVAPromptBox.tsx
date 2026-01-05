@@ -262,7 +262,7 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
           </div>
 
           {/* Bottom bar */}
-          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-nowrap whitespace-nowrap min-w-0">
+          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-wrap min-w-0">
             {/* Left side controls */}
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Auto dropdown - always visible when intent is selected */}
@@ -340,7 +340,7 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
             </div>
 
             {/* Right side controls */}
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto pl-6">
+            <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto">
               {prompt.trim() && (
                 <Tooltip>
                   <TooltipTrigger asChild>
