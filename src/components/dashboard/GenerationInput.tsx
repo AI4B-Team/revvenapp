@@ -6569,7 +6569,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`px-3 py-1.5 rounded-full transition flex items-center gap-2 text-sm font-medium ${
+                    <button className={`px-3 py-1.5 rounded-lg transition flex items-center gap-2 text-sm font-medium ${
                       selectedModel === 'auto' && selectedCreateMode === 'Create'
                         ? 'bg-emerald-100 text-emerald-600' 
                         : selectedModel !== 'auto' 
