@@ -280,11 +280,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   const createModes = [
-    { value: 'Create', label: 'Create', icon: Sparkles, color: 'text-amber-500' },
-    { value: 'Batch', label: 'Batch', icon: Layers, color: 'text-purple-500' },
-    { value: 'Draw', label: 'Draw', icon: Pencil, color: 'text-orange-500' },
-    { value: 'Swap', label: 'Swap', icon: RefreshCw, color: 'text-blue-500' },
-    { value: 'Photoshoot', label: 'Photoshoot', icon: Image, color: 'text-pink-500' },
+    { value: 'Create', label: 'Create', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-100' },
+    { value: 'Batch', label: 'Batch', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-100' },
+    { value: 'Draw', label: 'Draw', icon: Pencil, color: 'text-orange-500', bg: 'bg-orange-100' },
+    { value: 'Swap', label: 'Swap', icon: RefreshCw, color: 'text-blue-500', bg: 'bg-blue-100' },
+    { value: 'Photoshoot', label: 'Photoshoot', icon: Image, color: 'text-red-500', bg: 'bg-red-100' },
   ];
   
   const audioModes = [
@@ -6501,33 +6501,41 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown - shows selected mode or "Type" */}
                 <Popover open={isCreateModeDropdownOpen} onOpenChange={setIsCreateModeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-slate-100 hover:bg-slate-200 text-slate-600">
-                      {selectedCreateMode === 'Create' ? (
-                        <>
-                          <LayoutGrid size={16} className="text-slate-500" />
-                          <span>Type</span>
-                        </>
-                      ) : (
-                        <>
-                          {(() => {
-                            const mode = createModes.find(m => m.value === selectedCreateMode);
-                            const IconComponent = mode?.icon || Sparkles;
-                            const iconColor = mode?.color || '';
-                            return <IconComponent size={16} className={iconColor} />;
-                          })()}
-                          <span>{selectedCreateMode}</span>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCreateMode('Create');
-                            }}
-                            className="ml-1 p-0.5 hover:bg-slate-300 rounded"
-                          >
-                            <X size={12} className="text-slate-500" />
-                          </button>
-                        </>
-                      )}
-                    </button>
+                    {(() => {
+                      const mode = createModes.find(m => m.value === selectedCreateMode);
+                      const isTypeSelected = selectedCreateMode !== 'Create';
+                      return (
+                        <button className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                          isTypeSelected 
+                            ? `${mode?.bg || 'bg-slate-100'} ${mode?.color || 'text-slate-600'}` 
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                        }`}>
+                          {isTypeSelected ? (
+                            <>
+                              {(() => {
+                                const IconComponent = mode?.icon || Sparkles;
+                                return <IconComponent size={16} />;
+                              })()}
+                              <span>{selectedCreateMode}</span>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedCreateMode('Create');
+                                }}
+                                className="ml-1 p-0.5 hover:opacity-70 rounded"
+                              >
+                                <X size={12} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <LayoutGrid size={16} className="text-slate-500" />
+                              <span>Type</span>
+                            </>
+                          )}
+                        </button>
+                      );
+                    })()}
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-3 bg-background border-border z-50" align="start">
                     <div className="grid grid-cols-4 gap-2">
@@ -6553,8 +6561,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                {/* Vertical separator */}
-                <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+                {/* Only show separator and other buttons when a type is selected */}
+                {selectedCreateMode !== 'Create' && (
+                  <>
+                    {/* Vertical separator */}
+                    <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
             {/* Model Dropdown - Show "11 Labs" static pill in Transcribe mode */}
             {isAudioMode && selectedAudioMode === 'Transcribe' ? (
@@ -7308,6 +7319,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </div>
               </PopoverContent>
               </Popover>
+                  </>
+                )}
               </>
             )}
           </div>
