@@ -1,15 +1,37 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import RevvenLogo from '@/components/RevvenLogo';
 import AIVAPromptBox from '@/components/shared/AIVAPromptBox';
 import AuthModal from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 const LandingNew = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleGenerate = () => {
-    setShowAuthModal(true);
+    if (user) {
+      navigate('/create');
+    } else {
+      setShowAuthModal(true);
+    }
   };
 
   return (
@@ -23,16 +45,26 @@ const LandingNew = () => {
         
         {/* Right side buttons */}
         <div className="flex items-center gap-3">
-          <Link to="/login">
-            <Button variant="ghost" size="sm" className="text-slate-600 font-medium">
-              Login
-            </Button>
-          </Link>
-          <Link to="/signup">
-            <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-4">
-              Start Free
-            </Button>
-          </Link>
+          {user ? (
+            <Link to="/create">
+              <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-4">
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="text-slate-600 font-medium">
+                  Login
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-4">
+                  Start Free
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
