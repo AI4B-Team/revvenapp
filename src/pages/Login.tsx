@@ -260,12 +260,10 @@ export default function LoginPage() {
       <AuthShowcase />
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 min-h-0 bg-white p-8 overflow-y-auto">
-        <div className="min-h-full flex items-center justify-center">
-          <div className="w-full max-w-md">
-
-          {/* Login / Sign Up Toggle Tabs */}
-          <div className="mb-8">
+      <div className="flex-1 min-h-0 bg-white flex flex-col">
+        {/* Fixed Login / Sign Up Toggle Tabs */}
+        <div className="flex-shrink-0 p-8 pb-0">
+          <div className="max-w-md mx-auto">
             <div className="flex border border-gray-200 rounded-lg overflow-hidden">
               <button
                 type="button"
@@ -291,6 +289,12 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-8 pt-6">
+          <div className="min-h-full flex items-center justify-center">
+            <div className="w-full max-w-md">
 
           {/* Logout Button - Shows when user is logged in */}
           {session && (
@@ -475,6 +479,7 @@ export default function LoginPage() {
               .
             </p>
           </form>
+            </div>
           </div>
         </div>
       </div>
