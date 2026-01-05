@@ -7344,19 +7344,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
 
           <div className="flex items-center gap-3 justify-end flex-nowrap shrink-0">
+            {getCurrentTextToEnhance().text.trim() && (
             <Popover>
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <PopoverTrigger asChild>
                       <button 
-                        disabled={isEnhancing || !getCurrentTextToEnhance().text.trim() || (isAudioMode && selectedAudioMode === 'Transcribe')}
+                        disabled={isEnhancing || (isAudioMode && selectedAudioMode === 'Transcribe')}
                         className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isEnhancing ? (
-                          <Loader2 size={16} className="animate-spin" />
+                          <Loader2 size={16} className="animate-spin text-purple-500" />
                         ) : (
-                          <Sparkles size={16} />
+                          <Sparkles size={16} className="text-purple-500" />
                         )}
                         AI
                         <ChevronDown size={14} />
@@ -7399,6 +7400,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </div>
               </PopoverContent>
             </Popover>
+            )}
             
             {/* Mic Button with Speech Recognition */}
             {isSupported && (
