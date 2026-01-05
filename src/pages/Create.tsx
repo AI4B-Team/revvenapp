@@ -623,6 +623,7 @@ const Create = () => {
             <GenerationInput 
               selectedType={selectedType || 'Image'}
               onCharactersClick={() => setCharactersModalOpen(true)}
+              isCharactersModalOpen={charactersModalOpen}
               onCharactersSelect={(characters) => {
                 const effectiveType = selectedType || 'Image';
                 if (effectiveType === 'Image') setImageCharacters(characters);
@@ -637,6 +638,7 @@ const Create = () => {
                 selectedType === 'Design' ? designCharacters : imageCharacters
               }
               onReferencesClick={() => currentRefs.openModal()}
+              isReferencesModalOpen={currentRefs.isModalOpen}
               onReferencesSelect={(references) => {
                 currentRefs.handleImagesSelect(references);
               }}
