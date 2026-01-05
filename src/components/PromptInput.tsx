@@ -219,35 +219,15 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
             </div>
           )}
 
-          {/* Input area */}
+          {/* Input area - always show textarea for real-time transcription */}
           <div className={`px-6 pt-5 pb-3 flex-1 ${selectedOption ? 'pl-14' : ''}`}>
-            {isListening ? (
-              /* Recording indicator with animated waveform */
-              <div className="flex items-center justify-center gap-3 h-[72px]">
-                <div className="flex items-center justify-center gap-[3px]">
-                  {[...Array(28)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-[3px] bg-red-400 rounded-full origin-center"
-                      style={{
-                        height: '24px',
-                        animation: 'audioWave 0.6s ease-in-out infinite',
-                        animationDelay: `${i * 0.03}s`,
-                      }}
-                    />
-                  ))}
-                </div>
-                <span className="ml-3 text-red-500 font-medium text-sm">Recording...</span>
-              </div>
-            ) : (
-              <textarea
-                placeholder={placeholdersByIntent[intent || 'default']}
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                rows={3}
-                className="w-full border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
-              />
-            )}
+            <textarea
+              placeholder={isListening ? 'Listening...' : placeholdersByIntent[intent || 'default']}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={3}
+              className="w-full border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
+            />
           </div>
 
           {/* Bottom bar - expands dynamically as content is added */}
@@ -331,24 +311,40 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                 </Tooltip>
               )}
               {isSupported && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={handleMicClick}
-                      className={`p-2 rounded-lg transition-colors ${
-                        isListening 
-                          ? 'bg-red-100 text-red-500' 
-                          : 'text-slate-400 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Mic 
-                        size={18} 
-                        className={isListening ? 'animate-pulse' : ''} 
-                      />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>{isListening ? 'Stop Recording' : 'Speak'}</TooltipContent>
-                </Tooltip>
+                isListening ? (
+                  /* Audio waveform replaces mic button when recording */
+                  <button 
+                    onClick={handleMicClick}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded-lg transition-colors hover:bg-red-100"
+                  >
+                    <div className="flex items-center gap-[2px]">
+                      {[...Array(12)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-[2px] bg-red-400 rounded-full origin-center"
+                          style={{
+                            height: '16px',
+                            animation: 'audioWave 0.6s ease-in-out infinite',
+                            animationDelay: `${i * 0.05}s`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <X size={14} className="text-red-500 ml-1" />
+                  </button>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleMicClick}
+                        className="p-2 rounded-lg transition-colors text-slate-400 hover:bg-slate-100"
+                      >
+                        <Mic size={18} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Speak</TooltipContent>
+                  </Tooltip>
+                )
               )}
               <button 
                 onClick={onGenerate}
