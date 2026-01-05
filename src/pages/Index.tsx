@@ -89,10 +89,10 @@ const Index = () => {
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
         <main className="flex-1 overflow-auto bg-[#f0f9f8]">
-          <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+          <div className="p-6 lg:p-8">
             
             {/* Trial Banner */}
-            <div className="bg-white rounded-2xl p-5 mb-8 flex items-center justify-between shadow-sm border border-border">
+            <div className="bg-white rounded-2xl p-5 mb-8 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
                   <Zap className="w-6 h-6 text-emerald-500" />
@@ -130,7 +130,7 @@ const Index = () => {
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  className="w-full pl-12 pr-4 py-3 bg-white rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
               <button 
@@ -149,7 +149,7 @@ const Index = () => {
                   <div 
                     key={project.id}
                     onClick={() => navigate('/create')}
-                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-lg hover:border-emerald-200 transition-all cursor-pointer group"
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group"
                   >
                     {/* Gradient Preview */}
                     <div className={`aspect-[4/3] ${project.gradient} relative overflow-hidden`}>
