@@ -115,7 +115,7 @@ const RevvenDashboard = () => {
       
       {showAiChat && (
         <div className="flex-shrink-0">
-          <AIChatPanel isOpen={aiChatOpen} onToggle={() => setAiChatOpen(!aiChatOpen)} />
+          <AIChatPanel />
         </div>
       )}
       
