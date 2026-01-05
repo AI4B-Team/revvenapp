@@ -58,6 +58,7 @@ export const useSpeechRecognition = (options: UseSpeechRecognitionOptions = {}) 
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const baseTextRef = useRef('');
+  const isCancelledRef = useRef(false);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -70,6 +71,9 @@ export const useSpeechRecognition = (options: UseSpeechRecognitionOptions = {}) 
       recognition.lang = 'en-US';
 
       recognition.onresult = (event: SpeechRecognitionEvent) => {
+        // Don't process results if cancelled
+        if (isCancelledRef.current) return;
+
         let interimTranscript = '';
         let finalTranscript = '';
 
@@ -94,7 +98,9 @@ export const useSpeechRecognition = (options: UseSpeechRecognitionOptions = {}) 
 
       recognition.onend = () => {
         setIsListening(false);
-        onEnd?.();
+        if (!isCancelledRef.current) {
+          onEnd?.();
+        }
       };
 
       recognition.onerror = (event) => {
@@ -116,6 +122,7 @@ export const useSpeechRecognition = (options: UseSpeechRecognitionOptions = {}) 
 
   const startListening = useCallback((initialText: string = '') => {
     if (recognitionRef.current && !isListening) {
+      isCancelledRef.current = false;
       baseTextRef.current = initialText ? initialText + ' ' : '';
       setTranscript(baseTextRef.current);
       try {
@@ -134,6 +141,16 @@ export const useSpeechRecognition = (options: UseSpeechRecognitionOptions = {}) 
     }
   }, [isListening]);
 
+  const cancelListening = useCallback(() => {
+    if (recognitionRef.current && isListening) {
+      isCancelledRef.current = true;
+      recognitionRef.current.abort();
+      setIsListening(false);
+      baseTextRef.current = '';
+      setTranscript('');
+    }
+  }, [isListening]);
+
   const resetTranscript = useCallback(() => {
     baseTextRef.current = '';
     setTranscript('');
@@ -145,6 +162,7 @@ export const useSpeechRecognition = (options: UseSpeechRecognitionOptions = {}) 
     isSupported,
     startListening,
     stopListening,
+    cancelListening,
     resetTranscript,
   };
 };
