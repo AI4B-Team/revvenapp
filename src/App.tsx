@@ -18,7 +18,7 @@ import LandingNew from "./pages/LandingNew";
 import Index from "./pages/Index";
 import Create from "./pages/Create";
 import AIAgents from "./pages/AIAgents";
-import Assistant from "./pages/Assistant";
+import Chat from "./pages/Chat";
 import Templates from "./pages/Templates";
 import Monetize from "./pages/Monetize";
 import Contacts from "./pages/Contacts";
@@ -112,7 +112,7 @@ const App = () => (
             <Route path="/automate" element={<AIAgents />} />
             <Route path="/ai-agents" element={<AIAgents />} />
             <Route path="/templates" element={<Templates />} />
-            <Route path="/assistant" element={<Assistant />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/monetize" element={<Monetize />} />
             <Route path="/websites" element={<Websites />} />
             <Route path="/funnels" element={<Funnels />} />
