@@ -76,6 +76,16 @@ const Newsletter = () => {
 
         if (error) throw error;
 
+        // Send welcome email via n8n webhook
+        try {
+          await supabase.functions.invoke('send-newsletter-email', {
+            body: { email: email.toLowerCase(), name: name || '', type: 'welcome' }
+          });
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't fail the subscription if email fails
+        }
+
         setIsSubscribed(true);
         toast.success('Successfully subscribed to the newsletter!');
         fetchSubscriberCount();
