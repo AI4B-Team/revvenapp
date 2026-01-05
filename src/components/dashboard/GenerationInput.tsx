@@ -6630,7 +6630,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       );
                     })()}
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-3 bg-background border-border z-50" align="start">
+                  <PopoverContent className="w-auto p-3 bg-background border-border z-50" align="start" side="bottom" sideOffset={8}>
                     <div className="grid grid-cols-4 gap-2">
                       {createModes.map((mode) => {
                         const IconComponent = mode.icon;
