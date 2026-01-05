@@ -221,12 +221,12 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
 
           {/* Input area */}
           <div className={`px-6 pt-5 pb-3 flex-1 ${selectedOption ? 'pl-14' : ''}`}>
-            <input
-              type="text"
+            <textarea
               placeholder={placeholdersByIntent[intent || 'default']}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="w-full border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400"
+              rows={3}
+              className="w-full border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
             />
           </div>
 
