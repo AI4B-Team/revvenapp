@@ -62,32 +62,31 @@ const Apps = () => {
   const topPicks = [
     {
       id: 1,
-      name: 'REAL Creator',
-      description: 'Full content creation studio',
-      icon: '🚀',
-      color: 'bg-primary',
-      onClick: () => navigate('/create')
-    },
-    {
-      id: 2,
       name: 'Background Remover',
       description: 'Remove backgrounds instantly',
       icon: '✂️',
       color: 'bg-yellow-500'
     },
     {
-      id: 3,
+      id: 2,
       name: 'Video Resizer',
       description: 'Resize videos for any platform',
       icon: '📐',
       color: 'bg-pink-500'
     },
     {
-      id: 4,
+      id: 3,
       name: 'Logo Designer',
       description: 'Create stunning brand logos',
       icon: '🎨',
       color: 'bg-blue-500'
+    },
+    {
+      id: 4,
+      name: 'Blog Writer',
+      description: 'Generate engaging blog posts',
+      icon: '✍️',
+      color: 'bg-green-500'
     }
   ];
 
@@ -258,7 +257,6 @@ const Apps = () => {
                   {topPicks.map((app) => (
                     <div
                       key={app.id}
-                      onClick={app.onClick}
                       className="bg-card rounded-2xl p-6 hover:shadow-xl hover:scale-105 transition-all cursor-pointer border border-border"
                     >
                       <div className={`w-12 h-12 ${app.color} rounded-xl flex items-center justify-center text-2xl mb-4`}>

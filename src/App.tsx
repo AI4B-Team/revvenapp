@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useTrackVisitor } from "@/hooks/useLiveVisitors";
-import { TabsProvider } from "@/contexts/TabsContext";
 
 // Component to track visitor presence
 const VisitorTracker = ({ children }: { children: React.ReactNode }) => {
@@ -18,7 +17,7 @@ import LandingNew from "./pages/LandingNew";
 import Index from "./pages/Index";
 import Create from "./pages/Create";
 import AIAgents from "./pages/AIAgents";
-import Chat from "./pages/Chat";
+import Assistant from "./pages/Assistant";
 import Templates from "./pages/Templates";
 import Monetize from "./pages/Monetize";
 import Contacts from "./pages/Contacts";
@@ -94,11 +93,10 @@ const queryClient = new QueryClient();
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TabsProvider>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
           <BrowserRouter>
             <VisitorTracker>
               <Routes>
@@ -112,7 +110,7 @@ const App = () => (
             <Route path="/automate" element={<AIAgents />} />
             <Route path="/ai-agents" element={<AIAgents />} />
             <Route path="/templates" element={<Templates />} />
-            <Route path="/chat" element={<Chat />} />
+            <Route path="/assistant" element={<Assistant />} />
             <Route path="/monetize" element={<Monetize />} />
             <Route path="/websites" element={<Websites />} />
             <Route path="/funnels" element={<Funnels />} />
@@ -186,8 +184,7 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
-    </TabsProvider>
-  </QueryClientProvider>
+    </QueryClientProvider>
   </ErrorBoundary>
 );
 
