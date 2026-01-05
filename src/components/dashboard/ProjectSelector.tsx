@@ -135,7 +135,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
               <Input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search projects..."
+                placeholder="Search Projects"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-ring"
@@ -143,7 +143,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
             </div>
           </div>
           
-          <ScrollArea className="max-h-[320px]">
+          <div className="max-h-[280px] overflow-y-auto">
             {/* Favorites Section */}
             {favoriteProjects.length > 0 && (
               <div className="p-2">
@@ -188,7 +188,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
                 <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
               </div>
             )}
-          </ScrollArea>
+          </div>
 
           {/* Create New Project */}
           <div className="p-2 border-t border-border bg-muted/30">
