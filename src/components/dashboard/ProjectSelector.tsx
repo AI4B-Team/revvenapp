@@ -36,23 +36,11 @@ interface ProjectSelectorProps {
 const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProject, setSelectedProject] = useState<Project>({
-    id: '1',
-    name: 'Summer Campaign',
-    color: 'bg-brand-blue',
-    isFavorite: true,
-    lastEdited: '2 hours ago'
-  });
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [projects, setProjects] = useState<Project[]>([
-    { id: '1', name: 'Summer Campaign', color: 'bg-brand-blue', isFavorite: true, lastEdited: '2 hours ago' },
-    { id: '2', name: 'Product Launch', color: 'bg-brand-purple', isFavorite: true, lastEdited: '1 day ago' },
-    { id: '3', name: 'Brand Refresh', color: 'bg-brand-green', isFavorite: false, lastEdited: '3 days ago' },
-    { id: '4', name: 'Q4 Marketing', color: 'bg-brand-yellow', isFavorite: false, lastEdited: '1 week ago' },
-    { id: '5', name: 'Holiday Special', color: 'bg-brand-red', isFavorite: false, lastEdited: '2 weeks ago' },
-  ]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   // Focus search input when dropdown opens
   useEffect(() => {
@@ -113,13 +101,24 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center gap-3 px-3 py-2.5 bg-sidebar-hover/50 border border-border rounded-lg hover:bg-sidebar-hover transition group"
       >
-        <div className={`w-8 h-8 ${selectedProject.color} rounded-lg flex items-center justify-center`}>
-          <FolderKanban size={16} className="text-white" />
-        </div>
-        <div className="flex-1 text-left min-w-0">
-          <p className="text-sm font-medium text-sidebar-text truncate">{selectedProject.name}</p>
-          <p className="text-xs text-sidebar-muted">Project</p>
-        </div>
+        {selectedProject ? (
+          <>
+            <div className={`w-8 h-8 ${selectedProject.color} rounded-lg flex items-center justify-center`}>
+              <FolderKanban size={16} className="text-white" />
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <p className="text-xs text-sidebar-muted">Project</p>
+              <p className="text-sm font-medium text-sidebar-text truncate">{selectedProject.name}</p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="w-8 h-8 bg-sidebar-muted/30 rounded-lg flex items-center justify-center">
+              <FolderKanban size={16} className="text-sidebar-muted" />
+            </div>
+            <span className="flex-1 text-left text-sm font-medium text-sidebar-text">Projects</span>
+          </>
+        )}
         <ChevronDown 
           size={16} 
           className={`text-sidebar-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
@@ -154,7 +153,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
                   <ProjectItem
                     key={project.id}
                     project={project}
-                    isSelected={selectedProject.id === project.id}
+                    isSelected={selectedProject?.id === project.id}
                     onSelect={selectProject}
                     onToggleFavorite={toggleFavorite}
                   />
@@ -172,7 +171,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
                   <ProjectItem
                     key={project.id}
                     project={project}
-                    isSelected={selectedProject.id === project.id}
+                    isSelected={selectedProject?.id === project.id}
                     onSelect={selectProject}
                     onToggleFavorite={toggleFavorite}
                   />
