@@ -66,12 +66,55 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Only show Auto dropdown when an intent is selected and no option is selected yet
-  if (!intent || selectedOption) {
+  // Only show Auto dropdown when an intent is selected
+  if (!intent) {
     return null;
   }
 
   const options = optionsByIntent[intent];
+
+  // If an option is selected, show the selected option button
+  if (selectedOption) {
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className={cn(
+            "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors border",
+            selectedOption.color.replace('text-', 'border-'),
+            "bg-white hover:bg-slate-50"
+          )}
+        >
+          <selectedOption.icon size={14} className={selectedOption.color} />
+          <span className={selectedOption.color}>{selectedOption.label}</span>
+          {isOpen ? <ChevronUp size={14} className={selectedOption.color} /> : <ChevronDown size={14} className={selectedOption.color} />}
+        </button>
+
+        {isOpen && (
+          <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl py-2 z-[999]">
+            {options.map((option) => (
+              <button
+                type="button"
+                key={option.id}
+                onClick={() => {
+                  onSelect(option);
+                  setIsOpen(false);
+                }}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors",
+                  selectedOption.id === option.id && "bg-slate-100"
+                )}
+              >
+                <option.icon size={16} className={option.color} />
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="relative" ref={dropdownRef}>
