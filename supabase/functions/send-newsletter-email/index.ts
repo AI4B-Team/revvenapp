@@ -44,17 +44,19 @@ serve(async (req) => {
       }),
     });
 
+    const responseText = await response.text();
+    console.log('n8n webhook response:', responseText, 'status:', response.status);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('n8n webhook error:', errorText);
-      throw new Error(`n8n webhook failed: ${response.status}`);
+      console.error('n8n webhook error:', responseText);
+      return new Response(
+        JSON.stringify({ success: false, message: responseText || `Webhook failed: ${response.status}` }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const result = await response.text();
-    console.log('n8n webhook response:', result);
-
     return new Response(
-      JSON.stringify({ success: true, message: 'Email sent successfully' }),
+      JSON.stringify({ success: true, message: responseText || 'Email sent successfully' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: unknown) {

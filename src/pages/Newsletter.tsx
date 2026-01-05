@@ -13,10 +13,12 @@ const Newsletter = () => {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState('');
   
   // Unsubscribe state
   const [unsubEmail, setUnsubEmail] = useState('');
   const [isUnsubLoading, setIsUnsubLoading] = useState(false);
+  const [unsubscribeMessage, setUnsubscribeMessage] = useState('');
   const [isUnsubscribed, setIsUnsubscribed] = useState(false);
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -41,11 +43,18 @@ const Newsletter = () => {
 
       if (error) throw error;
 
+      setSubscribeMessage(data?.message || 'Subscription processed');
       setIsSubscribed(true);
-      toast.success('Successfully subscribed to the newsletter!');
+      
+      if (data?.success) {
+        toast.success('Successfully subscribed to the newsletter!');
+      } else {
+        toast.info(data?.message || 'Subscription processed');
+      }
     } catch (error: any) {
       console.error('Subscription error:', error);
       toast.error('Failed to subscribe. Please try again.');
+      setSubscribeMessage('Failed to subscribe. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -72,11 +81,18 @@ const Newsletter = () => {
 
       if (error) throw error;
 
+      setUnsubscribeMessage(data?.message || 'Unsubscribe processed');
       setIsUnsubscribed(true);
-      toast.success('You have been unsubscribed from the newsletter.');
+      
+      if (data?.success) {
+        toast.success('You have been unsubscribed from the newsletter.');
+      } else {
+        toast.info(data?.message || 'Unsubscribe processed');
+      }
     } catch (error: any) {
       console.error('Unsubscribe error:', error);
       toast.error('Failed to unsubscribe. Please try again.');
+      setUnsubscribeMessage('Failed to unsubscribe. Please try again.');
     } finally {
       setIsUnsubLoading(false);
     }
@@ -133,9 +149,9 @@ const Newsletter = () => {
                 <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
                   <Check className="h-8 w-8 text-green-500" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">You're All Set!</h3>
-                <p className="text-muted-foreground">
-                  Thank you for subscribing. Check your inbox for a confirmation email.
+                <h3 className="text-xl font-semibold text-foreground mb-2">Response</h3>
+                <p className="text-muted-foreground whitespace-pre-line">
+                  {subscribeMessage}
                 </p>
               </div>
             ) : (
@@ -205,10 +221,10 @@ const Newsletter = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isUnsubscribed ? (
+            {unsubscribeMessage ? (
               <div className="text-center py-4">
-                <p className="text-muted-foreground">
-                  You have been successfully unsubscribed.
+                <p className="text-muted-foreground whitespace-pre-line">
+                  {unsubscribeMessage}
                 </p>
               </div>
             ) : (
