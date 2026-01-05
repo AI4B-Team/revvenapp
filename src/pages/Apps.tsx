@@ -136,7 +136,7 @@ const Apps = () => {
   ];
 
   const contentApps = [
-    { name: 'Newsletter', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/newsletter') },
+    { name: 'Job Newsletter', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/newsletter') },
     { name: 'Blog Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop', badge: 'AI' },
     { name: 'Social Posts', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=300&fit=crop', badge: 'AI' },
     { name: 'Email Generator', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=400&h=300&fit=crop', badge: 'AI' },
