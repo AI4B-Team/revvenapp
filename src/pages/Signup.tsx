@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, Mail, Check, Ticket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSearchParams } from 'react-router-dom';
+import RevvenLogo from '@/components/RevvenLogo';
 
 export default function SignupPage() {
   const [searchParams] = useSearchParams();
@@ -273,14 +274,14 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Green Gradient (same as login) */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-green-600 via-emerald-500 to-green-700 p-12 flex-col justify-center relative overflow-hidden">
+      {/* Left Side - Brand Green */}
+      <div className="hidden lg:flex flex-1 bg-brand-green p-12 flex-col justify-center relative overflow-hidden">
         {/* Logo */}
-        <div className="absolute top-8 left-8 flex items-center gap-2 text-white">
-          <div className="w-6 h-6 bg-white/20 rounded flex items-center justify-center backdrop-blur-sm">
-            <span className="text-white font-bold text-xs">R</span>
+        <div className="absolute top-8 left-8 flex items-center gap-2.5 text-white">
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+            <span className="text-white font-bold text-sm">R</span>
           </div>
-          <span className="font-semibold">REVVEN</span>
+          <span className="font-bold tracking-tight">REVVEN</span>
         </div>
 
         {/* Main Content */}
@@ -367,11 +368,9 @@ export default function SignupPage() {
         <div className="w-full max-w-md">
           {/* Logo (mobile only) */}
           <div className="lg:hidden mb-8">
-            <div className="flex items-center gap-2 justify-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">R</span>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">REVVEN</span>
+            <div className="flex items-center gap-2.5 justify-center">
+              <RevvenLogo size={32} />
+              <span className="text-xl font-bold text-gray-900 tracking-tight">REVVEN</span>
             </div>
           </div>
 
