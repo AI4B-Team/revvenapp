@@ -194,12 +194,12 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
     <div className="w-full mx-auto space-y-6">
       {/* Greeting Section */}
       {showGreeting && greetingName && (
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="w-6 h-6 text-emerald-500" />
-            <span className="text-lg text-muted-foreground">Hi {greetingName}</span>
+        <div className="text-left">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-emerald-500" />
+            <span className="text-base text-muted-foreground">Hi {greetingName}</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">
             What Would You Like To Do Today?
           </h1>
         </div>
