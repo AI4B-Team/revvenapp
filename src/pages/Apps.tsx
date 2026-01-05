@@ -18,6 +18,15 @@ const Apps = () => {
 
   const trendingApps = [
     {
+      id: 0,
+      name: 'REAL Creator',
+      description: 'Your all-in-one AI content creation studio',
+      image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop',
+      badge: 'HOT',
+      badgeColor: 'bg-yellow-500',
+      onClick: () => navigate('/create')
+    },
+    {
       id: 1,
       name: 'Video Face Swap',
       description: 'Best-in-class face swapping technology for any video',
@@ -213,6 +222,7 @@ const Apps = () => {
                   {trendingApps.map((app) => (
                     <div
                       key={app.id}
+                      onClick={app.onClick}
                       className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer border border-border"
                     >
                       <div className="relative aspect-[4/3]">
