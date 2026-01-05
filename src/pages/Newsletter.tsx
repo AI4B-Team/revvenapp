@@ -117,7 +117,7 @@ const Newsletter = () => {
               <Mail className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Newsletter</h1>
+              <h1 className="text-xl font-bold text-foreground">Job Newsletter</h1>
               <p className="text-sm text-muted-foreground">Stay updated with the latest</p>
             </div>
           </div>
