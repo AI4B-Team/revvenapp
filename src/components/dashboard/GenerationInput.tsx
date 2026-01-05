@@ -7389,7 +7389,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Mic size={18} />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>Voice Input</TooltipContent>
+              <TooltipContent>Speak</TooltipContent>
             </Tooltip>
             
             <TooltipProvider>
