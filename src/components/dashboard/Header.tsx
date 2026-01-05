@@ -410,12 +410,15 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
 
               {/* Language */}
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm w-full">
+                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-600 text-sm w-full">
                   <div className="flex items-center gap-3">
-                    <Languages size={18} className="text-gray-500" />
+                    <Languages size={18} className="text-gray-400" />
                     <span>Language:</span>
                   </div>
-                  <span className="text-gray-400 text-sm">{selectedLanguage}</span>
+                  <div className="flex items-center gap-1 text-gray-400">
+                    <span>{selectedLanguage}</span>
+                    <ChevronRight size={14} />
+                  </div>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent className="bg-white border border-gray-200 rounded-xl p-2 shadow-lg z-50">
                   <div className="p-2">
@@ -446,12 +449,15 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
 
               {/* Theme */}
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm w-full">
+                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-600 text-sm w-full">
                   <div className="flex items-center gap-3">
-                    <Sun size={18} className="text-gray-500" />
+                    <Sun size={18} className="text-gray-400" />
                     <span>Theme:</span>
                   </div>
-                  <span className="text-gray-400 text-sm capitalize">{selectedTheme}</span>
+                  <div className="flex items-center gap-1 text-gray-400">
+                    <span className="capitalize">{selectedTheme}</span>
+                    <ChevronRight size={14} />
+                  </div>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent className="bg-white border border-gray-200 rounded-xl p-2 shadow-lg z-50">
                   {themes.map((theme) => (
@@ -493,7 +499,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                 className="w-full bg-red-500 hover:bg-red-600 text-white h-10 text-sm font-medium rounded-lg"
               >
                 <Power size={16} className="mr-2" />
-                {t('user.logout')}
+                Log Out
               </Button>
             </div>
 
