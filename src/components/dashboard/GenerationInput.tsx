@@ -6675,7 +6675,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         ? 'bg-brand-green/15'
                         : 'bg-secondary hover:bg-brand-green/15'
                     }`}>
-                      <Box size={16} className="text-brand-green" />
+                      <Box size={16} className="text-muted-foreground" />
                       <span>{selectedModel === 'auto' ? 'Auto' : selectedModel}</span>
                     </button>
                   </PopoverTrigger>
@@ -7108,7 +7108,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button
                   onClick={() => setIsStylesModalOpen(true)}
-                  className={`p-2.5 rounded-full transition-colors text-brand-purple ${
+                  className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
                     selectedStyle || isStylesModalOpen
                       ? 'bg-brand-purple/15'
                       : 'bg-secondary hover:bg-brand-purple/15'
@@ -7125,7 +7125,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button 
                   onClick={onCharactersClick}
-                  className={`p-2.5 rounded-full transition-colors text-brand-blue ${
+                  className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
                     activeCharacters.length > 0 || isCharactersModalOpen
                       ? 'bg-brand-blue/15'
                       : 'bg-secondary hover:bg-brand-blue/15'
@@ -7142,7 +7142,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button
                   onClick={onReferencesClick}
-                  className={`p-2.5 rounded-full transition-colors text-brand-green ${
+                  className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
                     activeReferences.length > 0 || isReferencesModalOpen
                       ? 'bg-brand-green/15'
                       : 'bg-secondary hover:bg-brand-green/15'
@@ -7220,7 +7220,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition-colors text-brand-yellow ${
+                    <button className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
                       isAspectRatioDropdownOpen || selectedAspectRatio !== '1:1'
                         ? 'bg-brand-yellow/15'
                         : 'bg-secondary hover:bg-brand-yellow/15'
@@ -7337,7 +7337,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition-colors text-brand-red ${
+                    <button className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
                       isNumberOfImagesDropdownOpen || numberOfImages !== 1
                         ? 'bg-brand-red/15'
                         : 'bg-secondary hover:bg-brand-red/15'
