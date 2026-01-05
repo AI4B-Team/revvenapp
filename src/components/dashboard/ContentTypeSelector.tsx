@@ -108,8 +108,7 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
               aria-pressed={isSelected}
               onClick={() => onTypeChange(type.key)}
               className={cn(
-                'px-5 py-3 rounded-xl transition-colors flex items-center gap-2 border text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
-                type.accentText,
+                'px-5 py-3 rounded-xl transition-colors flex items-center gap-2 border text-sm font-medium text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
                 isSelected
                   ? cn(type.accentBg, type.accentBorder)
                   : cn('bg-secondary border-transparent', type.accentHover, type.accentHoverBorder)
