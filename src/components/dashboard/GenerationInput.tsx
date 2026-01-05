@@ -3369,7 +3369,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   return (
     <div className="mx-auto mb-12 transition-all duration-300 w-full" style={{ maxWidth: 'calc(100% - 2rem)' }}>
       <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg min-h-[180px]">
-        <div className="flex items-start gap-3 mb-6" style={{ minHeight: promptHeight }}>
+        <div className="flex items-start gap-3 mb-6" style={{ height: promptHeight }}>
           <div className="flex flex-col gap-2">
             <TooltipProvider>
               <div className="flex flex-col items-start gap-2">
