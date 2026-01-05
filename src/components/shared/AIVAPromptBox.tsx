@@ -224,8 +224,8 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
       <IntentSelector selectedIntent={intent} onIntentChange={setIntent} />
       
       {/* Prompt Input Box */}
-      <div className="relative w-fit max-w-full mx-auto">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-full min-w-[900px]">
+      <div className="relative w-full mx-auto">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-hidden min-h-[180px] flex flex-col w-full min-w-0">
           {/* Left side icons - only shown when an option is selected */}
           {selectedOption && (
             <div className="flex flex-col gap-1 absolute left-4 top-4">
@@ -262,9 +262,9 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
           </div>
 
           {/* Bottom bar */}
-          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-nowrap min-w-0">
+          <div className="flex items-center px-4 pb-4 gap-6 flex-nowrap min-w-0">
             {/* Left side controls */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 min-w-0 flex-1 overflow-x-auto scrollbar-hide">
               {/* Auto dropdown - always visible when intent is selected */}
               {intent && (
                 <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
@@ -340,19 +340,22 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
             </div>
 
             {/* Right side controls */}
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto pl-8">
-              {prompt.trim() && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium transition-colors">
-                      <Sparkles size={16} className="text-violet-500" />
-                      <span>AI</span>
-                      <ChevronDown size={14} className="text-slate-400" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Enhance Prompt</TooltipContent>
-                </Tooltip>
-              )}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium transition-colors",
+                      !prompt.trim() && "opacity-0 pointer-events-none"
+                    )}
+                  >
+                    <Sparkles size={16} className="text-violet-500" />
+                    <span>AI</span>
+                    <ChevronDown size={14} className="text-slate-400" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Enhance Prompt</TooltipContent>
+              </Tooltip>
               {isSupported && (
                 isListening ? (
                   <div className="flex items-center gap-2">
