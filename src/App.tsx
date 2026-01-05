@@ -74,6 +74,7 @@ import ViralShorts from "./pages/ViralShorts";
 import Sessions from "./pages/Sessions";
 import AIStory from "./pages/AIStory";
 import LeadGeneration from "./pages/LeadGeneration";
+import Newsletter from "./pages/Newsletter";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
@@ -146,6 +147,7 @@ const App = () => (
             <Route path="/viral-shorts" element={<ViralShorts />} />
             <Route path="/ai-story" element={<AIStory />} />
             <Route path="/lead-generation" element={<LeadGeneration />} />
+            <Route path="/newsletter" element={<Newsletter />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/assets" element={<Assets />} />
