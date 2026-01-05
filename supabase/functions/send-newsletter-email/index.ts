@@ -5,7 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const N8N_WEBHOOK_URL = "https://realcreator.app.n8n.cloud/webhook-test/5ec8dcf6-b2ba-4fb3-bf62-d253d2f39f02";
+const SUBSCRIBE_WEBHOOK_URL = "https://realcreator.app.n8n.cloud/webhook-test/5ec8dcf6-b2ba-4fb3-bf62-d253d2f39f02";
+const UNSUBSCRIBE_WEBHOOK_URL = "https://realcreator.app.n8n.cloud/webhook-test/709bb303-2c56-456a-b039-db5254c14328";
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -23,10 +24,13 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Sending ${type || 'welcome'} email to ${email} via n8n webhook`);
+    // Choose webhook based on type
+    const webhookUrl = type === 'unsubscribe' ? UNSUBSCRIBE_WEBHOOK_URL : SUBSCRIBE_WEBHOOK_URL;
+    
+    console.log(`Sending ${type || 'subscribe'} request for ${email} via n8n webhook`);
 
     // Send to n8n webhook
-    const response = await fetch(N8N_WEBHOOK_URL, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,7 +38,7 @@ serve(async (req) => {
       body: JSON.stringify({
         email,
         name: name || '',
-        type: type || 'welcome',
+        type: type || 'subscribe',
         timestamp: new Date().toISOString(),
         source: 'revven-newsletter',
       }),
