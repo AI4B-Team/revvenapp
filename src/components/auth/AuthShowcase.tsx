@@ -4,6 +4,15 @@ import RevvenLogo from '@/components/RevvenLogo';
 
 // Showcase slides data - Logical flow: Content Creation → Social Automation → Business Tools → Scale
 export const showcaseSlides = [
+  // UGC Video Ads - Featured First
+  {
+    title: "UGC Video Ads That Convert",
+    description: "Create authentic user-generated content style video ads that drive sales. AI generates realistic UGC testimonials, unboxings, and product reviews—no influencers needed.",
+    features: ["UGC Style Videos", "AI Testimonials", "Product Reviews"],
+    bgColor: "bg-rose-50",
+    accentColor: "text-rose-700",
+    pillBg: "bg-rose-200/60",
+  },
   // Core Content Creation
   {
     title: "Idea To Video In Seconds",
