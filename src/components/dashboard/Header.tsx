@@ -56,7 +56,7 @@ const InstagramIcon = ({ size = 20, className = "" }) => (
 
 const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   const [selectedLanguage, setSelectedLanguage] = React.useState('English');
-  const [selectedTheme, setSelectedTheme] = React.useState('split');
+  const [selectedTheme, setSelectedTheme] = React.useState('light');
   const [languageSearch, setLanguageSearch] = React.useState('');
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
@@ -410,9 +410,9 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
 
               {/* Language */}
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-600 text-sm w-full">
-                  <div className="flex items-center gap-3">
-                    <Languages size={18} className="text-gray-400" />
+                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-sm w-full [&>svg]:hidden">
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <Languages size={18} className="text-amber-400" />
                     <span>Language:</span>
                   </div>
                   <div className="flex items-center gap-1 text-gray-400">
@@ -449,13 +449,13 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
 
               {/* Theme */}
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-600 text-sm w-full">
-                  <div className="flex items-center gap-3">
-                    <Sun size={18} className="text-gray-400" />
+                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-sm w-full [&>svg]:hidden">
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <Sun size={18} className="text-amber-400" />
                     <span>Theme:</span>
                   </div>
                   <div className="flex items-center gap-1 text-gray-400">
-                    <span className="capitalize">{selectedTheme}</span>
+                    <span>Light</span>
                     <ChevronRight size={14} />
                   </div>
                 </DropdownMenuSubTrigger>
@@ -485,7 +485,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             <div className="mt-4">
               <Button 
                 variant="outline" 
-                className="w-full bg-pink-50 hover:bg-pink-100 text-pink-600 border-pink-200 h-10 text-sm font-medium rounded-lg"
+                className="w-full bg-amber-50 hover:bg-amber-100 text-amber-600 border-amber-300 h-10 text-sm font-medium rounded-full"
                 onClick={() => setIsRewardsModalOpen(true)}
               >
                 Join Affiliate Program
@@ -496,7 +496,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             <div className="mt-2">
               <Button 
                 onClick={handleSignOut}
-                className="w-full bg-red-500 hover:bg-red-600 text-white h-10 text-sm font-medium rounded-lg"
+                className="w-full bg-red-500 hover:bg-red-600 text-white h-10 text-sm font-medium rounded-full"
               >
                 <Power size={16} className="mr-2" />
                 Log Out
