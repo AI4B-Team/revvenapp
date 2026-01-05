@@ -3390,9 +3390,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     }
   };
   
+  // Calculate the total prompt box height: promptHeight + padding (24px top + 24px bottom) + bottom bar (~48px) + gap (24px)
+  const totalPromptBoxHeight = promptHeight + 120;
+
   return (
     <div className="mx-auto mb-12 transition-all duration-300 w-full" style={{ maxWidth: 'calc(100% - 2rem)' }}>
-      <div ref={promptBoxRef} className="relative bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg min-h-[180px]">
+      <div ref={promptBoxRef} className="relative bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg" style={{ minHeight: totalPromptBoxHeight }}>
         <div className="flex items-start gap-3 mb-6" style={{ height: promptHeight }}>
           <div className="flex flex-col gap-2">
             <TooltipProvider>
