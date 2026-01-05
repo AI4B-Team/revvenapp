@@ -6569,14 +6569,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition ${
+                    <button className={`px-3 py-1.5 rounded-full transition flex items-center gap-2 text-sm font-medium ${
                       selectedModel === 'auto' && selectedCreateMode === 'Create'
                         ? 'bg-emerald-100 text-emerald-600' 
                         : selectedModel !== 'auto' 
                           ? 'bg-emerald-100 text-emerald-600' 
                           : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
                     }`}>
-                      <Box size={18} />
+                      <Box size={16} />
+                      <span>{selectedModel === 'auto' ? 'Auto' : selectedModel}</span>
                     </button>
                   </PopoverTrigger>
                 </TooltipTrigger>
