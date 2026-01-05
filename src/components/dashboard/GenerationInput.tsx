@@ -280,11 +280,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   const createModes = [
-    { value: 'Create', label: 'Create', icon: Sparkles, color: 'text-amber-500' },
-    { value: 'Batch', label: 'Batch', icon: Layers, color: 'text-violet-500' },
-    { value: 'Draw', label: 'Draw', icon: Pencil, color: 'text-orange-500' },
-    { value: 'Swap', label: 'Swap', icon: RefreshCw, color: 'text-pink-500' },
-    { value: 'Photoshoot', label: 'Photoshoot', icon: Image, color: 'text-blue-500' },
+    { value: 'Create', label: 'Create', icon: Sparkles },
+    { value: 'Batch', label: 'Batch', icon: Layers },
+    { value: 'Draw', label: 'Draw', icon: Pencil },
+    { value: 'Swap', label: 'Swap', icon: RefreshCw },
+    { value: 'Photoshoot', label: 'Photoshoot', icon: Image },
   ];
   
   const audioModes = [
@@ -3349,8 +3349,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   };
   
   return (
-    <div className="mx-auto mb-12 transition-all duration-300 w-full max-w-[340px] sm:max-w-[520px] md:max-w-[50rem]">
-      <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg min-h-[180px]">
+    <div className="mx-auto mb-12 transition-all duration-300 w-full" style={{ maxWidth: 'calc(100% - 2rem)' }}>
+      <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg">
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">
             <TooltipProvider>
@@ -6512,8 +6512,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           {(() => {
                             const mode = createModes.find(m => m.value === selectedCreateMode);
                             const IconComponent = mode?.icon || Sparkles;
-                            const iconColor = mode?.color || '';
-                            return <IconComponent size={16} className={iconColor} />;
+                            return <IconComponent size={16} />;
                           })()}
                           <span>{selectedCreateMode}</span>
                           <button 
@@ -6544,7 +6543,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               selectedCreateMode === mode.value ? 'bg-secondary' : ''
                             }`}
                           >
-                            <IconComponent size={16} className={mode.color} />
+                            <IconComponent size={16} />
                             {mode.label}
                           </button>
                         );
