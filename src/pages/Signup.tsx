@@ -275,13 +275,14 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="h-screen flex overflow-hidden">
       {/* Left Side - Shared Auth Showcase */}
       <AuthShowcase />
 
       {/* Right Side - Signup Form */}
-      <div className="flex-1 flex items-center justify-center bg-white p-8">
-        <div className="w-full max-w-md">
+      <div className="flex-1 min-h-0 bg-white p-8 overflow-y-auto">
+        <div className="min-h-full flex items-center justify-center">
+          <div className="w-full max-w-md">
           {/* Logo (mobile only) */}
           <div className="lg:hidden mb-8">
             <div className="flex items-center gap-2.5 justify-center">
@@ -547,6 +548,7 @@ export default function SignupPage() {
               <div className="w-8 h-8 border-4 border-brand-green border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

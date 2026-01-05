@@ -255,13 +255,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="h-screen flex overflow-hidden">
       {/* Left Side - Shared Auth Showcase */}
       <AuthShowcase />
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-white p-8">
-        <div className="w-full max-w-md">
+      <div className="flex-1 min-h-0 bg-white p-8 overflow-y-auto">
+        <div className="min-h-full flex items-center justify-center">
+          <div className="w-full max-w-md">
           {/* Logo */}
           <div className="mb-6">
             <div className="flex items-center gap-2.5 justify-center">
@@ -481,6 +482,7 @@ export default function LoginPage() {
               .
             </p>
           </form>
+          </div>
         </div>
       </div>
     </div>
