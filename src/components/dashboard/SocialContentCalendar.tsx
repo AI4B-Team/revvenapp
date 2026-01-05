@@ -543,7 +543,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-popover border-border">
+          <DropdownMenuContent align="end" side="bottom" className="bg-popover border-border">
             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
               <Pencil className="w-3 h-3 mr-2" />
               Edit
@@ -658,7 +658,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                   <MoreVertical className="w-4 h-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-popover border-border w-48">
+              <DropdownMenuContent align="end" side="bottom" className="bg-popover border-border w-48">
                 <DropdownMenuItem className="gap-2" onClick={(e) => { e.stopPropagation(); handleRequestApproval(item); }}>
                   <Hand className="w-4 h-4" />
                   Request Approval
@@ -836,7 +836,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                         <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-popover border-border">
+                    <DropdownMenuContent align="end" side="bottom" className="bg-popover border-border">
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
                         <Pencil className="w-3 h-3 mr-2" />
                         Edit
@@ -967,7 +967,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                                 <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-popover border-border">
+                            <DropdownMenuContent align="end" side="bottom" className="bg-popover border-border">
                               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
                                 <Pencil className="w-3 h-3 mr-2" />
                                 Edit
@@ -1132,7 +1132,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                                 <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-popover border-border">
+                            <DropdownMenuContent align="end" side="bottom" className="bg-popover border-border">
                               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
                                 <Pencil className="w-3 h-3 mr-2" />
                                 Edit
@@ -1286,6 +1286,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                         </PopoverTrigger>
                         <PopoverContent 
                           align="start" 
+                          side="bottom"
                           className="w-72 p-2 bg-popover border-border shadow-lg z-50 max-h-80 overflow-y-auto"
                         >
                           <div className="space-y-2">
@@ -1439,7 +1440,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                   <ChevronRight className="w-3 h-3 rotate-90" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" side="bottom" className="w-48">
                 <DropdownMenuItem className="gap-2">
                   <Pencil className="w-4 h-4" />
                   Create Post
@@ -1470,7 +1471,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 <ChevronRight className="w-3 h-3 rotate-90" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-popover border-border">
+            <DropdownMenuContent side="bottom" className="bg-popover border-border">
               <DropdownMenuItem onClick={() => setTimeRange('day')}>Day</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimeRange('week')}>Week</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimeRange('month')}>Month</DropdownMenuItem>
@@ -1548,7 +1549,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 <Search className="w-4 h-4 text-muted-foreground" />
               </button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-72 p-2">
+            <PopoverContent align="end" side="bottom" className="w-72 p-2">
               <Input 
                 placeholder="Search posts..." 
                 value={searchQuery}
@@ -1572,7 +1573,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 )}
               </button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-64 p-0 bg-popover border-border">
+            <PopoverContent align="end" side="bottom" className="w-64 p-0 bg-popover border-border">
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <h3 className="font-semibold text-foreground">Filters</h3>
                 {hasActiveFilters && (
