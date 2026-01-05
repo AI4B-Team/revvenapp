@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -6488,17 +6488,34 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : (
               <>
                 {/* Image Mode Controls */}
-                {/* Create Mode Dropdown */}
+                {/* Type Dropdown - shows selected mode or "Type" */}
                 <Popover open={isCreateModeDropdownOpen} onOpenChange={setIsCreateModeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-blue text-pill-blue-text hover:opacity-80">
-                      {(() => {
-                        const mode = createModes.find(m => m.value === selectedCreateMode);
-                        const IconComponent = mode?.icon || Sparkles;
-                        return <IconComponent size={14} />;
-                      })()}
-                      {selectedCreateMode}
-                      <ChevronDown size={14} />
+                    <button className="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-slate-100 hover:bg-slate-200 text-slate-600">
+                      {selectedCreateMode === 'Create' ? (
+                        <>
+                          <LayoutGrid size={16} className="text-slate-500" />
+                          <span>Type</span>
+                        </>
+                      ) : (
+                        <>
+                          {(() => {
+                            const mode = createModes.find(m => m.value === selectedCreateMode);
+                            const IconComponent = mode?.icon || Sparkles;
+                            return <IconComponent size={16} />;
+                          })()}
+                          <span>{selectedCreateMode}</span>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCreateMode('Create');
+                            }}
+                            className="ml-1 p-0.5 hover:bg-slate-300 rounded"
+                          >
+                            <X size={12} className="text-slate-500" />
+                          </button>
+                        </>
+                      )}
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-52 p-2 bg-background border-border z-50" align="start">
@@ -6525,6 +6542,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
+                {/* Vertical separator */}
+                <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+
             {/* Model Dropdown - Show "11 Labs" static pill in Transcribe mode */}
             {isAudioMode && selectedAudioMode === 'Transcribe' ? (
               <div className="px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-violet-500/20 text-violet-600">
@@ -6535,90 +6555,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </div>
             ) : (
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
-              <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button className={`p-2.5 rounded-full transition ${
                       selectedModel !== 'auto' 
-                        ? 'bg-pill-orange text-pill-orange-text' 
-                        : 'bg-pill-gray text-pill-gray-text'
-                    } hover:opacity-80`}>
-                      {selectedReferences.length > 0 && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 mr-1">IMG2IMG</Badge>
-                      )}
-                      {selectedModel === 'auto' && (
-                        <Zap size={14} className="text-brand-blue" />
-                      )}
-                      {selectedModel === 'grok' && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                        </svg>
-                      )}
-                      {selectedModel === 'gpt-4o-image' && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                        </svg>
-                      )}
-                      {(selectedModel === 'flux-pro' || selectedModel === 'flux-max') && (
-                        <Sparkles size={14} className={selectedModel === 'flux-pro' ? 'text-purple-500' : 'text-indigo-600'} />
-                      )}
-                      {(selectedModel === 'seedream-4' || selectedModel === 'seedream' || selectedModel === 'seedream-4.5') && (
-                        <div className="w-3.5 h-3.5 bg-gradient-to-br from-brand-red to-brand-yellow rounded flex items-center justify-center">
-                          <span className="text-white font-bold text-[8px]">S</span>
-                        </div>
-                      )}
-                      {selectedModel === 'qwen' && (
-                        <div className="w-3.5 h-3.5 bg-gradient-to-br from-blue-500 to-purple-500 rounded flex items-center justify-center">
-                          <span className="text-white font-bold text-[8px]">Q</span>
-                        </div>
-                      )}
-                      {selectedModel === 'nano-banana' && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                        </svg>
-                      )}
-                      {(selectedModel === 'ideogram' || selectedModel === 'ideogram-character') && (
-                        <Image size={14} className="text-blue-500" />
-                      )}
-                      {selectedModel === 'grok' && (
-                        <img src="/lovable-uploads/model-logos/grok.png" alt="Grok" className="w-4 h-4" />
-                      )}
-                      {selectedModel === 'imagen-ultra' && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                        </svg>
-                      )}
-                      {selectedModel === 'gpt-4o-image' && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                          <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="2"/>
-                        </svg>
-                      )}
-                      {selectedModel === 'auto' && 'Auto'}
-                      {selectedModel === 'grok' && 'Grok Imagine'}
-                      {selectedModel === 'gpt-4o-image' && 'GPT-4o Image'}
-                      {selectedModel === 'flux-pro' && 'Flux Pro'}
-                      {selectedModel === 'flux-max' && 'Flux Max'}
-                      {selectedModel === 'seedream-4' && 'Seedream 4.0'}
-                      {selectedModel === 'seedream-4.5' && 'Seedream 4.5'}
-                      {selectedModel === 'seedream' && 'Seedream 3.0'}
-                      {selectedModel === 'qwen' && 'Qwen Image'}
-                      {selectedModel === 'nano-banana' && 'Nano Banana'}
-                      {selectedModel === 'nano-banana-pro' && 'Nano Banana Pro'}
-                      {selectedModel === 'ideogram' && 'Ideogram V3 Edit'}
-                      {selectedModel === 'ideogram-character' && 'Ideogram Character'}
-                      {selectedModel === 'imagen-ultra' && 'Imagen 4 Ultra'}
-                      {selectedModel === 'z-image' && 'Z-Image'}
-                      <ChevronDown size={14} />
+                        ? 'bg-emerald-100 text-emerald-600' 
+                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                    }`}>
+                      <Box size={18} />
                     </button>
                   </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Model</TooltipContent>
+              </Tooltip>
               <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50 max-h-[400px] overflow-y-auto" align="start">
                 <div className="space-y-1 p-2">
                   {/* Swap/Photoshoot/Draw mode models - restricted selection */}
@@ -7040,45 +6990,56 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             </Popover>
             )}
             
-            <button
-              onClick={() => setIsStylesModalOpen(true)}
-              className={`px-4 py-1.5 rounded-full text-sm transition whitespace-nowrap flex items-center gap-2 ${
-                selectedStyle 
-                  ? 'bg-pill-green text-pill-green-text' 
-                  : 'bg-pill-gray text-pill-gray-text'
-              } hover:opacity-80`}
-            >
-              {selectedStyle ? selectedStyle.name : 'Style'}
-            </button>
+            {/* Style Icon Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setIsStylesModalOpen(true)}
+                  className={`p-2.5 rounded-full transition ${
+                    selectedStyle 
+                      ? 'bg-emerald-100 text-emerald-600' 
+                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                  }`}
+                >
+                  <Brush size={18} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Style</TooltipContent>
+            </Tooltip>
             
-            <button 
-              onClick={onCharactersClick}
-              className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                activeCharacters.length > 0 
-                  ? 'bg-pill-green text-pill-green-text' 
-                  : 'bg-pill-gray text-pill-gray-text'
-              } hover:opacity-80`}
-            >
-              <User size={14} />
-              Character
-            </button>
+            {/* Character Icon Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={onCharactersClick}
+                  className={`p-2.5 rounded-full transition ${
+                    activeCharacters.length > 0 
+                      ? 'bg-emerald-100 text-emerald-600' 
+                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                  }`}
+                >
+                  <User size={18} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Character</TooltipContent>
+            </Tooltip>
             
-            <button
-              onClick={onReferencesClick}
-              className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                activeReferences.length > 0 
-                  ? 'bg-pill-green text-pill-green-text' 
-                  : 'bg-pill-gray text-pill-gray-text'
-              } hover:opacity-80`}
-            >
-              <Upload size={14} />
-              Reference
-              {activeReferences.length > 0 && (
-                <span className="bg-pill-green-text/20 px-1.5 py-0.5 rounded text-xs font-medium">
-                  {activeReferences.length}
-                </span>
-              )}
-            </button>
+            {/* Reference Icon Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onReferencesClick}
+                  className={`p-2.5 rounded-full transition ${
+                    activeReferences.length > 0 
+                      ? 'bg-emerald-100 text-emerald-600' 
+                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                  }`}
+                >
+                  <Link size={18} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Reference</TooltipContent>
+            </Tooltip>
             
             {/* Mask Upload Button - Only show for Ideogram Edit when reference is selected */}
             {selectedModel === 'ideogram' && selectedReferences.length > 0 && (
@@ -7141,17 +7102,22 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </Popover>
             )}
             
+            {/* Ratio Icon Button */}
             <Popover open={isAspectRatioDropdownOpen} onOpenChange={setIsAspectRatioDropdownOpen}>
-              <PopoverTrigger asChild>
-                <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                  selectedAspectRatio !== '1:1' 
-                    ? 'bg-pill-green text-pill-green-text' 
-                    : 'bg-pill-gray text-pill-gray-text'
-                } hover:opacity-80`}>
-                  {selectedAspectRatio}
-                  <ChevronDown size={14} />
-                </button>
-              </PopoverTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button className={`p-2.5 rounded-full transition ${
+                      selectedAspectRatio !== '1:1' 
+                        ? 'bg-emerald-100 text-emerald-600' 
+                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                    }`}>
+                      <Copy size={18} />
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Ratio</TooltipContent>
+              </Tooltip>
               <PopoverContent className="w-56 bg-background border-border z-50">
                 <div className="space-y-1">
                   {availableAspectRatios.includes('1:1') && (
@@ -7253,13 +7219,22 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </div>
               </PopoverContent>
             </Popover>
+            {/* Number Icon Button */}
             <Popover open={isNumberOfImagesDropdownOpen} onOpenChange={setIsNumberOfImagesDropdownOpen}>
-              <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80 transition">
-                  {numberOfImages} {numberOfImages === 1 ? 'Image' : 'Images'}
-                  <ChevronDown size={14} />
-                </button>
-              </PopoverTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button className={`p-2.5 rounded-full transition ${
+                      numberOfImages !== 1 
+                        ? 'bg-emerald-100 text-emerald-600' 
+                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                    }`}>
+                      <Hash size={18} />
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Number</TooltipContent>
+              </Tooltip>
               <PopoverContent className="w-48 bg-background border-border z-50">
                 <div className="space-y-1">
                   <button 
@@ -7318,10 +7293,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </button>
                 </div>
               </PopoverContent>
-            </Popover>
-                <button className="text-muted-foreground hover:text-foreground transition bg-muted rounded-lg p-2">
-                  <MoreVertical size={20} />
-                </button>
+              </Popover>
               </>
             )}
           </div>
