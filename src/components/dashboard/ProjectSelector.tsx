@@ -183,8 +183,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
             {filteredProjects.length === 0 && (
               <div className="p-6 text-center">
                 <FolderKanban size={32} className="mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No projects found</p>
-                <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
+                <p className="text-sm text-muted-foreground">No Projects Found</p>
               </div>
             )}
           </div>
