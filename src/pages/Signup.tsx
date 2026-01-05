@@ -1,10 +1,198 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Mail, Check, Ticket } from 'lucide-react';
+import { ArrowLeft, Mail, Check, Ticket, Pause, Play } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSearchParams } from 'react-router-dom';
 import RevvenLogo from '@/components/RevvenLogo';
+
+// Showcase slides data - Pastel color backgrounds with hypnotic copy
+const showcaseSlides = [
+  {
+    title: "Idea To Video In Seconds",
+    description: "Stop waiting weeks for video content. Type your idea, and watch AI transform it into scroll-stopping videos that captivate your audience instantly.",
+    features: ["Text-to-Video", "AI Scripts", "Auto Editing"],
+    bgColor: "bg-violet-50",
+    accentColor: "text-violet-700",
+    pillBg: "bg-violet-200/60",
+  },
+  {
+    title: "Create Digital Products",
+    description: "Launch eBooks and courses in minutes, not months. AI writes, designs, and packages your expertise into products that sell while you sleep.",
+    features: ["eBook Creator", "Course Builder", "Instant Design"],
+    bgColor: "bg-rose-50",
+    accentColor: "text-rose-700",
+    pillBg: "bg-rose-200/60",
+  },
+  {
+    title: "AI Music & Audio Studio",
+    description: "Compose original soundtracks, jingles, and audio that's 100% yours. No licensing fees. No copyright strikes. Just pure creativity.",
+    features: ["Music Generation", "Sound Effects", "Voice Cloning"],
+    bgColor: "bg-teal-50",
+    accentColor: "text-teal-700",
+    pillBg: "bg-teal-200/60",
+  },
+  {
+    title: "Professional Video Editing",
+    description: "Hollywood-level editing without the learning curve. AI handles the cuts, transitions, and effects—you just approve the magic.",
+    features: ["Smart Cuts", "Auto Captions", "Effects Library"],
+    bgColor: "bg-amber-50",
+    accentColor: "text-amber-700",
+    pillBg: "bg-amber-200/60",
+  },
+  {
+    title: "Product Video Photoshoot",
+    description: "Turn any product photo into a stunning video ad. No studio. No crew. No budget. Just upload and let AI create video magic.",
+    features: ["Product Ads", "Lifestyle Shots", "Brand Videos"],
+    bgColor: "bg-blue-50",
+    accentColor: "text-blue-700",
+    pillBg: "bg-blue-200/60",
+  },
+  {
+    title: "AI Digital Characters",
+    description: "Create lifelike AI influencers and spokespersons that work 24/7. Your brand's new face never takes a day off.",
+    features: ["AI Avatars", "Voice Cloning", "Talking Photos"],
+    bgColor: "bg-fuchsia-50",
+    accentColor: "text-fuchsia-700",
+    pillBg: "bg-fuchsia-200/60",
+  },
+  {
+    title: "Build Apps In Minutes",
+    description: "No coding required. Describe your dream app and watch AI build it before your eyes. From idea to launch in a single session.",
+    features: ["No-Code Builder", "AI Development", "Instant Deploy"],
+    bgColor: "bg-emerald-50",
+    accentColor: "text-emerald-700",
+    pillBg: "bg-emerald-200/60",
+  },
+  {
+    title: "Custom Business CRM",
+    description: "Manage leads, automate follow-ups, and close more deals. Your AI-powered command center for unstoppable business growth.",
+    features: ["Lead Tracking", "Auto Follow-ups", "Smart Analytics"],
+    bgColor: "bg-slate-100",
+    accentColor: "text-slate-700",
+    pillBg: "bg-slate-200/60",
+  },
+  {
+    title: "Social Content Empire",
+    description: "30 days of content in 30 seconds. AI creates, schedules, and posts across every platform. Dominate social while you focus on business.",
+    features: ["Auto Scheduling", "Multi-Platform", "Viral Content"],
+    bgColor: "bg-sky-50",
+    accentColor: "text-sky-700",
+    pillBg: "bg-sky-200/60",
+  },
+  {
+    title: "AI Image Generation",
+    description: "Create stunning visuals that stop thumbs and turn heads. Professional-quality images for ads, posts, and products—generated in seconds.",
+    features: ["Photo-Realistic", "Art Styles", "Brand Assets"],
+    bgColor: "bg-indigo-50",
+    accentColor: "text-indigo-700",
+    pillBg: "bg-indigo-200/60",
+  },
+  {
+    title: "Voice & Audio Magic",
+    description: "Clone any voice. Generate voiceovers. Create podcasts. Your audio content game is about to become absolutely unstoppable.",
+    features: ["Voice Cloning", "AI Voiceovers", "Podcast Creation"],
+    bgColor: "bg-red-50",
+    accentColor: "text-red-700",
+    pillBg: "bg-red-200/60",
+  },
+  {
+    title: "Video Translation",
+    description: "Reach the world in 90+ languages. AI translates your videos with perfect lip-sync—your content, every language, zero barriers.",
+    features: ["90+ Languages", "Lip-Sync", "Voice Matching"],
+    bgColor: "bg-lime-50",
+    accentColor: "text-lime-700",
+    pillBg: "bg-lime-200/60",
+  },
+  {
+    title: "AI Agents That Work 24/7",
+    description: "Deploy intelligent agents that automate your entire workflow—from lead follow-ups to customer support. They never sleep, never complain, never miss a beat.",
+    features: ["Workflow Automation", "Smart Responses", "Always On"],
+    bgColor: "bg-orange-50",
+    accentColor: "text-orange-700",
+    pillBg: "bg-orange-200/60",
+  },
+  {
+    title: "Automated Lead Generation",
+    description: "Find and capture high-quality leads on autopilot. AI identifies your ideal customers, reaches out, and fills your pipeline while you focus on closing.",
+    features: ["Smart Targeting", "Auto Outreach", "Lead Scoring"],
+    bgColor: "bg-cyan-50",
+    accentColor: "text-cyan-700",
+    pillBg: "bg-cyan-200/60",
+  },
+  {
+    title: "White-Label Your Empire",
+    description: "Rebrand the entire platform as your own and sell to clients. Build a SaaS empire without writing a single line of code. Your brand, your business, your profits.",
+    features: ["Custom Branding", "Client Portals", "Recurring Revenue"],
+    bgColor: "bg-purple-50",
+    accentColor: "text-purple-700",
+    pillBg: "bg-purple-200/60",
+  },
+  {
+    title: "AI-Powered Ad Campaigns",
+    description: "Create scroll-stopping ads and launch campaigns across Meta, Google, and TikTok in minutes. AI optimizes your spend and maximizes ROAS automatically.",
+    features: ["Ad Creative AI", "Multi-Platform Launch", "Auto-Optimization"],
+    bgColor: "bg-red-50",
+    accentColor: "text-red-700",
+    pillBg: "bg-red-200/60",
+  },
+  {
+    title: "Auto-Pilot Social Media",
+    description: "Create, schedule, and post content across all platforms automatically. AI writes captions, designs graphics, and posts at peak engagement times.",
+    features: ["Multi-Platform Posting", "AI Captions", "Smart Scheduling"],
+    bgColor: "bg-sky-50",
+    accentColor: "text-sky-700",
+    pillBg: "bg-sky-200/60",
+  },
+  {
+    title: "Competitor Intelligence",
+    description: "Spy on competitors' ads, emails, social strategies, and websites. Know exactly what's working for them—then do it better.",
+    features: ["Ad Spy Tools", "Email Tracking", "Strategy Analysis"],
+    bgColor: "bg-slate-50",
+    accentColor: "text-slate-700",
+    pillBg: "bg-slate-200/60",
+  },
+  {
+    title: "Your Brand, Every Output",
+    description: "Every piece of content—videos, images, copy, emails—automatically matches your brand identity, voice, and style guidelines. Perfect consistency at scale.",
+    features: ["Brand Voice AI", "Style Matching", "Visual Consistency"],
+    bgColor: "bg-fuchsia-50",
+    accentColor: "text-fuchsia-700",
+    pillBg: "bg-fuchsia-200/60",
+  },
+  {
+    title: "Revenue Dashboard & Analytics",
+    description: "Track every dollar, every conversion, every metric in one beautiful dashboard. AI predicts trends and suggests optimizations to maximize profit.",
+    features: ["Real-Time Revenue", "AI Predictions", "ROI Tracking"],
+    bgColor: "bg-emerald-50",
+    accentColor: "text-emerald-700",
+    pillBg: "bg-emerald-200/60",
+  },
+  {
+    title: "One-Click Funnels & Websites",
+    description: "Build high-converting funnels and websites in seconds. AI designs, writes copy, and optimizes for conversions—no designers or developers needed.",
+    features: ["Funnel Builder", "AI Copywriting", "Conversion Optimized"],
+    bgColor: "bg-amber-50",
+    accentColor: "text-amber-700",
+    pillBg: "bg-amber-200/60",
+  },
+  {
+    title: "Stunning Websites in Minutes",
+    description: "Describe your vision and watch AI build beautiful, responsive landing pages and websites instantly. Edit with drag-and-drop. Launch in one click.",
+    features: ["AI Website Builder", "Drag & Drop", "Instant Publish"],
+    bgColor: "bg-teal-50",
+    accentColor: "text-teal-700",
+    pillBg: "bg-teal-200/60",
+  },
+  {
+    title: "And So Much More...",
+    description: "Run your entire business on autopilot. Outpace competitors while they're still hiring. This isn't just a tool—it's the unfair advantage they'll never see coming.",
+    features: ["Automate Everything", "Outwork Anyone", "Unfair Advantage"],
+    bgColor: "bg-gradient-to-br from-brand-green/10 to-emerald-50",
+    accentColor: "text-brand-green",
+    pillBg: "bg-brand-green/20",
+  },
+];
 
 export default function SignupPage() {
   const [searchParams] = useSearchParams();
@@ -20,7 +208,20 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
   
+  // Auto-sliding carousel state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  
   const otpInputs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Auto-advance slides (slower: 7 seconds)
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % showcaseSlides.length);
+    }, 7000);
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
   // Countdown timer for resend OTP
   useEffect(() => {
@@ -274,93 +475,64 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Brand Green */}
-      <div className="hidden lg:flex flex-1 bg-brand-green p-12 flex-col justify-center relative overflow-hidden">
-        {/* Logo */}
-        <div className="absolute top-8 left-8 flex items-center gap-2.5 text-white">
-          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-            <span className="text-white font-bold text-sm">R</span>
+      {/* Left Side - Auto-Sliding Showcase with Pastel Backgrounds */}
+      <div className={`hidden lg:flex flex-1 ${showcaseSlides[currentSlide].bgColor} p-12 flex-col justify-center relative overflow-hidden transition-all duration-700`}>
+        {/* Slide Content */}
+        <div className="max-w-xl relative z-10">
+          <div className="mb-8">
+            <span className={`inline-block px-4 py-1.5 ${showcaseSlides[currentSlide].pillBg} backdrop-blur-sm rounded-full ${showcaseSlides[currentSlide].accentColor} text-sm font-medium mb-6`}>
+              ✨ Powered By AI
+            </span>
+            <h2 className={`text-4xl md:text-5xl font-bold ${showcaseSlides[currentSlide].accentColor} mb-4 leading-tight transition-all duration-500`}>
+              {showcaseSlides[currentSlide].title}
+            </h2>
+            <p className="text-gray-700 text-lg leading-relaxed transition-all duration-500">
+              {showcaseSlides[currentSlide].description}
+            </p>
           </div>
-          <span className="font-bold tracking-tight">REVVEN</span>
-        </div>
 
-        {/* Main Content */}
-        <div className="max-w-xl">
-          <h2 className="text-5xl font-bold text-white mb-4 leading-tight">
-            Let REVVEN Run Your Business While You Sleep
-          </h2>
-          <h3 className="text-2xl font-semibold text-green-100 mb-6">
-            Your 24/7 AI Engine For Content, Connection & Growth
-          </h3>
-          <p className="text-green-50 text-lg mb-12 leading-relaxed">
-            Automate your entire business with intelligent AI that never clocks out. 
-            Write, design, post, and reply in seconds while your business grows on autopilot.
-          </p>
+          {/* Feature Pills */}
+          <div className="flex flex-wrap gap-3 mb-12">
+            {showcaseSlides[currentSlide].features.map((feature, idx) => (
+              <span 
+                key={idx}
+                className={`px-4 py-2 ${showcaseSlides[currentSlide].pillBg} backdrop-blur-sm rounded-full ${showcaseSlides[currentSlide].accentColor} text-sm font-medium`}
+              >
+                {feature}
+              </span>
+            ))}
+          </div>
 
-          {/* Feature Cards */}
-          <div className="space-y-4">
-            <div className="bg-white p-4 rounded-xl shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl">💰</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    Create Digital Products With AI
-                  </h3>
-                  <p className="text-gray-600 text-xs">
-                    Create eBooks, guides, and offers ready to sell 24/7.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl">💡</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    Create Social Content
-                  </h3>
-                  <p className="text-gray-600 text-xs">
-                    Turn ideas into scroll-stopping posts, videos, and carousels in seconds.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl">🚀</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    Post Social Content
-                  </h3>
-                  <p className="text-gray-600 text-xs">
-                    Schedule and publish automatically across every platform for nonstop visibility.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl">💬</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    Reply To Comments, DMs & Stories
-                  </h3>
-                  <p className="text-gray-600 text-xs">
-                    Keep your followers engaged with instant AI replies that sound like you.
-                  </p>
-                </div>
-              </div>
-            </div>
+          {/* Slide Indicators + Pause Button */}
+          <div className="flex items-center gap-3">
+            {showcaseSlides.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  idx === currentSlide 
+                    ? `w-8 ${showcaseSlides[currentSlide].accentColor.replace('text-', 'bg-').replace('-700', '-500')}` 
+                    : 'w-2 bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+            
+            {/* Pause/Play Button */}
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className={`ml-2 p-2 rounded-full ${showcaseSlides[currentSlide].pillBg} ${showcaseSlides[currentSlide].accentColor} hover:opacity-80 transition-opacity`}
+              aria-label={isPaused ? 'Play slideshow' : 'Pause slideshow'}
+            >
+              {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute bottom-0 right-0 w-96 h-96 opacity-10">
-          <div className="absolute inset-0 bg-white rounded-full blur-3xl"></div>
-        </div>
+        <div className="absolute top-20 right-20 w-64 h-64 bg-white/40 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-10 w-48 h-48 bg-white/30 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 right-10 w-32 h-32 bg-white/20 rounded-full blur-xl"></div>
       </div>
 
       {/* Right Side - Signup Form */}
