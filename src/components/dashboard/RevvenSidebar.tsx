@@ -111,7 +111,7 @@ const RevvenSidebar = ({
           <button 
             className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors group relative"
             title="AIVA"
-            onClick={onAIVAClick}
+            onClick={() => navigate('/chat')}
             onMouseEnter={() => setIsAIVAHovered(true)}
             onMouseLeave={() => setIsAIVAHovered(false)}
           >
@@ -326,7 +326,7 @@ const RevvenSidebar = ({
           className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-zinc-400 text-sm font-medium hover:bg-zinc-800 transition-colors"
           onMouseEnter={() => setIsAIVAHovered(true)}
           onMouseLeave={() => setIsAIVAHovered(false)}
-          onClick={onAIVAClick}
+          onClick={() => navigate('/chat')}
         >
           <Sparkles 
             size={18} 
