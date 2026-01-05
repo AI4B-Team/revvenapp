@@ -515,8 +515,8 @@ const Create = () => {
       onClick: () => navigate('/ebook-creator')
     },
     { 
-      name: 'Newsletter', 
-      description: 'Build & manage email newsletters',
+      name: 'Job Newsletter', 
+      description: 'Build & manage job newsletters',
       bgColor: 'bg-tool-pink',
       emoji: '📰',
       onClick: () => navigate('/newsletter')
