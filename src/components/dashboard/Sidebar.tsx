@@ -194,7 +194,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandsDropdownOpen, setIsBrandsDropdownOpen] = useState(false);
-  const [isBrandOpen, setIsBrandOpen] = useState(isBrandPage);
+  
   const [isCampaignsOpen, setIsCampaignsOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
@@ -218,12 +218,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     'Sites': isSitesPage
   });
 
-  // Auto-expand brand section when on brand page
-  useEffect(() => {
-    if (isBrandPage) {
-      setIsBrandOpen(true);
-    }
-  }, [isBrandPage]);
 
   // Keep Sites dropdown open when on any sites sub-page
   useEffect(() => {
@@ -404,7 +398,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48 bg-popover">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/brand')}>
                         <Edit size={14} className="mr-2" />
                         Edit Brand
                       </DropdownMenuItem>
@@ -416,7 +410,10 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                   </DropdownMenu>
                 </div>
               ))}
-              <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition mt-2 border-t border-border text-sidebar-text">
+              <button 
+                onClick={() => navigate('/brand')}
+                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition mt-2 border-t border-border text-sidebar-text"
+              >
                 <div className="w-8 h-8 bg-brand-green rounded flex items-center justify-center text-sm font-bold text-primary">
                   +
                 </div>
@@ -448,69 +445,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           </NavLink>
         ))}
 
-        {/* Brand Section */}
-        <div className="pt-2">
-          <button 
-            onClick={() => {
-              setIsBrandOpen(!isBrandOpen);
-              navigate('/brand/identity');
-            }}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-              isBrandPage ? 'bg-sidebar-active' : ''
-            }`}
-            title="Brand"
-          >
-            <span className="text-sidebar-muted">
-              <Briefcase size={18} />
-            </span>
-            {!isCollapsed && <span className="flex-1 text-left text-sm">Brand</span>}
-            {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />}
-          </button>
-          {isBrandOpen && !isCollapsed && (
-          <div className="ml-6 mt-2 space-y-2 bg-sidebar">
-            <NavLink
-              to="/brand/identity"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
-            >
-              <UserCircle size={14} />
-              <span className="text-sm">Identity</span>
-            </NavLink>
-            <NavLink
-              to="/brand/voice"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
-            >
-              <Mic size={14} />
-              <span className="text-sm">Voice</span>
-            </NavLink>
-            <NavLink
-              to="/brand/knowledge-base"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
-            >
-              <BookOpen size={14} />
-              <span className="text-sm">Knowledge</span>
-            </NavLink>
-            <NavLink
-              to="/brand/intelligence"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
-            >
-              <Target size={14} />
-              <span className="text-sm">Intelligence</span>
-            </NavLink>
-            <NavLink
-              to="/brand/characters"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
-            >
-              <Users size={14} />
-              <span className="text-sm">Characters</span>
-            </NavLink>
-          </div>
-          )}
-        </div>
         {/* Library Section */}
         <div className="pt-2">
           <NavLink

@@ -33,14 +33,7 @@ import Products from "./pages/Products";
 import Onboarding from "./pages/Onboarding";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import BrandLayout from "./pages/brand/BrandLayout";
-import Identity from "./pages/brand/Identity";
-import Voice from "./pages/brand/Voice";
-import KnowledgeBase from "./pages/brand/KnowledgeBase";
-import Intelligence from "./pages/brand/Intelligence";
-import Characters from "./pages/brand/Characters";
-import Review from "./pages/brand/Review";
-import Complete from "./pages/brand/Complete";
+import Brand from "./pages/Brand";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import SignupFlow from "./pages/SignupFlow";
@@ -159,16 +152,7 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
             <Route path="/account" element={<Settings />} />
-            <Route path="/brand" element={<BrandLayout />}>
-              <Route index element={<Identity />} />
-              <Route path="identity" element={<Identity />} />
-              <Route path="voice" element={<Voice />} />
-              <Route path="knowledge-base" element={<KnowledgeBase />} />
-              <Route path="intelligence" element={<Intelligence />} />
-              <Route path="characters" element={<Characters />} />
-              <Route path="review" element={<Review />} />
-              <Route path="complete" element={<Complete />} />
-            </Route>
+            <Route path="/brand" element={<Brand />} />
             {/* Admin Routes */}
             <Route path="/manage" element={<AdminDashboard />} />
             <Route path="/manage/users" element={<AdminUsers />} />
