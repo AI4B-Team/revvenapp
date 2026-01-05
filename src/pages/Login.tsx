@@ -106,6 +106,30 @@ const showcaseSlides = [
     accentColor: "text-lime-700",
     pillBg: "bg-lime-200/60",
   },
+  {
+    title: "AI Agents That Work 24/7",
+    description: "Deploy intelligent agents that automate your entire workflow—from lead follow-ups to customer support. They never sleep, never complain, never miss a beat.",
+    features: ["Workflow Automation", "Smart Responses", "Always On"],
+    bgColor: "bg-orange-50",
+    accentColor: "text-orange-700",
+    pillBg: "bg-orange-200/60",
+  },
+  {
+    title: "Automated Lead Generation",
+    description: "Find and capture high-quality leads on autopilot. AI identifies your ideal customers, reaches out, and fills your pipeline while you focus on closing.",
+    features: ["Smart Targeting", "Auto Outreach", "Lead Scoring"],
+    bgColor: "bg-cyan-50",
+    accentColor: "text-cyan-700",
+    pillBg: "bg-cyan-200/60",
+  },
+  {
+    title: "White-Label Your Empire",
+    description: "Rebrand the entire platform as your own and sell to clients. Build a SaaS empire without writing a single line of code. Your brand, your business, your profits.",
+    features: ["Custom Branding", "Client Portals", "Recurring Revenue"],
+    bgColor: "bg-purple-50",
+    accentColor: "text-purple-700",
+    pillBg: "bg-purple-200/60",
+  },
 ];
 
 export default function LoginPage() {
