@@ -1336,7 +1336,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   );
 
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden mt-8">
+    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden mt-8 w-full min-w-0">
       {/* Main Header */}
       <div className="px-6 py-4 border-b border-border">
         <div className="flex items-center justify-between">
