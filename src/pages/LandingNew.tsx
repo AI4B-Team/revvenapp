@@ -69,7 +69,7 @@ const LandingNew = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center px-6 pt-8 pb-16 max-w-5xl mx-auto w-full">
+      <main className="flex-1 flex flex-col items-center px-6 pt-8 pb-16 w-full">
         {/* Shared AIVA Prompt Box with tagline */}
         <div className="w-full">
           <AIVAPromptBox onGenerate={handleGenerate} showTagline={true} />
