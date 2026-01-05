@@ -88,7 +88,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-center p-2 hover:bg-sidebar-hover rounded-lg transition"
-        title={selectedProject.name}
+        title={selectedProject?.name ?? "Projects"}
       >
         <FolderKanban size={20} className="text-sidebar-muted" />
       </button>

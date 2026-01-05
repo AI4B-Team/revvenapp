@@ -102,12 +102,27 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Create mode dropdown state (Image)
   const [selectedCreateMode, setSelectedCreateMode] = useState('Create');
-  
+  const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
+  const promptBoxRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isCreateModeDropdownOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const el = promptBoxRef.current;
+      if (!el) return;
+      if (!el.contains(event.target as Node)) setIsCreateModeDropdownOpen(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [isCreateModeDropdownOpen]);
+
   // Audio mode dropdown state
   const [selectedAudioMode, setSelectedAudioModeInternal] = useState('Voiceover');
   const [isAudioModeDropdownOpen, setIsAudioModeDropdownOpen] = useState(false);
-  const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
   
+
   // Wrapper to notify parent of audio mode changes
   const setSelectedAudioMode = (mode: string) => {
     setSelectedAudioModeInternal(mode);
@@ -3368,7 +3383,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   
   return (
     <div className="mx-auto mb-12 transition-all duration-300 w-full" style={{ maxWidth: 'calc(100% - 2rem)' }}>
-      <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg min-h-[180px]">
+      <div ref={promptBoxRef} className="relative bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg min-h-[180px]">
         <div className="flex items-start gap-3 mb-6" style={{ height: promptHeight }}>
           <div className="flex flex-col gap-2">
             <TooltipProvider>
@@ -6592,67 +6607,47 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <>
                 {/* Image Mode Controls */}
                 {/* Type Dropdown - shows selected mode or "Type" */}
-                <Popover open={isCreateModeDropdownOpen} onOpenChange={setIsCreateModeDropdownOpen}>
-                  <PopoverTrigger asChild>
-                    {(() => {
-                      const mode = createModes.find(m => m.value === selectedCreateMode);
-                      const isTypeSelected = selectedCreateMode !== 'Create';
-                      return (
-                        <button className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
-                          isTypeSelected 
-                            ? `${mode?.bg || 'bg-slate-100'} ${mode?.color || 'text-slate-600'}` 
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
-                        }`}>
-                          {isTypeSelected ? (
-                            <>
-                              {(() => {
-                                const IconComponent = mode?.icon || Sparkles;
-                                return <IconComponent size={16} />;
-                              })()}
-                              <span>{selectedCreateMode}</span>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedCreateMode('Create');
-                                }}
-                                className="ml-1 p-0.5 hover:opacity-70 rounded"
-                              >
-                                <X size={12} />
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <LayoutGrid size={16} className="text-slate-500" />
-                              <span>Type</span>
-                            </>
-                          )}
-                        </button>
-                      );
-                    })()}
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-3 bg-background border-border z-50" align="start" side="bottom" sideOffset={8}>
-                    <div className="grid grid-cols-4 gap-2">
-                      {createModes.map((mode) => {
-                        const IconComponent = mode.icon;
-                        return (
-                          <button
-                            key={mode.value}
-                            onClick={() => {
-                              setSelectedCreateMode(mode.value);
+                {(() => {
+                  const mode = createModes.find(m => m.value === selectedCreateMode);
+                  const isTypeSelected = selectedCreateMode !== 'Create';
+                  return (
+                    <button
+                      onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
+                      aria-expanded={isCreateModeDropdownOpen}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                        isTypeSelected
+                          ? `${mode?.bg || 'bg-slate-100'} ${mode?.color || 'text-slate-600'}`
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {isTypeSelected ? (
+                        <>
+                          {(() => {
+                            const IconComponent = mode?.icon || Sparkles;
+                            return <IconComponent size={16} />;
+                          })()}
+                          <span>{selectedCreateMode}</span>
+                          <button 
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCreateMode('Create');
                               setIsCreateModeDropdownOpen(false);
                             }}
-                            className={`text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
-                              selectedCreateMode === mode.value ? 'bg-secondary' : ''
-                            }`}
+                            className="ml-1 p-0.5 hover:opacity-70 rounded"
                           >
-                            <IconComponent size={16} className={mode.color} />
-                            {mode.label}
+                            <X size={12} />
                           </button>
-                        );
-                      })}
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                        </>
+                      ) : (
+                        <>
+                          <LayoutGrid size={16} className="text-slate-500" />
+                          <span>Type</span>
+                        </>
+                      )}
+                    </button>
+                  );
+                })()}
 
                 {/* Only show separator and other buttons when a type is selected */}
                 {selectedCreateMode !== 'Create' && (
@@ -7600,6 +7595,32 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             </TooltipProvider>
           </div>
         </div>
+
+        {/* Image Type Dropdown Panel - below the prompt box */}
+        {!isVideoMode && !isAudioMode && !isDesignMode && !isContentMode && !isAppsMode && !isDocumentMode && isCreateModeDropdownOpen && (
+          <div className="absolute left-0 right-0 top-full mt-3 bg-popover border border-border rounded-xl shadow-xl p-4 z-50">
+            <div className="grid grid-cols-4 gap-2">
+              {createModes.map((mode) => {
+                const IconComponent = mode.icon;
+                return (
+                  <button
+                    key={mode.value}
+                    onClick={() => {
+                      setSelectedCreateMode(mode.value);
+                      setIsCreateModeDropdownOpen(false);
+                    }}
+                    className={`text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
+                      selectedCreateMode === mode.value ? 'bg-secondary' : ''
+                    }`}
+                  >
+                    <IconComponent size={16} className={mode.color} />
+                    {mode.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Storyboard Scene Editor - Only visible when Story is selected in Video mode AND Manual mode */}
