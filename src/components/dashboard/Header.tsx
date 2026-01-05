@@ -306,85 +306,182 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <DropdownMenuContent className="w-64 bg-sidebar border-sidebar-hover p-4" align="end">
+          <DropdownMenuContent className="w-72 bg-white border border-gray-200 rounded-2xl p-4 shadow-xl z-50" align="end">
             {/* Header Section */}
-            <div className="flex items-start gap-2 mb-3">
+            <div className="flex items-center gap-3 mb-4">
               <div className="relative">
-                <Avatar className="h-10 w-10 ring-2 ring-emerald-500">
-                  <AvatarImage src={userAvatar} />
-                  <AvatarFallback className="bg-secondary">
-                    {userName ? userName.charAt(0).toUpperCase() : <User size={18} />}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="absolute -top-1 -right-1 bg-brand-yellow rounded-full p-0.5">
-                  <Crown size={10} className="text-background" />
+                <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <User size={24} className="text-emerald-600" />
+                </div>
+                <div className="absolute -top-1 -right-1 bg-amber-400 rounded-full p-1">
+                  <Crown size={10} className="text-white" />
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-base font-semibold text-white truncate">{userName || 'User'}</h3>
-                <p className="text-xs text-gray-400 truncate">{userEmail || 'No email'}</p>
+                <h3 className="text-base font-semibold text-gray-900 truncate">{userName || 'User'}</h3>
+                <p className="text-sm text-gray-500 truncate">{userEmail || 'No email'}</p>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-1.5 mb-3">
-              <Button className="w-full bg-brand-green hover:bg-brand-green/90 text-white h-9 text-sm">
-                <Zap size={14} className="mr-1.5" />
+            <div className="space-y-2 mb-4">
+              <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-10 text-sm font-medium rounded-lg">
+                <Zap size={16} className="mr-2" />
                 {t('nav.upgrade')}
               </Button>
-              <Button variant="outline" className="w-full bg-transparent border border-white/30 hover:bg-white hover:text-slate-900 text-white h-9 text-sm transition-all">
-                <UserPlus size={14} className="mr-1.5" />
+              <Button variant="outline" className="w-full bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700 h-10 text-sm font-medium rounded-lg">
+                <UserPlus size={16} className="mr-2" />
                 {t('settings.addMembers')}
               </Button>
             </div>
 
-            <DropdownMenuSeparator className="bg-sidebar-hover my-2" />
+            <DropdownMenuSeparator className="bg-gray-100 my-3" />
 
             {/* Menu Items */}
-            <div className="space-y-0.5">
-              <DropdownMenuItem asChild className="flex items-center justify-between py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
+            <div className="space-y-1">
+              <DropdownMenuItem asChild className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
                 <Link to="/account?tab=billing" className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2">
-                    <CreditCard size={16} />
+                  <div className="flex items-center gap-3">
+                    <CreditCard size={18} className="text-gray-500" />
                     <span>{t('settings.subscription')}</span>
                   </div>
-                  <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700 text-xs px-1.5 py-0">
-                    Pro
-                  </Badge>
+                  <span className="text-sm text-gray-400">Pro</span>
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
-                <Link to="/account?tab=my-details" className="flex items-center gap-2 w-full">
-                  <Settings size={16} />
+              <DropdownMenuItem asChild className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
+                <Link to="/account?tab=my-details" className="flex items-center gap-3 w-full">
+                  <Settings size={18} className="text-gray-500" />
                   <span>{t('settings.account')}</span>
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
-                <Link to="/account?tab=invites" className="flex items-center gap-2 w-full">
-                  <Mail size={16} />
+              <DropdownMenuItem asChild className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
+                <Link to="/account?tab=invites" className="flex items-center gap-3 w-full">
+                  <Mail size={18} className="text-gray-500" />
                   <span>{t('settings.invites')}</span>
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-sidebar-hover cursor-pointer text-white text-sm">
-                <Link to="/account?tab=integrations" className="flex items-center gap-2 w-full">
-                  <Plug size={16} />
+              <DropdownMenuItem asChild className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
+                <Link to="/account?tab=integrations" className="flex items-center gap-3 w-full">
+                  <Plug size={18} className="text-gray-500" />
                   <span>{t('settings.integrations')}</span>
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator className="bg-sidebar-hover my-1.5" />
+              <DropdownMenuSeparator className="bg-gray-100 my-2" />
 
-              {/* Logout */}
-              <DropdownMenuItem 
-                onClick={handleSignOut}
-                className="flex items-center gap-2 py-2 px-2 rounded-md cursor-pointer text-red-400 hover:bg-sidebar-hover hover:text-red-300 text-sm"
+              {/* Language */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm w-full">
+                  <div className="flex items-center gap-3">
+                    <Languages size={18} className="text-gray-500" />
+                    <span>Language:</span>
+                  </div>
+                  <span className="text-gray-400 text-sm">{selectedLanguage}</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="bg-white border border-gray-200 rounded-xl p-2 shadow-lg z-50">
+                  <div className="p-2">
+                    <Input
+                      placeholder="Search languages..."
+                      value={languageSearch}
+                      onChange={(e) => setLanguageSearch(e.target.value)}
+                      className="h-8 text-sm bg-gray-50 border-gray-200"
+                    />
+                  </div>
+                  {filteredLanguages.map((lang) => (
+                    <DropdownMenuItem
+                      key={lang.name}
+                      onClick={() => setSelectedLanguage(lang.name)}
+                      className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{lang.flag}</span>
+                        <span className="text-sm">{lang.name}</span>
+                      </div>
+                      {selectedLanguage === lang.name && (
+                        <Check size={14} className="text-emerald-500" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+
+              {/* Theme */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm w-full">
+                  <div className="flex items-center gap-3">
+                    <Sun size={18} className="text-gray-500" />
+                    <span>Theme:</span>
+                  </div>
+                  <span className="text-gray-400 text-sm capitalize">{selectedTheme}</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="bg-white border border-gray-200 rounded-xl p-2 shadow-lg z-50">
+                  {themes.map((theme) => (
+                    <DropdownMenuItem
+                      key={theme.name}
+                      onClick={() => setSelectedTheme(theme.name)}
+                      className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700"
+                    >
+                      <div className="flex items-center gap-2">
+                        {theme.name === 'light' && <Sun size={16} />}
+                        {theme.name === 'dark' && <Moon size={16} />}
+                        {theme.name === 'split' && <SplitIcon />}
+                        <span className="text-sm">{theme.label}</span>
+                      </div>
+                      {selectedTheme === theme.name && (
+                        <Check size={14} className="text-emerald-500" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+            </div>
+
+            {/* Affiliate Button */}
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                className="w-full bg-pink-50 hover:bg-pink-100 text-pink-600 border-pink-200 h-10 text-sm font-medium rounded-lg"
+                onClick={() => setIsRewardsModalOpen(true)}
               >
-                <Power size={16} />
-                <span>{t('user.logout')}</span>
-              </DropdownMenuItem>
+                Join Affiliate Program
+              </Button>
+            </div>
+
+            {/* Logout Button */}
+            <div className="mt-2">
+              <Button 
+                onClick={handleSignOut}
+                className="w-full bg-red-500 hover:bg-red-600 text-white h-10 text-sm font-medium rounded-lg"
+              >
+                <Power size={16} className="mr-2" />
+                {t('user.logout')}
+              </Button>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-gray-400">
+                <Link to="/terms-of-service" className="hover:text-gray-600 transition">Terms</Link>
+                <span>|</span>
+                <Link to="/privacy-policy" className="hover:text-gray-600 transition">Privacy</Link>
+              </div>
+              <div className="flex items-center gap-2">
+                <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 transition">
+                  <DiscordIcon size={16} />
+                </a>
+                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 transition">
+                  <TwitterIcon size={16} />
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 transition">
+                  <YouTubeIcon size={16} />
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 transition">
+                  <InstagramIcon size={16} />
+                </a>
+              </div>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
