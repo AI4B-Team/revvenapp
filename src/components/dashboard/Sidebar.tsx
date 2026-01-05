@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import OnboardingProgress from './OnboardingProgress';
+import ProjectSelector from './ProjectSelector';
 import { creationsData } from '@/data/creationsData';
 
 interface SidebarProps {
@@ -352,6 +353,9 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         )}
         </div>
       )}
+
+      {/* Project Selector */}
+      <ProjectSelector isCollapsed={isCollapsed} />
 
       {/* Brands Dropdown */}
       {!isCollapsed && (
