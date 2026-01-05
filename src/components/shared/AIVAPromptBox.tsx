@@ -8,7 +8,7 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import type { LucideIcon } from 'lucide-react';
 
 const placeholdersByIntent: Record<Intent | 'default', string> = {
-  default: 'What do you want to do?',
+  default: 'Ask anything...',
   Create: 'Describe what you want to create…',
   Research: 'What do you want to research or understand?',
   Plan: 'What do you want to plan or map out?',
