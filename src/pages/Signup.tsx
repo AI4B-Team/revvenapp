@@ -473,7 +473,7 @@ export default function SignupPage() {
                     </p>
                   )}
                   {inviteCodeValid === true && (
-                    <p className="text-sm text-green-600 mt-1">
+                    <p className="text-sm text-brand-green mt-1">
                       Valid invite code!
                     </p>
                   )}
@@ -486,7 +486,7 @@ export default function SignupPage() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium"
+                  className="w-full h-12 bg-brand-green hover:opacity-90 text-white font-medium rounded-xl"
                 >
                   {loading ? 'Sending verification code...' : 'Continue'}
                 </Button>
@@ -532,7 +532,7 @@ export default function SignupPage() {
                 {/* Login Link */}
                 <div className="text-center text-sm text-gray-600 mt-6">
                   Already have an account?{' '}
-                  <a href="/login" className="text-green-600 hover:text-green-700 font-medium">
+                  <a href="/login" className="text-brand-green hover:opacity-80 font-medium">
                     Sign in
                   </a>
                 </div>
@@ -553,8 +553,8 @@ export default function SignupPage() {
               </button>
 
               <div className="mb-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-brand-green" />
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
                   Check your email
@@ -585,7 +585,7 @@ export default function SignupPage() {
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      className="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none transition-colors"
+                      className="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-brand-green focus:outline-none transition-colors"
                       disabled={loading}
                     />
                   ))}
@@ -596,7 +596,7 @@ export default function SignupPage() {
               <Button
                 onClick={() => handleOtpSubmit()}
                 disabled={loading || otp.some(d => !d)}
-                className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium mb-4"
+                className="w-full h-12 bg-brand-green hover:opacity-90 text-white font-medium rounded-xl mb-4"
               >
                 {loading ? 'Verifying...' : 'Verify Email'}
               </Button>
@@ -610,7 +610,7 @@ export default function SignupPage() {
                   <button
                     onClick={handleResendOtp}
                     disabled={loading}
-                    className="text-green-600 hover:text-green-700 font-medium"
+                    className="text-brand-green hover:opacity-80 font-medium"
                   >
                     Resend code
                   </button>
@@ -622,14 +622,14 @@ export default function SignupPage() {
           {/* Step 3: Success State */}
           {step === 'success' && (
             <div className="text-center">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check className="w-10 h-10 text-green-600" />
+              <div className="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check className="w-10 h-10 text-brand-green" />
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Email verified!</h1>
               <p className="text-gray-600 mb-6">
                 Setting up your workspace...
               </p>
-              <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="w-8 h-8 border-4 border-brand-green border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
           )}
         </div>
