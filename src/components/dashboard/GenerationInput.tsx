@@ -296,11 +296,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   const createModes = [
-    { value: 'Create', label: 'Create', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-100' },
-    { value: 'Batch', label: 'Batch', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-100' },
-    { value: 'Draw', label: 'Draw', icon: Pencil, color: 'text-orange-500', bg: 'bg-orange-100' },
-    { value: 'Swap', label: 'Swap', icon: RefreshCw, color: 'text-blue-500', bg: 'bg-blue-100' },
-    { value: 'Photoshoot', label: 'Photoshoot', icon: Image, color: 'text-red-500', bg: 'bg-red-100' },
+    { value: 'Create', label: 'Create', icon: Sparkles, color: 'text-pill-amber-text', bg: 'bg-pill-amber' },
+    { value: 'Batch', label: 'Batch', icon: Layers, color: 'text-pill-purple-text', bg: 'bg-pill-purple' },
+    { value: 'Draw', label: 'Draw', icon: Pencil, color: 'text-pill-orange-text', bg: 'bg-pill-orange' },
+    { value: 'Swap', label: 'Swap', icon: RefreshCw, color: 'text-pill-blue-text', bg: 'bg-pill-blue' },
+    { value: 'Photoshoot', label: 'Photoshoot', icon: Image, color: 'text-pill-red-text', bg: 'bg-pill-red' },
   ];
   
   const audioModes = [
@@ -6614,10 +6614,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <button
                       onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
                       aria-expanded={isCreateModeDropdownOpen}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${
                         isTypeSelected
-                          ? `${mode?.bg || 'bg-slate-100'} ${mode?.color || 'text-slate-600'}`
-                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                          ? `${mode?.bg || 'bg-secondary'} ${mode?.color || 'text-pill-gray-text'}`
+                          : 'bg-secondary text-pill-gray-text hover:bg-pill-gray'
                       }`}
                     >
                       {isTypeSelected ? (
@@ -6641,7 +6641,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </>
                       ) : (
                         <>
-                          <LayoutGrid size={16} className="text-slate-500" />
+                          <LayoutGrid size={16} className="text-pill-gray-text" />
                           <span>Type</span>
                         </>
                       )}
@@ -6668,12 +6668,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`px-3 py-1.5 rounded-lg transition flex items-center gap-2 text-sm font-medium ${
+                    <button className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium ${
                       selectedModel === 'auto' && selectedCreateMode === 'Create'
-                        ? 'bg-emerald-100 text-emerald-600' 
-                        : selectedModel !== 'auto' 
-                          ? 'bg-emerald-100 text-emerald-600' 
-                          : 'bg-slate-100 text-slate-400 hover:bg-emerald-100 hover:text-emerald-600'
+                        ? 'bg-pill-green text-pill-green-text'
+                        : selectedModel !== 'auto'
+                          ? 'bg-pill-green text-pill-green-text'
+                          : 'bg-secondary text-pill-gray-text hover:bg-pill-green hover:text-pill-green-text'
                     }`}>
                       <Box size={16} />
                       <span>{selectedModel === 'auto' ? 'Auto' : selectedModel}</span>
@@ -7108,10 +7108,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button
                   onClick={() => setIsStylesModalOpen(true)}
-                  className={`p-2.5 rounded-full transition ${
-                    selectedStyle 
-                      ? 'bg-purple-100 text-purple-600' 
-                      : 'bg-slate-100 text-slate-400 hover:bg-purple-100 hover:text-purple-600'
+                  className={`p-2.5 rounded-full transition-colors ${
+                    selectedStyle
+                      ? 'bg-pill-purple text-pill-purple-text'
+                      : 'bg-secondary text-pill-gray-text hover:bg-pill-purple hover:text-pill-purple-text'
                   }`}
                 >
                   <Brush size={18} />
@@ -7125,10 +7125,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button 
                   onClick={onCharactersClick}
-                  className={`p-2.5 rounded-full transition ${
-                    activeCharacters.length > 0 
-                      ? 'bg-blue-100 text-blue-600' 
-                      : 'bg-slate-100 text-slate-400 hover:bg-blue-100 hover:text-blue-600'
+                  className={`p-2.5 rounded-full transition-colors ${
+                    activeCharacters.length > 0
+                      ? 'bg-pill-blue text-pill-blue-text'
+                      : 'bg-secondary text-pill-gray-text hover:bg-pill-blue hover:text-pill-blue-text'
                   }`}
                 >
                   <User size={18} />
@@ -7142,10 +7142,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button
                   onClick={onReferencesClick}
-                  className={`p-2.5 rounded-full transition ${
-                    activeReferences.length > 0 
-                      ? 'bg-emerald-100 text-emerald-600' 
-                      : 'bg-slate-100 text-slate-400 hover:bg-emerald-100 hover:text-emerald-600'
+                  className={`p-2.5 rounded-full transition-colors ${
+                    activeReferences.length > 0
+                      ? 'bg-pill-green text-pill-green-text'
+                      : 'bg-secondary text-pill-gray-text hover:bg-pill-green hover:text-pill-green-text'
                   }`}
                 >
                   <Link size={18} />
@@ -7220,10 +7220,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition ${
-                      selectedAspectRatio !== '1:1' 
-                        ? 'bg-orange-100 text-orange-600' 
-                        : 'bg-slate-100 text-slate-400 hover:bg-orange-100 hover:text-orange-600'
+                    <button className={`p-2.5 rounded-full transition-colors ${
+                      selectedAspectRatio !== '1:1'
+                        ? 'bg-pill-orange text-pill-orange-text'
+                        : 'bg-secondary text-pill-gray-text hover:bg-pill-orange hover:text-pill-orange-text'
                     }`}>
                       <Copy size={18} />
                     </button>
@@ -7337,10 +7337,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition ${
-                      numberOfImages !== 1 
-                        ? 'bg-cyan-100 text-cyan-600' 
-                        : 'bg-slate-100 text-slate-400 hover:bg-cyan-100 hover:text-cyan-600'
+                    <button className={`p-2.5 rounded-full transition-colors ${
+                      numberOfImages !== 1
+                        ? 'bg-pill-cyan text-pill-cyan-text'
+                        : 'bg-secondary text-pill-gray-text hover:bg-pill-cyan hover:text-pill-cyan-text'
                     }`}>
                       <Hash size={18} />
                     </button>
