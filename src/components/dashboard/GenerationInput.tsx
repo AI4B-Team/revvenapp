@@ -16,6 +16,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useResizableTextarea } from '@/hooks/useResizableTextarea';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import ResizeHandle from '@/components/ui/ResizeHandle';
 import grokLogo from '@/assets/model-logos/grok.png';
 import StylesModal from './StylesModal';
@@ -334,6 +335,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     maxWidth: 1920,
     resizeDirection: 'both',
   });
+
+  // Speech recognition for mic button
+  const handleSpeechResult = useCallback((transcript: string) => {
+    setPrompt(transcript);
+  }, []);
+
+  const { isListening, isSupported, startListening, stopListening, cancelListening } = useSpeechRecognition({
+    onResult: handleSpeechResult,
+  });
+
+  const handleMicClick = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening(prompt);
+    }
+  };
   
   // Isolated state for each content type
   const [imageModeState, setImageModeState] = useState<ImageModeState>({
@@ -7382,15 +7400,63 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </PopoverContent>
             </Popover>
             
-            {/* Mic Button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2.5 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition">
-                  <Mic size={18} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Speak</TooltipContent>
-            </Tooltip>
+            {/* Mic Button with Speech Recognition */}
+            {isSupported && (
+              isListening ? (
+                <div className="flex items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => {
+                          cancelListening();
+                          setPrompt('');
+                        }}
+                        className="p-1.5 rounded-lg transition-colors bg-red-50 hover:bg-red-100"
+                      >
+                        <X size={16} className="text-red-500" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Cancel</TooltipContent>
+                  </Tooltip>
+                  <div className="flex items-center gap-[2px] px-2">
+                    {[...Array(12)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-[2px] bg-red-400 rounded-full origin-center"
+                        style={{
+                          height: '16px',
+                          animation: 'audioWave 0.6s ease-in-out infinite',
+                          animationDelay: `${i * 0.05}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleMicClick}
+                        className="p-1.5 rounded-lg transition-colors bg-green-50 hover:bg-green-100"
+                      >
+                        <Check size={16} className="text-green-600" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Done</TooltipContent>
+                  </Tooltip>
+                </div>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={handleMicClick}
+                      className="p-2.5 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition"
+                    >
+                      <Mic size={18} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Speak</TooltipContent>
+                </Tooltip>
+              )
+            )}
             
             <TooltipProvider>
               <Tooltip>
