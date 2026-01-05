@@ -129,7 +129,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
     setPrompt(transcript);
   }, []);
 
-  const { isListening, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition({
+  const { isListening, isSupported, startListening, stopListening, cancelListening } = useSpeechRecognition({
     onResult: handleTranscriptResult,
   });
 
@@ -318,8 +318,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                       <TooltipTrigger asChild>
                         <button 
                           onClick={() => {
-                            stopListening();
-                            resetTranscript();
+                            cancelListening();
                             setPrompt('');
                           }}
                           className="p-1.5 rounded-lg transition-colors bg-red-50 hover:bg-red-100"
