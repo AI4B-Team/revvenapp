@@ -13,7 +13,6 @@ interface Project {
   id: string;
   name: string;
   updatedAt: string;
-  gradient: string;
 }
 
 const Index = () => {
@@ -24,22 +23,15 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [userName, setUserName] = useState('');
 
-  // Sample gradients for project cards
-  const gradients = [
-    'bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-400',
-    'bg-gradient-to-br from-pink-400 via-purple-400 to-indigo-500',
-    'bg-gradient-to-br from-cyan-400 via-emerald-400 to-purple-500',
-    'bg-gradient-to-br from-teal-400 via-cyan-500 to-indigo-600',
-    'bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500',
-    'bg-gradient-to-br from-emerald-400 via-teal-500 to-blue-600',
-  ];
+  // Plain gray color for project cards
+  const projectBgColor = 'bg-gray-300';
 
   // Sample projects - in real app, these would come from database
   const [projects] = useState<Project[]>([
-    { id: '1', name: 'Revven 2.0', updatedAt: '8 hours ago', gradient: gradients[0] },
-    { id: '2', name: 'Revven 2.0', updatedAt: '9 hours ago', gradient: gradients[1] },
-    { id: '3', name: 'Untitled', updatedAt: '2 days ago', gradient: gradients[2] },
-    { id: '4', name: 'Untitled', updatedAt: '5 days ago', gradient: gradients[3] },
+    { id: '1', name: 'Revven 2.0', updatedAt: '8 hours ago' },
+    { id: '2', name: 'Revven 2.0', updatedAt: '9 hours ago' },
+    { id: '3', name: 'Untitled', updatedAt: '2 days ago' },
+    { id: '4', name: 'Untitled', updatedAt: '5 days ago' },
   ]);
 
   // Filter projects based on search
@@ -151,9 +143,9 @@ const Index = () => {
                     onClick={() => navigate('/create')}
                     className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group"
                   >
-                    {/* Gradient Preview */}
-                    <div className={`aspect-[4/3] ${project.gradient} relative overflow-hidden`}>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {/* Gray Preview */}
+                    <div className={`aspect-[4/3] ${projectBgColor} relative overflow-hidden`}>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     
                     {/* Project Info */}

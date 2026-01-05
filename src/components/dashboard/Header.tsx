@@ -59,6 +59,8 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   const [selectedTheme, setSelectedTheme] = React.useState('split');
   const [languageSearch, setLanguageSearch] = React.useState('');
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
   const [isRewardsModalOpen, setIsRewardsModalOpen] = React.useState(false);
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
@@ -208,19 +210,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           </Tooltip>
         </TooltipProvider>
         
-        <div className="flex items-center">
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-3 md:px-6 py-2 bg-white hover:bg-gray-50 rounded-lg transition-colors border-2 border-gray-300 w-full max-w-[200px] md:max-w-[320px]"
-          >
-            <Search size={18} className="text-gray-400" />
-            <span className="text-sm text-gray-500 hidden sm:inline">{t('nav.search')}</span>
-            <kbd className="ml-auto hidden md:inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-400 bg-gray-100 rounded border border-gray-200">
-              <Command size={12} />
-              <span>F</span>
-            </kbd>
-          </button>
-        </div>
+        <div className="flex items-center" />
       
       <div className="hidden md:flex items-center justify-center flex-1">
         <nav className="flex items-center gap-4 lg:gap-8">
@@ -285,6 +275,52 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+
+        {/* Expandable Search */}
+        <div className="relative flex items-center">
+          <div 
+            className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out ${
+              isSearchExpanded ? 'w-48 md:w-64' : 'w-0'
+            }`}
+          >
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search..."
+              className="w-full h-9 px-3 text-sm bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              onBlur={() => setIsSearchExpanded(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setIsSearchOpen(true);
+                  setIsSearchExpanded(false);
+                }
+              }}
+            />
+          </div>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    if (isSearchExpanded) {
+                      setIsSearchOpen(true);
+                      setIsSearchExpanded(false);
+                    } else {
+                      setIsSearchExpanded(true);
+                      setTimeout(() => searchInputRef.current?.focus(), 100);
+                    }
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <Search size={20} className="text-gray-500" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Search</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
 
         <NotificationBell />
         <HelpMenu />
