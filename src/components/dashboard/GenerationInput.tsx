@@ -3759,35 +3759,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {ugcScriptText.length > 180 && <span className="ml-1">⚠️ Limit exceeded</span>}
                   </div>
                 )}
-                {/* Auto-suggest button for Content mode */}
-                {isContentMode && !prompt.trim() && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={handleAutoPrompt}
-                          disabled={isEnhancing}
-                          className="absolute bottom-3 right-3 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-sm font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed animate-pulse hover:animate-none"
-                        >
-                          {isEnhancing ? (
-                            <>
-                              <Loader2 size={16} className="animate-spin" />
-                              Generating...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles size={16} />
-                              Suggest Topic
-                            </>
-                          )}
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        <p>Generate a creative content topic idea</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
               </>
             )}
             <ResizeHandle 
