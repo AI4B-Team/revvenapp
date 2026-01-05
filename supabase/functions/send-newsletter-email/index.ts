@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const N8N_WEBHOOK_URL = "https://realcreator.app.n8n.cloud/webhook-test/bbac7160-4769-4ab7-a978-3e1889ff1ba2";
+const N8N_WEBHOOK_URL = "https://realcreator.app.n8n.cloud/webhook-test/5ec8dcf6-b2ba-4fb3-bf62-d253d2f39f02";
 
 serve(async (req) => {
   // Handle CORS preflight requests
