@@ -224,8 +224,8 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
       <IntentSelector selectedIntent={intent} onIntentChange={setIntent} />
       
       {/* Prompt Input Box */}
-      <div className="relative w-full mx-auto">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-full min-w-0 relative">
+      <div className="relative mx-auto w-[340px] sm:w-[520px] md:w-[800px]">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-fit min-w-full relative">
           {/* Input area */}
           <div className="px-6 pt-5 pb-3 flex-1 flex gap-3 min-w-0">
             {/* Left side icons - only shown when an option is selected */}
