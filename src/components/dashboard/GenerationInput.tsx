@@ -6673,7 +6673,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         ? 'bg-emerald-100 text-emerald-600' 
                         : selectedModel !== 'auto' 
                           ? 'bg-emerald-100 text-emerald-600' 
-                          : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                          : 'bg-slate-100 text-slate-400 hover:bg-emerald-100 hover:text-emerald-600'
                     }`}>
                       <Box size={16} />
                       <span>{selectedModel === 'auto' ? 'Auto' : selectedModel}</span>
