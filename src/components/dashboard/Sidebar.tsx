@@ -354,9 +354,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       )}
 
-      {/* Project Selector */}
-      <ProjectSelector isCollapsed={isCollapsed} />
-
       {/* Brands Dropdown */}
       {!isCollapsed && (
         <div className="px-4 mb-4 relative flex-shrink-0">
@@ -418,6 +415,9 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           )}
         </div>
       )}
+
+      {/* Project Selector */}
+      <ProjectSelector isCollapsed={isCollapsed} />
 
       {/* Main Navigation */}
       <nav className="px-4 space-y-1">
