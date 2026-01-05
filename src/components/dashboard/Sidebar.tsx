@@ -7,7 +7,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus
 } from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
 import {
@@ -307,55 +307,59 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           </button>
         
           {isWorkspaceOpen && (
-            <div className="absolute top-full left-4 right-4 mt-2 bg-brand-green rounded-lg shadow-lg z-50 py-2">
-              <div className="w-full flex items-center gap-3 px-3 py-2 border-b border-primary/20 mb-2">
-                <Search size={16} className="text-primary" />
-                <input 
-                  type="text" 
-                  placeholder="Search Spaces" 
-                  className="flex-1 text-sm bg-transparent text-primary placeholder:text-primary/60 outline-none"
-                />
+            <div className="absolute top-full left-4 right-4 mt-2 bg-[#1e1e1e] rounded-lg shadow-xl z-50 py-3 border border-gray-800">
+              {/* Search Field */}
+              <div className="px-3 pb-3 border-b border-gray-700">
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#2a2a2a] rounded-lg border border-gray-700">
+                  <Search size={14} className="text-gray-500" />
+                  <input 
+                    type="text" 
+                    placeholder="Search Spaces" 
+                    className="flex-1 text-sm bg-transparent text-gray-300 placeholder:text-gray-500 outline-none"
+                  />
+                </div>
               </div>
-              {workspaces.map((workspace, idx) => (
-                <div
-                  key={idx}
-                  className="w-full flex items-center justify-between gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 ${workspace.bgColor} rounded flex items-center justify-center text-sm font-bold text-primary`}>
-                      {workspace.initial}
+              
+              {/* Space List */}
+              <div className="py-2">
+                {workspaces.map((workspace, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between px-4 py-2.5 hover:bg-white/5 transition cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-200">{workspace.name}</span>
+                      {idx === 0 && <Check size={14} className="text-brand-green" />}
                     </div>
-                    <span className="text-sm">{workspace.name}</span>
-                    {idx === 0 && <span className="text-primary">✓</span>}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button 
+                          className="p-1 hover:bg-white/10 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical size={14} className="text-gray-400" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-32 bg-[#2a2a2a] border-gray-700">
+                        <DropdownMenuItem className="text-gray-200 hover:bg-white/10 focus:bg-white/10">
+                          Invite
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-gray-200 hover:bg-white/10 focus:bg-white/10">
+                          Edit
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button 
-                        className="p-1 hover:bg-primary/20 rounded"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreVertical size={16} className="text-primary" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem>
-                        <Edit size={14} className="mr-2" />
-                        Rename
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Settings size={14} className="mr-2" />
-                        Settings
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-              <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition bg-primary/5 mt-2 border-t border-primary/20 text-primary">
-                <div className="w-8 h-8 bg-brand-yellow rounded flex items-center justify-center text-sm font-bold text-primary">
-                  +
-                </div>
-                <span className="flex-1 text-left text-sm">Create New Space</span>
-              </button>
+                ))}
+              </div>
+              
+              {/* Create New Space Button */}
+              <div className="px-3 pt-2 border-t border-gray-700">
+                <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-green hover:bg-brand-green/90 rounded-lg transition text-primary font-medium text-sm">
+                  <Plus size={16} />
+                  <span>Create New Space</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
