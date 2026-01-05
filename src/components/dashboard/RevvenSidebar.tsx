@@ -20,7 +20,7 @@ import RevvenLogo from '@/components/RevvenLogo';
 interface RevvenSidebarProps {
   isCollapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
-  onLexiClick?: () => void;
+  onAIVAClick?: () => void;
   onHomeClick?: () => void;
   onSeeAllProjects?: () => void;
   onTabChange?: (tabName: string) => void;
@@ -29,7 +29,7 @@ interface RevvenSidebarProps {
 const RevvenSidebar = ({ 
   isCollapsed: externalCollapsed, 
   onCollapsedChange, 
-  onLexiClick, 
+  onAIVAClick, 
   onHomeClick, 
   onSeeAllProjects, 
   onTabChange 
@@ -42,7 +42,7 @@ const RevvenSidebar = ({
   const [brandMenuOpen, setBrandMenuOpen] = useState<string | null>(null);
   const [brandSearch, setBrandSearch] = useState('');
   const [internalCollapsed, setInternalCollapsed] = useState(false);
-  const [isLexiHovered, setIsLexiHovered] = useState(false);
+  const [isAIVAHovered, setIsAIVAHovered] = useState(false);
   const [showRewards, setShowRewards] = useState(true);
   
   const spaces = [
@@ -110,18 +110,18 @@ const RevvenSidebar = ({
           
           <button 
             className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors group relative"
-            title="LEXI"
-            onClick={onLexiClick}
-            onMouseEnter={() => setIsLexiHovered(true)}
-            onMouseLeave={() => setIsLexiHovered(false)}
+            title="AIVA"
+            onClick={onAIVAClick}
+            onMouseEnter={() => setIsAIVAHovered(true)}
+            onMouseLeave={() => setIsAIVAHovered(false)}
           >
             <Sparkles 
               size={18} 
-              className={`text-yellow-500 transition-transform ${isLexiHovered ? 'animate-spin animate-bounce scale-110' : ''}`}
-              style={isLexiHovered ? { animationDuration: '1s' } : {}}
+              className={`text-yellow-500 transition-transform ${isAIVAHovered ? 'animate-spin animate-bounce scale-110' : ''}`}
+              style={isAIVAHovered ? { animationDuration: '1s' } : {}}
             />
             <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50 pointer-events-none">
-              LEXI
+              AIVA
             </span>
           </button>
           
@@ -324,15 +324,15 @@ const RevvenSidebar = ({
         
         <button 
           className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-zinc-400 text-sm font-medium hover:bg-zinc-800 transition-colors"
-          onMouseEnter={() => setIsLexiHovered(true)}
-          onMouseLeave={() => setIsLexiHovered(false)}
-          onClick={onLexiClick}
+          onMouseEnter={() => setIsAIVAHovered(true)}
+          onMouseLeave={() => setIsAIVAHovered(false)}
+          onClick={onAIVAClick}
         >
           <Sparkles 
             size={18} 
-            className={`text-yellow-500 transition-transform duration-300 ${isLexiHovered ? 'scale-125 rotate-12' : ''}`}
+            className={`text-yellow-500 transition-transform duration-300 ${isAIVAHovered ? 'scale-125 rotate-12' : ''}`}
           />
-          <span>LEXI</span>
+          <span>AIVA</span>
         </button>
         
         <button 
