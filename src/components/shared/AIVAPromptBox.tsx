@@ -276,12 +276,27 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
                   {/* Vertical separator between Auto and Type */}
                   <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                   
-                  <button
+                  <button 
                     onClick={() => setShowTypeDropdown(!showTypeDropdown)}
                     className={cn(
                       "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border",
                       selectedSubType 
-                        ? `bg-white hover:bg-slate-50 ${selectedSubType.color} ${selectedSubType.color?.replace('text-', 'border-')}`
+                        ? (() => {
+                            const color = selectedSubType.color || '';
+                            let pastelBg = 'bg-slate-50 hover:bg-slate-100';
+                            if (color.includes('blue')) pastelBg = 'bg-blue-50 hover:bg-blue-100';
+                            else if (color.includes('red')) pastelBg = 'bg-red-50 hover:bg-red-100';
+                            else if (color.includes('green')) pastelBg = 'bg-green-50 hover:bg-green-100';
+                            else if (color.includes('orange')) pastelBg = 'bg-orange-50 hover:bg-orange-100';
+                            else if (color.includes('purple')) pastelBg = 'bg-purple-50 hover:bg-purple-100';
+                            else if (color.includes('amber')) pastelBg = 'bg-amber-50 hover:bg-amber-100';
+                            else if (color.includes('violet')) pastelBg = 'bg-violet-50 hover:bg-violet-100';
+                            else if (color.includes('cyan')) pastelBg = 'bg-cyan-50 hover:bg-cyan-100';
+                            else if (color.includes('indigo')) pastelBg = 'bg-indigo-50 hover:bg-indigo-100';
+                            else if (color.includes('teal')) pastelBg = 'bg-teal-50 hover:bg-teal-100';
+                            else if (color.includes('emerald')) pastelBg = 'bg-emerald-50 hover:bg-emerald-100';
+                            return `${pastelBg} ${selectedSubType.color} ${selectedSubType.color?.replace('text-', 'border-')}`;
+                          })()
                         : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
                     )}
                   >

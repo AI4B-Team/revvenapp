@@ -75,6 +75,22 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
 
   // If an option is selected, show the selected option button
   if (selectedOption) {
+    // Map color classes to pastel background colors
+    const getPastelBg = (color: string) => {
+      if (color.includes('blue')) return 'bg-blue-50 hover:bg-blue-100';
+      if (color.includes('red')) return 'bg-red-50 hover:bg-red-100';
+      if (color.includes('green')) return 'bg-green-50 hover:bg-green-100';
+      if (color.includes('orange')) return 'bg-orange-50 hover:bg-orange-100';
+      if (color.includes('purple')) return 'bg-purple-50 hover:bg-purple-100';
+      if (color.includes('amber')) return 'bg-amber-50 hover:bg-amber-100';
+      if (color.includes('violet')) return 'bg-violet-50 hover:bg-violet-100';
+      if (color.includes('cyan')) return 'bg-cyan-50 hover:bg-cyan-100';
+      if (color.includes('indigo')) return 'bg-indigo-50 hover:bg-indigo-100';
+      if (color.includes('teal')) return 'bg-teal-50 hover:bg-teal-100';
+      if (color.includes('emerald')) return 'bg-emerald-50 hover:bg-emerald-100';
+      return 'bg-slate-50 hover:bg-slate-100';
+    };
+
     return (
       <div className="relative" ref={dropdownRef}>
         <button
@@ -82,8 +98,8 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors border",
-            selectedOption.color.replace('text-', 'border-'),
-            "bg-white hover:bg-slate-50"
+            getPastelBg(selectedOption.color),
+            selectedOption.color.replace('text-', 'border-')
           )}
         >
           <selectedOption.icon size={14} className={selectedOption.color} />
