@@ -422,12 +422,40 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center bg-white p-8">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <div className="mb-12">
+          <div className="mb-6">
             <div className="flex items-center gap-2 justify-center">
               <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">R</span>
               </div>
               <span className="text-2xl font-semibold text-gray-900">REVVEN</span>
+            </div>
+          </div>
+
+          {/* Login / Sign Up Toggle Tabs */}
+          <div className="mb-8">
+            <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(false)}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  !isSignUp 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'bg-gray-50 text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(true)}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  isSignUp 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'bg-gray-50 text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Sign Up
+              </button>
             </div>
           </div>
 
@@ -530,7 +558,7 @@ export default function LoginPage() {
             <div>
               <Input
                 type="email"
-                placeholder="Enter Your Email"
+                placeholder="Enter Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
@@ -542,7 +570,7 @@ export default function LoginPage() {
             <div>
               <Input
                 type="password"
-                placeholder="Password"
+                placeholder="Enter Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
