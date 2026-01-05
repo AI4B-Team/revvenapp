@@ -294,7 +294,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
       {/* Workspace Selector */}
       {!isCollapsed && (
-        <div className="px-4 mb-6 relative flex-shrink-0">
+        <div className="px-4 mb-2 relative flex-shrink-0">
           <button 
             onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
             className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
@@ -306,56 +306,56 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             <ChevronDown size={16} className={`transition-transform text-primary ${isWorkspaceOpen ? 'rotate-180' : ''}`} />
           </button>
         
-      {isWorkspaceOpen && (
-          <div className="absolute top-full left-4 right-4 mt-2 bg-brand-green rounded-lg shadow-lg z-50 py-2">
-            <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary border-b border-primary/20 mb-2">
-              <Search size={16} />
-              <span className="flex-1 text-left text-sm">Search Projects</span>
-            </button>
-            {workspaces.map((workspace, idx) => (
-              <div
-                key={idx}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary group"
-              >
-                <div className={`w-8 h-8 ${workspace.bgColor} rounded flex items-center justify-center text-sm font-bold text-primary`}>
-                  {workspace.initial}
+          {isWorkspaceOpen && (
+            <div className="absolute top-full left-4 right-4 mt-2 bg-brand-green rounded-lg shadow-lg z-50 py-2">
+              <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary border-b border-primary/20 mb-2">
+                <Search size={16} />
+                <span className="flex-1 text-left text-sm">Search Workspaces</span>
+              </button>
+              {workspaces.map((workspace, idx) => (
+                <div
+                  key={idx}
+                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary group"
+                >
+                  <div className={`w-8 h-8 ${workspace.bgColor} rounded flex items-center justify-center text-sm font-bold text-primary`}>
+                    {workspace.initial}
+                  </div>
+                  <span className="flex-1 text-left text-sm">{workspace.name}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button 
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-primary/20 rounded"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreVertical size={16} className="text-primary" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem>
+                        <Edit size={14} className="mr-2" />
+                        Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Settings size={14} className="mr-2" />
+                        Settings
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <span className="flex-1 text-left text-sm">{workspace.name}</span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button 
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-primary/20 rounded"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreVertical size={16} className="text-primary" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem>
-                      <Edit size={14} className="mr-2" />
-                      Rename
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings size={14} className="mr-2" />
-                      Settings
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ))}
-            <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition bg-primary/5 mt-2 border-t border-primary/20 text-primary">
-              <div className="w-8 h-8 bg-brand-yellow rounded flex items-center justify-center text-sm font-bold text-primary">
-                +
-              </div>
-              <span className="flex-1 text-left text-sm">Create Workspace</span>
-            </button>
-          </div>
-        )}
-
-          {/* Project Selector - inside workspace section */}
-          <ProjectSelector isCollapsed={isCollapsed} />
+              ))}
+              <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition bg-primary/5 mt-2 border-t border-primary/20 text-primary">
+                <div className="w-8 h-8 bg-brand-yellow rounded flex items-center justify-center text-sm font-bold text-primary">
+                  +
+                </div>
+                <span className="flex-1 text-left text-sm">Create Workspace</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
+
+      {/* Project Selector */}
+      <ProjectSelector isCollapsed={isCollapsed} />
 
       {/* Brands Dropdown */}
       {!isCollapsed && (
