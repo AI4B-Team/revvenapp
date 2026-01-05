@@ -225,10 +225,10 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
       
       {/* Prompt Input Box */}
       <div className="relative w-full mx-auto">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-hidden min-h-[180px] flex flex-col w-full min-w-0">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-full min-w-0 relative">
           {/* Left side icons - only shown when an option is selected */}
           {selectedOption && (
-            <div className="flex flex-col gap-1 absolute left-4 top-4">
+            <div className="flex flex-col gap-1 absolute left-4 top-4 z-10">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button className={`p-1.5 rounded-lg bg-slate-100 ${selectedOption.color} hover:bg-slate-200 transition-colors`}>
