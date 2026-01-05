@@ -296,11 +296,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   const createModes = [
-    { value: 'Create', label: 'Create', icon: Sparkles, color: 'text-pill-amber-text', bg: 'bg-pill-amber' },
-    { value: 'Batch', label: 'Batch', icon: Layers, color: 'text-pill-purple-text', bg: 'bg-pill-purple' },
+    { value: 'Create', label: 'Create', icon: Sparkles, color: 'text-brand-yellow', bg: 'bg-brand-yellow/15' },
+    { value: 'Batch', label: 'Batch', icon: Layers, color: 'text-brand-purple', bg: 'bg-brand-purple/15' },
     { value: 'Draw', label: 'Draw', icon: Pencil, color: 'text-pill-orange-text', bg: 'bg-pill-orange' },
     { value: 'Swap', label: 'Swap', icon: RefreshCw, color: 'text-pill-blue-text', bg: 'bg-pill-blue' },
-    { value: 'Photoshoot', label: 'Photoshoot', icon: Image, color: 'text-pill-red-text', bg: 'bg-pill-red' },
+    { value: 'Photoshoot', label: 'Photoshoot', icon: Image, color: 'text-brand-red', bg: 'bg-brand-red/15' },
   ];
   
   const audioModes = [
@@ -6616,8 +6616,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       aria-expanded={isCreateModeDropdownOpen}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${
                         isTypeSelected
-                          ? `${mode?.bg || 'bg-secondary'} ${mode?.color || 'text-pill-gray-text'}`
-                          : 'bg-secondary text-pill-gray-text hover:bg-pill-gray'
+                          ? `${mode?.bg || 'bg-secondary'} ${mode?.color || 'text-foreground'}`
+                          : 'bg-secondary text-muted-foreground hover:bg-muted'
                       }`}
                     >
                       {isTypeSelected ? (
@@ -6641,7 +6641,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </>
                       ) : (
                         <>
-                          <LayoutGrid size={16} className="text-pill-gray-text" />
+                          <LayoutGrid size={16} className="text-muted-foreground" />
                           <span>Type</span>
                         </>
                       )}
@@ -6668,14 +6668,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium ${
-                      selectedModel === 'auto' && selectedCreateMode === 'Create'
-                        ? 'bg-pill-green text-pill-green-text'
-                        : selectedModel !== 'auto'
-                          ? 'bg-pill-green text-pill-green-text'
-                          : 'bg-secondary text-pill-gray-text hover:bg-pill-green hover:text-pill-green-text'
+                    <button className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium text-muted-foreground ${
+                      isModelDropdownOpen || selectedModel !== 'auto'
+                        ? 'bg-brand-green/15'
+                        : 'bg-secondary hover:bg-brand-green/15'
                     }`}>
-                      <Box size={16} />
+                      <Box size={16} className="text-brand-green" />
                       <span>{selectedModel === 'auto' ? 'Auto' : selectedModel}</span>
                     </button>
                   </PopoverTrigger>
@@ -7108,10 +7106,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button
                   onClick={() => setIsStylesModalOpen(true)}
-                  className={`p-2.5 rounded-full transition-colors ${
-                    selectedStyle
-                      ? 'bg-pill-purple text-pill-purple-text'
-                      : 'bg-secondary text-pill-gray-text hover:bg-pill-purple hover:text-pill-purple-text'
+                  className={`p-2.5 rounded-full transition-colors text-brand-purple ${
+                    selectedStyle || isStylesModalOpen
+                      ? 'bg-brand-purple/15'
+                      : 'bg-secondary hover:bg-brand-purple/15'
                   }`}
                 >
                   <Brush size={18} />
@@ -7125,10 +7123,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button 
                   onClick={onCharactersClick}
-                  className={`p-2.5 rounded-full transition-colors ${
+                  className={`p-2.5 rounded-full transition-colors text-brand-blue ${
                     activeCharacters.length > 0
-                      ? 'bg-pill-blue text-pill-blue-text'
-                      : 'bg-secondary text-pill-gray-text hover:bg-pill-blue hover:text-pill-blue-text'
+                      ? 'bg-brand-blue/15'
+                      : 'bg-secondary hover:bg-brand-blue/15'
                   }`}
                 >
                   <User size={18} />
@@ -7142,10 +7140,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button
                   onClick={onReferencesClick}
-                  className={`p-2.5 rounded-full transition-colors ${
+                  className={`p-2.5 rounded-full transition-colors text-brand-green ${
                     activeReferences.length > 0
-                      ? 'bg-pill-green text-pill-green-text'
-                      : 'bg-secondary text-pill-gray-text hover:bg-pill-green hover:text-pill-green-text'
+                      ? 'bg-brand-green/15'
+                      : 'bg-secondary hover:bg-brand-green/15'
                   }`}
                 >
                   <Link size={18} />
@@ -7220,10 +7218,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition-colors ${
-                      selectedAspectRatio !== '1:1'
-                        ? 'bg-pill-orange text-pill-orange-text'
-                        : 'bg-secondary text-pill-gray-text hover:bg-pill-orange hover:text-pill-orange-text'
+                    <button className={`p-2.5 rounded-full transition-colors text-brand-yellow ${
+                      isAspectRatioDropdownOpen || selectedAspectRatio !== '1:1'
+                        ? 'bg-brand-yellow/15'
+                        : 'bg-secondary hover:bg-brand-yellow/15'
                     }`}>
                       <Copy size={18} />
                     </button>
@@ -7337,10 +7335,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition-colors ${
-                      numberOfImages !== 1
-                        ? 'bg-pill-cyan text-pill-cyan-text'
-                        : 'bg-secondary text-pill-gray-text hover:bg-pill-cyan hover:text-pill-cyan-text'
+                    <button className={`p-2.5 rounded-full transition-colors text-brand-red ${
+                      isNumberOfImagesDropdownOpen || numberOfImages !== 1
+                        ? 'bg-brand-red/15'
+                        : 'bg-secondary hover:bg-brand-red/15'
                     }`}>
                       <Hash size={18} />
                     </button>
