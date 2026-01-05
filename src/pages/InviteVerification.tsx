@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Ticket, Check, Loader2, LogOut } from 'lucide-react';
+import RevvenLogo from '@/components/RevvenLogo';
 
 export default function InviteVerificationPage() {
   const [inviteCode, setInviteCode] = useState('');
@@ -179,16 +180,16 @@ export default function InviteVerificationPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Green Gradient */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-green-600 via-emerald-500 to-green-700 p-12 flex-col justify-center relative overflow-hidden">
+      {/* Left Side - Brand Green */}
+      <div className="hidden lg:flex flex-1 bg-brand-green p-12 flex-col justify-center relative overflow-hidden">
         <div className="max-w-xl">
           <h2 className="text-5xl font-bold text-white mb-4 leading-tight">
             One More Step!
           </h2>
-          <h3 className="text-2xl font-semibold text-green-100 mb-6">
+          <h3 className="text-2xl font-semibold text-white/80 mb-6">
             Enter Your Invite Code to Continue
           </h3>
-          <p className="text-green-50 text-lg mb-12 leading-relaxed">
+          <p className="text-white/70 text-lg mb-12 leading-relaxed">
             REVVEN is invite-only to ensure quality for our community. 
             Enter your exclusive invite code to unlock full access.
           </p>
@@ -250,11 +251,9 @@ export default function InviteVerificationPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="mb-8">
-            <div className="flex items-center gap-2 justify-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">R</span>
-              </div>
-              <span className="text-2xl font-semibold text-gray-900">REVVEN</span>
+            <div className="flex items-center gap-2.5 justify-center">
+              <RevvenLogo size={40} />
+              <span className="text-2xl font-bold text-gray-900 tracking-tight">REVVEN</span>
             </div>
           </div>
 

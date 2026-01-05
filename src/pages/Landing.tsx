@@ -10,6 +10,7 @@ import keisha from '@/assets/keisha.png';
 import AnimatedCounter from '@/components/landing/AnimatedCounter';
 import GlowingCard from '@/components/landing/GlowingCard';
 import FloatingElement from '@/components/landing/FloatingElement';
+import RevvenLogo from '@/components/RevvenLogo';
 
 // Lazy load Three.js for better performance
 const ThreeBackground = lazy(() => import('@/components/landing/ThreeBackground'));
@@ -172,14 +173,12 @@ export default function RevvenLandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <motion.div 
-              className="flex items-center gap-2"
+              className="flex items-center gap-2.5"
               whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 400 }}
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">R</span>
-              </div>
-              <span className="text-xl font-bold">REVVEN</span>
+              <RevvenLogo size={32} />
+              <span className="text-xl font-bold tracking-tight">REVVEN</span>
             </motion.div>
 
             <nav className="hidden md:flex items-center gap-6">
@@ -1349,13 +1348,11 @@ export default function RevvenLandingPage() {
           <div className="grid md:grid-cols-5 gap-8 mb-8">
             <div className="md:col-span-2">
               <motion.div 
-                className="flex items-center gap-2 mb-4"
+                className="flex items-center gap-2.5 mb-4"
                 whileHover={{ scale: 1.05 }}
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">R</span>
-                </div>
-                <span className="text-xl font-bold">REVVEN</span>
+                <RevvenLogo size={32} />
+                <span className="text-xl font-bold tracking-tight">REVVEN</span>
               </motion.div>
               <p className="text-gray-400 text-sm mb-4">
                 Your 24/7 AI Engine For Content, Connection & Growth

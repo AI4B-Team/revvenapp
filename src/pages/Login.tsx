@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Session } from '@supabase/supabase-js';
-import { Camera, User, Pause, Play } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Pause, Play } from 'lucide-react';
+import RevvenLogo from '@/components/RevvenLogo';
 
 // Showcase slides data - Pastel color backgrounds with hypnotic copy
 const showcaseSlides = [
@@ -434,11 +434,9 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="mb-6">
-            <div className="flex items-center gap-2 justify-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">R</span>
-              </div>
-              <span className="text-2xl font-semibold text-gray-900">REVVEN</span>
+            <div className="flex items-center gap-2.5 justify-center">
+              <RevvenLogo size={40} />
+              <span className="text-2xl font-bold text-gray-900 tracking-tight">REVVEN</span>
             </div>
           </div>
 
