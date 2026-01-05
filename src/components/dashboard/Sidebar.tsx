@@ -306,7 +306,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             <ChevronDown size={16} className={`transition-transform text-primary ${isWorkspaceOpen ? 'rotate-180' : ''}`} />
           </button>
         
-        {isWorkspaceOpen && (
+      {isWorkspaceOpen && (
           <div className="absolute top-full left-4 right-4 mt-2 bg-brand-green rounded-lg shadow-lg z-50 py-2">
             <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary border-b border-primary/20 mb-2">
               <Search size={16} />
@@ -351,11 +351,11 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             </button>
           </div>
         )}
+
+          {/* Project Selector - inside workspace section */}
+          <ProjectSelector isCollapsed={isCollapsed} />
         </div>
       )}
-
-      {/* Project Selector */}
-      <ProjectSelector isCollapsed={isCollapsed} />
 
       {/* Brands Dropdown */}
       {!isCollapsed && (
