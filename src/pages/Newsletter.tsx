@@ -13,6 +13,11 @@ const Newsletter = () => {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  
+  // Unsubscribe state
+  const [unsubEmail, setUnsubEmail] = useState('');
+  const [isUnsubLoading, setIsUnsubLoading] = useState(false);
+  const [isUnsubscribed, setIsUnsubscribed] = useState(false);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +48,37 @@ const Newsletter = () => {
       toast.error('Failed to subscribe. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleUnsubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!unsubEmail) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setIsUnsubLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('send-newsletter-email', {
+        body: { 
+          email: unsubEmail.toLowerCase(), 
+          name: '', 
+          type: 'unsubscribe' 
+        }
+      });
+
+      if (error) throw error;
+
+      setIsUnsubscribed(true);
+      toast.success('You have been unsubscribed from the newsletter.');
+    } catch (error: any) {
+      console.error('Unsubscribe error:', error);
+      toast.error('Failed to unsubscribe. Please try again.');
+    } finally {
+      setIsUnsubLoading(false);
     }
   };
 
@@ -146,7 +182,7 @@ const Newsletter = () => {
         </Card>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
           {features.map((feature, index) => (
             <Card key={index} className="bg-card/50 hover:bg-card transition-colors">
               <CardContent className="pt-6">
@@ -159,6 +195,47 @@ const Newsletter = () => {
             </Card>
           ))}
         </div>
+
+        {/* Unsubscribe Section */}
+        <Card className="border border-border bg-card/30">
+          <CardHeader className="text-center">
+            <CardTitle className="text-lg text-muted-foreground">Want to unsubscribe?</CardTitle>
+            <CardDescription>
+              Enter your email below to unsubscribe from the newsletter.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isUnsubscribed ? (
+              <div className="text-center py-4">
+                <p className="text-muted-foreground">
+                  You have been successfully unsubscribed.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleUnsubscribe} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <Input
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={unsubEmail}
+                  onChange={(e) => setUnsubEmail(e.target.value)}
+                  required
+                  className="flex-1"
+                />
+                <Button 
+                  type="submit" 
+                  variant="outline"
+                  disabled={isUnsubLoading}
+                >
+                  {isUnsubLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    'Unsubscribe'
+                  )}
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
