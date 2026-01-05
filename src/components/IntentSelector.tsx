@@ -81,10 +81,10 @@ const IntentSelector = ({ selectedIntent, onIntentChange }: IntentSelectorProps)
             key={intent.label}
             onClick={() => onIntentChange(isSelected ? null : intent.label)}
             className={cn(
-              "flex items-center gap-2.5 px-7 py-3.5 text-[15px] font-medium rounded-xl border transition-all duration-200 shadow-sm",
+              "flex items-center gap-2.5 px-7 py-3.5 text-[15px] font-medium rounded-full border transition-all duration-200",
               isSelected
                 ? cn(intent.selectedBg, intent.selectedBorder, intent.selectedTextColor)
-                : cn("bg-white border-gray-100 text-slate-600 shadow-sm", intent.hoverBg, intent.hoverBorder)
+                : cn("bg-white border-gray-200 text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.04)]", intent.hoverBg, intent.hoverBorder)
             )}
           >
             <intent.icon 
