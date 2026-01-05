@@ -1,253 +1,80 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
-import GenerationInput from '@/components/dashboard/GenerationInput';
-import ActionButtons from '@/components/dashboard/ActionButtons';
-import ToolCard from '@/components/dashboard/ToolCard';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
-import ImageViewerModal from '@/components/dashboard/ImageViewerModal';
-import { creationsData, GalleryItem } from '@/data/creationsData';
 import { 
-  Zap, Send, Users, Gem, MessageCircle, Plus, Calendar, 
-  Settings, ChevronRight, Instagram
+  Search, Plus, Settings, Zap
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Project {
+  id: string;
+  name: string;
+  updatedAt: string;
+  gradient: string;
+}
 
 const Index = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [timeFilter, setTimeFilter] = useState('All Time');
-  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'templates' | 'community' | 'collections'>('tools');
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
-  const [assetFilter, setAssetFilter] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  
-  const timeFilters = ['All Time', '7 Days', '30 Days', '12 Months'];
+  const [searchQuery, setSearchQuery] = useState('');
+  const [userName, setUserName] = useState('');
 
-  // Stats data
-  const stats = [
-    {
-      title: 'Total Posts',
-      value: '9',
-      lastMonth: '0 last month',
-      total: '9 total',
-      icon: <Zap size={24} />,
-      iconColor: 'text-blue-500',
-      iconBg: 'bg-blue-50'
-    },
-    {
-      title: 'Post Published',
-      value: '7',
-      lastMonth: '0 last month',
-      total: '7 total',
-      icon: <Send size={24} />,
-      iconColor: 'text-green-500',
-      iconBg: 'bg-green-50'
-    },
-    {
-      title: 'New Leads',
-      value: '0',
-      lastMonth: '0 last month',
-      total: '0 total',
-      icon: <Users size={24} />,
-      iconColor: 'text-yellow-500',
-      iconBg: 'bg-yellow-50'
-    },
-    {
-      title: 'AI Conversations',
-      value: '2',
-      lastMonth: '0 last month',
-      total: '2 total',
-      icon: <Gem size={24} />,
-      iconColor: 'text-orange-500',
-      iconBg: 'bg-orange-50'
-    }
+  // Sample gradients for project cards
+  const gradients = [
+    'bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-400',
+    'bg-gradient-to-br from-pink-400 via-purple-400 to-indigo-500',
+    'bg-gradient-to-br from-cyan-400 via-emerald-400 to-purple-500',
+    'bg-gradient-to-br from-teal-400 via-cyan-500 to-indigo-600',
+    'bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500',
+    'bg-gradient-to-br from-emerald-400 via-teal-500 to-blue-600',
   ];
 
-  // Quick Actions data
-  const quickActions = [
-    {
-      title: 'Chat With AI',
-      description: 'Chat with your AI employee to get work done',
-      icon: <MessageCircle size={24} />,
-      iconColor: 'text-yellow-600',
-      iconBg: 'bg-yellow-100'
-    },
-    {
-      title: 'AI Social Campaigns',
-      description: 'Show up and share daily without burn out',
-      icon: <Plus size={24} />,
-      iconColor: 'text-yellow-600',
-      iconBg: 'bg-yellow-100'
-    },
-    {
-      title: 'Schedule A Post',
-      description: 'Plan your social media content',
-      icon: <Calendar size={24} />,
-      iconColor: 'text-yellow-600',
-      iconBg: 'bg-yellow-100'
-    },
-    {
-      title: 'Brand Settings',
-      description: 'Optimize brand goals to keep your agents aligned',
-      icon: <Settings size={24} />,
-      iconColor: 'text-yellow-600',
-      iconBg: 'bg-yellow-100'
-    }
-  ];
+  // Sample projects - in real app, these would come from database
+  const [projects] = useState<Project[]>([
+    { id: '1', name: 'Revven 2.0', updatedAt: '8 hours ago', gradient: gradients[0] },
+    { id: '2', name: 'Revven 2.0', updatedAt: '9 hours ago', gradient: gradients[1] },
+    { id: '3', name: 'Untitled', updatedAt: '2 days ago', gradient: gradients[2] },
+    { id: '4', name: 'Untitled', updatedAt: '5 days ago', gradient: gradients[3] },
+  ]);
 
-  // Upcoming Posts data
-  const upcomingPosts = [
-    {
-      date: 'NOV 08',
-      title: 'A MUST Know 👇 AI is changing how businesses communicate with you. Here...',
-      platform: 'itszarasaige',
-      type: 'reel',
-      emoji: '👇'
-    },
-    {
-      date: 'NOV 08',
-      title: 'Let me show you HOW ⬇️ 📊Research and Niche - Identify a profitable niche ...',
-      platform: 'itszarasaige',
-      type: 'reel',
-      emoji: '⬇️'
-    }
-  ];
+  // Filter projects based on search
+  const filteredProjects = projects.filter(project => 
+    project.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const imageTools = [
-    { 
-      name: 'Art Blocks', 
-      description: 'AI create some art works',
-      bgColor: 'bg-tool-blue',
-      emoji: '🎨'
-    },
-    { 
-      name: 'Background Remover', 
-      description: 'Remove backgrounds',
-      bgColor: 'bg-tool-yellow',
-      emoji: '✂️'
-    },
-    { 
-      name: 'Image Eraser', 
-      description: 'Erase parts of images',
-      bgColor: 'bg-tool-blue',
-      emoji: '🖼️'
-    },
-    { 
-      name: 'Image Upscaler', 
-      description: 'Enhance image quality',
-      bgColor: 'bg-tool-yellow',
-      emoji: '📸'
-    },
-    { 
-      name: 'Image Enhancer', 
-      description: 'Improve image details',
-      bgColor: 'bg-tool-blue',
-      emoji: '❤️'
-    },
-    { 
-      name: 'Image Colorizer', 
-      description: 'Add color to images',
-      bgColor: 'bg-tool-gray',
-      emoji: '🌹'
-    },
-  ];
+  // Get user profile
+  useEffect(() => {
+    const getProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile?.full_name) {
+          setUserName(profile.full_name.split(' ')[0]);
+        }
+      }
+    };
+    getProfile();
+  }, []);
 
-  const videoTools = [
-    { 
-      name: 'Video Downloader', 
-      description: 'Download videos',
-      bgColor: 'bg-tool-blue',
-      emoji: '📥'
-    },
-    { 
-      name: 'Video Resizer', 
-      description: 'Resize video dimensions',
-      bgColor: 'bg-tool-pink',
-      emoji: '📐'
-    },
-    { 
-      name: 'Motion-Sync', 
-      description: 'Sync video motion',
-      bgColor: 'bg-tool-yellow',
-      emoji: '🎬'
-    },
-    { 
-      name: 'Explainer Video', 
-      description: 'Create educational videos',
-      bgColor: 'bg-tool-blue',
-      emoji: '🎬'
-    },
-  ];
-
-  const audioTools = [
-    { 
-      name: 'AI Voice Cloner', 
-      description: 'Clone any voice',
-      bgColor: 'bg-tool-blue',
-      emoji: '🎤'
-    },
-    { 
-      name: 'Transcribe', 
-      description: 'Transcribe audio to text',
-      bgColor: 'bg-tool-pink',
-      emoji: '📝'
-    },
-    { 
-      name: 'AI Voice Changer', 
-      description: 'Transform voice style',
-      bgColor: 'bg-tool-blue',
-      emoji: '🎵'
-    },
-    { 
-      name: 'AI Voiceovers', 
-      description: 'Generate voiceovers',
-      bgColor: 'bg-tool-yellow',
-      emoji: '🎬'
-    },
-    { 
-      name: 'AI Audio Dubber', 
-      description: 'Dub audio tracks',
-      bgColor: 'bg-tool-blue',
-      emoji: '🎧'
-    },
-    { 
-      name: 'AI Noise Remover', 
-      description: 'Remove background noise',
-      bgColor: 'bg-tool-yellow',
-      emoji: '🔇'
-    },
-  ];
-
-  // Filter creations based on asset filter
-  const filteredAssets = assetFilter && assetFilter !== 'all' 
-    ? creationsData.filter(item => {
-        if (assetFilter === 'images') return item.type === 'image';
-        if (assetFilter === 'videos') return item.type === 'video';
-        return false;
-      })
-    : creationsData;
+  const formatTimeAgo = (time: string) => {
+    return `Updated ${time}`;
+  };
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
-        activeTab={activeTab} 
-        onTabChange={(tab) => {
-          setActiveTab(tab);
-          setSelectedType(tab);
-          setAssetFilter(null); // Clear asset filter when changing tabs
-        }}
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
-        onAssetFilterChange={(filter) => {
-          setAssetFilter(filter);
-          setActiveTab('');
-        }}
         onCollapseChange={setIsSidebarCollapsed}
       />
 
@@ -259,272 +86,97 @@ const Index = () => {
       )}
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
-        <Header onCreateClick={() => setSelectedType(selectedType || 'Content')} onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
+        <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
-        <main className="flex-1 overflow-auto bg-white">
-          {assetFilter ? (
-            <div className="px-8 py-8">
-              <h1 className="text-4xl font-bold mb-2">
-                {assetFilter === 'all' ? 'All Assets' : assetFilter.charAt(0).toUpperCase() + assetFilter.slice(1)}
-              </h1>
-              <p className="text-muted-foreground mb-8">
-                {filteredAssets.length} {filteredAssets.length === 1 ? 'item' : 'items'}
-              </p>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {filteredAssets.map((item) => (
+        <main className="flex-1 overflow-auto bg-[#f0f9f8]">
+          <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+            
+            {/* Trial Banner */}
+            <div className="bg-white rounded-2xl p-5 mb-8 flex items-center justify-between shadow-sm border border-border">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-emerald-500" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-lg">Start Your 14-Day Free Trial Of Our PRO Plan!</h3>
+                  <p className="text-muted-foreground text-sm">Unlock unlimited projects, custom domains, and more.</p>
+                </div>
+              </div>
+              <button className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors">
+                Start Trial
+              </button>
+            </div>
+
+            {/* Workspace Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-foreground">Workspace</h1>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg text-sm font-medium transition-colors">
+                  <Zap size={14} />
+                  Upgrade
+                </button>
+              </div>
+              <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                <Settings size={20} className="text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Search and Create */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+              <button 
+                onClick={() => navigate('/create')}
+                className="flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors"
+              >
+                <Plus size={18} />
+                Create project
+              </button>
+            </div>
+
+            {/* Projects Grid */}
+            {filteredProjects.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {filteredProjects.map((project) => (
                   <div 
-                    key={item.id} 
-                    className="group cursor-pointer"
-                    onClick={() => setSelectedImage(item)}
+                    key={project.id}
+                    onClick={() => navigate('/create')}
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-lg hover:border-emerald-200 transition-all cursor-pointer group"
                   >
-                    <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-2">
-                      <img 
-                        src={item.thumbnail} 
-                        alt={item.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                    {/* Gradient Preview */}
+                    <div className={`aspect-[4/3] ${project.gradient} relative overflow-hidden`}>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
+                    
+                    {/* Project Info */}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-foreground mb-1">{project.name}</h3>
+                      <p className="text-sm text-muted-foreground">{formatTimeAgo(project.updatedAt)}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-          ) : (activeTab || selectedType) ? (
-            <div className="px-8 py-8">
-              <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
-              
-              <ContentTypeSelector selectedType={selectedType || activeTab} onTypeChange={(type) => {
-                setSelectedType(type);
-                setActiveTab(type);
-              }} />
-              
-              <GenerationInput 
-                selectedType={selectedType || activeTab}
-                onCharactersClick={() => setCharactersModalOpen(true)}
-              />
-              
-              <ActionButtons activeView={activeView} onViewChange={setActiveView} />
-              
-              {/* Image Tools Section */}
-              <div className="w-full">
-                <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {imageTools.map((tool, idx) => (
-                    <ToolCard key={idx} {...tool} />
-                  ))}
-                </div>
-
-                {/* Video Tools Section */}
-                <h2 className="text-2xl font-bold mb-6">VIDEO TOOLS</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {videoTools.map((tool, idx) => (
-                    <ToolCard key={idx} {...tool} />
-                  ))}
-                </div>
-
-                {/* Audio Tools Section */}
-                <h2 className="text-2xl font-bold mb-6">AUDIO TOOLS</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {audioTools.map((tool, idx) => (
-                    <ToolCard key={idx} {...tool} />
-                  ))}
-                </div>
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground text-lg">No Projects Found</p>
               </div>
-            </div>
-          ) : (
-            <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
-              <div className="w-full">
-                
-                {/* Header with Greeting */}
-                <div className="relative bg-white px-8 py-12 rounded-2xl overflow-hidden mb-8">
-                  {/* Purple Gradient Orb */}
-                  <div className="absolute right-20 top-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full blur-xl opacity-60"></div>
-
-                  {/* Content */}
-                  <div className="relative z-10 max-w-4xl">
-                    <p className="text-base text-gray-600 mb-4 font-medium">
-                      {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })}
-                    </p>
-                    
-                    <h1 className="text-6xl font-bold text-gray-900 mb-2">
-                      Hello, Brian 👋
-                    </h1>
-                    
-                    <h2 className="text-5xl font-semibold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
-                      How Can I Help You Today?
-                    </h2>
-                  </div>
-                  
-                  {/* Time Filter Buttons */}
-                  <div className="relative z-10 flex items-center gap-2 bg-gray-50 rounded-lg p-1 shadow-sm border border-gray-200 mt-6 w-fit">
-                    {timeFilters.map((filter) => (
-                      <button
-                        key={filter}
-                        onClick={() => setTimeFilter(filter)}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                          timeFilter === filter
-                            ? 'bg-gray-900 text-white'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                        }`}
-                      >
-                        {filter}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
-                  {stats.map((stat, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-600 mb-1">
-                            {stat.title}
-                          </h3>
-                        </div>
-                        <div className={`${stat.iconBg} ${stat.iconColor} p-2 rounded-lg`}>
-                          {stat.icon}
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <p className="text-4xl font-bold text-gray-900">
-                          {stat.value}
-                        </p>
-                        <p className="text-sm text-green-600 font-medium">
-                          {stat.lastMonth}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {stat.total}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Bottom Section - Quick Actions & Upcoming Posts */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  
-                  {/* Quick Actions - Takes 2 columns */}
-                  <div className="lg:col-span-2">
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                      <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {quickActions.map((action, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => {
-                              if (action.title === 'Brand Settings') {
-                                navigate('/brand/identity');
-                              }
-                            }}
-                            className="flex items-start gap-4 p-5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200 text-left group border border-transparent hover:border-gray-200"
-                          >
-                            <div className={`${action.iconBg} ${action.iconColor} p-3 rounded-xl shrink-0 group-hover:scale-110 transition-transform`}>
-                              {action.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 mb-1 text-base">
-                                {action.title}
-                              </h3>
-                              <p className="text-sm text-gray-600 line-clamp-2">
-                                {action.description}
-                              </p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Upcoming Posts - Takes 1 column */}
-                  <div className="lg:col-span-1">
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                      <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-bold text-gray-900">Upcoming Posts</h2>
-                        <button className="text-sm font-semibold text-yellow-600 hover:text-yellow-700 transition-colors">
-                          View all
-                        </button>
-                      </div>
-
-                      <div className="space-y-3">
-                        {upcomingPosts.map((post, idx) => (
-                          <div
-                            key={idx}
-                            className="group cursor-pointer"
-                          >
-                            <div className="flex items-start gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors">
-                              {/* Date Badge */}
-                              <div className="shrink-0 text-center">
-                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                  {post.date.split(' ')[0]}
-                                </div>
-                                <div className="text-lg font-bold text-gray-900">
-                                  {post.date.split(' ')[1]}
-                                </div>
-                              </div>
-
-                              {/* Post Content */}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                                  {post.title}
-                                </p>
-                                <div className="flex items-center gap-2 text-xs">
-                                  <div className="w-5 h-5 bg-gradient-to-br from-yellow-500 to-pink-500 rounded-full flex items-center justify-center">
-                                    <Instagram size={12} className="text-white" />
-                                  </div>
-                                  <span className="text-gray-600">{post.platform}</span>
-                                  <span className="text-gray-400">•</span>
-                                  <span className="text-gray-600">{post.type}</span>
-                                </div>
-                              </div>
-
-                              {/* Arrow */}
-                              <ChevronRight 
-                                size={20} 
-                                className="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all shrink-0 mt-1"
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Empty State (if no posts) */}
-                      {upcomingPosts.length === 0 && (
-                        <div className="text-center py-8 text-gray-500">
-                          <Calendar size={48} className="mx-auto mb-3 opacity-30" />
-                          <p className="text-sm">No upcoming posts scheduled</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </main>
       </div>
 
-      <DigitalCharactersModal
-        isOpen={charactersModalOpen}
+      <DigitalCharactersModal 
+        isOpen={charactersModalOpen} 
         onClose={() => setCharactersModalOpen(false)}
-        onSelectCharacter={(character) => {
-          console.log('Selected character:', character);
-        }}
       />
-
-      {selectedImage && (
-        <ImageViewerModal
-          image={selectedImage}
-          onClose={() => setSelectedImage(null)}
-        />
-      )}
     </div>
   );
 };
