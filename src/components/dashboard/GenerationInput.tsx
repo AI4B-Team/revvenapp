@@ -7040,8 +7040,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   onClick={() => setIsStylesModalOpen(true)}
                   className={`p-2.5 rounded-full transition ${
                     selectedStyle 
-                      ? 'bg-emerald-100 text-emerald-600' 
-                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                      ? 'bg-purple-100 text-purple-600' 
+                      : 'bg-slate-100 text-slate-400 hover:bg-purple-100 hover:text-purple-600'
                   }`}
                 >
                   <Brush size={18} />
@@ -7057,8 +7057,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   onClick={onCharactersClick}
                   className={`p-2.5 rounded-full transition ${
                     activeCharacters.length > 0 
-                      ? 'bg-emerald-100 text-emerald-600' 
-                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                      ? 'bg-blue-100 text-blue-600' 
+                      : 'bg-slate-100 text-slate-400 hover:bg-blue-100 hover:text-blue-600'
                   }`}
                 >
                   <User size={18} />
@@ -7075,7 +7075,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   className={`p-2.5 rounded-full transition ${
                     activeReferences.length > 0 
                       ? 'bg-emerald-100 text-emerald-600' 
-                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                      : 'bg-slate-100 text-slate-400 hover:bg-emerald-100 hover:text-emerald-600'
                   }`}
                 >
                   <Link size={18} />
@@ -7152,8 +7152,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <PopoverTrigger asChild>
                     <button className={`p-2.5 rounded-full transition ${
                       selectedAspectRatio !== '1:1' 
-                        ? 'bg-emerald-100 text-emerald-600' 
-                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                        ? 'bg-orange-100 text-orange-600' 
+                        : 'bg-slate-100 text-slate-400 hover:bg-orange-100 hover:text-orange-600'
                     }`}>
                       <Copy size={18} />
                     </button>
@@ -7269,8 +7269,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <PopoverTrigger asChild>
                     <button className={`p-2.5 rounded-full transition ${
                       numberOfImages !== 1 
-                        ? 'bg-emerald-100 text-emerald-600' 
-                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'
+                        ? 'bg-cyan-100 text-cyan-600' 
+                        : 'bg-slate-100 text-slate-400 hover:bg-cyan-100 hover:text-cyan-600'
                     }`}>
                       <Hash size={18} />
                     </button>
