@@ -178,6 +178,22 @@ const showcaseSlides = [
     accentColor: "text-amber-700",
     pillBg: "bg-amber-200/60",
   },
+  {
+    title: "Stunning Websites in Minutes",
+    description: "Describe your vision and watch AI build beautiful, responsive landing pages and websites instantly. Edit with drag-and-drop. Launch in one click.",
+    features: ["AI Website Builder", "Drag & Drop", "Instant Publish"],
+    bgColor: "bg-teal-50",
+    accentColor: "text-teal-700",
+    pillBg: "bg-teal-200/60",
+  },
+  {
+    title: "And So Much More...",
+    description: "Voice cloning, AI dubbing, image upscaling, background removal, transcription, translations, CRM, email automation, affiliate programs—everything you need to dominate.",
+    features: ["50+ AI Tools", "Unlimited Potential", "Always Evolving"],
+    bgColor: "bg-gradient-to-br from-brand-green/10 to-emerald-50",
+    accentColor: "text-brand-green",
+    pillBg: "bg-brand-green/20",
+  },
 ];
 
 export default function LoginPage() {
