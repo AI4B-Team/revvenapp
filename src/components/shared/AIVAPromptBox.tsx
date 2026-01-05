@@ -262,7 +262,7 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
           </div>
 
           {/* Bottom bar */}
-          <div className="flex items-center gap-4 flex-nowrap px-4 pb-4">
+          <div className="flex items-center gap-4 flex-nowrap px-4 pb-4 overflow-x-auto scrollbar-hide">
             {/* Left side controls */}
             <div className="flex items-center gap-2 flex-nowrap flex-shrink-0">
               {/* Auto dropdown - always visible when intent is selected */}
