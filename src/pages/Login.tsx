@@ -188,8 +188,8 @@ const showcaseSlides = [
   },
   {
     title: "And So Much More...",
-    description: "Clone yourself with AI avatars. Build entire agencies on autopilot. Scale without hiring a single employee. This isn't just a tool—it's your unfair advantage.",
-    features: ["Replace Entire Teams", "Scale Without Limits", "Unfair Advantage"],
+    description: "Run your entire business on autopilot. Outpace competitors while they're still hiring. This isn't just a tool—it's the unfair advantage they'll never see coming.",
+    features: ["Automate Everything", "Outwork Anyone", "Unfair Advantage"],
     bgColor: "bg-gradient-to-br from-brand-green/10 to-emerald-50",
     accentColor: "text-brand-green",
     pillBg: "bg-brand-green/20",
