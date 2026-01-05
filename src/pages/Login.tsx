@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Session } from '@supabase/supabase-js';
-import { Camera, User } from 'lucide-react';
+import { Camera, User, Pause, Play } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 // Showcase slides data - Pastel color backgrounds with hypnotic copy
@@ -76,7 +76,7 @@ const showcaseSlides = [
   },
   {
     title: "Social Content Empire",
-    description: "30 days of content in 30 minutes. AI creates, schedules, and posts across every platform. Dominate social while you focus on business.",
+    description: "30 days of content in 30 seconds. AI creates, schedules, and posts across every platform. Dominate social while you focus on business.",
     features: ["Auto Scheduling", "Multi-Platform", "Viral Content"],
     bgColor: "bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-100",
     accentColor: "text-sky-700",
@@ -356,14 +356,16 @@ export default function LoginPage() {
 
   // Auto-sliding carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-advance slides
+  // Auto-advance slides (slower: 7 seconds)
   useEffect(() => {
+    if (isPaused) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % showcaseSlides.length);
-    }, 5000);
+    }, 7000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isPaused]);
 
   return (
     <div className="min-h-screen flex">
@@ -395,8 +397,8 @@ export default function LoginPage() {
             ))}
           </div>
 
-          {/* Slide Indicators */}
-          <div className="flex items-center gap-2">
+          {/* Slide Indicators + Pause Button */}
+          <div className="flex items-center gap-3">
             {showcaseSlides.map((_, idx) => (
               <button
                 key={idx}
@@ -409,6 +411,15 @@ export default function LoginPage() {
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
+            
+            {/* Pause/Play Button */}
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className={`ml-2 p-2 rounded-full ${showcaseSlides[currentSlide].pillBg} ${showcaseSlides[currentSlide].accentColor} hover:opacity-80 transition-opacity`}
+              aria-label={isPaused ? 'Play slideshow' : 'Pause slideshow'}
+            >
+              {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
