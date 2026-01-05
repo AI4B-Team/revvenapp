@@ -192,7 +192,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   return (
     <>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
-      <header className="border-b border-border px-4 md:px-8 py-4 flex items-center justify-between bg-background">
+      <header className="px-4 md:px-8 py-4 flex items-center justify-between">
         {/* Mobile menu button */}
         <TooltipProvider delayDuration={100}>
           <Tooltip>
@@ -210,38 +210,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           </Tooltip>
         </TooltipProvider>
         
-        <div className="flex items-center" />
-      
-      <div className="hidden md:flex items-center justify-center flex-1">
-        <nav className="flex items-center gap-4 lg:gap-8">
-          <Link 
-            to="/create" 
-            className={`font-medium hover:text-emerald-500 transition text-sm lg:text-base ${
-              isMenuActive('create') ? 'text-emerald-500' : 'text-muted-foreground'
-            }`}
-          >
-            {t('nav.create')}
-          </Link>
-          <span className="text-muted hidden lg:inline">|</span>
-          <Link 
-            to="/products" 
-            className={`font-medium hover:text-emerald-500 transition text-sm lg:text-base ${
-              isMenuActive('monetize') ? 'text-emerald-500' : 'text-muted-foreground'
-            }`}
-          >
-            {t('nav.monetize')}
-          </Link>
-          <span className="text-muted hidden lg:inline">|</span>
-          <Link 
-            to="/apps" 
-            className={`font-medium hover:text-emerald-500 transition text-sm lg:text-base ${
-              isMenuActive('automate') ? 'text-emerald-500' : 'text-muted-foreground'
-            }`}
-          >
-            {t('nav.automate')}
-          </Link>
-        </nav>
-      </div>
+        <div className="flex items-center flex-1" />
 
       <div className="flex items-center justify-end gap-1 md:gap-2">
         <TooltipProvider delayDuration={100}>
