@@ -280,11 +280,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   const createModes = [
-    { value: 'Create', label: 'Create', icon: Sparkles },
-    { value: 'Batch', label: 'Batch', icon: Layers },
-    { value: 'Draw', label: 'Draw', icon: Pencil },
-    { value: 'Swap', label: 'Swap', icon: RefreshCw },
-    { value: 'Photoshoot', label: 'Photoshoot', icon: Image },
+    { value: 'Create', label: 'Create', icon: Sparkles, color: 'text-amber-500' },
+    { value: 'Batch', label: 'Batch', icon: Layers, color: 'text-purple-500' },
+    { value: 'Draw', label: 'Draw', icon: Pencil, color: 'text-orange-500' },
+    { value: 'Swap', label: 'Swap', icon: RefreshCw, color: 'text-blue-500' },
+    { value: 'Photoshoot', label: 'Photoshoot', icon: Image, color: 'text-pink-500' },
   ];
   
   const audioModes = [
@@ -6512,7 +6512,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           {(() => {
                             const mode = createModes.find(m => m.value === selectedCreateMode);
                             const IconComponent = mode?.icon || Sparkles;
-                            return <IconComponent size={16} />;
+                            const iconColor = mode?.color || '';
+                            return <IconComponent size={16} className={iconColor} />;
                           })()}
                           <span>{selectedCreateMode}</span>
                           <button 
@@ -6528,8 +6529,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       )}
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-52 p-2 bg-background border-border z-50" align="start">
-                    <div className="space-y-1">
+                  <PopoverContent className="w-auto p-3 bg-background border-border z-50" align="start">
+                    <div className="grid grid-cols-4 gap-2">
                       {createModes.map((mode) => {
                         const IconComponent = mode.icon;
                         return (
@@ -6539,11 +6540,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               setSelectedCreateMode(mode.value);
                               setIsCreateModeDropdownOpen(false);
                             }}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
+                            className={`text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
                               selectedCreateMode === mode.value ? 'bg-secondary' : ''
                             }`}
                           >
-                            <IconComponent size={16} />
+                            <IconComponent size={16} className={mode.color} />
                             {mode.label}
                           </button>
                         );
