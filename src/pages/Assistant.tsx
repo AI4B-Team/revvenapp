@@ -58,7 +58,7 @@ const Assistant = () => {
             <div className="w-full max-w-5xl">
               <AIVAPromptBox 
                 onGenerate={handleGenerate}
-                showGreeting={false}
+                showGreeting={true}
               />
             </div>
           </div>
