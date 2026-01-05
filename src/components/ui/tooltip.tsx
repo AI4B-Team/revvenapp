@@ -3,11 +3,15 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 import { cn } from "@/lib/utils";
 
-// Helper function to convert text to Title Case
+// Helper function to convert text to Title Case (handles spaces and hyphens)
 const toTitleCase = (text: string): string => {
   return text
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map(word => 
+      word.split('-')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join('-')
+    )
     .join(' ');
 };
 
