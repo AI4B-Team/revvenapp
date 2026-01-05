@@ -226,45 +226,45 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
       {/* Prompt Input Box */}
       <div className="relative w-full mx-auto">
         <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-full min-w-0 relative">
-          {/* Left side icons - only shown when an option is selected */}
-          {selectedOption && (
-            <div className="flex flex-col gap-1 absolute left-4 top-4 z-10">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className={`p-1.5 rounded-lg bg-slate-100 ${selectedOption.color} hover:bg-slate-200 transition-colors`}>
-                    <selectedOption.icon size={18} />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  {selectedOption.id === 'image' ? 'Image-To-Prompt' : selectedOption.label}
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded-lg bg-slate-100 text-emerald-500 hover:bg-slate-200 transition-colors">
-                    <Shuffle size={18} />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Auto Prompt</TooltipContent>
-              </Tooltip>
-            </div>
-          )}
-
           {/* Input area */}
-          <div className={`px-6 pt-5 pb-3 flex-1 ${selectedOption ? 'pl-14' : ''}`}>
+          <div className="px-6 pt-5 pb-3 flex-1 flex gap-3 min-w-0">
+            {/* Left side icons - only shown when an option is selected */}
+            {selectedOption && (
+              <div className="flex flex-col gap-1 flex-shrink-0">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className={`p-1.5 rounded-lg bg-slate-100 ${selectedOption.color} hover:bg-slate-200 transition-colors`}>
+                      <selectedOption.icon size={18} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {selectedOption.id === 'image' ? 'Image-To-Prompt' : selectedOption.label}
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-1.5 rounded-lg bg-slate-100 text-emerald-500 hover:bg-slate-200 transition-colors">
+                      <Shuffle size={18} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Auto Prompt</TooltipContent>
+                </Tooltip>
+              </div>
+            )}
+
             <textarea
               placeholder={isListening ? 'Listening...' : placeholdersByIntent[intent || 'default']}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               rows={3}
-              className="w-full border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
+              className="flex-1 min-w-0 border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
             />
           </div>
 
           {/* Bottom bar */}
-          <div className="flex items-center px-4 pb-4 gap-6 flex-nowrap min-w-0">
+          <div className="flex items-center gap-4 flex-nowrap px-4 pb-4">
             {/* Left side controls */}
-            <div className="flex items-center gap-2 min-w-0 flex-1 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-2 flex-nowrap flex-shrink-0">
               {/* Auto dropdown - always visible when intent is selected */}
               {intent && (
                 <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
@@ -340,7 +340,7 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
             </div>
 
             {/* Right side controls */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div className="ml-auto flex items-center gap-1.5 flex-shrink-0">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button

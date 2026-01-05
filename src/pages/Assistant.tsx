@@ -55,7 +55,7 @@ const Assistant = () => {
         <main className="flex-1 overflow-auto bg-[#f5f7fa]">
           <div className="flex flex-col items-center justify-start min-h-full px-4 sm:px-8 lg:px-16 py-8 lg:py-12">
             {/* Prompt Box with Greeting */}
-            <div className="w-full max-w-5xl">
+            <div className="w-full">
               <AIVAPromptBox 
                 onGenerate={handleGenerate}
                 showGreeting={true}
