@@ -30,9 +30,11 @@ interface GenerationInputProps {
   onCharactersClick?: () => void;
   onCharactersSelect?: (characters: any[]) => void;
   selectedCharacters?: any[];
+  isCharactersModalOpen?: boolean;
   onReferencesClick?: () => void;
   onReferencesSelect?: (references: any[]) => void;
   selectedReferences?: any[];
+  isReferencesModalOpen?: boolean;
   isCharacterReference?: boolean;
   onGenerationStart?: () => void;
   externalStartingFrame?: { preview: string; name: string } | null;
@@ -66,7 +68,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -7124,7 +7126,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <button 
                   onClick={onCharactersClick}
                   className={`p-2.5 rounded-full transition-colors text-brand-blue ${
-                    activeCharacters.length > 0
+                    activeCharacters.length > 0 || isCharactersModalOpen
                       ? 'bg-brand-blue/15'
                       : 'bg-secondary hover:bg-brand-blue/15'
                   }`}
@@ -7141,7 +7143,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <button
                   onClick={onReferencesClick}
                   className={`p-2.5 rounded-full transition-colors text-brand-green ${
-                    activeReferences.length > 0
+                    activeReferences.length > 0 || isReferencesModalOpen
                       ? 'bg-brand-green/15'
                       : 'bg-secondary hover:bg-brand-green/15'
                   }`}
