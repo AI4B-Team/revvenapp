@@ -260,9 +260,9 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   ];
 
   const workspaces = [
-    { name: 'Dolmar Workspace', initial: 'D', bgColor: 'bg-brand-green' },
-    { name: 'Brian Workspace', initial: 'B', bgColor: 'bg-brand-blue' },
-    { name: 'Team Workspace', initial: 'T', bgColor: 'bg-brand-yellow' },
+    { name: "Dolmar's Space", initial: 'D', bgColor: 'bg-brand-green' },
+    { name: "Brian's Space", initial: 'B', bgColor: 'bg-brand-blue' },
+    { name: 'Team Space', initial: 'T', bgColor: 'bg-brand-yellow' },
   ];
 
   return (
@@ -300,31 +300,38 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
           >
             <div className="w-8 h-8 bg-primary/20 rounded flex items-center justify-center text-sm font-bold text-primary">
-              K
+              B
             </div>
-            <span className="flex-1 text-left text-sm text-primary font-medium">Keisha Workspace</span>
+            <span className="flex-1 text-left text-sm text-primary font-medium">Brian's Space</span>
             <ChevronDown size={16} className={`transition-transform text-primary ${isWorkspaceOpen ? 'rotate-180' : ''}`} />
           </button>
         
           {isWorkspaceOpen && (
             <div className="absolute top-full left-4 right-4 mt-2 bg-brand-green rounded-lg shadow-lg z-50 py-2">
-              <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary border-b border-primary/20 mb-2">
-                <Search size={16} />
-                <span className="flex-1 text-left text-sm">Search Workspaces</span>
-              </button>
+              <div className="w-full flex items-center gap-3 px-3 py-2 border-b border-primary/20 mb-2">
+                <Search size={16} className="text-primary" />
+                <input 
+                  type="text" 
+                  placeholder="Search Spaces" 
+                  className="flex-1 text-sm bg-transparent text-primary placeholder:text-primary/60 outline-none"
+                />
+              </div>
               {workspaces.map((workspace, idx) => (
                 <div
                   key={idx}
-                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary group"
+                  className="w-full flex items-center justify-between gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary group"
                 >
-                  <div className={`w-8 h-8 ${workspace.bgColor} rounded flex items-center justify-center text-sm font-bold text-primary`}>
-                    {workspace.initial}
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 ${workspace.bgColor} rounded flex items-center justify-center text-sm font-bold text-primary`}>
+                      {workspace.initial}
+                    </div>
+                    <span className="text-sm">{workspace.name}</span>
+                    {idx === 0 && <span className="text-primary">✓</span>}
                   </div>
-                  <span className="flex-1 text-left text-sm">{workspace.name}</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button 
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-primary/20 rounded"
+                        className="p-1 hover:bg-primary/20 rounded"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreVertical size={16} className="text-primary" />
@@ -347,7 +354,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 <div className="w-8 h-8 bg-brand-yellow rounded flex items-center justify-center text-sm font-bold text-primary">
                   +
                 </div>
-                <span className="flex-1 text-left text-sm">Create Workspace</span>
+                <span className="flex-1 text-left text-sm">Create New Space</span>
               </button>
             </div>
           )}
