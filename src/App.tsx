@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useTrackVisitor } from "@/hooks/useLiveVisitors";
+import { TabsProvider } from "@/contexts/TabsContext";
 
 // Component to track visitor presence
 const VisitorTracker = ({ children }: { children: React.ReactNode }) => {
@@ -93,10 +94,11 @@ const queryClient = new QueryClient();
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
+      <TabsProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
           <BrowserRouter>
             <VisitorTracker>
               <Routes>
@@ -184,7 +186,8 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
-    </QueryClientProvider>
+    </TabsProvider>
+  </QueryClientProvider>
   </ErrorBoundary>
 );
 
