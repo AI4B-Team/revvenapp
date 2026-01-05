@@ -340,7 +340,7 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
             </div>
 
             {/* Right side controls */}
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto">
+            <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto pl-8">
               {prompt.trim() && (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -400,7 +400,7 @@ const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTag
                     <TooltipTrigger asChild>
                       <button 
                         onClick={handleMicClick}
-                        className="p-2 rounded-lg transition-colors text-slate-400 hover:bg-slate-100"
+                        className="p-2 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
                       >
                         <Mic size={18} />
                       </button>
