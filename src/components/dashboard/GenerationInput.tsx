@@ -7707,7 +7707,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       {/* Content Calendar */}
       {isContentMode && (
-        <div style={{ width: '100vw', maxWidth: '1400px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
+        <div className="w-full max-w-full overflow-hidden">
           <SocialContentCalendar 
             generatedContent={generatedContent}
             isGenerating={isGeneratingContent}
