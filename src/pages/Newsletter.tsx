@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Check, Loader2, Users, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,20 +13,6 @@ const Newsletter = () => {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [subscriberCount, setSubscriberCount] = useState(0);
-
-  useEffect(() => {
-    fetchSubscriberCount();
-  }, []);
-
-  const fetchSubscriberCount = async () => {
-    const { count } = await supabase
-      .from('newsletter_subscribers')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'subscribed');
-    
-    setSubscriberCount(count || 0);
-  };
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,57 +25,19 @@ const Newsletter = () => {
     setIsLoading(true);
 
     try {
-      // Check if email already exists
-      const { data: existing } = await supabase
-        .from('newsletter_subscribers')
-        .select('id, status')
-        .eq('email', email.toLowerCase())
-        .single();
-
-      if (existing) {
-        if (existing.status === 'subscribed') {
-          toast.info('You are already subscribed to our newsletter!');
-        } else {
-          // Re-subscribe
-          await supabase
-            .from('newsletter_subscribers')
-            .update({ 
-              status: 'subscribed', 
-              name: name || null,
-              unsubscribed_at: null 
-            })
-            .eq('id', existing.id);
-          
-          setIsSubscribed(true);
-          toast.success('Welcome back! You have been re-subscribed.');
-          fetchSubscriberCount();
+      // Send data directly to webhook via edge function
+      const { data, error } = await supabase.functions.invoke('send-newsletter-email', {
+        body: { 
+          email: email.toLowerCase(), 
+          name: name || '', 
+          type: 'subscribe' 
         }
-      } else {
-        // New subscriber
-        const { error } = await supabase
-          .from('newsletter_subscribers')
-          .insert({
-            email: email.toLowerCase(),
-            name: name || null,
-            status: 'subscribed'
-          });
+      });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        // Send welcome email via n8n webhook
-        try {
-          await supabase.functions.invoke('send-newsletter-email', {
-            body: { email: email.toLowerCase(), name: name || '', type: 'welcome' }
-          });
-        } catch (emailError) {
-          console.error('Failed to send welcome email:', emailError);
-          // Don't fail the subscription if email fails
-        }
-
-        setIsSubscribed(true);
-        toast.success('Successfully subscribed to the newsletter!');
-        fetchSubscriberCount();
-      }
+      setIsSubscribed(true);
+      toast.success('Successfully subscribed to the newsletter!');
     } catch (error: any) {
       console.error('Subscription error:', error);
       toast.error('Failed to subscribe. Please try again.');
@@ -127,10 +75,6 @@ const Newsletter = () => {
       <main className="max-w-4xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-            <Users className="h-4 w-4" />
-            <span>{subscriberCount.toLocaleString()} subscribers</span>
-          </div>
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Subscribe to Our Newsletter
           </h2>
