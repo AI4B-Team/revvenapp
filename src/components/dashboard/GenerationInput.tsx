@@ -423,6 +423,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
 
   const hasImageReference = selectedReferences.length > 0 || selectedCharacters.length > 0 || !!isCharacterReference;
+
+  const getModelLabel = (modelId: string) => {
+    if (modelId === 'auto') return 'Auto';
+    if (modelId === 'nano-banana-pro') return 'Nano Banana Pro';
+    if (modelId === 'nano-banana') return 'Nano Banana';
+    return modelId;
+  };
   
   // Define supported aspect ratios for each model
   const modelAspectRatios: Record<string, string[]> = {
@@ -6610,52 +6617,25 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Image Mode Controls */}
                 {/* Type Dropdown - shows selected mode or "Type" */}
                 {(() => {
-                  const mode = createModes.find(m => m.value === selectedCreateMode);
-                  const isTypeSelected = selectedCreateMode !== 'Create';
+                  const mode = createModes.find(m => m.value === selectedCreateMode) ?? createModes[0];
+                  const IconComponent = mode.icon || Sparkles;
+
                   return (
                     <button
                       onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
                       aria-expanded={isCreateModeDropdownOpen}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${
-                        isTypeSelected
-                          ? `${mode?.bg || 'bg-secondary'} ${mode?.color || 'text-foreground'}`
-                          : 'bg-secondary text-muted-foreground hover:bg-muted'
-                      }`}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${mode.bg || 'bg-secondary'} text-foreground hover:opacity-90`}
                     >
-                      {isTypeSelected ? (
-                        <>
-                          {(() => {
-                            const IconComponent = mode?.icon || Sparkles;
-                            return <IconComponent size={16} />;
-                          })()}
-                          <span>{selectedCreateMode}</span>
-                          <button 
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCreateMode('Create');
-                              setIsCreateModeDropdownOpen(false);
-                            }}
-                            className="ml-1 p-0.5 hover:opacity-70 rounded"
-                          >
-                            <X size={12} />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <LayoutGrid size={16} className="text-muted-foreground" />
-                          <span>Type</span>
-                        </>
-                      )}
+                      <IconComponent size={16} className={mode.color || 'text-muted-foreground'} />
+                      <span>{mode.label}</span>
                     </button>
                   );
                 })()}
 
-                {/* Only show separator and other buttons when a type is selected */}
-                {selectedCreateMode !== 'Create' && (
-                  <>
-                    {/* Vertical separator */}
-                    <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+                {/* Mode controls */}
+                <>
+                  {/* Vertical separator */}
+                  <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
             {/* Model Dropdown - Show "11 Labs" static pill in Transcribe mode */}
             {isAudioMode && selectedAudioMode === 'Transcribe' ? (
@@ -6676,7 +6656,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         : 'bg-secondary hover:bg-brand-green/15'
                     }`}>
                       <Box size={16} className="text-muted-foreground" />
-                      <span>{selectedModel === 'auto' ? 'Auto' : selectedModel}</span>
+                      <span>{getModelLabel(selectedModel)}</span>
                     </button>
                   </PopoverTrigger>
                 </TooltipTrigger>
@@ -7220,12 +7200,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
+                    <button className={`${selectedAspectRatio !== '1:1' ? 'px-3 py-2' : 'p-2.5'} rounded-full transition-colors text-muted-foreground flex items-center gap-2 ${
                       isAspectRatioDropdownOpen || selectedAspectRatio !== '1:1'
                         ? 'bg-brand-yellow/15'
                         : 'bg-secondary hover:bg-brand-yellow/15'
                     }`}>
                       <Copy size={18} />
+                      {selectedAspectRatio !== '1:1' && (
+                        <span className="text-xs font-medium">{selectedAspectRatio}</span>
+                      )}
                     </button>
                   </PopoverTrigger>
                 </TooltipTrigger>
@@ -7337,12 +7320,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
+                    <button className={`${numberOfImages !== 1 ? 'px-3 py-2' : 'p-2.5'} rounded-full transition-colors text-muted-foreground flex items-center gap-2 ${
                       isNumberOfImagesDropdownOpen || numberOfImages !== 1
                         ? 'bg-brand-red/15'
                         : 'bg-secondary hover:bg-brand-red/15'
                     }`}>
                       <Hash size={18} />
+                      {numberOfImages !== 1 && (
+                        <span className="text-xs font-medium">{numberOfImages}</span>
+                      )}
                     </button>
                   </PopoverTrigger>
                 </TooltipTrigger>
@@ -7407,8 +7393,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </div>
               </PopoverContent>
               </Popover>
-                  </>
-                )}
+                </>
               </>
             )}
           </div>
