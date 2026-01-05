@@ -412,7 +412,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-sm w-full [&>svg]:hidden">
                   <div className="flex items-center gap-3 text-gray-600">
-                    <Languages size={18} className="text-amber-400" />
+                    <Languages size={18} className="text-gray-500" />
                     <span>Language:</span>
                   </div>
                   <div className="flex items-center gap-1 text-gray-400">
@@ -451,7 +451,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-sm w-full [&>svg]:hidden">
                   <div className="flex items-center gap-3 text-gray-600">
-                    <Sun size={18} className="text-amber-400" />
+                    <Sun size={18} className="text-gray-500" />
                     <span>Theme:</span>
                   </div>
                   <div className="flex items-center gap-1 text-gray-400">
