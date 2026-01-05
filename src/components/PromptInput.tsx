@@ -221,13 +221,33 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
 
           {/* Input area */}
           <div className={`px-6 pt-5 pb-3 flex-1 ${selectedOption ? 'pl-14' : ''}`}>
-            <textarea
-              placeholder={placeholdersByIntent[intent || 'default']}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={3}
-              className="w-full border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
-            />
+            {isListening ? (
+              /* Recording indicator with animated waveform */
+              <div className="flex items-center justify-center gap-3 h-[72px]">
+                <div className="flex items-center justify-center gap-[3px]">
+                  {[...Array(28)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-[3px] bg-red-400 rounded-full origin-center"
+                      style={{
+                        height: '24px',
+                        animation: 'audioWave 0.6s ease-in-out infinite',
+                        animationDelay: `${i * 0.03}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+                <span className="ml-3 text-red-500 font-medium text-sm">Recording...</span>
+              </div>
+            ) : (
+              <textarea
+                placeholder={placeholdersByIntent[intent || 'default']}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                rows={3}
+                className="w-full border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
+              />
+            )}
           </div>
 
           {/* Bottom bar - expands dynamically as content is added */}
