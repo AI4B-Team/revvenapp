@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Mail, Check, Ticket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import RevvenLogo from '@/components/RevvenLogo';
 import AuthShowcase from '@/components/auth/AuthShowcase';
 
@@ -280,9 +280,28 @@ export default function SignupPage() {
       <AuthShowcase />
 
       {/* Right Side - Signup Form */}
-      <div className="flex-1 min-h-0 bg-white p-8 overflow-y-auto">
-        <div className="min-h-full flex items-center justify-center">
-          <div className="w-full max-w-md">
+      <div className="flex-1 min-h-0 bg-white flex flex-col">
+        {/* Fixed Login / Sign Up Toggle Tabs */}
+        <div className="flex-shrink-0 p-8 pb-0">
+          <div className="max-w-md mx-auto">
+            <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+              <Link
+                to="/login"
+                className="flex-1 py-3 text-sm font-medium transition-colors bg-gray-50 text-gray-500 hover:text-gray-700 text-center"
+              >
+                Login
+              </Link>
+              <span className="flex-1 py-3 text-sm font-medium bg-white text-gray-900 shadow-sm text-center">
+                Sign Up
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-8 pt-6">
+          <div className="min-h-full flex items-center justify-center">
+            <div className="w-full max-w-md">
 
           {/* Step 1: Signup Form */}
           {step === 'form' && (
@@ -541,6 +560,7 @@ export default function SignupPage() {
               <div className="w-8 h-8 border-4 border-brand-green border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
           )}
+            </div>
           </div>
         </div>
       </div>
