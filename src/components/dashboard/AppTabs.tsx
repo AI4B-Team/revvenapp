@@ -20,18 +20,6 @@ interface AppTab {
 
 const allApps: AppTab[] = [
   { id: 'create', label: 'Create', icon: Wand2, color: 'text-white', bgColor: 'bg-emerald-500', path: '/create' },
-  { id: 'inbox', label: 'Inbox', icon: Mail, color: 'text-white', bgColor: 'bg-blue-500', path: '/contacts' },
-  { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'text-white', bgColor: 'bg-rose-500', path: '/social-posts' },
-  { id: 'leads', label: 'Leads', icon: Users, color: 'text-white', bgColor: 'bg-orange-500', path: '/lead-generation' },
-  { id: 'sales', label: 'Sales', icon: DollarSign, color: 'text-white', bgColor: 'bg-emerald-500', path: '/revenue' },
-  { id: 'customers', label: 'Customers', icon: Heart, color: 'text-white', bgColor: 'bg-pink-500', path: '/contacts' },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, color: 'text-white', bgColor: 'bg-indigo-500', path: '/revenue', badge: 'NEW' },
-  { id: 'invoices', label: 'Invoices', icon: FileText, color: 'text-white', bgColor: 'bg-amber-500', path: '/revenue' },
-  { id: 'reports', label: 'Reports', icon: ClipboardList, color: 'text-white', bgColor: 'bg-sky-500', path: '/revenue' },
-  { id: 'contracts', label: 'Contracts', icon: FileText, color: 'text-white', bgColor: 'bg-teal-500', path: '/revenue' },
-  { id: 'projects', label: 'Projects', icon: FolderKanban, color: 'text-white', bgColor: 'bg-violet-500', path: '/apps' },
-  { id: 'marketing', label: 'Marketing', icon: Megaphone, color: 'text-white', bgColor: 'bg-red-500', path: '/marketing' },
-  { id: 'agents', label: 'Agents', icon: Bot, color: 'text-white', bgColor: 'bg-cyan-500', path: '/automate', badge: 'BETA' },
 ];
 
 interface AppTabsProps {
@@ -50,7 +38,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem(FAVORITES_KEY);
-    return saved ? JSON.parse(saved) : ['create', 'inbox', 'calendar', 'leads', 'sales', 'customers'];
+    return saved ? JSON.parse(saved) : ['create'];
   });
   const [recentApps, setRecentApps] = useState<string[]>(() => {
     const saved = localStorage.getItem(RECENT_KEY);
@@ -158,7 +146,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
 
   const favoriteApps = allApps.filter(app => favorites.includes(app.id));
   const recentAppsList = allApps.filter(app => recentApps.includes(app.id) && !favorites.includes(app.id));
-  const trendingApps = allApps.filter(app => ['analytics', 'agents', 'projects', 'marketing', 'reports', 'invoices'].includes(app.id) && !favorites.includes(app.id));
+  const trendingApps = allApps.filter(app => !favorites.includes(app.id));
   
   const filteredApps = searchQuery 
     ? allApps.filter(app => app.label.toLowerCase().includes(searchQuery.toLowerCase()))
