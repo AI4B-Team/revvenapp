@@ -4079,8 +4079,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-10 w-full">
-          <div className="flex items-center gap-2 flex-nowrap shrink-0">
+        <div className="flex items-center justify-between gap-6 w-full min-w-0">
+          <div className="flex items-center gap-2 flex-nowrap flex-1 min-w-0 overflow-x-auto pr-2">
             {isVideoMode ? (
               <>
                 {/* Video Mode Controls */}
