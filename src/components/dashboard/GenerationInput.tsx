@@ -6313,9 +6313,24 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <PopoverContent className="w-48 bg-background border-border z-50">
                     <div className="space-y-1">
                       <button 
-                        onClick={() => { setContentType('Social'); setShowSocialButtons(true); }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'Social' ? 'bg-secondary' : ''}`}
+                        onClick={() => { setContentType('Article'); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Article' ? 'bg-secondary' : ''}`}
                       >
+                        <FileText size={16} className="text-muted-foreground" />
+                        Article
+                      </button>
+                      <button 
+                        onClick={() => { setContentType('Newsletter'); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Newsletter' ? 'bg-secondary' : ''}`}
+                      >
+                        <Send size={16} className="text-muted-foreground" />
+                        Newsletter
+                      </button>
+                      <button 
+                        onClick={() => { setContentType('Social'); setShowSocialButtons(true); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Social' ? 'bg-secondary' : ''}`}
+                      >
+                        <Share2 size={16} className="text-muted-foreground" />
                         Social
                       </button>
                     </div>
