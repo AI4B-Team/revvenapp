@@ -33,9 +33,11 @@ interface SidebarProps {
   onEditClick?: () => void;
   collapsed?: boolean;
   defaultCollapsed?: boolean;
+  onAIVAPanelToggle?: () => void;
+  isAIVAPanelOpen?: boolean;
 }
 
-const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange, onEditClick, collapsed, defaultCollapsed }: SidebarProps) => {
+const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange, onEditClick, collapsed, defaultCollapsed, onAIVAPanelToggle, isAIVAPanelOpen }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname === '/dashboard';
@@ -51,6 +53,37 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const isEditPage = location.pathname === '/edit';
   const isEbookEditorPage = location.pathname.startsWith('/ebook-creator/new');
 
+  // Define app pages where AIVA should open as a side panel
+  const appPages = [
+    '/create',
+    '/edit',
+    '/video-downloader',
+    '/versus',
+    '/transcribe',
+    '/voice-cloner',
+    '/voice-changer',
+    '/voiceovers',
+    '/audio-dubber',
+    '/noise-remover',
+    '/background-remover',
+    '/image-upscaler',
+    '/image-enhancer',
+    '/blog-writer',
+    '/social-posts',
+    '/email-generator',
+    '/ad-copy-writer',
+    '/script-writer',
+    '/seo-optimizer',
+    '/ebook-creator',
+    '/explainer-video',
+    '/viral-shorts',
+    '/ai-story',
+    '/lead-generation',
+    '/newsletter',
+  ];
+  
+  const isInsideApp = appPages.some(path => location.pathname.startsWith(path));
+
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
     const today = new Date();
@@ -62,7 +95,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   
   const sidebarItems = [
     { icon: <Home size={18} />, label: 'Dashboard', link: '/dashboard' },
-    { icon: <Sparkles size={18} className="text-brand-yellow" />, label: 'AIVA', link: '/assistant' },
+    { icon: <Sparkles size={18} className="text-brand-yellow" />, label: 'AIVA', link: '/assistant', isAIVA: true },
     ...(isAdminOrModerator ? [{ icon: <Shield size={18} />, label: 'Admin Panel', link: '/manage' }] : []),
   ];
 
@@ -429,21 +462,40 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
       {/* Main Navigation */}
       <nav className="px-4 space-y-1">
-        {sidebarItems.map((item, idx) => (
-          <NavLink
-            key={idx}
-            to={item.link || '/'}
-            end
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-            activeClassName="bg-sidebar-active"
-            title={item.label}
-          >
-            <span className="text-sidebar-muted">
-              {item.icon}
-            </span>
-            {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
-          </NavLink>
-        ))}
+        {sidebarItems.map((item, idx) => {
+          // AIVA item: opens panel when inside an app, navigates when not
+          if ((item as any).isAIVA && isInsideApp) {
+            return (
+              <button
+                key={idx}
+                onClick={onAIVAPanelToggle}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${isAIVAPanelOpen ? 'bg-sidebar-active' : ''}`}
+                title={item.label}
+              >
+                <span className="text-sidebar-muted">
+                  {item.icon}
+                </span>
+                {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
+              </button>
+            );
+          }
+          
+          return (
+            <NavLink
+              key={idx}
+              to={item.link || '/'}
+              end
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+              activeClassName="bg-sidebar-active"
+              title={item.label}
+            >
+              <span className="text-sidebar-muted">
+                {item.icon}
+              </span>
+              {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
+            </NavLink>
+          );
+        })}
 
         {/* Library Section */}
         <div className="pt-2">

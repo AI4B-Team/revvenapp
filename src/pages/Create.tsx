@@ -19,6 +19,7 @@ import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
 import CollectionsView from '@/components/dashboard/CollectionsView';
+import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 
 import SocialContentCalendar from '@/components/dashboard/SocialContentCalendar';
 import { socialPlatforms } from '@/components/dashboard/SocialIcons';
@@ -61,6 +62,7 @@ const Create = () => {
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   // Separate state for each content type
   const [imageCharacters, setImageCharacters] = useState<any[]>([]);
   const [videoCharacters, setVideoCharacters] = useState<any[]>([]);
@@ -592,6 +594,13 @@ const Create = () => {
           setIsEditMode(true);
           setEditingImage('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1024&h=1024&fit=crop');
         }}
+        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        isAIVAPanelOpen={isAIVAPanelOpen}
+      />
+
+      <AIVASidePanel 
+        isOpen={isAIVAPanelOpen}
+        onClose={() => setIsAIVAPanelOpen(false)}
       />
 
       <AIPersonaSidebar 
