@@ -190,16 +190,10 @@ export default function TranscribeApp() {
     }
   }, []);
 
-  // Scroll restoration - restore position after navigating back
+  // Scroll to top when component mounts - ensures tabs are visible
   useEffect(() => {
-    const savedScrollPosition = sessionStorage.getItem(SCROLL_STORAGE_KEY);
-    if (savedScrollPosition && !isLoading) {
-      // Use requestAnimationFrame to ensure DOM is ready
-      requestAnimationFrame(() => {
-        window.scrollTo(0, parseInt(savedScrollPosition, 10));
-      });
-    }
-  }, [isLoading]);
+    window.scrollTo(0, 0);
+  }, []);
 
   // Save scroll position before navigating away
   const saveScrollPosition = useCallback(() => {
