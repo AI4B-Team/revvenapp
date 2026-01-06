@@ -436,7 +436,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
 
             {/* Schedule Info */}
             <div className="bg-muted/50 rounded-lg p-4 mb-6">
-              <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="w-4 h-4" />
                   <span>{post.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
