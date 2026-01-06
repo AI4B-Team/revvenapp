@@ -155,13 +155,13 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
         {activeApp && (
           <button
             onClick={() => handleAppClick(activeApp)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${activeApp.bgColor} ${activeApp.color} shadow-sm`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeApp.bgColor} ${activeApp.color} shadow-sm`}
           >
             <activeApp.icon size={16} />
             <span>{activeApp.label}</span>
             <X 
               size={14} 
-              className="ml-1 hover:bg-white/20 rounded-full p-0.5 cursor-pointer"
+              className="ml-1 hover:bg-white/20 rounded p-0.5 cursor-pointer"
               onClick={handleCloseTab}
             />
           </button>
@@ -173,7 +173,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
             <TooltipTrigger asChild>
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="p-2.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-slate-400"
+                className="p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-slate-400"
               >
                 <Plus size={18} />
               </button>
