@@ -4815,26 +4815,43 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <>
                       {/* Standard Video Mode Controls - Redesigned with icon-only buttons */}
                       
-                      {/* Content Type Chips */}
-                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
-                        <Video size={16} className="text-red-500" />
-                        Video
-                        <X 
-                          size={14} 
-                          className="ml-1 cursor-pointer hover:text-slate-800"
-                          onClick={() => onContentTypeChange?.('Image')}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">
-                        <Play size={16} className="text-emerald-600" />
-                        {selectedAnimateMode}
-                        <X 
-                          size={14} 
-                          className="ml-1 cursor-pointer hover:text-emerald-900"
-                          onClick={() => setSelectedAnimateMode('Animate')}
-                        />
-                      </div>
+                      {/* Animate Mode Dropdown - Green chip style */}
+                      <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition">
+                            {(() => {
+                              const mode = animateModes.find(m => m.value === selectedAnimateMode);
+                              const Icon = mode?.icon || Play;
+                              return <Icon size={16} className="text-emerald-600" />;
+                            })()}
+                            {selectedAnimateMode}
+                            <X 
+                              size={14} 
+                              className="ml-1 cursor-pointer hover:text-emerald-900"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onContentTypeChange?.('Image');
+                              }}
+                            />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-48 bg-background border-border z-50">
+                          {animateModes.map((mode) => (
+                            <DropdownMenuItem
+                              key={mode.value}
+                              onClick={() => {
+                                setSelectedAnimateMode(mode.value);
+                                setIsAnimateModeDropdownOpen(false);
+                              }}
+                              className={`flex items-center gap-2 ${selectedAnimateMode === mode.value ? 'text-primary font-medium' : ''}`}
+                            >
+                              <mode.icon size={16} />
+                              {mode.label}
+                              {selectedAnimateMode === mode.value && <Check size={14} className="ml-auto" />}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       
                       {/* Separator */}
                       <div className="w-px h-8 bg-slate-200 mx-1" />
@@ -5091,17 +5108,35 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                 {/* Buttons Row */}
                 <div className="flex items-center gap-2 min-w-[600px]">
-                  {/* Audio Mode Dropdown */}
+                  {/* Audio Type Chip */}
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
+                    <Music size={16} className="text-emerald-500" />
+                    Audio
+                    <X 
+                      size={14} 
+                      className="ml-1 cursor-pointer hover:text-slate-800"
+                      onClick={() => onContentTypeChange?.('Image')}
+                    />
+                  </div>
+                  
+                  {/* Audio Mode Dropdown - Green chip style */}
                   <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition">
                         {(() => {
                           const mode = audioModes.find(m => m.value === selectedAudioMode);
                           const Icon = mode?.icon || Mic;
-                          return <Icon size={16} />;
+                          return <Icon size={16} className="text-emerald-600" />;
                         })()}
                         {selectedAudioMode}
-                        <ChevronDown size={14} />
+                        <X 
+                          size={14} 
+                          className="ml-1 cursor-pointer hover:text-emerald-900"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAudioMode('Voiceover');
+                          }}
+                        />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-48 bg-background border-border z-50">
@@ -5121,6 +5156,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  
+                  {/* Separator */}
+                  <div className="w-px h-8 bg-slate-200 mx-1" />
 
                   {/* Transcribe Mode Controls */}
                   {selectedAudioMode === 'Transcribe' && (
