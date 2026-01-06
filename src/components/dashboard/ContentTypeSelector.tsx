@@ -111,7 +111,7 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
                 'px-5 py-3 rounded-xl transition-colors flex items-center gap-2 border text-sm font-medium text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
                 isSelected
                   ? cn(type.accentBg, type.accentBorder)
-                  : cn('bg-secondary border-transparent', type.accentHover, type.accentHoverBorder)
+                  : cn('bg-white dark:bg-card border-border', type.accentHover, type.accentHoverBorder)
               )}
             >
               <type.icon size={18} className={type.accentText} />
