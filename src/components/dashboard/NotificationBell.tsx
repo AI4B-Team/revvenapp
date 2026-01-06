@@ -66,7 +66,7 @@ const NotificationBell = () => {
           <TooltipTrigger asChild>
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className="text-muted-foreground hover:text-foreground transition-colors relative"
+              className="h-10 w-10 inline-flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors relative"
               aria-label="Notifications"
             >
               <Bell size={20} />
