@@ -4088,7 +4088,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Animate Mode Dropdown - Green chip style */}
                   <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition">
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition">
                         {(() => {
                           const mode = animateModes.find(m => m.value === selectedAnimateMode);
                           const IconComponent = mode?.icon || Play;
