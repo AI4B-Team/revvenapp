@@ -218,7 +218,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         <TooltipProvider delayDuration={100}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-amber-200">
+              <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 hidden sm:flex items-center gap-1.5 px-3 md:px-4 h-10 text-sm border border-amber-200">
                 <Crown size={14} />
                 <span className="font-semibold hidden md:inline">{t('nav.upgrade')}</span>
               </Button>
@@ -235,7 +235,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               <Button 
                 size="sm" 
                 onClick={() => setIsRewardsModalOpen(true)}
-                className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-emerald-200"
+                className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 hidden sm:flex items-center gap-1.5 px-3 md:px-4 h-10 text-sm border border-emerald-200"
               >
                 <Gift size={14} />
                 <span className="font-semibold hidden md:inline">{t('nav.earn')}</span>
@@ -281,9 +281,9 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                       setTimeout(() => searchInputRef.current?.focus(), 100);
                     }
                   }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="h-10 w-10 inline-flex items-center justify-center rounded-full hover:bg-muted transition-colors"
                 >
-                  <Search size={20} className="text-gray-500" />
+                  <Search size={20} className="text-muted-foreground" />
                 </button>
               </TooltipTrigger>
               <TooltipContent>
