@@ -173,9 +173,9 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
             <TooltipTrigger asChild>
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-slate-400"
+                className="p-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition-colors text-slate-600 shadow-sm"
               >
-                <Plus size={18} />
+                <Plus size={18} strokeWidth={2.5} />
               </button>
             </TooltipTrigger>
             <TooltipContent>Add App</TooltipContent>
