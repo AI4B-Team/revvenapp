@@ -7065,7 +7065,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
                     selectedStyle || isStylesModalOpen
                       ? 'bg-brand-purple/15'
-                      : 'bg-secondary hover:bg-brand-purple/15'
+                      : 'bg-secondary'
                   }`}
                 >
                   <Brush size={18} />
@@ -7082,7 +7082,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
                     activeCharacters.length > 0 || isCharactersModalOpen
                       ? 'bg-brand-blue/15'
-                      : 'bg-secondary hover:bg-brand-blue/15'
+                      : 'bg-secondary'
                   }`}
                 >
                   <User size={18} />
@@ -7099,7 +7099,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   className={`p-2.5 rounded-full transition-colors text-muted-foreground ${
                     activeReferences.length > 0 || isReferencesModalOpen
                       ? 'bg-brand-green/15'
-                      : 'bg-secondary hover:bg-brand-green/15'
+                      : 'bg-secondary'
                   }`}
                 >
                   <Link size={18} />
@@ -7177,7 +7177,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <button className={`${selectedAspectRatio !== '1:1' ? 'px-3 py-2' : 'p-2.5'} rounded-full transition-colors text-muted-foreground flex items-center gap-2 ${
                       isAspectRatioDropdownOpen || selectedAspectRatio !== '1:1'
                         ? 'bg-brand-yellow/15'
-                        : 'bg-secondary hover:bg-brand-yellow/15'
+                        : 'bg-secondary'
                     }`}>
                       <Copy size={18} />
                       {selectedAspectRatio !== '1:1' && (
@@ -7297,7 +7297,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <button className={`${numberOfImages !== 1 ? 'px-3 py-2' : 'p-2.5'} rounded-full transition-colors text-muted-foreground flex items-center gap-2 ${
                       isNumberOfImagesDropdownOpen || numberOfImages !== 1
                         ? 'bg-brand-red/15'
-                        : 'bg-secondary hover:bg-brand-red/15'
+                        : 'bg-secondary'
                     }`}>
                       <Hash size={18} />
                       {numberOfImages !== 1 && (
