@@ -6080,46 +6080,39 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 ) : selectedAudioMode === 'Voiceover' ? (
                   <>
                     {/* Voiceover Mode Controls */}
-                    <TooltipProvider delayDuration={100}>
-                      <Tooltip>
-                        <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
-                          <TooltipTrigger asChild>
-                            <PopoverTrigger asChild>
-                              <button className="p-2 rounded-lg text-sm font-medium transition flex items-center justify-center bg-secondary text-muted-foreground hover:brightness-90">
-                                <Box size={18} />
-                              </button>
-                            </PopoverTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent side="top">
-                            <p>Model</p>
-                          </TooltipContent>
-                          <PopoverContent className="w-64 bg-background border-border z-50">
-                            <div className="space-y-1">
-                              <button 
-                                onClick={() => {
-                                  setSelectedAudioModel('eleven_turbo_v2_5');
-                                  setIsAudioModelPopoverOpen(false);
-                                }}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_turbo_v2_5' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
-                              >
-                                Eleven Turbo v2.5
-                                {selectedAudioModel === 'eleven_turbo_v2_5' && <Check size={14} className="text-brand-green" />}
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  setSelectedAudioModel('eleven_multilingual_v2');
-                                  setIsAudioModelPopoverOpen(false);
-                                }}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_multilingual_v2' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
-                              >
-                                Eleven Multilingual v2
-                                {selectedAudioModel === 'eleven_multilingual_v2' && <Check size={14} className="text-brand-green" />}
-                              </button>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                          <Box size={16} />
+                          {selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2'}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          <button 
+                            onClick={() => {
+                              setSelectedAudioModel('eleven_turbo_v2_5');
+                              setIsAudioModelPopoverOpen(false);
+                            }}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_turbo_v2_5' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
+                          >
+                            Eleven Turbo v2.5
+                            {selectedAudioModel === 'eleven_turbo_v2_5' && <Check size={14} className="text-brand-green" />}
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setSelectedAudioModel('eleven_multilingual_v2');
+                              setIsAudioModelPopoverOpen(false);
+                            }}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_multilingual_v2' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
+                          >
+                            Eleven Multilingual v2
+                            {selectedAudioModel === 'eleven_multilingual_v2' && <Check size={14} className="text-brand-green" />}
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
                     <Popover open={isVoiceoverPopoverOpen} onOpenChange={setIsVoiceoverPopoverOpen}>
                       <PopoverTrigger asChild>
