@@ -59,14 +59,14 @@ const NotificationBell = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative h-10 flex items-center justify-center">
       {/* Bell Icon Button with Badge */}
       <TooltipProvider delayDuration={100}>
         <Tooltip>
           <TooltipTrigger asChild>
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className="h-10 w-10 inline-flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors relative"
+              className="inline-flex items-center justify-center p-2.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors relative"
               aria-label="Notifications"
             >
               <Bell size={20} />
