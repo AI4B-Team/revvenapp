@@ -73,10 +73,7 @@ const ContentScoreBadge: React.FC<ContentScoreBadgeProps> = ({
         >
           {scoreResult.score}
         </div>
-        <div>
-          <p className={`font-semibold ${scoreResult.color}`}>{scoreResult.label}</p>
-          <p className="text-xs text-muted-foreground">Content Score</p>
-        </div>
+        <p className={`font-semibold ${scoreResult.color}`}>{scoreResult.label}</p>
       </div>
       
       {/* Insight Line */}
