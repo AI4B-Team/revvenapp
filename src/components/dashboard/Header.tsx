@@ -21,6 +21,7 @@ import NotificationBell from './NotificationBell';
 import HelpMenu from './HelpMenu';
 import SearchDialog from './SearchDialog';
 import InviteRewardsModalUpdated from './InviteRewardsModal';
+import AppTabs from './AppTabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -192,7 +193,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   return (
     <>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
-      <header className="px-4 md:px-8 py-4 flex items-center justify-between">
+      <header className="px-4 md:px-8 py-4 flex items-center justify-between bg-slate-50">
         {/* Mobile menu button */}
         <TooltipProvider delayDuration={100}>
           <Tooltip>
@@ -210,7 +211,8 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           </Tooltip>
         </TooltipProvider>
         
-        <div className="flex items-center flex-1" />
+        {/* App Tabs */}
+        <AppTabs className="flex-1" />
 
       <div className="flex items-center justify-end gap-1 md:gap-2">
         <TooltipProvider delayDuration={100}>
