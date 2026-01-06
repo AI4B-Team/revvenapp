@@ -25,6 +25,14 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'voice', icon: Mic, iconColor: 'text-emerald-500', title: 'Voice Clone', description: 'Your voice, everywhere.', prompt: 'Clone my voice for creating professional voiceovers for my content' },
       { id: 'blog', icon: FileText, iconColor: 'text-indigo-500', title: 'Blog Article', description: 'Words that convert.', prompt: 'Write a 1500-word SEO-optimized blog post about sustainable living tips' },
     ],
+    [
+      { id: 'shorts', icon: Zap, iconColor: 'text-orange-500', title: 'Viral Shorts', description: 'Hook them in 3 seconds.', prompt: 'Create a viral TikTok-style short video with trending transitions and effects' },
+      { id: 'podcast', icon: Mic, iconColor: 'text-purple-500', title: 'Podcast Episode', description: 'Stories worth sharing.', prompt: 'Write a podcast episode script about building a personal brand' },
+      { id: 'thumbnail', icon: Image, iconColor: 'text-red-500', title: 'Thumbnails', description: 'Clicks start here.', prompt: 'Design click-worthy YouTube thumbnails for my video content' },
+      { id: 'jingle', icon: Music, iconColor: 'text-teal-500', title: 'Brand Jingle', description: 'Sounds they remember.', prompt: 'Create a catchy 5-second audio logo for my brand' },
+      { id: 'newsletter', icon: Mail, iconColor: 'text-blue-600', title: 'Newsletter', description: 'Inbox gold.', prompt: 'Write an engaging weekly newsletter for my audience' },
+      { id: 'script', icon: FileText, iconColor: 'text-slate-600', title: 'Video Script', description: 'Words that sell.', prompt: 'Write a compelling video script for a product launch' },
+    ],
   ],
   Research: [
     [
@@ -34,6 +42,14 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'audience', icon: Users, iconColor: 'text-violet-500', title: 'Audience Insights', description: 'Understand their desires.', prompt: 'Create detailed buyer personas for a luxury skincare brand' },
       { id: 'report', icon: BarChart3, iconColor: 'text-amber-500', title: 'Industry Report', description: 'Data that decides.', prompt: 'Generate a comprehensive industry report on the creator economy' },
       { id: 'gaps', icon: Lightbulb, iconColor: 'text-cyan-500', title: 'Content Gaps', description: 'Find the whitespace.', prompt: 'Identify untapped content opportunities in the fitness coaching space' },
+    ],
+    [
+      { id: 'keywords', icon: Search, iconColor: 'text-green-500', title: 'Keyword Research', description: 'Words that rank.', prompt: 'Find high-volume low-competition keywords for my niche' },
+      { id: 'sentiment', icon: Users, iconColor: 'text-pink-500', title: 'Sentiment Analysis', description: 'Feel the pulse.', prompt: 'Analyze customer sentiment from reviews and social mentions' },
+      { id: 'pricing', icon: BarChart3, iconColor: 'text-indigo-500', title: 'Price Analysis', description: 'Find the sweet spot.', prompt: 'Research competitor pricing strategies and optimal price points' },
+      { id: 'influencer', icon: Sparkles, iconColor: 'text-amber-500', title: 'Influencer Scout', description: 'Find your champions.', prompt: 'Identify top influencers in my niche for potential partnerships' },
+      { id: 'benchmark', icon: Target, iconColor: 'text-blue-600', title: 'Benchmarking', description: 'Measure to master.', prompt: 'Create industry benchmarks for engagement and conversion rates' },
+      { id: 'swot', icon: Lightbulb, iconColor: 'text-orange-500', title: 'SWOT Analysis', description: 'Know thyself.', prompt: 'Conduct a comprehensive SWOT analysis for my business' },
     ],
   ],
   Plan: [
@@ -45,6 +61,14 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'launch', icon: Zap, iconColor: 'text-amber-500', title: 'Launch Timeline', description: 'Execute flawlessly.', prompt: 'Create a detailed product launch timeline with daily tasks and checkpoints' },
       { id: 'brand', icon: Sparkles, iconColor: 'text-indigo-500', title: 'Brand Strategy', description: 'Define your empire.', prompt: 'Develop a comprehensive brand positioning strategy and messaging framework' },
     ],
+    [
+      { id: 'funnel', icon: Target, iconColor: 'text-red-500', title: 'Sales Funnel', description: 'Guide to conversion.', prompt: 'Design a complete sales funnel from awareness to purchase' },
+      { id: 'collab', icon: Users, iconColor: 'text-teal-500', title: 'Collab Strategy', description: 'Grow together.', prompt: 'Plan a strategic collaboration campaign with complementary brands' },
+      { id: 'ads', icon: BarChart3, iconColor: 'text-blue-600', title: 'Ad Campaign', description: 'Spend smart.', prompt: 'Create a paid advertising strategy with budget allocation' },
+      { id: 'event', icon: Calendar, iconColor: 'text-purple-500', title: 'Event Plan', description: 'Moments that matter.', prompt: 'Plan a virtual launch event with timeline and promotion strategy' },
+      { id: 'rebrand', icon: Sparkles, iconColor: 'text-orange-500', title: 'Rebrand Plan', description: 'Evolve boldly.', prompt: 'Create a complete rebranding strategy and rollout plan' },
+      { id: 'retention', icon: Lightbulb, iconColor: 'text-green-500', title: 'Retention Plan', description: 'Keep them coming.', prompt: 'Design a customer retention strategy with loyalty programs' },
+    ],
   ],
   Automate: [
     [
@@ -54,6 +78,14 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'repurpose', icon: Zap, iconColor: 'text-amber-500', title: 'Content Repurpose', description: 'One piece, endless reach.', prompt: 'Automatically repurpose my long-form content into shorts, posts, and threads' },
       { id: 'analytics', icon: BarChart3, iconColor: 'text-emerald-500', title: 'Analytics Reports', description: 'Insights on autopilot.', prompt: 'Set up weekly automated performance reports for all my channels' },
       { id: 'workflow', icon: Lightbulb, iconColor: 'text-cyan-500', title: 'Workflow Builder', description: 'Streamline everything.', prompt: 'Create a content creation workflow that automates repetitive tasks' },
+    ],
+    [
+      { id: 'drip', icon: Mail, iconColor: 'text-pink-500', title: 'Drip Campaigns', description: 'Nurture on repeat.', prompt: 'Set up automated email drip campaigns for different customer segments' },
+      { id: 'chatbot', icon: Bot, iconColor: 'text-blue-600', title: 'AI Chatbot', description: 'Support that scales.', prompt: 'Create an AI chatbot to handle customer inquiries automatically' },
+      { id: 'invoice', icon: FileText, iconColor: 'text-green-500', title: 'Auto-Invoice', description: 'Get paid faster.', prompt: 'Set up automated invoicing and payment reminders' },
+      { id: 'backup', icon: Zap, iconColor: 'text-slate-600', title: 'Content Backup', description: 'Never lose work.', prompt: 'Automate content backup and archiving across platforms' },
+      { id: 'review', icon: Sparkles, iconColor: 'text-amber-500', title: 'Review Requests', description: 'Social proof on auto.', prompt: 'Set up automated review request emails after purchase' },
+      { id: 'onboard', icon: Users, iconColor: 'text-purple-500', title: 'Auto-Onboarding', description: 'Welcome effortlessly.', prompt: 'Create an automated onboarding sequence for new customers' },
     ],
   ],
 };
