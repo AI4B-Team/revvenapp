@@ -79,12 +79,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [currentSlide, setCurrentSlide] = useState(0);
   
   // New feature states
+  // New feature states
   const [showHashtagPanel, setShowHashtagPanel] = useState(false);
   const [hashtagSearchQuery, setHashtagSearchQuery] = useState('');
   const [hashtagSuggestions, setHashtagSuggestions] = useState<HashtagSuggestion[]>([]);
   const [isLoadingHashtags, setIsLoadingHashtags] = useState(false);
   const [isAIWriting, setIsAIWriting] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'analytics'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'predictions' | 'results'>('details');
+  
+  // Check if post is published (for showing Results tab)
+  const isPublished = post?.status === 'published' || post?.status === 'posted';
 
   // Auto-swipe carousel effect
   useEffect(() => {
@@ -279,8 +283,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
     threads: 'from-gray-900 to-black',
   };
 
-  // Simulated analytics data
-  const analyticsData = {
+  // Predictions data (AI-generated estimates before posting)
+  const predictionsData = {
     predictedReach: Math.floor(Math.random() * 5000) + 1000,
     predictedEngagement: (Math.random() * 5 + 2).toFixed(1),
     predictedLikes: Math.floor(Math.random() * 500) + 50,
@@ -288,6 +292,18 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
     predictedShares: Math.floor(Math.random() * 30) + 2,
     bestTimeToPost: '9:00 AM - 11:00 AM',
     audienceMatch: Math.floor(Math.random() * 30) + 70,
+  };
+
+  // Actual results data (shown only after publishing)
+  const resultsData = {
+    actualReach: Math.floor(Math.random() * 6000) + 800,
+    actualEngagement: (Math.random() * 6 + 1.5).toFixed(1),
+    actualLikes: Math.floor(Math.random() * 600) + 40,
+    actualComments: Math.floor(Math.random() * 60) + 3,
+    actualShares: Math.floor(Math.random() * 40) + 1,
+    impressions: Math.floor(Math.random() * 10000) + 2000,
+    saves: Math.floor(Math.random() * 50) + 5,
+    profileVisits: Math.floor(Math.random() * 100) + 10,
   };
 
   const renderHashtagPanel = () => (
@@ -394,33 +410,34 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
     </div>
   );
 
-  const renderAnalyticsTab = () => (
+  // Predictions Tab - AI estimates before posting
+  const renderPredictionsTab = () => (
     <div className="space-y-6">
       <div className="text-center p-4 bg-muted/30 rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">Predicted Performance</p>
-        <p className="text-2xl font-bold text-foreground">{analyticsData.predictedEngagement}%</p>
-        <p className="text-xs text-muted-foreground">Engagement Rate</p>
+        <p className="text-xs text-muted-foreground mb-1">Predicted Engagement Rate</p>
+        <p className="text-2xl font-bold text-foreground">{predictionsData.predictedEngagement}%</p>
+        <p className="text-xs text-muted-foreground">Based on AI analysis</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-muted/30 rounded-lg p-3 text-center">
           <Eye className="w-5 h-5 mx-auto mb-1 text-blue-500" />
-          <p className="text-lg font-semibold text-foreground">{analyticsData.predictedReach.toLocaleString()}</p>
+          <p className="text-lg font-semibold text-foreground">{predictionsData.predictedReach.toLocaleString()}</p>
           <p className="text-xs text-muted-foreground">Est. Reach</p>
         </div>
         <div className="bg-muted/30 rounded-lg p-3 text-center">
           <Users className="w-5 h-5 mx-auto mb-1 text-purple-500" />
-          <p className="text-lg font-semibold text-foreground">{analyticsData.audienceMatch}%</p>
+          <p className="text-lg font-semibold text-foreground">{predictionsData.audienceMatch}%</p>
           <p className="text-xs text-muted-foreground">Audience Match</p>
         </div>
         <div className="bg-muted/30 rounded-lg p-3 text-center">
           <Heart className="w-5 h-5 mx-auto mb-1 text-red-500" />
-          <p className="text-lg font-semibold text-foreground">{analyticsData.predictedLikes}</p>
+          <p className="text-lg font-semibold text-foreground">{predictionsData.predictedLikes}</p>
           <p className="text-xs text-muted-foreground">Est. Likes</p>
         </div>
         <div className="bg-muted/30 rounded-lg p-3 text-center">
           <MessageCircle className="w-5 h-5 mx-auto mb-1 text-emerald-500" />
-          <p className="text-lg font-semibold text-foreground">{analyticsData.predictedComments}</p>
+          <p className="text-lg font-semibold text-foreground">{predictionsData.predictedComments}</p>
           <p className="text-xs text-muted-foreground">Est. Comments</p>
         </div>
       </div>
@@ -433,7 +450,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
               <Clock className="w-4 h-4 text-amber-500" />
               <span className="text-sm text-foreground">Best Time to Post</span>
             </div>
-            <span className="text-sm font-medium text-foreground">{analyticsData.bestTimeToPost}</span>
+            <span className="text-sm font-medium text-foreground">{predictionsData.bestTimeToPost}</span>
           </div>
           <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
             <div className="flex items-center gap-2">
@@ -447,7 +464,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
               <Share2 className="w-4 h-4 text-blue-500" />
               <span className="text-sm text-foreground">Est. Shares</span>
             </div>
-            <span className="text-sm font-medium text-foreground">{analyticsData.predictedShares}</span>
+            <span className="text-sm font-medium text-foreground">{predictionsData.predictedShares}</span>
           </div>
         </div>
       </div>
@@ -459,6 +476,104 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       </div>
     </div>
   );
+
+  // Results Tab - Actual performance after publishing
+  const renderResultsTab = () => {
+    // Calculate deltas vs predictions
+    const reachDelta = resultsData.actualReach - predictionsData.predictedReach;
+    const likesDelta = resultsData.actualLikes - predictionsData.predictedLikes;
+    const commentsDelta = resultsData.actualComments - predictionsData.predictedComments;
+    const sharesDelta = resultsData.actualShares - predictionsData.predictedShares;
+
+    const formatDelta = (delta: number) => {
+      if (delta > 0) return <span className="text-emerald-500">+{delta}</span>;
+      if (delta < 0) return <span className="text-red-500">{delta}</span>;
+      return <span className="text-muted-foreground">0</span>;
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center p-4 bg-muted/30 rounded-lg">
+          <p className="text-xs text-muted-foreground mb-1">Actual Engagement Rate</p>
+          <p className="text-2xl font-bold text-foreground">{resultsData.actualEngagement}%</p>
+          <p className="text-xs text-muted-foreground">
+            vs {predictionsData.predictedEngagement}% predicted
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <Eye className="w-5 h-5 mx-auto mb-1 text-blue-500" />
+            <p className="text-lg font-semibold text-foreground">{resultsData.actualReach.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">Reach ({formatDelta(reachDelta)})</p>
+          </div>
+          <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <BarChart3 className="w-5 h-5 mx-auto mb-1 text-purple-500" />
+            <p className="text-lg font-semibold text-foreground">{resultsData.impressions.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">Impressions</p>
+          </div>
+          <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <Heart className="w-5 h-5 mx-auto mb-1 text-red-500" />
+            <p className="text-lg font-semibold text-foreground">{resultsData.actualLikes}</p>
+            <p className="text-xs text-muted-foreground">Likes ({formatDelta(likesDelta)})</p>
+          </div>
+          <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <MessageCircle className="w-5 h-5 mx-auto mb-1 text-emerald-500" />
+            <p className="text-lg font-semibold text-foreground">{resultsData.actualComments}</p>
+            <p className="text-xs text-muted-foreground">Comments ({formatDelta(commentsDelta)})</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <Share2 className="w-4 h-4 mx-auto mb-1 text-blue-500" />
+            <p className="text-sm font-semibold text-foreground">{resultsData.actualShares}</p>
+            <p className="text-[10px] text-muted-foreground">Shares</p>
+          </div>
+          <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <Bookmark className="w-4 h-4 mx-auto mb-1 text-amber-500" />
+            <p className="text-sm font-semibold text-foreground">{resultsData.saves}</p>
+            <p className="text-[10px] text-muted-foreground">Saves</p>
+          </div>
+          <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <Users className="w-4 h-4 mx-auto mb-1 text-purple-500" />
+            <p className="text-sm font-semibold text-foreground">{resultsData.profileVisits}</p>
+            <p className="text-[10px] text-muted-foreground">Profile Visits</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-muted-foreground">Performance vs Prediction</h4>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+              <span className="text-sm text-foreground">Reach</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">{predictionsData.predictedReach.toLocaleString()}</span>
+                <span className="text-sm">→</span>
+                <span className="text-sm font-medium text-foreground">{resultsData.actualReach.toLocaleString()}</span>
+                <span className="text-xs font-medium">{formatDelta(reachDelta)}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+              <span className="text-sm text-foreground">Likes</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">{predictionsData.predictedLikes}</span>
+                <span className="text-sm">→</span>
+                <span className="text-sm font-medium text-foreground">{resultsData.actualLikes}</span>
+                <span className="text-xs font-medium">{formatDelta(likesDelta)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+          <p className="text-xs text-emerald-700 dark:text-emerald-400">
+            🎉 <strong>What worked:</strong> Your hashtag strategy helped increase discoverability. Posting at the optimal time boosted initial engagement.
+          </p>
+        </div>
+      </div>
+    );
+  };
 
   const renderInstagramPreview = () => (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden max-w-[350px]">
@@ -755,21 +870,34 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                   Details
                 </button>
                 <button
-                  onClick={() => setActiveTab('analytics')}
+                  onClick={() => setActiveTab('predictions')}
                   className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                    activeTab === 'analytics'
+                    activeTab === 'predictions'
                       ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  <BarChart3 className="w-4 h-4 inline mr-1.5" />
-                  Analytics
+                  <TrendingUp className="w-4 h-4 inline mr-1.5" />
+                  Predictions
                 </button>
+                {isPublished && (
+                  <button
+                    onClick={() => setActiveTab('results')}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === 'results'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <BarChart3 className="w-4 h-4 inline mr-1.5" />
+                    Results
+                  </button>
+                )}
               </div>
             </div>
 
             <ScrollArea className="flex-1 p-6">
-              {activeTab === 'details' ? (
+              {activeTab === 'details' && (
                 <>
                   {/* Status & Draft Toggle */}
                   <div className="flex items-center justify-between mb-6">
@@ -1034,9 +1162,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                     </div>
                   )}
                 </>
-              ) : (
-                renderAnalyticsTab()
               )}
+              {activeTab === 'predictions' && renderPredictionsTab()}
+              {activeTab === 'results' && isPublished && renderResultsTab()}
             </ScrollArea>
 
             {/* Actions */}
