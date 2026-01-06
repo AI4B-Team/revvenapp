@@ -903,7 +903,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                   <div className="flex items-center justify-between mb-6">
                     <StatusBadge status={editedStatus} size="lg" />
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">This is a Draft</span>
+                      <span className="text-sm text-muted-foreground">Draft</span>
                       <Switch
                         checked={editedStatus === 'draft'}
                         onCheckedChange={toggleDraftStatus}
