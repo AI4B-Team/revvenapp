@@ -5195,7 +5195,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {!selectedAudioMode ? (
                     <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                       <PopoverTrigger asChild>
-                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm font-medium hover:bg-secondary/80 transition">
+                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-muted-foreground text-sm font-medium hover:bg-secondary/80 transition">
                           <LayoutGrid size={16} />
                           Type
                         </button>
@@ -5225,7 +5225,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   ) : (
                     <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                       <PopoverTrigger asChild>
-                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:opacity-90 transition">
+                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:opacity-90 transition">
                           {(() => {
                             const currentMode = audioModes.find(m => m.value === selectedAudioMode);
                             const Icon = currentMode?.icon || Mic;
@@ -5260,7 +5260,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   )}
 
                   {/* Auto Button */}
-                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm font-medium hover:bg-secondary/80 transition">
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-muted-foreground text-sm font-medium hover:bg-secondary/80 transition">
                     <Sparkles size={16} />
                     Auto
                   </button>
