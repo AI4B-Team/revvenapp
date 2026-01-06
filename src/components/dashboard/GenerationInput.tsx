@@ -258,6 +258,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isUploadingUgcProduct, setIsUploadingUgcProduct] = useState(false);
   const [isUploadingUgcStyle, setIsUploadingUgcStyle] = useState(false);
   
+  // Video style setting
+  const [videoStyle, setVideoStyle] = useState<string | null>(null);
+
   // Recast mode state - requires video and character
   const [recastVideo, setRecastVideo] = useState<{ url: string; name: string; id?: string; duration?: number } | null>(null);
   const [isUploadingRecastVideo, setIsUploadingRecastVideo] = useState(false);
@@ -4872,6 +4875,57 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
+                      {/* Style Button - icon only with tooltip */}
+                      <Popover>
+                        <Tooltip>
+                          <PopoverTrigger asChild>
+                            <TooltipTrigger asChild>
+                              <button 
+                                className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
+                                  videoStyle 
+                                    ? 'bg-purple-100 text-purple-600' 
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                                }`}
+                              >
+                                <Film size={18} />
+                                {videoStyle && <span className="text-xs font-medium">{videoStyle}</span>}
+                              </button>
+                            </TooltipTrigger>
+                          </PopoverTrigger>
+                          <TooltipContent>
+                            <p>Style</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setVideoStyle(videoStyle === 'Cinematic' ? null : 'Cinematic')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoStyle === 'Cinematic' ? 'bg-secondary' : ''}`}
+                            >
+                              Cinematic
+                            </button>
+                            <button 
+                              onClick={() => setVideoStyle(videoStyle === 'Documentary' ? null : 'Documentary')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoStyle === 'Documentary' ? 'bg-secondary' : ''}`}
+                            >
+                              Documentary
+                            </button>
+                            <button 
+                              onClick={() => setVideoStyle(videoStyle === 'Animation' ? null : 'Animation')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoStyle === 'Animation' ? 'bg-secondary' : ''}`}
+                            >
+                              Animation
+                            </button>
+                            <button 
+                              onClick={() => setVideoStyle(videoStyle === 'Realistic' ? null : 'Realistic')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoStyle === 'Realistic' ? 'bg-secondary' : ''}`}
+                            >
+                              Realistic
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
                       {/* Character Button - icon only */}
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -4910,7 +4964,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      {/* Aspect Ratio Button - icon only */}
+                      {/* Aspect Ratio Button */}
                       <Popover>
                         <PopoverTrigger asChild>
                           <button 
@@ -4951,7 +5005,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      {/* Duration Button - icon only */}
+                      {/* Duration Button */}
                       <Popover>
                         <PopoverTrigger asChild>
                           <button 
@@ -4989,27 +5043,46 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      {/* Style Button */}
+                      {/* Quality Button - icon only with tooltip */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 text-slate-600">
-                            <Film size={18} />
-                            <span className="text-xs font-medium">Style</span>
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <PopoverTrigger asChild>
+                            <TooltipTrigger asChild>
+                              <button 
+                                className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
+                                  videoQuality !== '1080p' 
+                                    ? 'bg-amber-100 text-amber-600' 
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                                }`}
+                              >
+                                <Sparkles size={18} />
+                                <span className="text-xs font-medium">{videoQuality}</span>
+                              </button>
+                            </TooltipTrigger>
+                          </PopoverTrigger>
+                          <TooltipContent>
+                            <p>Quality</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              Cinematic
+                            <button 
+                              onClick={() => setVideoQuality('720p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoQuality === '720p' ? 'bg-secondary' : ''}`}
+                            >
+                              720p
                             </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              Documentary
+                            <button 
+                              onClick={() => setVideoQuality('1080p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoQuality === '1080p' ? 'bg-secondary' : ''}`}
+                            >
+                              1080p
                             </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              Animation
-                            </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              Realistic
+                            <button 
+                              onClick={() => setVideoQuality('4K')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoQuality === '4K' ? 'bg-secondary' : ''}`}
+                            >
+                              4K
                             </button>
                           </div>
                         </PopoverContent>
