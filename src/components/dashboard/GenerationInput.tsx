@@ -4824,9 +4824,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <PopoverTrigger asChild>
                               <button className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 text-slate-600">
                                 <Box size={18} />
-                                <span className="text-xs font-medium max-w-[60px] truncate">
-                                  {videoModels.find(m => m.value === videoModel)?.label?.split(' ')[0] || 'Veo'}
-                                </span>
+                                <span className="text-xs font-medium">VEO3</span>
                               </button>
                             </PopoverTrigger>
                           </TooltipTrigger>
