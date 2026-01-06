@@ -75,6 +75,7 @@ import BulkActionsBar from './calendar/BulkActionsBar';
 import PlatformWarnings, { generateWarnings } from './calendar/PlatformWarnings';
 import EngagementOverlay, { generateMockEngagement } from './calendar/EngagementOverlay';
 import ContentScoreBadge from './ContentScoreBadge';
+import StatusBadge from './StatusBadge';
 import { CalendarContentItem } from '@/data/sampleCalendarContent';
 import { useToast } from '@/hooks/use-toast';
 
@@ -867,15 +868,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                   {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
                 </div>
                 <div className="col-span-1">
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    item.status === 'scheduled' 
-                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                      : item.status === 'published'
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
-                    {item.status}
-                  </span>
+                  <StatusBadge status={item.status} size="sm" />
                 </div>
                 <div className="col-span-1 flex justify-end">
                   <DropdownMenu>
@@ -945,13 +938,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                <span className={`px-2 py-0.5 rounded-full ${
-                  item.status === 'scheduled' 
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                    : 'bg-muted'
-                }`}>
-                  {item.status}
-                </span>
+                <StatusBadge status={item.status} size="sm" showIcon={false} />
               </div>
             </div>
           </div>

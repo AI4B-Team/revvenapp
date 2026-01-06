@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { getPlatformIcon } from './SocialIcons';
 import ContentScoreBadge from './ContentScoreBadge';
+import StatusBadge from './StatusBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -197,14 +198,21 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
           </div>
           <Bookmark className="w-6 h-6 text-gray-800 dark:text-white cursor-pointer" />
         </div>
-        <p className="text-sm text-gray-900 dark:text-white mb-1">
+        
+        {/* Caption */}
+        <p className="text-sm text-gray-900 dark:text-white mb-2">
           <span className="font-semibold">{post.accountHandle || '@yourhandle'}</span>{' '}
           {post.caption || post.title}
         </p>
+        
+        {/* Hashtags - Visually Separated */}
         {post.hashtags && post.hashtags.length > 0 && (
-          <p className="text-sm text-blue-500">
-            {post.hashtags.map(tag => `#${tag}`).join(' ')}
-          </p>
+          <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+            <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">Hashtags</p>
+            <p className="text-xs text-blue-500 leading-relaxed">
+              {post.hashtags.map(tag => `#${tag}`).join(' ')}
+            </p>
+          </div>
         )}
       </div>
     </div>
@@ -402,15 +410,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
 
             {/* Status Badge */}
             <div className="flex items-center gap-2 mb-6">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                post.status === 'scheduled' 
-                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                  : post.status === 'published'
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-muted text-muted-foreground'
-              }`}>
-                {post.status === 'scheduled' ? 'Scheduled' : post.status === 'published' ? 'Published' : 'Draft'}
-              </span>
+              <StatusBadge status={post.status} size="lg" />
             </div>
 
             {/* Content Score */}
@@ -465,7 +465,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
 
             {/* Hashtags */}
             <div className="mb-6">
-              <h4 className="text-sm font-medium text-muted-foreground mb-2">Hashtags</h4>
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="text-sm font-medium text-muted-foreground">Hashtags</h4>
+                {post.hashtags && post.hashtags.length >= 5 && post.hashtags.length <= 15 && (
+                  <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded font-medium">
+                    ✓ Optimized
+                  </span>
+                )}
+              </div>
               {isEditing ? (
                 <Input
                   value={editedHashtags}
@@ -474,12 +481,22 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                 />
               ) : (
                 post.hashtags && post.hashtags.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {post.hashtags.map((tag, index) => (
-                      <span key={index} className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-sm rounded">
-                        #{tag}
-                      </span>
-                    ))}
+                  <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
+                    <div className="flex flex-wrap gap-2">
+                      {post.hashtags.map((tag, index) => (
+                        <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm rounded-full">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      {post.hashtags.length} hashtag{post.hashtags.length !== 1 ? 's' : ''} • 
+                      {post.hashtags.length >= 5 && post.hashtags.length <= 15 
+                        ? ' Optimal range (5-15)' 
+                        : post.hashtags.length < 5 
+                          ? ' Add more for better reach' 
+                          : ' Consider reducing for less spam'}
+                    </p>
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-sm">No hashtags</p>
