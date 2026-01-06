@@ -5215,46 +5215,36 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <div className="flex items-center gap-1">
-                      <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
-                        <PopoverTrigger asChild>
-                          <button className="flex items-center gap-2 px-3 py-1.5 rounded-l-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:opacity-90 transition">
-                            {(() => {
-                              const currentMode = audioModes.find(m => m.value === selectedAudioMode);
-                              const Icon = currentMode?.icon || Mic;
-                              return <Icon size={16} className="text-green-600 dark:text-green-400" />;
-                            })()}
-                            {selectedAudioMode}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[420px] bg-background border-border z-50 p-4 rounded-2xl shadow-lg">
-                          <div className="grid grid-cols-4 gap-3">
-                            {audioModes.map((mode) => (
-                              <button
-                                key={mode.value}
-                                onClick={() => {
-                                  setSelectedAudioMode(mode.value);
-                                  setIsAudioModeDropdownOpen(false);
-                                }}
-                                className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded-lg cursor-pointer hover:bg-secondary transition ${selectedAudioMode === mode.value ? 'bg-secondary' : ''}`}
-                              >
-                                <mode.icon size={18} className={mode.color} />
-                                <span className="font-medium text-foreground whitespace-nowrap">{mode.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedAudioMode(null);
-                        }}
-                        className="flex items-center justify-center px-2 py-1.5 rounded-r-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 hover:bg-green-200 dark:hover:bg-green-800/30 transition"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
+                    <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:opacity-90 transition">
+                          {(() => {
+                            const currentMode = audioModes.find(m => m.value === selectedAudioMode);
+                            const Icon = currentMode?.icon || Mic;
+                            return <Icon size={16} className="text-green-600 dark:text-green-400" />;
+                          })()}
+                          {selectedAudioMode}
+                          <ChevronDown size={14} className="text-green-600 dark:text-green-400" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[420px] bg-background border-border z-50 p-4 rounded-2xl shadow-lg">
+                        <div className="grid grid-cols-4 gap-3">
+                          {audioModes.map((mode) => (
+                            <button
+                              key={mode.value}
+                              onClick={() => {
+                                setSelectedAudioMode(mode.value);
+                                setIsAudioModeDropdownOpen(false);
+                              }}
+                              className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded-lg cursor-pointer hover:bg-secondary transition ${selectedAudioMode === mode.value ? 'bg-secondary' : ''}`}
+                            >
+                              <mode.icon size={18} className={mode.color} />
+                              <span className="font-medium text-foreground whitespace-nowrap">{mode.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   )}
                   
                   {/* Separator */}
