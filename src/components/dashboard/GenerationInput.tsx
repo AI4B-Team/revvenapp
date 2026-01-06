@@ -4085,17 +4085,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <>
                 {/* Video Mode Controls */}
                 <TooltipProvider>
-                  {/* Animate Mode Dropdown - Green chip style */}
+                  {/* Type Dropdown for Video */}
                   <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition">
-                        {(() => {
-                          const mode = animateModes.find(m => m.value === selectedAnimateMode);
-                          const IconComponent = mode?.icon || Play;
-                          return <IconComponent size={16} className="text-emerald-600" />;
-                        })()}
-                        {selectedAnimateMode}
-                        <ChevronDown size={14} className="ml-1" />
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-foreground text-sm font-medium hover:opacity-90 transition">
+                        <LayoutGrid size={16} className="text-muted-foreground" />
+                        Type
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-52 bg-background border-border z-50" align="start">
@@ -5147,24 +5142,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Buttons Row */}
                 <div className="flex items-center gap-2 flex-nowrap shrink-0">
                   
-                  {/* Audio Mode Dropdown - Green chip style */}
+                  {/* Type Dropdown for Audio */}
                   <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition">
-                        {(() => {
-                          const mode = audioModes.find(m => m.value === selectedAudioMode);
-                          const Icon = mode?.icon || Mic;
-                          return <Icon size={16} className="text-emerald-600" />;
-                        })()}
-                        {selectedAudioMode}
-                        <X 
-                          size={14} 
-                          className="ml-1 cursor-pointer hover:text-emerald-900"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedAudioMode('Voiceover');
-                          }}
-                        />
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-foreground text-sm font-medium hover:opacity-90 transition">
+                        <LayoutGrid size={16} className="text-muted-foreground" />
+                        Type
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-48 bg-background border-border z-50">
@@ -6232,9 +6215,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown - First */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-4 py-1.5 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
+                      <LayoutGrid size={16} className="text-muted-foreground" />
                       Type
-                      <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-56 bg-background border-border z-50">
@@ -6279,46 +6262,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                {/* Model Dropdown */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:brightness-90">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                      </svg>
-                      Nano Banana
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[420px] p-0 bg-background border-border z-50" align="start">
-                    <div className="space-y-1 p-2">
-                      <button className="w-full text-left px-4 py-3 hover:bg-secondary rounded-lg transition group">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Zap size={16} className="text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="font-semibold text-foreground text-sm">Auto</span>
-                              <Badge className="bg-brand-green text-primary text-[10px] px-1.5 py-0 h-4">SUGGESTED</Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground">AI picks what's best</p>
-                          </div>
-                        </div>
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Create Dropdown */}
+                {/* Type Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="px-3 py-2 bg-secondary rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90">
-                      Create
-                      <ChevronDown size={14} />
+                    <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground hover:opacity-90">
+                      <LayoutGrid size={16} className="text-muted-foreground" />
+                      Type
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-72 bg-background border-border z-50 p-2">
@@ -6355,9 +6304,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                      Type: {contentType}
-                      <ChevronDown size={14} />
+                    <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-foreground hover:opacity-90">
+                      <LayoutGrid size={16} className="text-muted-foreground" />
+                      Type
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-48 bg-background border-border z-50">
@@ -6568,9 +6517,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-4 py-1.5 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
+                      <LayoutGrid size={16} className="text-muted-foreground" />
                       Type
-                      <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-56 bg-background border-border z-50">
@@ -6648,22 +6597,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : (
               <>
                 {/* Image Mode Controls */}
-                {/* Type Dropdown - shows selected mode or "Type" */}
-                {(() => {
-                  const mode = createModes.find(m => m.value === selectedCreateMode) ?? createModes[0];
-                  const IconComponent = mode.icon || Sparkles;
-
-                  return (
-                    <button
-                      onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
-                      aria-expanded={isCreateModeDropdownOpen}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${mode.bg || 'bg-secondary'} text-foreground hover:opacity-90`}
-                    >
-                      <IconComponent size={16} className={mode.color || 'text-muted-foreground'} />
-                      <span>{mode.label}</span>
-                    </button>
-                  );
-                })()}
+                {/* Type Dropdown - shows "Type" until a mode is selected */}
+                <button
+                  onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
+                  aria-expanded={isCreateModeDropdownOpen}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap bg-secondary text-foreground hover:opacity-90"
+                >
+                  <LayoutGrid size={16} className="text-muted-foreground" />
+                  <span>Type</span>
+                </button>
 
                 {/* Mode controls */}
                 <>
