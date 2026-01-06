@@ -11,6 +11,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import EbookHeader from '@/components/dashboard/EbookHeader';
+import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -84,6 +85,7 @@ const PLATFORMS = [
 const EbookCreator = () => {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   const [showChapterEditor, setShowChapterEditor] = useState(false);
   const [showCoverDesigner, setShowCoverDesigner] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -596,7 +598,11 @@ const EbookCreator = () => {
 
   return (
     <div className="min-h-screen bg-background flex w-full">
-      <Sidebar onCollapseChange={setSidebarCollapsed} />
+      <Sidebar 
+        onCollapseChange={setSidebarCollapsed} 
+        onAIVAPanelToggle={() => setIsAIVAPanelOpen(true)}
+        isAIVAPanelOpen={isAIVAPanelOpen}
+      />
 
       <div
         className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
@@ -815,6 +821,8 @@ const EbookCreator = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AIVASidePanel isOpen={isAIVAPanelOpen} onClose={() => setIsAIVAPanelOpen(false)} />
     </div>
   );
 };

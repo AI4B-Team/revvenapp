@@ -199,6 +199,15 @@ const appSuggestions: Record<string, { title: string; suggestions: string[] }> =
       'Format ebook for publishing',
     ],
   },
+  '/ebook-creator/new': {
+    title: 'Ebook Creator',
+    suggestions: [
+      'Help me outline an ebook structure',
+      'Generate chapter content with AI',
+      'Suggest a compelling ebook title',
+      'Design and customize my ebook cover',
+    ],
+  },
   '/explainer-video': {
     title: 'Explainer Video',
     suggestions: [

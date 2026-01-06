@@ -18,6 +18,7 @@ import EbookCanvasEditor from '@/components/ebook/EbookCanvasEditor';
 import EbookGenerationOverlay from '@/components/ebook/EbookGenerationOverlay';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -276,6 +277,7 @@ const NewEbook = () => {
   })();
   
   const [sidebarCollapsed, setSidebarCollapsed] = useState(initialTab === 'design');
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -723,7 +725,12 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
   return (
     <TooltipProvider>
     <div className="h-screen bg-gray-50 flex overflow-hidden">
-      <Sidebar collapsed={sidebarCollapsed} onCollapseChange={setSidebarCollapsed} />
+      <Sidebar 
+        collapsed={sidebarCollapsed} 
+        onCollapseChange={setSidebarCollapsed} 
+        onAIVAPanelToggle={() => setIsAIVAPanelOpen(true)}
+        isAIVAPanelOpen={isAIVAPanelOpen}
+      />
       
       <div className={`flex-1 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
@@ -2445,6 +2452,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         </DialogContent>
       </Dialog>
     </div>
+
+    <AIVASidePanel isOpen={isAIVAPanelOpen} onClose={() => setIsAIVAPanelOpen(false)} />
     </TooltipProvider>
   );
 };
