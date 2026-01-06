@@ -24,6 +24,7 @@ interface ContentScoreBadgeProps {
   showBreakdown?: boolean;
   onSuggestionApplied?: (category: string, newValue: string) => void;
   onMediaAction?: (action: string) => void;
+  onConvertToCarousel?: (images: string[]) => void;
 }
 
 const ContentScoreBadge: React.FC<ContentScoreBadgeProps> = ({ 
@@ -31,7 +32,8 @@ const ContentScoreBadge: React.FC<ContentScoreBadgeProps> = ({
   size = 'sm',
   showBreakdown = false,
   onSuggestionApplied,
-  onMediaAction
+  onMediaAction,
+  onConvertToCarousel
 }) => {
   const scoreResult = calculateContentScore(item);
   const bgColor = getScoreBgColor(scoreResult.score);
@@ -87,6 +89,7 @@ const ContentScoreBadge: React.FC<ContentScoreBadgeProps> = ({
         item={item}
         onSuggestionApplied={onSuggestionApplied}
         onMediaAction={onMediaAction}
+        onConvertToCarousel={onConvertToCarousel}
       />
       
       {/* Smart Scheduling Suggestion */}
@@ -121,13 +124,15 @@ interface ScoreBreakdownFullProps {
   item: ContentItem;
   onSuggestionApplied?: (category: string, newValue: string) => void;
   onMediaAction?: (action: string) => void;
+  onConvertToCarousel?: (images: string[]) => void;
 }
 
 const ScoreBreakdownFull: React.FC<ScoreBreakdownFullProps> = ({ 
   scoreResult, 
   item, 
   onSuggestionApplied,
-  onMediaAction 
+  onMediaAction,
+  onConvertToCarousel
 }) => {
   const [loadingCategory, setLoadingCategory] = useState<string | null>(null);
   const [animatedScores, setAnimatedScores] = useState({
@@ -145,15 +150,86 @@ const ScoreBreakdownFull: React.FC<ScoreBreakdownFullProps> = ({
     return () => clearTimeout(timer);
   }, [scoreResult.breakdown]);
 
-  const handleImprove = async (category: 'caption' | 'hashtags' | 'contentType' | 'media') => {
-    if (!onSuggestionApplied) return;
+  const generateCarouselImages = async (): Promise<string[]> => {
+    const currentCaption = item.caption || item.title || '';
+    const existingImage = item.imageUrl;
     
+    // Generate prompts for 3 carousel slides based on the caption
+    const promptResponse = await supabase.functions.invoke('editor-chat', {
+      body: {
+        messages: [{ 
+          role: 'user', 
+          content: `Based on this social media post caption, generate 3 short image descriptions for a carousel. Each should be visually distinct but thematically connected.
+
+Caption: "${currentCaption}"
+
+Return ONLY 3 image descriptions, one per line, no numbering. Each should be 1 sentence describing what to show visually.`
+        }],
+        systemPrompt: 'You are a visual content expert. Be specific and concise.',
+      },
+    });
+    
+    if (promptResponse.error) throw promptResponse.error;
+    
+    const descriptions = (promptResponse.data?.reply || promptResponse.data?.content || '')
+      .split('\n')
+      .filter((line: string) => line.trim())
+      .slice(0, 3);
+    
+    if (descriptions.length === 0) {
+      throw new Error('Could not generate image descriptions');
+    }
+    
+    // Generate images using the AI image generation
+    const generatedImages: string[] = [];
+    
+    // If there's an existing image, include it as the first slide
+    if (existingImage) {
+      generatedImages.push(existingImage);
+    }
+    
+    // Generate 2-3 additional images
+    const imagesToGenerate = existingImage ? 2 : 3;
+    
+    for (let i = 0; i < Math.min(imagesToGenerate, descriptions.length); i++) {
+      const imageResponse = await supabase.functions.invoke('editor-generate-image', {
+        body: {
+          prompt: descriptions[i],
+          aspectRatio: '1:1',
+        },
+      });
+      
+      if (imageResponse.data?.imageUrl) {
+        generatedImages.push(imageResponse.data.imageUrl);
+      }
+    }
+    
+    return generatedImages;
+  };
+
+  const handleImprove = async (category: 'caption' | 'hashtags' | 'contentType' | 'media') => {
     setLoadingCategory(category);
     
     try {
       const currentCaption = item.caption || item.title || '';
-      const currentHashtags = item.hashtags || [];
       const platform = item.platform || 'instagram';
+      
+      // Special handling for contentType - auto-generate carousel
+      if (category === 'contentType' && item.type !== 'carousel' && onConvertToCarousel) {
+        toast.info('Generating carousel images...', { duration: 5000 });
+        
+        const carouselImages = await generateCarouselImages();
+        
+        if (carouselImages.length >= 2) {
+          onConvertToCarousel(carouselImages);
+          toast.success('Converted to carousel with AI-generated images!');
+        } else {
+          toast.error('Could not generate enough images for carousel');
+        }
+        return;
+      }
+      
+      if (!onSuggestionApplied) return;
       
       let prompt = '';
       

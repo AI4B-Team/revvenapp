@@ -56,6 +56,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [editedCaption, setEditedCaption] = useState('');
   const [editedHashtags, setEditedHashtags] = useState('');
   const [editedVideoScript, setEditedVideoScript] = useState<VideoScript | null>(null);
+  const [editedCarouselImages, setEditedCarouselImages] = useState<string[] | null>(null);
+  const [editedType, setEditedType] = useState<'post' | 'story' | 'carousel' | 'reel' | undefined>(undefined);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Auto-swipe carousel effect
@@ -79,6 +81,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       setEditedCaption(post.caption || post.title || '');
       setEditedHashtags(post.hashtags?.join(', ') || '');
       setEditedVideoScript(post.videoScript ? JSON.parse(JSON.stringify(post.videoScript)) : null);
+      setEditedCarouselImages(post.carouselImages || null);
+      setEditedType(post.type);
       setIsEditing(false);
     }
   }, [post]);
@@ -91,6 +95,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       caption: editedCaption,
       hashtags: editedHashtags.split(',').map(tag => tag.trim().replace('#', '')).filter(Boolean),
       videoScript: editedVideoScript,
+      carouselImages: editedCarouselImages,
+      type: editedType,
     };
     onSave?.(updatedPost);
     setIsEditing(false);
@@ -417,7 +423,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
             <div className="mb-6">
               <h4 className="text-sm font-medium text-muted-foreground mb-3">Content Score</h4>
               <ContentScoreBadge 
-                item={post} 
+                item={{ ...post, type: editedType, carouselImages: editedCarouselImages }} 
                 size="lg" 
                 showBreakdown 
                 onSuggestionApplied={(category, newValue) => {
@@ -430,6 +436,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                     setEditedHashtags(hashtagsArray.join(', '));
                     setIsEditing(true);
                   }
+                }}
+                onConvertToCarousel={(images) => {
+                  setEditedCarouselImages(images);
+                  setEditedType('carousel');
+                  setIsEditing(true);
                 }}
               />
             </div>
