@@ -7674,8 +7674,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         />
       )}
 
-      {/* Social Platform Selection - Only visible when Social is selected in Content mode */}
-      {isContentMode && showSocialButtons && (
+      {/* Social Platform Selection - Always visible in Content mode */}
+      {isContentMode && (
         <div className="mt-6 p-6 bg-card rounded-xl border-2 border-border shadow-sm" style={{ width: '100vw', maxWidth: '1400px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
           <p className="text-foreground font-semibold mb-6 text-center text-xl">
             Choose Your Platforms To Generate {contentDays} Days Of Content For Each One
