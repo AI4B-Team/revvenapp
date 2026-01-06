@@ -130,11 +130,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
             onClick={(e) => toggleFavorite(e, app.id)}
             className="absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200"
           >
-            {isFavorite ? (
-              <Star size={12} className="text-amber-500 fill-amber-500" />
-            ) : (
-              <Pin size={12} className="text-slate-400" />
-            )}
+            <Star size={12} className={isFavorite ? "text-amber-500 fill-amber-500" : "text-slate-400"} />
           </button>
         )}
         <div className={`relative w-12 h-12 ${app.bgColor} rounded-xl flex items-center justify-center shadow-sm`}>
