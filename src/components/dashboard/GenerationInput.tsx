@@ -3639,7 +3639,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black text-white">
-                        <p>Apps</p>
+                        <p>App</p>
                       </TooltipContent>
                     </Tooltip>
                     {/* Auto Prompt - Always Second */}
