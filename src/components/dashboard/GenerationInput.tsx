@@ -3886,7 +3886,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         )}
 
         {/* Character & Reference Images Display - Hidden in video mode and certain content types */}
-        {(shouldShowCharacters && activeCharacters.length > 0) || (shouldShowReferences && activeReferences.length > 0) || shouldShowReferences ? (
+        {((shouldShowCharacters && activeCharacters.length > 0) || (shouldShowReferences && activeReferences.length > 0)) ? (
           <div className="mb-6 flex items-center gap-3 flex-wrap">
             {/* Character Images */}
             {shouldShowCharacters && activeCharacters.map((character, index) => (
