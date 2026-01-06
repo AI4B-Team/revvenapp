@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 import { 
   ArrowLeft, Upload, Trash2, 
   Loader2, Download, Sparkles, Scissors,
@@ -31,6 +32,7 @@ interface UsageRecord {
 export default function BackgroundRemover() {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -155,7 +157,11 @@ export default function BackgroundRemover() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
-      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <Sidebar 
+        onCollapseChange={setIsSidebarCollapsed}
+        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        isAIVAPanelOpen={isAIVAPanelOpen}
+      />
       
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />

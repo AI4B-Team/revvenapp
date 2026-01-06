@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 import { 
   ArrowLeft, Play, Pause, Loader2, Download, 
   Volume2, ChevronDown, Copy, Sparkles, Trash2
@@ -54,6 +55,7 @@ const VOICES = [
 export default function Voiceovers() {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   const [text, setText] = useState('');
   const [selectedVoice, setSelectedVoice] = useState(VOICES[0]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -197,7 +199,11 @@ export default function Voiceovers() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
-      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <Sidebar 
+        onCollapseChange={setIsSidebarCollapsed}
+        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        isAIVAPanelOpen={isAIVAPanelOpen}
+      />
       
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />

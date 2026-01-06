@@ -73,6 +73,177 @@ const appSuggestions: Record<string, { title: string; suggestions: string[] }> =
       'Create hashtag strategies',
     ],
   },
+  '/video-downloader': {
+    title: 'Video Downloader',
+    suggestions: [
+      'Download a video from YouTube',
+      'Extract audio from a video',
+      'Convert video to different formats',
+      'Download multiple videos at once',
+    ],
+  },
+  '/versus': {
+    title: 'Versus Comparison',
+    suggestions: [
+      'Compare two AI image models',
+      'Analyze the quality differences',
+      'Suggest best model for my use case',
+      'Help me choose between options',
+    ],
+  },
+  '/voice-cloner': {
+    title: 'Voice Cloner',
+    suggestions: [
+      'Clone my voice from a recording',
+      'Create a custom voice profile',
+      'Generate speech with my cloned voice',
+      'Improve voice cloning quality',
+    ],
+  },
+  '/voice-changer': {
+    title: 'Voice Changer',
+    suggestions: [
+      'Change my voice to sound younger',
+      'Add effects to my recording',
+      'Transform voice to different accent',
+      'Create a character voice',
+    ],
+  },
+  '/audio-dubber': {
+    title: 'Audio Dubber',
+    suggestions: [
+      'Dub this video to Spanish',
+      'Match lip sync for dubbed audio',
+      'Preserve original voice emotion',
+      'Add multilingual subtitles',
+    ],
+  },
+  '/noise-remover': {
+    title: 'Noise Remover',
+    suggestions: [
+      'Remove background noise from recording',
+      'Clean up audio for podcast',
+      'Enhance voice clarity',
+      'Remove echo from audio',
+    ],
+  },
+  '/background-remover': {
+    title: 'Background Remover',
+    suggestions: [
+      'Remove background from product photo',
+      'Replace background with custom image',
+      'Create transparent PNG',
+      'Batch remove backgrounds',
+    ],
+  },
+  '/image-upscaler': {
+    title: 'Image Upscaler',
+    suggestions: [
+      'Upscale image to 4K resolution',
+      'Enhance image details and sharpness',
+      'Restore old blurry photos',
+      'Increase resolution for printing',
+    ],
+  },
+  '/image-enhancer': {
+    title: 'Image Enhancer',
+    suggestions: [
+      'Improve image lighting and colors',
+      'Fix overexposed or dark photos',
+      'Sharpen blurry images',
+      'Add HDR effect to photos',
+    ],
+  },
+  '/email-generator': {
+    title: 'Email Generator',
+    suggestions: [
+      'Write a professional cold email',
+      'Create an email marketing campaign',
+      'Generate follow-up email sequences',
+      'Craft a newsletter template',
+    ],
+  },
+  '/ad-copy-writer': {
+    title: 'Ad Copy Writer',
+    suggestions: [
+      'Write Facebook ad copy',
+      'Create Google Ads headlines',
+      'Generate compelling CTAs',
+      'Write product descriptions',
+    ],
+  },
+  '/script-writer': {
+    title: 'Script Writer',
+    suggestions: [
+      'Write a YouTube video script',
+      'Create a podcast script outline',
+      'Generate dialogue for a scene',
+      'Write a commercial script',
+    ],
+  },
+  '/seo-optimizer': {
+    title: 'SEO Optimizer',
+    suggestions: [
+      'Optimize my page for keywords',
+      'Analyze competitor SEO strategy',
+      'Generate meta tags and descriptions',
+      'Improve content readability score',
+    ],
+  },
+  '/ebook-creator': {
+    title: 'Ebook Creator',
+    suggestions: [
+      'Help me outline an ebook',
+      'Generate chapter content',
+      'Design ebook cover',
+      'Format ebook for publishing',
+    ],
+  },
+  '/explainer-video': {
+    title: 'Explainer Video',
+    suggestions: [
+      'Create script for explainer video',
+      'Suggest visual concepts for scenes',
+      'Generate voiceover narration',
+      'Add animations and transitions',
+    ],
+  },
+  '/viral-shorts': {
+    title: 'Viral Shorts',
+    suggestions: [
+      'Create a viral TikTok concept',
+      'Generate hook ideas for Reels',
+      'Write captions that drive engagement',
+      'Suggest trending sounds to use',
+    ],
+  },
+  '/ai-story': {
+    title: 'AI Story',
+    suggestions: [
+      'Generate a compelling story premise',
+      'Create character backgrounds',
+      'Write plot twists and conflicts',
+      'Design visual scenes for story',
+    ],
+  },
+  '/lead-generation': {
+    title: 'Lead Generation',
+    suggestions: [
+      'Find leads in my target market',
+      'Export leads to spreadsheet',
+      'Enrich lead data with emails',
+      'Create lead scoring criteria',
+    ],
+  },
+  '/newsletter': {
+    title: 'Newsletter',
+    suggestions: [
+      'Write engaging newsletter content',
+      'Design newsletter template',
+      'Analyze open rate metrics',
+      'Schedule newsletter campaigns',
+    ],
+  },
   default: {
     title: 'AIVA Assistant',
     suggestions: [

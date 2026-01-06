@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ import { toast } from 'sonner';
 const BlogWriter = () => {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   const [topic, setTopic] = useState('');
   const [keywords, setKeywords] = useState('');
   const [tone, setTone] = useState('professional');
@@ -63,7 +65,11 @@ const BlogWriter = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <Sidebar 
+        onCollapseChange={setIsSidebarCollapsed}
+        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        isAIVAPanelOpen={isAIVAPanelOpen}
+      />
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
@@ -187,6 +193,11 @@ const BlogWriter = () => {
           </div>
         </main>
       </div>
+      
+      <AIVASidePanel 
+        isOpen={isAIVAPanelOpen} 
+        onClose={() => setIsAIVAPanelOpen(false)}
+      />
     </div>
   );
 };
