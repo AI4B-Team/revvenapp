@@ -4914,14 +4914,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <Popover>
                         <PopoverTrigger asChild>
                           <button 
-                            className={`p-2.5 rounded-lg transition ${
+                            className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
                               videoAspectRatio !== '16:9' 
                                 ? 'bg-amber-100 text-amber-600' 
                                 : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                             }`}
-                            title={`Aspect Ratio: ${videoAspectRatio}`}
                           >
                             <Copy size={18} />
+                            <span className="text-xs font-medium">{videoAspectRatio}</span>
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-48 bg-background border-border z-50">
@@ -4955,14 +4955,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <Popover>
                         <PopoverTrigger asChild>
                           <button 
-                            className={`p-2.5 rounded-lg transition ${
+                            className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
                               videoDuration !== '10' 
                                 ? 'bg-amber-100 text-amber-600' 
                                 : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                             }`}
-                            title={`Duration: ${videoDuration}s`}
                           >
                             <Clock size={18} />
+                            <span className="text-xs font-medium">{videoDuration}s</span>
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-48 bg-background border-border z-50">
