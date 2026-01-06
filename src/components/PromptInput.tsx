@@ -278,27 +278,6 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
                     </button>
                   )}
 
-                  {/* Control icons - only shown when sub-type is selected */}
-                  {selectedSubType && (
-                    <>
-                      {/* Vertical divider */}
-                      <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
-
-                      {/* Control icons with tooltips */}
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {getControlIcons().map((control) => (
-                          <Tooltip key={control.id}>
-                            <TooltipTrigger asChild>
-                              <button className="p-2 rounded-lg bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
-                                <control.icon size={18} />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>{control.tooltip}</TooltipContent>
-                          </Tooltip>
-                        ))}
-                      </div>
-                    </>
-                  )}
                 </>
               )}
             </div>
