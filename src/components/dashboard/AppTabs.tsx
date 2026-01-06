@@ -109,7 +109,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
 
   const favoriteApps = allApps.filter(app => favorites.includes(app.id));
   const recentAppsList = allApps.filter(app => recentApps.includes(app.id) && !favorites.includes(app.id));
-  const trendingApps = allApps.filter(app => ['analytics', 'agents', 'projects', 'marketing', 'reports', 'invoices'].includes(app.id));
+  const trendingApps = allApps.filter(app => ['analytics', 'agents', 'projects', 'marketing', 'reports', 'invoices'].includes(app.id) && !favorites.includes(app.id));
   
   const filteredApps = searchQuery 
     ? allApps.filter(app => app.label.toLowerCase().includes(searchQuery.toLowerCase()))
