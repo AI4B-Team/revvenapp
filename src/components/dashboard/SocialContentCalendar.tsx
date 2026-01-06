@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -522,73 +523,94 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   };
 
 
+  // Get label info for a content item
+  const getLabelForItem = (item: ContentItem) => {
+    const pillarId = getPillarId(item);
+    return LABEL_OPTIONS.find(l => l.id === pillarId) || LABEL_OPTIONS[0];
+  };
+
   // Render calendar cell content uniformly with animation
-  const renderContentCard = (item: ContentItem, compact: boolean = true) => (
-    <div
-      key={item.id}
-      onClick={() => handlePostClick(item)}
-      className="group relative bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
-      style={{ animationFillMode: 'both' }}
-    >
-      <div className="flex items-center gap-2 text-xs">
-        <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-          {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-        </span>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button 
-              className="opacity-0 group-hover:opacity-100 ml-auto p-0.5 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded transition-all"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="bottom" className="bg-popover border-border">
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
-              <Pencil className="w-3 h-3 mr-2" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleReschedulePost(item.id); }}>
-              <CalendarClock className="w-3 h-3 mr-2" />
-              Reschedule
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicatePost(item); }}>
-              <ListChecks className="w-3 h-3 mr-2" />
-              Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-destructive focus:text-destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeletePost(item.id);
-              }}
-            >
-              <Trash2 className="w-3 h-3 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="mt-1 flex items-start gap-2">
-        <div className="flex-shrink-0 w-5 h-5 rounded bg-emerald-100 dark:bg-emerald-800/50 flex items-center justify-center">
-          {getPlatformIcon(item.platform, "w-3 h-3")}
+  const renderContentCard = (item: ContentItem, compact: boolean = true) => {
+    const label = getLabelForItem(item);
+    
+    return (
+      <div
+        key={item.id}
+        onClick={() => handlePostClick(item)}
+        className="group relative bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
+        style={{ animationFillMode: 'both' }}
+      >
+        <div className="flex items-center gap-2 text-xs">
+          {/* Label dot with tooltip */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${label.color}`} />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-xs">
+                <p>{label.label}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+            {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button 
+                className="opacity-0 group-hover:opacity-100 ml-auto p-0.5 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded transition-all"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="bottom" className="bg-popover border-border">
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditPost(item); }}>
+                <Pencil className="w-3 h-3 mr-2" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleReschedulePost(item.id); }}>
+                <CalendarClock className="w-3 h-3 mr-2" />
+                Reschedule
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicatePost(item); }}>
+                <ListChecks className="w-3 h-3 mr-2" />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="text-destructive focus:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeletePost(item.id);
+                }}
+              >
+                <Trash2 className="w-3 h-3 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-foreground line-clamp-2 leading-relaxed">{item.title}</p>
-          {/* Video script indicator */}
-          {item.type === 'reel' && item.videoScript && (
-            <div className="flex items-center gap-1 mt-1">
-              <Film className="w-3 h-3 text-purple-500" />
-              <span className="text-[10px] text-purple-500 font-medium">
-                {item.videoScript.duration} • {item.videoScript.scenes?.length || 0} scenes
-              </span>
-            </div>
-          )}
+        <div className="mt-1 flex items-start gap-2">
+          <div className="flex-shrink-0 w-5 h-5 rounded bg-emerald-100 dark:bg-emerald-800/50 flex items-center justify-center">
+            {getPlatformIcon(item.platform, "w-3 h-3")}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-foreground line-clamp-2 leading-relaxed">{item.title}</p>
+            {/* Video script indicator */}
+            {item.type === 'reel' && item.videoScript && (
+              <div className="flex items-center gap-1 mt-1">
+                <Film className="w-3 h-3 text-purple-500" />
+                <span className="text-[10px] text-purple-500 font-medium">
+                  {item.videoScript.duration} • {item.videoScript.scenes?.length || 0} scenes
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Render Kanban View
   const renderKanbanView = () => {
