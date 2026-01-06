@@ -104,10 +104,11 @@ const Apps = () => {
   // App data with thumbnails
   const imageApps = [
     { name: 'Art Blocks', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=300&fit=crop', timestamp: '00:30' },
-    { name: 'Background Remover', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Edit', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/edit') },
+    { name: 'Background Remover', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/background-remover') },
     { name: 'Image Eraser', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1561998338-13ad7883b20f?w=400&h=300&fit=crop' },
-    { name: 'Image Upscaler', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'Image Enhancer', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1552168324-d612d77725e3?w=400&h=300&fit=crop' },
+    { name: 'Image Upscaler', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/image-upscaler') },
+    { name: 'Image Enhancer', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1552168324-d612d77725e3?w=400&h=300&fit=crop', onClick: () => navigate('/image-enhancer') },
     { name: 'Image Colorizer', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=300&fit=crop', badge: 'AI' },
   ];
 
@@ -116,16 +117,18 @@ const Apps = () => {
     { name: 'Video Downloader', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/video-downloader') },
     { name: 'Video Resizer', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop', timestamp: '01:32' },
     { name: 'Motion-Sync', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'Explainer Video', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=300&fit=crop', timestamp: '02:00' },
+    { name: 'Explainer Video', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=300&fit=crop', timestamp: '02:00', onClick: () => navigate('/explainer-video') },
+    { name: 'AI Influencer', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/ai-influencer') },
+    { name: 'Viral Shorts', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=400&h=300&fit=crop', badge: 'HOT', onClick: () => navigate('/viral-shorts') },
   ];
 
   const audioApps = [
-    { name: 'AI Voice Cloner', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'AI Voice Cloner', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/voice-cloner') },
     { name: 'Transcribe', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/transcribe') },
-    { name: 'AI Voice Changer', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'AI Voiceovers', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'AI Audio Dubber', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'AI Noise Remover', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'AI Voice Changer', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/voice-changer') },
+    { name: 'AI Voiceovers', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/voiceovers') },
+    { name: 'AI Audio Dubber', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/audio-dubber') },
+    { name: 'AI Noise Remover', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/noise-remover') },
   ];
 
   const designApps = [
@@ -139,18 +142,21 @@ const Apps = () => {
 
   const contentApps = [
     { name: 'Job Newsletter', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/newsletter') },
-    { name: 'Blog Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'Social Posts', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'Email Generator', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'Ad Copy Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'Script Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=400&h=300&fit=crop', badge: 'AI' },
-    { name: 'SEO Optimizer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Blog Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/blog-writer') },
+    { name: 'Social Posts', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/social-posts') },
+    { name: 'Email Generator', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/email-generator') },
+    { name: 'Ad Copy Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/ad-copy-writer') },
+    { name: 'Script Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/script-writer') },
+    { name: 'SEO Optimizer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/seo-optimizer') },
+    { name: 'Ebook Creator', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/ebook-creator') },
   ];
 
   const toolsApps = [
     { name: 'Versus', category: 'LLM Tool', thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop', badge: 'LLM', onClick: () => navigate('/versus') },
     { name: 'Prompt Lab', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&h=300&fit=crop', badge: 'AI' },
     { name: 'Model Benchmark', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop' },
+    { name: 'AI Story', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/ai-story') },
+    { name: 'Lead Generation', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/lead-generation') },
   ];
 
   return (
