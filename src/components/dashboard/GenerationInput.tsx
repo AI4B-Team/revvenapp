@@ -7676,7 +7676,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       {/* Social Platform Selection - Always visible in Content mode */}
       {isContentMode && (
-        <div className="mt-6 p-6 bg-card rounded-xl border-2 border-border shadow-sm mx-auto w-fit">
+        <div className="flex justify-center mt-6">
+        <div className="p-6 bg-card rounded-xl border-2 border-border shadow-sm">
           <p className="text-foreground font-semibold mb-6 text-center text-xl">
             Choose Your Platforms To Generate {contentDays} Days Of Content For Each One
           </p>
@@ -7741,6 +7742,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected • {selectedPlatforms.length * contentDays} posts will be generated
             </p>
           )}
+        </div>
         </div>
       )}
     </div>
