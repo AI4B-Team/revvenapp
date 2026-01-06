@@ -74,6 +74,7 @@ import FeedPreviewView from './calendar/FeedPreviewView';
 import BulkActionsBar from './calendar/BulkActionsBar';
 import PlatformWarnings, { generateWarnings } from './calendar/PlatformWarnings';
 import EngagementOverlay, { generateMockEngagement } from './calendar/EngagementOverlay';
+import ContentScoreBadge from './ContentScoreBadge';
 import { CalendarContentItem } from '@/data/sampleCalendarContent';
 import { useToast } from '@/hooks/use-toast';
 
@@ -626,6 +627,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               </div>
             )}
           </div>
+          <ContentScoreBadge item={item} size="sm" />
         </div>
       </div>
     );
@@ -687,9 +689,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                   {getPlatformIcon(item.platform, 'w-2.5 h-2.5')}
                 </div>
               </div>
-              <span className="text-sm font-medium text-foreground truncate max-w-[120px]">
+              <span className="text-sm font-medium text-foreground truncate max-w-[100px]">
                 {item.accountHandle || item.accountName || 'Your Account'}
               </span>
+              <ContentScoreBadge item={item} size="sm" />
             </div>
             
             {/* Actions Menu */}
@@ -830,7 +833,8 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         <div className="bg-muted/30 rounded-xl overflow-hidden">
           <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
             <div className="col-span-1">Platform</div>
-            <div className="col-span-5">Content</div>
+            <div className="col-span-4">Content</div>
+            <div className="col-span-1">Score</div>
             <div className="col-span-2">Date</div>
             <div className="col-span-2">Time</div>
             <div className="col-span-1">Status</div>
@@ -852,7 +856,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                     {getPlatformIcon(item.platform, "w-4 h-4")}
                   </div>
                 </div>
-                <div className="col-span-5 text-sm text-foreground truncate">{item.title}</div>
+                <div className="col-span-4 text-sm text-foreground truncate">{item.title}</div>
+                <div className="col-span-1">
+                  <ContentScoreBadge item={item} size="sm" />
+                </div>
                 <div className="col-span-2 text-sm text-muted-foreground">
                   {item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </div>
@@ -932,7 +939,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               </div>
             </div>
             <div className="p-3">
-              <p className="text-sm text-foreground line-clamp-2 mb-2">{item.title}</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-foreground line-clamp-1 flex-1">{item.title}</p>
+                <ContentScoreBadge item={item} size="sm" />
+              </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                 <span className={`px-2 py-0.5 rounded-full ${
