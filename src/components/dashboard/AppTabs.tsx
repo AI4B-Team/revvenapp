@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
+import { useFavoriteApps } from '@/hooks/useFavoriteApps';
 
 interface AppTab {
   id: string;
@@ -20,7 +21,7 @@ interface AppTab {
   badge?: string;
 }
 
-const allApps: AppTab[] = [
+export const allApps: AppTab[] = [
   { id: 'create', label: 'Create', icon: Wand2, color: 'text-white', bgColor: 'bg-emerald-500', path: '/create' },
   { id: 'sessions', label: 'Sessions', icon: Video, color: 'text-white', bgColor: 'bg-blue-500', path: '/sessions' },
   { id: 'ai-influencer', label: 'AI Influencer', icon: Users, color: 'text-white', bgColor: 'bg-violet-500', path: '/ai-influencer' },
@@ -47,26 +48,23 @@ const allApps: AppTab[] = [
   { id: 'seo-optimizer', label: 'SEO Optimizer', icon: Search, color: 'text-white', bgColor: 'bg-emerald-600', path: '/seo-optimizer' },
   { id: 'lead-generation', label: 'Lead Generation', icon: Users, color: 'text-white', bgColor: 'bg-blue-700', path: '/lead-generation' },
   { id: 'ai-agents', label: 'AI Agents', icon: Bot, color: 'text-white', bgColor: 'bg-purple-600', path: '/ai-agents' },
+  { id: 'versus', label: 'Versus', icon: Zap, color: 'text-white', bgColor: 'bg-orange-600', path: '/versus' },
 ];
 
 interface AppTabsProps {
   className?: string;
 }
 
-const FAVORITES_KEY = 'app-favorites';
 const RECENT_KEY = 'app-recent';
 const OPEN_TABS_KEY = 'app-open-tabs';
 
 const AppTabs = ({ className = '' }: AppTabsProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { favorites, toggleFavorite } = useFavoriteApps();
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    const saved = localStorage.getItem(FAVORITES_KEY);
-    return saved ? JSON.parse(saved) : ['create'];
-  });
   const [recentApps, setRecentApps] = useState<string[]>(() => {
     const saved = localStorage.getItem(RECENT_KEY);
     return saved ? JSON.parse(saved) : [];
@@ -100,11 +98,6 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
       });
     }
   }, [location.pathname]);
-
-  // Save favorites to localStorage
-  useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-  }, [favorites]);
 
   // Save recent apps to localStorage
   useEffect(() => {
@@ -162,13 +155,9 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
     navigate(app.path);
   };
 
-  const toggleFavorite = (e: React.MouseEvent, appId: string) => {
+  const handleToggleFavorite = (e: React.MouseEvent, appId: string) => {
     e.stopPropagation();
-    setFavorites(prev => 
-      prev.includes(appId) 
-        ? prev.filter(id => id !== appId)
-        : [...prev, appId]
-    );
+    toggleFavorite(appId);
   };
 
   const favoriteApps = allApps.filter(app => favorites.includes(app.id));
@@ -194,7 +183,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
       >
         {showPin && (
           <button
-            onClick={(e) => toggleFavorite(e, app.id)}
+            onClick={(e) => handleToggleFavorite(e, app.id)}
             className="absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200"
           >
             <Star size={12} className={isFavorite ? "text-amber-500 fill-amber-500" : "text-slate-400"} />
