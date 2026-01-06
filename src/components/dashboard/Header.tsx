@@ -214,7 +214,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         {/* App Tabs */}
         <AppTabs className="flex-1" />
 
-      <div className="flex items-center justify-end gap-1 md:gap-2 h-10">
+      <div className="flex items-center justify-end gap-1 h-10">
         <TooltipProvider delayDuration={100}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -250,7 +250,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         {/* Expandable Search */}
         <div className="relative flex items-center">
           <div 
-            className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out ${
+            className={`flex items-center overflow-hidden min-w-0 transition-all duration-300 ease-in-out ${
               isSearchExpanded ? 'w-48 md:w-64' : 'w-0'
             }`}
           >
@@ -258,7 +258,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               ref={searchInputRef}
               type="text"
               placeholder="Search..."
-              className="w-full h-9 px-3 text-sm bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              className="w-full h-10 px-3 text-sm bg-muted border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring"
               onBlur={() => setIsSearchExpanded(false)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -281,7 +281,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                       setTimeout(() => searchInputRef.current?.focus(), 100);
                     }
                   }}
-                  className="h-10 w-10 inline-flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+                  className="inline-flex items-center justify-center p-2.5 rounded-full hover:bg-muted transition-colors"
                 >
                   <Search size={20} className="text-muted-foreground" />
                 </button>
