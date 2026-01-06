@@ -97,7 +97,15 @@ const designTypes: SubOption[] = [
 
 // Content type options
 const contentTypes: SubOption[] = [
-  { id: 'social', label: 'Social', icon: LayoutTemplate, color: 'text-blue-500' },
+  { id: 'social', label: 'Social', icon: LayoutGrid, color: 'text-blue-500' },
+  { id: 'article', label: 'Article', icon: FileText, color: 'text-emerald-500' },
+  { id: 'newsletter', label: 'Newsletter', icon: Mail, color: 'text-violet-500' },
+  { id: 'blog', label: 'Blog', icon: PenTool, color: 'text-amber-500' },
+  { id: 'ad-copy', label: 'Ad Copy', icon: CreditCard, color: 'text-pink-500' },
+  { id: 'email', label: 'Email', icon: Mail, color: 'text-cyan-500' },
+  { id: 'script', label: 'Script', icon: Video, color: 'text-orange-500' },
+  { id: 'caption', label: 'Caption', icon: Hash, color: 'text-indigo-500' },
+  { id: 'product-desc', label: 'Product Desc', icon: Box, color: 'text-teal-500' },
 ];
 
 // Document type options
