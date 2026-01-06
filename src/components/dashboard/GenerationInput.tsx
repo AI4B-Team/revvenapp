@@ -4846,9 +4846,23 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
-                              <button className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 text-slate-600">
+                              <button className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
+                                videoModel !== 'veo3_fast' 
+                                  ? 'bg-purple-100 text-purple-600' 
+                                  : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                              }`}>
                                 <Box size={18} />
-                                <span className="text-xs font-medium">VEO3</span>
+                                <span className="text-xs font-medium">
+                                  {videoModel === 'veo3_fast' ? 'Veo 3.1' : 
+                                   videoModel === 'veo3' ? 'Veo 3.1Q' : 
+                                   videoModel === 'kling-2.6' ? 'Kling 2.6' :
+                                   videoModel === 'sora-2-pro' ? 'Sora 2' :
+                                   videoModel === 'wan-2.5' ? 'Wan 2.5' :
+                                   videoModel === 'wan-2.2' ? 'Wan 2.2' :
+                                   videoModel === 'seedance' ? 'Seedance' :
+                                   videoModel === 'hailuo' ? 'Hailuo' :
+                                   videoModels.find(m => m.value === videoModel)?.label || 'VEO3'}
+                                </span>
                               </button>
                             </PopoverTrigger>
                           </TooltipTrigger>
