@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Pencil, Calendar, Users, DollarSign, Heart, Plus, X,
-  Sparkles, Mail, Bot
+  Sparkles, Calendar, Users, DollarSign, Heart, Plus, X,
+  Mail, Bot
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 
@@ -16,7 +16,7 @@ interface AppTab {
 }
 
 const availableApps: AppTab[] = [
-  { id: 'create', label: 'Create', icon: Pencil, color: 'text-white', bgColor: 'bg-emerald-500', path: '/create' },
+  { id: 'create', label: 'Create', icon: Sparkles, color: 'text-white', bgColor: 'bg-emerald-500', path: '/create' },
   { id: 'inbox', label: 'Inbox', icon: Mail, color: 'text-white', bgColor: 'bg-blue-500', path: '/contacts' },
   { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'text-white', bgColor: 'bg-rose-500', path: '/social-posts' },
   { id: 'leads', label: 'Leads', icon: Users, color: 'text-white', bgColor: 'bg-orange-500', path: '/lead-generation' },
