@@ -23,6 +23,7 @@ interface AppTab {
 
 export const allApps: AppTab[] = [
   { id: 'create', label: 'Create', icon: Wand2, color: 'text-white', bgColor: 'bg-emerald-500', path: '/create' },
+  { id: 'editor', label: 'Editor', icon: FileEdit, color: 'text-white', bgColor: 'bg-purple-500', path: '/edit' },
   { id: 'sessions', label: 'Sessions', icon: Video, color: 'text-white', bgColor: 'bg-blue-500', path: '/sessions' },
   { id: 'ai-influencer', label: 'AI Influencer', icon: Users, color: 'text-white', bgColor: 'bg-violet-500', path: '/ai-influencer' },
   { id: 'ai-story', label: 'AI Story', icon: BookOpen, color: 'text-white', bgColor: 'bg-amber-500', path: '/ai-story' },

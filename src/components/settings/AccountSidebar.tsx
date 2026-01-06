@@ -12,7 +12,8 @@ import {
   Moon,
   Sun,
   Monitor,
-  ChevronRight
+  ChevronRight,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -28,6 +29,7 @@ import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface AccountSidebarProps {
   activeTab: string;
@@ -53,6 +55,7 @@ export default function AccountSidebar({
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const { t, language, setLanguage: setAppLanguage } = useTranslation();
+  const { isAdminOrModerator } = useUserRole();
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userAvatar, setUserAvatar] = useState('');
@@ -62,6 +65,7 @@ export default function AccountSidebar({
     { id: 'my-details', label: t('settings.account'), icon: Settings },
     { id: 'invites', label: t('settings.invites'), icon: Mail },
     { id: 'integrations', label: t('settings.integrations'), icon: Plug },
+    ...(isAdminOrModerator ? [{ id: 'admin', label: 'Admin Panel', icon: Shield }] : []),
   ];
 
   // Fetch user data on mount
@@ -108,6 +112,10 @@ export default function AccountSidebar({
   }, []);
 
   const handleTabClick = (tabId: string) => {
+    if (tabId === 'admin') {
+      navigate('/manage');
+      return;
+    }
     onTabChange(tabId);
     navigate(`/account?tab=${tabId}`);
   };
