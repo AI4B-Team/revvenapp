@@ -4114,9 +4114,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Type Dropdown for Video */}
                   <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-foreground text-sm font-medium hover:opacity-90 transition">
-                        <LayoutGrid size={16} className="text-muted-foreground" />
-                        Type
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm font-medium hover:opacity-90 transition">
+                        {(() => {
+                          const currentMode = animateModes.find(m => m.value === selectedAnimateMode);
+                          const Icon = currentMode?.icon || Play;
+                          return <Icon size={16} className="text-red-600 dark:text-red-400" />;
+                        })()}
+                        {animateModes.find(m => m.value === selectedAnimateMode)?.label || 'Animate'}
+                        <X size={14} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 ml-0.5" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-52 bg-background border-border z-50" align="start">
