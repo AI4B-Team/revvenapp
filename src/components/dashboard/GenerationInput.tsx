@@ -5200,8 +5200,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           Type
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[420px] bg-background border-border z-50 p-4 rounded-2xl shadow-lg">
-                        <div className="grid grid-cols-4 gap-3">
+                      <PopoverContent 
+                        className="bg-background border-border z-50 p-4 rounded-2xl shadow-lg" 
+                        style={{ width: 'var(--radix-popover-trigger-width)', minWidth: '100%' }}
+                        align="start"
+                        sideOffset={8}
+                      >
+                        <div className="grid grid-cols-4 gap-2">
                           {audioModes.map((mode) => (
                             <button
                               key={mode.value}
@@ -5209,9 +5214,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 setSelectedAudioMode(mode.value);
                                 setIsAudioModeDropdownOpen(false);
                               }}
-                              className="flex items-center gap-2 px-3 py-2.5 text-sm rounded-lg cursor-pointer hover:bg-secondary transition"
+                              className="flex items-center gap-2.5 px-4 py-3 text-sm rounded-xl cursor-pointer bg-secondary/50 hover:bg-secondary transition border border-transparent hover:border-border"
                             >
-                              <mode.icon size={18} className={mode.color} />
+                              <mode.icon size={18} className="text-muted-foreground" />
                               <span className="font-medium text-foreground whitespace-nowrap">{mode.label}</span>
                             </button>
                           ))}
@@ -5231,8 +5236,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <ChevronDown size={14} className="text-green-600 dark:text-green-400" />
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[420px] bg-background border-border z-50 p-4 rounded-2xl shadow-lg">
-                        <div className="grid grid-cols-4 gap-3">
+                      <PopoverContent 
+                        className="bg-background border-border z-50 p-4 rounded-2xl shadow-lg" 
+                        style={{ width: 'var(--radix-popover-trigger-width)', minWidth: '100%' }}
+                        align="start"
+                        sideOffset={8}
+                      >
+                        <div className="grid grid-cols-4 gap-2">
                           {audioModes.map((mode) => (
                             <button
                               key={mode.value}
@@ -5240,9 +5250,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 setSelectedAudioMode(mode.value);
                                 setIsAudioModeDropdownOpen(false);
                               }}
-                              className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded-lg cursor-pointer hover:bg-secondary transition ${selectedAudioMode === mode.value ? 'bg-secondary' : ''}`}
+                              className={`flex items-center gap-2.5 px-4 py-3 text-sm rounded-xl cursor-pointer transition border ${selectedAudioMode === mode.value ? 'bg-secondary border-border' : 'bg-secondary/50 border-transparent hover:bg-secondary hover:border-border'}`}
                             >
-                              <mode.icon size={18} className={mode.color} />
+                              <mode.icon size={18} className="text-muted-foreground" />
                               <span className="font-medium text-foreground whitespace-nowrap">{mode.label}</span>
                             </button>
                           ))}
