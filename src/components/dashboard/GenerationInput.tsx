@@ -5265,14 +5265,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Audio Icon Buttons */}
                   <TooltipProvider>
                     <div className="flex items-center gap-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <Box size={18} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Products</p></TooltipContent>
-                      </Tooltip>
                       {voiceoverCharacter ? (
                         <Popover open={isVoiceoverCharacterPopoverOpen} onOpenChange={setIsVoiceoverCharacterPopoverOpen}>
                           <PopoverTrigger asChild>
@@ -5307,46 +5299,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <TooltipContent><p>Character</p></TooltipContent>
                         </Tooltip>
                       )}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <span className="text-lg font-medium">文</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Translate</p></TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <Volume2 size={18} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Volume</p></TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <Headphones size={18} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Preview</p></TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <Captions size={18} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Captions</p></TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <Mic size={18} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Record</p></TooltipContent>
-                      </Tooltip>
                     </div>
                   </TooltipProvider>
 
