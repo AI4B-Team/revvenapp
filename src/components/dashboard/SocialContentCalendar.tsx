@@ -120,7 +120,15 @@ type TimeRange = 'day' | 'week' | 'month';
 interface FilterState {
   statuses: string[];
   labels: string[];
+  contentTypes: string[];
 }
+
+const CONTENT_TYPE_OPTIONS = [
+  { id: 'post', label: 'Post', icon: ImageIcon },
+  { id: 'carousel', label: 'Carousel', icon: Grid3x3 },
+  { id: 'reel', label: 'Reel', icon: Film },
+  { id: 'story', label: 'Story', icon: Play },
+];
 
 const STATUS_OPTIONS = [
   { id: 'scheduled', label: 'Scheduled', color: 'bg-emerald-500' },
@@ -158,6 +166,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   const [filters, setFilters] = useState<FilterState>({
     statuses: [],
     labels: [],
+    contentTypes: [],
   });
   const [previewPost, setPreviewPost] = useState<ContentItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -341,14 +350,15 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   // Filter content based on selected filters
   const filteredContent = useMemo(() => {
-    if (filters.statuses.length === 0 && filters.labels.length === 0) {
+    if (filters.statuses.length === 0 && filters.labels.length === 0 && filters.contentTypes.length === 0) {
       return allContent;
     }
     
     return allContent.filter(item => {
       const statusMatch = filters.statuses.length === 0 || filters.statuses.includes(item.status);
       const labelMatch = filters.labels.length === 0 || filters.labels.includes(getPillarId(item));
-      return statusMatch && labelMatch;
+      const contentTypeMatch = filters.contentTypes.length === 0 || filters.contentTypes.includes(item.type || 'post');
+      return statusMatch && labelMatch && contentTypeMatch;
     });
   }, [allContent, filters]);
 
@@ -371,11 +381,20 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     }));
   };
 
-  const resetFilters = () => {
-    setFilters({ statuses: [], labels: [] });
+  const toggleContentTypeFilter = (typeId: string) => {
+    setFilters(prev => ({
+      ...prev,
+      contentTypes: prev.contentTypes.includes(typeId)
+        ? prev.contentTypes.filter(t => t !== typeId)
+        : [...prev.contentTypes, typeId]
+    }));
   };
 
-  const hasActiveFilters = filters.statuses.length > 0 || filters.labels.length > 0;
+  const resetFilters = () => {
+    setFilters({ statuses: [], labels: [], contentTypes: [] });
+  };
+
+  const hasActiveFilters = filters.statuses.length > 0 || filters.labels.length > 0 || filters.contentTypes.length > 0;
 
   const handleDeletePost = (postId: string) => {
     onDeletePost?.(postId);
@@ -1628,6 +1647,23 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                       />
                       <div className={`w-2 h-2 rounded-full ${status.color}`} />
                       <span className="text-sm text-foreground">{status.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Content Type Filters */}
+              <div className="px-4 py-3 border-b border-border">
+                <h4 className="text-sm font-medium text-foreground mb-3">Content Type</h4>
+                <div className="space-y-2">
+                  {CONTENT_TYPE_OPTIONS.map(type => (
+                    <label key={type.id} className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={filters.contentTypes.includes(type.id)}
+                        onCheckedChange={() => toggleContentTypeFilter(type.id)}
+                      />
+                      <type.icon className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-foreground">{type.label}</span>
                     </label>
                   ))}
                 </div>
