@@ -98,6 +98,11 @@ interface AISuggestionsGridProps {
 const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps) => {
   const [currentPage, setCurrentPage] = useState(0);
 
+  // Reset page when intent changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [intent]);
+
   // Don't render if no intent is selected
   if (!intent) {
     return null;
@@ -115,10 +120,6 @@ const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps
   const handleNext = () => {
     setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
   };
-
-  useEffect(() => {
-    setCurrentPage(0);
-  }, [intent]);
 
   return (
     <div className="w-full mx-auto mt-6">
