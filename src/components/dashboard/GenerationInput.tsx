@@ -5146,16 +5146,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                 {/* Buttons Row */}
                 <div className="flex items-center gap-2 flex-nowrap shrink-0">
-                  {/* Audio Type Chip */}
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
-                    <Music size={16} className="text-emerald-500" />
-                    Audio
-                    <X 
-                      size={14} 
-                      className="ml-1 cursor-pointer hover:text-slate-800"
-                      onClick={() => onContentTypeChange?.('Image')}
-                    />
-                  </div>
                   
                   {/* Audio Mode Dropdown - Green chip style */}
                   <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
