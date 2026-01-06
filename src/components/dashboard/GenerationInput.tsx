@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -286,6 +286,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isLoadingClonedVoices, setIsLoadingClonedVoices] = useState(false);
   const [selectedClonedVoice, setSelectedClonedVoice] = useState<{ id: string; name: string; elevenlabs_voice_id: string } | null>(null);
   const [deletingClonedVoiceId, setDeletingClonedVoiceId] = useState<string | null>(null);
+  
+  // Voiceover character selection
+  const [voiceoverCharacter, setVoiceoverCharacter] = useState<{ id: string; name: string; image?: string } | null>(null);
+  const [isVoiceoverCharacterPopoverOpen, setIsVoiceoverCharacterPopoverOpen] = useState(false);
   
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
@@ -5261,14 +5265,40 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipTrigger>
                         <TooltipContent><p>Products</p></TooltipContent>
                       </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <User size={18} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Characters</p></TooltipContent>
-                      </Tooltip>
+                      {voiceoverCharacter ? (
+                        <Popover open={isVoiceoverCharacterPopoverOpen} onOpenChange={setIsVoiceoverCharacterPopoverOpen}>
+                          <PopoverTrigger asChild>
+                            <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-brand-blue/15 text-muted-foreground hover:brightness-90">
+                              {voiceoverCharacter.name}
+                              <ChevronDown size={14} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-48 bg-background border-border z-50 p-2">
+                            <button 
+                              onClick={() => {
+                                setVoiceoverCharacter(null);
+                                setIsVoiceoverCharacterPopoverOpen(false);
+                              }}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 text-red-500"
+                            >
+                              <X size={14} />
+                              Clear Character
+                            </button>
+                          </PopoverContent>
+                        </Popover>
+                      ) : (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={onCharactersClick}
+                              className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground"
+                            >
+                              <CircleUser size={18} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Character</p></TooltipContent>
+                        </Tooltip>
+                      )}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
