@@ -3,7 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Wand2, Calendar, Users, DollarSign, Heart, Plus, X,
   Mail, Bot, BarChart3, FileText, ClipboardList, FolderKanban,
-  Megaphone, Search, Pin, Clock, Star
+  Megaphone, Search, Pin, Clock, Star, Video, Image, Music,
+  Mic, BookOpen, Download, Eraser, Sparkles, Volume2, ArrowUpCircle,
+  Globe, FileEdit, Zap
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
@@ -20,6 +22,31 @@ interface AppTab {
 
 const allApps: AppTab[] = [
   { id: 'create', label: 'Create', icon: Wand2, color: 'text-white', bgColor: 'bg-emerald-500', path: '/create' },
+  { id: 'sessions', label: 'Sessions', icon: Video, color: 'text-white', bgColor: 'bg-blue-500', path: '/sessions' },
+  { id: 'ai-influencer', label: 'AI Influencer', icon: Users, color: 'text-white', bgColor: 'bg-violet-500', path: '/ai-influencer' },
+  { id: 'ai-story', label: 'AI Story', icon: BookOpen, color: 'text-white', bgColor: 'bg-amber-500', path: '/ai-story' },
+  { id: 'viral-shorts', label: 'Viral Shorts', icon: Zap, color: 'text-white', bgColor: 'bg-red-500', path: '/viral-shorts' },
+  { id: 'voiceovers', label: 'Voiceovers', icon: Mic, color: 'text-white', bgColor: 'bg-cyan-500', path: '/voiceovers' },
+  { id: 'voice-cloner', label: 'Voice Cloner', icon: Volume2, color: 'text-white', bgColor: 'bg-purple-500', path: '/voice-cloner' },
+  { id: 'voice-changer', label: 'Voice Changer', icon: Music, color: 'text-white', bgColor: 'bg-pink-500', path: '/voice-changer' },
+  { id: 'transcribe', label: 'Transcribe', icon: FileText, color: 'text-white', bgColor: 'bg-indigo-500', path: '/transcribe' },
+  { id: 'audio-dubber', label: 'Audio Dubber', icon: Globe, color: 'text-white', bgColor: 'bg-teal-500', path: '/audio-dubber' },
+  { id: 'noise-remover', label: 'Noise Remover', icon: Eraser, color: 'text-white', bgColor: 'bg-slate-500', path: '/noise-remover' },
+  { id: 'background-remover', label: 'Background Remover', icon: Image, color: 'text-white', bgColor: 'bg-rose-500', path: '/background-remover' },
+  { id: 'image-enhancer', label: 'Image Enhancer', icon: Sparkles, color: 'text-white', bgColor: 'bg-orange-500', path: '/image-enhancer' },
+  { id: 'image-upscaler', label: 'Image Upscaler', icon: ArrowUpCircle, color: 'text-white', bgColor: 'bg-lime-600', path: '/image-upscaler' },
+  { id: 'video-downloader', label: 'Video Downloader', icon: Download, color: 'text-white', bgColor: 'bg-sky-500', path: '/video-downloader' },
+  { id: 'explainer-video', label: 'Explainer Video', icon: Video, color: 'text-white', bgColor: 'bg-fuchsia-500', path: '/explainer-video' },
+  { id: 'ebook-creator', label: 'Ebook Creator', icon: BookOpen, color: 'text-white', bgColor: 'bg-amber-600', path: '/ebook-creator' },
+  { id: 'blog-writer', label: 'Blog Writer', icon: FileEdit, color: 'text-white', bgColor: 'bg-green-500', path: '/blog-writer' },
+  { id: 'social-posts', label: 'Social Posts', icon: Calendar, color: 'text-white', bgColor: 'bg-blue-600', path: '/social-posts' },
+  { id: 'newsletter', label: 'Newsletter', icon: Mail, color: 'text-white', bgColor: 'bg-red-600', path: '/newsletter' },
+  { id: 'ad-copy-writer', label: 'Ad Copy Writer', icon: Megaphone, color: 'text-white', bgColor: 'bg-yellow-500', path: '/ad-copy-writer' },
+  { id: 'script-writer', label: 'Script Writer', icon: FileText, color: 'text-white', bgColor: 'bg-violet-600', path: '/script-writer' },
+  { id: 'email-generator', label: 'Email Generator', icon: Mail, color: 'text-white', bgColor: 'bg-cyan-600', path: '/email-generator' },
+  { id: 'seo-optimizer', label: 'SEO Optimizer', icon: Search, color: 'text-white', bgColor: 'bg-emerald-600', path: '/seo-optimizer' },
+  { id: 'lead-generation', label: 'Lead Generation', icon: Users, color: 'text-white', bgColor: 'bg-blue-700', path: '/lead-generation' },
+  { id: 'ai-agents', label: 'AI Agents', icon: Bot, color: 'text-white', bgColor: 'bg-purple-600', path: '/ai-agents' },
 ];
 
 interface AppTabsProps {
