@@ -106,6 +106,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [selectedCreateMode, setSelectedCreateMode] = useState('Create');
   const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
   const promptBoxRef = useRef<HTMLDivElement | null>(null);
+  const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (!isCreateModeDropdownOpen) return;
@@ -345,11 +346,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Resizable prompt box (both directions)
   // Responsive default widths: Mobile 340px, Tablet 520px, Desktop 800px (50rem)
   const DEFAULT_PROMPT_WIDTH = 800;
+  const PROMPT_MIN_HEIGHT = 168;
+  const PROMPT_MAX_HEIGHT = 600;
 
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart, setHeight: setPromptHeight } = useResizableTextarea({
-    minHeight: 168,
-    maxHeight: 600,
-    initialHeight: 168,
+    minHeight: PROMPT_MIN_HEIGHT,
+    maxHeight: PROMPT_MAX_HEIGHT,
+    initialHeight: PROMPT_MIN_HEIGHT,
     minWidth: DEFAULT_PROMPT_WIDTH,
     initialWidth: DEFAULT_PROMPT_WIDTH,
     maxWidth: 1920,
@@ -3393,6 +3396,27 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     }
   };
   
+  const activePromptValue =
+    isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
+      ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText)
+      : isVideoMode && selectedAnimateMode === 'Story'
+        ? (selectedStoryButton === 'Scene' ? storySceneText : prompt)
+        : prompt;
+
+  useEffect(() => {
+    if (isAudioMode && selectedAudioMode === 'Transcribe') return;
+
+    const el = promptTextareaRef.current;
+    if (!el) return;
+
+    const desiredHeight = Math.min(
+      PROMPT_MAX_HEIGHT,
+      Math.max(PROMPT_MIN_HEIGHT, el.scrollHeight)
+    );
+
+    if (desiredHeight > promptHeight) setPromptHeight(desiredHeight);
+  }, [activePromptValue, isAudioMode, selectedAudioMode, promptHeight, setPromptHeight]);
+
   // Calculate the total prompt box height: promptHeight + padding (24px top + 24px bottom) + bottom bar (~48px) + gap (24px)
   const totalPromptBoxHeight = promptHeight + 120;
 
@@ -3716,13 +3740,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : (
               <>
                 <textarea 
-                  value={
-                    isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
-                      ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) 
-                      : isVideoMode && selectedAnimateMode === 'Story'
-                        ? (selectedStoryButton === 'Scene' ? storySceneText : prompt)
-                        : prompt
-                  }
+                  ref={promptTextareaRef}
+                  value={activePromptValue}
                   onChange={(e) => {
                     if (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')) {
                       if (selectedUGCButton === 'Scene') {
@@ -3739,6 +3758,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     } else {
                       setPrompt(e.target.value);
                     }
+
+                    const desiredHeight = Math.min(
+                      PROMPT_MAX_HEIGHT,
+                      Math.max(PROMPT_MIN_HEIGHT, e.currentTarget.scrollHeight)
+                    );
+                    if (desiredHeight > promptHeight) setPromptHeight(desiredHeight);
                   }}
                   disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && selectedStoryButton !== 'Scene')}
                   maxLength={isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' ? 180 : undefined}
