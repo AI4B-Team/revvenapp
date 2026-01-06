@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -4813,44 +4813,71 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </>
                   ) : (
                     <>
-                      {/* Standard Video Mode Controls */}
+                      {/* Standard Video Mode Controls - Redesigned with icon-only buttons */}
+                      
+                      {/* Content Type Chips */}
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
+                        <Video size={16} className="text-red-500" />
+                        Video
+                        <X 
+                          size={14} 
+                          className="ml-1 cursor-pointer hover:text-slate-800"
+                          onClick={() => onContentTypeChange?.('Image')}
+                        />
+                      </div>
+                      
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">
+                        <Play size={16} className="text-emerald-600" />
+                        {selectedAnimateMode}
+                        <X 
+                          size={14} 
+                          className="ml-1 cursor-pointer hover:text-emerald-900"
+                          onClick={() => setSelectedAnimateMode('Animate')}
+                        />
+                      </div>
+                      
+                      {/* Separator */}
+                      <div className="w-px h-8 bg-slate-200 mx-1" />
+                      
+                      {/* Model Button - shows model name */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            <Video size={16} />
-                            {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 text-slate-600">
+                                <Box size={18} />
+                                <span className="text-xs font-medium max-w-[60px] truncate">
+                                  {videoModels.find(m => m.value === videoModel)?.label?.split(' ')[0] || 'Veo'}
+                                </span>
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>AI Model: {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-64 bg-background border-border z-50 max-h-80 overflow-y-auto">
                           <div className="space-y-1">
                             {videoModels
                               .filter((model) => {
-                                // Podcast mode: only Veo 3 and Kling 2.6
                                 if (selectedAnimateMode === 'Podcast') {
                                   return ['veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
                                 }
-                                // Draw mode: only Veo 3 models
                                 if (selectedAnimateMode === 'Draw') {
                                   return ['veo3', 'veo3_fast'].includes(model.value);
                                 }
-                                // UGC mode: Veo 3 and Kling 2.6
                                 if (selectedAnimateMode === 'UGC') {
                                   return ['veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
                                 }
-                                // Story mode: only Sora 2 Pro
                                 if (selectedAnimateMode === 'Story') {
                                   return model.value === 'sora-2-pro';
                                 }
-                                // Recast mode: only Wan models
                                 if (selectedAnimateMode === 'Recast') {
                                   return ['wan-2.5', 'wan-2.2'].includes(model.value);
                                 }
-                                // Avatar Video and Lip-Sync: Kling Avatar and Wan Avatar are handled separately
                                 if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') {
-                                  return false; // Avatar Video/Lip-Sync has its own model selector
+                                  return false;
                                 }
-                                // All other modes: show all models
                                 return true;
                               })
                               .map((model) => (
@@ -4869,59 +4896,62 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
+                      {/* Character Button - icon only */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
-                            onClick={() => {
-                              // Open character selector and update video mode state
-                              onCharactersClick?.();
-                            }}
-                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            onClick={() => onCharactersClick?.()}
+                            className={`p-2.5 rounded-lg transition ${
                               videoModeState.characters.length > 0 
-                                ? 'bg-brand-blue/15 text-muted-foreground' 
-                                : 'bg-secondary text-muted-foreground'
+                                ? 'bg-blue-100 text-blue-600' 
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                             }`}
                           >
-                            <User size={16} />
-                            {videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Character'}
+                            <User size={18} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Select Character</p>
+                          <p>{videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Select Character'}</p>
                         </TooltipContent>
                       </Tooltip>
 
-                      <button
-                        onClick={() => {
-                          // Open reference selector and update video mode state
-                          onReferencesClick?.();
-                        }}
-                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                          videoModeState.references.length > 0 || videoModeState.startingFrame || videoModeState.endingFrame
-                            ? 'bg-brand-green/15 text-muted-foreground' 
-                            : 'bg-secondary text-muted-foreground'
-                        }`}
-                      >
-                        <Upload size={16} />
-                        Reference
-                        {videoModeState.references.length > 0 && (
-                          <span className="bg-foreground/10 px-1.5 py-0.5 rounded text-xs font-medium">
-                            {videoModeState.references.length}
-                          </span>
-                        )}
-                      </button>
-
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                            videoAspectRatio !== '16:9' 
-                              ? 'bg-brand-yellow/15 text-muted-foreground' 
-                              : 'bg-secondary text-muted-foreground'
-                          }`}>
-                            {videoAspectRatio}
-                            <ChevronDown size={14} />
+                      {/* Reference/Link Button - icon only */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => onReferencesClick?.()}
+                            className={`p-2.5 rounded-lg transition ${
+                              videoModeState.references.length > 0 || videoModeState.startingFrame || videoModeState.endingFrame
+                                ? 'bg-emerald-100 text-emerald-600' 
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                            }`}
+                          >
+                            <Link size={18} />
                           </button>
-                        </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Reference Images {videoModeState.references.length > 0 ? `(${videoModeState.references.length})` : ''}</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      {/* Aspect Ratio Button - icon only */}
+                      <Popover>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2.5 rounded-lg transition ${
+                                videoAspectRatio !== '16:9' 
+                                  ? 'bg-amber-100 text-amber-600' 
+                                  : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                              }`}>
+                                <Copy size={18} />
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Aspect Ratio: {videoAspectRatio}</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
@@ -4949,17 +4979,24 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
+                      {/* Duration Button - icon only */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                            videoDuration !== '10' 
-                              ? 'bg-brand-yellow/15 text-muted-foreground' 
-                              : 'bg-secondary text-muted-foreground'
-                          }`}>
-                            {videoDuration} sec
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2.5 rounded-lg transition ${
+                                videoDuration !== '10' 
+                                  ? 'bg-amber-100 text-amber-600' 
+                                  : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                              }`}>
+                                <Clock size={18} />
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Duration: {videoDuration}s</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
@@ -4984,42 +5021,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      <Popover>
-                        <PopoverTrigger asChild>
-                      <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            1080p
-                            <ChevronDown size={14} />
+                      {/* Settings Button - icon only */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition text-slate-600">
+                            <MoreHorizontal size={18} />
                           </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-48 bg-background border-border z-50">
-                          <div className="space-y-1">
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              1080p
-                            </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              720p
-                            </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              4K
-                            </button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>More Settings</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </>
                   )}
-                </TooltipProvider>
-
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="text-muted-foreground hover:text-foreground transition bg-muted/50 rounded-lg p-2">
-                        <MoreVertical size={20} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Enhance Prompt</p>
-                    </TooltipContent>
-                  </Tooltip>
                 </TooltipProvider>
               </>
             ) : isAudioMode ? (
