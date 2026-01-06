@@ -116,13 +116,15 @@ export const socialPlatforms = [
   { id: 'threads', name: 'Threads', Icon: ThreadsIcon },
   { id: 'x', name: 'X', Icon: XIcon },
   { id: 'tiktok', name: 'TikTok', Icon: TikTokIcon },
-  { id: 'reddit', name: 'Reddit', Icon: RedditIcon },
+  { id: 'linkedin', name: 'LinkedIn', Icon: LinkedInIcon },
+  { id: 'bluesky', name: 'Bluesky', Icon: BlueskyIcon },
   { id: 'youtube', name: 'YouTube', Icon: YouTubeIcon },
   { id: 'pinterest', name: 'Pinterest', Icon: PinterestIcon },
+  { id: 'reddit', name: 'Reddit', Icon: RedditIcon },
   { id: 'snapchat', name: 'Snapchat', Icon: SnapchatIcon },
   { id: 'tumblr', name: 'Tumblr', Icon: TumblrIcon },
-  { id: 'bluesky', name: 'Bluesky', Icon: BlueskyIcon },
-  { id: 'linkedin', name: 'LinkedIn', Icon: LinkedInIcon },
+  { id: 'email', name: 'Email', Icon: EmailIcon },
+  { id: 'blog', name: 'Blog', Icon: BlogIcon },
 ];
 
 export const getPlatformIcon = (platformId: string, className?: string) => {
