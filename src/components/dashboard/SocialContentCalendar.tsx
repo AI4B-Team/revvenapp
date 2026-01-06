@@ -1060,9 +1060,9 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     };
     
     return (
-      <div className="p-4">
+      <div className="p-4 overflow-x-auto">
         {/* Day Headers */}
-        <div className="grid grid-cols-7 mb-2">
+        <div className="grid grid-cols-7 mb-2 min-w-[980px]">
           {weekDays.map((date, index) => {
             const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
             const today = isToday(date);
@@ -1082,7 +1082,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         </div>
 
         {/* Week Content Grid */}
-        <div className="grid grid-cols-7 min-h-[500px]">
+        <div className="grid grid-cols-7 min-h-[500px] min-w-[980px]">
           {weekDays.map((date, index) => {
             const content = getContentForDate(date);
             const holidays = getHolidaysForDate(date);
@@ -1216,9 +1216,9 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   // Render Calendar View (Month)
   const renderCalendarView = () => (
-    <div className="p-4">
+    <div className="p-4 overflow-x-auto">
       {/* Day Headers */}
-      <div className="grid grid-cols-7 mb-2">
+      <div className="grid grid-cols-7 mb-2 min-w-[980px]">
         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
           <div key={day} className="text-center text-sm font-medium text-muted-foreground py-3 border-b border-border">
             {day}
@@ -1227,7 +1227,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 min-w-[980px]">
         {days.map((date, index) => {
           const content = getContentForDate(date);
           const today = isToday(date);
@@ -1337,12 +1337,12 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   );
 
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden mt-8 w-full min-w-0">
+    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-visible mt-8 w-full min-w-0">
       {/* Main Header */}
       <div className="px-6 py-4 border-b border-border">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4 min-w-0">
           {/* Left: View Mode Tabs */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-nowrap flex-1 min-w-0 overflow-x-auto pr-2">
             <Button
               variant={viewMode === 'calendar' ? 'default' : 'outline'}
               size="sm"
@@ -1411,7 +1411,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-nowrap shrink-0">
             {allContent.length > 0 && (
               <Button 
                 variant="outline" 
@@ -1440,7 +1440,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                   <ChevronRight className="w-3 h-3 rotate-90" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" side="bottom" className="w-48">
+              <DropdownMenuContent align="end" side="bottom" className="w-48 bg-popover border-border z-50">
                 <DropdownMenuItem className="gap-2">
                   <Pencil className="w-4 h-4" />
                   Create Post
@@ -1460,8 +1460,8 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       </div>
 
       {/* Sub Header: Navigation & Tools */}
-      <div className="px-6 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="px-6 py-3 border-b border-border bg-muted/30 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-4 flex-nowrap flex-1 min-w-0 overflow-x-auto pr-2">
           {/* Time Range Toggle */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -1471,7 +1471,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 <ChevronRight className="w-3 h-3 rotate-90" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom" className="bg-popover border-border">
+            <DropdownMenuContent side="bottom" className="bg-popover border-border z-50">
               <DropdownMenuItem onClick={() => setTimeRange('day')}>Day</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimeRange('week')}>Week</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimeRange('month')}>Month</DropdownMenuItem>
@@ -1530,7 +1530,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
           </h2>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-nowrap shrink-0">
           {/* Drafts Toggle */}
           <div className="flex items-center gap-2 mr-4">
             <div className="w-8 h-4 bg-emerald-500 rounded-full relative cursor-pointer">
@@ -1653,7 +1653,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuContent align="end" className="w-52 bg-popover border-border z-50">
               <DropdownMenuItem onClick={() => setIsAddAccountModalOpen(true)} className="gap-2">
                 <UserPlus className="w-4 h-4" />
                 Add Account
