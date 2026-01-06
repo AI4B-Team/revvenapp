@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2 } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -310,12 +310,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   const audioModes = [
-    { value: 'Voiceover', label: 'Voiceover', icon: Mic },
-    { value: 'Clone', label: 'Clone', icon: User },
-    { value: 'Revoice', label: 'Revoice', icon: RefreshCw },
-    { value: 'Transcribe', label: 'Transcribe', icon: Captions },
-    { value: 'Sound Effects', label: 'Sound Effects', icon: AudioLines },
-    { value: 'Music', label: 'Music', icon: Music },
+    { value: 'Voiceover', label: 'Voiceover', icon: Mic, color: 'text-green-500', bg: 'bg-green-100 dark:bg-green-900/30' },
+    { value: 'Clone', label: 'Clone', icon: User, color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30' },
+    { value: 'Revoice', label: 'Revoice', icon: RefreshCw, color: 'text-cyan-500', bg: 'bg-cyan-100 dark:bg-cyan-900/30' },
+    { value: 'Transcribe', label: 'Transcribe', icon: Captions, color: 'text-orange-500', bg: 'bg-orange-100 dark:bg-orange-900/30' },
+    { value: 'Sound Effects', label: 'Sound Effects', icon: AudioLines, color: 'text-red-500', bg: 'bg-red-100 dark:bg-red-900/30' },
+    { value: 'Music', label: 'Music', icon: Music, color: 'text-pink-500', bg: 'bg-pink-100 dark:bg-pink-900/30' },
+    { value: 'AudioBook', label: 'AudioBook', icon: Headphones, color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30' },
   ];
   
   // Voice library for Audio Voiceover mode (using KIE.AI voice names, not ElevenLabs UUIDs)
@@ -5180,8 +5181,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <X size={14} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 ml-0.5" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-48 bg-background border-border z-50 p-1">
-                      <div className="space-y-0.5">
+                    <PopoverContent className="w-[420px] bg-background border-border z-50 p-4 rounded-2xl shadow-lg">
+                      <div className="grid grid-cols-4 gap-3">
                         {audioModes.map((mode) => (
                           <button
                             key={mode.value}
@@ -5189,11 +5190,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               setSelectedAudioMode(mode.value);
                               setIsAudioModeDropdownOpen(false);
                             }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary transition ${selectedAudioMode === mode.value ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : ''}`}
+                            className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded-lg cursor-pointer hover:bg-secondary transition ${selectedAudioMode === mode.value ? 'bg-secondary' : ''}`}
                           >
-                            <mode.icon size={16} className={selectedAudioMode === mode.value ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'} />
-                            {mode.label}
-                            {selectedAudioMode === mode.value && <Check size={14} className="ml-auto text-green-600 dark:text-green-400" />}
+                            <mode.icon size={18} className={mode.color} />
+                            <span className="font-medium text-foreground whitespace-nowrap">{mode.label}</span>
                           </button>
                         ))}
                       </div>
@@ -5208,69 +5208,59 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <div className="flex items-center gap-1">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setSelectedAudioMode('Voiceover')}
-                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Voiceover' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
-                          >
-                            <Mic size={18} />
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <Box size={18} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Voiceover</p></TooltipContent>
+                        <TooltipContent><p>Products</p></TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setSelectedAudioMode('Clone')}
-                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Clone' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
-                          >
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
                             <User size={18} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Clone Voice</p></TooltipContent>
+                        <TooltipContent><p>Characters</p></TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setSelectedAudioMode('Revoice')}
-                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Revoice' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
-                          >
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
                             <span className="text-lg font-medium">文</span>
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Revoice / Translate</p></TooltipContent>
+                        <TooltipContent><p>Translate</p></TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setSelectedAudioMode('Sound Effects')}
-                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Sound Effects' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
-                          >
-                            <AudioLines size={18} />
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <Volume2 size={18} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Sound Effects</p></TooltipContent>
+                        <TooltipContent><p>Volume</p></TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setSelectedAudioMode('Music')}
-                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Music' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
-                          >
-                            <Music size={18} />
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <Headphones size={18} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Music</p></TooltipContent>
+                        <TooltipContent><p>Preview</p></TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setSelectedAudioMode('Transcribe')}
-                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Transcribe' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
-                          >
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
                             <Captions size={18} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Transcribe</p></TooltipContent>
+                        <TooltipContent><p>Captions</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <Mic size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Record</p></TooltipContent>
                       </Tooltip>
                     </div>
                   </TooltipProvider>
