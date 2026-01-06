@@ -5208,31 +5208,43 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <div className="flex items-center gap-1">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <Box size={18} />
+                          <button 
+                            onClick={() => setSelectedAudioMode('Voiceover')}
+                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Voiceover' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
+                          >
+                            <Mic size={18} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Products</p></TooltipContent>
+                        <TooltipContent><p>Voiceover</p></TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                          <button 
+                            onClick={() => setSelectedAudioMode('Clone')}
+                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Clone' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
+                          >
                             <User size={18} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Voice</p></TooltipContent>
+                        <TooltipContent><p>Clone Voice</p></TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                          <button 
+                            onClick={() => setSelectedAudioMode('Revoice')}
+                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Revoice' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
+                          >
                             <span className="text-lg font-medium">文</span>
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Translate</p></TooltipContent>
+                        <TooltipContent><p>Revoice / Translate</p></TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                          <button 
+                            onClick={() => setSelectedAudioMode('Sound Effects')}
+                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Sound Effects' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
+                          >
                             <AudioLines size={18} />
                           </button>
                         </TooltipTrigger>
@@ -5240,7 +5252,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                          <button 
+                            onClick={() => setSelectedAudioMode('Music')}
+                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Music' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
+                          >
                             <Music size={18} />
                           </button>
                         </TooltipTrigger>
@@ -5248,19 +5263,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                          <button 
+                            onClick={() => setSelectedAudioMode('Transcribe')}
+                            className={`p-2 rounded-lg transition ${selectedAudioMode === 'Transcribe' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'hover:bg-secondary text-muted-foreground hover:text-foreground'}`}
+                          >
                             <Captions size={18} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent><p>Transcribe</p></TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                            <Mic size={18} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Record</p></TooltipContent>
                       </Tooltip>
                     </div>
                   </TooltipProvider>
