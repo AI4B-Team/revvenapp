@@ -5299,9 +5299,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <TooltipTrigger asChild>
                             <button 
                               onClick={onCharactersClick}
-                              className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground"
+                              className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition text-muted-foreground hover:text-foreground"
                             >
-                              <CircleUser size={18} />
+                              <User size={18} />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent><p>Character</p></TooltipContent>
