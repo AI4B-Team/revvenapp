@@ -12,8 +12,9 @@ import {
   PinterestIcon, 
   YouTubeIcon, 
   BlueskyIcon,
-  RedditIcon,
-  SnapchatIcon
+  GoogleBusinessIcon,
+  EmailIcon,
+  BlogIcon
 } from '../SocialIcons';
 
 interface SocialPlatform {
@@ -45,6 +46,20 @@ const platforms: SocialPlatform[] = [
     available: true
   },
   { 
+    id: 'bluesky', 
+    name: 'Bluesky', 
+    description: 'Connect your Bluesky account to publish posts',
+    Icon: BlueskyIcon,
+    available: true
+  },
+  { 
+    id: 'tiktok', 
+    name: 'TikTok', 
+    description: 'Connect your TikTok account to schedule posts',
+    Icon: TikTokIcon,
+    available: true
+  },
+  { 
     id: 'linkedin', 
     name: 'LinkedIn', 
     description: 'Connect your LinkedIn Profile or Company account to publish posts',
@@ -59,17 +74,17 @@ const platforms: SocialPlatform[] = [
     available: true
   },
   { 
-    id: 'tiktok', 
-    name: 'TikTok', 
-    description: 'Connect your TikTok account to schedule posts',
-    Icon: TikTokIcon,
-    available: true
-  },
-  { 
     id: 'twitter', 
     name: 'X (Twitter)', 
     description: 'Connect your X account to schedule posts',
     Icon: XIcon,
+    available: true
+  },
+  { 
+    id: 'google-business', 
+    name: 'Google Business', 
+    description: 'Connect your Google Business Profile to publish posts',
+    Icon: GoogleBusinessIcon,
     available: true
   },
   { 
@@ -87,24 +102,17 @@ const platforms: SocialPlatform[] = [
     available: true
   },
   { 
-    id: 'bluesky', 
-    name: 'Bluesky', 
-    description: 'Connect your Bluesky account to publish posts',
-    Icon: BlueskyIcon,
+    id: 'email', 
+    name: 'Email', 
+    description: 'Connect your email service to send newsletters',
+    Icon: EmailIcon,
     available: true
   },
   { 
-    id: 'reddit', 
-    name: 'Reddit', 
-    description: 'Connect your Reddit account to publish posts',
-    Icon: RedditIcon,
-    available: true
-  },
-  { 
-    id: 'snapchat', 
-    name: 'Snapchat', 
-    description: 'Connect your Snapchat account to publish stories',
-    Icon: SnapchatIcon,
+    id: 'blog', 
+    name: 'Blog', 
+    description: 'Connect your blog platform to publish articles',
+    Icon: BlogIcon,
     available: true
   },
 ];
