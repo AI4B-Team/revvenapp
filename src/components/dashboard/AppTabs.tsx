@@ -40,6 +40,7 @@ interface AppTabsProps {
 
 const FAVORITES_KEY = 'app-favorites';
 const RECENT_KEY = 'app-recent';
+const OPEN_TABS_KEY = 'app-open-tabs';
 
 const AppTabs = ({ className = '' }: AppTabsProps) => {
   const navigate = useNavigate();
@@ -55,18 +56,34 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
     const saved = localStorage.getItem(RECENT_KEY);
     return saved ? JSON.parse(saved) : [];
   });
+  const [openTabs, setOpenTabs] = useState<string[]>(() => {
+    const saved = localStorage.getItem(OPEN_TABS_KEY);
+    return saved ? JSON.parse(saved) : [];
+  });
   
   // Find current app based on path
   const findCurrentApp = (): AppTab | null => {
     return allApps.find(app => location.pathname === app.path) || null;
   };
   
-  const [activeApp, setActiveApp] = useState<AppTab | null>(findCurrentApp);
+  const [activeAppId, setActiveAppId] = useState<string | null>(() => {
+    const currentApp = findCurrentApp();
+    return currentApp?.id || null;
+  });
   
   // Update active app when route changes
   useEffect(() => {
     const currentApp = findCurrentApp();
-    setActiveApp(currentApp);
+    if (currentApp) {
+      setActiveAppId(currentApp.id);
+      // Add to open tabs if not already there
+      setOpenTabs(prev => {
+        if (!prev.includes(currentApp.id)) {
+          return [...prev, currentApp.id];
+        }
+        return prev;
+      });
+    }
   }, [location.pathname]);
 
   // Save favorites to localStorage
@@ -79,8 +96,20 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
     localStorage.setItem(RECENT_KEY, JSON.stringify(recentApps));
   }, [recentApps]);
 
+  // Save open tabs to localStorage
+  useEffect(() => {
+    localStorage.setItem(OPEN_TABS_KEY, JSON.stringify(openTabs));
+  }, [openTabs]);
+
   const handleAppClick = (app: AppTab) => {
-    setActiveApp(app);
+    setActiveAppId(app.id);
+    // Add to open tabs if not already there (append to the right)
+    setOpenTabs(prev => {
+      if (!prev.includes(app.id)) {
+        return [...prev, app.id];
+      }
+      return prev;
+    });
     navigate(app.path);
     setIsDropdownOpen(false);
     setSearchQuery('');
@@ -92,10 +121,30 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
     });
   };
 
-  const handleCloseTab = (e: React.MouseEvent) => {
+  const handleCloseTab = (e: React.MouseEvent, appId: string) => {
     e.stopPropagation();
-    setActiveApp(null);
-    navigate('/apps');
+    setOpenTabs(prev => prev.filter(id => id !== appId));
+    
+    // If closing the active tab, navigate to the previous tab or dashboard
+    if (appId === activeAppId) {
+      const remainingTabs = openTabs.filter(id => id !== appId);
+      if (remainingTabs.length > 0) {
+        const lastTab = remainingTabs[remainingTabs.length - 1];
+        const app = allApps.find(a => a.id === lastTab);
+        if (app) {
+          setActiveAppId(app.id);
+          navigate(app.path);
+        }
+      } else {
+        setActiveAppId(null);
+        navigate('/dashboard');
+      }
+    }
+  };
+
+  const handleTabClick = (app: AppTab) => {
+    setActiveAppId(app.id);
+    navigate(app.path);
   };
 
   const toggleFavorite = (e: React.MouseEvent, appId: string) => {
@@ -114,6 +163,9 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
   const filteredApps = searchQuery 
     ? allApps.filter(app => app.label.toLowerCase().includes(searchQuery.toLowerCase()))
     : null;
+
+  // Get open tab apps in order
+  const openTabApps = openTabs.map(id => allApps.find(app => app.id === id)).filter(Boolean) as AppTab[];
 
   const renderAppButton = (app: AppTab, showPin = false) => {
     const Icon = app.icon;
@@ -151,21 +203,51 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
   return (
     <TooltipProvider delayDuration={100}>
       <div className={`flex items-center gap-1 ${className}`}>
-        {/* Show active app tab if one is selected */}
-        {activeApp && (
-          <button
-            onClick={() => handleAppClick(activeApp)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeApp.bgColor} ${activeApp.color} shadow-sm`}
-          >
-            <activeApp.icon size={16} />
-            <span>{activeApp.label}</span>
-            <X 
-              size={14} 
-              className="ml-1 hover:bg-white/20 rounded p-0.5 cursor-pointer"
-              onClick={handleCloseTab}
-            />
-          </button>
-        )}
+        {/* Render all open tabs */}
+        {openTabApps.map((app) => {
+          const isActive = app.id === activeAppId;
+          const Icon = app.icon;
+          
+          if (isActive) {
+            // Active tab: colored pill with label
+            return (
+              <button
+                key={app.id}
+                onClick={() => handleTabClick(app)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${app.bgColor} ${app.color} shadow-sm`}
+              >
+                <Icon size={16} />
+                <span>{app.label}</span>
+                <X 
+                  size={14} 
+                  className="ml-1 hover:bg-white/20 rounded p-0.5 cursor-pointer"
+                  onClick={(e) => handleCloseTab(e, app.id)}
+                />
+              </button>
+            );
+          } else {
+            // Inactive tab: icon-only square button
+            return (
+              <Tooltip key={app.id}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => handleTabClick(app)}
+                    className="relative p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 transition-colors text-slate-500 group"
+                  >
+                    <Icon size={18} />
+                    <button
+                      onClick={(e) => handleCloseTab(e, app.id)}
+                      className="absolute -top-1 -right-1 p-0.5 rounded-full bg-slate-200 hover:bg-slate-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={10} />
+                    </button>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{app.label}</TooltipContent>
+              </Tooltip>
+            );
+          }
+        })}
 
         {/* Add app button with dropdown */}
         <div className="relative">
