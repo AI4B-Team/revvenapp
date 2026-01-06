@@ -7676,12 +7676,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       {/* Social Platform Selection - Always visible in Content mode */}
       {isContentMode && (
-        <div className="mt-6 p-6 bg-card rounded-xl border-2 border-border shadow-sm" style={{ width: '100vw', maxWidth: '1400px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
+        <div className="mt-6 p-6 bg-card rounded-xl border-2 border-border shadow-sm" style={{ width: '100vw', maxWidth: '1600px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
           <p className="text-foreground font-semibold mb-6 text-center text-xl">
             Choose Your Platforms To Generate {contentDays} Days Of Content For Each One
           </p>
           
-          <div className="flex flex-wrap items-center justify-center gap-4 pb-2 px-2">
+          <div className="flex items-center justify-center gap-3 flex-nowrap overflow-x-auto pb-2 px-2">
             <button
               onClick={() => {
                 if (selectedPlatforms.length === socialPlatforms.length) {
@@ -7690,7 +7690,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   setSelectedPlatforms(socialPlatforms.map(p => p.id));
                 }
               }}
-              className={`px-5 py-2.5 rounded-xl text-base font-medium transition-all !whitespace-nowrap inline-flex items-center flex-shrink-0 ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all !whitespace-nowrap inline-flex items-center flex-shrink-0 ${
                 selectedPlatforms.length === socialPlatforms.length
                   ? 'bg-emerald-500 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -7702,25 +7702,25 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             {socialPlatforms.map(platform => {
               const isSelected = selectedPlatforms.includes(platform.id);
               const IconComponent = platform.Icon;
-              
+
               return (
                 <Tooltip key={platform.id}>
                   <TooltipTrigger asChild>
                     <button
                       onClick={() => {
-                        setSelectedPlatforms(prev => 
-                          prev.includes(platform.id) 
+                        setSelectedPlatforms(prev =>
+                          prev.includes(platform.id)
                             ? prev.filter(id => id !== platform.id)
                             : [...prev, platform.id]
                         );
                       }}
-                      className={`relative p-4 rounded-2xl transition-all border-2 flex-shrink-0 ${
+                      className={`relative p-3 rounded-2xl transition-all border-2 flex-shrink-0 ${
                         isSelected
                           ? 'bg-card shadow-lg border-emerald-500'
                           : 'bg-muted/50 hover:bg-muted border-transparent hover:border-emerald-500'
                       }`}
                     >
-                      <IconComponent className="w-10 h-10" />
+                      <IconComponent className="w-9 h-9" />
                       {isSelected && (
                         <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
                           <Check className="w-4 h-4 text-white" />
