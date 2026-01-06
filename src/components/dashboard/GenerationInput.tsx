@@ -340,13 +340,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   // Resizable prompt box (both directions)
-  // Keep a consistent default width across all categories (matches the widest prompt box design).
-  const DEFAULT_PROMPT_WIDTH = 1440;
+  // Responsive default widths: Mobile 340px, Tablet 520px, Desktop 800px (50rem)
+  const DEFAULT_PROMPT_WIDTH = 800;
 
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart, setHeight: setPromptHeight } = useResizableTextarea({
-    minHeight: 80,
+    minHeight: 180,
     maxHeight: 600,
-    initialHeight: 100,
+    initialHeight: 180,
     minWidth: DEFAULT_PROMPT_WIDTH,
     initialWidth: DEFAULT_PROMPT_WIDTH,
     maxWidth: 1920,
@@ -3394,7 +3394,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   const totalPromptBoxHeight = promptHeight + 120;
 
   return (
-    <div className="mx-auto mb-12 transition-all duration-300 w-full" style={{ maxWidth: 'calc(100% - 2rem)' }}>
+    <div className="mx-auto mb-12 transition-all duration-300 w-[340px] sm:w-[520px] md:w-[50rem]">
       <div ref={promptBoxRef} className="relative bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg" style={{ minHeight: totalPromptBoxHeight }}>
         <div className="flex items-start gap-3 mb-6" style={{ height: promptHeight }}>
           <div className="flex flex-col gap-2">
