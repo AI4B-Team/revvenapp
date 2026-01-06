@@ -1,14 +1,26 @@
 import React from 'react';
-import { X, ExternalLink, Chrome } from 'lucide-react';
+import { Chrome } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { 
+  InstagramIcon, 
+  FacebookIcon, 
+  LinkedInIcon, 
+  ThreadsIcon, 
+  TikTokIcon, 
+  XIcon, 
+  PinterestIcon, 
+  YouTubeIcon, 
+  BlueskyIcon,
+  RedditIcon,
+  SnapchatIcon
+} from '../SocialIcons';
 
 interface SocialPlatform {
   id: string;
   name: string;
   description: string;
-  icon: string;
-  color: string;
+  Icon: React.FC<{ className?: string }>;
   available: boolean;
 }
 
@@ -22,80 +34,77 @@ const platforms: SocialPlatform[] = [
     id: 'instagram-business', 
     name: 'Instagram Business', 
     description: 'Connect your Instagram Business account to publish posts',
-    icon: '📸',
-    color: 'bg-gradient-to-br from-purple-500 to-pink-500',
+    Icon: InstagramIcon,
     available: true
   },
   { 
     id: 'facebook', 
     name: 'Facebook', 
     description: 'Connect your Facebook Page to publish posts',
-    icon: '👍',
-    color: 'bg-blue-600',
+    Icon: FacebookIcon,
     available: true
   },
   { 
     id: 'linkedin', 
     name: 'LinkedIn', 
     description: 'Connect your LinkedIn Profile or Company account to publish posts',
-    icon: '💼',
-    color: 'bg-blue-700',
+    Icon: LinkedInIcon,
     available: true
   },
   { 
     id: 'threads', 
     name: 'Threads', 
     description: 'Connect your Threads account to schedule posts',
-    icon: '🧵',
-    color: 'bg-black',
+    Icon: ThreadsIcon,
     available: true
   },
   { 
     id: 'tiktok', 
     name: 'TikTok', 
     description: 'Connect your TikTok account to schedule posts',
-    icon: '🎵',
-    color: 'bg-black',
+    Icon: TikTokIcon,
     available: true
   },
   { 
     id: 'twitter', 
     name: 'X (Twitter)', 
     description: 'Connect your X account to schedule posts',
-    icon: '𝕏',
-    color: 'bg-black',
+    Icon: XIcon,
     available: true
   },
   { 
     id: 'pinterest', 
     name: 'Pinterest', 
     description: 'Connect your Pinterest Board to publish pins',
-    icon: '📌',
-    color: 'bg-red-600',
+    Icon: PinterestIcon,
     available: true
   },
   { 
     id: 'youtube', 
     name: 'YouTube', 
     description: 'Connect your YouTube Channel to publish videos and shorts',
-    icon: '▶️',
-    color: 'bg-red-500',
+    Icon: YouTubeIcon,
     available: true
   },
   { 
     id: 'bluesky', 
     name: 'Bluesky', 
     description: 'Connect your Bluesky account to publish posts',
-    icon: '🦋',
-    color: 'bg-sky-500',
+    Icon: BlueskyIcon,
     available: true
   },
   { 
-    id: 'google-profile', 
-    name: 'Google Profile', 
-    description: 'Connect your Google Profile account to publish posts',
-    icon: '🔍',
-    color: 'bg-green-500',
+    id: 'reddit', 
+    name: 'Reddit', 
+    description: 'Connect your Reddit account to publish posts',
+    Icon: RedditIcon,
+    available: true
+  },
+  { 
+    id: 'snapchat', 
+    name: 'Snapchat', 
+    description: 'Connect your Snapchat account to publish stories',
+    Icon: SnapchatIcon,
     available: true
   },
 ];
@@ -114,25 +123,28 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
         </DialogHeader>
         
         <div className="grid grid-cols-2 gap-3 py-4">
-          {platforms.map(platform => (
-            <button
-              key={platform.id}
-              onClick={() => handleConnect(platform.id)}
-              className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all text-left group"
-            >
-              <div className={`w-12 h-12 rounded-xl ${platform.color} flex items-center justify-center text-2xl`}>
-                {platform.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground group-hover:text-emerald-600 transition-colors">
-                  {platform.name}
-                </h3>
-                <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                  {platform.description}
-                </p>
-              </div>
-            </button>
-          ))}
+          {platforms.map(platform => {
+            const IconComponent = platform.Icon;
+            return (
+              <button
+                key={platform.id}
+                onClick={() => handleConnect(platform.id)}
+                className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all text-left group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center">
+                  <IconComponent className="w-7 h-7" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-foreground group-hover:text-emerald-600 transition-colors">
+                    {platform.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                    {platform.description}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
         </div>
         
         {/* Manual Publishing */}
@@ -140,8 +152,8 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
           <p className="text-sm text-muted-foreground mb-3">Manual publishing (reminders):</p>
           
           <button className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all text-left group w-full">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center text-2xl">
-              📷
+            <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center">
+              <InstagramIcon className="w-7 h-7" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
