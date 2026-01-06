@@ -4092,14 +4092,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           return <IconComponent size={16} className="text-emerald-600" />;
                         })()}
                         {selectedAnimateMode}
-                        <X 
-                          size={14} 
-                          className="ml-1 cursor-pointer hover:text-emerald-900"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onContentTypeChange?.('Image');
-                          }}
-                        />
+                        <ChevronDown size={14} className="ml-1" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-52 bg-background border-border z-50" align="start">
