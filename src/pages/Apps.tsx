@@ -152,6 +152,7 @@ const Apps = () => {
   ];
 
   const toolsApps = [
+    { name: 'Editor', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop', badge: 'PRO', onClick: () => navigate('/edit') },
     { name: 'Versus', category: 'LLM Tool', thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop', badge: 'LLM', onClick: () => navigate('/versus') },
     { name: 'Prompt Lab', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&h=300&fit=crop', badge: 'AI' },
     { name: 'Model Benchmark', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop' },
