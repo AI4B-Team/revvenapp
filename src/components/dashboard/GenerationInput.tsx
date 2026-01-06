@@ -7573,7 +7573,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             )}
           </div>
 
-          <div className="flex items-center gap-3 justify-end flex-nowrap shrink-0">
+          <div className="flex items-center gap-3 justify-end flex-nowrap shrink-0 ml-6">
             {getCurrentTextToEnhance().text.trim() && (
             <Popover>
               <TooltipProvider delayDuration={0}>
