@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaTwitter, FaVimeo } from "react-icons/fa";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
+import AIVASidePanel from "@/components/dashboard/AIVASidePanel";
 
 interface VideoInfo {
   title: string;
@@ -29,6 +30,7 @@ const VideoDownloader = () => {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
 
   const handleFetchVideo = async () => {
     if (!url.trim()) {
@@ -86,6 +88,8 @@ const VideoDownloader = () => {
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
         onCollapseChange={setIsSidebarCollapsed}
+        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        isAIVAPanelOpen={isAIVAPanelOpen}
       />
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
@@ -261,6 +265,11 @@ const VideoDownloader = () => {
           </div>
         </main>
       </div>
+      
+      <AIVASidePanel 
+        isOpen={isAIVAPanelOpen} 
+        onClose={() => setIsAIVAPanelOpen(false)}
+      />
     </div>
   );
 };
