@@ -119,11 +119,30 @@ interface AIVAPromptBoxProps {
   showGreeting?: boolean;
   greetingName?: string;
   showTagline?: boolean;
+  prompt?: string;
+  onPromptChange?: (prompt: string) => void;
+  selectedIntent?: Intent | null;
+  onIntentChange?: (intent: Intent | null) => void;
 }
 
-const AIVAPromptBox = ({ onGenerate, showGreeting = false, greetingName, showTagline = false }: AIVAPromptBoxProps) => {
-  const [prompt, setPrompt] = useState('');
-  const [intent, setIntent] = useState<Intent | null>(null);
+const AIVAPromptBox = ({ 
+  onGenerate, 
+  showGreeting = false, 
+  greetingName, 
+  showTagline = false,
+  prompt: externalPrompt,
+  onPromptChange,
+  selectedIntent: externalIntent,
+  onIntentChange,
+}: AIVAPromptBoxProps) => {
+  const [internalPrompt, setInternalPrompt] = useState('');
+  const [internalIntent, setInternalIntent] = useState<Intent | null>(null);
+  
+  // Use external state if provided, otherwise use internal
+  const prompt = externalPrompt !== undefined ? externalPrompt : internalPrompt;
+  const setPrompt = onPromptChange || setInternalPrompt;
+  const intent = externalIntent !== undefined ? externalIntent : internalIntent;
+  const setIntent = onIntentChange || setInternalIntent;
   const [selectedOption, setSelectedOption] = useState<AutoOption | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOption | null>(null);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
