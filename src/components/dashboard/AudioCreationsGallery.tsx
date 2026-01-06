@@ -304,13 +304,13 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
   }
 
   if (filteredItems.length === 0) {
-    const modeLabel = audioModeFilter || 'audio';
+    const modeLabel = audioModeFilter === 'Voiceover' ? 'Voiceover' : (audioModeFilter || 'audio');
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="w-16 h-16 rounded-full bg-brand-green/10 flex items-center justify-center mb-4">
           <Mic className="h-8 w-8 text-brand-green" />
         </div>
-        <h3 className="text-lg font-semibold mb-2">No {modeLabel.toLowerCase()} creations yet</h3>
+        <h3 className="text-lg font-semibold mb-2">No {modeLabel} Creations Yet</h3>
         <p className="text-muted-foreground text-sm max-w-md">
           Generate {modeLabel.toLowerCase()} to see them here
         </p>
