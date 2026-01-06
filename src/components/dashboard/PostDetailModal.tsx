@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { getPlatformIcon } from './SocialIcons';
+import ContentScoreBadge from './ContentScoreBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -410,6 +411,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
               }`}>
                 {post.status === 'scheduled' ? 'Scheduled' : post.status === 'published' ? 'Published' : 'Draft'}
               </span>
+            </div>
+
+            {/* Content Score */}
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-muted-foreground mb-3">Content Score</h4>
+              <ContentScoreBadge item={post} size="lg" showBreakdown />
             </div>
 
             {/* Schedule Info */}
