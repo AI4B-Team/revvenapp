@@ -37,11 +37,11 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
   const location = useLocation();
   
   // Find current app based on path
-  const findCurrentApp = () => {
-    return availableApps.find(app => location.pathname === app.path) || availableApps[0];
+  const findCurrentApp = (): AppTab | null => {
+    return availableApps.find(app => location.pathname === app.path) || null;
   };
   
-  const [activeApp, setActiveApp] = useState<AppTab>(findCurrentApp);
+  const [activeApp, setActiveApp] = useState<AppTab | null>(findCurrentApp);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
   // Update active app when route changes
@@ -58,62 +58,29 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
 
   const handleCloseTab = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Close current tab - navigate to apps page or default
+    // Close current tab - clear active app and navigate to apps page
+    setActiveApp(null);
     navigate('/apps');
   };
 
   return (
     <TooltipProvider delayDuration={100}>
       <div className={`flex items-center gap-1 ${className}`}>
-        {/* Icon buttons for quick access - show as inactive icons */}
-        {quickAccessApps.map((app) => {
-          const Icon = app.icon;
-          const isActive = activeApp.id === app.id;
-          
-          if (isActive) {
-            // Show expanded tab with label and close button
-            return (
-              <button
-                key={app.id}
-                onClick={() => handleAppClick(app)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${app.bgColor} ${app.color} shadow-sm`}
-              >
-                <Icon size={16} />
-                <span>{app.label}</span>
-                <X 
-                  size={14} 
-                  className="ml-1 hover:bg-white/20 rounded-full p-0.5 cursor-pointer"
-                  onClick={handleCloseTab}
-                />
-              </button>
-            );
-          }
-          
-          // Show as icon-only button
-          return (
-            <Tooltip key={app.id}>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => handleAppClick(app)}
-                  className="p-2.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-slate-500"
-                >
-                  <Icon size={18} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>{app.label}</TooltipContent>
-            </Tooltip>
-          );
-        })}
-
-        {/* Favorites heart button */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button className="p-2.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-slate-400">
-              <Heart size={18} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>Favorites</TooltipContent>
-        </Tooltip>
+        {/* Show active app tab if one is selected */}
+        {activeApp && (
+          <button
+            onClick={() => handleAppClick(activeApp)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${activeApp.bgColor} ${activeApp.color} shadow-sm`}
+          >
+            <activeApp.icon size={16} />
+            <span>{activeApp.label}</span>
+            <X 
+              size={14} 
+              className="ml-1 hover:bg-white/20 rounded-full p-0.5 cursor-pointer"
+              onClick={handleCloseTab}
+            />
+          </button>
+        )}
 
         {/* Add app button with dropdown */}
         <div className="relative">
