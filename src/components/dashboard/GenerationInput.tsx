@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2 } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -6166,108 +6166,204 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </PopoverContent>
                     </Popover>
 
-                    <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                          voiceoverLanguage !== 'English' ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
-                        }`}>
-                          {(() => {
-                            const langFlags: Record<string, string> = {
-                              'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
-                              'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
-                              'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
-                              'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
-                              'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
-                              'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
-                              'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
-                              'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
-                            };
-                            return langFlags[voiceoverLanguage] || '🌐';
-                          })()}{' '}
-                          {voiceoverLanguage}
-                          <ChevronDown size={14} />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-56 bg-background border-border z-50 p-0">
-                        <div className="p-2 border-b border-border">
-                          <div className="relative">
-                            <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                            <input
-                              type="text"
-                              placeholder="Search Languages..."
-                              className="w-full pl-7 pr-3 py-1.5 text-sm bg-muted rounded-md border-none outline-none focus:ring-2 focus:ring-emerald-500"
-                              onChange={(e) => {
-                                const searchInput = e.target.parentElement?.parentElement?.nextElementSibling;
-                                if (searchInput) {
-                                  const buttons = searchInput.querySelectorAll('button');
-                                  const query = e.target.value.toLowerCase();
-                                  buttons.forEach((btn) => {
-                                    const text = btn.textContent?.toLowerCase() || '';
-                                    (btn as HTMLElement).style.display = text.includes(query) ? 'flex' : 'none';
-                                  });
-                                }
-                              }}
-                            />
+                    {voiceoverLanguage === 'English' ? (
+                      <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                          <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
+                            <TooltipTrigger asChild>
+                              <PopoverTrigger asChild>
+                                <button className="p-2 rounded-lg text-sm font-medium transition flex items-center justify-center bg-secondary text-muted-foreground hover:brightness-90">
+                                  <Languages size={18} />
+                                </button>
+                              </PopoverTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                              <p>Language</p>
+                            </TooltipContent>
+                            <PopoverContent className="w-56 bg-background border-border z-50 p-0">
+                              <div className="p-2 border-b border-border">
+                                <div className="relative">
+                                  <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                                  <input
+                                    type="text"
+                                    placeholder="Search Languages..."
+                                    className="w-full pl-7 pr-3 py-1.5 text-sm bg-muted rounded-md border-none outline-none focus:ring-2 focus:ring-emerald-500"
+                                    onChange={(e) => {
+                                      const searchInput = e.target.parentElement?.parentElement?.nextElementSibling;
+                                      if (searchInput) {
+                                        const buttons = searchInput.querySelectorAll('button');
+                                        const query = e.target.value.toLowerCase();
+                                        buttons.forEach((btn) => {
+                                          const text = btn.textContent?.toLowerCase() || '';
+                                          (btn as HTMLElement).style.display = text.includes(query) ? 'flex' : 'none';
+                                        });
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="max-h-64 overflow-y-auto p-1">
+                                {[
+                                  { name: 'English', flag: '🇺🇸' },
+                                  { name: 'Spanish', flag: '🇪🇸' },
+                                  { name: 'French', flag: '🇫🇷' },
+                                  { name: 'German', flag: '🇩🇪' },
+                                  { name: 'Portuguese', flag: '🇵🇹' },
+                                  { name: 'Italian', flag: '🇮🇹' },
+                                  { name: 'Dutch', flag: '🇳🇱' },
+                                  { name: 'Russian', flag: '🇷🇺' },
+                                  { name: 'Chinese', flag: '🇨🇳' },
+                                  { name: 'Japanese', flag: '🇯🇵' },
+                                  { name: 'Korean', flag: '🇰🇷' },
+                                  { name: 'Arabic', flag: '🇸🇦' },
+                                  { name: 'Hindi', flag: '🇮🇳' },
+                                  { name: 'Bengali', flag: '🇧🇩' },
+                                  { name: 'Turkish', flag: '🇹🇷' },
+                                  { name: 'Vietnamese', flag: '🇻🇳' },
+                                  { name: 'Thai', flag: '🇹🇭' },
+                                  { name: 'Indonesian', flag: '🇮🇩' },
+                                  { name: 'Malay', flag: '🇲🇾' },
+                                  { name: 'Polish', flag: '🇵🇱' },
+                                  { name: 'Ukrainian', flag: '🇺🇦' },
+                                  { name: 'Greek', flag: '🇬🇷' },
+                                  { name: 'Czech', flag: '🇨🇿' },
+                                  { name: 'Romanian', flag: '🇷🇴' },
+                                  { name: 'Hungarian', flag: '🇭🇺' },
+                                  { name: 'Swedish', flag: '🇸🇪' },
+                                  { name: 'Norwegian', flag: '🇳🇴' },
+                                  { name: 'Danish', flag: '🇩🇰' },
+                                  { name: 'Finnish', flag: '🇫🇮' },
+                                  { name: 'Hebrew', flag: '🇮🇱' },
+                                  { name: 'Persian', flag: '🇮🇷' },
+                                  { name: 'Urdu', flag: '🇵🇰' },
+                                  { name: 'Tamil', flag: '🇮🇳' },
+                                  { name: 'Telugu', flag: '🇮🇳' },
+                                  { name: 'Tagalog', flag: '🇵🇭' },
+                                  { name: 'Swahili', flag: '🇰🇪' },
+                                  { name: 'Croatian', flag: '🇭🇷' },
+                                  { name: 'Slovak', flag: '🇸🇰' },
+                                  { name: 'Bulgarian', flag: '🇧🇬' },
+                                  { name: 'Catalan', flag: '🇪🇸' }
+                                ].map((lang) => (
+                                  <button 
+                                    key={lang.name}
+                                    onClick={() => {
+                                      setVoiceoverLanguage(lang.name);
+                                      setIsLanguagePopoverOpen(false);
+                                    }}
+                                    className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${voiceoverLanguage === lang.name ? 'bg-secondary' : ''}`}
+                                  >
+                                    <span>{lang.flag}</span>
+                                    {lang.name}
+                                  </button>
+                                ))}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                            {(() => {
+                              const langFlags: Record<string, string> = {
+                                'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
+                                'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
+                                'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
+                                'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
+                                'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
+                                'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
+                                'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
+                                'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
+                              };
+                              return langFlags[voiceoverLanguage] || '🌐';
+                            })()}{' '}
+                            {voiceoverLanguage}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 bg-background border-border z-50 p-0">
+                          <div className="p-2 border-b border-border">
+                            <div className="relative">
+                              <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                              <input
+                                type="text"
+                                placeholder="Search Languages..."
+                                className="w-full pl-7 pr-3 py-1.5 text-sm bg-muted rounded-md border-none outline-none focus:ring-2 focus:ring-emerald-500"
+                                onChange={(e) => {
+                                  const searchInput = e.target.parentElement?.parentElement?.nextElementSibling;
+                                  if (searchInput) {
+                                    const buttons = searchInput.querySelectorAll('button');
+                                    const query = e.target.value.toLowerCase();
+                                    buttons.forEach((btn) => {
+                                      const text = btn.textContent?.toLowerCase() || '';
+                                      (btn as HTMLElement).style.display = text.includes(query) ? 'flex' : 'none';
+                                    });
+                                  }
+                                }}
+                              />
+                            </div>
                           </div>
-                        </div>
-                        <div className="max-h-64 overflow-y-auto p-1">
-                          {[
-                            { name: 'English', flag: '🇺🇸' },
-                            { name: 'Spanish', flag: '🇪🇸' },
-                            { name: 'French', flag: '🇫🇷' },
-                            { name: 'German', flag: '🇩🇪' },
-                            { name: 'Portuguese', flag: '🇵🇹' },
-                            { name: 'Italian', flag: '🇮🇹' },
-                            { name: 'Dutch', flag: '🇳🇱' },
-                            { name: 'Russian', flag: '🇷🇺' },
-                            { name: 'Chinese', flag: '🇨🇳' },
-                            { name: 'Japanese', flag: '🇯🇵' },
-                            { name: 'Korean', flag: '🇰🇷' },
-                            { name: 'Arabic', flag: '🇸🇦' },
-                            { name: 'Hindi', flag: '🇮🇳' },
-                            { name: 'Bengali', flag: '🇧🇩' },
-                            { name: 'Turkish', flag: '🇹🇷' },
-                            { name: 'Vietnamese', flag: '🇻🇳' },
-                            { name: 'Thai', flag: '🇹🇭' },
-                            { name: 'Indonesian', flag: '🇮🇩' },
-                            { name: 'Malay', flag: '🇲🇾' },
-                            { name: 'Polish', flag: '🇵🇱' },
-                            { name: 'Ukrainian', flag: '🇺🇦' },
-                            { name: 'Greek', flag: '🇬🇷' },
-                            { name: 'Czech', flag: '🇨🇿' },
-                            { name: 'Romanian', flag: '🇷🇴' },
-                            { name: 'Hungarian', flag: '🇭🇺' },
-                            { name: 'Swedish', flag: '🇸🇪' },
-                            { name: 'Norwegian', flag: '🇳🇴' },
-                            { name: 'Danish', flag: '🇩🇰' },
-                            { name: 'Finnish', flag: '🇫🇮' },
-                            { name: 'Hebrew', flag: '🇮🇱' },
-                            { name: 'Persian', flag: '🇮🇷' },
-                            { name: 'Urdu', flag: '🇵🇰' },
-                            { name: 'Tamil', flag: '🇮🇳' },
-                            { name: 'Telugu', flag: '🇮🇳' },
-                            { name: 'Tagalog', flag: '🇵🇭' },
-                            { name: 'Swahili', flag: '🇰🇪' },
-                            { name: 'Croatian', flag: '🇭🇷' },
-                            { name: 'Slovak', flag: '🇸🇰' },
-                            { name: 'Bulgarian', flag: '🇧🇬' },
-                            { name: 'Catalan', flag: '🇪🇸' }
-                          ].map((lang) => (
-                            <button 
-                              key={lang.name}
-                              onClick={() => {
-                                setVoiceoverLanguage(lang.name);
-                                setIsLanguagePopoverOpen(false);
-                              }}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${voiceoverLanguage === lang.name ? 'bg-secondary' : ''}`}
-                            >
-                              <span>{lang.flag}</span>
-                              {lang.name}
-                            </button>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                          <div className="max-h-64 overflow-y-auto p-1">
+                            {[
+                              { name: 'English', flag: '🇺🇸' },
+                              { name: 'Spanish', flag: '🇪🇸' },
+                              { name: 'French', flag: '🇫🇷' },
+                              { name: 'German', flag: '🇩🇪' },
+                              { name: 'Portuguese', flag: '🇵🇹' },
+                              { name: 'Italian', flag: '🇮🇹' },
+                              { name: 'Dutch', flag: '🇳🇱' },
+                              { name: 'Russian', flag: '🇷🇺' },
+                              { name: 'Chinese', flag: '🇨🇳' },
+                              { name: 'Japanese', flag: '🇯🇵' },
+                              { name: 'Korean', flag: '🇰🇷' },
+                              { name: 'Arabic', flag: '🇸🇦' },
+                              { name: 'Hindi', flag: '🇮🇳' },
+                              { name: 'Bengali', flag: '🇧🇩' },
+                              { name: 'Turkish', flag: '🇹🇷' },
+                              { name: 'Vietnamese', flag: '🇻🇳' },
+                              { name: 'Thai', flag: '🇹🇭' },
+                              { name: 'Indonesian', flag: '🇮🇩' },
+                              { name: 'Malay', flag: '🇲🇾' },
+                              { name: 'Polish', flag: '🇵🇱' },
+                              { name: 'Ukrainian', flag: '🇺🇦' },
+                              { name: 'Greek', flag: '🇬🇷' },
+                              { name: 'Czech', flag: '🇨🇿' },
+                              { name: 'Romanian', flag: '🇷🇴' },
+                              { name: 'Hungarian', flag: '🇭🇺' },
+                              { name: 'Swedish', flag: '🇸🇪' },
+                              { name: 'Norwegian', flag: '🇳🇴' },
+                              { name: 'Danish', flag: '🇩🇰' },
+                              { name: 'Finnish', flag: '🇫🇮' },
+                              { name: 'Hebrew', flag: '🇮🇱' },
+                              { name: 'Persian', flag: '🇮🇷' },
+                              { name: 'Urdu', flag: '🇵🇰' },
+                              { name: 'Tamil', flag: '🇮🇳' },
+                              { name: 'Telugu', flag: '🇮🇳' },
+                              { name: 'Tagalog', flag: '🇵🇭' },
+                              { name: 'Swahili', flag: '🇰🇪' },
+                              { name: 'Croatian', flag: '🇭🇷' },
+                              { name: 'Slovak', flag: '🇸🇰' },
+                              { name: 'Bulgarian', flag: '🇧🇬' },
+                              { name: 'Catalan', flag: '🇪🇸' }
+                            ].map((lang) => (
+                              <button 
+                                key={lang.name}
+                                onClick={() => {
+                                  setVoiceoverLanguage(lang.name);
+                                  setIsLanguagePopoverOpen(false);
+                                }}
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${voiceoverLanguage === lang.name ? 'bg-secondary' : ''}`}
+                              >
+                                <span>{lang.flag}</span>
+                                {lang.name}
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
 
                     <Popover open={isAccentPopoverOpen} onOpenChange={setIsAccentPopoverOpen}>
                       <PopoverTrigger asChild>
