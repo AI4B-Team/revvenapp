@@ -214,7 +214,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         {/* App Tabs */}
         <AppTabs className="flex-1" />
 
-      <div className="flex items-center justify-end gap-1 md:gap-2">
+      <div className="flex items-center justify-end gap-1 md:gap-2 h-10">
         <TooltipProvider delayDuration={100}>
           <Tooltip>
             <TooltipTrigger asChild>
