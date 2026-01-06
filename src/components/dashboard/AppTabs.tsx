@@ -219,7 +219,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
               <button
                 key={app.id}
                 onClick={() => handleTabClick(app)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${app.bgColor} ${app.color} shadow-sm`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${app.bgColor} ${app.color}`}
               >
                 <Icon size={16} />
                 <span>{app.label}</span>
