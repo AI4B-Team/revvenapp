@@ -123,8 +123,8 @@ export const socialPlatforms = [
   { id: 'reddit', name: 'Reddit', Icon: RedditIcon },
   { id: 'snapchat', name: 'Snapchat', Icon: SnapchatIcon },
   { id: 'tumblr', name: 'Tumblr', Icon: TumblrIcon },
-  { id: 'email', name: 'Email', Icon: EmailIcon },
   { id: 'blog', name: 'Blog', Icon: BlogIcon },
+  { id: 'email', name: 'Email', Icon: EmailIcon },
 ];
 
 export const getPlatformIcon = (platformId: string, className?: string) => {
