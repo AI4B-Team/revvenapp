@@ -3397,7 +3397,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   const totalPromptBoxHeight = promptHeight + 120;
 
   return (
-    <div className="mx-auto mb-12 transition-all duration-300 w-[340px] sm:w-[580px] md:w-[62rem]">
+    <div className="mx-auto mb-12 transition-all duration-300 w-full max-w-[90rem] px-4 sm:px-6 md:px-8">
       <div ref={promptBoxRef} className="relative bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg" style={{ minHeight: totalPromptBoxHeight }}>
         <div className="flex items-start gap-3 mb-6" style={{ height: promptHeight }}>
           <div className="flex flex-col gap-2">
@@ -4079,8 +4079,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         )}
 
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-          <div className="flex items-center gap-3 flex-nowrap min-w-0 overflow-x-auto pb-1">
+        <div className="flex items-center justify-between gap-3 w-full">
+          <div className="flex items-center gap-2 flex-nowrap shrink-0">
             {isVideoMode ? (
               <>
                 {/* Video Mode Controls */}
@@ -5145,7 +5145,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 )}
 
                 {/* Buttons Row */}
-                <div className="flex items-center gap-2 min-w-[600px]">
+                <div className="flex items-center gap-2 flex-nowrap shrink-0">
                   {/* Audio Type Chip */}
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
                     <Music size={16} className="text-emerald-500" />
