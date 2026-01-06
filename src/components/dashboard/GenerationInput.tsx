@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -145,10 +145,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isAudioModelPopoverOpen, setIsAudioModelPopoverOpen] = useState(false);
   
   // Audio voiceover settings state
-  const [voiceoverLanguage, setVoiceoverLanguage] = useState('English');
-  const [voiceoverAccent, setVoiceoverAccent] = useState('American');
-  const [voiceoverSpeed, setVoiceoverSpeed] = useState('Normal');
-  const [voiceoverTone, setVoiceoverTone] = useState('Neutral');
+  const [voiceoverLanguage, setVoiceoverLanguage] = useState('');
+  const [voiceoverAccent, setVoiceoverAccent] = useState('');
+  const [voiceoverSpeed, setVoiceoverSpeed] = useState('');
+  const [voiceoverTone, setVoiceoverTone] = useState('');
   const [isLanguagePopoverOpen, setIsLanguagePopoverOpen] = useState(false);
   const [isAccentPopoverOpen, setIsAccentPopoverOpen] = useState(false);
   const [isSpeedPopoverOpen, setIsSpeedPopoverOpen] = useState(false);
@@ -6118,21 +6118,30 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                     <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
                       <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                          {(() => {
-                            const langFlags: Record<string, string> = {
-                              'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
-                              'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
-                              'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
-                              'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
-                              'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
-                              'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
-                              'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
-                              'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
-                            };
-                            return langFlags[voiceoverLanguage] || '🌐';
-                          })()}{' '}
-                          {voiceoverLanguage}
+                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                          {voiceoverLanguage ? (
+                            <>
+                              {(() => {
+                                const langFlags: Record<string, string> = {
+                                  'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
+                                  'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
+                                  'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
+                                  'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
+                                  'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
+                                  'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
+                                  'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
+                                  'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
+                                };
+                                return langFlags[voiceoverLanguage] || '🌐';
+                              })()}{' '}
+                              {voiceoverLanguage}
+                            </>
+                          ) : (
+                            <>
+                              <Globe size={14} />
+                              Language
+                            </>
+                          )}
                           <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
@@ -6217,125 +6226,130 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </PopoverContent>
                     </Popover>
 
-                    <TooltipProvider>
-                      <Tooltip>
-                        <Popover open={isAccentPopoverOpen} onOpenChange={setIsAccentPopoverOpen}>
-                          <TooltipTrigger asChild>
-                            <PopoverTrigger asChild>
-                              <button className={`${voiceoverAccent === 'American' ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
-                                <AudioLines size={14} />
-                                {voiceoverAccent !== 'American' && (
-                                  <>
-                                    {voiceoverAccent}
-                                    <ChevronDown size={14} />
-                                  </>
-                                )}
-                              </button>
-                            </PopoverTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Accent</p>
-                          </TooltipContent>
-                          <PopoverContent className="w-48 bg-background border-border z-50">
-                            <div className="space-y-1">
-                              {['American', 'British', 'Australian', 'Irish', 'Scottish', 'Indian', 'South African', 'Neutral'].map((accent) => (
-                                <button 
-                                  key={accent}
-                                  onClick={() => {
-                                    setVoiceoverAccent(accent);
-                                    setIsAccentPopoverOpen(false);
-                                  }}
-                                  className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverAccent === accent ? 'bg-brand-green/10 font-medium' : ''}`}
-                                >
-                                  {accent}
-                                  {voiceoverAccent === accent && <Check size={14} className="text-brand-green" />}
-                                </button>
-                              ))}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </Tooltip>
-                    </TooltipProvider>
+                    {/* Only show other buttons after Language is selected */}
+                    {voiceoverLanguage && (
+                      <>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <Popover open={isAccentPopoverOpen} onOpenChange={setIsAccentPopoverOpen}>
+                              <TooltipTrigger asChild>
+                                <PopoverTrigger asChild>
+                                  <button className={`${!voiceoverAccent ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
+                                    <AudioLines size={14} />
+                                    {voiceoverAccent && (
+                                      <>
+                                        {voiceoverAccent}
+                                        <ChevronDown size={14} />
+                                      </>
+                                    )}
+                                  </button>
+                                </PopoverTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Accent</p>
+                              </TooltipContent>
+                              <PopoverContent className="w-48 bg-background border-border z-50">
+                                <div className="space-y-1">
+                                  {['American', 'British', 'Australian', 'Irish', 'Scottish', 'Indian', 'South African', 'Neutral'].map((accent) => (
+                                    <button 
+                                      key={accent}
+                                      onClick={() => {
+                                        setVoiceoverAccent(accent);
+                                        setIsAccentPopoverOpen(false);
+                                      }}
+                                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverAccent === accent ? 'bg-brand-green/10 font-medium' : ''}`}
+                                    >
+                                      {accent}
+                                      {voiceoverAccent === accent && <Check size={14} className="text-brand-green" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </Tooltip>
+                        </TooltipProvider>
 
-                    <TooltipProvider>
-                      <Tooltip>
-                        <Popover open={isSpeedPopoverOpen} onOpenChange={setIsSpeedPopoverOpen}>
-                          <TooltipTrigger asChild>
-                            <PopoverTrigger asChild>
-                              <button className={`${voiceoverSpeed === 'Normal' ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
-                                <Clock size={14} />
-                                {voiceoverSpeed !== 'Normal' && (
-                                  <>
-                                    {voiceoverSpeed}
-                                    <ChevronDown size={14} />
-                                  </>
-                                )}
-                              </button>
-                            </PopoverTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Speed</p>
-                          </TooltipContent>
-                          <PopoverContent className="w-48 bg-background border-border z-50">
-                            <div className="space-y-1">
-                              {['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'].map((speed) => (
-                                <button 
-                                  key={speed}
-                                  onClick={() => {
-                                    setVoiceoverSpeed(speed);
-                                    setIsSpeedPopoverOpen(false);
-                                  }}
-                                  className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverSpeed === speed ? 'bg-brand-green/10 font-medium' : ''}`}
-                                >
-                                  {speed}
-                                  {voiceoverSpeed === speed && <Check size={14} className="text-brand-green" />}
-                                </button>
-                              ))}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </Tooltip>
-                    </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <Popover open={isSpeedPopoverOpen} onOpenChange={setIsSpeedPopoverOpen}>
+                              <TooltipTrigger asChild>
+                                <PopoverTrigger asChild>
+                                  <button className={`${!voiceoverSpeed ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
+                                    <Clock size={14} />
+                                    {voiceoverSpeed && (
+                                      <>
+                                        {voiceoverSpeed}
+                                        <ChevronDown size={14} />
+                                      </>
+                                    )}
+                                  </button>
+                                </PopoverTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Speed</p>
+                              </TooltipContent>
+                              <PopoverContent className="w-48 bg-background border-border z-50">
+                                <div className="space-y-1">
+                                  {['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'].map((speed) => (
+                                    <button 
+                                      key={speed}
+                                      onClick={() => {
+                                        setVoiceoverSpeed(speed);
+                                        setIsSpeedPopoverOpen(false);
+                                      }}
+                                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverSpeed === speed ? 'bg-brand-green/10 font-medium' : ''}`}
+                                    >
+                                      {speed}
+                                      {voiceoverSpeed === speed && <Check size={14} className="text-brand-green" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </Tooltip>
+                        </TooltipProvider>
 
-                    <TooltipProvider>
-                      <Tooltip>
-                        <Popover open={isTonePopoverOpen} onOpenChange={setIsTonePopoverOpen}>
-                          <TooltipTrigger asChild>
-                            <PopoverTrigger asChild>
-                              <button className={`${voiceoverTone === 'Neutral' ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
-                                <SlidersHorizontal size={14} />
-                                {voiceoverTone !== 'Neutral' && (
-                                  <>
-                                    {voiceoverTone}
-                                    <ChevronDown size={14} />
-                                  </>
-                                )}
-                              </button>
-                            </PopoverTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Tone</p>
-                          </TooltipContent>
-                          <PopoverContent className="w-48 bg-background border-border z-50">
-                            <div className="space-y-1">
-                              {['Neutral', 'Friendly', 'Professional', 'Enthusiastic', 'Calm', 'Serious', 'Playful'].map((tone) => (
-                                <button 
-                                  key={tone}
-                                  onClick={() => {
-                                    setVoiceoverTone(tone);
-                                    setIsTonePopoverOpen(false);
-                                  }}
-                                  className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverTone === tone ? 'bg-brand-green/10 font-medium' : ''}`}
-                                >
-                                  {tone}
-                                  {voiceoverTone === tone && <Check size={14} className="text-brand-green" />}
-                                </button>
-                              ))}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </Tooltip>
-                    </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <Popover open={isTonePopoverOpen} onOpenChange={setIsTonePopoverOpen}>
+                              <TooltipTrigger asChild>
+                                <PopoverTrigger asChild>
+                                  <button className={`${!voiceoverTone ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
+                                    <SlidersHorizontal size={14} />
+                                    {voiceoverTone && (
+                                      <>
+                                        {voiceoverTone}
+                                        <ChevronDown size={14} />
+                                      </>
+                                    )}
+                                  </button>
+                                </PopoverTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Tone</p>
+                              </TooltipContent>
+                              <PopoverContent className="w-48 bg-background border-border z-50">
+                                <div className="space-y-1">
+                                  {['Neutral', 'Friendly', 'Professional', 'Enthusiastic', 'Calm', 'Serious', 'Playful'].map((tone) => (
+                                    <button 
+                                      key={tone}
+                                      onClick={() => {
+                                        setVoiceoverTone(tone);
+                                        setIsTonePopoverOpen(false);
+                                      }}
+                                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverTone === tone ? 'bg-brand-green/10 font-medium' : ''}`}
+                                    >
+                                      {tone}
+                                      {voiceoverTone === tone && <Check size={14} className="text-brand-green" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </>
+                    )}
                   </>
                 ) : null}
                 </div>
