@@ -11,7 +11,7 @@ import type { Intent } from '@/components/IntentSelector';
 
 const LandingNew = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [selectedIntent, setSelectedIntent] = useState<Intent | null>('Create');
+  const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
   const [prompt, setPrompt] = useState('');
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();

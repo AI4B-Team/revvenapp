@@ -14,7 +14,7 @@ const Assistant = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [userName, setUserName] = useState('');
   const [prompt, setPrompt] = useState('');
-  const [selectedIntent, setSelectedIntent] = useState<Intent | null>('Create');
+  const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
 
   // Get user profile
   useEffect(() => {
