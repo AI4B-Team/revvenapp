@@ -154,6 +154,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
   const handleTabClick = (app: AppTab) => {
     setActiveAppId(app.id);
     navigate(app.path);
+    window.scrollTo(0, 0);
   };
 
   const handleToggleFavorite = (e: React.MouseEvent, appId: string) => {
