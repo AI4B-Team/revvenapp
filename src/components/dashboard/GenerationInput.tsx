@@ -4082,42 +4082,48 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <>
                 {/* Video Mode Controls */}
                 <TooltipProvider>
-                  {/* Animate Mode Dropdown */}
-                  <Popover open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen} modal={false}>
-                    <PopoverTrigger asChild>
-                      <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                  {/* Animate Mode Dropdown - Green chip style */}
+                  <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition">
                         {(() => {
                           const mode = animateModes.find(m => m.value === selectedAnimateMode);
                           const IconComponent = mode?.icon || Play;
-                          return <IconComponent size={16} />;
+                          return <IconComponent size={16} className="text-emerald-600" />;
                         })()}
                         {selectedAnimateMode}
-                        <ChevronDown size={14} />
+                        <X 
+                          size={14} 
+                          className="ml-1 cursor-pointer hover:text-emerald-900"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onContentTypeChange?.('Image');
+                          }}
+                        />
                       </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-52 p-2 bg-background border-border z-50" align="start">
-                      <div className="space-y-1">
-                        {animateModes.map((mode) => {
-                          const IconComponent = mode.icon;
-                          return (
-                            <button
-                              key={mode.value}
-                              onClick={() => {
-                                setSelectedAnimateMode(mode.value);
-                                setIsAnimateModeDropdownOpen(false);
-                              }}
-                              className={`w-full text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
-                                selectedAnimateMode === mode.value ? 'bg-secondary' : ''
-                              }`}
-                            >
-                              <IconComponent size={16} />
-                              {mode.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-52 bg-background border-border z-50" align="start">
+                      {animateModes.map((mode) => {
+                        const IconComponent = mode.icon;
+                        return (
+                          <DropdownMenuItem
+                            key={mode.value}
+                            onClick={() => {
+                              setSelectedAnimateMode(mode.value);
+                              setIsAnimateModeDropdownOpen(false);
+                            }}
+                            className={`flex items-center gap-2 ${
+                              selectedAnimateMode === mode.value ? 'text-primary font-medium' : ''
+                            }`}
+                          >
+                            <IconComponent size={16} />
+                            {mode.label}
+                            {selectedAnimateMode === mode.value && <Check size={14} className="ml-auto" />}
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
                   {(selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') ? (
                     <>
@@ -4813,45 +4819,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </>
                   ) : (
                     <>
-                      {/* Standard Video Mode Controls - Redesigned with icon-only buttons */}
-                      
-                      {/* Animate Mode Dropdown - Green chip style */}
-                      <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
-                        <DropdownMenuTrigger asChild>
-                          <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition">
-                            {(() => {
-                              const mode = animateModes.find(m => m.value === selectedAnimateMode);
-                              const Icon = mode?.icon || Play;
-                              return <Icon size={16} className="text-emerald-600" />;
-                            })()}
-                            {selectedAnimateMode}
-                            <X 
-                              size={14} 
-                              className="ml-1 cursor-pointer hover:text-emerald-900"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onContentTypeChange?.('Image');
-                              }}
-                            />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-48 bg-background border-border z-50">
-                          {animateModes.map((mode) => (
-                            <DropdownMenuItem
-                              key={mode.value}
-                              onClick={() => {
-                                setSelectedAnimateMode(mode.value);
-                                setIsAnimateModeDropdownOpen(false);
-                              }}
-                              className={`flex items-center gap-2 ${selectedAnimateMode === mode.value ? 'text-primary font-medium' : ''}`}
-                            >
-                              <mode.icon size={16} />
-                              {mode.label}
-                              {selectedAnimateMode === mode.value && <Check size={14} className="ml-auto" />}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {/* Standard Video Mode Controls - Icon buttons only */}
                       
                       {/* Separator */}
                       <div className="w-px h-8 bg-slate-200 mx-1" />
