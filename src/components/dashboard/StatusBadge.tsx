@@ -20,10 +20,10 @@ const statusConfig: Record<string, {
   draft: {
     label: 'Draft',
     icon: FileEdit,
-    bg: 'bg-slate-100',
-    text: 'text-slate-600',
-    darkBg: 'dark:bg-slate-800/50',
-    darkText: 'dark:text-slate-400',
+    bg: 'bg-slate-200',
+    text: 'text-slate-700',
+    darkBg: 'dark:bg-slate-700/60',
+    darkText: 'dark:text-slate-300',
   },
   scheduled: {
     label: 'Scheduled',
