@@ -347,9 +347,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const DEFAULT_PROMPT_WIDTH = 800;
 
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart, setHeight: setPromptHeight } = useResizableTextarea({
-    minHeight: 120,
+    minHeight: 168,
     maxHeight: 600,
-    initialHeight: 120,
+    initialHeight: 168,
     minWidth: DEFAULT_PROMPT_WIDTH,
     initialWidth: DEFAULT_PROMPT_WIDTH,
     maxWidth: 1920,
