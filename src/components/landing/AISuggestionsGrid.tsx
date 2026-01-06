@@ -131,14 +131,14 @@ const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrev}
-              className="p-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
               aria-label="Previous suggestions"
             >
               <ChevronLeft size={16} className="text-slate-600" />
             </button>
             <button
               onClick={handleNext}
-              className="p-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
               aria-label="Next suggestions"
             >
               <ChevronRight size={16} className="text-slate-600" />
