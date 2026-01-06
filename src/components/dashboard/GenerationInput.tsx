@@ -7681,7 +7681,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             Choose Your Platforms To Generate {contentDays} Days Of Content For Each One
           </p>
           
-          <div className="flex items-center justify-center gap-4 flex-nowrap overflow-x-auto pb-2">
+          <div className="flex flex-wrap items-center justify-center gap-4 pb-2 px-2">
             <button
               onClick={() => {
                 if (selectedPlatforms.length === socialPlatforms.length) {
@@ -7690,7 +7690,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   setSelectedPlatforms(socialPlatforms.map(p => p.id));
                 }
               }}
-              className={`px-5 py-2.5 rounded-xl text-base font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`px-5 py-2.5 rounded-xl text-base font-medium transition-all !whitespace-nowrap inline-flex items-center flex-shrink-0 ${
                 selectedPlatforms.length === socialPlatforms.length
                   ? 'bg-emerald-500 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
