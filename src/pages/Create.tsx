@@ -19,7 +19,7 @@ import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
 import CollectionsView from '@/components/dashboard/CollectionsView';
-import AppTabs from '@/components/dashboard/AppTabs';
+
 import SocialContentCalendar from '@/components/dashboard/SocialContentCalendar';
 import { socialPlatforms } from '@/components/dashboard/SocialIcons';
 import { supabase } from '@/integrations/supabase/client';
@@ -601,7 +601,6 @@ const Create = () => {
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
-        <AppTabs />
         
         {/* Show Image Editing Canvas when in edit mode */}
         {isEditMode ? (
@@ -618,7 +617,7 @@ const Create = () => {
             }}
           />
         ) : (
-          <main className="flex-1 overflow-auto bg-white">
+          <main className="flex-1 overflow-auto bg-slate-50">
           <div className="px-8 py-8">
             <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
             
