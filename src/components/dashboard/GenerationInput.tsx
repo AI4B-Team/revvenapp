@@ -4105,8 +4105,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-4 w-full overflow-hidden">
-          <div className="flex items-center gap-2 flex-wrap flex-shrink min-w-0 overflow-x-auto">
+        <div className="flex items-center justify-between gap-4 w-full">
+          <div className="flex items-center gap-2 flex-nowrap flex-shrink-0">
             {isVideoMode ? (
               <>
                 {/* Video Mode Controls */}
