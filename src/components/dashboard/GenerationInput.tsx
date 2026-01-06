@@ -5258,17 +5258,34 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </PopoverContent>
                     </Popover>
                   )}
+
+                  {/* Auto Button */}
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm font-medium hover:bg-secondary/80 transition">
+                    <Sparkles size={16} />
+                    Auto
+                  </button>
                   
                   {/* Separator */}
                   <div className="w-px h-6 bg-border mx-1" />
 
-                  {/* Audio Icon Buttons */}
+                  {/* Audio Icon Buttons - styled to match reference */}
                   <TooltipProvider>
                     <div className="flex items-center gap-1">
+                      {/* Pencil - Edit/Script */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition text-muted-foreground hover:text-foreground">
+                            <Pencil size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Edit Script</p></TooltipContent>
+                      </Tooltip>
+
+                      {/* Character Button */}
                       {voiceoverCharacter ? (
                         <Popover open={isVoiceoverCharacterPopoverOpen} onOpenChange={setIsVoiceoverCharacterPopoverOpen}>
                           <PopoverTrigger asChild>
-                            <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-brand-blue/15 text-muted-foreground hover:brightness-90">
+                            <button className="px-3 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-brand-blue/15 text-muted-foreground hover:brightness-90">
                               {voiceoverCharacter.name}
                               <ChevronDown size={14} />
                             </button>
@@ -5291,7 +5308,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <TooltipTrigger asChild>
                             <button 
                               onClick={onCharactersClick}
-                              className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition text-muted-foreground hover:text-foreground"
+                              className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition text-muted-foreground hover:text-foreground"
                             >
                               <User size={18} />
                             </button>
@@ -5299,6 +5316,46 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <TooltipContent><p>Character</p></TooltipContent>
                         </Tooltip>
                       )}
+
+                      {/* Link Button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition text-muted-foreground hover:text-foreground">
+                            <Link size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Add Link</p></TooltipContent>
+                      </Tooltip>
+
+                      {/* Copy Button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition text-muted-foreground hover:text-foreground">
+                            <Copy size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Copy</p></TooltipContent>
+                      </Tooltip>
+
+                      {/* Hash/Tags Button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition text-muted-foreground hover:text-foreground">
+                            <Hash size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Tags</p></TooltipContent>
+                      </Tooltip>
+
+                      {/* Mic Button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition text-muted-foreground hover:text-foreground">
+                            <Mic size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Record</p></TooltipContent>
+                      </Tooltip>
                     </div>
                   </TooltipProvider>
 
