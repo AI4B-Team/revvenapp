@@ -7062,7 +7062,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button
                   onClick={() => setIsStylesModalOpen(true)}
-                  className={`p-2.5 rounded-lg transition-colors text-muted-foreground ${
+                  className={`p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 ${
                     selectedStyle || isStylesModalOpen
                       ? 'bg-brand-purple/15'
                       : 'bg-secondary'
@@ -7079,7 +7079,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button 
                   onClick={onCharactersClick}
-                  className={`p-2.5 rounded-lg transition-colors text-muted-foreground ${
+                  className={`p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 ${
                     activeCharacters.length > 0 || isCharactersModalOpen
                       ? 'bg-brand-blue/15'
                       : 'bg-secondary'
@@ -7096,7 +7096,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <TooltipTrigger asChild>
                 <button
                   onClick={onReferencesClick}
-                  className={`p-2.5 rounded-lg transition-colors text-muted-foreground ${
+                  className={`p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 ${
                     activeReferences.length > 0 || isReferencesModalOpen
                       ? 'bg-brand-green/15'
                       : 'bg-secondary'
@@ -7174,7 +7174,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`${selectedAspectRatio !== '1:1' ? 'px-3 py-2' : 'p-2.5'} rounded-lg transition-colors text-muted-foreground flex items-center gap-2 ${
+                    <button className={`${selectedAspectRatio !== '1:1' ? 'px-3 py-2' : 'p-2.5'} rounded-lg transition-colors text-muted-foreground hover:brightness-90 flex items-center gap-2 ${
                       isAspectRatioDropdownOpen || selectedAspectRatio !== '1:1'
                         ? 'bg-brand-yellow/15'
                         : 'bg-secondary'
@@ -7294,7 +7294,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <Tooltip>
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
-                    <button className={`${numberOfImages !== 1 ? 'px-3 py-2' : 'p-2.5'} rounded-lg transition-colors text-muted-foreground flex items-center gap-2 ${
+                    <button className={`${numberOfImages !== 1 ? 'px-3 py-2' : 'p-2.5'} rounded-lg transition-colors text-muted-foreground hover:brightness-90 flex items-center gap-2 ${
                       isNumberOfImagesDropdownOpen || numberOfImages !== 1
                         ? 'bg-brand-red/15'
                         : 'bg-secondary'
