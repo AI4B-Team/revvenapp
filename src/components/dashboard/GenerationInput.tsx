@@ -5259,12 +5259,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </Popover>
                   )}
 
-                  {/* Auto Button */}
-                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-muted-foreground text-sm font-medium hover:bg-secondary/80 transition">
-                    <Sparkles size={16} />
-                    Auto
-                  </button>
-                  
                   {/* Separator after Voiceover */}
                   <div className="w-px h-6 bg-border mx-1" />
 
