@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut
+  Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut, Star
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import AppCard from '@/components/dashboard/AppCard';
+import { useFavoriteApps } from '@/hooks/useFavoriteApps';
 
 const Apps = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Apps = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavoriteApps();
 
   const trendingApps = [
     {
@@ -220,34 +222,52 @@ const Apps = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                  {trendingApps.map((app) => (
-                    <div
-                      key={app.id}
-                      onClick={app.onClick}
-                      className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer border border-border"
-                    >
-                      <div className="relative aspect-[4/3]">
-                        <img
-                          src={app.image}
-                          alt={app.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        {app.badge && (
-                          <div className={`absolute top-4 left-4 ${app.badgeColor} text-black font-bold text-xs px-3 py-1 rounded-full`}>
-                            {app.badge}
-                          </div>
-                        )}
+                  {trendingApps.map((app) => {
+                    const appId = app.name.toLowerCase().replace(/\s+/g, '-');
+                    const favorited = isFavorite(appId);
+                    return (
+                      <div
+                        key={app.id}
+                        onClick={app.onClick}
+                        className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer border border-border"
+                      >
+                        <div className="relative aspect-[4/3]">
+                          <img
+                            src={app.image}
+                            alt={app.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          {app.badge && (
+                            <div className={`absolute top-4 left-4 ${app.badgeColor} text-black font-bold text-xs px-3 py-1 rounded-full`}>
+                              {app.badge}
+                            </div>
+                          )}
+                          {/* Star Favorite Overlay */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(appId);
+                            }}
+                            className={`absolute bottom-3 right-3 p-1.5 rounded-full transition-all ${
+                              favorited 
+                                ? 'bg-amber-500 text-white' 
+                                : 'bg-black/50 text-white opacity-0 group-hover:opacity-100'
+                            } hover:scale-110`}
+                          >
+                            <Star size={14} className={favorited ? 'fill-current' : ''} />
+                          </button>
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-bold text-lg mb-2 text-foreground">{app.name}</h3>
+                          <p className="text-muted-foreground text-sm mb-4">{app.description}</p>
+                          <button className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <Play size={16} fill="currentColor" />
+                            <span>Try Now</span>
+                          </button>
+                        </div>
                       </div>
-                      <div className="p-4">
-                        <h3 className="font-bold text-lg mb-2 text-foreground">{app.name}</h3>
-                        <p className="text-muted-foreground text-sm mb-4">{app.description}</p>
-                        <button className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                          <Play size={16} fill="currentColor" />
-                          <span>Try Now</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
 
@@ -265,18 +285,36 @@ const Apps = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {topPicks.map((app) => (
-                    <div
-                      key={app.id}
-                      className="bg-card rounded-2xl p-6 hover:shadow-xl hover:scale-105 transition-all cursor-pointer border border-border"
-                    >
-                      <div className={`w-12 h-12 ${app.color} rounded-xl flex items-center justify-center text-2xl mb-4`}>
-                        {app.icon}
+                  {topPicks.map((app) => {
+                    const appId = app.name.toLowerCase().replace(/\s+/g, '-');
+                    const favorited = isFavorite(appId);
+                    return (
+                      <div
+                        key={app.id}
+                        className="group relative bg-card rounded-2xl p-6 hover:shadow-xl hover:scale-105 transition-all cursor-pointer border border-border"
+                      >
+                        {/* Star Favorite Overlay */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(appId);
+                          }}
+                          className={`absolute top-3 right-3 p-1.5 rounded-full transition-all ${
+                            favorited 
+                              ? 'bg-amber-500 text-white' 
+                              : 'bg-muted text-muted-foreground opacity-0 group-hover:opacity-100'
+                          } hover:scale-110`}
+                        >
+                          <Star size={14} className={favorited ? 'fill-current' : ''} />
+                        </button>
+                        <div className={`w-12 h-12 ${app.color} rounded-xl flex items-center justify-center text-2xl mb-4`}>
+                          {app.icon}
+                        </div>
+                        <h3 className="font-bold mb-1 text-foreground">{app.name}</h3>
+                        <p className="text-muted-foreground text-sm">{app.description}</p>
                       </div>
-                      <h3 className="font-bold mb-1 text-foreground">{app.name}</h3>
-                      <p className="text-muted-foreground text-sm">{app.description}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
 
