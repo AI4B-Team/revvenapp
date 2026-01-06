@@ -352,7 +352,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
             ) : item.status === 'error' ? (
               <div className="flex flex-col items-center gap-2 text-destructive">
                 <Mic className="h-8 w-8" />
-                <p className="text-sm">Generation failed</p>
+                <p className="text-sm">Generation Failed</p>
               </div>
             ) : (
               <>
