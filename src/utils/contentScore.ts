@@ -27,12 +27,15 @@ interface ContentScoreResult {
   label: 'Poor' | 'Fair' | 'Good' | 'Great' | 'Excellent';
   color: string;
   suggestions: ScoreSuggestion[];
+  insight: string;
+  biggestOpportunity: 'caption' | 'hashtags' | 'contentType' | 'media';
 }
 
 interface ScoreSuggestion {
   category: 'caption' | 'hashtags' | 'contentType' | 'media';
   message: string;
   priority: 'high' | 'medium' | 'low';
+  action?: string;
 }
 
 function calculateCaptionScore(caption?: string, title?: string): { score: number; suggestions: ScoreSuggestion[] } {
@@ -177,19 +180,27 @@ function calculateMediaScore(item: ContentItem): { score: number; suggestions: S
   if (item.imageUrl) {
     score += 50;
   } else {
-    suggestions.push({ category: 'media', message: 'Add an image or video to your post', priority: 'high' });
+    suggestions.push({ category: 'media', message: 'Add an image or video to your post', priority: 'high', action: 'Add media' });
   }
   
   if (item.carouselImages && item.carouselImages.length > 0) {
     score += 20 + Math.min(item.carouselImages.length * 5, 20);
+  } else if (item.imageUrl && !item.videoScript) {
+    suggestions.push({ category: 'media', message: 'Try a carousel for 2-3x more engagement', priority: 'medium', action: 'Convert to carousel' });
   }
   
   if (item.videoScript) {
     score += 30;
+  } else if (item.imageUrl) {
+    suggestions.push({ category: 'media', message: 'Short videos get 48% more views', priority: 'low', action: 'Try short video' });
   }
   
   if (item.type === 'reel') {
     score += 10;
+  }
+  
+  if (score > 0 && score < 70) {
+    suggestions.push({ category: 'media', message: 'Add text overlay to boost saves', priority: 'low', action: 'Add text overlay' });
   }
   
   if (score === 0) {
@@ -260,6 +271,25 @@ export function calculateContentScore(item: ContentItem): ContentScoreResult {
     mediaResult.score * weights.media
   );
   
+  // Find biggest opportunity (lowest scoring category)
+  const scores = {
+    caption: captionResult.score,
+    hashtags: hashtagResult.score,
+    contentType: contentTypeResult.score,
+    media: mediaResult.score,
+  };
+  
+  const biggestOpportunity = (Object.entries(scores) as [keyof typeof scores, number][])
+    .sort((a, b) => a[1] - b[1])[0][0];
+  
+  // Generate insight based on biggest opportunity
+  const insightMap: Record<string, string> = {
+    caption: 'Your biggest opportunity: Strengthen your caption with a hook + CTA',
+    hashtags: 'Your biggest opportunity: Add relevant hashtags for discoverability',
+    contentType: 'Your biggest opportunity: Switch to Reels or Carousels for more reach',
+    media: 'Your biggest opportunity: Upgrade your visual content',
+  };
+  
   return {
     score: totalScore,
     breakdown: {
@@ -271,6 +301,8 @@ export function calculateContentScore(item: ContentItem): ContentScoreResult {
     label: getScoreLabel(totalScore),
     color: getScoreColor(totalScore),
     suggestions: allSuggestions,
+    insight: totalScore >= 85 ? '🔥 This post is optimized for maximum reach!' : insightMap[biggestOpportunity],
+    biggestOpportunity,
   };
 }
 

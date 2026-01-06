@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { calculateContentScore, getScoreBgColor, type ContentScoreResult, type ScoreSuggestion } from '@/utils/contentScore';
-import { MessageSquare, Hash, Film, Image, Sparkles, Loader2 } from 'lucide-react';
+import { MessageSquare, Hash, Film, Image, Sparkles, Loader2, Lightbulb, Clock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -23,13 +23,15 @@ interface ContentScoreBadgeProps {
   size?: 'sm' | 'md' | 'lg';
   showBreakdown?: boolean;
   onSuggestionApplied?: (category: string, newValue: string) => void;
+  onMediaAction?: (action: string) => void;
 }
 
 const ContentScoreBadge: React.FC<ContentScoreBadgeProps> = ({ 
   item, 
   size = 'sm',
   showBreakdown = false,
-  onSuggestionApplied
+  onSuggestionApplied,
+  onMediaAction
 }) => {
   const scoreResult = calculateContentScore(item);
   const bgColor = getScoreBgColor(scoreResult.score);
@@ -76,17 +78,28 @@ const ContentScoreBadge: React.FC<ContentScoreBadgeProps> = ({
           <p className="text-xs text-muted-foreground">Content Score</p>
         </div>
       </div>
+      
+      {/* Insight Line */}
+      <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-lg">
+        <Lightbulb className="w-4 h-4 text-primary shrink-0" />
+        <p className="text-xs text-foreground">{scoreResult.insight}</p>
+      </div>
+      
       <ScoreBreakdownFull 
         scoreResult={scoreResult} 
         item={item}
         onSuggestionApplied={onSuggestionApplied}
+        onMediaAction={onMediaAction}
       />
+      
+      {/* Smart Scheduling Suggestion */}
+      <SchedulingSuggestion item={item} />
     </div>
   );
 };
 
 const ScoreBreakdownTooltip: React.FC<{ scoreResult: ContentScoreResult }> = ({ scoreResult }) => (
-  <div className="p-3 space-y-2 min-w-[180px]">
+  <div className="p-3 space-y-2 min-w-[200px]">
     <div className="flex items-center justify-between border-b border-border pb-2 mb-2">
       <span className="font-semibold text-sm">Content Score</span>
       <span className={`font-bold ${scoreResult.color}`}>{scoreResult.score}/100</span>
@@ -95,14 +108,14 @@ const ScoreBreakdownTooltip: React.FC<{ scoreResult: ContentScoreResult }> = ({ 
     <ScoreRow icon={Hash} label="Hashtags" score={scoreResult.breakdown.hashtags} />
     <ScoreRow icon={Film} label="Content Type" score={scoreResult.breakdown.contentType} />
     <ScoreRow icon={Image} label="Media" score={scoreResult.breakdown.media} />
-    {scoreResult.suggestions.length > 0 && (
-      <div className="pt-2 mt-2 border-t border-border">
-        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-          <Sparkles className="w-3 h-3" />
-          {scoreResult.suggestions.length} suggestion{scoreResult.suggestions.length > 1 ? 's' : ''} available
-        </p>
-      </div>
-    )}
+    
+    {/* Compact Insight */}
+    <div className="pt-2 mt-2 border-t border-border">
+      <p className="text-[10px] text-muted-foreground flex items-start gap-1">
+        <Lightbulb className="w-3 h-3 mt-0.5 shrink-0 text-primary" />
+        <span>{scoreResult.insight}</span>
+      </p>
+    </div>
   </div>
 );
 
@@ -110,10 +123,30 @@ interface ScoreBreakdownFullProps {
   scoreResult: ContentScoreResult;
   item: ContentItem;
   onSuggestionApplied?: (category: string, newValue: string) => void;
+  onMediaAction?: (action: string) => void;
 }
 
-const ScoreBreakdownFull: React.FC<ScoreBreakdownFullProps> = ({ scoreResult, item, onSuggestionApplied }) => {
+const ScoreBreakdownFull: React.FC<ScoreBreakdownFullProps> = ({ 
+  scoreResult, 
+  item, 
+  onSuggestionApplied,
+  onMediaAction 
+}) => {
   const [loadingCategory, setLoadingCategory] = useState<string | null>(null);
+  const [animatedScores, setAnimatedScores] = useState({
+    caption: 0,
+    hashtags: 0,
+    contentType: 0,
+    media: 0,
+  });
+
+  // Animate bars on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimatedScores(scoreResult.breakdown);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [scoreResult.breakdown]);
 
   const handleImprove = async (category: 'caption' | 'hashtags' | 'contentType' | 'media') => {
     if (!onSuggestionApplied) return;
@@ -201,95 +234,134 @@ Provide a brief, specific description (1-2 sentences) of the ideal visual conten
       <ScoreRowFull 
         icon={MessageSquare} 
         label="Caption Quality" 
-        score={scoreResult.breakdown.caption}
+        score={animatedScores.caption}
+        targetScore={scoreResult.breakdown.caption}
         suggestions={getCategorySuggestions('caption')}
         onImprove={() => handleImprove('caption')}
         isLoading={loadingCategory === 'caption'}
         canImprove={!!onSuggestionApplied}
+        isHighlighted={scoreResult.biggestOpportunity === 'caption'}
       />
       <ScoreRowFull 
         icon={Hash} 
         label="Hashtags" 
-        score={scoreResult.breakdown.hashtags}
+        score={animatedScores.hashtags}
+        targetScore={scoreResult.breakdown.hashtags}
         suggestions={getCategorySuggestions('hashtags')}
         onImprove={() => handleImprove('hashtags')}
         isLoading={loadingCategory === 'hashtags'}
         canImprove={!!onSuggestionApplied}
+        isHighlighted={scoreResult.biggestOpportunity === 'hashtags'}
       />
       <ScoreRowFull 
         icon={Film} 
         label="Content Type" 
-        score={scoreResult.breakdown.contentType}
+        score={animatedScores.contentType}
+        targetScore={scoreResult.breakdown.contentType}
         suggestions={getCategorySuggestions('contentType')}
         onImprove={() => handleImprove('contentType')}
         isLoading={loadingCategory === 'contentType'}
         canImprove={!!onSuggestionApplied}
+        isHighlighted={scoreResult.biggestOpportunity === 'contentType'}
       />
       <ScoreRowFull 
         icon={Image} 
         label="Media" 
-        score={scoreResult.breakdown.media}
+        score={animatedScores.media}
+        targetScore={scoreResult.breakdown.media}
         suggestions={getCategorySuggestions('media')}
         onImprove={() => handleImprove('media')}
         isLoading={loadingCategory === 'media'}
         canImprove={!!onSuggestionApplied}
+        isHighlighted={scoreResult.biggestOpportunity === 'media'}
+        onMediaAction={onMediaAction}
       />
     </div>
   );
 };
 
-const ScoreRow: React.FC<{ icon: React.ElementType; label: string; score: number }> = ({ icon: Icon, label, score }) => (
-  <div className="flex items-center justify-between text-xs">
-    <div className="flex items-center gap-1.5 text-muted-foreground">
-      <Icon className="w-3 h-3" />
-      <span>{label}</span>
+const ScoreRow: React.FC<{ icon: React.ElementType; label: string; score: number }> = ({ icon: Icon, label, score }) => {
+  const getBarColor = (s: number) => {
+    if (s >= 70) return 'bg-emerald-500';
+    if (s >= 50) return 'bg-amber-500';
+    return 'bg-red-500';
+  };
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <Icon className="w-3 h-3" />
+          <span>{label}</span>
+        </div>
+        <span className="font-medium text-foreground">{score}</span>
+      </div>
+      <div className="h-1 bg-muted rounded-full overflow-hidden">
+        <div 
+          className={`h-full rounded-full ${getBarColor(score)}`}
+          style={{ width: `${score}%` }}
+        />
+      </div>
     </div>
-    <span className="font-medium text-foreground">{score}</span>
-  </div>
-);
+  );
+};
 
 interface ScoreRowFullProps {
   icon: React.ElementType;
   label: string;
   score: number;
+  targetScore: number;
   suggestions: ScoreSuggestion[];
   onImprove: () => void;
   isLoading: boolean;
   canImprove: boolean;
+  isHighlighted?: boolean;
+  onMediaAction?: (action: string) => void;
 }
 
 const ScoreRowFull: React.FC<ScoreRowFullProps> = ({ 
   icon: Icon, 
   label, 
   score, 
+  targetScore,
   suggestions,
   onImprove,
   isLoading,
-  canImprove
+  canImprove,
+  isHighlighted,
+  onMediaAction
 }) => {
   const getBarColor = (s: number) => {
     if (s >= 70) return 'bg-emerald-500';
-    if (s >= 50) return 'bg-yellow-500';
-    if (s >= 30) return 'bg-orange-500';
+    if (s >= 50) return 'bg-amber-500';
     return 'bg-red-500';
   };
 
-  const showImproveButton = canImprove && score < 80 && suggestions.length > 0;
+  const getStatusLabel = (s: number) => {
+    if (s >= 70) return { text: 'Good', color: 'text-emerald-500' };
+    if (s >= 50) return { text: 'Fixable', color: 'text-amber-500' };
+    return { text: 'Needs work', color: 'text-red-500' };
+  };
+
+  const showImproveButton = canImprove && targetScore < 80;
+  const status = getStatusLabel(targetScore);
+  const mediaSuggestion = suggestions.find(s => s.action);
 
   return (
-    <div className="space-y-1.5">
+    <div className={`space-y-1.5 p-2 rounded-lg transition-colors ${isHighlighted ? 'bg-primary/10 border border-primary/30' : ''}`}>
       <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-1.5 text-muted-foreground">
-          <Icon className="w-3.5 h-3.5" />
-          <span>{label}</span>
+        <div className="flex items-center gap-1.5">
+          <Icon className={`w-3.5 h-3.5 ${isHighlighted ? 'text-primary' : 'text-muted-foreground'}`} />
+          <span className={isHighlighted ? 'text-foreground font-medium' : 'text-muted-foreground'}>{label}</span>
+          <span className={`text-[10px] ${status.color}`}>({status.text})</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-foreground">{score}/100</span>
+          <span className="font-medium text-foreground">{targetScore}/100</span>
           {showImproveButton && (
             <Button
               size="sm"
               variant="ghost"
-              className="h-5 px-1.5 text-[10px] text-primary hover:text-primary"
+              className="h-5 px-1.5 text-[10px] text-primary hover:text-primary hover:bg-primary/10"
               onClick={onImprove}
               disabled={isLoading}
             >
@@ -307,15 +379,113 @@ const ScoreRowFull: React.FC<ScoreRowFullProps> = ({
       </div>
       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
         <div 
-          className={`h-full rounded-full transition-all ${getBarColor(score)}`}
+          className={`h-full rounded-full transition-all duration-700 ease-out ${getBarColor(targetScore)}`}
           style={{ width: `${score}%` }}
         />
       </div>
+      
+      {/* Suggestion with micro-action for media */}
       {suggestions.length > 0 && (
-        <p className="text-[10px] text-muted-foreground pl-5">
-          💡 {suggestions[0].message}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] text-muted-foreground pl-5 flex-1">
+            💡 {suggestions[0].message}
+          </p>
+          {mediaSuggestion?.action && onMediaAction && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-5 px-1.5 text-[10px] text-primary hover:text-primary hover:bg-primary/10"
+              onClick={() => onMediaAction(mediaSuggestion.action!)}
+            >
+              {mediaSuggestion.action}
+              <ArrowRight className="w-3 h-3 ml-0.5" />
+            </Button>
+          )}
+        </div>
       )}
+    </div>
+  );
+};
+
+interface SchedulingSuggestionProps {
+  item: ContentItem;
+}
+
+const SchedulingSuggestion: React.FC<SchedulingSuggestionProps> = ({ item }) => {
+  // Get optimal posting times based on platform
+  const getOptimalTime = (platform: string, currentHour: number) => {
+    const optimalTimes: Record<string, { hour: number; label: string }[]> = {
+      instagram: [
+        { hour: 7, label: '7:00 AM' },
+        { hour: 12, label: '12:00 PM' },
+        { hour: 19, label: '7:00 PM' },
+      ],
+      tiktok: [
+        { hour: 9, label: '9:00 AM' },
+        { hour: 12, label: '12:00 PM' },
+        { hour: 19, label: '7:00 PM' },
+      ],
+      twitter: [
+        { hour: 8, label: '8:00 AM' },
+        { hour: 12, label: '12:00 PM' },
+        { hour: 17, label: '5:00 PM' },
+      ],
+      linkedin: [
+        { hour: 7, label: '7:30 AM' },
+        { hour: 12, label: '12:00 PM' },
+        { hour: 17, label: '5:00 PM' },
+      ],
+      facebook: [
+        { hour: 9, label: '9:00 AM' },
+        { hour: 13, label: '1:00 PM' },
+        { hour: 19, label: '7:00 PM' },
+      ],
+      youtube: [
+        { hour: 14, label: '2:00 PM' },
+        { hour: 16, label: '4:00 PM' },
+        { hour: 21, label: '9:00 PM' },
+      ],
+    };
+
+    const times = optimalTimes[platform.toLowerCase()] || optimalTimes.instagram;
+    
+    // Find the nearest optimal time that's different from current
+    const sorted = times
+      .map(t => ({ ...t, diff: Math.abs(t.hour - currentHour) }))
+      .sort((a, b) => a.diff - b.diff);
+    
+    // If current time is already optimal, return null
+    if (sorted[0].diff <= 1) return null;
+    
+    return sorted[0];
+  };
+
+  const currentHour = item.date.getHours();
+  const platform = item.platform || 'instagram';
+  const suggestion = getOptimalTime(platform, currentHour);
+
+  if (!suggestion) return null;
+
+  // Check if it's an odd hour (likely manually set)
+  const isOddTime = currentHour < 6 || (currentHour >= 1 && currentHour <= 5);
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+      <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+      <div className="flex-1">
+        <p className="text-xs text-foreground">
+          {isOddTime ? (
+            <>
+              <span className="text-amber-500 font-medium">Low engagement time.</span>{' '}
+              Suggested: <span className="font-medium">{suggestion.label}</span> (higher engagement)
+            </>
+          ) : (
+            <>
+              Suggested: <span className="font-medium">{suggestion.label}</span> for peak {platform} engagement
+            </>
+          )}
+        </p>
+      </div>
     </div>
   );
 };
