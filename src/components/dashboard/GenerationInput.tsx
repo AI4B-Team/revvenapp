@@ -5167,35 +5167,103 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Buttons Row */}
                 <div className="flex items-center gap-2 flex-nowrap shrink-0 min-w-0">
                   
-                  {/* Type Dropdown for Audio */}
-                  <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
-                    <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-foreground text-sm font-medium hover:opacity-90 transition">
-                        <LayoutGrid size={16} className="text-muted-foreground" />
-                        Type
+                  {/* Selected Audio Mode Pill */}
+                  <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:opacity-90 transition">
+                        {(() => {
+                          const currentMode = audioModes.find(m => m.value === selectedAudioMode);
+                          const Icon = currentMode?.icon || Mic;
+                          return <Icon size={16} className="text-green-600 dark:text-green-400" />;
+                        })()}
+                        {selectedAudioMode}
+                        <X size={14} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 ml-0.5" />
                       </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-48 bg-background border-border z-50">
-                      {audioModes.map((mode) => (
-                        <DropdownMenuItem
-                          key={mode.value}
-                          onSelect={(e) => {
-                            e.preventDefault();
-                            setSelectedAudioMode(mode.value);
-                            setIsAudioModeDropdownOpen(false);
-                          }}
-                          className={`flex items-center gap-2 cursor-pointer ${selectedAudioMode === mode.value ? 'text-primary font-medium' : ''}`}
-                        >
-                          <mode.icon size={16} />
-                          {mode.label}
-                          {selectedAudioMode === mode.value && <Check size={14} className="ml-auto" />}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 bg-background border-border z-50 p-1">
+                      <div className="space-y-0.5">
+                        {audioModes.map((mode) => (
+                          <button
+                            key={mode.value}
+                            onClick={() => {
+                              setSelectedAudioMode(mode.value);
+                              setIsAudioModeDropdownOpen(false);
+                            }}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary transition ${selectedAudioMode === mode.value ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : ''}`}
+                          >
+                            <mode.icon size={16} className={selectedAudioMode === mode.value ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'} />
+                            {mode.label}
+                            {selectedAudioMode === mode.value && <Check size={14} className="ml-auto text-green-600 dark:text-green-400" />}
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                   
                   {/* Separator */}
-                  <div className="w-px h-8 bg-slate-200 mx-1" />
+                  <div className="w-px h-6 bg-border mx-1" />
+
+                  {/* Audio Icon Buttons */}
+                  <TooltipProvider>
+                    <div className="flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <Box size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Products</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <User size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Voice</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <span className="text-lg font-medium">文</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Translate</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <AudioLines size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Sound Effects</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <Music size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Music</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <Captions size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Transcribe</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
+                            <Mic size={18} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Record</p></TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TooltipProvider>
 
                   {/* Transcribe Mode Controls */}
                   {selectedAudioMode === 'Transcribe' && (
