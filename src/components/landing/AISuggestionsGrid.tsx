@@ -98,7 +98,12 @@ interface AISuggestionsGridProps {
 const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps) => {
   const [currentPage, setCurrentPage] = useState(0);
 
-  const intentKey = intent || 'Create';
+  // Don't render if no intent is selected
+  if (!intent) {
+    return null;
+  }
+
+  const intentKey = intent;
   const pages = suggestionsByIntent[intentKey] || suggestionsByIntent.Create;
   const totalPages = pages.length;
   const currentSuggestions = pages[currentPage] || pages[0];
