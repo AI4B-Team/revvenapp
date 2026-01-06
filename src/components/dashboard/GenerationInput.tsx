@@ -5201,12 +5201,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </button>
                       </PopoverTrigger>
                       <PopoverContent 
-                        className="bg-background border-border z-50 p-4 rounded-2xl shadow-lg" 
-                        style={{ width: 'var(--radix-popover-trigger-width)', minWidth: '100%' }}
+                        className="w-[580px] bg-background border-border z-50 p-6 rounded-2xl shadow-lg" 
                         align="start"
                         sideOffset={8}
                       >
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-4 gap-x-6 gap-y-4">
                           {audioModes.map((mode) => (
                             <button
                               key={mode.value}
@@ -5214,9 +5213,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 setSelectedAudioMode(mode.value);
                                 setIsAudioModeDropdownOpen(false);
                               }}
-                              className="flex items-center gap-2.5 px-4 py-3 text-sm rounded-xl cursor-pointer bg-secondary/50 hover:bg-secondary transition border border-transparent hover:border-border"
+                              className="flex items-center gap-2.5 py-2 text-sm cursor-pointer hover:opacity-70 transition"
                             >
-                              <mode.icon size={18} className="text-muted-foreground" />
+                              <mode.icon size={18} className={mode.color} />
                               <span className="font-medium text-foreground whitespace-nowrap">{mode.label}</span>
                             </button>
                           ))}
@@ -5237,12 +5236,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </button>
                       </PopoverTrigger>
                       <PopoverContent 
-                        className="bg-background border-border z-50 p-4 rounded-2xl shadow-lg" 
-                        style={{ width: 'var(--radix-popover-trigger-width)', minWidth: '100%' }}
+                        className="w-[580px] bg-background border-border z-50 p-6 rounded-2xl shadow-lg" 
                         align="start"
                         sideOffset={8}
                       >
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-4 gap-x-6 gap-y-4">
                           {audioModes.map((mode) => (
                             <button
                               key={mode.value}
@@ -5250,9 +5248,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 setSelectedAudioMode(mode.value);
                                 setIsAudioModeDropdownOpen(false);
                               }}
-                              className={`flex items-center gap-2.5 px-4 py-3 text-sm rounded-xl cursor-pointer transition border ${selectedAudioMode === mode.value ? 'bg-secondary border-border' : 'bg-secondary/50 border-transparent hover:bg-secondary hover:border-border'}`}
+                              className="flex items-center gap-2.5 py-2 text-sm cursor-pointer hover:opacity-70 transition"
                             >
-                              <mode.icon size={18} className="text-muted-foreground" />
+                              <mode.icon size={18} className={mode.color} />
                               <span className="font-medium text-foreground whitespace-nowrap">{mode.label}</span>
                             </button>
                           ))}
