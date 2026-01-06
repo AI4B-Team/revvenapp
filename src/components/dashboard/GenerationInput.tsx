@@ -4121,6 +4121,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </DropdownMenuContent>
                   </DropdownMenu>
 
+                  {/* Separator after Animate dropdown */}
+                  <div className="w-px h-8 bg-slate-200 mx-1" />
+
                   {(selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') ? (
                     <>
                       {/* Avatar Video / Lip-Sync Mode Controls - Same model dropdown for both */}
@@ -4816,9 +4819,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   ) : (
                     <>
                       {/* Standard Video Mode Controls - Icon buttons only */}
-                      
-                      {/* Separator */}
-                      <div className="w-px h-8 bg-slate-200 mx-1" />
                       
                       {/* Model Button - shows model name */}
                       <Popover>
