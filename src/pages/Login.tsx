@@ -46,7 +46,8 @@ export default function LoginPage() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        // Only redirect on actual sign in, not on token refresh
+        if (session && event === 'SIGNED_IN') {
           // Defer to avoid Supabase deadlock
           setTimeout(() => {
             handleAuthRedirect(session);
