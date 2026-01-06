@@ -7759,7 +7759,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             Choose Your Platforms To Generate {contentDays} Days Of Content For Each One
           </p>
           
-          <div className="flex items-center justify-center gap-3 flex-nowrap overflow-x-auto pb-2 px-2">
+          <div className="flex items-center justify-center gap-3 flex-nowrap overflow-visible pb-2 px-2 pt-3">
             <button
               onClick={() => {
                 if (selectedPlatforms.length === socialPlatforms.length) {
