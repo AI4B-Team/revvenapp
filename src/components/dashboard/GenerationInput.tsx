@@ -6219,7 +6219,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                     <Popover open={isAccentPopoverOpen} onOpenChange={setIsAccentPopoverOpen}>
                       <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
                           <AudioLines size={14} />
                           {voiceoverAccent}
                           <ChevronDown size={14} />
@@ -6246,7 +6246,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                     <Popover open={isSpeedPopoverOpen} onOpenChange={setIsSpeedPopoverOpen}>
                       <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
                           <Clock size={14} />
                           {voiceoverSpeed}
                           <ChevronDown size={14} />
@@ -6273,7 +6273,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                     <Popover open={isTonePopoverOpen} onOpenChange={setIsTonePopoverOpen}>
                       <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
                           <SlidersHorizontal size={14} />
                           {voiceoverTone}
                           <ChevronDown size={14} />
