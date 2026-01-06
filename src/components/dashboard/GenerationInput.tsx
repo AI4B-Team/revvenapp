@@ -7690,7 +7690,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   setSelectedPlatforms(socialPlatforms.map(p => p.id));
                 }
               }}
-              className={`px-5 py-2.5 rounded-xl text-base font-medium transition-all ${
+              className={`px-5 py-2.5 rounded-xl text-base font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 selectedPlatforms.length === socialPlatforms.length
                   ? 'bg-emerald-500 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -7714,7 +7714,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             : [...prev, platform.id]
                         );
                       }}
-                      className={`relative p-4 rounded-2xl transition-all border-2 ${
+                      className={`relative p-4 rounded-2xl transition-all border-2 flex-shrink-0 ${
                         isSelected
                           ? 'bg-card shadow-lg border-emerald-500'
                           : 'bg-muted/50 hover:bg-muted border-transparent hover:border-emerald-500'
