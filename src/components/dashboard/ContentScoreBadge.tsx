@@ -421,7 +421,7 @@ const ScoreRowFull: React.FC<ScoreRowFullProps> = ({
   const mediaSuggestion = suggestions.find(s => s.action);
 
   return (
-    <div className={`space-y-1.5 p-2 rounded-lg transition-colors ${isHighlighted ? 'bg-primary/10 border border-primary/30' : ''}`}>
+    <div className={`space-y-1.5 p-2 rounded-lg transition-colors ${isHighlighted ? 'border-l-2 border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20' : ''}`}>
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5">
           <Icon className={`w-3.5 h-3.5 ${isHighlighted ? 'text-primary' : 'text-muted-foreground'}`} />
