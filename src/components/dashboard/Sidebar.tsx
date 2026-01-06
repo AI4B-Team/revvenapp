@@ -9,6 +9,7 @@ import {
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
   PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus
 } from 'lucide-react';
+import RevvenLogo from '@/components/RevvenLogo';
 import { useUserRole } from '@/hooks/useUserRole';
 import {
   DropdownMenu,
@@ -304,19 +305,40 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       
       <div className={`${isCollapsed ? 'w-16 -translate-x-full lg:translate-x-0' : 'w-64 translate-x-0'} bg-sidebar text-sidebar-text flex flex-col h-screen transition-all duration-300 fixed left-0 top-0 overflow-y-auto scrollbar-thin scrollbar-thumb-white scrollbar-track-gray-800 z-50`}>
         {/* Logo & Collapse Toggle */}
-        <div className="p-6 relative flex items-center justify-center flex-shrink-0">
+        <div className="p-4 relative flex items-center gap-3 flex-shrink-0">
+          {/* Logo Icon - always visible, clickable to expand when collapsed */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => isCollapsed && setIsCollapsed(false)}
+                  className={`flex-shrink-0 ${isCollapsed ? 'mx-auto cursor-pointer hover:opacity-80' : ''} transition`}
+                >
+                  <RevvenLogo size={40} />
+                </button>
+              </TooltipTrigger>
+              {isCollapsed && (
+                <TooltipContent side="right">
+                  <p>Expand menu</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+          
           {!isCollapsed && (
-            <Link to="/" className="hover:opacity-80 transition cursor-pointer">
-              <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>
-            </Link>
+            <>
+              <Link to="/" className="hover:opacity-80 transition cursor-pointer">
+                <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>
+              </Link>
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="p-2 hover:bg-sidebar-hover rounded-lg transition ml-auto"
+                title="Collapse sidebar"
+              >
+                <PanelLeftClose size={20} />
+              </button>
+            </>
           )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-2 hover:bg-sidebar-hover rounded-lg transition ${isCollapsed ? 'mx-auto' : 'absolute right-4'}`}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
-          </button>
         </div>
 
       {/* Workspace Selector */}
