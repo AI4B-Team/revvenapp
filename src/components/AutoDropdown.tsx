@@ -19,7 +19,7 @@ const optionsByIntent: Record<Intent, AutoOption[]> = {
     { id: 'design', label: 'Design', icon: Palette, color: 'text-orange-500' },
     { id: 'content', label: 'Content', icon: Calendar, color: 'text-purple-500' },
     { id: 'document', label: 'Document', icon: FileText, color: 'text-blue-500' },
-    { id: 'apps', label: 'Apps', icon: Code, color: 'text-red-500' },
+    { id: 'apps', label: 'App', icon: Code, color: 'text-red-500' },
   ],
   Research: [
     { id: 'explain', label: 'Explain', icon: Search, color: 'text-blue-500' },
