@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import RevvenLogo from '@/components/RevvenLogo';
 import AIVAPromptBox from '@/components/shared/AIVAPromptBox';
+import AISuggestionsGrid from '@/components/landing/AISuggestionsGrid';
 import AuthModal from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +10,8 @@ import { User } from '@supabase/supabase-js';
 
 const LandingNew = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [selectedIntent, setSelectedIntent] = useState<string | null>('Create');
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
@@ -27,6 +30,19 @@ const LandingNew = () => {
   }, []);
 
   const handleGenerate = () => {
+    if (user) {
+      navigate('/create');
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleShowSuggestions = () => {
+    setShowSuggestions(true);
+  };
+
+  const handleSuggestionClick = (suggestion: { title: string }) => {
+    // Could pre-fill the prompt or navigate based on suggestion
     if (user) {
       navigate('/create');
     } else {
@@ -73,6 +89,14 @@ const LandingNew = () => {
         {/* Shared AIVA Prompt Box with tagline */}
         <div className="w-full">
           <AIVAPromptBox onGenerate={handleGenerate} showTagline={true} />
+        </div>
+
+        {/* AI Suggestions Grid */}
+        <div className="w-full mx-auto max-w-[800px]">
+          <AISuggestionsGrid
+            intent={selectedIntent}
+            onSuggestionClick={handleSuggestionClick}
+          />
         </div>
       </main>
 
