@@ -4,13 +4,17 @@ import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import AIVAPromptBox from '@/components/shared/AIVAPromptBox';
+import AISuggestionsGrid, { type Suggestion } from '@/components/landing/AISuggestionsGrid';
 import { supabase } from '@/integrations/supabase/client';
+import type { Intent } from '@/components/IntentSelector';
 
 const Assistant = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [userName, setUserName] = useState('');
+  const [prompt, setPrompt] = useState('');
+  const [selectedIntent, setSelectedIntent] = useState<Intent | null>('Create');
 
   // Get user profile
   useEffect(() => {
@@ -40,8 +44,13 @@ const Assistant = () => {
     console.log('Generating...');
   };
 
+  const handleSuggestionClick = (suggestion: Suggestion) => {
+    // Set the prompt to the suggestion's prompt
+    setPrompt(suggestion.prompt);
+  };
+
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
       <Sidebar 
         isAssistantPage={true}
         onCharactersClick={() => setCharactersModalOpen(true)}
@@ -53,12 +62,24 @@ const Assistant = () => {
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
         <main className="flex-1 overflow-auto">
-          <div className="flex flex-col items-center justify-start min-h-full px-4 sm:px-8 lg:px-16 py-8 lg:py-12">
+          <div className="flex flex-col items-center justify-start min-h-full px-4 sm:px-8 lg:px-16 py-6">
             {/* Prompt Box with Greeting */}
             <div className="w-full">
               <AIVAPromptBox 
                 onGenerate={handleGenerate}
                 showGreeting={true}
+                prompt={prompt}
+                onPromptChange={setPrompt}
+                selectedIntent={selectedIntent}
+                onIntentChange={setSelectedIntent}
+              />
+            </div>
+            
+            {/* AI Suggestions Grid */}
+            <div className="w-full mx-auto max-w-[800px]">
+              <AISuggestionsGrid
+                intent={selectedIntent}
+                onSuggestionClick={handleSuggestionClick}
               />
             </div>
           </div>
