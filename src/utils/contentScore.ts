@@ -1,5 +1,6 @@
 // Content Score Calculation Utility
-// Factors: caption quality, hashtag count, timing, and content type
+// Factors: caption quality, hashtag count, content type, and media
+// Note: Timing is excluded as AI auto-scheduling always picks optimal times
 
 interface ContentItem {
   caption?: string;
@@ -16,7 +17,6 @@ interface ContentItem {
 interface ScoreBreakdown {
   caption: number;
   hashtags: number;
-  timing: number;
   contentType: number;
   media: number;
 }
@@ -26,40 +26,23 @@ interface ContentScoreResult {
   breakdown: ScoreBreakdown;
   label: 'Poor' | 'Fair' | 'Good' | 'Great' | 'Excellent';
   color: string;
+  suggestions: ScoreSuggestion[];
 }
 
-// Optimal posting hours by platform (hour in 24h format)
-const OPTIMAL_HOURS: Record<string, number[]> = {
-  instagram: [9, 11, 12, 17, 18, 19],
-  facebook: [9, 10, 11, 13, 16],
-  twitter: [8, 9, 12, 17, 18],
-  x: [8, 9, 12, 17, 18],
-  linkedin: [7, 8, 9, 10, 12, 17],
-  tiktok: [12, 15, 19, 20, 21],
-  youtube: [12, 15, 16, 17, 18],
-  threads: [9, 12, 17, 18, 19],
-  pinterest: [14, 15, 20, 21],
-  default: [9, 12, 17, 18],
-};
+interface ScoreSuggestion {
+  category: 'caption' | 'hashtags' | 'contentType' | 'media';
+  message: string;
+  priority: 'high' | 'medium' | 'low';
+}
 
-// Optimal days (0 = Sunday, 6 = Saturday)
-const OPTIMAL_DAYS: Record<string, number[]> = {
-  instagram: [1, 2, 3, 4, 5], // Weekdays
-  facebook: [1, 2, 3, 4, 5],
-  twitter: [1, 2, 3, 4],
-  x: [1, 2, 3, 4],
-  linkedin: [1, 2, 3, 4], // Mon-Thu
-  tiktok: [2, 3, 4, 5, 6], // Tue-Sat
-  youtube: [4, 5, 6, 0], // Thu-Sun
-  threads: [1, 2, 3, 4, 5],
-  pinterest: [5, 6, 0], // Fri-Sun
-  default: [1, 2, 3, 4, 5],
-};
-
-function calculateCaptionScore(caption?: string, title?: string): number {
+function calculateCaptionScore(caption?: string, title?: string): { score: number; suggestions: ScoreSuggestion[] } {
   const text = caption || title || '';
+  const suggestions: ScoreSuggestion[] = [];
   
-  if (!text) return 0;
+  if (!text) {
+    suggestions.push({ category: 'caption', message: 'Add a caption to improve engagement', priority: 'high' });
+    return { score: 0, suggestions };
+  }
   
   let score = 0;
   const wordCount = text.split(/\s+/).filter(Boolean).length;
@@ -71,116 +54,149 @@ function calculateCaptionScore(caption?: string, title?: string): number {
     score += 20;
   } else if (wordCount > 0) {
     score += 10;
+    if (wordCount < 15) {
+      suggestions.push({ category: 'caption', message: 'Expand your caption to 30-150 words for better engagement', priority: 'medium' });
+    }
   }
   
   // Has call-to-action phrases
   const ctaPhrases = ['click', 'link', 'comment', 'share', 'follow', 'subscribe', 'check out', 'learn more', 'tap', 'swipe', 'save', 'tag', 'dm', 'shop', 'get', 'try', 'discover'];
   const hasCtA = ctaPhrases.some(phrase => text.toLowerCase().includes(phrase));
-  if (hasCtA) score += 15;
+  if (hasCtA) {
+    score += 15;
+  } else {
+    suggestions.push({ category: 'caption', message: 'Add a call-to-action (e.g., "Comment below", "Share with a friend")', priority: 'medium' });
+  }
   
   // Has hook (first sentence is engaging)
   const firstSentence = text.split(/[.!?]/)[0] || '';
   if (firstSentence.length > 20 && firstSentence.length < 100) {
     score += 10;
+  } else {
+    suggestions.push({ category: 'caption', message: 'Start with a stronger hook to grab attention', priority: 'low' });
   }
   
   // Uses emojis (engagement boost)
   const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
-  if (emojiRegex.test(text)) score += 10;
+  if (emojiRegex.test(text)) {
+    score += 10;
+  } else {
+    suggestions.push({ category: 'caption', message: 'Add relevant emojis to increase visual appeal', priority: 'low' });
+  }
   
   // Has question (drives comments)
-  if (text.includes('?')) score += 10;
+  if (text.includes('?')) {
+    score += 10;
+  } else {
+    suggestions.push({ category: 'caption', message: 'Include a question to encourage comments', priority: 'low' });
+  }
   
   // Line breaks for readability
-  if (text.includes('\n')) score += 5;
+  if (text.includes('\n')) {
+    score += 5;
+  }
   
-  return Math.min(score, 100);
+  return { score: Math.min(score, 100), suggestions };
 }
 
-function calculateHashtagScore(hashtags?: string[]): number {
-  if (!hashtags || hashtags.length === 0) return 0;
+function calculateHashtagScore(hashtags?: string[]): { score: number; suggestions: ScoreSuggestion[] } {
+  const suggestions: ScoreSuggestion[] = [];
+  
+  if (!hashtags || hashtags.length === 0) {
+    suggestions.push({ category: 'hashtags', message: 'Add 5-15 relevant hashtags to increase discoverability', priority: 'high' });
+    return { score: 0, suggestions };
+  }
   
   const count = hashtags.length;
   
   // Optimal: 5-15 hashtags
   if (count >= 5 && count <= 15) {
-    return 100;
+    return { score: 100, suggestions };
   } else if (count >= 3 && count <= 20) {
-    return 70;
+    if (count < 5) {
+      suggestions.push({ category: 'hashtags', message: `Add ${5 - count} more hashtags for optimal reach`, priority: 'low' });
+    } else {
+      suggestions.push({ category: 'hashtags', message: 'Consider reducing hashtags to 15 or fewer', priority: 'low' });
+    }
+    return { score: 70, suggestions };
   } else if (count >= 1 && count <= 30) {
-    return 40;
+    if (count < 3) {
+      suggestions.push({ category: 'hashtags', message: 'Add more hashtags (aim for 5-15)', priority: 'medium' });
+    } else {
+      suggestions.push({ category: 'hashtags', message: 'Too many hashtags can look spammy, reduce to 15', priority: 'medium' });
+    }
+    return { score: 40, suggestions };
   }
   
-  return 20;
+  return { score: 20, suggestions };
 }
 
-function calculateTimingScore(date: Date, platform?: string): number {
-  const hour = date.getHours();
-  const day = date.getDay();
-  const platformKey = platform?.toLowerCase() || 'default';
-  
-  const optimalHours = OPTIMAL_HOURS[platformKey] || OPTIMAL_HOURS.default;
-  const optimalDays = OPTIMAL_DAYS[platformKey] || OPTIMAL_DAYS.default;
-  
-  let score = 0;
-  
-  // Hour scoring
-  if (optimalHours.includes(hour)) {
-    score += 60;
-  } else if (optimalHours.some(h => Math.abs(h - hour) <= 1)) {
-    score += 40;
-  } else if (optimalHours.some(h => Math.abs(h - hour) <= 2)) {
-    score += 20;
-  }
-  
-  // Day scoring
-  if (optimalDays.includes(day)) {
-    score += 40;
-  } else {
-    score += 15;
-  }
-  
-  return Math.min(score, 100);
-}
-
-function calculateContentTypeScore(type?: string, hasMedia?: boolean, carouselCount?: number, hasVideo?: boolean): number {
+function calculateContentTypeScore(
+  type?: string, 
+  hasMedia?: boolean, 
+  carouselCount?: number, 
+  hasVideo?: boolean
+): { score: number; suggestions: ScoreSuggestion[] } {
+  const suggestions: ScoreSuggestion[] = [];
   let score = 40; // Base score for any content
   
   // Content type bonus
   switch (type) {
     case 'carousel':
       score += 30; // Carousels get high engagement
-      if (carouselCount && carouselCount >= 3) score += 15;
+      if (carouselCount && carouselCount >= 3) {
+        score += 15;
+      } else {
+        suggestions.push({ category: 'contentType', message: 'Add more slides to your carousel (3+ is optimal)', priority: 'low' });
+      }
       break;
     case 'reel':
       score += 35; // Reels/videos are prioritized
       break;
     case 'story':
       score += 15;
+      suggestions.push({ category: 'contentType', message: 'Consider converting to a Reel for better reach', priority: 'low' });
       break;
     case 'post':
     default:
       score += 10;
+      suggestions.push({ category: 'contentType', message: 'Reels and carousels typically get 2-3x more engagement', priority: 'low' });
   }
   
   // Media bonus
   if (hasMedia) score += 15;
   if (hasVideo) score += 10;
   
-  return Math.min(score, 100);
+  return { score: Math.min(score, 100), suggestions };
 }
 
-function calculateMediaScore(item: ContentItem): number {
+function calculateMediaScore(item: ContentItem): { score: number; suggestions: ScoreSuggestion[] } {
+  const suggestions: ScoreSuggestion[] = [];
   let score = 0;
   
-  if (item.imageUrl) score += 40;
-  if (item.carouselImages && item.carouselImages.length > 0) {
-    score += 20 + Math.min(item.carouselImages.length * 5, 30);
+  if (item.imageUrl) {
+    score += 50;
+  } else {
+    suggestions.push({ category: 'media', message: 'Add an image or video to your post', priority: 'high' });
   }
-  if (item.videoScript) score += 30;
-  if (item.type === 'reel') score += 10;
   
-  return Math.min(score, 100);
+  if (item.carouselImages && item.carouselImages.length > 0) {
+    score += 20 + Math.min(item.carouselImages.length * 5, 20);
+  }
+  
+  if (item.videoScript) {
+    score += 30;
+  }
+  
+  if (item.type === 'reel') {
+    score += 10;
+  }
+  
+  if (score === 0) {
+    return { score: 0, suggestions };
+  }
+  
+  return { score: Math.min(score, 100), suggestions };
 }
 
 function getScoreLabel(score: number): ContentScoreResult['label'] {
@@ -208,47 +224,55 @@ function getScoreBgColor(score: number): string {
 }
 
 export function calculateContentScore(item: ContentItem): ContentScoreResult {
-  const captionScore = calculateCaptionScore(item.caption, item.title);
-  const hashtagScore = calculateHashtagScore(item.hashtags);
-  const timingScore = calculateTimingScore(item.date, item.platform);
-  const contentTypeScore = calculateContentTypeScore(
+  const captionResult = calculateCaptionScore(item.caption, item.title);
+  const hashtagResult = calculateHashtagScore(item.hashtags);
+  const contentTypeResult = calculateContentTypeScore(
     item.type,
     !!item.imageUrl,
     item.carouselImages?.length,
     !!item.videoScript
   );
-  const mediaScore = calculateMediaScore(item);
+  const mediaResult = calculateMediaScore(item);
   
-  // Weighted average
+  // Collect all suggestions, sorted by priority
+  const allSuggestions = [
+    ...captionResult.suggestions,
+    ...hashtagResult.suggestions,
+    ...contentTypeResult.suggestions,
+    ...mediaResult.suggestions,
+  ].sort((a, b) => {
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
+  
+  // Weighted average (removed timing)
   const weights = {
-    caption: 0.30,
-    hashtags: 0.15,
-    timing: 0.20,
+    caption: 0.40,
+    hashtags: 0.20,
     contentType: 0.20,
-    media: 0.15,
+    media: 0.20,
   };
   
   const totalScore = Math.round(
-    captionScore * weights.caption +
-    hashtagScore * weights.hashtags +
-    timingScore * weights.timing +
-    contentTypeScore * weights.contentType +
-    mediaScore * weights.media
+    captionResult.score * weights.caption +
+    hashtagResult.score * weights.hashtags +
+    contentTypeResult.score * weights.contentType +
+    mediaResult.score * weights.media
   );
   
   return {
     score: totalScore,
     breakdown: {
-      caption: captionScore,
-      hashtags: hashtagScore,
-      timing: timingScore,
-      contentType: contentTypeScore,
-      media: mediaScore,
+      caption: captionResult.score,
+      hashtags: hashtagResult.score,
+      contentType: contentTypeResult.score,
+      media: mediaResult.score,
     },
     label: getScoreLabel(totalScore),
     color: getScoreColor(totalScore),
+    suggestions: allSuggestions,
   };
 }
 
 export { getScoreColor, getScoreBgColor, getScoreLabel };
-export type { ContentScoreResult, ScoreBreakdown };
+export type { ContentScoreResult, ScoreBreakdown, ScoreSuggestion };

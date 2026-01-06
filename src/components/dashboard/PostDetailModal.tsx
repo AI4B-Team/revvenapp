@@ -416,7 +416,22 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
             {/* Content Score */}
             <div className="mb-6">
               <h4 className="text-sm font-medium text-muted-foreground mb-3">Content Score</h4>
-              <ContentScoreBadge item={post} size="lg" showBreakdown />
+              <ContentScoreBadge 
+                item={post} 
+                size="lg" 
+                showBreakdown 
+                onSuggestionApplied={(category, newValue) => {
+                  if (category === 'caption') {
+                    setEditedCaption(newValue);
+                    setIsEditing(true);
+                  } else if (category === 'hashtags') {
+                    // Parse hashtags from the AI response
+                    const hashtagsArray = newValue.match(/#\w+/g)?.map(h => h.replace('#', '')) || [];
+                    setEditedHashtags(hashtagsArray.join(', '));
+                    setIsEditing(true);
+                  }
+                }}
+              />
             </div>
 
             {/* Schedule Info */}
