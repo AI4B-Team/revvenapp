@@ -133,15 +133,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   };
   
   // Audio voiceover voice selection state
-  const [selectedVoiceoverId, setSelectedVoiceoverId] = useState<string>('Roger');
-  const [selectedVoiceoverName, setSelectedVoiceoverName] = useState<string>('Roger');
+  const [selectedVoiceoverId, setSelectedVoiceoverId] = useState<string>('');
+  const [selectedVoiceoverName, setSelectedVoiceoverName] = useState<string>('');
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
   const [loadingVoiceId, setLoadingVoiceId] = useState<string | null>(null);
   const [isVoiceoverPopoverOpen, setIsVoiceoverPopoverOpen] = useState(false);
   const voiceoverAudioRef = useRef<HTMLAudioElement | null>(null);
   
   // Audio model selection state
-  const [selectedAudioModel, setSelectedAudioModel] = useState('eleven_multilingual_v2');
+  const [selectedAudioModel, setSelectedAudioModel] = useState('');
   const [isAudioModelPopoverOpen, setIsAudioModelPopoverOpen] = useState(false);
   
   // Audio voiceover settings state
@@ -6020,211 +6020,246 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 ) : selectedAudioMode === 'Voiceover' ? (
                   <>
                     {/* Voiceover Mode Controls */}
-                    <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                          <Box size={16} />
-                          {selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2'}
-                          <ChevronDown size={14} />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 bg-background border-border z-50">
-                        <div className="space-y-1">
-                          <button 
-                            onClick={() => {
-                              setSelectedAudioModel('eleven_turbo_v2_5');
-                              setIsAudioModelPopoverOpen(false);
-                            }}
-                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_turbo_v2_5' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
-                          >
-                            Eleven Turbo v2.5
-                            {selectedAudioModel === 'eleven_turbo_v2_5' && <Check size={14} className="text-brand-green" />}
-                          </button>
-                          <button 
-                            onClick={() => {
-                              setSelectedAudioModel('eleven_multilingual_v2');
-                              setIsAudioModelPopoverOpen(false);
-                            }}
-                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_multilingual_v2' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
-                          >
-                            Eleven Multilingual v2
-                            {selectedAudioModel === 'eleven_multilingual_v2' && <Check size={14} className="text-brand-green" />}
-                          </button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-
-                    <Popover open={isVoiceoverPopoverOpen} onOpenChange={setIsVoiceoverPopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <button 
-                          className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                            selectedVoiceoverId 
-                              ? 'bg-brand-blue/15 text-muted-foreground' 
-                              : 'bg-secondary text-muted-foreground'
-                          }`}
-                        >
-                          <Mic size={18} />
-                          {selectedVoiceoverName || 'Voice'}
-                          <ChevronDown size={14} />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-72 bg-background border-border z-50 p-3 max-h-80 overflow-y-auto">
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground mb-2">Select a voice for your voiceover</p>
-                          
-                          {/* Standard Voices */}
-                          {voiceoverLibrary.map((voice) => (
-                            <div 
-                              key={voice.id}
-                              className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition ${
-                                selectedVoiceoverId === voice.id ? 'bg-brand-green/10 border border-brand-green/30' : 'hover:bg-secondary'
-                              }`}
-                              onClick={() => {
-                                setSelectedVoiceoverId(voice.id);
-                                setSelectedVoiceoverName(voice.name);
-                                setIsVoiceoverPopoverOpen(false);
-                              }}
-                            >
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center">
-                                  <User size={14} className="text-foreground" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">{voice.name}</p>
-                                  <p className="text-xs text-muted-foreground">{voice.gender}</p>
-                                </div>
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  playVoiceoverPreview(voice.id);
-                                }}
-                                disabled={loadingVoiceId !== null}
-                                className="p-1.5 rounded-full hover:bg-secondary transition"
-                              >
-                                {loadingVoiceId === voice.id ? (
-                                  <Loader2 size={14} className="animate-spin text-muted-foreground" />
-                                ) : playingVoiceId === voice.id ? (
-                                  <div className="w-3 h-3 rounded-sm bg-brand-red" />
-                                ) : (
-                                  <Play size={14} className="text-brand-green" />
+                    {/* Model Button */}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`${!selectedAudioModel ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
+                                <Box size={16} />
+                                {selectedAudioModel && (
+                                  <>
+                                    {selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2'}
+                                    <ChevronDown size={14} />
+                                  </>
                                 )}
                               </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Model</p>
+                          </TooltipContent>
+                          <PopoverContent className="w-64 bg-background border-border z-50">
+                            <div className="space-y-1">
+                              <button 
+                                onClick={() => {
+                                  setSelectedAudioModel('eleven_turbo_v2_5');
+                                  setIsAudioModelPopoverOpen(false);
+                                }}
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_turbo_v2_5' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
+                              >
+                                Eleven Turbo v2.5
+                                {selectedAudioModel === 'eleven_turbo_v2_5' && <Check size={14} className="text-brand-green" />}
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  setSelectedAudioModel('eleven_multilingual_v2');
+                                  setIsAudioModelPopoverOpen(false);
+                                }}
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_multilingual_v2' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
+                              >
+                                Eleven Multilingual v2
+                                {selectedAudioModel === 'eleven_multilingual_v2' && <Check size={14} className="text-brand-green" />}
+                              </button>
                             </div>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                          </PopoverContent>
+                        </Popover>
+                      </Tooltip>
+                    </TooltipProvider>
 
-                    <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                          {voiceoverLanguage ? (
-                            <>
-                              {(() => {
-                                const langFlags: Record<string, string> = {
-                                  'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
-                                  'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
-                                  'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
-                                  'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
-                                  'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
-                                  'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
-                                  'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
-                                  'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
-                                };
-                                return langFlags[voiceoverLanguage] || '🌐';
-                              })()}{' '}
-                              {voiceoverLanguage}
-                            </>
-                          ) : (
-                            <>
-                              <Globe size={14} />
-                              Language
-                            </>
-                          )}
-                          <ChevronDown size={14} />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-56 bg-background border-border z-50 p-0">
-                        <div className="p-2 border-b border-border">
-                          <div className="relative">
-                            <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                            <input
-                              type="text"
-                              placeholder="Search Languages..."
-                              className="w-full pl-7 pr-3 py-1.5 text-sm bg-muted rounded-md border-none outline-none focus:ring-2 focus:ring-emerald-500"
-                              onChange={(e) => {
-                                const searchInput = e.target.parentElement?.parentElement?.nextElementSibling;
-                                if (searchInput) {
-                                  const buttons = searchInput.querySelectorAll('button');
-                                  const query = e.target.value.toLowerCase();
-                                  buttons.forEach((btn) => {
-                                    const text = btn.textContent?.toLowerCase() || '';
-                                    (btn as HTMLElement).style.display = text.includes(query) ? 'flex' : 'none';
-                                  });
-                                }
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div className="max-h-64 overflow-y-auto p-1">
-                          {[
-                            { name: 'English', flag: '🇺🇸' },
-                            { name: 'Spanish', flag: '🇪🇸' },
-                            { name: 'French', flag: '🇫🇷' },
-                            { name: 'German', flag: '🇩🇪' },
-                            { name: 'Portuguese', flag: '🇵🇹' },
-                            { name: 'Italian', flag: '🇮🇹' },
-                            { name: 'Dutch', flag: '🇳🇱' },
-                            { name: 'Russian', flag: '🇷🇺' },
-                            { name: 'Chinese', flag: '🇨🇳' },
-                            { name: 'Japanese', flag: '🇯🇵' },
-                            { name: 'Korean', flag: '🇰🇷' },
-                            { name: 'Arabic', flag: '🇸🇦' },
-                            { name: 'Hindi', flag: '🇮🇳' },
-                            { name: 'Bengali', flag: '🇧🇩' },
-                            { name: 'Turkish', flag: '🇹🇷' },
-                            { name: 'Vietnamese', flag: '🇻🇳' },
-                            { name: 'Thai', flag: '🇹🇭' },
-                            { name: 'Indonesian', flag: '🇮🇩' },
-                            { name: 'Malay', flag: '🇲🇾' },
-                            { name: 'Polish', flag: '🇵🇱' },
-                            { name: 'Ukrainian', flag: '🇺🇦' },
-                            { name: 'Greek', flag: '🇬🇷' },
-                            { name: 'Czech', flag: '🇨🇿' },
-                            { name: 'Romanian', flag: '🇷🇴' },
-                            { name: 'Hungarian', flag: '🇭🇺' },
-                            { name: 'Swedish', flag: '🇸🇪' },
-                            { name: 'Norwegian', flag: '🇳🇴' },
-                            { name: 'Danish', flag: '🇩🇰' },
-                            { name: 'Finnish', flag: '🇫🇮' },
-                            { name: 'Hebrew', flag: '🇮🇱' },
-                            { name: 'Persian', flag: '🇮🇷' },
-                            { name: 'Urdu', flag: '🇵🇰' },
-                            { name: 'Tamil', flag: '🇮🇳' },
-                            { name: 'Telugu', flag: '🇮🇳' },
-                            { name: 'Tagalog', flag: '🇵🇭' },
-                            { name: 'Swahili', flag: '🇰🇪' },
-                            { name: 'Croatian', flag: '🇭🇷' },
-                            { name: 'Slovak', flag: '🇸🇰' },
-                            { name: 'Bulgarian', flag: '🇧🇬' },
-                            { name: 'Catalan', flag: '🇪🇸' }
-                          ].map((lang) => (
-                            <button 
-                              key={lang.name}
-                              onClick={() => {
-                                setVoiceoverLanguage(lang.name);
-                                setIsLanguagePopoverOpen(false);
-                              }}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${voiceoverLanguage === lang.name ? 'bg-secondary' : ''}`}
-                            >
-                              <span>{lang.flag}</span>
-                              {lang.name}
-                            </button>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                    {/* Voice Button */}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <Popover open={isVoiceoverPopoverOpen} onOpenChange={setIsVoiceoverPopoverOpen}>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button 
+                                className={`${!selectedVoiceoverId ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                  selectedVoiceoverId 
+                                    ? 'bg-brand-blue/15 text-muted-foreground' 
+                                    : 'bg-secondary text-muted-foreground'
+                                }`}
+                              >
+                                <Mic size={18} />
+                                {selectedVoiceoverName && (
+                                  <>
+                                    {selectedVoiceoverName}
+                                    <ChevronDown size={14} />
+                                  </>
+                                )}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Voice</p>
+                          </TooltipContent>
+                          <PopoverContent className="w-72 bg-background border-border z-50 p-3 max-h-80 overflow-y-auto">
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground mb-2">Select a voice for your voiceover</p>
+                              
+                              {/* Standard Voices */}
+                              {voiceoverLibrary.map((voice) => (
+                                <div 
+                                  key={voice.id}
+                                  className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition ${
+                                    selectedVoiceoverId === voice.id ? 'bg-brand-green/10 border border-brand-green/30' : 'hover:bg-secondary'
+                                  }`}
+                                  onClick={() => {
+                                    setSelectedVoiceoverId(voice.id);
+                                    setSelectedVoiceoverName(voice.name);
+                                    setIsVoiceoverPopoverOpen(false);
+                                  }}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center">
+                                      <User size={14} className="text-foreground" />
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium">{voice.name}</p>
+                                      <p className="text-xs text-muted-foreground">{voice.gender}</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      playVoiceoverPreview(voice.id);
+                                    }}
+                                    disabled={loadingVoiceId !== null}
+                                    className="p-1.5 rounded-full hover:bg-secondary transition"
+                                  >
+                                    {loadingVoiceId === voice.id ? (
+                                      <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                                    ) : playingVoiceId === voice.id ? (
+                                      <div className="w-3 h-3 rounded-sm bg-brand-red" />
+                                    ) : (
+                                      <Play size={14} className="text-brand-green" />
+                                    )}
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    {/* Language Button */}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`${!voiceoverLanguage ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
+                                {voiceoverLanguage ? (
+                                  <>
+                                    {(() => {
+                                      const langFlags: Record<string, string> = {
+                                        'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
+                                        'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
+                                        'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
+                                        'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
+                                        'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
+                                        'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
+                                        'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
+                                        'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
+                                      };
+                                      return langFlags[voiceoverLanguage] || '🌐';
+                                    })()}{' '}
+                                    {voiceoverLanguage}
+                                    <ChevronDown size={14} />
+                                  </>
+                                ) : (
+                                  <Globe size={14} />
+                                )}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Language</p>
+                          </TooltipContent>
+                          <PopoverContent className="w-56 bg-background border-border z-50 p-0">
+                            <div className="p-2 border-b border-border">
+                              <div className="relative">
+                                <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                                <input
+                                  type="text"
+                                  placeholder="Search Languages..."
+                                  className="w-full pl-7 pr-3 py-1.5 text-sm bg-muted rounded-md border-none outline-none focus:ring-2 focus:ring-emerald-500"
+                                  onChange={(e) => {
+                                    const searchInput = e.target.parentElement?.parentElement?.nextElementSibling;
+                                    if (searchInput) {
+                                      const buttons = searchInput.querySelectorAll('button');
+                                      const query = e.target.value.toLowerCase();
+                                      buttons.forEach((btn) => {
+                                        const text = btn.textContent?.toLowerCase() || '';
+                                        (btn as HTMLElement).style.display = text.includes(query) ? 'flex' : 'none';
+                                      });
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <div className="max-h-64 overflow-y-auto p-1">
+                              {[
+                                { name: 'English', flag: '🇺🇸' },
+                                { name: 'Spanish', flag: '🇪🇸' },
+                                { name: 'French', flag: '🇫🇷' },
+                                { name: 'German', flag: '🇩🇪' },
+                                { name: 'Portuguese', flag: '🇵🇹' },
+                                { name: 'Italian', flag: '🇮🇹' },
+                                { name: 'Dutch', flag: '🇳🇱' },
+                                { name: 'Russian', flag: '🇷🇺' },
+                                { name: 'Chinese', flag: '🇨🇳' },
+                                { name: 'Japanese', flag: '🇯🇵' },
+                                { name: 'Korean', flag: '🇰🇷' },
+                                { name: 'Arabic', flag: '🇸🇦' },
+                                { name: 'Hindi', flag: '🇮🇳' },
+                                { name: 'Bengali', flag: '🇧🇩' },
+                                { name: 'Turkish', flag: '🇹🇷' },
+                                { name: 'Vietnamese', flag: '🇻🇳' },
+                                { name: 'Thai', flag: '🇹🇭' },
+                                { name: 'Indonesian', flag: '🇮🇩' },
+                                { name: 'Malay', flag: '🇲🇾' },
+                                { name: 'Polish', flag: '🇵🇱' },
+                                { name: 'Ukrainian', flag: '🇺🇦' },
+                                { name: 'Greek', flag: '🇬🇷' },
+                                { name: 'Czech', flag: '🇨🇿' },
+                                { name: 'Romanian', flag: '🇷🇴' },
+                                { name: 'Hungarian', flag: '🇭🇺' },
+                                { name: 'Swedish', flag: '🇸🇪' },
+                                { name: 'Norwegian', flag: '🇳🇴' },
+                                { name: 'Danish', flag: '🇩🇰' },
+                                { name: 'Finnish', flag: '🇫🇮' },
+                                { name: 'Hebrew', flag: '🇮🇱' },
+                                { name: 'Persian', flag: '🇮🇷' },
+                                { name: 'Urdu', flag: '🇵🇰' },
+                                { name: 'Tamil', flag: '🇮🇳' },
+                                { name: 'Telugu', flag: '🇮🇳' },
+                                { name: 'Tagalog', flag: '🇵🇭' },
+                                { name: 'Swahili', flag: '🇰🇪' },
+                                { name: 'Croatian', flag: '🇭🇷' },
+                                { name: 'Slovak', flag: '🇸🇰' },
+                                { name: 'Bulgarian', flag: '🇧🇬' },
+                                { name: 'Catalan', flag: '🇪🇸' }
+                              ].map((lang) => (
+                                <button 
+                                  key={lang.name}
+                                  onClick={() => {
+                                    setVoiceoverLanguage(lang.name);
+                                    setIsLanguagePopoverOpen(false);
+                                  }}
+                                  className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${voiceoverLanguage === lang.name ? 'bg-secondary' : ''}`}
+                                >
+                                  <span>{lang.flag}</span>
+                                  {lang.name}
+                                </button>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </Tooltip>
+                    </TooltipProvider>
 
                     {/* Accent Button */}
                     <TooltipProvider>
