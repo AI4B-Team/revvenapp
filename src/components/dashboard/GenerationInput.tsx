@@ -4989,17 +4989,31 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      {/* Settings Button - icon only */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition text-slate-600">
-                            <MoreHorizontal size={18} />
+                      {/* Style Button */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 text-slate-600">
+                            <Film size={18} />
+                            <span className="text-xs font-medium">Style</span>
                           </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>More Settings</p>
-                        </TooltipContent>
-                      </Tooltip>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              Cinematic
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              Documentary
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              Animation
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              Realistic
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </>
                   )}
                 </TooltipProvider>
