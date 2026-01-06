@@ -4085,11 +4085,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Animate Mode Dropdown */}
                   <Popover open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen} modal={false}>
                     <PopoverTrigger asChild>
-                      <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
+                      <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:brightness-90">
                         {(() => {
                           const mode = animateModes.find(m => m.value === selectedAnimateMode);
                           const IconComponent = mode?.icon || Play;
-                          return <IconComponent size={14} />;
+                          return <IconComponent size={16} />;
                         })()}
                         {selectedAnimateMode}
                         <ChevronDown size={14} />
@@ -4124,8 +4124,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Avatar Video / Lip-Sync Mode Controls - Same model dropdown for both */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:opacity-80">
-                            <Video size={14} />
+                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:brightness-90">
+                            <Video size={16} />
                             {ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : ugcModel === 'infinitalk' ? 'Infinitalk' : 'Wan Avatar'}
                             <ChevronDown size={14} />
                           </button>
@@ -4162,8 +4162,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           ⚠️ Audio too long ({Math.round(uploadedAudio.duration)}s &gt; 15s)
                         </span>
                       )}
-                      <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
-                        <Film size={14} />
+                      <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                        <Film size={16} />
                         Style
                       </button>
 
@@ -4171,14 +4171,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => onCharactersClick?.()}
-                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               videoModeState.characters.length > 0 
-                                ? 'bg-pill-green text-pill-green-text' 
-                                : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}
+                                ? 'bg-brand-blue/15 text-muted-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}
                           >
-                            <User size={14} />
-                            Character
+                            <User size={16} />
+                            {videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Character'}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -4186,31 +4186,31 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
-                        <Heart size={14} />
+                      <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                        <Heart size={16} />
                         Emotion
                       </button>
 
                       <button 
                         onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
-                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                           ugcSceneText.trim().length > 0 
-                            ? 'bg-pill-green text-pill-green-text' 
-                            : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}
+                            ? 'bg-brand-green/15 text-muted-foreground' 
+                            : 'bg-secondary text-muted-foreground'
+                        }`}
                       >
-                        <Clapperboard size={14} />
+                        <Clapperboard size={16} />
                         Scene
                       </button>
 
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             videoAspectRatio !== '16:9' 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
-                            <RatioIcon size={14} />
+                              ? 'bg-brand-yellow/15 text-muted-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
+                            <RatioIcon size={16} />
                             {videoAspectRatio}
                             <ChevronDown size={14} />
                           </button>
@@ -4247,12 +4247,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* UGC Mode Controls - with Product button */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             videoModel !== 'veo3_fast'
                               ? 'bg-pill-orange text-pill-orange-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
-                            <Video size={14} />
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
+                            <Video size={16} />
                             {videoModel === 'veo3'
                               ? 'Veo 3.1 Quality'
                               : videoModel === 'kling-2.6'
@@ -4298,14 +4298,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => onCharactersClick?.()}
-                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               videoModeState.characters.length > 0 
-                                ? 'bg-pill-green text-pill-green-text' 
-                                : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}
+                                ? 'bg-brand-blue/15 text-muted-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}
                           >
-                            <User size={14} />
-                            Character
+                            <User size={16} />
+                            {videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Character'}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -4316,15 +4316,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Product Image Upload with History */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             ugcProductImage 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                              ? 'bg-brand-green/15 text-muted-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {isUploadingUgcProduct ? (
-                              <Loader2 size={14} className="animate-spin" />
+                              <Loader2 size={16} className="animate-spin" />
                             ) : (
-                              <Package size={14} />
+                              <Package size={16} />
                             )}
                             {ugcProductImage ? 'Product ✓' : 'Product'}
                           </button>
@@ -4429,8 +4429,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Recast Mode Controls - Model Selector */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:opacity-80">
-                            <Video size={14} />
+                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:brightness-90">
+                            <Video size={16} />
                             {recastModel === 'animate-move' ? 'Animate Move' : 'Animate Replace'}
                             <ChevronDown size={14} />
                           </button>
@@ -4458,15 +4458,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Video Upload */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             recastVideo 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                              ? 'bg-brand-green/15 text-muted-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {isUploadingRecastVideo ? (
-                              <Loader2 size={14} className="animate-spin" />
+                              <Loader2 size={16} className="animate-spin" />
                             ) : (
-                              <Video size={14} />
+                              <Video size={16} />
                             )}
                             {recastVideo ? 'Video ✓' : 'Video'}
                           </button>
@@ -4574,24 +4574,24 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Character Selection for Recast */}
                       <button 
                         onClick={onCharactersClick}
-                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                           selectedCharacters.length > 0 
-                            ? 'bg-pill-green text-pill-green-text' 
-                            : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}
+                            ? 'bg-brand-blue/15 text-muted-foreground' 
+                            : 'bg-secondary text-muted-foreground'
+                        }`}
                       >
                         {selectedCharacters.length > 0 ? (
                           <>
                             <img 
                               src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar} 
                               alt={selectedCharacters[0].name} 
-                              className="w-5 h-5 rounded-full object-cover" 
+                              className="w-5 h-5 rounded object-cover" 
                             />
                             <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
                           </>
                         ) : (
                           <>
-                            <User size={14} />
+                            <User size={16} />
                             Character
                           </>
                         )}
@@ -4600,11 +4600,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Resolution Selector */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             recastResolution !== '480p' 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                              ? 'bg-brand-yellow/15 text-muted-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {recastResolution}
                             <ChevronDown size={14} />
                           </button>
@@ -4638,13 +4638,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={onCharactersClick}
-                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               selectedCharacters.length > 0 
-                                ? 'bg-pill-green text-pill-green-text' 
-                                : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}
+                                ? 'bg-brand-green/15 text-muted-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}
                           >
-                            <ImageIcon size={14} />
+                            <ImageIcon size={16} />
                             Frame
                           </button>
                         </TooltipTrigger>
@@ -4656,8 +4656,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   ) : selectedAnimateMode === 'Story' ? (
                     <>
                       {/* Story Mode Controls - uses sora-2-pro-storyboard */}
-                      <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:opacity-80">
-                        <Video size={14} />
+                      <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:brightness-90">
+                        <Video size={16} />
                         Sora Storyboard
                       </button>
 
@@ -4676,16 +4676,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               }
                               onCharactersClick?.();
                             }}
-                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               videoModeState.characters.length > 0 
-                                ? 'bg-pill-green text-pill-green-text' 
+                                ? 'bg-brand-blue/15 text-muted-foreground' 
                                 : storyReferenceImage
-                                  ? 'bg-pill-gray/50 text-pill-gray-text/50 cursor-not-allowed'
-                                  : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}
+                                  ? 'bg-secondary/50 text-muted-foreground/50 cursor-not-allowed'
+                                  : 'bg-secondary text-muted-foreground'
+                            }`}
                           >
-                            <User size={14} />
-                            Character
+                            <User size={16} />
+                            {videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Character'}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -4708,15 +4708,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               }
                               onReferencesClick?.();
                             }}
-                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               selectedReferences.length > 0 
-                                ? 'bg-pill-green text-pill-green-text' 
+                                ? 'bg-brand-green/15 text-muted-foreground' 
                                 : videoModeState.characters.length > 0
-                                  ? 'bg-pill-gray/50 text-pill-gray-text/50 cursor-not-allowed'
-                                  : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}
+                                  ? 'bg-secondary/50 text-muted-foreground/50 cursor-not-allowed'
+                                  : 'bg-secondary text-muted-foreground'
+                            }`}
                           >
-                            <ImageIcon size={14} />
+                            <ImageIcon size={16} />
                             Reference {selectedReferences.length > 0 && `(${selectedReferences.length})`}
                           </button>
                         </TooltipTrigger>
@@ -4729,13 +4729,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <DropdownMenu open={isStorySceneModeDropdownOpen} onOpenChange={setIsStorySceneModeDropdownOpen}>
                         <DropdownMenuTrigger asChild>
                           <button 
-                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               storySceneMode === 'Manual'
-                                ? 'bg-pill-green text-pill-green-text' 
-                                : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}
+                                ? 'bg-brand-green/15 text-muted-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}
                           >
-                            <Clapperboard size={14} />
+                            <Clapperboard size={16} />
                             Scenes: {storySceneMode}
                             <ChevronDown size={14} className={`transition-transform ${isStorySceneModeDropdownOpen ? 'rotate-180' : ''}`} />
                           </button>
@@ -4758,7 +4758,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
+                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
                             {storyDuration}s
                             <ChevronDown size={14} />
                           </button>
@@ -4789,12 +4789,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             videoAspectRatio !== 'landscape' 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
-                            <RatioIcon size={14} />
+                              ? 'bg-brand-yellow/15 text-muted-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
+                            <RatioIcon size={16} />
                             {videoAspectRatio === 'portrait' ? 'Portrait' : 'Landscape'}
                             <ChevronDown size={14} />
                           </button>
@@ -4824,12 +4824,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Standard Video Mode Controls */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             videoModel !== 'veo3_fast' 
                               ? 'bg-pill-orange text-pill-orange-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
-                            <Video size={14} />
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
+                            <Video size={16} />
                             {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
                             <ChevronDown size={14} />
                           </button>
@@ -4888,14 +4888,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               // Open character selector and update video mode state
                               onCharactersClick?.();
                             }}
-                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               videoModeState.characters.length > 0 
-                                ? 'bg-pill-green text-pill-green-text' 
-                                : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}
+                                ? 'bg-brand-blue/15 text-muted-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}
                           >
-                            <User size={14} />
-                            Character
+                            <User size={16} />
+                            {videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Character'}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -4908,16 +4908,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           // Open reference selector and update video mode state
                           onReferencesClick?.();
                         }}
-                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                           videoModeState.references.length > 0 || videoModeState.startingFrame || videoModeState.endingFrame
-                            ? 'bg-pill-green text-pill-green-text' 
-                            : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}
+                            ? 'bg-brand-green/15 text-muted-foreground' 
+                            : 'bg-secondary text-muted-foreground'
+                        }`}
                       >
-                        <Upload size={14} />
+                        <Upload size={16} />
                         Reference
                         {videoModeState.references.length > 0 && (
-                          <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs font-medium">
+                          <span className="bg-foreground/10 px-1.5 py-0.5 rounded text-xs font-medium">
                             {videoModeState.references.length}
                           </span>
                         )}
@@ -4925,11 +4925,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             videoAspectRatio !== '16:9' 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                              ? 'bg-brand-yellow/15 text-muted-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {videoAspectRatio}
                             <ChevronDown size={14} />
                           </button>
@@ -4963,11 +4963,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             videoDuration !== '10' 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                              ? 'bg-brand-yellow/15 text-muted-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {videoDuration} sec
                             <ChevronDown size={14} />
                           </button>
@@ -5092,11 +5092,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Audio Mode Dropdown */}
                   <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
+                      <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:brightness-90">
                         {(() => {
                           const mode = audioModes.find(m => m.value === selectedAudioMode);
                           const Icon = mode?.icon || Mic;
-                          return <Icon size={14} />;
+                          return <Icon size={16} />;
                         })()}
                         {selectedAudioMode}
                         <ChevronDown size={14} />
@@ -5124,7 +5124,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {selectedAudioMode === 'Transcribe' && (
                     <>
                       {/* ElevenLabs Model Indicator */}
-                      <div className="px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text cursor-default">
+                      <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text cursor-default">
                         <div className="w-3 h-3 rounded-full bg-emerald-500" />
                         ElevenLabs
                       </div>
@@ -5132,11 +5132,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Upload Audio Button */}
                       <button 
                         onClick={() => setIsAudioSelectModalOpen(true)}
-                        className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-80 ${
-                          transcribeAudio ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                          transcribeAudio ? 'bg-brand-green/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
                         }`}
                       >
-                        <Upload size={14} />
+                        <Upload size={16} />
                         {transcribeAudio ? 'Audio Added' : 'Upload Audio'}
                       </button>
                       
@@ -5153,9 +5153,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Duration Selector */}
                       <Popover open={isSfxDurationPopoverOpen} onOpenChange={setIsSfxDurationPopoverOpen}>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            sfxDuration !== undefined ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            sfxDuration !== undefined ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {sfxDuration !== undefined ? `${sfxDuration}s` : 'Duration'}
                             <ChevronDown size={14} />
                           </button>
@@ -5191,20 +5191,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Loop Toggle */}
                       <button
                         onClick={() => setSfxLoop(!sfxLoop)}
-                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          sfxLoop ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}
+                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                          sfxLoop ? 'bg-brand-green/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                        }`}
                       >
-                        <RefreshCw size={14} />
+                        <RefreshCw size={16} />
                         {sfxLoop ? 'Loop On' : 'Loop'}
                       </button>
 
                       {/* Prompt Influence */}
                       <Popover open={isSfxInfluencePopoverOpen} onOpenChange={setIsSfxInfluencePopoverOpen}>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            sfxPromptInfluence !== 0.3 ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            sfxPromptInfluence !== 0.3 ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                          }`}>
                             Influence: {Math.round(sfxPromptInfluence * 100)}%
                             <ChevronDown size={14} />
                           </button>
@@ -5235,9 +5235,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Output Format */}
                       <Popover open={isSfxFormatPopoverOpen} onOpenChange={setIsSfxFormatPopoverOpen}>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            sfxOutputFormat !== 'mp3_44100_128' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            sfxOutputFormat !== 'mp3_44100_128' ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {sfxOutputFormat.split('_')[0].toUpperCase()}
                             <ChevronDown size={14} />
                           </button>
@@ -5282,8 +5282,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {/* Model Selector */}
                     <Popover open={isMusicModelPopoverOpen} onOpenChange={setIsMusicModelPopoverOpen}>
                       <PopoverTrigger asChild>
-                        <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
-                          <Music size={14} />
+                        <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:brightness-90">
+                          <Music size={16} />
                           {musicModel}
                           <ChevronDown size={14} />
                         </button>
@@ -5317,9 +5317,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {/* Instrumental Toggle */}
                     <button
                       onClick={() => setMusicInstrumental(!musicInstrumental)}
-                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                        musicInstrumental ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                      } hover:opacity-80`}
+                      className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                        musicInstrumental ? 'bg-brand-green/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                      }`}
                     >
                       {musicInstrumental ? '🎹 Instrumental' : '🎤 With Vocals'}
                     </button>
@@ -5328,19 +5328,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {!musicInstrumental && (
                       <>
                         {/* Vocal Gender Selector */}
-                        <div className="flex items-center gap-1 bg-pill-gray rounded-full p-0.5">
+                        <div className="flex items-center gap-1 bg-secondary rounded-lg p-0.5">
                           <button
                             onClick={() => setVocalGender('f')}
-                            className={`px-3 py-1 rounded-full text-sm transition whitespace-nowrap ${
-                              vocalGender === 'f' ? 'bg-pill-green text-pill-green-text' : 'text-pill-gray-text hover:text-foreground'
+                            className={`px-3 py-1.5 rounded-md text-sm transition whitespace-nowrap ${
+                              vocalGender === 'f' ? 'bg-brand-green/15 text-muted-foreground' : 'text-muted-foreground hover:text-foreground'
                             }`}
                           >
                             👩 Female
                           </button>
                           <button
                             onClick={() => setVocalGender('m')}
-                            className={`px-3 py-1 rounded-full text-sm transition whitespace-nowrap ${
-                              vocalGender === 'm' ? 'bg-pill-green text-pill-green-text' : 'text-pill-gray-text hover:text-foreground'
+                            className={`px-3 py-1.5 rounded-md text-sm transition whitespace-nowrap ${
+                              vocalGender === 'm' ? 'bg-brand-green/15 text-muted-foreground' : 'text-muted-foreground hover:text-foreground'
                             }`}
                           >
                             👨 Male
@@ -5350,10 +5350,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         {/* Lyrics Input */}
                         <Popover>
                           <PopoverTrigger asChild>
-                            <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                              musicLyrics ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}>
-                              <FileText size={14} />
+                            <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                              musicLyrics ? 'bg-brand-green/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                            }`}>
+                              <FileText size={16} />
                               {musicLyrics ? 'Lyrics ✓' : 'Add Lyrics'}
                               <ChevronDown size={14} />
                             </button>
@@ -5424,9 +5424,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {/* Custom Mode Toggle */}
                     <button
                       onClick={() => setMusicCustomMode(!musicCustomMode)}
-                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                        musicCustomMode ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                      } hover:opacity-80`}
+                      className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                        musicCustomMode ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                      }`}
                     >
                       {musicCustomMode ? '⚙️ Custom' : 'Custom'}
                     </button>
@@ -5435,9 +5435,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {musicCustomMode && (
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            musicStyle ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            musicStyle ? 'bg-brand-green/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {musicStyle || 'Style'}
                             <ChevronDown size={14} />
                           </button>
@@ -5473,9 +5473,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {musicCustomMode && (
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            musicTitle ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
+                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            musicTitle ? 'bg-brand-green/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                          }`}>
                             {musicTitle ? musicTitle.substring(0, 15) + (musicTitle.length > 15 ? '...' : '') : 'Title'}
                             <ChevronDown size={14} />
                           </button>
@@ -5872,7 +5872,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                     {/* Duration indicator */}
                     {revoiceAudio?.duration && (
-                      <span className="px-3 py-1.5 rounded-full text-xs bg-muted text-muted-foreground">
+                      <span className="px-3 py-2 rounded-lg text-xs bg-muted text-muted-foreground">
                         {revoiceAudio.duration}s
                       </span>
                     )}
@@ -5882,7 +5882,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {/* Voiceover Mode Controls */}
                     <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
                       <PopoverTrigger asChild>
-                        <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
+                        <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:brightness-90">
+                          <Mic size={16} />
                           {selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2'}
                           <ChevronDown size={14} />
                         </button>
@@ -5916,13 +5917,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <Popover open={isVoiceoverPopoverOpen} onOpenChange={setIsVoiceoverPopoverOpen}>
                       <PopoverTrigger asChild>
                         <button 
-                          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                             selectedVoiceoverId 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}
+                              ? 'bg-brand-blue/15 text-muted-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}
                         >
-                          <Mic size={14} />
+                          <Mic size={16} />
                           {selectedVoiceoverName || 'Voice'}
                           <ChevronDown size={14} />
                         </button>
@@ -5977,9 +5978,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                     <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
                       <PopoverTrigger asChild>
-                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          voiceoverLanguage !== 'English' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}>
+                        <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                          voiceoverLanguage !== 'English' ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                        }`}>
                           {(() => {
                             const langFlags: Record<string, string> = {
                               'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
@@ -6221,8 +6222,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Model Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:brightness-90">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -6255,7 +6256,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Create Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-3 py-2 bg-secondary rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90">
                       Create
                       <ChevronDown size={14} />
                     </button>
@@ -6294,8 +6295,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                      contentType === 'Social' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-muted hover:bg-muted/80'
+                    <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                      contentType === 'Social' ? 'bg-pill-green text-pill-green-text' : 'bg-secondary text-muted-foreground'
                     }`}>
                       Type: {contentType}
                       <ChevronDown size={14} />
@@ -6316,8 +6317,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Goal Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                      contentGoal !== 'Engagement' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-muted hover:bg-muted/80'
+                    <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                      contentGoal !== 'Engagement' ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
                     }`}>
                       Goal: {contentGoal}
                       <ChevronDown size={14} />
@@ -6341,8 +6342,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Language Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                      contentLanguage !== 'English' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-muted hover:bg-muted/80'
+                    <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                      contentLanguage !== 'English' ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
                     }`}>
                       {(() => {
                         const langFlags: Record<string, string> = {
@@ -6442,8 +6443,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Days Selector */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap bg-emerald-500 hover:bg-emerald-600 text-white">
-                      <Calendar size={14} />
+                    <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:brightness-90">
+                      <Calendar size={16} />
                       {contentDays} Days
                       <ChevronDown size={14} />
                     </button>
