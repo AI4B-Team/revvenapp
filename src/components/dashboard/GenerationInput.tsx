@@ -5087,7 +5087,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </TooltipProvider>
               </>
             ) : isAudioMode ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 w-full overflow-x-auto">
                 {/* Audio Preview Row (shows ABOVE the buttons) */}
                 {selectedAudioMode === 'Transcribe' && transcribeAudio && (
                   <div 
@@ -5140,7 +5140,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 )}
 
                 {/* Buttons Row */}
-                <div className="flex items-center gap-2 flex-nowrap shrink-0">
+                <div className="flex items-center gap-2 flex-nowrap shrink-0 min-w-0">
                   
                   {/* Type Dropdown for Audio */}
                   <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
@@ -5154,11 +5154,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {audioModes.map((mode) => (
                         <DropdownMenuItem
                           key={mode.value}
-                          onClick={() => {
+                          onSelect={(e) => {
+                            e.preventDefault();
                             setSelectedAudioMode(mode.value);
                             setIsAudioModeDropdownOpen(false);
                           }}
-                          className={`flex items-center gap-2 ${selectedAudioMode === mode.value ? 'text-primary font-medium' : ''}`}
+                          className={`flex items-center gap-2 cursor-pointer ${selectedAudioMode === mode.value ? 'text-primary font-medium' : ''}`}
                         >
                           <mode.icon size={16} />
                           {mode.label}
