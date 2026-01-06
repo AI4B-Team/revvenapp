@@ -198,7 +198,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <Input
                       type="text"
-                      placeholder="Search apps..."
+                      placeholder="Search Apps"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9 h-9 bg-slate-50 border-slate-200 focus-visible:ring-emerald-500"
