@@ -99,11 +99,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [contentDays, setContentDays] = useState(30);
   
   // Animate mode dropdown state (Video)
-  const [selectedAnimateMode, setSelectedAnimateMode] = useState('Animate');
+  const [selectedAnimateMode, setSelectedAnimateMode] = useState('');
   const [isAnimateModeDropdownOpen, setIsAnimateModeDropdownOpen] = useState(false);
   
   // Create mode dropdown state (Image)
-  const [selectedCreateMode, setSelectedCreateMode] = useState('Create');
+  const [selectedCreateMode, setSelectedCreateMode] = useState('');
   const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
   const promptBoxRef = useRef<HTMLDivElement | null>(null);
   const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -4123,14 +4123,27 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Type Dropdown for Video */}
                   <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm font-medium hover:opacity-90 transition">
-                        {(() => {
-                          const currentMode = animateModes.find(m => m.value === selectedAnimateMode);
-                          const Icon = currentMode?.icon || Play;
-                          return <Icon size={16} className="text-red-600 dark:text-red-400" />;
-                        })()}
-                        {animateModes.find(m => m.value === selectedAnimateMode)?.label || 'Animate'}
-                        <X size={14} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 ml-0.5" />
+                      <button className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-90 transition ${
+                        selectedAnimateMode 
+                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          : 'bg-secondary text-foreground'
+                      }`}>
+                        <LayoutGrid size={16} className={selectedAnimateMode ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'} />
+                        {selectedAnimateMode ? (
+                          <>
+                            {animateModes.find(m => m.value === selectedAnimateMode)?.label}
+                            <X 
+                              size={14} 
+                              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 ml-0.5"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedAnimateMode('');
+                              }}
+                            />
+                          </>
+                        ) : (
+                          'Type'
+                        )}
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-52 bg-background border-border z-50" align="start">
@@ -4140,7 +4153,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <DropdownMenuItem
                             key={mode.value}
                             onClick={() => {
-                              setSelectedAnimateMode(mode.value);
+                              setSelectedAnimateMode(selectedAnimateMode === mode.value ? '' : mode.value);
                               setIsAnimateModeDropdownOpen(false);
                             }}
                             className={`flex items-center gap-2 ${
@@ -4156,8 +4169,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  {/* Separator after Animate dropdown */}
+                  {/* Separator after Type dropdown */}
                   <div className="w-px h-8 bg-slate-200 mx-1" />
+
+                  {/* Show other controls only when a type is selected */}
+                  {selectedAnimateMode && (
+                    <>
 
                   {(selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') ? (
                     <>
@@ -5153,6 +5170,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Popover>
                     </>
                   )}
+                  {/* Close the conditional wrapper for type selection */}
+                  </>
+                  )}
                 </TooltipProvider>
               </>
             ) : isAudioMode ? (
@@ -5252,7 +5272,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             return <Icon size={16} className="text-green-600 dark:text-green-400" />;
                           })()}
                           {selectedAudioMode}
-                          <ChevronDown size={14} className="text-green-600 dark:text-green-400" />
+                          <X 
+                            size={14} 
+                            className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 ml-0.5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedAudioMode(null);
+                            }}
+                          />
                         </button>
                       </PopoverTrigger>
                       <PopoverContent 
@@ -5265,7 +5292,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <button
                               key={mode.value}
                               onClick={() => {
-                                setSelectedAudioMode(mode.value);
+                                setSelectedAudioMode(selectedAudioMode === mode.value ? null : mode.value);
                                 setIsAudioModeDropdownOpen(false);
                               }}
                               className="flex items-center gap-2.5 py-2 text-sm cursor-pointer hover:opacity-70 transition"
@@ -5279,9 +5306,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </Popover>
                   )}
 
-                  {/* Separator after Voiceover */}
+                  {/* Separator - always visible */}
                   <div className="w-px h-6 bg-border mx-1" />
 
+                  {/* Audio controls - only show when type is selected */}
+                  {selectedAudioMode && (
+                    <>
                   {/* Transcribe Mode Controls */}
                   {selectedAudioMode === 'Transcribe' && (
                     <>
@@ -6410,6 +6440,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </TooltipProvider>
                   </>
                 ) : null}
+                    </>
+                  )}
                 </div>
               </div>
             ) : isDesignMode ? (
@@ -6826,16 +6858,36 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <button
                   onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
                   aria-expanded={isCreateModeDropdownOpen}
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap bg-secondary text-foreground hover:opacity-90"
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                    selectedCreateMode 
+                      ? 'bg-brand-green/15 text-foreground'
+                      : 'bg-secondary text-foreground'
+                  }`}
                 >
                   <LayoutGrid size={16} className="text-muted-foreground" />
-                  <span>Type</span>
+                  {selectedCreateMode ? (
+                    <>
+                      <span>{createModes.find(m => m.value === selectedCreateMode)?.label || 'Type'}</span>
+                      <X 
+                        size={14} 
+                        className="text-muted-foreground hover:text-foreground ml-0.5"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCreateMode('');
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <span>Type</span>
+                  )}
                 </button>
 
-                {/* Mode controls */}
+                {/* Vertical separator - always visible */}
+                <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+
+                {/* Mode controls - only show when type is selected */}
+                {selectedCreateMode && (
                 <>
-                  {/* Vertical separator */}
-                  <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
             {/* Model Dropdown - Show "11 Labs" static pill in Transcribe mode */}
             {isAudioMode && selectedAudioMode === 'Transcribe' ? (
@@ -7616,6 +7668,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </PopoverContent>
               </Popover>
                 </>
+                )}
               </>
             )}
           </div>
