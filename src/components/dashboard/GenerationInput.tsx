@@ -6990,45 +6990,47 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
               </>
-            ) : (
+            ) : isAppsMode ? (
               <>
-                {/* Image Mode Controls */}
-                {/* Type Dropdown - shows "Type" until a mode is selected */}
-                <button
-                  onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
-                  aria-expanded={isCreateModeDropdownOpen}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
-                    selectedCreateMode 
-                      ? 'bg-brand-green/15 text-foreground'
-                      : 'bg-secondary text-foreground'
-                  }`}
-                >
-                  <LayoutGrid size={16} className="text-muted-foreground" />
-                  {selectedCreateMode ? (
-                    <>
-                      <span>{createModes.find(m => m.value === selectedCreateMode)?.label || 'Type'}</span>
-                      <X 
-                        size={14} 
-                        className="text-muted-foreground hover:text-foreground ml-0.5"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedCreateMode('');
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <span>Type</span>
-                  )}
-                </button>
+                {/* Apps Mode Controls */}
+                {/* Type Dropdown */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-2 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
+                      <LayoutGrid size={16} className="text-muted-foreground" />
+                      Type
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Code size={16} className="text-brand-blue" />
+                        Web App
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Bot size={16} className="text-brand-purple" />
+                        AI Agent
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Package size={16} className="text-brand-green" />
+                        SaaS
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <LayoutList size={16} className="text-brand-yellow" />
+                        Landing Page
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
-                {/* Vertical separator after Type */}
+                {/* Vertical separator */}
                 <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
                 {/* Reference Button */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button className="p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 bg-secondary">
-                      <ImageIcon size={18} />
+                      <Link size={18} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>Reference</TooltipContent>
@@ -7101,6 +7103,38 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </div>
                   </PopoverContent>
                 </Popover>
+              </>
+            ) : (
+              <>
+                {/* Image Mode Controls */}
+                {/* Type Dropdown - shows "Type" until a mode is selected */}
+                <button
+                  onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
+                  aria-expanded={isCreateModeDropdownOpen}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                    selectedCreateMode 
+                      ? 'bg-brand-green/15 text-foreground'
+                      : 'bg-secondary text-foreground'
+                  }`}
+                >
+                  <LayoutGrid size={16} className="text-muted-foreground" />
+                  {selectedCreateMode ? (
+                    <>
+                      <span>{createModes.find(m => m.value === selectedCreateMode)?.label || 'Type'}</span>
+                      <X 
+                        size={14} 
+                        className="text-muted-foreground hover:text-foreground ml-0.5"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCreateMode('');
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <span>Type</span>
+                  )}
+                </button>
+
 
                 {/* Mode controls - only show when type is selected */}
                 {selectedCreateMode && (
