@@ -4946,7 +4946,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             </PopoverTrigger>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>AI Model: {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}</p>
+                            <p>Model</p>
                           </TooltipContent>
                         </Tooltip>
                         <PopoverContent className="w-64 bg-background border-border z-50 max-h-80 overflow-y-auto">
@@ -4992,8 +4992,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Style Button - icon only with tooltip */}
                       <Popover>
                         <Tooltip>
-                          <PopoverTrigger asChild>
-                            <TooltipTrigger asChild>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
                               <button 
                                 className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
                                   videoStyle 
@@ -5001,11 +5001,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                                 }`}
                               >
-                                <Film size={18} />
+                                <LayoutGrid size={18} />
                                 {videoStyle && <span className="text-xs font-medium">{videoStyle}</span>}
                               </button>
-                            </TooltipTrigger>
-                          </PopoverTrigger>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
                           <TooltipContent>
                             <p>Style</p>
                           </TooltipContent>
@@ -5055,7 +5055,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>{videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Select Character'}</p>
+                          <p>Character</p>
                         </TooltipContent>
                       </Tooltip>
 
@@ -5074,24 +5074,31 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Reference Images {videoModeState.references.length > 0 ? `(${videoModeState.references.length})` : ''}</p>
+                          <p>Reference</p>
                         </TooltipContent>
                       </Tooltip>
 
                       {/* Aspect Ratio Button */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button 
-                            className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
-                              videoAspectRatio !== '16:9' 
-                                ? 'bg-amber-100 text-amber-600' 
-                                : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
-                            }`}
-                          >
-                            <Copy size={18} />
-                            <span className="text-xs font-medium">{videoAspectRatio}</span>
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button 
+                                className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
+                                  videoAspectRatio !== '16:9' 
+                                    ? 'bg-amber-100 text-amber-600' 
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                                }`}
+                              >
+                                <Copy size={18} />
+                                {videoAspectRatio !== '16:9' && <span className="text-xs font-medium">{videoAspectRatio}</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ratio</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
@@ -5121,18 +5128,25 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                       {/* Duration Button */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button 
-                            className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
-                              videoDuration !== '10' 
-                                ? 'bg-amber-100 text-amber-600' 
-                                : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
-                            }`}
-                          >
-                            <Clock size={18} />
-                            <span className="text-xs font-medium">{videoDuration}s</span>
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button 
+                                className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
+                                  videoDuration !== '10' 
+                                    ? 'bg-amber-100 text-amber-600' 
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                                }`}
+                              >
+                                <Clock size={18} />
+                                <span className="text-xs font-medium">{videoDuration}s</span>
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Duration</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
@@ -5160,8 +5174,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Quality Button - icon only with tooltip */}
                       <Popover>
                         <Tooltip>
-                          <PopoverTrigger asChild>
-                            <TooltipTrigger asChild>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
                               <button 
                                 className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
                                   videoQuality !== '1080p' 
@@ -5172,8 +5186,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 <SlidersHorizontal size={18} />
                                 <span className="text-xs font-medium">{videoQuality}</span>
                               </button>
-                            </TooltipTrigger>
-                          </PopoverTrigger>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
                           <TooltipContent>
                             <p>Quality</p>
                           </TooltipContent>
