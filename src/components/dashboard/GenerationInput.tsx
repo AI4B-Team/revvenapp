@@ -4213,13 +4213,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <>
                       {/* Avatar Video / Lip-Sync Mode Controls - Same model dropdown for both */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            <Video size={16} />
-                            {ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : ugcModel === 'infinitalk' ? 'Infinitalk' : 'Wan Avatar'}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                                <Video size={16} />
+                                {ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : ugcModel === 'infinitalk' ? 'Infinitalk' : 'Wan Avatar'}
+                                <ChevronDown size={14} />
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Model</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-64 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
@@ -4254,10 +4261,18 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           ⚠️ Audio too long ({Math.round(uploadedAudio.duration)}s &gt; 15s)
                         </span>
                       )}
-                      <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                        <Film size={16} />
-                        Style
-                      </button>
+                      
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                            <LayoutGrid size={16} />
+                            Style
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Style</p>
+                        </TooltipContent>
+                      </Tooltip>
 
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -4274,39 +4289,60 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Select Character</p>
+                          <p>Character</p>
                         </TooltipContent>
                       </Tooltip>
 
-                      <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                        <Heart size={16} />
-                        Emotion
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                            <Heart size={16} />
+                            Emotion
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Emotion</p>
+                        </TooltipContent>
+                      </Tooltip>
 
-                      <button 
-                        onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
-                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                          ugcSceneText.trim().length > 0 
-                            ? 'bg-brand-green/15 text-muted-foreground' 
-                            : 'bg-secondary text-muted-foreground'
-                        }`}
-                      >
-                        <Clapperboard size={16} />
-                        Scene
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
+                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                              ugcSceneText.trim().length > 0 
+                                ? 'bg-brand-green/15 text-muted-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}
+                          >
+                            <Clapperboard size={16} />
+                            Scene
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Scene</p>
+                        </TooltipContent>
+                      </Tooltip>
 
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                            videoAspectRatio !== '16:9' 
-                              ? 'bg-brand-yellow/15 text-muted-foreground' 
-                              : 'bg-secondary text-muted-foreground'
-                          }`}>
-                            <RatioIcon size={16} />
-                            {videoAspectRatio}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                videoAspectRatio !== '16:9' 
+                                  ? 'bg-brand-yellow/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                <RatioIcon size={16} />
+                                {videoAspectRatio}
+                                <ChevronDown size={14} />
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ratio</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
