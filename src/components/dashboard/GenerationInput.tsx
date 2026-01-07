@@ -5333,22 +5333,41 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Transcribe Mode Controls */}
                   {selectedAudioMode === 'Transcribe' && (
                     <>
-                      {/* ElevenLabs Model Indicator */}
-                      <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground cursor-default">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                        ElevenLabs
-                      </div>
+                      {/* Model Selector */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="p-2 rounded-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90 transition">
+                            <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50 p-2" align="start">
+                          <div className="space-y-1">
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                              ElevenLabs
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                       
                       {/* Upload Audio Button */}
-                      <button 
-                        onClick={() => setIsAudioSelectModalOpen(true)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                          transcribeAudio ? 'bg-brand-green/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
-                        }`}
-                      >
-                        <Upload size={16} />
-                        {transcribeAudio ? 'Audio Added' : 'Upload Audio'}
-                      </button>
+                      <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => setIsAudioSelectModalOpen(true)}
+                              className={`p-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                transcribeAudio ? 'bg-brand-green/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
+                              }`}
+                            >
+                              <Upload size={16} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <p>Upload Audio</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </>
                   )}
 
