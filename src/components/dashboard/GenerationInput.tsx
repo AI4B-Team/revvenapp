@@ -4902,7 +4902,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   : 'bg-secondary text-muted-foreground'
                             }`}
                           >
-                            <Link size={16} />
+                            <Link2 size={16} />
                             {selectedReferences.length > 0 && <span>Reference ({selectedReferences.length})</span>}
                           </button>
                         </TooltipTrigger>
@@ -7178,7 +7178,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button className="p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 bg-secondary">
-                      <Link size={18} />
+                      <Link2 size={18} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>Reference</TooltipContent>
@@ -7786,7 +7786,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       : 'bg-secondary'
                   }`}
                 >
-                  <Link size={18} />
+                  <Link2 size={18} />
                 </button>
               </TooltipTrigger>
               <TooltipContent>Reference</TooltipContent>
