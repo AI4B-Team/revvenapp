@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, type LucideIcon } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, type LucideIcon } from 'lucide-react';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
 import IntentSelector, { type Intent } from '@/components/IntentSelector';
@@ -30,9 +30,10 @@ interface ControlIcon {
   tooltip: string;
 }
 
-// Control icons for Image types - style uses VideoStyleIcon component
+// Control icons for Image types - uses Brush icon for style
 const imageControlIcons: ControlIcon[] = [
   { id: 'model', icon: Box, tooltip: 'Model' },
+  { id: 'style', icon: Brush, tooltip: 'Style' },
   { id: 'character', icon: User, tooltip: 'Character' },
   { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
   { id: 'number', icon: Hash, tooltip: 'Number' },
