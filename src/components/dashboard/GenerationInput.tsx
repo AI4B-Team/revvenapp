@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Link2, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -5185,7 +5185,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                             }`}
                           >
-                            <Link size={18} />
+                            <Link2 size={18} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
