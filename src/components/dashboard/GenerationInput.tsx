@@ -1070,12 +1070,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Track if we've applied an external animate mode this session
   const hasAppliedExternalAnimateMode = useRef(false);
 
-  // Reset animate mode to 'Animate' when entering video mode (unless external mode was applied)
+  // Clear animate mode when entering video mode so only "Type" is visible by default
   useEffect(() => {
     if (isVideoMode && !externalAnimateMode && !hasAppliedExternalAnimateMode.current) {
-      setSelectedAnimateMode('Animate');
+      setSelectedAnimateMode('');
+      setIsAnimateModeDropdownOpen(false);
     }
   }, [isVideoMode, externalAnimateMode]);
+
+  // Clear content type when entering content mode so only "Type" is visible by default
+  useEffect(() => {
+    if (isContentMode) {
+      setContentType('');
+    }
+  }, [isContentMode]);
 
   // Handle external animate mode
   useEffect(() => {
