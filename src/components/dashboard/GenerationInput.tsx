@@ -7006,6 +7006,29 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   )}
                 </button>
 
+                {/* Vertical separator after Type */}
+                <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+
+                {/* Reference Button */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 bg-secondary">
+                      <ImageIcon size={18} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Reference</TooltipContent>
+                </Tooltip>
+
+                {/* Theme Button */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 bg-secondary">
+                      <Palette size={18} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Theme</TooltipContent>
+                </Tooltip>
+
                 {/* Mode controls - only show when type is selected */}
                 {selectedCreateMode && (
                 <>
