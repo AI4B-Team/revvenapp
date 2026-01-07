@@ -6720,19 +6720,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <>
                     <div className="w-px h-8 bg-slate-200 mx-1" />
                     
-                {/* Goal Dropdown - Icon only */}
+                {/* Goal Dropdown */}
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
+                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 hover:brightness-90 bg-secondary text-muted-foreground">
                           <Flame size={16} className="text-orange-500" />
+                          {contentGoal}
+                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
                     <TooltipContent>Goal</TooltipContent>
                   </Tooltip>
-                  <PopoverContent className="w-48 bg-background border-border z-50 max-h-80 overflow-y-auto">
+                  <PopoverContent className="w-48 bg-background border-border z-[100] max-h-80 overflow-y-auto">
                     <div className="space-y-1">
                       {['Engagement', 'Awareness', 'Traffic', 'Followers', 'Community', 'Education', 'Entertainment', 'Authority', 'Leads', 'Sales'].map((goal) => (
                         <button 
@@ -6747,19 +6749,35 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
                 
-                {/* Language Dropdown - Icon only */}
+                {/* Language Dropdown */}
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <Languages size={16} />
+                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 hover:brightness-90 bg-secondary text-muted-foreground">
+                          <span className="text-base">
+                            {(() => {
+                              const langFlags: Record<string, string> = {
+                                'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
+                                'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
+                                'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
+                                'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
+                                'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
+                                'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
+                                'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
+                                'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
+                              };
+                              return langFlags[contentLanguage] || '🌐';
+                            })()}
+                          </span>
+                          {contentLanguage}
+                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
                     <TooltipContent>Language</TooltipContent>
                   </Tooltip>
-                  <PopoverContent className="w-56 bg-background border-border z-50 p-0">
+                  <PopoverContent className="w-56 bg-background border-border z-[100] p-0">
                     <div className="p-2 border-b border-border">
                       <div className="relative">
                         <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -6837,19 +6855,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
                 
-                {/* Days Selector - Icon only */}
+                {/* Days Selector */}
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
+                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 hover:brightness-90 bg-secondary text-muted-foreground">
                           <Calendar size={16} />
+                          {contentDays} Days
+                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
                     <TooltipContent>Duration</TooltipContent>
                   </Tooltip>
-                  <PopoverContent className="w-64 bg-background border-border z-50 p-4">
+                  <PopoverContent className="w-64 bg-background border-border z-[100] p-4">
                     <div className="space-y-4">
                       <p className="text-sm font-medium text-foreground">Content Duration</p>
                       <p className="text-xs text-muted-foreground">Select how many days of content to generate</p>
