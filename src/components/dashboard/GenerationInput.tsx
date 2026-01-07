@@ -3458,7 +3458,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     return (
       <div className="w-full"><div className="mx-auto mb-12 transition-all duration-300 w-full max-w-[900px]">
         <div ref={promptBoxRef} className="relative bg-white dark:bg-card border-2 border-emerald-500 rounded-xl p-6 shadow-lg" style={{ minHeight: totalPromptBoxHeight }}>
-          <div className="flex items-end gap-3 mb-3" style={{ height: promptHeight }}>
+          <div className="flex items-start gap-3">
             <div className="flex flex-col gap-2">
             <TooltipProvider>
               <div className="flex flex-col items-start gap-2">
