@@ -6672,8 +6672,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           {contentType === 'Newsletter' && <Send size={16} className="text-purple-600 dark:text-purple-400" />}
                           {contentType === 'Social' && <Share2 size={16} className="text-green-600 dark:text-green-400" />}
                           {!contentType && <LayoutGrid size={16} className="text-muted-foreground" />}
-                          {/* Only show text when no type is selected */}
-                          {!contentType && 'Type'}
+                          {contentType || 'Type'}
                           {contentType && (
                             <X 
                               size={14} 
@@ -6731,7 +6730,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>{contentGoal}</TooltipContent>
+                    <TooltipContent>Goal</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-48 bg-background border-border z-50 max-h-80 overflow-y-auto">
                     <div className="space-y-1">
@@ -6754,25 +6753,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <span className="text-base">
-                            {(() => {
-                              const langFlags: Record<string, string> = {
-                                'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
-                                'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
-                                'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
-                                'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
-                                'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
-                                'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
-                                'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
-                                'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
-                              };
-                              return langFlags[contentLanguage] || '🌐';
-                            })()}
-                          </span>
+                          <Languages size={16} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>{contentLanguage}</TooltipContent>
+                    <TooltipContent>Language</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-56 bg-background border-border z-50 p-0">
                     <div className="p-2 border-b border-border">
@@ -6862,7 +6847,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>{contentDays} Days</TooltipContent>
+                    <TooltipContent>Duration</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-64 bg-background border-border z-50 p-4">
                     <div className="space-y-4">
