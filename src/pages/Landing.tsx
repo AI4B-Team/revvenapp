@@ -162,7 +162,7 @@ export default function RevvenLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-gray-900 text-white overflow-hidden full-size-page">
       {/* Fixed Header */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}
