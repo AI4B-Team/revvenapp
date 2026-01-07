@@ -207,12 +207,12 @@ export default function AuthShowcase() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-advance slides (slower: 7 seconds)
+  // Auto-advance slides every 5 seconds
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % showcaseSlides.length);
-    }, 7000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [isPaused]);
 
