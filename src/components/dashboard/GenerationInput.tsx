@@ -7283,7 +7283,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             </Popover>
             )}
             
-            {/* Style Icon Button */}
+            {/* Style Icon Button - Hidden in Apps mode */}
+            {!isAppsMode && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -7299,8 +7300,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </TooltipTrigger>
               <TooltipContent>Style</TooltipContent>
             </Tooltip>
+            )}
             
-            {/* Character Icon Button */}
+            {/* Character Icon Button - Hidden in Apps mode */}
+            {!isAppsMode && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
@@ -7316,8 +7319,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </TooltipTrigger>
               <TooltipContent>Character</TooltipContent>
             </Tooltip>
+            )}
             
-            {/* Reference Icon Button */}
+            {/* Reference Icon Button - Hidden in Apps mode */}
+            {!isAppsMode && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -7333,6 +7338,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </TooltipTrigger>
               <TooltipContent>Reference</TooltipContent>
             </Tooltip>
+            )}
             
             {/* Mask Upload Button - Only show for Ideogram Edit when reference is selected */}
             {selectedModel === 'ideogram' && selectedReferences.length > 0 && (
@@ -7395,7 +7401,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </Popover>
             )}
             
-            {/* Ratio Icon Button */}
+            {/* Ratio Icon Button - Hidden in Apps mode */}
+            {!isAppsMode && (
             <Popover open={isAspectRatioDropdownOpen} onOpenChange={setIsAspectRatioDropdownOpen}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -7523,6 +7530,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </div>
               </PopoverContent>
             </Popover>
+            )}
             {/* Number Icon Button */}
             <Popover open={isNumberOfImagesDropdownOpen} onOpenChange={setIsNumberOfImagesDropdownOpen}>
               <Tooltip>
