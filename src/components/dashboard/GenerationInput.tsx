@@ -466,6 +466,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Auto-adjust aspect ratio when model changes if current ratio is not supported
   const handleModelChange = (newModel: string) => {
+    // Toggle behavior: deselect if clicking the same model
+    if (selectedModel === newModel) {
+      setSelectedModel('');
+      return;
+    }
     setSelectedModel(newModel);
     const newAvailableRatios = modelAspectRatios[newModel] || modelAspectRatios['auto'];
     if (!newAvailableRatios.includes(selectedAspectRatio)) {
@@ -4253,21 +4258,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setVideoAspectRatio('16:9')}
+                              onClick={() => setVideoAspectRatio(videoAspectRatio === '16:9' ? '' : '16:9')}
                               className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                             >
                               <div className="w-5 h-3 border-2 border-current"></div>
                               16:9 Landscape
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio('9:16')}
+                              onClick={() => setVideoAspectRatio(videoAspectRatio === '9:16' ? '' : '9:16')}
                               className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                             >
                               <div className="w-3 h-5 border-2 border-current"></div>
                               9:16 Portrait
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio('Auto')}
+                              onClick={() => setVideoAspectRatio(videoAspectRatio === 'Auto' ? '' : 'Auto')}
                               className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                             >
                               <div className="w-4 h-4 border-2 border-current"></div>
@@ -4295,7 +4300,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-56 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setVideoModel('veo3_fast')}
+                              onClick={() => setVideoModel(videoModel === 'veo3_fast' ? '' : 'veo3_fast')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
                                 videoModel === 'veo3_fast' ? 'bg-secondary' : ''
                               }`}
@@ -4304,7 +4309,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               <div className="text-xs text-muted-foreground">Quick video generation</div>
                             </button>
                             <button 
-                              onClick={() => setVideoModel('veo3')}
+                              onClick={() => setVideoModel(videoModel === 'veo3' ? '' : 'veo3')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
                                 videoModel === 'veo3' ? 'bg-secondary' : ''
                               }`}
@@ -4313,7 +4318,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               <div className="text-xs text-muted-foreground">Higher quality output</div>
                             </button>
                             <button 
-                              onClick={() => setVideoModel('kling-2.6')}
+                              onClick={() => setVideoModel(videoModel === 'kling-2.6' ? '' : 'kling-2.6')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
                                 videoModel === 'kling-2.6' ? 'bg-secondary' : ''
                               }`}
@@ -6044,7 +6049,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <div className="space-y-1">
                               <button 
                                 onClick={() => {
-                                  setSelectedAudioModel('eleven_turbo_v2_5');
+                                  setSelectedAudioModel(selectedAudioModel === 'eleven_turbo_v2_5' ? '' : 'eleven_turbo_v2_5');
                                   setIsAudioModelPopoverOpen(false);
                                 }}
                                 className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_turbo_v2_5' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
@@ -6054,7 +6059,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               </button>
                               <button 
                                 onClick={() => {
-                                  setSelectedAudioModel('eleven_multilingual_v2');
+                                  setSelectedAudioModel(selectedAudioModel === 'eleven_multilingual_v2' ? '' : 'eleven_multilingual_v2');
                                   setIsAudioModelPopoverOpen(false);
                                 }}
                                 className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_multilingual_v2' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
@@ -6106,8 +6111,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     selectedVoiceoverId === voice.id ? 'bg-brand-green/10 border border-brand-green/30' : 'hover:bg-secondary'
                                   }`}
                                   onClick={() => {
-                                    setSelectedVoiceoverId(voice.id);
-                                    setSelectedVoiceoverName(voice.name);
+                                    if (selectedVoiceoverId === voice.id) {
+                                      setSelectedVoiceoverId('');
+                                      setSelectedVoiceoverName('');
+                                    } else {
+                                      setSelectedVoiceoverId(voice.id);
+                                      setSelectedVoiceoverName(voice.name);
+                                    }
                                     setIsVoiceoverPopoverOpen(false);
                                   }}
                                 >
@@ -6246,7 +6256,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 <button 
                                   key={lang.name}
                                   onClick={() => {
-                                    setVoiceoverLanguage(lang.name);
+                                    setVoiceoverLanguage(voiceoverLanguage === lang.name ? '' : lang.name);
                                     setIsLanguagePopoverOpen(false);
                                   }}
                                   className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${voiceoverLanguage === lang.name ? 'bg-secondary' : ''}`}
@@ -6287,7 +6297,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 <button 
                                   key={accent}
                                   onClick={() => {
-                                    setVoiceoverAccent(accent);
+                                    setVoiceoverAccent(voiceoverAccent === accent ? '' : accent);
                                     setIsAccentPopoverOpen(false);
                                   }}
                                   className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverAccent === accent ? 'bg-brand-green/10 font-medium' : ''}`}
@@ -6328,7 +6338,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 <button 
                                   key={speed}
                                   onClick={() => {
-                                    setVoiceoverSpeed(speed);
+                                    setVoiceoverSpeed(voiceoverSpeed === speed ? '' : speed);
                                     setIsSpeedPopoverOpen(false);
                                   }}
                                   className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverSpeed === speed ? 'bg-brand-green/10 font-medium' : ''}`}
@@ -6369,7 +6379,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 <button 
                                   key={tone}
                                   onClick={() => {
-                                    setVoiceoverTone(tone);
+                                    setVoiceoverTone(voiceoverTone === tone ? '' : tone);
                                     setIsTonePopoverOpen(false);
                                   }}
                                   className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverTone === tone ? 'bg-brand-green/10 font-medium' : ''}`}
@@ -7394,97 +7404,105 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {availableAspectRatios.includes('1:1') && (
                     <button 
                       onClick={() => {
-                        setSelectedAspectRatio('1:1');
+                        setSelectedAspectRatio(selectedAspectRatio === '1:1' ? '' : '1:1');
                         setIsAspectRatioDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${selectedAspectRatio === '1:1' ? 'bg-brand-green/10 font-medium' : ''}`}
                     >
                       <div className="w-4 h-4 border-2 border-current"></div>
                       <span className="flex-1">1:1 Square</span>
+                      {selectedAspectRatio === '1:1' && <Check size={14} className="text-brand-green" />}
                     </button>
                   )}
                   {availableAspectRatios.includes('16:9') && (
                     <button 
                       onClick={() => {
-                        setSelectedAspectRatio('16:9');
+                        setSelectedAspectRatio(selectedAspectRatio === '16:9' ? '' : '16:9');
                         setIsAspectRatioDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${selectedAspectRatio === '16:9' ? 'bg-brand-green/10 font-medium' : ''}`}
                     >
                       <div className="w-5 h-3 border-2 border-current"></div>
                       <span className="flex-1">16:9 Landscape</span>
+                      {selectedAspectRatio === '16:9' && <Check size={14} className="text-brand-green" />}
                     </button>
                   )}
                   {availableAspectRatios.includes('9:16') && (
                     <button 
                       onClick={() => {
-                        setSelectedAspectRatio('9:16');
+                        setSelectedAspectRatio(selectedAspectRatio === '9:16' ? '' : '9:16');
                         setIsAspectRatioDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${selectedAspectRatio === '9:16' ? 'bg-brand-green/10 font-medium' : ''}`}
                     >
                       <div className="w-3 h-5 border-2 border-current"></div>
                       <span className="flex-1">9:16 Portrait</span>
+                      {selectedAspectRatio === '9:16' && <Check size={14} className="text-brand-green" />}
                     </button>
                   )}
                   {availableAspectRatios.includes('4:3') && (
                     <button 
                       onClick={() => {
-                        setSelectedAspectRatio('4:3');
+                        setSelectedAspectRatio(selectedAspectRatio === '4:3' ? '' : '4:3');
                         setIsAspectRatioDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${selectedAspectRatio === '4:3' ? 'bg-brand-green/10 font-medium' : ''}`}
                     >
                       <div className="w-5 h-4 border-2 border-current"></div>
                       <span className="flex-1">4:3 Standard</span>
+                      {selectedAspectRatio === '4:3' && <Check size={14} className="text-brand-green" />}
                     </button>
                   )}
                   {availableAspectRatios.includes('3:4') && (
                     <button 
                       onClick={() => {
-                        setSelectedAspectRatio('3:4');
+                        setSelectedAspectRatio(selectedAspectRatio === '3:4' ? '' : '3:4');
                         setIsAspectRatioDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${selectedAspectRatio === '3:4' ? 'bg-brand-green/10 font-medium' : ''}`}
                     >
                       <div className="w-4 h-5 border-2 border-current"></div>
                       <span className="flex-1">3:4 Portrait</span>
+                      {selectedAspectRatio === '3:4' && <Check size={14} className="text-brand-green" />}
                     </button>
                   )}
                   {availableAspectRatios.includes('3:2') && (
                     <button 
                       onClick={() => {
-                        setSelectedAspectRatio('3:2');
+                        setSelectedAspectRatio(selectedAspectRatio === '3:2' ? '' : '3:2');
                         setIsAspectRatioDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${selectedAspectRatio === '3:2' ? 'bg-brand-green/10 font-medium' : ''}`}
                     >
                       <div className="w-5 h-3.5 border-2 border-current"></div>
                       <span className="flex-1">3:2 Classic</span>
+                      {selectedAspectRatio === '3:2' && <Check size={14} className="text-brand-green" />}
                     </button>
                   )}
                   {availableAspectRatios.includes('2:3') && (
                     <button 
                       onClick={() => {
-                        setSelectedAspectRatio('2:3');
+                        setSelectedAspectRatio(selectedAspectRatio === '2:3' ? '' : '2:3');
                         setIsAspectRatioDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${selectedAspectRatio === '2:3' ? 'bg-brand-green/10 font-medium' : ''}`}
                     >
                       <div className="w-3.5 h-5 border-2 border-current"></div>
                       <span className="flex-1">2:3 Portrait</span>
+                      {selectedAspectRatio === '2:3' && <Check size={14} className="text-brand-green" />}
                     </button>
                   )}
                   {availableAspectRatios.includes('21:9') && (
                     <button 
                       onClick={() => {
-                        setSelectedAspectRatio('21:9');
+                        setSelectedAspectRatio(selectedAspectRatio === '21:9' ? '' : '21:9');
                         setIsAspectRatioDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${selectedAspectRatio === '21:9' ? 'bg-brand-green/10 font-medium' : ''}`}
                     >
                       <div className="w-6 h-3 border-2 border-current"></div>
                       <span className="flex-1">21:9 Ultrawide</span>
+                      {selectedAspectRatio === '21:9' && <Check size={14} className="text-brand-green" />}
                     </button>
                   )}
                 </div>
@@ -7513,57 +7531,63 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <div className="space-y-1">
                   <button 
                     onClick={() => {
-                      setNumberOfImages(1);
+                      setNumberOfImages(numberOfImages === 1 ? 1 : 1);
                       setIsNumberOfImagesDropdownOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${numberOfImages === 1 ? 'bg-brand-green/10 font-medium' : ''}`}
                   >
                     1 Image
+                    {numberOfImages === 1 && <Check size={14} className="text-brand-green" />}
                   </button>
                   <button 
                     onClick={() => {
-                      setNumberOfImages(2);
+                      setNumberOfImages(numberOfImages === 2 ? 1 : 2);
                       setIsNumberOfImagesDropdownOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${numberOfImages === 2 ? 'bg-brand-green/10 font-medium' : ''}`}
                   >
                     2 Images
+                    {numberOfImages === 2 && <Check size={14} className="text-brand-green" />}
                   </button>
                   <button 
                     onClick={() => {
-                      setNumberOfImages(3);
+                      setNumberOfImages(numberOfImages === 3 ? 1 : 3);
                       setIsNumberOfImagesDropdownOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${numberOfImages === 3 ? 'bg-brand-green/10 font-medium' : ''}`}
                   >
                     3 Images
+                    {numberOfImages === 3 && <Check size={14} className="text-brand-green" />}
                   </button>
                   <button 
                     onClick={() => {
-                      setNumberOfImages(4);
+                      setNumberOfImages(numberOfImages === 4 ? 1 : 4);
                       setIsNumberOfImagesDropdownOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${numberOfImages === 4 ? 'bg-brand-green/10 font-medium' : ''}`}
                   >
                     4 Images
+                    {numberOfImages === 4 && <Check size={14} className="text-brand-green" />}
                   </button>
                   <button 
                     onClick={() => {
-                      setNumberOfImages(5);
+                      setNumberOfImages(numberOfImages === 5 ? 1 : 5);
                       setIsNumberOfImagesDropdownOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${numberOfImages === 5 ? 'bg-brand-green/10 font-medium' : ''}`}
                   >
                     5 Images
+                    {numberOfImages === 5 && <Check size={14} className="text-brand-green" />}
                   </button>
                   <button 
                     onClick={() => {
-                      setNumberOfImages(6);
+                      setNumberOfImages(numberOfImages === 6 ? 1 : 6);
                       setIsNumberOfImagesDropdownOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${numberOfImages === 6 ? 'bg-brand-green/10 font-medium' : ''}`}
                   >
                     6 Images
+                    {numberOfImages === 6 && <Check size={14} className="text-brand-green" />}
                   </button>
                 </div>
               </PopoverContent>
