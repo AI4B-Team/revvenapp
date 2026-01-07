@@ -6657,58 +6657,64 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : isContentMode ? (
               <>
                 {/* Content Mode Controls */}
-                {/* Type Dropdown */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
-                      contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                      contentType === 'Newsletter' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' :
-                      contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                      'bg-secondary text-foreground'
-                    }`}>
-                      {contentType === 'Article' && <FileText size={16} className="text-blue-600 dark:text-blue-400" />}
-                      {contentType === 'Newsletter' && <Send size={16} className="text-purple-600 dark:text-purple-400" />}
-                      {contentType === 'Social' && <Share2 size={16} className="text-green-600 dark:text-green-400" />}
-                      {!contentType && <LayoutGrid size={16} className="text-muted-foreground" />}
-                      {contentType || 'Type'}
-                      {contentType && (
-                        <X 
-                          size={14} 
-                          className="hover:opacity-70 ml-0.5"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setContentType('');
-                          }}
-                        />
-                      )}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      <button 
-                        onClick={() => { setContentType(contentType === 'Article' ? '' : 'Article'); }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30' : ''}`}
-                      >
-                        <FileText size={16} className="text-blue-600 dark:text-blue-400" />
-                        Article
-                      </button>
-                      <button 
-                        onClick={() => { setContentType(contentType === 'Newsletter' ? '' : 'Newsletter'); }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Newsletter' ? 'bg-purple-100 dark:bg-purple-900/30' : ''}`}
-                      >
-                        <Send size={16} className="text-purple-600 dark:text-purple-400" />
-                        Newsletter
-                      </button>
-                      <button 
-                        onClick={() => { setContentType(contentType === 'Social' ? '' : 'Social'); setShowSocialButtons(true); }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30' : ''}`}
-                      >
-                        <Share2 size={16} className="text-green-600 dark:text-green-400" />
-                        Social
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                {/* Type Dropdown - Only show icon when selected */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                          contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                          contentType === 'Newsletter' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' :
+                          contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                          'bg-secondary text-foreground'
+                        }`}>
+                          {contentType === 'Article' && <FileText size={16} className="text-blue-600 dark:text-blue-400" />}
+                          {contentType === 'Newsletter' && <Send size={16} className="text-purple-600 dark:text-purple-400" />}
+                          {contentType === 'Social' && <Share2 size={16} className="text-green-600 dark:text-green-400" />}
+                          {!contentType && <LayoutGrid size={16} className="text-muted-foreground" />}
+                          {/* Only show text when no type is selected */}
+                          {!contentType && 'Type'}
+                          {contentType && (
+                            <X 
+                              size={14} 
+                              className="hover:opacity-70"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setContentType('');
+                              }}
+                            />
+                          )}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          <button 
+                            onClick={() => { setContentType(contentType === 'Article' ? '' : 'Article'); }}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30' : ''}`}
+                          >
+                            <FileText size={16} className="text-blue-600 dark:text-blue-400" />
+                            Article
+                          </button>
+                          <button 
+                            onClick={() => { setContentType(contentType === 'Newsletter' ? '' : 'Newsletter'); }}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Newsletter' ? 'bg-purple-100 dark:bg-purple-900/30' : ''}`}
+                          >
+                            <Send size={16} className="text-purple-600 dark:text-purple-400" />
+                            Newsletter
+                          </button>
+                          <button 
+                            onClick={() => { setContentType(contentType === 'Social' ? '' : 'Social'); setShowSocialButtons(true); }}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30' : ''}`}
+                          >
+                            <Share2 size={16} className="text-green-600 dark:text-green-400" />
+                            Social
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </TooltipTrigger>
+                  <TooltipContent>{contentType || 'Type'}</TooltipContent>
+                </Tooltip>
                 
                 {/* Separator and other controls only when type is selected */}
                 {contentType && (
