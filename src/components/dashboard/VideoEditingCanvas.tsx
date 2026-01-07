@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { toast as sonnerToast } from 'sonner';
 import mediaPlaceholder from '@/assets/media-placeholder.png';
 import layerOrderOptions from '@/assets/layer-order-options.png';
+import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import {
   Image,
   Music,
@@ -45,7 +46,6 @@ import {
   GripVertical,
   User,
   Share2,
-  Link2,
   Settings,
   UserPlus,
   Send,
@@ -2277,7 +2277,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                   onClick={() => setShowReferencesModal(true)}
                                   className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors"
                                 >
-                                  <Layers className="w-4 h-4" />
+                                  <ReferenceLinkIcon size={16} />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent><p>Reference</p></TooltipContent>
@@ -2355,7 +2355,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                                  <Layers className="w-4 h-4" />
+                                  <ReferenceLinkIcon size={16} />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent><p>Reference</p></TooltipContent>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Link, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, Mic2, PenTool, Check } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, Mic2, PenTool, Check } from 'lucide-react';
+import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
@@ -28,21 +29,19 @@ interface ControlIcon {
   tooltip: string;
 }
 
-// Control icons for Image types
+// Control icons for Image types - reference uses custom icon component
 const imageControlIcons: ControlIcon[] = [
   { id: 'model', icon: Box, tooltip: 'Model' },
   { id: 'style', icon: Brush, tooltip: 'Style' },
   { id: 'character', icon: User, tooltip: 'Character' },
-  { id: 'reference', icon: Link, tooltip: 'Reference' },
   { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
   { id: 'number', icon: Hash, tooltip: 'Number' },
 ];
 
-// Control icons for Video types
+// Control icons for Video types - reference uses custom icon component
 const videoControlIcons: ControlIcon[] = [
   { id: 'model', icon: Box, tooltip: 'Model' },
   { id: 'character', icon: User, tooltip: 'Character' },
-  { id: 'reference', icon: Link, tooltip: 'Reference' },
   { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
   { id: 'duration', icon: Clock, tooltip: 'Duration' },
   { id: 'quality', icon: SlidersHorizontal, tooltip: 'Quality' },
