@@ -1,4 +1,4 @@
-import referenceLinkIcon from '@/assets/icons/reference-link-chain.png';
+import referenceLinkIcon from '@/assets/icons/reference-link-chain-v2.png';
 
 interface ReferenceLinkIconProps {
   size?: number;
