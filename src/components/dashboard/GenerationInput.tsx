@@ -6700,15 +6700,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         Newsletter
                       </button>
                       <button 
-                        onClick={() => { 
-                          if (contentType === 'Social') {
-                            setContentType('');
-                          } else {
-                            setContentType('Social');
-                            setSelectedPlatforms([]); // Clear selections when selecting Social
-                          }
-                          setShowSocialButtons(true); 
-                        }}
+                        onClick={() => { setContentType(contentType === 'Social' ? '' : 'Social'); setShowSocialButtons(true); }}
                         className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30' : ''}`}
                       >
                         <Share2 size={16} className="text-green-600 dark:text-green-400" />
@@ -6722,40 +6714,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {contentType && (
                   <>
                     <div className="w-px h-8 bg-slate-200 mx-1" />
-
-                    {/* Social Platform Icons - Only show when Social is selected */}
-                    {contentType === 'Social' && (
-                      <>
-                        {socialPlatforms.map(platform => {
-                          const isSelected = selectedPlatforms.includes(platform.id);
-                          const IconComponent = platform.Icon;
-                          return (
-                            <Tooltip key={platform.id}>
-                              <TooltipTrigger asChild>
-                                <button
-                                  onClick={() => {
-                                    setSelectedPlatforms(prev =>
-                                      prev.includes(platform.id)
-                                        ? prev.filter(id => id !== platform.id)
-                                        : [...prev, platform.id]
-                                    );
-                                  }}
-                                  className={`p-2 rounded-lg transition-all flex-shrink-0 ${
-                                    isSelected
-                                      ? 'bg-emerald-500/20 ring-2 ring-emerald-500'
-                                      : 'bg-secondary hover:bg-secondary/80'
-                                  }`}
-                                >
-                                  <IconComponent className="w-5 h-5" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>{platform.name}</TooltipContent>
-                            </Tooltip>
-                          );
-                        })}
-                        <div className="w-px h-8 bg-slate-200 mx-1" />
-                      </>
-                    )}
                     
                 {/* Goal Dropdown */}
                 <Popover>
