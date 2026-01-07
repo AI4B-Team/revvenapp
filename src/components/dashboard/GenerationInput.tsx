@@ -4137,17 +4137,29 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           : 'bg-secondary text-foreground'
                       }`}>
                         <LayoutGrid size={16} className={selectedAnimateMode ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'} />
-                        {selectedAnimateMode ? (
+{selectedAnimateMode ? (
                           <>
                             {animateModes.find(m => m.value === selectedAnimateMode)?.label}
-                            <X 
-                              size={14} 
-                              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 ml-0.5"
+                            <span 
+                              role="button"
+                              tabIndex={0}
+                              className="inline-flex items-center justify-center cursor-pointer ml-0.5"
+                              onPointerDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
                               onClick={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
                                 setSelectedAnimateMode('');
+                                setIsAnimateModeDropdownOpen(false);
                               }}
-                            />
+                            >
+                              <X 
+                                size={14} 
+                                className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"
+                              />
+                            </span>
                           </>
                         ) : (
                           'Type'
