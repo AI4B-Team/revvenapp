@@ -1,5 +1,3 @@
-import referenceLinkIcon from '@/assets/icons/reference-link-chain-v2.png';
-
 interface ReferenceLinkIconProps {
   size?: number;
   className?: string;
@@ -7,15 +5,20 @@ interface ReferenceLinkIconProps {
 
 const ReferenceLinkIcon = ({ size = 18, className = '' }: ReferenceLinkIconProps) => {
   return (
-    <img
-      src={referenceLinkIcon}
-      alt="Reference link"
+    <svg
       width={size}
       height={size}
+      viewBox="0 0 24 24"
+      fill="none"
       className={className}
-      draggable={false}
-      style={{ width: size, height: size, objectFit: 'contain' }}
-    />
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
   );
 };
 
