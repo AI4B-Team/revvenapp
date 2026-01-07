@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Brush, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, Mic2, PenTool, Check } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, Mic2, PenTool, Check, type LucideIcon } from 'lucide-react';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
+import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
 import IntentSelector, { type Intent } from './IntentSelector';
 import AutoDropdown, { type AutoOption } from './AutoDropdown';
 import ControlChip from './ControlChip';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-import type { LucideIcon } from 'lucide-react';
 
 const placeholdersByIntent: Record<Intent | 'default', string> = {
   default: 'Ask anything...',
@@ -29,10 +29,9 @@ interface ControlIcon {
   tooltip: string;
 }
 
-// Control icons for Image types - reference uses custom icon component
+// Control icons for Image types - style uses VideoStyleIcon component
 const imageControlIcons: ControlIcon[] = [
   { id: 'model', icon: Box, tooltip: 'Model' },
-  { id: 'style', icon: Brush, tooltip: 'Style' },
   { id: 'character', icon: User, tooltip: 'Character' },
   { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
   { id: 'number', icon: Hash, tooltip: 'Number' },
