@@ -4173,16 +4173,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-64 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setUgcModel('wan-speech-to-video')}
+                              onClick={() => setUgcModel(ugcModel === 'wan-speech-to-video' ? 'kling-ai-avatar' : 'wan-speech-to-video')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
                                 ugcModel === 'wan-speech-to-video' ? 'bg-secondary' : ''
                               }`}
                             >
                               <div className="font-medium">Wan Avatar</div>
                               <div className="text-xs text-muted-foreground">Speech-to-video with lip sync (max 15s)</div>
+                              {ugcModel === 'wan-speech-to-video' && <Check size={14} className="text-brand-green mt-1" />}
                             </button>
                             <button 
-                              onClick={() => setUgcModel('kling-ai-avatar')}
+                              onClick={() => setUgcModel(ugcModel === 'kling-ai-avatar' ? 'wan-speech-to-video' : 'kling-ai-avatar')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
                                 ugcModel === 'kling-ai-avatar' ? 'bg-secondary' : ''
                               }`}
@@ -4191,6 +4192,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 Kling Avatar
                               </div>
                               <div className="text-xs text-muted-foreground">Pro avatar with audio sync (max 15s)</div>
+                              {ugcModel === 'kling-ai-avatar' && <Check size={14} className="text-brand-green mt-1" />}
                             </button>
                           </div>
                         </PopoverContent>
@@ -4432,25 +4434,28 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setVideoAspectRatio('16:9')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                              onClick={() => setVideoAspectRatio(videoAspectRatio === '16:9' ? '' : '16:9')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === '16:9' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-5 h-3 border-2 border-current"></div>
                               16:9 Landscape
+                              {videoAspectRatio === '16:9' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio('9:16')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                              onClick={() => setVideoAspectRatio(videoAspectRatio === '9:16' ? '' : '9:16')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === '9:16' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-3 h-5 border-2 border-current"></div>
                               9:16 Portrait
+                              {videoAspectRatio === '9:16' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio('Auto')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                              onClick={() => setVideoAspectRatio(videoAspectRatio === 'Auto' ? '' : 'Auto')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === 'Auto' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-4 h-4 border-2 border-current"></div>
                               Auto
+                              {videoAspectRatio === 'Auto' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                           </div>
                         </PopoverContent>
@@ -4470,18 +4475,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-64 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setRecastModel('animate-move')}
+                              onClick={() => setRecastModel(recastModel === 'animate-move' ? 'animate-replace' : 'animate-move')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastModel === 'animate-move' ? 'bg-secondary' : ''}`}
                             >
                               <div className="font-medium">Animate Move</div>
                               <div className="text-xs text-muted-foreground">Move/animate elements in video</div>
+                              {recastModel === 'animate-move' && <Check size={14} className="text-brand-green mt-1" />}
                             </button>
                             <button 
-                              onClick={() => setRecastModel('animate-replace')}
+                              onClick={() => setRecastModel(recastModel === 'animate-replace' ? 'animate-move' : 'animate-replace')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastModel === 'animate-replace' ? 'bg-secondary' : ''}`}
                             >
                               <div className="font-medium">Animate Replace</div>
                               <div className="text-xs text-muted-foreground">Replace character with image</div>
+                              {recastModel === 'animate-replace' && <Check size={14} className="text-brand-green mt-1" />}
                             </button>
                           </div>
                         </PopoverContent>
@@ -4644,22 +4651,25 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setRecastResolution('480p')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastResolution === '480p' ? 'bg-secondary' : ''}`}
+                              onClick={() => setRecastResolution(recastResolution === '480p' ? '480p' : '480p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${recastResolution === '480p' ? 'bg-secondary' : ''}`}
                             >
                               480p
+                              {recastResolution === '480p' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setRecastResolution('580p')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastResolution === '580p' ? 'bg-secondary' : ''}`}
+                              onClick={() => setRecastResolution(recastResolution === '580p' ? '480p' : '580p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${recastResolution === '580p' ? 'bg-secondary' : ''}`}
                             >
                               580p
+                              {recastResolution === '580p' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setRecastResolution('720p')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastResolution === '720p' ? 'bg-secondary' : ''}`}
+                              onClick={() => setRecastResolution(recastResolution === '720p' ? '480p' : '720p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${recastResolution === '720p' ? 'bg-secondary' : ''}`}
                             >
                               720p
+                              {recastResolution === '720p' && <Check size={14} className="text-brand-green" />}
                             </button>
                           </div>
                         </PopoverContent>
@@ -4774,16 +4784,18 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-36 bg-background border-border">
                           <DropdownMenuItem
-                            onClick={() => setStorySceneMode('Auto')}
+                            onClick={() => setStorySceneMode(storySceneMode === 'Auto' ? 'Manual' : 'Auto')}
                             className={storySceneMode === 'Auto' ? 'bg-secondary' : ''}
                           >
                             Auto
+                            {storySceneMode === 'Auto' && <Check size={14} className="ml-auto text-brand-green" />}
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => setStorySceneMode('Manual')}
+                            onClick={() => setStorySceneMode(storySceneMode === 'Manual' ? 'Auto' : 'Manual')}
                             className={storySceneMode === 'Manual' ? 'bg-secondary' : ''}
                           >
                             Manual
+                            {storySceneMode === 'Manual' && <Check size={14} className="ml-auto text-brand-green" />}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -4798,22 +4810,25 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-36 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setStoryDuration('10')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${storyDuration === '10' ? 'bg-secondary' : ''}`}
+                              onClick={() => setStoryDuration(storyDuration === '10' ? '10' : '10')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${storyDuration === '10' ? 'bg-secondary' : ''}`}
                             >
                               10 seconds
+                              {storyDuration === '10' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setStoryDuration('15')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${storyDuration === '15' ? 'bg-secondary' : ''}`}
+                              onClick={() => setStoryDuration(storyDuration === '15' ? '10' : '15')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${storyDuration === '15' ? 'bg-secondary' : ''}`}
                             >
                               15 seconds
+                              {storyDuration === '15' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setStoryDuration('25')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${storyDuration === '25' ? 'bg-secondary' : ''}`}
+                              onClick={() => setStoryDuration(storyDuration === '25' ? '10' : '25')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${storyDuration === '25' ? 'bg-secondary' : ''}`}
                             >
                               25 seconds
+                              {storyDuration === '25' && <Check size={14} className="text-brand-green" />}
                             </button>
                           </div>
                         </PopoverContent>
@@ -5442,7 +5457,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <button 
                               key={model}
                               onClick={() => {
-                                setMusicModel(model);
+                                setMusicModel(musicModel === model ? 'V4' : model);
                                 setIsMusicModelPopoverOpen(false);
                               }}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${musicModel === model ? 'bg-brand-green/10 font-medium' : ''}`}
