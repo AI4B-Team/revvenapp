@@ -16,20 +16,18 @@ const VideoStyleIcon = ({ size = 18, className = '' }: VideoStyleIconProps) => {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {/* Film reel outer circle */}
-      <circle cx="12" cy="12" r="10" />
-      {/* Center hole */}
-      <circle cx="12" cy="12" r="3" />
-      {/* Sprocket holes */}
-      <circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none" />
-      {/* Diagonal sprocket holes */}
-      <circle cx="7.05" cy="7.05" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="16.95" cy="16.95" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="16.95" cy="7.05" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="7.05" cy="16.95" r="1.2" fill="currentColor" stroke="none" />
+      {/* Film strip */}
+      <rect x="2" y="2" width="20" height="20" rx="2" />
+      {/* Sprocket holes left */}
+      <rect x="4" y="4" width="2" height="3" fill="currentColor" stroke="none" />
+      <rect x="4" y="10.5" width="2" height="3" fill="currentColor" stroke="none" />
+      <rect x="4" y="17" width="2" height="3" fill="currentColor" stroke="none" />
+      {/* Sprocket holes right */}
+      <rect x="18" y="4" width="2" height="3" fill="currentColor" stroke="none" />
+      <rect x="18" y="10.5" width="2" height="3" fill="currentColor" stroke="none" />
+      <rect x="18" y="17" width="2" height="3" fill="currentColor" stroke="none" />
+      {/* Center play triangle */}
+      <polygon points="10,8 10,16 16,12" fill="currentColor" stroke="none" />
     </svg>
   );
 };
