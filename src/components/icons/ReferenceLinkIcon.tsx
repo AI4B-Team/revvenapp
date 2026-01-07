@@ -1,4 +1,4 @@
-import referenceLinkIcon from '@/assets/icons/reference-link.png';
+import { Link2 } from 'lucide-react';
 
 interface ReferenceLinkIconProps {
   size?: number;
@@ -7,13 +7,10 @@ interface ReferenceLinkIconProps {
 
 const ReferenceLinkIcon = ({ size = 18, className = '' }: ReferenceLinkIconProps) => {
   return (
-    <img 
-      src={referenceLinkIcon} 
-      alt="Reference" 
-      width={size} 
-      height={size} 
+    <Link2 
+      size={size} 
       className={className}
-      style={{ width: size, height: size, objectFit: 'contain' }}
+      strokeWidth={2.5}
     />
   );
 };
