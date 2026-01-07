@@ -4838,7 +4838,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            <Video size={16} />
+                            <Box size={16} />
                             <span>Sora Storyboard</span>
                           </button>
                         </TooltipTrigger>
