@@ -8319,8 +8319,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         />
       )}
 
-      {/* Social Platform Selection - Always visible in Content mode */}
-      {isContentMode && (
+      {/* Social Platform Selection - Only visible when Social is selected in Content mode */}
+      {isContentMode && contentType === 'Social' && (
         <div className="flex justify-center mt-6">
         <div className="p-6 bg-card rounded-xl border-2 border-border shadow-sm">
           <p className="text-foreground font-semibold mb-6 text-center text-xl">
