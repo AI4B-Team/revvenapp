@@ -6480,6 +6480,35 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Tooltip>
                     </TooltipProvider>
                   </>
+                ) : selectedAudioMode === 'AudioBook' ? (
+                  <>
+                    {/* AudioBook Mode Controls */}
+                    {/* Model Selector */}
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <Popover>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className="p-2 rounded-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90 transition">
+                                <Box size={16} />
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <PopoverContent className="w-48 bg-background border-border z-50 p-2" align="start">
+                            <div className="space-y-1">
+                              <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                                ElevenLabs
+                              </button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        <TooltipContent side="top">
+                          <p>Model</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </>
                 ) : null}
                     </>
                   )}
