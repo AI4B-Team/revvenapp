@@ -6898,12 +6898,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   )}
                 </button>
 
-                {/* Vertical separator - always visible */}
-                <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
-
                 {/* Mode controls - only show when type is selected */}
                 {selectedCreateMode && (
                 <>
+                  {/* Vertical separator */}
+                  <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
             {/* Model Dropdown - Show "11 Labs" static pill in Transcribe mode */}
             {isAudioMode && selectedAudioMode === 'Transcribe' ? (
