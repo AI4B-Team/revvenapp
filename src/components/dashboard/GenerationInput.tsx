@@ -47,6 +47,18 @@ interface GenerationInputProps {
   onExternalAnimateModeUsed?: () => void;
 }
 
+// Color themes data
+const colorThemes = [
+  { id: 'default', name: 'Default', colors: ['#1a1a2e', '#4a4a4a', '#9ca3af', '#e5e7eb'] },
+  { id: 'glacier', name: 'Glacier', colors: ['#1e40af', '#3b82f6', '#60a5fa', '#bfdbfe'] },
+  { id: 'harvest', name: 'Harvest', colors: ['#c2410c', '#ea580c', '#fb923c', '#fed7aa'] },
+  { id: 'lavender', name: 'Lavender', colors: ['#6b21a8', '#9333ea', '#a855f7', '#e9d5ff'] },
+  { id: 'brutalist', name: 'Brutalist', colors: ['#18181b', '#27272a', '#db2777', '#f472b6'] },
+  { id: 'obsidian', name: 'Obsidian', colors: ['#1e293b', '#334155', '#64748b', '#94a3b8'] },
+  { id: 'orchid', name: 'Orchid', colors: ['#be185d', '#ec4899', '#f472b6', '#fbcfe8'] },
+  { id: 'solar', name: 'Solar', colors: ['#b45309', '#d97706', '#f59e0b', '#fcd34d'] },
+];
+
 // Separate state containers for each content type
 interface ImageModeState {
   characters: any[];
@@ -83,6 +95,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [isAspectRatioDropdownOpen, setIsAspectRatioDropdownOpen] = useState(false);
   const [isNumberOfImagesDropdownOpen, setIsNumberOfImagesDropdownOpen] = useState(false);
+  const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState('default');
+  const [themeSearchQuery, setThemeSearchQuery] = useState('');
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [maskImage, setMaskImage] = useState<string | null>(null);
   const [isImageToPromptModalOpen, setIsImageToPromptModalOpen] = useState(false);
@@ -7019,15 +7034,73 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <TooltipContent>Reference</TooltipContent>
                 </Tooltip>
 
-                {/* Theme Button */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 bg-secondary">
-                      <Palette size={18} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Theme</TooltipContent>
-                </Tooltip>
+                {/* Theme Button with Dropdown */}
+                <Popover open={isThemeDropdownOpen} onOpenChange={setIsThemeDropdownOpen}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 ${
+                          isThemeDropdownOpen || selectedTheme !== 'default' ? 'bg-brand-green/15' : 'bg-secondary'
+                        }`}>
+                          <Palette size={18} />
+                        </button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Theme</TooltipContent>
+                  </Tooltip>
+                  <PopoverContent className="w-72 p-0 bg-background border-border z-50" align="start">
+                    <div className="p-3 border-b border-border">
+                      <div className="relative">
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <input
+                          type="text"
+                          placeholder="Search themes..."
+                          value={themeSearchQuery}
+                          onChange={(e) => setThemeSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2 text-sm bg-secondary rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-brand-green/50"
+                        />
+                      </div>
+                    </div>
+                    <div className="p-2 max-h-80 overflow-y-auto">
+                      <p className="px-3 py-2 text-xs font-medium text-muted-foreground">Default themes</p>
+                      {colorThemes
+                        .filter(theme => theme.name.toLowerCase().includes(themeSearchQuery.toLowerCase()))
+                        .map((theme) => (
+                          <button
+                            key={theme.id}
+                            onClick={() => {
+                              setSelectedTheme(theme.id);
+                              setIsThemeDropdownOpen(false);
+                              setThemeSearchQuery('');
+                            }}
+                            className={`w-full px-3 py-2.5 text-sm text-left hover:bg-secondary rounded-lg transition flex items-center justify-between ${
+                              selectedTheme === theme.id ? 'bg-brand-green/10' : ''
+                            }`}
+                          >
+                            <span className={selectedTheme === theme.id ? 'text-brand-green font-medium' : ''}>{theme.name}</span>
+                            <div className="flex -space-x-1">
+                              {theme.colors.map((color, idx) => (
+                                <div
+                                  key={idx}
+                                  className="w-5 h-5 rounded-full border-2 border-background"
+                                  style={{ backgroundColor: color }}
+                                />
+                              ))}
+                            </div>
+                          </button>
+                        ))}
+                    </div>
+                    <div className="p-2 border-t border-border flex items-center justify-between">
+                      <button className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition">
+                        <Plus size={16} />
+                        Create new
+                      </button>
+                      <button className="p-2 text-muted-foreground hover:text-foreground transition">
+                        <SlidersHorizontal size={16} />
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
                 {/* Mode controls - only show when type is selected */}
                 {selectedCreateMode && (
