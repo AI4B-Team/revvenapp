@@ -18,7 +18,7 @@ const translations: Record<string, Record<string, string>> = {
     'content.design': 'Design',
     'content.content': 'Content',
     'content.document': 'Document',
-    'content.apps': 'Apps',
+    'content.apps': 'App',
     
     // Common Actions
     'action.save': 'Save',
@@ -372,7 +372,7 @@ const translations: Record<string, Record<string, string>> = {
     'content.design': 'Design',
     'content.content': 'Inhalt',
     'content.document': 'Dokument',
-    'content.apps': 'Apps',
+    'content.apps': 'App',
     
     // Common Actions
     'action.save': 'Speichern',
