@@ -4264,9 +4264,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            <LayoutGrid size={16} />
-                            Style
+                          <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                            <Film size={16} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -4278,14 +4277,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => onCharactersClick?.()}
-                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               videoModeState.characters.length > 0 
                                 ? 'bg-brand-blue/15 text-muted-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}
                           >
                             <User size={16} />
-                            {videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Character'}
+                            {videoModeState.characters.length > 0 && <span>{videoModeState.characters[0].name}</span>}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -4295,9 +4294,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                          <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
                             <Heart size={16} />
-                            Emotion
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -4309,14 +4307,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
-                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               ugcSceneText.trim().length > 0 
                                 ? 'bg-brand-green/15 text-muted-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}
                           >
                             <Clapperboard size={16} />
-                            Scene
+                            {ugcSceneText.trim().length > 0 && <span>Scene</span>}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -4328,14 +4326,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
-                              <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                                 videoAspectRatio !== '16:9' 
                                   ? 'bg-brand-yellow/15 text-muted-foreground' 
                                   : 'bg-secondary text-muted-foreground'
                               }`}>
                                 <RatioIcon size={16} />
-                                {videoAspectRatio}
-                                <ChevronDown size={14} />
+                                {videoAspectRatio !== '16:9' && <span>{videoAspectRatio}</span>}
                               </button>
                             </PopoverTrigger>
                           </TooltipTrigger>
@@ -4346,25 +4343,28 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setVideoAspectRatio(videoAspectRatio === '16:9' ? '' : '16:9')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                              onClick={() => setVideoAspectRatio('16:9')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === '16:9' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-5 h-3 border-2 border-current"></div>
                               16:9 Landscape
+                              {videoAspectRatio === '16:9' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio(videoAspectRatio === '9:16' ? '' : '9:16')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                              onClick={() => setVideoAspectRatio('9:16')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === '9:16' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-3 h-5 border-2 border-current"></div>
                               9:16 Portrait
+                              {videoAspectRatio === '9:16' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio(videoAspectRatio === 'Auto' ? '' : 'Auto')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                              onClick={() => setVideoAspectRatio('Auto')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === 'Auto' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-4 h-4 border-2 border-current"></div>
                               Auto
+                              {videoAspectRatio === 'Auto' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                           </div>
                         </PopoverContent>
@@ -4374,45 +4374,56 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <>
                       {/* UGC Mode Controls - with Product button */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            <Video size={16} />
-                            {videoModel === 'veo3'
-                              ? 'Veo 3.1 Quality'
-                              : videoModel === 'kling-2.6'
-                                ? 'Kling 2.6'
-                                : 'Veo 3.1 Fast'}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                                <Video size={16} />
+                                <span>
+                                  {videoModel === 'veo3'
+                                    ? 'Veo 3.1Q'
+                                    : videoModel === 'kling-2.6'
+                                      ? 'Kling 2.6'
+                                      : 'Veo 3.1'}
+                                </span>
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Model</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-56 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setVideoModel(videoModel === 'veo3_fast' ? '' : 'veo3_fast')}
+                              onClick={() => setVideoModel('veo3_fast')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
                                 videoModel === 'veo3_fast' ? 'bg-secondary' : ''
                               }`}
                             >
                               <div className="font-medium">Veo 3.1 Fast</div>
                               <div className="text-xs text-muted-foreground">Quick video generation</div>
+                              {videoModel === 'veo3_fast' && <Check size={14} className="text-brand-green mt-1" />}
                             </button>
                             <button 
-                              onClick={() => setVideoModel(videoModel === 'veo3' ? '' : 'veo3')}
+                              onClick={() => setVideoModel('veo3')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
                                 videoModel === 'veo3' ? 'bg-secondary' : ''
                               }`}
                             >
                               <div className="font-medium">Veo 3.1 Quality</div>
                               <div className="text-xs text-muted-foreground">Higher quality output</div>
+                              {videoModel === 'veo3' && <Check size={14} className="text-brand-green mt-1" />}
                             </button>
                             <button 
-                              onClick={() => setVideoModel(videoModel === 'kling-2.6' ? '' : 'kling-2.6')}
+                              onClick={() => setVideoModel('kling-2.6')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
                                 videoModel === 'kling-2.6' ? 'bg-secondary' : ''
                               }`}
                             >
                               <div className="font-medium">Kling 2.6</div>
                               <div className="text-xs text-muted-foreground">Image-to-video with sound</div>
+                              {videoModel === 'kling-2.6' && <Check size={14} className="text-brand-green mt-1" />}
                             </button>
                           </div>
                         </PopoverContent>
@@ -4422,37 +4433,44 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => onCharactersClick?.()}
-                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               videoModeState.characters.length > 0 
                                 ? 'bg-brand-blue/15 text-muted-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}
                           >
                             <User size={16} />
-                            {videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Character'}
+                            {videoModeState.characters.length > 0 && <span>{videoModeState.characters[0].name}</span>}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Select Character</p>
+                          <p>Character</p>
                         </TooltipContent>
                       </Tooltip>
 
                       {/* Product Image Upload with History */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                            ugcProductImage 
-                              ? 'bg-brand-green/15 text-muted-foreground' 
-                              : 'bg-secondary text-muted-foreground'
-                          }`}>
-                            {isUploadingUgcProduct ? (
-                              <Loader2 size={16} className="animate-spin" />
-                            ) : (
-                              <Package size={16} />
-                            )}
-                            {ugcProductImage ? 'Product ✓' : 'Product'}
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                ugcProductImage 
+                                  ? 'bg-brand-green/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                {isUploadingUgcProduct ? (
+                                  <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                  <Package size={16} />
+                                )}
+                                {ugcProductImage && <span>Product</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Product</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-72 bg-background border-border z-50">
                           <div className="space-y-3">
                             
@@ -4511,16 +4529,27 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
 
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            {videoAspectRatio}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                videoAspectRatio !== '16:9' 
+                                  ? 'bg-brand-yellow/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                <RatioIcon size={16} />
+                                {videoAspectRatio !== '16:9' && <span>{videoAspectRatio}</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ratio</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setVideoAspectRatio(videoAspectRatio === '16:9' ? '' : '16:9')}
+                              onClick={() => setVideoAspectRatio('16:9')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === '16:9' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-5 h-3 border-2 border-current"></div>
@@ -4528,7 +4557,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               {videoAspectRatio === '16:9' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio(videoAspectRatio === '9:16' ? '' : '9:16')}
+                              onClick={() => setVideoAspectRatio('9:16')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === '9:16' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-3 h-5 border-2 border-current"></div>
@@ -4536,7 +4565,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               {videoAspectRatio === '9:16' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio(videoAspectRatio === 'Auto' ? '' : 'Auto')}
+                              onClick={() => setVideoAspectRatio('Auto')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === 'Auto' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-4 h-4 border-2 border-current"></div>
@@ -4545,23 +4574,29 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             </button>
                           </div>
                         </PopoverContent>
-                        </Popover>
+                      </Popover>
                     </>
                   ) : selectedAnimateMode === 'Recast' ? (
                     <>
                       {/* Recast Mode Controls - Model Selector */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            <Video size={16} />
-                            {recastModel === 'animate-move' ? 'Animate Move' : 'Animate Replace'}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                                <Video size={16} />
+                                <span>{recastModel === 'animate-move' ? 'Animate Move' : 'Animate Replace'}</span>
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Model</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-64 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setRecastModel(recastModel === 'animate-move' ? 'animate-replace' : 'animate-move')}
+                              onClick={() => setRecastModel('animate-move')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastModel === 'animate-move' ? 'bg-secondary' : ''}`}
                             >
                               <div className="font-medium">Animate Move</div>
@@ -4569,7 +4604,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               {recastModel === 'animate-move' && <Check size={14} className="text-brand-green mt-1" />}
                             </button>
                             <button 
-                              onClick={() => setRecastModel(recastModel === 'animate-replace' ? 'animate-move' : 'animate-replace')}
+                              onClick={() => setRecastModel('animate-replace')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastModel === 'animate-replace' ? 'bg-secondary' : ''}`}
                             >
                               <div className="font-medium">Animate Replace</div>
@@ -4582,20 +4617,27 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                       {/* Video Upload */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                            recastVideo 
-                              ? 'bg-brand-green/15 text-muted-foreground' 
-                              : 'bg-secondary text-muted-foreground'
-                          }`}>
-                            {isUploadingRecastVideo ? (
-                              <Loader2 size={16} className="animate-spin" />
-                            ) : (
-                              <Video size={16} />
-                            )}
-                            {recastVideo ? 'Video ✓' : 'Video'}
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                recastVideo 
+                                  ? 'bg-brand-green/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                {isUploadingRecastVideo ? (
+                                  <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                  <Video size={16} />
+                                )}
+                                {recastVideo && <span>Video</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Video</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-72 bg-background border-border z-50">
                           <div className="space-y-3">
                             <p className="text-sm font-medium">Upload Video</p>
@@ -4646,8 +4688,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 ) : (
                                   <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
                                     {savedVideos.map((video) => {
-                                      // Generate Cloudinary video thumbnail URL
-                                      // Format: /video/upload/so_0,w_80,h_60,c_fill,f_jpg/...
                                       const thumbnailUrl = video.url
                                         .replace('/video/upload/', '/video/upload/so_0,w_80,h_60,c_fill,f_jpg/')
                                       
@@ -4697,61 +4737,72 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Popover>
 
                       {/* Character Selection for Recast */}
-                      <button 
-                        onClick={onCharactersClick}
-                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                          selectedCharacters.length > 0 
-                            ? 'bg-brand-blue/15 text-muted-foreground' 
-                            : 'bg-secondary text-muted-foreground'
-                        }`}
-                      >
-                        {selectedCharacters.length > 0 ? (
-                          <>
-                            <img 
-                              src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar} 
-                              alt={selectedCharacters[0].name} 
-                              className="w-5 h-5 rounded object-cover" 
-                            />
-                            <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
-                          </>
-                        ) : (
-                          <>
-                            <User size={16} />
-                            Character
-                          </>
-                        )}
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={onCharactersClick}
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                              selectedCharacters.length > 0 
+                                ? 'bg-brand-blue/15 text-muted-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}
+                          >
+                            {selectedCharacters.length > 0 ? (
+                              <>
+                                <img 
+                                  src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar} 
+                                  alt={selectedCharacters[0].name} 
+                                  className="w-5 h-5 rounded object-cover" 
+                                />
+                                <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
+                              </>
+                            ) : (
+                              <User size={16} />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Character</p>
+                        </TooltipContent>
+                      </Tooltip>
 
                       {/* Resolution Selector */}
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                            recastResolution !== '480p' 
-                              ? 'bg-brand-yellow/15 text-muted-foreground' 
-                              : 'bg-secondary text-muted-foreground'
-                          }`}>
-                            {recastResolution}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                recastResolution !== '480p' 
+                                  ? 'bg-brand-yellow/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                <SlidersHorizontal size={16} />
+                                {recastResolution !== '480p' && <span>{recastResolution}</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Quality</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setRecastResolution(recastResolution === '480p' ? '480p' : '480p')}
+                              onClick={() => setRecastResolution('480p')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${recastResolution === '480p' ? 'bg-secondary' : ''}`}
                             >
                               480p
                               {recastResolution === '480p' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setRecastResolution(recastResolution === '580p' ? '480p' : '580p')}
+                              onClick={() => setRecastResolution('580p')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${recastResolution === '580p' ? 'bg-secondary' : ''}`}
                             >
                               580p
                               {recastResolution === '580p' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setRecastResolution(recastResolution === '720p' ? '480p' : '720p')}
+                              onClick={() => setRecastResolution('720p')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${recastResolution === '720p' ? 'bg-secondary' : ''}`}
                             >
                               720p
@@ -4766,28 +4817,35 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={onCharactersClick}
-                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               selectedCharacters.length > 0 
                                 ? 'bg-brand-green/15 text-muted-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}
                           >
                             <ImageIcon size={16} />
-                            Frame
+                            {selectedCharacters.length > 0 && <span>Frame</span>}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Select Frame Image</p>
+                          <p>Frame</p>
                         </TooltipContent>
                       </Tooltip>
                     </>
                   ) : selectedAnimateMode === 'Story' ? (
                     <>
                       {/* Story Mode Controls - uses sora-2-pro-storyboard */}
-                      <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                        <Video size={16} />
-                        Sora Storyboard
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                            <Video size={16} />
+                            <span>Sora Storyboard</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Model</p>
+                        </TooltipContent>
+                      </Tooltip>
 
                       {/* Character button - disabled if reference is selected */}
                       <Tooltip>
@@ -4804,7 +4862,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               }
                               onCharactersClick?.();
                             }}
-                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               videoModeState.characters.length > 0 
                                 ? 'bg-brand-blue/15 text-muted-foreground' 
                                 : storyReferenceImage
@@ -4813,11 +4871,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             }`}
                           >
                             <User size={16} />
-                            {videoModeState.characters.length > 0 ? videoModeState.characters[0].name : 'Character'}
+                            {videoModeState.characters.length > 0 && <span>{videoModeState.characters[0].name}</span>}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>{storyReferenceImage ? 'Clear reference to select character' : 'Select Character'}</p>
+                          <p>Character</p>
                         </TooltipContent>
                       </Tooltip>
 
@@ -4836,7 +4894,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               }
                               onReferencesClick?.();
                             }}
-                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               selectedReferences.length > 0 
                                 ? 'bg-brand-green/15 text-muted-foreground' 
                                 : videoModeState.characters.length > 0
@@ -4845,72 +4903,85 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             }`}
                           >
                             <ImageIcon size={16} />
-                            Reference {selectedReferences.length > 0 && `(${selectedReferences.length})`}
+                            {selectedReferences.length > 0 && <span>Reference ({selectedReferences.length})</span>}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>{videoModeState.characters.length > 0 ? 'Clear character to add references' : 'Add up to 10 reference images'}</p>
+                          <p>Reference</p>
                         </TooltipContent>
                       </Tooltip>
 
                       {/* Scenes dropdown - Auto/Manual */}
-                      <DropdownMenu open={isStorySceneModeDropdownOpen} onOpenChange={setIsStorySceneModeDropdownOpen}>
-                        <DropdownMenuTrigger asChild>
-                          <button 
-                            className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                              storySceneMode === 'Manual'
-                                ? 'bg-brand-green/15 text-muted-foreground' 
-                                : 'bg-secondary text-muted-foreground'
-                            }`}
-                          >
-                            <Clapperboard size={16} />
-                            Scenes: {storySceneMode}
-                            <ChevronDown size={14} className={`transition-transform ${isStorySceneModeDropdownOpen ? 'rotate-180' : ''}`} />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-36 bg-background border-border">
-                          <DropdownMenuItem
-                            onClick={() => setStorySceneMode(storySceneMode === 'Auto' ? 'Manual' : 'Auto')}
-                            className={storySceneMode === 'Auto' ? 'bg-secondary' : ''}
-                          >
-                            Auto
-                            {storySceneMode === 'Auto' && <Check size={14} className="ml-auto text-brand-green" />}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => setStorySceneMode(storySceneMode === 'Manual' ? 'Auto' : 'Manual')}
-                            className={storySceneMode === 'Manual' ? 'bg-secondary' : ''}
-                          >
-                            Manual
-                            {storySceneMode === 'Manual' && <Check size={14} className="ml-auto text-brand-green" />}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <Tooltip>
+                        <DropdownMenu open={isStorySceneModeDropdownOpen} onOpenChange={setIsStorySceneModeDropdownOpen}>
+                          <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                              <button 
+                                className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                  storySceneMode === 'Manual'
+                                    ? 'bg-brand-green/15 text-muted-foreground' 
+                                    : 'bg-secondary text-muted-foreground'
+                                }`}
+                              >
+                                <Clapperboard size={16} />
+                                {storySceneMode !== 'Auto' && <span>{storySceneMode}</span>}
+                              </button>
+                            </DropdownMenuTrigger>
+                          </TooltipTrigger>
+                          <DropdownMenuContent className="w-36 bg-background border-border">
+                            <DropdownMenuItem
+                              onClick={() => setStorySceneMode('Auto')}
+                              className={storySceneMode === 'Auto' ? 'bg-secondary' : ''}
+                            >
+                              Auto
+                              {storySceneMode === 'Auto' && <Check size={14} className="ml-auto text-brand-green" />}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setStorySceneMode('Manual')}
+                              className={storySceneMode === 'Manual' ? 'bg-secondary' : ''}
+                            >
+                              Manual
+                              {storySceneMode === 'Manual' && <Check size={14} className="ml-auto text-brand-green" />}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <TooltipContent>
+                          <p>Scenes</p>
+                        </TooltipContent>
+                      </Tooltip>
 
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                            {storyDuration}s
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                                <Clock size={16} />
+                                <span>{storyDuration}s</span>
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Duration</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-36 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setStoryDuration(storyDuration === '10' ? '10' : '10')}
+                              onClick={() => setStoryDuration('10')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${storyDuration === '10' ? 'bg-secondary' : ''}`}
                             >
                               10 seconds
                               {storyDuration === '10' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setStoryDuration(storyDuration === '15' ? '10' : '15')}
+                              onClick={() => setStoryDuration('15')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${storyDuration === '15' ? 'bg-secondary' : ''}`}
                             >
                               15 seconds
                               {storyDuration === '15' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <button 
-                              onClick={() => setStoryDuration(storyDuration === '25' ? '10' : '25')}
+                              onClick={() => setStoryDuration('25')}
                               className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${storyDuration === '25' ? 'bg-secondary' : ''}`}
                             >
                               25 seconds
@@ -4921,17 +4992,23 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Popover>
 
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                            videoAspectRatio !== 'landscape' 
-                              ? 'bg-brand-yellow/15 text-muted-foreground' 
-                              : 'bg-secondary text-muted-foreground'
-                          }`}>
-                            <RatioIcon size={16} />
-                            {videoAspectRatio === 'portrait' ? 'Portrait' : 'Landscape'}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                videoAspectRatio !== 'landscape' 
+                                  ? 'bg-brand-yellow/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                <RatioIcon size={16} />
+                                {videoAspectRatio !== 'landscape' && <span>{videoAspectRatio === 'portrait' ? 'Portrait' : 'Landscape'}</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ratio</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
@@ -4940,6 +5017,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             >
                               <div className="w-5 h-3 border-2 border-current"></div>
                               Landscape
+                              {videoAspectRatio === 'landscape' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                             <button 
                               onClick={() => setVideoAspectRatio('portrait')}
@@ -4947,6 +5025,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             >
                               <div className="w-3 h-5 border-2 border-current"></div>
                               Portrait
+                              {videoAspectRatio === 'portrait' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                           </div>
                         </PopoverContent>
