@@ -4902,7 +4902,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   : 'bg-secondary text-muted-foreground'
                             }`}
                           >
-                            <ImageIcon size={16} />
+                            <Link size={16} />
                             {selectedReferences.length > 0 && <span>Reference ({selectedReferences.length})</span>}
                           </button>
                         </TooltipTrigger>
