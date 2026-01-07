@@ -368,7 +368,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Resizable prompt box (both directions)
   // Responsive default widths: Mobile 340px, Tablet 520px, Desktop 800px (50rem)
   const DEFAULT_PROMPT_WIDTH = 800;
-  const PROMPT_MIN_HEIGHT = 168;
+  const PROMPT_MIN_HEIGHT = 120;
   const PROMPT_MAX_HEIGHT = 600;
 
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart, setHeight: setPromptHeight } = useResizableTextarea({
@@ -3449,17 +3449,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       Math.max(PROMPT_MIN_HEIGHT, el.scrollHeight)
     );
 
-    if (desiredHeight > promptHeight) setPromptHeight(desiredHeight);
+    if (desiredHeight !== promptHeight) setPromptHeight(desiredHeight);
   }, [activePromptValue, isAudioMode, selectedAudioMode, promptHeight, setPromptHeight]);
 
   // Calculate the total prompt box height: promptHeight + padding (24px top + 24px bottom) + bottom bar (~48px) + gap (24px)
   const totalPromptBoxHeight = promptHeight + 120;
 
-  return (
-    <div className="w-full"><div className="mx-auto mb-12 transition-all duration-300 w-full max-w-[900px]">
-      <div ref={promptBoxRef} className="relative bg-white dark:bg-card border-2 border-emerald-500 rounded-xl p-6 shadow-lg" style={{ minHeight: totalPromptBoxHeight }}>
-        <div className="flex items-start gap-3 mb-3" style={{ height: promptHeight }}>
-          <div className="flex flex-col gap-2">
+    return (
+      <div className="w-full"><div className="mx-auto mb-12 transition-all duration-300 w-full max-w-[900px]">
+        <div ref={promptBoxRef} className="relative bg-white dark:bg-card border-2 border-emerald-500 rounded-xl p-6 shadow-lg" style={{ minHeight: totalPromptBoxHeight }}>
+          <div className="flex items-end gap-3 mb-3" style={{ height: promptHeight }}>
+            <div className="flex flex-col gap-2">
             <TooltipProvider>
               <div className="flex flex-col items-start gap-2">
                 {isVideoMode ? (
@@ -3798,7 +3798,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       PROMPT_MAX_HEIGHT,
                       Math.max(PROMPT_MIN_HEIGHT, e.currentTarget.scrollHeight)
                     );
-                    if (desiredHeight > promptHeight) setPromptHeight(desiredHeight);
+                    if (desiredHeight !== promptHeight) setPromptHeight(desiredHeight);
                   }}
                   disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && selectedStoryButton !== 'Scene')}
                   maxLength={isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' ? 180 : undefined}
