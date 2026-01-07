@@ -50,7 +50,7 @@ const Assistant = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background text-foreground overflow-hidden full-size-page">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
       <Sidebar 
         isAssistantPage={true}
         onCharactersClick={() => setCharactersModalOpen(true)}

@@ -2,16 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Scale down the entire UI - 13px is ~80% of default 16px */
-html {
-  font-size: 13px;
-}
-
-/* Full-size pages (landing, assistant) use larger 18px */
-.full-size-page {
-  font-size: 18px;
-}
-
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
