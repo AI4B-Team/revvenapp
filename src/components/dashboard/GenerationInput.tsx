@@ -6658,9 +6658,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <>
                 {/* Content Mode Controls */}
                 {/* Type Dropdown - Only show icon when selected */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Popover>
+                <Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
                           contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
@@ -6686,56 +6686,52 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           )}
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-48 bg-background border-border z-50">
-                        <div className="space-y-1">
-                          <button 
-                            onClick={() => { setContentType(contentType === 'Article' ? '' : 'Article'); }}
-                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30' : ''}`}
-                          >
-                            <FileText size={16} className="text-blue-600 dark:text-blue-400" />
-                            Article
-                          </button>
-                          <button 
-                            onClick={() => { setContentType(contentType === 'Newsletter' ? '' : 'Newsletter'); }}
-                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Newsletter' ? 'bg-purple-100 dark:bg-purple-900/30' : ''}`}
-                          >
-                            <Send size={16} className="text-purple-600 dark:text-purple-400" />
-                            Newsletter
-                          </button>
-                          <button 
-                            onClick={() => { setContentType(contentType === 'Social' ? '' : 'Social'); setShowSocialButtons(true); }}
-                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30' : ''}`}
-                          >
-                            <Share2 size={16} className="text-green-600 dark:text-green-400" />
-                            Social
-                          </button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </TooltipTrigger>
-                  <TooltipContent>{contentType || 'Type'}</TooltipContent>
-                </Tooltip>
+                    </TooltipTrigger>
+                    <TooltipContent>{contentType || 'Type'}</TooltipContent>
+                  </Tooltip>
+                  <PopoverContent className="w-48 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button 
+                        onClick={() => { setContentType(contentType === 'Article' ? '' : 'Article'); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30' : ''}`}
+                      >
+                        <FileText size={16} className="text-blue-600 dark:text-blue-400" />
+                        Article
+                      </button>
+                      <button 
+                        onClick={() => { setContentType(contentType === 'Newsletter' ? '' : 'Newsletter'); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Newsletter' ? 'bg-purple-100 dark:bg-purple-900/30' : ''}`}
+                      >
+                        <Send size={16} className="text-purple-600 dark:text-purple-400" />
+                        Newsletter
+                      </button>
+                      <button 
+                        onClick={() => { setContentType(contentType === 'Social' ? '' : 'Social'); setShowSocialButtons(true); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30' : ''}`}
+                      >
+                        <Share2 size={16} className="text-green-600 dark:text-green-400" />
+                        Social
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 
                 {/* Separator and other controls only when type is selected */}
                 {contentType && (
                   <>
                     <div className="w-px h-8 bg-slate-200 mx-1" />
                     
-                {/* Goal Dropdown */}
+                {/* Goal Dropdown - Icon only */}
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                          contentGoal !== 'Engagement' ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
-                        }`}>
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
                           <Flame size={16} className="text-orange-500" />
-                          {contentGoal}
-                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>Goal</TooltipContent>
+                    <TooltipContent>{contentGoal}</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-48 bg-background border-border z-50 max-h-80 overflow-y-auto">
                     <div className="space-y-1">
@@ -6752,33 +6748,31 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
                 
-                {/* Language Dropdown */}
+                {/* Language Dropdown - Icon only */}
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                          contentLanguage !== 'English' ? 'bg-brand-yellow/15 text-muted-foreground' : 'bg-secondary text-muted-foreground'
-                        }`}>
-                          {(() => {
-                            const langFlags: Record<string, string> = {
-                              'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
-                              'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
-                              'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
-                              'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
-                              'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
-                              'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
-                              'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
-                              'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
-                            };
-                            return langFlags[contentLanguage] || '🌐';
-                          })()}{' '}
-                          {contentLanguage}
-                          <ChevronDown size={14} />
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
+                          <span className="text-base">
+                            {(() => {
+                              const langFlags: Record<string, string> = {
+                                'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
+                                'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
+                                'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
+                                'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
+                                'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
+                                'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
+                                'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
+                                'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
+                              };
+                              return langFlags[contentLanguage] || '🌐';
+                            })()}
+                          </span>
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>Language</TooltipContent>
+                    <TooltipContent>{contentLanguage}</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-56 bg-background border-border z-50 p-0">
                     <div className="p-2 border-b border-border">
@@ -6858,19 +6852,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
                 
-                {/* Days Selector */}
+                {/* Days Selector - Icon only */}
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
                           <Calendar size={16} />
-                          {contentDays} Days
-                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>Duration</TooltipContent>
+                    <TooltipContent>{contentDays} Days</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-64 bg-background border-border z-50 p-4">
                     <div className="space-y-4">
