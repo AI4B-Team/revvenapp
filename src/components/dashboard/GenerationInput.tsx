@@ -5349,11 +5349,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <Upload size={16} />
                         {transcribeAudio ? 'Audio Added' : 'Upload Audio'}
                       </button>
-                      
-                      {/* Menu Icon */}
-                      <button className="text-muted-foreground hover:text-foreground transition bg-muted rounded-lg p-2">
-                        <MoreVertical size={16} />
-                      </button>
                     </>
                   )}
 
