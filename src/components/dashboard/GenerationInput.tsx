@@ -8911,9 +8911,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       {/* Ebook Source Options - Only visible when Ebook is selected in Document mode */}
       {isDocumentMode && documentType === 'Ebook' && (
-        <div className="flex justify-center mt-6">
-          <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
-            <div className="flex items-center gap-4">
+        <div className="flex justify-center mt-6 w-full max-w-[900px] mx-auto">
+          <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border w-full">
+            <div className="flex items-center justify-center gap-4">
             {/* Start With AI */}
             <button
               onClick={() => navigate('/ebook-creator/new?source=ai-generate')}
