@@ -71,6 +71,7 @@ import LeadGeneration from "./pages/LeadGeneration";
 import Newsletter from "./pages/Newsletter";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import OAuthCallback from "./pages/OAuthCallback";
 import AutoYT from "./pages/AutoYT";
 
 // Admin pages
@@ -147,6 +148,7 @@ const App = () => (
               <Route path="/newsletter" element={<Newsletter />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/oauth/callback" element={<OAuthCallback />} />
               <Route path="/assets" element={<Assets />} />
               <Route path="/integrations" element={<Integrations />} />
               <Route path="/login" element={<Login />} />
