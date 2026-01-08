@@ -431,12 +431,12 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
             
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
+                <button className="p-1.5 rounded-lg border border-border hover:bg-muted transition">
+                  <Plus size={16} className="text-muted-foreground" />
+                </button>
                 <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-muted transition text-sm text-muted-foreground">
                   <SlidersHorizontal size={14} />
                   Tools
-                </button>
-                <button className="p-1.5 rounded-lg border border-border hover:bg-muted transition">
-                  <Plus size={16} className="text-muted-foreground" />
                 </button>
               </div>
               
