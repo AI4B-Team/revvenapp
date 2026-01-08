@@ -96,12 +96,24 @@ interface AISuggestionsGridProps {
   onSuggestionClick: (suggestion: Suggestion) => void;
 }
 
+// Helper function to shuffle array
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [shuffledSuggestions, setShuffledSuggestions] = useState<Suggestion[] | null>(null);
 
-  // Reset page when intent changes
+  // Reset page and shuffled suggestions when intent changes
   useEffect(() => {
     setCurrentPage(0);
+    setShuffledSuggestions(null);
   }, [intent]);
 
   // Don't render if no intent is selected
@@ -111,21 +123,26 @@ const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps
 
   const intentKey = intent;
   const pages = suggestionsByIntent[intentKey] || suggestionsByIntent.Create;
+  const allSuggestions = pages.flat();
   const totalPages = pages.length;
-  const currentSuggestions = pages[currentPage] || pages[0];
+  
+  // Use shuffled suggestions if available, otherwise use paged suggestions
+  const currentSuggestions = shuffledSuggestions || pages[currentPage] || pages[0];
 
   const handlePrev = () => {
+    setShuffledSuggestions(null); // Clear shuffled state when using arrows
     setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
   };
 
   const handleNext = () => {
+    setShuffledSuggestions(null); // Clear shuffled state when using arrows
     setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
   };
 
   const handleNewIdea = () => {
-    // Randomly select a new page
-    const randomPage = Math.floor(Math.random() * totalPages);
-    setCurrentPage(randomPage);
+    // Shuffle all suggestions for this intent and take first 6
+    const shuffled = shuffleArray(allSuggestions).slice(0, 6);
+    setShuffledSuggestions(shuffled);
   };
 
   return (
