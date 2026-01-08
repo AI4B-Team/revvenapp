@@ -297,7 +297,19 @@ async function pollVideoCompletion(
 
         // If instant publish, trigger publishing
         if (publishMode === 'instant') {
-          await publishToYouTube(supabase, videoId);
+          // Check which platforms are selected and publish to each
+          const { data: videoRecord } = await supabase
+            .from('autoyt_videos')
+            .select('channel_id, facebook_page_id')
+            .eq('id', videoId)
+            .single();
+          
+          if (videoRecord?.channel_id) {
+            await publishToYouTube(supabase, videoId);
+          }
+          if (videoRecord?.facebook_page_id) {
+            await publishToFacebook(supabase, videoId);
+          }
         }
 
         console.log('Video generation completed:', videoId);
@@ -482,6 +494,144 @@ async function publishToYouTube(supabase: any, videoId: string) {
       .update({
         status: 'failed',
         error_message: error?.message || 'Failed to publish to YouTube',
+      })
+      .eq('id', videoId);
+  }
+}
+
+async function publishToFacebook(supabase: any, videoId: string) {
+  console.log('Starting Facebook publish for video:', videoId);
+  
+  // Get video record with Facebook page info
+  const { data: video, error: videoError } = await supabase
+    .from('autoyt_videos')
+    .select('*, facebook_pages(*)')
+    .eq('id', videoId)
+    .single();
+
+  if (videoError || !video) {
+    console.error('Error getting video for Facebook publishing:', videoError);
+    return;
+  }
+
+  if (!video.facebook_page_id) {
+    console.error('No Facebook page selected for video');
+    return;
+  }
+
+  // Get Facebook page with token
+  const { data: page, error: pageError } = await supabase
+    .from('facebook_pages')
+    .select('*')
+    .eq('id', video.facebook_page_id)
+    .single();
+
+  if (pageError || !page) {
+    console.error('Error getting Facebook page:', pageError);
+    await supabase
+      .from('autoyt_videos')
+      .update({ 
+        status: 'failed', 
+        error_message: 'Facebook page not found' 
+      })
+      .eq('id', videoId);
+    return;
+  }
+
+  try {
+    // Download video file
+    console.log('Downloading video from:', video.video_url);
+    const videoResponse = await fetch(video.video_url);
+    const videoBlob = await videoResponse.blob();
+    const videoBuffer = await videoBlob.arrayBuffer();
+
+    // Start Facebook video upload session
+    console.log('Starting Facebook video upload session...');
+    const startUploadResponse = await fetch(
+      `https://graph.facebook.com/v19.0/${page.page_id}/videos?access_token=${page.page_access_token}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          upload_phase: 'start',
+          file_size: videoBuffer.byteLength,
+        }),
+      }
+    );
+
+    const startData = await startUploadResponse.json();
+    console.log('Facebook start upload response:', startData);
+
+    if (startData.error) {
+      throw new Error(startData.error.message || 'Failed to start Facebook upload');
+    }
+
+    const { upload_session_id, video_id: fbVideoId } = startData;
+
+    // Upload video chunks (single chunk for simplicity)
+    console.log('Uploading video to Facebook...');
+    const formData = new FormData();
+    formData.append('upload_phase', 'transfer');
+    formData.append('upload_session_id', upload_session_id);
+    formData.append('start_offset', '0');
+    formData.append('video_file_chunk', new Blob([videoBuffer], { type: 'video/mp4' }));
+
+    const transferResponse = await fetch(
+      `https://graph.facebook.com/v19.0/${page.page_id}/videos?access_token=${page.page_access_token}`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+
+    const transferData = await transferResponse.json();
+    console.log('Facebook transfer response:', transferData);
+
+    if (transferData.error) {
+      throw new Error(transferData.error.message || 'Failed to transfer video to Facebook');
+    }
+
+    // Finish upload
+    console.log('Finishing Facebook upload...');
+    const finishResponse = await fetch(
+      `https://graph.facebook.com/v19.0/${page.page_id}/videos?access_token=${page.page_access_token}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          upload_phase: 'finish',
+          upload_session_id: upload_session_id,
+          title: video.title || 'Auto Post Video',
+          description: video.description || '',
+        }),
+      }
+    );
+
+    const finishData = await finishResponse.json();
+    console.log('Facebook finish upload response:', finishData);
+
+    if (finishData.error) {
+      throw new Error(finishData.error.message || 'Failed to finish Facebook upload');
+    }
+
+    // Update video record with Facebook post ID
+    await supabase
+      .from('autoyt_videos')
+      .update({
+        facebook_post_id: fbVideoId || finishData.id,
+        status: 'published',
+        published_at: new Date().toISOString(),
+      })
+      .eq('id', videoId);
+
+    console.log('Successfully published to Facebook:', fbVideoId || finishData.id);
+  } catch (error: any) {
+    console.error('Error publishing to Facebook:', error);
+    await supabase
+      .from('autoyt_videos')
+      .update({
+        status: 'failed',
+        error_message: error?.message || 'Failed to publish to Facebook',
       })
       .eq('id', videoId);
   }
