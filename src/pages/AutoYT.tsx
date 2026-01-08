@@ -132,14 +132,40 @@ const AutoYT = () => {
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'UPDATE',
           schema: 'public',
           table: 'autoyt_videos'
         },
         (payload) => {
           console.log('Video update received:', payload);
-          // Reload videos when any change occurs
-          loadVideos();
+          // Update the specific video in state instead of reloading all
+          setVideos(prev => prev.map(video => 
+            video.id === payload.new.id ? { ...video, ...payload.new } : video
+          ));
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'autoyt_videos'
+        },
+        (payload) => {
+          console.log('New video inserted:', payload);
+          setVideos(prev => [payload.new as AutoYTVideo, ...prev]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'autoyt_videos'
+        },
+        (payload) => {
+          console.log('Video deleted:', payload);
+          setVideos(prev => prev.filter(video => video.id !== payload.old.id));
         }
       )
       .subscribe();
@@ -1192,13 +1218,33 @@ const AutoYT = () => {
                                     {getStatusBadge(video.status)}
                                   </div>
                                   
-                                  <div className="flex items-center gap-2 mt-3">
+                                  <div className="flex items-center gap-2 mt-3 flex-wrap">
                                     <Badge variant="outline" className="text-xs">
                                       {video.source_type === 'text' ? 'Text to Video' : 'Image to Video'}
                                     </Badge>
                                     <Badge variant="outline" className="text-xs">
                                       {video.visibility}
                                     </Badge>
+                                    
+                                    {/* Platform badges */}
+                                    {video.youtube_video_id && (
+                                      <Badge className="text-xs bg-red-500/20 text-red-600 border-red-500/30 gap-1">
+                                        <YouTubeIcon className="w-3 h-3" />
+                                        YouTube
+                                      </Badge>
+                                    )}
+                                    {video.facebook_post_id && (
+                                      <Badge className="text-xs bg-blue-500/20 text-blue-600 border-blue-500/30 gap-1">
+                                        <FacebookIcon className="w-3 h-3" />
+                                        Facebook
+                                      </Badge>
+                                    )}
+                                    {!video.youtube_video_id && !video.facebook_post_id && video.status === 'published' && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        Published
+                                      </Badge>
+                                    )}
+                                    
                                     <span className="text-xs text-muted-foreground">
                                       {new Date(video.created_at).toLocaleDateString()}
                                     </span>
