@@ -3452,8 +3452,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     if (desiredHeight !== promptHeight) setPromptHeight(desiredHeight);
   }, [activePromptValue, isAudioMode, selectedAudioMode, promptHeight, setPromptHeight]);
 
-  // Calculate the total prompt box height: promptHeight + padding (24px top + 24px bottom) + bottom bar (~48px) + gap (24px)
-  const totalPromptBoxHeight = promptHeight + 120;
+  // Calculate the total prompt box height: promptHeight + padding (24px top + 24px bottom) + bottom bar (~48px)
+  const totalPromptBoxHeight = promptHeight + 96;
 
     return (
       <div className="w-full"><div className="mx-auto mb-12 transition-all duration-300 w-full max-w-[900px]">
