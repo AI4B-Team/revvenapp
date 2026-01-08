@@ -7275,7 +7275,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           'Web App': Code,
                           'AI Agent': Bot,
                           'SaaS': Package,
-                          'Landing Page': LayoutList,
+                          'Website': LayoutList,
                         } as Record<string, typeof LayoutGrid>;
                         const IconComponent = appTypeIcons[selectedAppType] || LayoutGrid;
                         return <IconComponent size={16} className="text-muted-foreground" />;
@@ -7317,11 +7317,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         SaaS
                       </button>
                       <button 
-                        onClick={() => { setSelectedAppType('Landing Page'); setIsAppTypeDropdownOpen(false); }}
+                        onClick={() => { setSelectedAppType('Website'); setIsAppTypeDropdownOpen(false); }}
                         className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                       >
                         <LayoutList size={16} className="text-brand-yellow" />
-                        Landing Page
+                        Website
                       </button>
                     </div>
                   </PopoverContent>
