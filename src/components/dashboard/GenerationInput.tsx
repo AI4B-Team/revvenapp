@@ -8097,7 +8097,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       : 'bg-secondary'
                   }`}
                 >
-                  <VideoStyleIcon size={18} />
+                  <Palette size={18} />
                 </button>
               </TooltipTrigger>
               <TooltipContent>Style</TooltipContent>
