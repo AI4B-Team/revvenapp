@@ -24,6 +24,9 @@ export interface AIModel {
   costPer1kInput?: number;
   costPer1kOutput?: number;
   isAvailable?: boolean;
+  supportsVision?: boolean;
+  supportsFiles?: boolean;
+  tier?: 'fast' | 'balanced' | 'deep';
 }
 
 export type ModelCapability = 
@@ -39,7 +42,17 @@ export type ModelCapability =
   | 'search'
   | 'citations'
   | 'realtime'
-  | 'tools';
+  | 'tools'
+  | 'web';
+
+// Attachment Types
+export interface Attachment {
+  id: string;
+  type: 'image' | 'file' | 'audio';
+  name: string;
+  url: string;
+  mimeType?: string;
+}
 
 // Message Types
 export interface Message {
@@ -49,6 +62,9 @@ export interface Message {
   timestamp: Date;
   modelId?: string;
   metadata?: MessageMetadata;
+  roundId?: string;
+  isWinner?: boolean;
+  attachments?: Attachment[];
 }
 
 export interface MessageMetadata {
@@ -73,9 +89,62 @@ export interface PanelState {
   isExpanded: boolean;
   error?: string;
   streamingContent?: string;
+  isSynced: boolean;
+  customPrompt?: string;
+  systemOverride?: string;
 }
 
 export type LayoutMode = 1 | 2 | 3 | 4;
+
+// Round System Types
+export interface Round {
+  id: string;
+  prompt: string;
+  attachments: Attachment[];
+  responses: RoundResponse[];
+  timestamp: Date;
+  isLocked: boolean;
+  winnerId?: string;
+}
+
+export interface RoundResponse {
+  panelId: string;
+  modelId: string;
+  content: string;
+  isComplete: boolean;
+  metadata?: ResponseMetadata;
+}
+
+export interface ResponseMetadata {
+  tokensUsed?: number;
+  latencyMs?: number;
+  finishReason?: string;
+}
+
+// Final Answer Builder Types
+export interface FinalAnswerChunk {
+  id: string;
+  content: string;
+  sourceModelId: string;
+  sourceRoundId: string;
+  order: number;
+}
+
+// Diff/Compare Types
+export interface DiffHighlight {
+  type: 'unique' | 'disagreement' | 'agreement';
+  text: string;
+  modelIds: string[];
+}
+
+export interface Disagreement {
+  topic: string;
+  positions: { modelId: string; claim: string }[];
+}
+
+// Style and Output Types
+export type StyleMode = 'precise' | 'balanced' | 'creative';
+export type OutputFormat = 'auto' | 'bullets' | 'table' | 'json' | 'script' | 'prose';
 
 // Arena Configuration
 export interface ArenaConfig {
@@ -87,6 +156,9 @@ export interface ArenaConfig {
   availableToolkits: Toolkit[];
   streamResponses: boolean;
   saveHistory: boolean;
+  systemInstructions?: string;
+  styleMode?: StyleMode;
+  outputFormat?: OutputFormat;
 }
 
 export interface Toolkit {
@@ -178,6 +250,7 @@ export interface ArenaSession {
   title?: string;
   panels: PanelState[];
   config: ArenaConfig;
+  rounds: Round[];
 }
 
 export interface ModelAnalytics {
