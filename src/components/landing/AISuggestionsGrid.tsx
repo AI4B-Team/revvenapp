@@ -34,6 +34,22 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'newsletter', icon: Mail, iconColor: 'text-blue-600', title: 'Newsletter', description: 'Inbox gold.', prompt: 'Write an engaging weekly newsletter for my audience' },
       { id: 'script', icon: FileText, iconColor: 'text-slate-600', title: 'Video Script', description: 'Words that sell.', prompt: 'Write a compelling video script for a product launch' },
     ],
+    [
+      { id: 'carousel', icon: Image, iconColor: 'text-cyan-500', title: 'Carousel Posts', description: 'Swipe-worthy stories.', prompt: 'Create a 10-slide Instagram carousel about productivity tips with engaging visuals' },
+      { id: 'explainer', icon: Video, iconColor: 'text-rose-500', title: 'Explainer Video', description: 'Complex made simple.', prompt: 'Create a 60-second animated explainer video about how our service works' },
+      { id: 'meme', icon: Sparkles, iconColor: 'text-yellow-500', title: 'Meme Content', description: 'Humor that connects.', prompt: 'Generate relatable memes for my niche audience that drive engagement' },
+      { id: 'ebook', icon: FileText, iconColor: 'text-emerald-600', title: 'Ebook', description: 'Authority in pages.', prompt: 'Write a comprehensive 20-page ebook about starting an online business' },
+      { id: 'testimonial', icon: Users, iconColor: 'text-blue-400', title: 'Testimonial Video', description: 'Trust through stories.', prompt: 'Create a customer testimonial video template with professional styling' },
+      { id: 'infographic', icon: BarChart3, iconColor: 'text-violet-600', title: 'Infographics', description: 'Data made beautiful.', prompt: 'Design an infographic showcasing industry statistics and trends' },
+    ],
+    [
+      { id: 'reels', icon: Video, iconColor: 'text-pink-600', title: 'Instagram Reels', description: 'Trending format mastery.', prompt: 'Create 5 Instagram Reel concepts with hooks, scripts, and trending audio suggestions' },
+      { id: 'linkedin', icon: FileText, iconColor: 'text-blue-700', title: 'LinkedIn Posts', description: 'Professional presence.', prompt: 'Write 7 thought leadership LinkedIn posts that establish authority in my field' },
+      { id: 'quotes', icon: Sparkles, iconColor: 'text-amber-600', title: 'Quote Graphics', description: 'Wisdom visualized.', prompt: 'Create 10 inspirational quote graphics with modern typography and backgrounds' },
+      { id: 'webinar', icon: Video, iconColor: 'text-indigo-600', title: 'Webinar Content', description: 'Educate and convert.', prompt: 'Create a complete webinar presentation with slides and speaker notes' },
+      { id: 'soundscape', icon: Music, iconColor: 'text-green-500', title: 'Ambient Audio', description: 'Atmosphere on demand.', prompt: 'Create relaxing ambient soundscape for meditation or focus content' },
+      { id: 'case-study', icon: FileText, iconColor: 'text-orange-600', title: 'Case Study', description: 'Results that prove.', prompt: 'Write a detailed case study showcasing client success with data and testimonials' },
+    ],
   ],
   Research: [
     [
@@ -51,6 +67,22 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'influencer', icon: Sparkles, iconColor: 'text-amber-500', title: 'Influencer Scout', description: 'Find your champions.', prompt: 'Identify top influencers in my niche for potential partnerships' },
       { id: 'benchmark', icon: Target, iconColor: 'text-blue-600', title: 'Benchmarking', description: 'Measure to master.', prompt: 'Create industry benchmarks for engagement and conversion rates' },
       { id: 'swot', icon: Lightbulb, iconColor: 'text-orange-500', title: 'SWOT Analysis', description: 'Know thyself.', prompt: 'Conduct a comprehensive SWOT analysis for my business' },
+    ],
+    [
+      { id: 'hashtag', icon: Search, iconColor: 'text-purple-500', title: 'Hashtag Research', description: 'Tags that trend.', prompt: 'Research the best performing hashtags for my niche on Instagram and TikTok' },
+      { id: 'demographics', icon: Users, iconColor: 'text-teal-500', title: 'Demographics Study', description: 'Know your people.', prompt: 'Analyze demographic data and behavior patterns for my target market' },
+      { id: 'viral', icon: TrendingUp, iconColor: 'text-rose-500', title: 'Viral Content Study', description: 'Decode virality.', prompt: 'Analyze what makes content go viral in my industry and extract patterns' },
+      { id: 'tech-trends', icon: Zap, iconColor: 'text-cyan-600', title: 'Tech Trends', description: 'Future-proof your brand.', prompt: 'Research emerging technologies that will impact my industry in the next 2 years' },
+      { id: 'pain-points', icon: Target, iconColor: 'text-red-600', title: 'Pain Point Analysis', description: 'Solve real problems.', prompt: 'Identify the top pain points and frustrations of my target audience' },
+      { id: 'content-perf', icon: BarChart3, iconColor: 'text-blue-500', title: 'Content Performance', description: 'Learn from data.', prompt: 'Analyze my best performing content and identify success patterns' },
+    ],
+    [
+      { id: 'seasonal', icon: Calendar, iconColor: 'text-orange-500', title: 'Seasonal Trends', description: 'Timing is everything.', prompt: 'Research seasonal trends and peak engagement periods for my industry' },
+      { id: 'platform', icon: Search, iconColor: 'text-violet-600', title: 'Platform Analysis', description: 'Where to focus.', prompt: 'Analyze which social platforms perform best for my type of content' },
+      { id: 'usp', icon: Lightbulb, iconColor: 'text-yellow-500', title: 'USP Discovery', description: 'What sets you apart.', prompt: 'Research and identify unique selling propositions that differentiate my brand' },
+      { id: 'customer-journey', icon: Users, iconColor: 'text-emerald-600', title: 'Journey Mapping', description: 'Walk their path.', prompt: 'Map the complete customer journey from awareness to advocacy' },
+      { id: 'brand-perception', icon: Sparkles, iconColor: 'text-pink-600', title: 'Brand Perception', description: 'How they see you.', prompt: 'Research how my brand is perceived compared to competitors' },
+      { id: 'roi-analysis', icon: BarChart3, iconColor: 'text-green-600', title: 'ROI Analysis', description: 'Measure what matters.', prompt: 'Analyze ROI metrics across different marketing channels and campaigns' },
     ],
   ],
   Plan: [
@@ -70,6 +102,22 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'rebrand', icon: Sparkles, iconColor: 'text-orange-500', title: 'Rebrand Plan', description: 'Evolve boldly.', prompt: 'Create a complete rebranding strategy and rollout plan' },
       { id: 'retention', icon: Lightbulb, iconColor: 'text-green-500', title: 'Retention Plan', description: 'Keep them coming.', prompt: 'Design a customer retention strategy with loyalty programs' },
     ],
+    [
+      { id: 'quarterly', icon: Calendar, iconColor: 'text-cyan-500', title: 'Quarterly Goals', description: 'Plan your wins.', prompt: 'Create a quarterly goal-setting framework with OKRs for my business' },
+      { id: 'partnership', icon: Users, iconColor: 'text-violet-600', title: 'Partnership Plan', description: 'Strategic alliances.', prompt: 'Develop a partnership outreach strategy with target brands and influencers' },
+      { id: 'content-pillars', icon: FileText, iconColor: 'text-blue-500', title: 'Content Pillars', description: 'Foundation for growth.', prompt: 'Define 5 core content pillars with themes and posting frequency' },
+      { id: 'monetization', icon: BarChart3, iconColor: 'text-emerald-600', title: 'Monetization Plan', description: 'Revenue streams.', prompt: 'Create a diversified monetization strategy with multiple income streams' },
+      { id: 'community', icon: Users, iconColor: 'text-pink-600', title: 'Community Building', description: 'Cultivate connection.', prompt: 'Design a community building strategy with engagement tactics' },
+      { id: 'crisis', icon: Zap, iconColor: 'text-red-600', title: 'Crisis Plan', description: 'Prepare for anything.', prompt: 'Create a crisis management plan with response protocols' },
+    ],
+    [
+      { id: 'annual', icon: Calendar, iconColor: 'text-indigo-600', title: 'Annual Strategy', description: 'Year of growth.', prompt: 'Build a comprehensive annual marketing strategy with quarterly milestones' },
+      { id: 'influencer-plan', icon: Sparkles, iconColor: 'text-amber-600', title: 'Influencer Campaign', description: 'Leverage influence.', prompt: 'Plan an influencer marketing campaign with selection criteria and deliverables' },
+      { id: 'seo', icon: Search, iconColor: 'text-green-600', title: 'SEO Strategy', description: 'Organic growth.', prompt: 'Create a 6-month SEO strategy with content and backlink planning' },
+      { id: 'product-roadmap', icon: Target, iconColor: 'text-purple-600', title: 'Product Roadmap', description: 'Build with purpose.', prompt: 'Design a product development roadmap with feature prioritization' },
+      { id: 'budget', icon: BarChart3, iconColor: 'text-teal-600', title: 'Budget Planning', description: 'Allocate wisely.', prompt: 'Create a detailed marketing budget with allocation across channels' },
+      { id: 'kpi', icon: TrendingUp, iconColor: 'text-orange-600', title: 'KPI Framework', description: 'Track success.', prompt: 'Design a KPI dashboard with metrics aligned to business goals' },
+    ],
   ],
   Automate: [
     [
@@ -87,6 +135,22 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'backup', icon: Zap, iconColor: 'text-slate-600', title: 'Content Backup', description: 'Never lose work.', prompt: 'Automate content backup and archiving across platforms' },
       { id: 'review', icon: Sparkles, iconColor: 'text-amber-500', title: 'Review Requests', description: 'Social proof on auto.', prompt: 'Set up automated review request emails after purchase' },
       { id: 'onboard', icon: Users, iconColor: 'text-purple-500', title: 'Auto-Onboarding', description: 'Welcome effortlessly.', prompt: 'Create an automated onboarding sequence for new customers' },
+    ],
+    [
+      { id: 'social-listen', icon: Search, iconColor: 'text-teal-500', title: 'Social Listening', description: 'Never miss a mention.', prompt: 'Set up automated social listening alerts for brand mentions and keywords' },
+      { id: 'content-queue', icon: Calendar, iconColor: 'text-violet-600', title: 'Content Queue', description: 'Endless content flow.', prompt: 'Build an automated content queue that never runs dry' },
+      { id: 'ab-testing', icon: BarChart3, iconColor: 'text-rose-500', title: 'A/B Testing', description: 'Optimize automatically.', prompt: 'Set up automated A/B testing for email subject lines and content' },
+      { id: 'upsell', icon: TrendingUp, iconColor: 'text-emerald-600', title: 'Auto-Upsell', description: 'Maximize value.', prompt: 'Create automated upsell and cross-sell sequences after purchase' },
+      { id: 'birthday', icon: Sparkles, iconColor: 'text-pink-600', title: 'Birthday Campaigns', description: 'Personal touch at scale.', prompt: 'Set up automated birthday and anniversary emails for customers' },
+      { id: 'win-back', icon: Mail, iconColor: 'text-orange-600', title: 'Win-Back Emails', description: 'Recover lost customers.', prompt: 'Create automated win-back email campaigns for inactive subscribers' },
+    ],
+    [
+      { id: 'lead-scoring', icon: Target, iconColor: 'text-indigo-600', title: 'Lead Scoring', description: 'Prioritize automatically.', prompt: 'Set up automated lead scoring based on engagement and behavior' },
+      { id: 'content-recycle', icon: Zap, iconColor: 'text-cyan-600', title: 'Content Recycling', description: 'Evergreen on autopilot.', prompt: 'Automate recycling of top-performing evergreen content' },
+      { id: 'feedback', icon: Users, iconColor: 'text-blue-500', title: 'Feedback Collection', description: 'Insights without effort.', prompt: 'Set up automated feedback collection at key customer touchpoints' },
+      { id: 'affiliate', icon: BarChart3, iconColor: 'text-green-600', title: 'Affiliate Tracking', description: 'Commissions automated.', prompt: 'Automate affiliate tracking, reporting, and commission payouts' },
+      { id: 'event-follow', icon: Calendar, iconColor: 'text-purple-600', title: 'Event Follow-ups', description: 'Post-event engagement.', prompt: 'Create automated follow-up sequences after webinars and events' },
+      { id: 'segmentation', icon: Users, iconColor: 'text-amber-600', title: 'Auto-Segmentation', description: 'Smart audience groups.', prompt: 'Set up automated audience segmentation based on behavior and preferences' },
     ],
   ],
 };
