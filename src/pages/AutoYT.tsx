@@ -92,8 +92,11 @@ const AutoYT = () => {
   // Facebook state
   const [facebookPages, setFacebookPages] = useState<FacebookPage[]>([]);
   const [selectedFacebookPage, setSelectedFacebookPage] = useState<string | null>(null);
-  const [postToFacebook, setPostToFacebook] = useState(false);
   const [isConnectingFacebook, setIsConnectingFacebook] = useState(false);
+  
+  // Platform selection state
+  const [postToYouTube, setPostToYouTube] = useState(false);
+  const [postToFacebook, setPostToFacebook] = useState(false);
   
   // Create video form state
   const [sourceType, setSourceType] = useState<'text' | 'image'>('text');
@@ -334,14 +337,20 @@ const AutoYT = () => {
       return;
     }
     
-    // Require at least one platform connected
-    if (channels.length === 0 && facebookPages.length === 0) {
-      toast.error('Please connect a YouTube channel or Facebook page first');
+    // Require at least one platform selected
+    if (!postToYouTube && !postToFacebook) {
+      toast.error('Please select at least one platform to post to');
       return;
     }
     
-    if (!selectedChannel && channels.length === 0 && !postToFacebook) {
-      toast.error('Please connect a platform or enable Facebook posting');
+    // Check if selected platforms are connected
+    if (postToYouTube && channels.length === 0) {
+      toast.error('Please connect a YouTube channel first');
+      return;
+    }
+    
+    if (postToFacebook && facebookPages.length === 0) {
+      toast.error('Please connect a Facebook page first');
       return;
     }
 
@@ -732,7 +741,183 @@ const AutoYT = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Video Details */}
+                    {/* Platform Selection */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Select Platforms</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {/* YouTube Platform */}
+                        <div className={cn(
+                          "p-4 border rounded-lg transition-colors",
+                          channels.length === 0 
+                            ? "bg-muted/50 border-muted" 
+                            : postToYouTube 
+                              ? "bg-red-500/10 border-red-500/50" 
+                              : "border-border hover:border-red-500/30"
+                        )}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={cn(
+                                "p-2 rounded-full",
+                                channels.length === 0 ? "bg-muted" : "bg-red-500/20"
+                              )}>
+                                <Youtube className={cn(
+                                  "w-5 h-5",
+                                  channels.length === 0 ? "text-muted-foreground" : "text-red-500"
+                                )} />
+                              </div>
+                              <div>
+                                <span className={cn(
+                                  "font-medium",
+                                  channels.length === 0 && "text-muted-foreground"
+                                )}>YouTube</span>
+                                {channels.length === 0 ? (
+                                  <p className="text-sm text-muted-foreground">Not connected</p>
+                                ) : (
+                                  <p className="text-sm text-muted-foreground">
+                                    {channels.length} channel{channels.length > 1 ? 's' : ''} connected
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            {channels.length > 0 ? (
+                              <Switch 
+                                checked={postToYouTube} 
+                                onCheckedChange={setPostToYouTube}
+                              />
+                            ) : (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={connectYouTube}
+                                disabled={isConnecting}
+                              >
+                                {isConnecting ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Link2 className="w-4 h-4 mr-2" />
+                                )}
+                                Connect
+                              </Button>
+                            )}
+                          </div>
+                          
+                          {postToYouTube && channels.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-red-500/20">
+                              <Label className="text-sm">Select Channel</Label>
+                              <Select value={selectedChannel || ''} onValueChange={setSelectedChannel}>
+                                <SelectTrigger className="mt-1">
+                                  <SelectValue placeholder="Select a channel" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {channels.map(channel => (
+                                    <SelectItem key={channel.id} value={channel.id}>
+                                      <div className="flex items-center gap-2">
+                                        {channel.channel_thumbnail && (
+                                          <img src={channel.channel_thumbnail} alt="" className="w-5 h-5 rounded-full" />
+                                        )}
+                                        {channel.channel_title}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Facebook Platform */}
+                        <div className={cn(
+                          "p-4 border rounded-lg transition-colors",
+                          facebookPages.length === 0 
+                            ? "bg-muted/50 border-muted" 
+                            : postToFacebook 
+                              ? "bg-blue-500/10 border-blue-500/50" 
+                              : "border-border hover:border-blue-500/30"
+                        )}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={cn(
+                                "p-2 rounded-full",
+                                facebookPages.length === 0 ? "bg-muted" : "bg-blue-500/20"
+                              )}>
+                                <FaFacebook className={cn(
+                                  "w-5 h-5",
+                                  facebookPages.length === 0 ? "text-muted-foreground" : "text-blue-500"
+                                )} />
+                              </div>
+                              <div>
+                                <span className={cn(
+                                  "font-medium",
+                                  facebookPages.length === 0 && "text-muted-foreground"
+                                )}>Facebook</span>
+                                {facebookPages.length === 0 ? (
+                                  <p className="text-sm text-muted-foreground">Not connected</p>
+                                ) : (
+                                  <p className="text-sm text-muted-foreground">
+                                    {facebookPages.length} page{facebookPages.length > 1 ? 's' : ''} connected
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            {facebookPages.length > 0 ? (
+                              <Switch 
+                                checked={postToFacebook} 
+                                onCheckedChange={setPostToFacebook}
+                              />
+                            ) : (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={connectFacebook}
+                                disabled={isConnectingFacebook}
+                              >
+                                {isConnectingFacebook ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Link2 className="w-4 h-4 mr-2" />
+                                )}
+                                Connect
+                              </Button>
+                            )}
+                          </div>
+                          
+                          {postToFacebook && facebookPages.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-blue-500/20">
+                              <Label className="text-sm">Select Page</Label>
+                              <Select value={selectedFacebookPage || ''} onValueChange={setSelectedFacebookPage}>
+                                <SelectTrigger className="mt-1">
+                                  <SelectValue placeholder="Select a page" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {facebookPages.map(page => (
+                                    <SelectItem key={page.id} value={page.page_id}>
+                                      <div className="flex items-center gap-2">
+                                        {page.page_picture && (
+                                          <img src={page.page_picture} alt="" className="w-5 h-5 rounded-full" />
+                                        )}
+                                        {page.page_name}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* No platform selected warning */}
+                        {!postToYouTube && !postToFacebook && (channels.length > 0 || facebookPages.length > 0) && (
+                          <p className="text-sm text-amber-500 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4" />
+                            Select at least one platform to post your video
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Video Settings */}
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-lg">Video Settings</CardTitle>
@@ -744,7 +929,7 @@ const AutoYT = () => {
                             <span className="font-medium">AI-Generated Metadata</span>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            Title, description, and tags will be automatically generated by AI based on your prompt for optimal YouTube SEO.
+                            Title, description, and tags will be automatically generated by AI based on your prompt for optimal SEO.
                           </p>
                         </div>
 
@@ -779,64 +964,6 @@ const AutoYT = () => {
                             </Select>
                           </div>
                         </div>
-
-                        {/* Facebook Cross-Post */}
-                        <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <FaFacebook className="w-5 h-5 text-blue-500" />
-                              <div>
-                                <span className="font-medium">Also post to Facebook</span>
-                                <p className="text-sm text-muted-foreground">Share this video on your Facebook Page</p>
-                              </div>
-                            </div>
-                            <Switch 
-                              checked={postToFacebook} 
-                              onCheckedChange={setPostToFacebook}
-                              disabled={facebookPages.length === 0}
-                            />
-                          </div>
-                          
-                          {postToFacebook && facebookPages.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-blue-500/20">
-                              <Label className="text-sm">Select Page</Label>
-                              <Select value={selectedFacebookPage || ''} onValueChange={setSelectedFacebookPage}>
-                                <SelectTrigger className="mt-1">
-                                  <SelectValue placeholder="Select a page" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {facebookPages.map(page => (
-                                    <SelectItem key={page.id} value={page.page_id}>
-                                      <div className="flex items-center gap-2">
-                                        {page.page_picture && (
-                                          <img src={page.page_picture} alt="" className="w-5 h-5 rounded-full" />
-                                        )}
-                                        {page.page_name}
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
-                          
-                          {facebookPages.length === 0 && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="mt-3"
-                              onClick={connectFacebook}
-                              disabled={isConnectingFacebook}
-                            >
-                              {isConnectingFacebook ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              ) : (
-                                <FaFacebook className="w-4 h-4 mr-2" />
-                              )}
-                              Connect Facebook Page
-                            </Button>
-                          )}
-                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -865,7 +992,7 @@ const AutoYT = () => {
 
                           <Button 
                             onClick={generateAndPublish} 
-                            disabled={isGenerating || !prompt.trim() || (publishMode === 'schedule' && !scheduledDate) || (channels.length === 0 && facebookPages.length === 0)}
+                            disabled={isGenerating || !prompt.trim() || (publishMode === 'schedule' && !scheduledDate) || (!postToYouTube && !postToFacebook)}
                             size="lg"
                           >
                             {isGenerating ? (
