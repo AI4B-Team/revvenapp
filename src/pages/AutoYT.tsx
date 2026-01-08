@@ -577,37 +577,6 @@ const AutoYT = () => {
                   <p className="text-muted-foreground">Generate and publish videos to social platforms with AI</p>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-3">
-                {channels.length > 0 && (
-                  <Select value={selectedChannel || ''} onValueChange={setSelectedChannel}>
-                    <SelectTrigger className="w-[250px]">
-                      <SelectValue placeholder="Select channel" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {channels.map(channel => (
-                        <SelectItem key={channel.id} value={channel.id}>
-                          <div className="flex items-center gap-2">
-                            {channel.channel_thumbnail && (
-                              <img src={channel.channel_thumbnail} alt="" className="w-6 h-6 rounded-full" />
-                            )}
-                            {channel.channel_title}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-                
-                <Button onClick={connectYouTube} disabled={isConnecting} variant="outline">
-                  {isConnecting ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Plus className="w-4 h-4 mr-2" />
-                  )}
-                  {channels.length > 0 ? 'Add Channel' : 'Connect YouTube'}
-                </Button>
-              </div>
             </div>
 
             {/* Main Content - Always visible */}
