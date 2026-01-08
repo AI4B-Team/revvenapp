@@ -1,4 +1,6 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { FaYoutube, FaTiktok, FaInstagram, FaFacebook } from 'react-icons/fa';
 import { FaGithub } from 'react-icons/fa';
 import githubLogo from '@/assets/model-logos/github.png';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
@@ -85,6 +87,7 @@ interface DesignModeState {
 }
 
 const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed }: GenerationInputProps) => {
+  const navigate = useNavigate();
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -122,6 +125,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isDocumentTypeDropdownOpen, setIsDocumentTypeDropdownOpen] = useState(false);
   const [documentModel, setDocumentModel] = useState<'auto' | 'gemini-pro'>('auto');
   const [isDocumentModelDropdownOpen, setIsDocumentModelDropdownOpen] = useState(false);
+  
+  // Ebook source modal state
+  const [ebookSourceModalOpen, setEbookSourceModalOpen] = useState(false);
+  const [ebookSourceModalType, setEbookSourceModalType] = useState<'upload' | 'link' | 'record'>('upload');
+  const [ebookLinkInput, setEbookLinkInput] = useState('');
+  const [ebookIsRecording, setEbookIsRecording] = useState(false);
+  const ebookFileInputRef = useRef<HTMLInputElement>(null);
 
   // Design mode state
   const [selectedDesignType, setSelectedDesignType] = useState('');
@@ -7217,7 +7227,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <button className="px-4 py-2 rounded-xl bg-secondary hover:bg-secondary/80 text-sm font-medium transition flex items-center gap-2 whitespace-nowrap border border-border">
                               <Box size={16} className="text-muted-foreground" />
                               {documentModel === 'auto' ? 'Auto' : 'Gemini Pro'}
-                              <ChevronDown size={14} className="text-muted-foreground" />
                             </button>
                           </PopoverTrigger>
                         </TooltipTrigger>
@@ -8897,6 +8906,222 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       {!isVideoMode && !isAudioMode && !isDesignMode && !isContentMode && !isAppsMode && !isDocumentMode && selectedCreateMode === 'Photoshoot' && (
         <div className="w-full mt-4">
           <PhotoshootThemeSelector />
+        </div>
+      )}
+
+      {/* Ebook Source Options - Only visible when Ebook is selected in Document mode */}
+      {isDocumentMode && documentType === 'Ebook' && (
+        <div className="flex justify-center mt-6">
+          <div className="flex items-center gap-4">
+            {/* Start With AI */}
+            <button
+              onClick={() => navigate('/ebook-creator/new?source=ai-generate')}
+              className="group flex flex-col items-center gap-2 px-6 py-4 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50 hover:bg-emerald-100 transition-all duration-200 min-w-[140px]"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 group-hover:from-emerald-200 group-hover:to-emerald-300 flex items-center justify-center transition-all">
+                <Sparkles className="w-6 h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <span className="text-sm font-medium text-gray-900">Start With AI</span>
+              <span className="text-[10px] px-2 py-0.5 bg-emerald-200 text-emerald-700 rounded-full font-medium">Recommended</span>
+            </button>
+
+            {/* Upload File */}
+            <button
+              onClick={() => {
+                setEbookSourceModalType('upload');
+                setEbookSourceModalOpen(true);
+              }}
+              className="group flex flex-col items-center gap-2 px-6 py-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-amber-400/50 hover:bg-amber-50 transition-all duration-200 min-w-[140px]"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 group-hover:from-amber-200 group-hover:to-amber-300 flex items-center justify-center transition-all">
+                <Upload className="w-6 h-6 text-amber-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <span className="text-sm font-medium text-gray-900">Upload File</span>
+              <div className="flex gap-1">
+                <span className="text-[10px] px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded font-medium">PDF</span>
+                <span className="text-[10px] px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded font-medium">DOCX</span>
+                <span className="text-[10px] px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded font-medium">+</span>
+              </div>
+            </button>
+
+            {/* Insert Link */}
+            <button
+              onClick={() => {
+                setEbookSourceModalType('link');
+                setEbookSourceModalOpen(true);
+              }}
+              className="group flex flex-col items-center gap-2 px-6 py-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-200 min-w-[140px]"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 group-hover:from-blue-200 group-hover:to-blue-300 flex items-center justify-center transition-all">
+                <Link2 className="w-6 h-6 text-blue-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <span className="text-sm font-medium text-gray-900">Insert Link</span>
+              <div className="flex gap-1">
+                <FaYoutube className="w-4 h-4 text-red-500" />
+                <FaTiktok className="w-4 h-4 text-gray-800" />
+                <FaInstagram className="w-4 h-4 text-pink-500" />
+                <span className="text-[10px] text-gray-500">+45</span>
+              </div>
+            </button>
+
+            {/* Record Audio */}
+            <button
+              onClick={() => {
+                setEbookSourceModalType('record');
+                setEbookSourceModalOpen(true);
+              }}
+              className="group flex flex-col items-center gap-2 px-6 py-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-200 min-w-[140px]"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-100 to-rose-200 group-hover:from-rose-200 group-hover:to-rose-300 flex items-center justify-center transition-all">
+                <Mic className="w-6 h-6 text-rose-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <span className="text-sm font-medium text-gray-900">Record Audio</span>
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                <span className="text-[10px] px-1 py-0.5 bg-rose-500 text-white rounded font-bold uppercase">Live</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Ebook Source Modal - Upload */}
+      {ebookSourceModalOpen && ebookSourceModalType === 'upload' && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setEbookSourceModalOpen(false)}>
+          <div className="bg-card rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-foreground">Upload File</h3>
+              <button onClick={() => setEbookSourceModalOpen(false)} className="p-2 hover:bg-secondary rounded-lg transition">
+                <X size={20} />
+              </button>
+            </div>
+            <div 
+              className="border-2 border-dashed border-amber-300 rounded-xl p-12 text-center cursor-pointer hover:bg-amber-50 transition"
+              onClick={() => ebookFileInputRef.current?.click()}
+            >
+              <Upload className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+              <p className="text-foreground font-medium mb-2">Drag & Drop Your File</p>
+              <p className="text-sm text-muted-foreground">or click to browse</p>
+              <div className="flex justify-center gap-2 mt-4">
+                <span className="text-xs px-2 py-1 bg-gray-100 rounded">PDF</span>
+                <span className="text-xs px-2 py-1 bg-gray-100 rounded">DOCX</span>
+                <span className="text-xs px-2 py-1 bg-gray-100 rounded">TXT</span>
+                <span className="text-xs px-2 py-1 bg-gray-100 rounded">+ more</span>
+              </div>
+            </div>
+            <input
+              ref={ebookFileInputRef}
+              type="file"
+              className="hidden"
+              accept=".pdf,.docx,.doc,.txt,.epub,.md"
+              onChange={(e) => {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                  const file = files[0];
+                  setEbookSourceModalOpen(false);
+                  toast({ title: `${file.name} uploaded` });
+                  navigate('/ebook-creator/new?source=upload', { state: { uploadedFile: { id: crypto.randomUUID(), name: file.name, type: 'file', file } } });
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Ebook Source Modal - Link */}
+      {ebookSourceModalOpen && ebookSourceModalType === 'link' && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setEbookSourceModalOpen(false)}>
+          <div className="bg-card rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-foreground">Insert Link</h3>
+              <button onClick={() => setEbookSourceModalOpen(false)} className="p-2 hover:bg-secondary rounded-lg transition">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 border-2 border-blue-200 rounded-xl bg-blue-50/50">
+                <Link2 className="w-5 h-5 text-blue-500" />
+                <input
+                  type="url"
+                  value={ebookLinkInput}
+                  onChange={(e) => setEbookLinkInput(e.target.value)}
+                  placeholder="Paste website, video, or article link..."
+                  className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <FaYoutube className="w-6 h-6 text-red-500" />
+                <FaTiktok className="w-6 h-6 text-gray-800" />
+                <FaInstagram className="w-6 h-6 text-pink-500" />
+                <FaFacebook className="w-6 h-6 text-blue-600" />
+                <Rss className="w-6 h-6 text-orange-500" />
+                <span className="text-sm text-muted-foreground">+ 45 more platforms</span>
+              </div>
+              <button
+                onClick={() => {
+                  if (ebookLinkInput.trim()) {
+                    setEbookSourceModalOpen(false);
+                    toast({ title: 'Link added' });
+                    navigate('/ebook-creator/new?source=url', { state: { uploadedFile: { id: crypto.randomUUID(), name: ebookLinkInput, type: 'link', url: ebookLinkInput } } });
+                    setEbookLinkInput('');
+                  }
+                }}
+                disabled={!ebookLinkInput.trim()}
+                className="w-full py-3 bg-brand-green text-primary font-medium rounded-xl hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Add Link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Ebook Source Modal - Record */}
+      {ebookSourceModalOpen && ebookSourceModalType === 'record' && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setEbookSourceModalOpen(false)}>
+          <div className="bg-card rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-foreground">Record Audio</h3>
+              <button onClick={() => setEbookSourceModalOpen(false)} className="p-2 hover:bg-secondary rounded-lg transition">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="text-center space-y-6">
+              <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center transition-all ${ebookIsRecording ? 'bg-rose-500 animate-pulse' : 'bg-rose-100'}`}>
+                <Mic className={`w-10 h-10 ${ebookIsRecording ? 'text-white' : 'text-rose-500'}`} />
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${ebookIsRecording ? 'bg-rose-500 animate-pulse' : 'bg-gray-300'}`} />
+                <span className="text-sm font-medium">{ebookIsRecording ? 'Recording...' : 'Click to start'}</span>
+                <span className="text-xs px-1.5 py-0.5 bg-rose-500 text-white rounded font-bold">LIVE</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Real-Time Transcription</p>
+              <div className="flex items-center justify-center gap-[2px] h-8">
+                {[...Array(28)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-[2px] rounded-full transition-all ${ebookIsRecording ? 'bg-rose-500 animate-pulse' : 'bg-rose-300'}`}
+                    style={{ height: `${Math.sin((i / 28) * Math.PI * 3) * 10 + 12}px`, animationDelay: `${i * 0.05}s` }}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                  if (ebookIsRecording) {
+                    setEbookIsRecording(false);
+                    setEbookSourceModalOpen(false);
+                    toast({ title: 'Recording saved' });
+                    navigate('/ebook-creator/new?source=voice', { state: { uploadedFile: { id: crypto.randomUUID(), name: `Recording ${new Date().toLocaleTimeString()}`, type: 'audio' } } });
+                  } else {
+                    setEbookIsRecording(true);
+                  }
+                }}
+                className={`w-full py-3 font-medium rounded-xl transition ${ebookIsRecording ? 'bg-rose-500 text-white hover:bg-rose-600' : 'bg-brand-green text-primary hover:opacity-90'}`}
+              >
+                {ebookIsRecording ? 'Stop & Save Recording' : 'Start Recording'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
