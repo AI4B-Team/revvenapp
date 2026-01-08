@@ -6335,14 +6335,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
                           <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
-                              <button className={`${!selectedAudioModel ? 'p-2' : 'px-3 py-2'} rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90`}>
+                              <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
                                 <Box size={16} />
-                                {selectedAudioModel && (
-                                  <>
-                                    {selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2'}
-                                    <ChevronDown size={14} />
-                                  </>
-                                )}
+                                {selectedAudioModel ? (selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2') : 'Auto'}
+                                <ChevronDown size={14} />
                               </button>
                             </PopoverTrigger>
                           </TooltipTrigger>
