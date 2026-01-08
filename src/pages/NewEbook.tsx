@@ -732,7 +732,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
       
-      <div className={`flex-1 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <div className={`flex-1 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}>
         <Header />
         
         {/* Black Header Bar - compact */}
@@ -2453,7 +2453,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
       </Dialog>
     </div>
 
-    <AIVASidePanel isOpen={isAIVAPanelOpen} onClose={() => setIsAIVAPanelOpen(false)} />
+    <AIVASidePanel isOpen={isAIVAPanelOpen} onClose={() => setIsAIVAPanelOpen(false)} sidebarCollapsed={sidebarCollapsed} />
     </TooltipProvider>
   );
 };

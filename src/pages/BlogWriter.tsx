@@ -70,7 +70,7 @@ const BlogWriter = () => {
         onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'} ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}>
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-6xl mx-auto">
@@ -197,6 +197,7 @@ const BlogWriter = () => {
       <AIVASidePanel 
         isOpen={isAIVAPanelOpen} 
         onClose={() => setIsAIVAPanelOpen(false)}
+        sidebarCollapsed={isSidebarCollapsed}
       />
     </div>
   );

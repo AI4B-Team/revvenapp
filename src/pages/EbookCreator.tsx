@@ -607,7 +607,7 @@ const EbookCreator = () => {
       <div
         className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
           sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
-        }`}
+        } ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}
       >
         <Header />
         {/* Ebook Studio Header - matching Transcribe style */}
@@ -822,7 +822,7 @@ const EbookCreator = () => {
         </DialogContent>
       </Dialog>
 
-      <AIVASidePanel isOpen={isAIVAPanelOpen} onClose={() => setIsAIVAPanelOpen(false)} />
+      <AIVASidePanel isOpen={isAIVAPanelOpen} onClose={() => setIsAIVAPanelOpen(false)} sidebarCollapsed={sidebarCollapsed} />
     </div>
   );
 };

@@ -177,7 +177,7 @@ export default function NoiseRemover() {
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
       
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
@@ -466,6 +466,12 @@ export default function NoiseRemover() {
           </div>
         </main>
       </div>
+      
+      <AIVASidePanel 
+        isOpen={isAIVAPanelOpen} 
+        onClose={() => setIsAIVAPanelOpen(false)}
+        sidebarCollapsed={isSidebarCollapsed}
+      />
     </div>
   );
 }
