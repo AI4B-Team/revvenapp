@@ -7258,10 +7258,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown */}
                 <Popover open={isAppTypeDropdownOpen} onOpenChange={setIsAppTypeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 text-primary ${
                       selectedAppType 
-                        ? 'bg-brand-green/15 text-foreground' 
-                        : 'bg-secondary text-foreground'
+                        ? 'bg-brand-green/15' 
+                        : 'bg-secondary'
                     }`}>
                       {(() => {
                         const appTypeIcons = {
