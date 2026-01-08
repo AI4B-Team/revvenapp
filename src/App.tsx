@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useTrackVisitor } from "@/hooks/useLiveVisitors";
+import { EbookProvider } from "@/contexts/EbookContext";
 
 // Component to track visitor presence
 const VisitorTracker = ({ children }: { children: React.ReactNode }) => {
@@ -92,81 +93,83 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <VisitorTracker>
-              <Routes>
-              <Route path="/sales" element={<Landing />} />
-              <Route path="/landing" element={<LandingNew />} />
-              <Route path="/" element={<LandingNew />} />
-              <Route path="/dashboard" element={<Index />} />
-            <Route path="/create" element={<Create />} />
-            <Route path="/edit" element={<Edit />} />
-            <Route path="/ai-influencer" element={<AIInfluencer />} />
-            <Route path="/automate" element={<AIAgents />} />
-            <Route path="/ai-agents" element={<AIAgents />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/assistant" element={<Assistant />} />
-            <Route path="/monetize" element={<Monetize />} />
-            <Route path="/websites" element={<Websites />} />
-            <Route path="/funnels" element={<Funnels />} />
-            <Route path="/store" element={<Store />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/revenue" element={<Revenue />} />
-            <Route path="/marketing" element={<Marketing />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/apps" element={<Apps />} />
-            <Route path="/sessions" element={<Sessions />} />
-            <Route path="/video-downloader" element={<VideoDownloader />} />
-            <Route path="/versus" element={<Versus />} />
-            <Route path="/transcribe" element={<Transcribe />} />
-            <Route path="/transcribe/:id" element={<TranscriptDetail />} />
-            <Route path="/voice-cloner" element={<VoiceCloner />} />
-            <Route path="/voice-changer" element={<VoiceChanger />} />
-            <Route path="/voiceovers" element={<Voiceovers />} />
-            <Route path="/audio-dubber" element={<AudioDubber />} />
-            <Route path="/noise-remover" element={<NoiseRemover />} />
-            <Route path="/background-remover" element={<BackgroundRemover />} />
-            <Route path="/image-upscaler" element={<ImageUpscaler />} />
-            <Route path="/image-enhancer" element={<ImageEnhancer />} />
-            <Route path="/blog-writer" element={<BlogWriter />} />
-            <Route path="/social-posts" element={<SocialPosts />} />
-            <Route path="/email-generator" element={<EmailGenerator />} />
-            <Route path="/ad-copy-writer" element={<AdCopyWriter />} />
-            <Route path="/script-writer" element={<ScriptWriter />} />
-            <Route path="/seo-optimizer" element={<SEOOptimizer />} />
-            <Route path="/ebook-creator" element={<EbookCreator />} />
-            <Route path="/ebook-creator/new" element={<NewEbook />} />
-            <Route path="/explainer-video" element={<ExplainerVideo />} />
-            <Route path="/viral-shorts" element={<ViralShorts />} />
-            <Route path="/ai-story" element={<AIStory />} />
-            <Route path="/lead-generation" element={<LeadGeneration />} />
-            <Route path="/newsletter" element={<Newsletter />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/assets" element={<Assets />} />
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/signup/flow" element={<SignupFlow />} />
-            <Route path="/invite-verification" element={<InviteVerification />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
-            <Route path="/account" element={<Settings />} />
-            <Route path="/brand" element={<Brand />} />
-            {/* Admin Routes */}
-            <Route path="/manage" element={<AdminDashboard />} />
-            <Route path="/manage/users" element={<AdminUsers />} />
-            <Route path="/manage/posts" element={<AdminPosts />} />
-            <Route path="/manage/images" element={<AdminImages />} />
-            <Route path="/manage/videos" element={<AdminVideos />} />
-            <Route path="/manage/audio" element={<AdminAudio />} />
-            <Route path="/manage/roles" element={<AdminRoles />} />
-            <Route path="/manage/analytics" element={<AdminAnalytics />} />
-            <Route path="/manage/settings" element={<AdminSettings />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-              </Routes>
-            </VisitorTracker>
+            <EbookProvider>
+              <VisitorTracker>
+                <Routes>
+                <Route path="/sales" element={<Landing />} />
+                <Route path="/landing" element={<LandingNew />} />
+                <Route path="/" element={<LandingNew />} />
+                <Route path="/dashboard" element={<Index />} />
+              <Route path="/create" element={<Create />} />
+              <Route path="/edit" element={<Edit />} />
+              <Route path="/ai-influencer" element={<AIInfluencer />} />
+              <Route path="/automate" element={<AIAgents />} />
+              <Route path="/ai-agents" element={<AIAgents />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/assistant" element={<Assistant />} />
+              <Route path="/monetize" element={<Monetize />} />
+              <Route path="/websites" element={<Websites />} />
+              <Route path="/funnels" element={<Funnels />} />
+              <Route path="/store" element={<Store />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/revenue" element={<Revenue />} />
+              <Route path="/marketing" element={<Marketing />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/apps" element={<Apps />} />
+              <Route path="/sessions" element={<Sessions />} />
+              <Route path="/video-downloader" element={<VideoDownloader />} />
+              <Route path="/versus" element={<Versus />} />
+              <Route path="/transcribe" element={<Transcribe />} />
+              <Route path="/transcribe/:id" element={<TranscriptDetail />} />
+              <Route path="/voice-cloner" element={<VoiceCloner />} />
+              <Route path="/voice-changer" element={<VoiceChanger />} />
+              <Route path="/voiceovers" element={<Voiceovers />} />
+              <Route path="/audio-dubber" element={<AudioDubber />} />
+              <Route path="/noise-remover" element={<NoiseRemover />} />
+              <Route path="/background-remover" element={<BackgroundRemover />} />
+              <Route path="/image-upscaler" element={<ImageUpscaler />} />
+              <Route path="/image-enhancer" element={<ImageEnhancer />} />
+              <Route path="/blog-writer" element={<BlogWriter />} />
+              <Route path="/social-posts" element={<SocialPosts />} />
+              <Route path="/email-generator" element={<EmailGenerator />} />
+              <Route path="/ad-copy-writer" element={<AdCopyWriter />} />
+              <Route path="/script-writer" element={<ScriptWriter />} />
+              <Route path="/seo-optimizer" element={<SEOOptimizer />} />
+              <Route path="/ebook-creator" element={<EbookCreator />} />
+              <Route path="/ebook-creator/new" element={<NewEbook />} />
+              <Route path="/explainer-video" element={<ExplainerVideo />} />
+              <Route path="/viral-shorts" element={<ViralShorts />} />
+              <Route path="/ai-story" element={<AIStory />} />
+              <Route path="/lead-generation" element={<LeadGeneration />} />
+              <Route path="/newsletter" element={<Newsletter />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/assets" element={<Assets />} />
+              <Route path="/integrations" element={<Integrations />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/signup/flow" element={<SignupFlow />} />
+              <Route path="/invite-verification" element={<InviteVerification />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
+              <Route path="/account" element={<Settings />} />
+              <Route path="/brand" element={<Brand />} />
+              {/* Admin Routes */}
+              <Route path="/manage" element={<AdminDashboard />} />
+              <Route path="/manage/users" element={<AdminUsers />} />
+              <Route path="/manage/posts" element={<AdminPosts />} />
+              <Route path="/manage/images" element={<AdminImages />} />
+              <Route path="/manage/videos" element={<AdminVideos />} />
+              <Route path="/manage/audio" element={<AdminAudio />} />
+              <Route path="/manage/roles" element={<AdminRoles />} />
+              <Route path="/manage/analytics" element={<AdminAnalytics />} />
+              <Route path="/manage/settings" element={<AdminSettings />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+                </Routes>
+              </VisitorTracker>
+            </EbookProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>

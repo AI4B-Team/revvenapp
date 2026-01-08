@@ -93,6 +93,7 @@ interface EbookCanvasEditorProps {
   redoRef?: React.MutableRefObject<(() => void) | null>;
   onGridViewChange?: (isGridView: boolean) => void;
   onOpenImageSection?: () => void;
+  onCoverImageChange?: (coverImageUrl: string) => void;
 }
 
 const TOOLS = [
@@ -435,7 +436,8 @@ const EbookCanvasEditor = ({
   undoRef,
   redoRef,
   onGridViewChange,
-  onOpenImageSection
+  onOpenImageSection,
+  onCoverImageChange
 }: EbookCanvasEditorProps) => {
   // Internal pages state if no onPagesChange is provided
   const [internalPages, setInternalPages] = useState<Page[]>(pages);
@@ -652,6 +654,22 @@ const EbookCanvasEditor = ({
   
   // Track page elements state per page
   const [pageElementsState, setPageElementsState] = useState<Record<string, CanvasElement[]>>({});
+  
+  // Notify parent when cover image changes
+  useEffect(() => {
+    if (onCoverImageChange) {
+      const coverPage = currentPages.find(p => p.type === 'cover');
+      if (coverPage) {
+        const coverElements = pageElementsState[coverPage.id];
+        if (coverElements) {
+          const coverImageElement = coverElements.find(el => el.type === 'image');
+          if (coverImageElement?.src) {
+            onCoverImageChange(coverImageElement.src);
+          }
+        }
+      }
+    }
+  }, [pageElementsState, currentPages, onCoverImageChange]);
   
   // Undo/Redo history
   const [undoStack, setUndoStack] = useState<Record<string, CanvasElement[]>[]>([]);

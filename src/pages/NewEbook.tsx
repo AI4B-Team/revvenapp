@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useEbooks } from '@/contexts/EbookContext';
 import { 
   Upload, Mic, Sparkles, ArrowLeft, BookOpen, Headphones, Presentation,
   Lightbulb, Settings, Palette, Send, Info, CheckCircle2, Globe, MessageSquare,
@@ -261,6 +262,8 @@ const NewEbook = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { updateEbook } = useEbooks();
+  const [currentBookId, setCurrentBookId] = useState<number | null>(null);
   
   // Initialize tab from URL param to avoid flash
   const initialTab = (() => {
@@ -503,6 +506,7 @@ const NewEbook = () => {
     if (state?.book) {
       setActiveTab('design');
       setContentTypeSelected(true);
+      setCurrentBookId(state.book.id);
       setBookData(prev => ({
         ...prev,
         contentType: 'ebook',
@@ -1451,6 +1455,11 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 redoRef={redoRef}
                 onGridViewChange={setIsCanvasGridView}
                 onOpenImageSection={() => openImageSectionRef.current?.()}
+                onCoverImageChange={(coverImageUrl) => {
+                  if (currentBookId) {
+                    updateEbook(currentBookId, { coverImage: coverImageUrl });
+                  }
+                }}
               />
 
               {/* Generation Overlay */}
