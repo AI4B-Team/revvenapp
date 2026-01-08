@@ -6798,15 +6798,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <div className="space-y-1">
                           <DropdownMenuItem className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2">
                             <Flame size={16} className="text-brand-green" />
-                            Template
+                            Start With A Template
                           </DropdownMenuItem>
                           <DropdownMenuItem className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2">
                             <Sparkles size={16} className="text-brand-purple" />
-                            Build With AI
+                            Start With AI
                           </DropdownMenuItem>
                           <DropdownMenuItem className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2">
                             <FileText size={16} className="text-brand-blue" />
-                            Upload File
+                            Start With A File
                           </DropdownMenuItem>
                         </div>
                       </DropdownMenuContent>
