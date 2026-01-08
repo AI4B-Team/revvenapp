@@ -1254,11 +1254,26 @@ const AutoYT = () => {
                       ) : (
                         <div className="space-y-4">
                           {facebookPages.map(page => {
-                            const isExpired = page.token_expires_at ? new Date(page.token_expires_at) < new Date() : false;
-                            const daysUntilExpiry = page.token_expires_at 
-                              ? Math.ceil((new Date(page.token_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-                              : null;
-                            const isExpiringSoon = daysUntilExpiry !== null && daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+                            const now = Date.now();
+                            const expiryTime = page.token_expires_at ? new Date(page.token_expires_at).getTime() : null;
+                            const isExpired = expiryTime ? expiryTime < now : false;
+                            const msUntilExpiry = expiryTime ? expiryTime - now : null;
+                            
+                            // Calculate countdown
+                            const days = msUntilExpiry ? Math.floor(msUntilExpiry / (1000 * 60 * 60 * 24)) : 0;
+                            const hours = msUntilExpiry ? Math.floor((msUntilExpiry % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) : 0;
+                            const minutes = msUntilExpiry ? Math.floor((msUntilExpiry % (1000 * 60 * 60)) / (1000 * 60)) : 0;
+                            
+                            const isExpiringSoon = days <= 7 && !isExpired;
+                            
+                            // Format countdown string
+                            const countdownStr = isExpired 
+                              ? 'Expired' 
+                              : days > 0 
+                                ? `${days}d ${hours}h ${minutes}m` 
+                                : hours > 0 
+                                  ? `${hours}h ${minutes}m`
+                                  : `${minutes}m`;
                             
                             return (
                               <div 
@@ -1285,22 +1300,28 @@ const AutoYT = () => {
                                     <h4 className="font-medium">{page.page_name}</h4>
                                     <p className="text-sm text-muted-foreground">Page ID: {page.page_id}</p>
                                     {page.token_expires_at && (
-                                      <div className="flex items-center gap-2 mt-1">
+                                      <div className="flex items-center gap-2 mt-2">
                                         {isExpired ? (
                                           <Badge variant="destructive" className="text-xs">
                                             <AlertCircle className="w-3 h-3 mr-1" />
                                             Token Expired
                                           </Badge>
-                                        ) : isExpiringSoon ? (
-                                          <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-600">
-                                            <Clock className="w-3 h-3 mr-1" />
-                                            Expires in {daysUntilExpiry} days
-                                          </Badge>
                                         ) : (
-                                          <Badge variant="outline" className="text-xs text-green-600 border-green-500">
-                                            <CheckCircle className="w-3 h-3 mr-1" />
-                                            Valid until {format(new Date(page.token_expires_at), 'MMM d, yyyy')}
-                                          </Badge>
+                                          <div className={cn(
+                                            "flex items-center gap-3 px-3 py-1.5 rounded-md text-xs font-medium",
+                                            isExpiringSoon ? "bg-yellow-500/10 text-yellow-600" : "bg-green-500/10 text-green-600"
+                                          )}>
+                                            <Clock className="w-3.5 h-3.5" />
+                                            <div className="flex items-center gap-1">
+                                              <span className="font-mono font-bold">{countdownStr}</span>
+                                              <span className="text-muted-foreground">remaining</span>
+                                            </div>
+                                            {!isExpiringSoon && (
+                                              <span className="text-muted-foreground text-[10px]">
+                                                (until {format(new Date(page.token_expires_at), 'MMM d')})
+                                              </span>
+                                            )}
+                                          </div>
                                         )}
                                       </div>
                                     )}
