@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Zap, Brain, Gauge } from 'lucide-react';
 import { AIModel } from './types';
 import { AI_PROVIDERS, AI_MODELS, getModelById, getProviderById } from './data';
+import grokLogo from '@/assets/model-logos/grok.png';
 
 interface ModelSelectorProps {
   selectedModelId: string;
@@ -11,6 +12,34 @@ interface ModelSelectorProps {
   onClose: () => void;
   compact?: boolean;
 }
+
+// Provider logo/icon component
+const ProviderIcon: React.FC<{ provider: ReturnType<typeof getProviderById>; size?: 'sm' | 'md' }> = ({ provider, size = 'md' }) => {
+  if (!provider) return null;
+  
+  const sizeClass = size === 'sm' ? 'w-4 h-4' : 'w-5 h-5';
+  
+  // Use logo image if available (like for xAI/Grok)
+  if (provider.logo) {
+    return (
+      <img 
+        src={provider.logo} 
+        alt={provider.name}
+        className={`${sizeClass} object-contain`}
+      />
+    );
+  }
+  
+  // Otherwise use the icon character with provider color
+  return (
+    <span 
+      className={`${size === 'sm' ? 'text-sm' : 'text-lg'} font-bold`}
+      style={{ color: provider.color }}
+    >
+      {provider.icon}
+    </span>
+  );
+};
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({
   selectedModelId,
@@ -36,6 +65,13 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     if (isOpen) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, onClose]);
+
+  // Reset search when opening
+  useEffect(() => {
+    if (isOpen) {
+      setSearchQuery('');
+    }
+  }, [isOpen]);
   
   const filteredModels = AI_MODELS.filter(model => {
     const matchesSearch = model.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -59,21 +95,23 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     }
   };
 
+  const handleModelSelect = (modelId: string) => {
+    onSelect(modelId);
+    onClose();
+    setSearchQuery('');
+    setSelectedProvider(null);
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={onToggle}
         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 border border-border transition-all duration-200 group"
       >
-        <span 
-          className="text-lg"
-          style={{ color: selectedModelProvider?.color }}
-        >
-          {selectedModelProvider?.icon}
-        </span>
+        <ProviderIcon provider={selectedModelProvider} size="md" />
         {!compact && (
           <span className="text-sm font-medium text-foreground">
-            {selectedModelProvider?.name}: {selectedModel?.displayName}
+            {selectedModel?.displayName}
           </span>
         )}
         <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -109,7 +147,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
                       : 'bg-muted text-muted-foreground border border-border hover:bg-muted/80'
                   }`}
                 >
-                  <span style={{ color: provider.color }}>{provider.icon}</span>
+                  <ProviderIcon provider={provider} size="sm" />
                   {provider.name}
                 </button>
               ))}
@@ -124,17 +162,14 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
                 <div key={providerId}>
                   <div className="px-3 py-2 bg-muted border-b border-border">
                     <p className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
-                      <span style={{ color: provider?.color }}>{provider?.icon}</span>
+                      <ProviderIcon provider={provider} size="sm" />
                       {provider?.name}
                     </p>
                   </div>
                   {models.map(model => (
                     <button
                       key={model.id}
-                      onClick={() => {
-                        onSelect(model.id);
-                        onClose();
-                      }}
+                      onClick={() => handleModelSelect(model.id)}
                       className={`w-full px-4 py-3 flex items-center justify-between hover:bg-muted transition-colors ${
                         model.id === selectedModelId ? 'bg-primary/10' : ''
                       }`}

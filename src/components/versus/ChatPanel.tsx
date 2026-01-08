@@ -3,6 +3,36 @@ import { Maximize2, Link2, Unlink, Copy, Check, Loader2, Star, Plus, MessageSqua
 import { PanelState, Message, LayoutMode, Attachment } from './types';
 import { getModelById, getProviderById } from './data';
 import ModelSelector from './ModelSelector';
+import grokLogo from '@/assets/model-logos/grok.png';
+
+// Provider logo/icon component
+const ProviderIcon: React.FC<{ provider: ReturnType<typeof getProviderById>; size?: 'sm' | 'md' | 'lg' }> = ({ provider, size = 'md' }) => {
+  if (!provider) return null;
+  
+  const sizeClass = size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-10 h-10' : 'w-5 h-5';
+  const fontSize = size === 'sm' ? 'text-sm' : size === 'lg' ? 'text-2xl' : 'text-lg';
+  
+  // Use logo image if available (like for xAI/Grok)
+  if (provider.logo) {
+    return (
+      <img 
+        src={provider.logo} 
+        alt={provider.name}
+        className={`${sizeClass} object-contain`}
+      />
+    );
+  }
+  
+  // Otherwise use the icon character with provider color
+  return (
+    <span 
+      className={`${fontSize} font-bold`}
+      style={{ color: provider.color }}
+    >
+      {provider.icon}
+    </span>
+  );
+};
 
 interface ChatPanelProps {
   panel: PanelState;
@@ -149,10 +179,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         {panel.messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
             <div 
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-4"
-              style={{ backgroundColor: `${provider?.color}15`, color: provider?.color }}
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+              style={{ backgroundColor: `${provider?.color}15` }}
             >
-              {provider?.icon}
+              <ProviderIcon provider={provider} size="lg" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-1">{model?.displayName}</h3>
             <p className="text-sm text-muted-foreground max-w-xs">
@@ -168,7 +198,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               <div className={`max-w-[85%] ${message.role === 'user' ? 'order-2' : ''}`}>
                 {message.role === 'assistant' && (
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span style={{ color: provider?.color }}>{provider?.icon}</span>
+                    <ProviderIcon provider={provider} size="sm" />
                     <span className="text-xs font-medium text-muted-foreground">{model?.displayName}</span>
                     {message.isWinner && (
                       <span className="flex items-center gap-1 px-1.5 py-0.5 text-xs bg-amber-500/20 text-amber-500 rounded-full">

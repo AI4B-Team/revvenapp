@@ -7,6 +7,7 @@ export interface AIProvider {
   id: string;
   name: string;
   icon: string;
+  logo?: string;
   color: string;
   apiEndpoint?: string;
   apiKeyEnvVar?: string;
