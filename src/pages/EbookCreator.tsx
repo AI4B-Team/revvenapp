@@ -366,7 +366,6 @@ const EbookCreator = () => {
                 <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{book.description}</p>
               </div>
               <div className="flex items-center gap-2">
-                <StatusBadge status={book.status} />
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity relative">
                   <button onClick={(e) => { e.stopPropagation(); navigate('/ebook-creator/new?tab=design', { state: { book } }); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors" title="Edit"><Edit className="w-5 h-5" /></button>
                   <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowCoverDesigner(true); }} className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg transition-colors" title="Design Cover"><Palette className="w-5 h-5" /></button>
@@ -381,6 +380,7 @@ const EbookCreator = () => {
                     )}
                   </div>
                 </div>
+                <StatusBadge status={book.status} />
               </div>
             </div>
             <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
