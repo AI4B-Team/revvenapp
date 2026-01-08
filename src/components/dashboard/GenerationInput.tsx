@@ -5413,7 +5413,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {!selectedAudioMode ? (
                     <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                       <PopoverTrigger asChild>
-                        <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-medium hover:opacity-90 transition">
+                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-muted-foreground text-sm font-medium hover:bg-secondary/80 transition">
                           <LayoutGrid size={16} />
                           Type
                         </button>
@@ -5443,7 +5443,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   ) : (
                     <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                       <PopoverTrigger asChild>
-                        <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:opacity-90 transition">
+                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:opacity-90 transition">
                           {(() => {
                             const currentMode = audioModes.find(m => m.value === selectedAudioMode);
                             const Icon = currentMode?.icon || Mic;
@@ -6712,10 +6712,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : isDesignMode ? (
               <>
                 {/* Design Mode Controls */}
-                {/* Type Dropdown */}
+                {/* Type Dropdown - First */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground hover:opacity-90">
+                    <button className="px-4 py-1.5 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
                       <LayoutGrid size={16} className="text-muted-foreground" />
                       Type
                     </button>
@@ -6761,6 +6761,43 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </div>
                   </PopoverContent>
                 </Popover>
+
+                {/* Type Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground hover:opacity-90">
+                      <LayoutGrid size={16} className="text-muted-foreground" />
+                      Type
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-72 bg-background border-border z-50 p-2">
+                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Flame size={20} className="text-green-600 dark:text-green-400" />
+                        </div>
+                        <span className="font-medium text-base">Start With A Template</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Sparkles size={20} className="text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <span className="font-medium text-base">Build With AI</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <FileText size={20} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <span className="font-medium text-base">Start With A File</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : isContentMode ? (
               <>
                 {/* Content Mode Controls */}
@@ -7283,7 +7320,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <button
                   onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
                   aria-expanded={isCreateModeDropdownOpen}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
                     selectedCreateMode 
                       ? 'bg-brand-green/15 text-foreground'
                       : 'bg-secondary text-foreground'
@@ -8091,7 +8128,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </button>
                 </div>
               </PopoverContent>
-            </Popover>
+              </Popover>
+                </>
+                )}
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-3 justify-end flex-nowrap shrink-0 ml-6">
