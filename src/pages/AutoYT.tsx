@@ -332,8 +332,14 @@ const AutoYT = () => {
       return;
     }
     
-    if (!selectedChannel && publishMode === 'instant') {
-      toast.error('Please connect a YouTube channel first');
+    // Require at least one platform connected
+    if (channels.length === 0 && facebookPages.length === 0) {
+      toast.error('Please connect a YouTube channel or Facebook page first');
+      return;
+    }
+    
+    if (!selectedChannel && channels.length === 0 && !postToFacebook) {
+      toast.error('Please connect a platform or enable Facebook posting');
       return;
     }
 
@@ -591,31 +597,8 @@ const AutoYT = () => {
               </div>
             </div>
 
-            {/* No Channel Connected */}
-            {channels.length === 0 && (
-              <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-16">
-                  <div className="p-4 bg-red-500/10 rounded-full mb-4">
-                    <Youtube className="w-12 h-12 text-red-500" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Connect Your YouTube Channel</h3>
-                  <p className="text-muted-foreground text-center max-w-md mb-6">
-                    Connect your YouTube channel to start generating and publishing videos automatically.
-                  </p>
-                  <Button onClick={connectYouTube} disabled={isConnecting} size="lg">
-                    {isConnecting ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Link2 className="w-4 h-4 mr-2" />
-                    )}
-                    Connect YouTube Channel
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Main Content */}
-            {channels.length > 0 && (
+            {/* Main Content - Always visible */}
+            {(
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="create">
@@ -634,6 +617,33 @@ const AutoYT = () => {
 
                 {/* Create Video Tab */}
                 <TabsContent value="create" className="mt-6">
+                  {/* Connection Warning */}
+                  {channels.length === 0 && facebookPages.length === 0 && (
+                    <Card className="border-amber-500/50 bg-amber-500/10 mb-6">
+                      <CardContent className="flex items-center gap-4 py-4">
+                        <div className="p-2 bg-amber-500/20 rounded-full">
+                          <AlertCircle className="w-5 h-5 text-amber-500" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-amber-600 dark:text-amber-400">Connect a Platform to Publish</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Connect a YouTube channel or Facebook page to generate and publish videos.
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button onClick={connectYouTube} disabled={isConnecting} size="sm" variant="outline">
+                            <Youtube className="w-4 h-4 mr-2 text-red-500" />
+                            Connect YouTube
+                          </Button>
+                          <Button onClick={connectFacebook} disabled={isConnectingFacebook} size="sm" variant="outline">
+                            <FaFacebook className="w-4 h-4 mr-2 text-blue-500" />
+                            Connect Facebook
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Video Source */}
                     <Card>
@@ -853,7 +863,7 @@ const AutoYT = () => {
 
                           <Button 
                             onClick={generateAndPublish} 
-                            disabled={isGenerating || !prompt.trim() || (publishMode === 'schedule' && !scheduledDate)}
+                            disabled={isGenerating || !prompt.trim() || (publishMode === 'schedule' && !scheduledDate) || (channels.length === 0 && facebookPages.length === 0)}
                             size="lg"
                           >
                             {isGenerating ? (
@@ -861,7 +871,7 @@ const AutoYT = () => {
                             ) : (
                               <Video className="w-4 h-4 mr-2" />
                             )}
-                            Generate Video
+                            {channels.length === 0 && facebookPages.length === 0 ? 'Connect Platform First' : 'Generate Video'}
                           </Button>
                         </div>
 
