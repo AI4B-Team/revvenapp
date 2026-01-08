@@ -5,7 +5,7 @@ import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import { 
-  Search, Plus, Settings, Zap, Trash2, MoreVertical
+  Search, Plus, Settings, Zap, Trash2, MoreVertical, Loader2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -25,6 +25,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 interface Project {
   id: string;
@@ -43,6 +54,9 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
   // Plain gray color for project cards
   const projectBgColor = 'bg-gray-300';
@@ -136,6 +150,36 @@ const Index = () => {
     setDeleteDialogOpen(true);
   };
 
+  const handleCreateProject = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error('Please sign in to create a project');
+      return;
+    }
+
+    setIsCreating(true);
+    const projectName = newProjectName.trim() || 'Untitled';
+
+    const { data, error } = await supabase
+      .from('projects')
+      .insert({ user_id: user.id, name: projectName })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error('Failed to create project');
+      console.error('Error creating project:', error);
+      setIsCreating(false);
+      return;
+    }
+
+    toast.success('Project created');
+    setCreateDialogOpen(false);
+    setNewProjectName('');
+    setIsCreating(false);
+    navigate('/create', { state: { projectId: data.id, newProject: true } });
+  };
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
@@ -200,7 +244,7 @@ const Index = () => {
                 />
               </div>
               <button 
-                onClick={() => navigate('/create', { state: { newProject: true } })}
+                onClick={() => setCreateDialogOpen(true)}
                 className="flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors"
               >
                 <Plus size={18} />
@@ -289,6 +333,50 @@ const Index = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create Project Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New Project</DialogTitle>
+            <DialogDescription>
+              Enter a name for your new project.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="project-name">Project Name</Label>
+              <Input
+                id="project-name"
+                placeholder="My Awesome Project"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !isCreating) {
+                    handleCreateProject();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateProject} disabled={isCreating}>
+              {isCreating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create Project'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
