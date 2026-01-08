@@ -383,7 +383,7 @@ const Versus: React.FC = () => {
                     }}
                     placeholder="Send a message to compare models..."
                     rows={4}
-                    className="w-full px-4 py-3 bg-transparent text-foreground placeholder-muted-foreground focus:outline-none resize-none transition-all"
+                    className="w-full px-0 py-3 bg-transparent text-foreground placeholder-muted-foreground focus:outline-none resize-none transition-all"
                     style={{ minHeight: '120px', maxHeight: '300px' }}
                   />
                 </div>
