@@ -591,8 +591,17 @@ async function publishToFacebook(supabase: any, videoId: string) {
       throw new Error(transferData.error.message || 'Failed to transfer video to Facebook');
     }
 
-    // Finish upload
+    // Finish upload - add tags as hashtags in description for Facebook
     console.log('Finishing Facebook upload...');
+    
+    // Convert tags to hashtags and append to description
+    const hashtags = (video.tags || [])
+      .map((tag: string) => `#${tag.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '')}`)
+      .join(' ');
+    const fbDescription = video.description 
+      ? `${video.description}\n\n${hashtags}`
+      : hashtags;
+    
     const finishResponse = await fetch(
       `https://graph.facebook.com/v19.0/${page.page_id}/videos?access_token=${page.page_access_token}`,
       {
@@ -602,7 +611,7 @@ async function publishToFacebook(supabase: any, videoId: string) {
           upload_phase: 'finish',
           upload_session_id: upload_session_id,
           title: video.title || 'Auto Post Video',
-          description: video.description || '',
+          description: fbDescription,
         }),
       }
     );
