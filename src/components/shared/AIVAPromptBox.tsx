@@ -296,13 +296,60 @@ const AIVAPromptBox = ({
           <div className="flex items-center gap-4 flex-nowrap px-4 pb-4 overflow-x-auto scrollbar-hide">
             {/* Left side controls */}
             <div className="flex items-center gap-2 flex-nowrap flex-shrink-0">
-              {/* Auto dropdown - always visible when intent is selected */}
-              {intent && (
+              {/* Auto dropdown - visible when intent is selected BUT hidden for Document type */}
+              {intent && selectedOption?.id !== 'document' && (
                 <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
               )}
               
-              {/* Type button - only shows after Auto option is selected */}
-              {selectedOption && (
+              {/* For Document type: Show Type button directly without AutoDropdown */}
+              {selectedOption?.id === 'document' && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div 
+                      onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border cursor-pointer",
+                        selectedSubType 
+                          ? (() => {
+                              const color = selectedSubType.color || '';
+                              let pastelBg = 'bg-slate-50 hover:bg-slate-100';
+                              if (color.includes('blue')) pastelBg = 'bg-blue-50 hover:bg-blue-100';
+                              else if (color.includes('red')) pastelBg = 'bg-red-50 hover:bg-red-100';
+                              else if (color.includes('green')) pastelBg = 'bg-green-50 hover:bg-green-100';
+                              else if (color.includes('orange')) pastelBg = 'bg-orange-50 hover:bg-orange-100';
+                              else if (color.includes('purple')) pastelBg = 'bg-purple-50 hover:bg-purple-100';
+                              else if (color.includes('amber')) pastelBg = 'bg-amber-50 hover:bg-amber-100';
+                              else if (color.includes('violet')) pastelBg = 'bg-violet-50 hover:bg-violet-100';
+                              else if (color.includes('cyan')) pastelBg = 'bg-cyan-50 hover:bg-cyan-100';
+                              else if (color.includes('indigo')) pastelBg = 'bg-indigo-50 hover:bg-indigo-100';
+                              else if (color.includes('teal')) pastelBg = 'bg-teal-50 hover:bg-teal-100';
+                              else if (color.includes('emerald')) pastelBg = 'bg-emerald-50 hover:bg-emerald-100';
+                              return `${pastelBg} ${selectedSubType.color} ${selectedSubType.color?.replace('text-', 'border-')}`;
+                            })()
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                      )}
+                    >
+                      {selectedSubType ? (
+                        <>
+                          <selectedSubType.icon size={16} className={selectedSubType.color} />
+                          <span>{selectedSubType.label}</span>
+                          <ChevronDown size={14} className={selectedSubType.color} />
+                        </>
+                      ) : (
+                        <>
+                          <LayoutGrid size={16} className="text-slate-500" />
+                          <span>Type</span>
+                          <ChevronDown size={14} className="text-slate-400" />
+                        </>
+                      )}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>Type</TooltipContent>
+                </Tooltip>
+              )}
+              
+              {/* Type button - shows after Auto option is selected (for non-document types) */}
+              {selectedOption && selectedOption.id !== 'document' && (
                 <>
                   {/* Vertical separator between Auto and Type */}
                   <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
@@ -350,71 +397,71 @@ const AIVAPromptBox = ({
                     </TooltipTrigger>
                     <TooltipContent>Type</TooltipContent>
                   </Tooltip>
+                </>
+              )}
 
-                  {/* Model and Control icons - only visible after Type is selected OR if not document type */}
-                  {selectedSubType && (
-                    <>
-                      {/* Vertical separator */}
-                      <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+              {/* Model and Control icons - visible after Type is selected */}
+              {selectedSubType && (
+                <>
+                  {/* Vertical separator */}
+                  <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
 
-                      {/* Model Button with dropdown */}
-                      <div className="relative">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div 
-                              onClick={() => setShowModelDropdown(!showModelDropdown)}
-                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors cursor-pointer"
-                            >
-                              <Box size={16} className="text-slate-500" />
-                              <span>{modelOptions.find(m => m.id === selectedModel)?.label || 'Auto'}</span>
-                              <ChevronDown size={14} className="text-slate-400" />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>Model</TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Model Dropdown */}
-                        {showModelDropdown && (
-                          <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[140px]">
-                            {modelOptions.map((model) => (
-                              <button
-                                key={model.id}
-                                onClick={() => {
-                                  setSelectedModel(model.id);
-                                  setShowModelDropdown(false);
-                                }}
-                                className={cn(
-                                  "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                  selectedModel === model.id 
-                                    ? "bg-slate-100 text-slate-700" 
-                                    : "hover:bg-slate-50 text-slate-600"
-                                )}
-                              >
-                                {model.label}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                  {/* Model Button with dropdown */}
+                  <div className="relative">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          onClick={() => setShowModelDropdown(!showModelDropdown)}
+                          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors cursor-pointer"
+                        >
+                          <Box size={16} className="text-slate-500" />
+                          <span>{modelOptions.find(m => m.id === selectedModel)?.label || 'Auto'}</span>
+                          <ChevronDown size={14} className="text-slate-400" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>Model</TooltipContent>
+                    </Tooltip>
+                    
+                    {/* Model Dropdown */}
+                    {showModelDropdown && (
+                      <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[140px]">
+                        {modelOptions.map((model) => (
+                          <button
+                            key={model.id}
+                            onClick={() => {
+                              setSelectedModel(model.id);
+                              setShowModelDropdown(false);
+                            }}
+                            className={cn(
+                              "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                              selectedModel === model.id 
+                                ? "bg-slate-100 text-slate-700" 
+                                : "hover:bg-slate-50 text-slate-600"
+                            )}
+                          >
+                            {model.label}
+                          </button>
+                        ))}
                       </div>
+                    )}
+                  </div>
 
-                      {/* Additional control icons (if any) */}
-                      {getControlIcons().length > 0 && (
-                        <>
-                          <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {getControlIcons().map((control) => (
-                              <Tooltip key={control.id}>
-                                <TooltipTrigger asChild>
-                                  <button className="p-2 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors border border-slate-200">
-                                    <control.icon size={18} />
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent>{control.tooltip}</TooltipContent>
-                              </Tooltip>
-                            ))}
-                          </div>
-                        </>
-                      )}
+                  {/* Additional control icons (if any) - only for non-document types */}
+                  {selectedOption?.id !== 'document' && getControlIcons().length > 0 && (
+                    <>
+                      <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {getControlIcons().map((control) => (
+                          <Tooltip key={control.id}>
+                            <TooltipTrigger asChild>
+                              <button className="p-2 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors border border-slate-200">
+                                <control.icon size={18} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>{control.tooltip}</TooltipContent>
+                          </Tooltip>
+                        ))}
+                      </div>
                     </>
                   )}
                 </>
