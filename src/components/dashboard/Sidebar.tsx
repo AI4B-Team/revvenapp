@@ -97,7 +97,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const sidebarItems = [
     { icon: <Home size={18} />, label: 'Dashboard', link: '/dashboard' },
     { icon: <Sparkles size={18} className="text-brand-yellow" />, label: 'AIVA', link: '/assistant', isAIVA: true },
-    ...(isAdminOrModerator ? [{ icon: <Shield size={18} />, label: 'Admin Panel', link: '/manage' }] : []),
   ];
 
   const dashboardNavItems: Array<{ icon: JSX.Element; label: string; color: string; link: string }> = [];
