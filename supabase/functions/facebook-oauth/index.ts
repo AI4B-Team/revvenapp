@@ -6,6 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Get the app URL for redirects
+const APP_URL = 'https://82e744b5-adf9-4635-a4c4-d4aad03b4ede.lovableproject.com';
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -36,7 +39,8 @@ serve(async (req) => {
       
       if (tokenData.error) {
         console.error('Error exchanging code:', tokenData.error);
-        throw new Error(tokenData.error.message);
+        const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(tokenData.error.message)}&provider=Facebook`;
+        return Response.redirect(redirectUrl, 302);
       }
 
       const userAccessToken = tokenData.access_token;
@@ -49,31 +53,22 @@ serve(async (req) => {
 
       if (pagesData.error) {
         console.error('Error fetching pages:', pagesData.error);
-        throw new Error(pagesData.error.message);
+        const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(pagesData.error.message)}&provider=Facebook`;
+        return Response.redirect(redirectUrl, 302);
       }
 
       console.log(`Found ${pagesData.data?.length || 0} pages`);
 
       if (!pagesData.data || pagesData.data.length === 0) {
-        return new Response(`
-          <!DOCTYPE html>
-          <html>
-            <body>
-              <script>
-                window.opener.postMessage({ type: 'FACEBOOK_AUTH_ERROR', error: 'No Facebook Pages found. Please create a Facebook Page first.' }, '*');
-                window.close();
-              </script>
-            </body>
-          </html>
-        `, {
-          headers: { 'Content-Type': 'text/html' },
-        });
+        const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent('No Facebook Pages found. Please create a Facebook Page first.')}&provider=Facebook`;
+        return Response.redirect(redirectUrl, 302);
       }
 
       // Store pages in database
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
       const userId = state; // User ID passed in state
 
+      let savedPageName = '';
       for (const page of pagesData.data) {
         const { error: upsertError } = await supabase
           .from('facebook_pages')
@@ -91,39 +86,20 @@ serve(async (req) => {
           console.error('Error saving page:', upsertError);
         } else {
           console.log(`Saved page: ${page.name}`);
+          savedPageName = page.name;
         }
       }
 
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <body>
-            <script>
-              window.opener.postMessage({ type: 'FACEBOOK_AUTH_SUCCESS', pages: ${JSON.stringify(pagesData.data.map((p: any) => ({ id: p.id, name: p.name })))} }, '*');
-              window.close();
-            </script>
-          </body>
-        </html>
-      `, {
-        headers: { 'Content-Type': 'text/html' },
-      });
+      // Success - redirect to callback page
+      const pageName = encodeURIComponent(savedPageName || pagesData.data[0]?.name || 'Facebook Page');
+      const redirectUrl = `${APP_URL}/oauth/callback?success=true&channel=${pageName}&provider=Facebook`;
+      return Response.redirect(redirectUrl, 302);
 
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error('OAuth error:', error);
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <body>
-            <script>
-              window.opener.postMessage({ type: 'FACEBOOK_AUTH_ERROR', error: '${errorMessage}' }, '*');
-              window.close();
-            </script>
-          </body>
-        </html>
-      `, {
-        headers: { 'Content-Type': 'text/html' },
-      });
+      const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(errorMessage)}&provider=Facebook`;
+      return Response.redirect(redirectUrl, 302);
     }
   }
 
