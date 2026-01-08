@@ -344,7 +344,7 @@ const Versus: React.FC = () => {
         {/* Input Area - positioned at bottom */}
         <div className="sticky bottom-0 pb-6 pt-2 bg-gradient-to-t from-background via-background to-transparent">
           <div className="max-w-4xl mx-auto px-4">
-            <div className="bg-card border-2 border-emerald-500/50 rounded-2xl shadow-lg shadow-emerald-500/10 overflow-hidden">
+            <div className="bg-card border-2 border-emerald-500/50 rounded-2xl shadow-lg shadow-emerald-500/10">
               {/* Header row with sync badge and clear */}
               <div className="flex items-center justify-between px-4 py-2">
                 <div className="flex items-center gap-4">
@@ -382,9 +382,9 @@ const Versus: React.FC = () => {
                       }
                     }}
                     placeholder="Send a message to compare models..."
-                    rows={1}
+                    rows={4}
                     className="w-full px-4 py-3 bg-transparent text-foreground placeholder-muted-foreground focus:outline-none resize-none transition-all"
-                    style={{ minHeight: '48px', maxHeight: '200px' }}
+                    style={{ minHeight: '120px', maxHeight: '300px' }}
                   />
                 </div>
                 

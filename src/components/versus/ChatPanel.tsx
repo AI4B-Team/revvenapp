@@ -94,11 +94,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   const tierInfo = getTierLabel(model?.tier);
 
   return (
-    <div className={`flex flex-col bg-card border border-border rounded-2xl overflow-hidden transition-all duration-300 ${
+    <div className={`flex flex-col bg-card border border-border rounded-2xl transition-all duration-300 ${
       panel.isExpanded ? 'col-span-full row-span-full' : ''
     }`}>
       {/* Panel Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted rounded-t-2xl relative z-50">
         <div className="flex items-center gap-2">
           <ModelSelector
             selectedModelId={panel.modelId}
