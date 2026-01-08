@@ -238,7 +238,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
           </div>
 
           {/* Bottom bar - expands dynamically as content is added */}
-          <div className="flex items-center justify-between px-4 pb-4 gap-4 flex-nowrap whitespace-nowrap min-w-0">
+          <div className="flex items-center justify-between px-4 pb-3 gap-4 flex-nowrap whitespace-nowrap min-w-0">
             {/* Left side controls - flex shrink disabled */}
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Auto dropdown - only shown when intent is selected AND no option is selected yet */}
