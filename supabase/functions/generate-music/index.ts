@@ -155,6 +155,18 @@ serve(async (req) => {
           .update({ status: 'error' })
           .eq('id', recordId);
       }
+      
+      // Handle specific error codes
+      if (result.code === 402) {
+        return new Response(JSON.stringify({ 
+          error: 'Music generation credits are insufficient. Please contact support or try again later.',
+          code: 'INSUFFICIENT_CREDITS'
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
       throw new Error(`Failed to create music task: ${result.msg || 'Unknown error'}`);
     }
 
