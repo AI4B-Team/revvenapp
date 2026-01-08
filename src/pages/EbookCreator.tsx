@@ -611,7 +611,7 @@ const EbookCreator = () => {
       >
         <Header />
         {/* Ebook Studio Header - matching Transcribe style */}
-        <EbookHeader onExportClick={() => setShowExportModal(true)} />
+        <EbookHeader onExportClick={() => setShowExportModal(true)} showTabs={false} />
 
         <main className="flex-1 overflow-auto">
           {/* Full-width content area with white background */}
@@ -628,24 +628,26 @@ const EbookCreator = () => {
               <section>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
-                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                      <Book className="w-5 h-5 text-emerald-500" />
-                      Projects
-                    </h2>
-                    <div className="flex border border-gray-200 rounded-xl overflow-hidden">
-                      <button
-                        onClick={() => setActiveProjectTab('ebooks')}
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${activeProjectTab === 'ebooks' ? 'bg-emerald-500 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-                      >
-                        eBooks
-                      </button>
-                      <button
-                        onClick={() => setActiveProjectTab('audiobooks')}
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${activeProjectTab === 'audiobooks' ? 'bg-emerald-500 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-                      >
-                        AudioBooks
-                      </button>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded bg-emerald-500 flex items-center justify-center">
+                        <Book className="w-5 h-5 text-white" />
+                      </div>
+                      <h2 className="text-xl font-bold text-gray-900">Projects</h2>
                     </div>
+                    <button
+                      onClick={() => setActiveProjectTab('ebooks')}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeProjectTab === 'ebooks' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    >
+                      <Book className="w-4 h-4" />
+                      eBooks
+                    </button>
+                    <button
+                      onClick={() => setActiveProjectTab('audiobooks')}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeProjectTab === 'audiobooks' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    >
+                      <Headphones className="w-4 h-4" />
+                      AudioBooks
+                    </button>
                     <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm font-medium">
                       {ebooks.length} Books
                     </span>
