@@ -309,10 +309,10 @@ const AIVAPromptBox = ({
                   
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button 
+                      <div 
                         onClick={() => setShowTypeDropdown(!showTypeDropdown)}
                         className={cn(
-                          "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                          "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border cursor-pointer",
                           selectedSubType 
                             ? (() => {
                                 const color = selectedSubType.color || '';
@@ -346,7 +346,7 @@ const AIVAPromptBox = ({
                             <ChevronDown size={14} className="text-slate-400" />
                           </>
                         )}
-                      </button>
+                      </div>
                     </TooltipTrigger>
                     <TooltipContent>Type</TooltipContent>
                   </Tooltip>
@@ -361,14 +361,14 @@ const AIVAPromptBox = ({
                       <div className="relative">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <button 
+                            <div 
                               onClick={() => setShowModelDropdown(!showModelDropdown)}
-                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors cursor-pointer"
                             >
                               <Box size={16} className="text-slate-500" />
                               <span>{modelOptions.find(m => m.id === selectedModel)?.label || 'Auto'}</span>
                               <ChevronDown size={14} className="text-slate-400" />
-                            </button>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent>Model</TooltipContent>
                         </Tooltip>
