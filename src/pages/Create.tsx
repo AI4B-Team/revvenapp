@@ -92,17 +92,32 @@ const Create = () => {
 
   // Check for image to edit from navigation state or URL params
   useEffect(() => {
-    const state = location.state as { editImage?: string; animateImage?: string; transcriptText?: string; targetMode?: string; targetAnimateMode?: string } | null;
+    const state = location.state as { editImage?: string; animateImage?: string; transcriptText?: string; targetMode?: string; targetAnimateMode?: string; newProject?: boolean } | null;
     const params = new URLSearchParams(location.search);
     const imageUrl = state?.editImage || params.get('editImage');
     const animateUrl = state?.animateImage || params.get('animateImage');
     const transcriptText = state?.transcriptText;
     const targetMode = state?.targetMode;
     const targetAnimateMode = state?.targetAnimateMode;
+    const isNewProject = state?.newProject;
     
-    console.log('Create.tsx navigation state:', { state, animateUrl, imageUrl, transcriptText: transcriptText?.substring(0, 50), targetAnimateMode });
+    console.log('Create.tsx navigation state:', { state, animateUrl, imageUrl, transcriptText: transcriptText?.substring(0, 50), targetAnimateMode, isNewProject });
     
     let hasState = false;
+    
+    // Handle new project - reset to fresh state
+    if (isNewProject) {
+      setSelectedType('Image');
+      setActiveTab('');
+      setActiveView('tools');
+      setIsEditMode(false);
+      setEditingImage(null);
+      setExternalPromptText(null);
+      setExternalAnimateMode(null);
+      setExternalStartingFrame(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      hasState = true;
+    }
     
     if (imageUrl) {
       setIsEditMode(true);
