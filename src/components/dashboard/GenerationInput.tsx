@@ -6715,7 +6715,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown - First */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
+                    <button className="px-3 py-2 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
                       <LayoutGrid size={16} className="text-muted-foreground" />
                       Type
                     </button>
@@ -6762,12 +6762,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                {/* Type Dropdown */}
+                {/* Start Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground hover:opacity-90">
-                      <LayoutGrid size={16} className="text-muted-foreground" />
-                      Type
+                      <Play size={16} className="text-muted-foreground" />
+                      Start
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-72 bg-background border-border z-50 p-2">
@@ -7076,10 +7076,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown - always visible */}
                 <Popover open={isDocumentTypeDropdownOpen} onOpenChange={setIsDocumentTypeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className={`px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 whitespace-nowrap border ${
+                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
                       documentType 
-                        ? 'bg-brand-green/15 text-foreground border-brand-green/30' 
-                        : 'bg-secondary hover:opacity-90 text-foreground border-border'
+                        ? 'bg-brand-green/15 text-foreground' 
+                        : 'bg-secondary hover:opacity-90 text-foreground'
                     }`}>
                       <LayoutGrid size={16} className="text-muted-foreground" />
                       {documentType || 'Type'}
@@ -7205,7 +7205,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-2 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
+                    <button className="px-3 py-2 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
                       <LayoutGrid size={16} className="text-muted-foreground" />
                       Type
                     </button>
@@ -7320,7 +7320,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <button
                   onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
                   aria-expanded={isCreateModeDropdownOpen}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
                     selectedCreateMode 
                       ? 'bg-brand-green/15 text-foreground'
                       : 'bg-secondary text-foreground'
