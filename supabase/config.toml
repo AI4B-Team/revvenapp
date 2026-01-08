@@ -134,3 +134,12 @@ verify_jwt = true
 
 [functions.get-signed-cloudinary-url]
 verify_jwt = true
+
+[functions.youtube-oauth]
+verify_jwt = false
+
+[functions.autoyt-generate]
+verify_jwt = true
+
+[functions.autoyt-publish]
+verify_jwt = true
