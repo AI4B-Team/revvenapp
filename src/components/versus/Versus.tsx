@@ -370,8 +370,8 @@ const Versus: React.FC = () => {
               </div>
 
               {/* Input row */}
-              <div className="px-4 pb-4 flex items-end gap-3">
-                <div className="flex-1 relative">
+              <div className="px-4 pb-4">
+                <div className="relative">
                   <textarea
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
@@ -388,7 +388,7 @@ const Versus: React.FC = () => {
                   />
                 </div>
                 
-                <div className="flex items-center justify-between pb-1">
+                <div className="flex items-center justify-between mt-2">
                   <button className="p-3 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors">
                     <Paperclip className="w-5 h-5" />
                   </button>
