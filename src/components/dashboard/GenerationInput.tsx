@@ -6811,11 +6811,22 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                {/* Only show separator and Start button after type is selected */}
+                {/* Only show separator and controls after type is selected */}
                 {selectedDesignType && (
                   <>
                     {/* Vertical separator */}
                     <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+
+                    {/* Model Button */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-muted-foreground hover:opacity-90">
+                          <Box size={16} className="text-muted-foreground" />
+                          Auto
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Model</TooltipContent>
+                    </Tooltip>
 
                     {/* Start Dropdown */}
                     <DropdownMenu>
