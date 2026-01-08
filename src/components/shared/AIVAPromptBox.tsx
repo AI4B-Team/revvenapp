@@ -32,7 +32,6 @@ interface ControlIcon {
 
 // Control icons for Image types - uses Brush icon for style
 const imageControlIcons: ControlIcon[] = [
-  { id: 'model', icon: Box, tooltip: 'Model' },
   { id: 'style', icon: Brush, tooltip: 'Style' },
   { id: 'character', icon: User, tooltip: 'Character' },
   { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
@@ -41,11 +40,19 @@ const imageControlIcons: ControlIcon[] = [
 
 // Control icons for Video types - reference uses custom icon component
 const videoControlIcons: ControlIcon[] = [
-  { id: 'model', icon: Box, tooltip: 'Model' },
   { id: 'character', icon: User, tooltip: 'Character' },
   { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
   { id: 'duration', icon: Clock, tooltip: 'Duration' },
   { id: 'quality', icon: SlidersHorizontal, tooltip: 'Quality' },
+];
+
+// Control icons for Document types - minimal controls
+const documentControlIcons: ControlIcon[] = [];
+
+// Model options for dropdown
+const modelOptions = [
+  { id: 'auto', label: 'Auto' },
+  { id: 'gemini-pro', label: 'Gemini Pro' },
 ];
 
 // Video type options
@@ -145,6 +152,8 @@ const AIVAPromptBox = ({
   const [selectedOption, setSelectedOption] = useState<AutoOption | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOption | null>(null);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('auto');
+  const [showModelDropdown, setShowModelDropdown] = useState(false);
 
   // Speech recognition hook
   const handleTranscriptResult = useCallback((transcript: string) => {
@@ -203,9 +212,13 @@ const AIVAPromptBox = ({
 
   // Get control icons based on selected option type
   const getControlIcons = (): ControlIcon[] => {
+    if (selectedOption?.id === 'document') return documentControlIcons;
     if (selectedOption?.id === 'video') return videoControlIcons;
     return imageControlIcons;
   };
+
+  // Check if document type is selected (show only Type button initially)
+  const isDocumentType = selectedOption?.id === 'document';
 
   const showSubTypeSelector = selectedOption !== null;
 
@@ -294,63 +307,114 @@ const AIVAPromptBox = ({
                   {/* Vertical separator between Auto and Type */}
                   <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                   
-                  <button 
-                    onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border",
-                      selectedSubType 
-                        ? (() => {
-                            const color = selectedSubType.color || '';
-                            let pastelBg = 'bg-slate-50 hover:bg-slate-100';
-                            if (color.includes('blue')) pastelBg = 'bg-blue-50 hover:bg-blue-100';
-                            else if (color.includes('red')) pastelBg = 'bg-red-50 hover:bg-red-100';
-                            else if (color.includes('green')) pastelBg = 'bg-green-50 hover:bg-green-100';
-                            else if (color.includes('orange')) pastelBg = 'bg-orange-50 hover:bg-orange-100';
-                            else if (color.includes('purple')) pastelBg = 'bg-purple-50 hover:bg-purple-100';
-                            else if (color.includes('amber')) pastelBg = 'bg-amber-50 hover:bg-amber-100';
-                            else if (color.includes('violet')) pastelBg = 'bg-violet-50 hover:bg-violet-100';
-                            else if (color.includes('cyan')) pastelBg = 'bg-cyan-50 hover:bg-cyan-100';
-                            else if (color.includes('indigo')) pastelBg = 'bg-indigo-50 hover:bg-indigo-100';
-                            else if (color.includes('teal')) pastelBg = 'bg-teal-50 hover:bg-teal-100';
-                            else if (color.includes('emerald')) pastelBg = 'bg-emerald-50 hover:bg-emerald-100';
-                            return `${pastelBg} ${selectedSubType.color} ${selectedSubType.color?.replace('text-', 'border-')}`;
-                          })()
-                        : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
-                    )}
-                  >
-                    {selectedSubType ? (
-                      <>
-                        <selectedSubType.icon size={16} className={selectedSubType.color} />
-                        <span>{selectedSubType.label}</span>
-                        <ChevronDown size={14} className={selectedSubType.color} />
-                      </>
-                    ) : (
-                      <>
-                        <LayoutGrid size={16} className="text-slate-500" />
-                        <span>Type</span>
-                        <ChevronDown size={14} className="text-slate-400" />
-                      </>
-                    )}
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                          selectedSubType 
+                            ? (() => {
+                                const color = selectedSubType.color || '';
+                                let pastelBg = 'bg-slate-50 hover:bg-slate-100';
+                                if (color.includes('blue')) pastelBg = 'bg-blue-50 hover:bg-blue-100';
+                                else if (color.includes('red')) pastelBg = 'bg-red-50 hover:bg-red-100';
+                                else if (color.includes('green')) pastelBg = 'bg-green-50 hover:bg-green-100';
+                                else if (color.includes('orange')) pastelBg = 'bg-orange-50 hover:bg-orange-100';
+                                else if (color.includes('purple')) pastelBg = 'bg-purple-50 hover:bg-purple-100';
+                                else if (color.includes('amber')) pastelBg = 'bg-amber-50 hover:bg-amber-100';
+                                else if (color.includes('violet')) pastelBg = 'bg-violet-50 hover:bg-violet-100';
+                                else if (color.includes('cyan')) pastelBg = 'bg-cyan-50 hover:bg-cyan-100';
+                                else if (color.includes('indigo')) pastelBg = 'bg-indigo-50 hover:bg-indigo-100';
+                                else if (color.includes('teal')) pastelBg = 'bg-teal-50 hover:bg-teal-100';
+                                else if (color.includes('emerald')) pastelBg = 'bg-emerald-50 hover:bg-emerald-100';
+                                return `${pastelBg} ${selectedSubType.color} ${selectedSubType.color?.replace('text-', 'border-')}`;
+                              })()
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                        )}
+                      >
+                        {selectedSubType ? (
+                          <>
+                            <selectedSubType.icon size={16} className={selectedSubType.color} />
+                            <span>{selectedSubType.label}</span>
+                            <ChevronDown size={14} className={selectedSubType.color} />
+                          </>
+                        ) : (
+                          <>
+                            <LayoutGrid size={16} className="text-slate-500" />
+                            <span>Type</span>
+                            <ChevronDown size={14} className="text-slate-400" />
+                          </>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Type</TooltipContent>
+                  </Tooltip>
 
-                  {/* Control icons - only visible after Type is selected */}
+                  {/* Model and Control icons - only visible after Type is selected OR if not document type */}
                   {selectedSubType && (
                     <>
                       {/* Vertical separator */}
-                      <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+                      <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
 
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {getControlIcons().map((control) => (
-                          <Tooltip key={control.id}>
-                            <TooltipTrigger asChild>
-                              <button className="p-2 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
-                                <control.icon size={18} />
+                      {/* Model Button with dropdown */}
+                      <div className="relative">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => setShowModelDropdown(!showModelDropdown)}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                            >
+                              <Box size={16} className="text-slate-500" />
+                              <span>{modelOptions.find(m => m.id === selectedModel)?.label || 'Auto'}</span>
+                              <ChevronDown size={14} className="text-slate-400" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Model</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Model Dropdown */}
+                        {showModelDropdown && (
+                          <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[140px]">
+                            {modelOptions.map((model) => (
+                              <button
+                                key={model.id}
+                                onClick={() => {
+                                  setSelectedModel(model.id);
+                                  setShowModelDropdown(false);
+                                }}
+                                className={cn(
+                                  "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                  selectedModel === model.id 
+                                    ? "bg-slate-100 text-slate-700" 
+                                    : "hover:bg-slate-50 text-slate-600"
+                                )}
+                              >
+                                {model.label}
                               </button>
-                            </TooltipTrigger>
-                            <TooltipContent>{control.tooltip}</TooltipContent>
-                          </Tooltip>
-                        ))}
+                            ))}
+                          </div>
+                        )}
                       </div>
+
+                      {/* Additional control icons (if any) */}
+                      {getControlIcons().length > 0 && (
+                        <>
+                          <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            {getControlIcons().map((control) => (
+                              <Tooltip key={control.id}>
+                                <TooltipTrigger asChild>
+                                  <button className="p-2 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors border border-slate-200">
+                                    <control.icon size={18} />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>{control.tooltip}</TooltipContent>
+                              </Tooltip>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </>
                   )}
                 </>
