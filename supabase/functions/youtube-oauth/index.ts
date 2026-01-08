@@ -11,26 +11,44 @@ const YOUTUBE_CLIENT_SECRET = Deno.env.get('YOUTUBE_CLIENT_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
+// Helper to create HTML response with proper headers
+function htmlResponse(html: string, status = 200): Response {
+  return new Response(html, {
+    status,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'X-Content-Type-Options': 'nosniff',
+    },
+  });
+}
+
 serve(async (req) => {
+  const url = new URL(req.url);
+  console.log('Request URL:', url.href);
+  console.log('Request pathname:', url.pathname);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const url = new URL(req.url);
+    // Handle OAuth callback - check for callback in path OR for code param (Google redirect)
+    const isCallback = url.pathname.includes('/callback') || url.searchParams.has('code');
     
-    // Handle OAuth callback
-    if (url.pathname.includes('/callback')) {
+    if (isCallback) {
+      console.log('Handling OAuth callback');
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state'); // Contains user_id
       
       if (!code || !state) {
-        return new Response(`
-          <html><body><script>
-            window.opener.postMessage({ type: 'youtube_oauth_error', error: 'Missing code or state' }, '*');
-            window.close();
-          </script></body></html>
-        `, { headers: { 'Content-Type': 'text/html' } });
+        console.log('Missing code or state');
+        return htmlResponse(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Error</title></head>
+<body><script>
+  window.opener && window.opener.postMessage({ type: 'youtube_oauth_error', error: 'Missing code or state' }, '*');
+  window.close();
+</script><p>Missing authorization code. This window will close.</p></body></html>`);
       }
 
       // Exchange code for tokens
@@ -54,12 +72,13 @@ serve(async (req) => {
       });
 
       if (!tokens.access_token) {
-        return new Response(`
-          <html><body><script>
-            window.opener.postMessage({ type: 'youtube_oauth_error', error: 'Failed to get access token' }, '*');
-            window.close();
-          </script></body></html>
-        `, { headers: { 'Content-Type': 'text/html' } });
+        console.log('Failed to get access token:', tokens);
+        return htmlResponse(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Error</title></head>
+<body><script>
+  window.opener && window.opener.postMessage({ type: 'youtube_oauth_error', error: 'Failed to get access token' }, '*');
+  window.close();
+</script><p>Failed to get access token. This window will close.</p></body></html>`);
       }
 
       // Get channel info
@@ -70,12 +89,12 @@ serve(async (req) => {
       console.log('Channel data:', channelData);
 
       if (!channelData.items || channelData.items.length === 0) {
-        return new Response(`
-          <html><body><script>
-            window.opener.postMessage({ type: 'youtube_oauth_error', error: 'No YouTube channel found' }, '*');
-            window.close();
-          </script></body></html>
-        `, { headers: { 'Content-Type': 'text/html' } });
+        return htmlResponse(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Error</title></head>
+<body><script>
+  window.opener && window.opener.postMessage({ type: 'youtube_oauth_error', error: 'No YouTube channel found' }, '*');
+  window.close();
+</script><p>No YouTube channel found. This window will close.</p></body></html>`);
       }
 
       const channel = channelData.items[0];
@@ -96,13 +115,16 @@ serve(async (req) => {
 
       if (insertError) {
         console.error('Error storing channel:', insertError);
-        return new Response(`
-          <html><body><script>
-            window.opener.postMessage({ type: 'youtube_oauth_error', error: 'Failed to store channel' }, '*');
-            window.close();
-          </script></body></html>
-        `, { headers: { 'Content-Type': 'text/html' } });
+        return htmlResponse(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Error</title></head>
+<body><script>
+  window.opener && window.opener.postMessage({ type: 'youtube_oauth_error', error: 'Failed to store channel' }, '*');
+  window.close();
+</script><p>Failed to store channel. This window will close.</p></body></html>`);
       }
+
+      // Escape channel title for safe HTML insertion
+      const safeTitle = channel.snippet.title.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
       const successHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -150,21 +172,9 @@ serve(async (req) => {
       0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
       50% { box-shadow: 0 0 0 20px rgba(34, 197, 94, 0); }
     }
-    .icon svg {
-      width: 40px;
-      height: 40px;
-      color: white;
-    }
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
-    }
-    p {
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
+    .icon svg { width: 40px; height: 40px; color: white; }
+    h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.75rem; }
+    p { color: rgba(255,255,255,0.7); margin-bottom: 1.5rem; line-height: 1.6; }
     .channel-name {
       display: inline-block;
       background: rgba(239, 68, 68, 0.2);
@@ -174,10 +184,7 @@ serve(async (req) => {
       font-weight: 600;
       margin-bottom: 1.5rem;
     }
-    .closing {
-      font-size: 0.875rem;
-      color: rgba(255,255,255,0.5);
-    }
+    .closing { font-size: 0.875rem; color: rgba(255,255,255,0.5); }
   </style>
 </head>
 <body>
@@ -188,7 +195,7 @@ serve(async (req) => {
       </svg>
     </div>
     <h1>Successfully Connected!</h1>
-    <div class="channel-name">${channel.snippet.title}</div>
+    <div class="channel-name">${safeTitle}</div>
     <p>Your YouTube channel has been linked. You can now generate and publish videos directly.</p>
     <p class="closing">This window will close automatically...</p>
   </div>
@@ -203,13 +210,7 @@ serve(async (req) => {
 </body>
 </html>`;
 
-      return new Response(successHtml, { 
-        status: 200,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-cache, no-store, must-revalidate'
-        } 
-      });
+      return htmlResponse(successHtml);
     }
 
     // Regular API calls
