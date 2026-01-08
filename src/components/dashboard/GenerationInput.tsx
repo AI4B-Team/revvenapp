@@ -114,6 +114,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [generatedContent, setGeneratedContent] = useState<any[]>([]);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const [contentDays, setContentDays] = useState(30);
+
+  // Document mode state
+  const [documentType, setDocumentType] = useState('');
+  const [isDocumentTypeDropdownOpen, setIsDocumentTypeDropdownOpen] = useState(false);
+  const [documentModel, setDocumentModel] = useState<'auto' | 'gemini-pro'>('auto');
+  const [isDocumentModelDropdownOpen, setIsDocumentModelDropdownOpen] = useState(false);
   
   // Animate mode dropdown state (Video)
   const [selectedAnimateMode, setSelectedAnimateMode] = useState('');
