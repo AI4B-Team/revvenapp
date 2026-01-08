@@ -397,8 +397,8 @@ const Create = () => {
       onClick: () => navigate('/viral-shorts')
     },
     { 
-      name: 'AutoYT', 
-      description: 'Generate & publish to YouTube',
+      name: 'Auto Post', 
+      description: 'Generate & publish videos',
       bgColor: 'bg-tool-red',
       emoji: '▶️',
       onClick: () => navigate('/autoyt')
