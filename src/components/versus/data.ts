@@ -2,24 +2,32 @@ import { AIProvider, AIModel } from './types';
 
 // Import model logos
 import grokLogo from '@/assets/model-logos/grok.png';
+import openaiLogo from '@/assets/model-logos/openai.png';
+import anthropicLogo from '@/assets/model-logos/anthropic.svg';
+import googleLogo from '@/assets/model-logos/google.svg';
+import perplexityLogo from '@/assets/model-logos/perplexity.svg';
+import deepseekLogo from '@/assets/model-logos/deepseek.svg';
 
 export const AI_PROVIDERS: AIProvider[] = [
   { 
     id: 'openai', 
     name: 'OpenAI', 
     icon: '◎', 
+    logo: openaiLogo,
     color: '#10a37f' 
   },
   { 
     id: 'anthropic', 
     name: 'Anthropic', 
     icon: '◈', 
+    logo: anthropicLogo,
     color: '#d4a574' 
   },
   { 
     id: 'google', 
     name: 'Google', 
     icon: '✦', 
+    logo: googleLogo,
     color: '#4285f4' 
   },
   { 
@@ -45,12 +53,14 @@ export const AI_PROVIDERS: AIProvider[] = [
     id: 'perplexity', 
     name: 'Perplexity', 
     icon: '◉', 
+    logo: perplexityLogo,
     color: '#20b8cd' 
   },
   { 
     id: 'deepseek', 
     name: 'DeepSeek', 
     icon: '🔍', 
+    logo: deepseekLogo,
     color: '#6366f1' 
   },
 ];
