@@ -8912,7 +8912,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       {/* Ebook Source Options - Only visible when Ebook is selected in Document mode */}
       {isDocumentMode && documentType === 'Ebook' && (
         <div className="flex justify-center mt-6">
-          <div className="flex items-center gap-4">
+          <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
+            <div className="flex items-center gap-4">
             {/* Start With AI */}
             <button
               onClick={() => navigate('/ebook-creator/new?source=ai-generate')}
@@ -8981,6 +8982,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <span className="text-[10px] px-1 py-0.5 bg-rose-500 text-white rounded font-bold uppercase">Live</span>
               </div>
             </button>
+          </div>
           </div>
         </div>
       )}
