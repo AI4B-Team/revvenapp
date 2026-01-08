@@ -74,6 +74,7 @@ const AutoYT = () => {
   
   // Create video form state
   const [sourceType, setSourceType] = useState<'text' | 'image'>('text');
+  const [videoModel, setVideoModel] = useState<'vo3' | 'vo3.1' | 'sora2'>('vo3');
   const [prompt, setPrompt] = useState('');
   const [sourceImageUrl, setSourceImageUrl] = useState('');
   const [category, setCategory] = useState('22');
@@ -493,6 +494,36 @@ const AutoYT = () => {
                             <Image className="w-4 h-4 mr-2" />
                             Image to Video
                           </Button>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Video Model</Label>
+                          <div className="grid grid-cols-3 gap-2">
+                            <Button
+                              variant={videoModel === 'vo3' ? 'default' : 'outline'}
+                              onClick={() => setVideoModel('vo3')}
+                              className="flex-1"
+                              size="sm"
+                            >
+                              VO3
+                            </Button>
+                            <Button
+                              variant={videoModel === 'vo3.1' ? 'default' : 'outline'}
+                              onClick={() => setVideoModel('vo3.1')}
+                              className="flex-1"
+                              size="sm"
+                            >
+                              VO3.1
+                            </Button>
+                            <Button
+                              variant={videoModel === 'sora2' ? 'default' : 'outline'}
+                              onClick={() => setVideoModel('sora2')}
+                              className="flex-1"
+                              size="sm"
+                            >
+                              Sora 2 Storyboard
+                            </Button>
+                          </div>
                         </div>
 
                         <div className="space-y-2">
