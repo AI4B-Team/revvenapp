@@ -390,7 +390,7 @@ const AutoYT = () => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold">AutoYT</h1>
-                  <p className="text-muted-foreground">Generate and publish videos to YouTube with VO3</p>
+                  <p className="text-muted-foreground">Generate and publish videos to YouTube with AI</p>
                 </div>
               </div>
               
