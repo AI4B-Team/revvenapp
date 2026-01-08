@@ -3838,13 +3838,23 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   placeholder={
                     isContentMode 
                       ? "Describe the theme or topic for your content plan..." 
-                      : (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync'))
-                        ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
-                        : (isVideoMode && selectedAnimateMode === 'Story')
-                          ? 'Upload References. Describe your vision. We\'ll create the scenes (e.g., Product reveal with smooth motion, premium feel, confident tone)'
-                          : (isVideoMode && selectedAnimateMode === 'UGC') 
-                            ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' 
-                            : "Describe what you want to create..."
+                      : isAppsMode
+                        ? "Describe the app you want to build..."
+                        : isDocumentMode
+                          ? "Describe the document you want to create..."
+                          : isDesignMode
+                            ? "Describe your design vision..."
+                            : isAudioMode
+                              ? "Describe the audio you want to generate..."
+                              : (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync'))
+                                ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
+                                : (isVideoMode && selectedAnimateMode === 'Story')
+                                  ? 'Upload References. Describe your vision. We\'ll create the scenes (e.g., Product reveal with smooth motion, premium feel, confident tone)'
+                                  : (isVideoMode && selectedAnimateMode === 'UGC') 
+                                    ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' 
+                                    : isVideoMode
+                                      ? "Describe the video you want to create..."
+                                      : "Describe the image you want to generate..."
                   }
                 />
                 {/* Character count warning for Avatar Video and Lip-Sync mode */}
