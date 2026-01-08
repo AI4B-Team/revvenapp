@@ -126,7 +126,7 @@ const Index = () => {
                 />
               </div>
               <button 
-                onClick={() => navigate('/create')}
+                onClick={() => navigate('/create', { state: { newProject: true } })}
                 className="flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors"
               >
                 <Plus size={18} />
