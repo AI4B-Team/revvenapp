@@ -120,6 +120,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isDocumentTypeDropdownOpen, setIsDocumentTypeDropdownOpen] = useState(false);
   const [documentModel, setDocumentModel] = useState<'auto' | 'gemini-pro'>('auto');
   const [isDocumentModelDropdownOpen, setIsDocumentModelDropdownOpen] = useState(false);
+
+  // Design mode state
+  const [selectedDesignType, setSelectedDesignType] = useState('');
+  const [isDesignTypeDropdownOpen, setIsDesignTypeDropdownOpen] = useState(false);
   
   // Animate mode dropdown state (Video)
   const [selectedAnimateMode, setSelectedAnimateMode] = useState('');
@@ -6713,48 +6717,62 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <>
                 {/* Design Mode Controls */}
                 {/* Type Dropdown - First */}
-                <Popover>
+                <Popover open={isDesignTypeDropdownOpen} onOpenChange={setIsDesignTypeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className="px-3 py-2 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
+                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                      selectedDesignType 
+                        ? 'bg-brand-green/15 text-foreground' 
+                        : 'bg-secondary text-foreground'
+                    }`}>
                       <LayoutGrid size={16} className="text-muted-foreground" />
-                      Type
+                      {selectedDesignType || 'Type'}
+                      {selectedDesignType && (
+                        <X 
+                          size={14} 
+                          className="text-muted-foreground hover:text-foreground cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedDesignType('');
+                          }}
+                        />
+                      )}
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-56 bg-background border-border z-50">
                     <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Brochure'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <BookOpen size={16} className="text-brand-blue" />
                         Brochure
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Business Card'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <User size={16} className="text-brand-purple" />
                         Business Card
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Cover'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <ImageIcon size={16} className="text-brand-green" />
                         Cover
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Flyer'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <FileText size={16} className="text-brand-yellow" />
                         Flyer
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Infographic'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <LayoutList size={16} className="text-brand-red" />
                         Infographic
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Invitation'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <Gift size={16} className="text-brand-pink" />
                         Invitation
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Logo'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <Sparkles size={16} className="text-brand-blue" />
                         Logo
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Poster'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <Presentation size={16} className="text-brand-green" />
                         Poster
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button onClick={() => { setSelectedDesignType('Thumbnail'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
                         <Film size={16} className="text-brand-red" />
                         Thumbnail
                       </button>
@@ -6762,44 +6780,49 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                {/* Vertical separator */}
-                <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+                {/* Only show separator and Start button after type is selected */}
+                {selectedDesignType && (
+                  <>
+                    {/* Vertical separator */}
+                    <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
-                {/* Start Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground hover:opacity-90">
-                      <Zap size={16} className="text-muted-foreground" />
-                      Start
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-72 bg-background border-border z-50 p-2">
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Flame size={20} className="text-green-600 dark:text-green-400" />
-                        </div>
-                        <span className="font-medium text-base">Start With A Template</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Sparkles size={20} className="text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <span className="font-medium text-base">Build With AI</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <FileText size={20} className="text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <span className="font-medium text-base">Start With A File</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    {/* Start Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground hover:opacity-90">
+                          <Zap size={16} className="text-muted-foreground" />
+                          Start
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-72 bg-background border-border z-50 p-2">
+                        <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                              <Flame size={20} className="text-green-600 dark:text-green-400" />
+                            </div>
+                            <span className="font-medium text-base">Start With A Template</span>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                              <Sparkles size={20} className="text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <span className="font-medium text-base">Build With AI</span>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                              <FileText size={20} className="text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <span className="font-medium text-base">Start With A File</span>
+                          </div>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                )}
               </>
             ) : isContentMode ? (
               <>
