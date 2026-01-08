@@ -5,7 +5,7 @@ import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import { 
-  Search, Plus, Settings, Zap, Trash2, MoreVertical, Loader2
+  Search, Plus, Settings, Zap, Trash2, MoreVertical, Loader2, Pencil
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -57,6 +57,10 @@ const Index = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [projectToRename, setProjectToRename] = useState<Project | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [isRenaming, setIsRenaming] = useState(false);
 
   // Plain gray color for project cards
   const projectBgColor = 'bg-gray-300';
@@ -148,6 +152,39 @@ const Index = () => {
     e.stopPropagation();
     setProjectToDelete(project);
     setDeleteDialogOpen(true);
+  };
+
+  const openRenameDialog = (project: Project, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setProjectToRename(project);
+    setRenameValue(project.name);
+    setRenameDialogOpen(true);
+  };
+
+  const handleRenameProject = async () => {
+    if (!projectToRename) return;
+
+    const newName = renameValue.trim() || 'Untitled';
+    setIsRenaming(true);
+
+    const { error } = await supabase
+      .from('projects')
+      .update({ name: newName, updated_at: new Date().toISOString() })
+      .eq('id', projectToRename.id);
+
+    if (error) {
+      toast.error('Failed to rename project');
+      console.error('Error renaming project:', error);
+    } else {
+      setProjects(prev => prev.map(p => 
+        p.id === projectToRename.id ? { ...p, name: newName, updated_at: new Date().toISOString() } : p
+      ));
+      toast.success('Project renamed');
+    }
+
+    setIsRenaming(false);
+    setRenameDialogOpen(false);
+    setProjectToRename(null);
   };
 
   const handleCreateProject = async () => {
@@ -279,6 +316,13 @@ const Index = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                             <DropdownMenuItem 
+                              className="gap-2"
+                              onClick={(e) => openRenameDialog(project, e)}
+                            >
+                              <Pencil size={14} />
+                              Rename
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
                               className="text-destructive focus:text-destructive gap-2"
                               onClick={(e) => openDeleteDialog(project, e)}
                             >
@@ -372,6 +416,50 @@ const Index = () => {
                 </>
               ) : (
                 'Create Project'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename Project Dialog */}
+      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rename Project</DialogTitle>
+            <DialogDescription>
+              Enter a new name for your project.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="rename-project">Project Name</Label>
+              <Input
+                id="rename-project"
+                placeholder="Project name"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !isRenaming) {
+                    handleRenameProject();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenameDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleRenameProject} disabled={isRenaming}>
+              {isRenaming ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save'
               )}
             </Button>
           </DialogFooter>
