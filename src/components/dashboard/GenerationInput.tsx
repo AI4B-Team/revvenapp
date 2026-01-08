@@ -128,6 +128,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Apps mode state
   const [selectedAppType, setSelectedAppType] = useState('');
   const [isAppTypeDropdownOpen, setIsAppTypeDropdownOpen] = useState(false);
+  const [selectedAppModel, setSelectedAppModel] = useState('');
+  const [isAppModelDropdownOpen, setIsAppModelDropdownOpen] = useState(false);
 
   // Animate mode dropdown state (Video)
   const [selectedAnimateMode, setSelectedAnimateMode] = useState('');
@@ -7323,6 +7325,124 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <>
                     {/* Vertical separator */}
                     <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+
+                    {/* Model Dropdown */}
+                    <Popover open={isAppModelDropdownOpen} onOpenChange={setIsAppModelDropdownOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                          selectedAppModel 
+                            ? 'bg-brand-purple/15 text-foreground' 
+                            : 'bg-secondary text-foreground'
+                        }`}>
+                          <Sparkles size={16} className="text-brand-purple" />
+                          {selectedAppModel || 'Model'}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 bg-background border-border z-50 p-2" align="start">
+                        <div className="space-y-1">
+                          <button 
+                            onClick={() => { setSelectedAppModel('Claude 4.5 Sonnet'); setIsAppModelDropdownOpen(false); }}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Claude 4.5 Sonnet' ? 'bg-brand-purple/10' : ''}`}
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center flex-shrink-0">
+                              <Sparkles size={14} className="text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">Claude 4.5 Sonnet</span>
+                                {selectedAppModel === 'Claude 4.5 Sonnet' && <Check size={14} className="text-brand-green" />}
+                              </div>
+                              <p className="text-xs text-muted-foreground">200k Context</p>
+                            </div>
+                          </button>
+                          <button 
+                            onClick={() => { setSelectedAppModel('Claude 4.5 Opus'); setIsAppModelDropdownOpen(false); }}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Claude 4.5 Opus' ? 'bg-brand-purple/10' : ''}`}
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center flex-shrink-0">
+                              <Sparkles size={14} className="text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">Claude 4.5 Opus</span>
+                                {selectedAppModel === 'Claude 4.5 Opus' && <Check size={14} className="text-brand-green" />}
+                              </div>
+                              <p className="text-xs text-muted-foreground">Anthropic's Most Advanced Model</p>
+                            </div>
+                          </button>
+                          <button 
+                            onClick={() => { setSelectedAppModel('Claude 4.5 Sonnet - 1M'); setIsAppModelDropdownOpen(false); }}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Claude 4.5 Sonnet - 1M' ? 'bg-brand-purple/10' : ''}`}
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center flex-shrink-0">
+                              <Sparkles size={14} className="text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">Claude 4.5 Sonnet - 1M</span>
+                                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-1.5 py-0 h-4">PRO</Badge>
+                                {selectedAppModel === 'Claude 4.5 Sonnet - 1M' && <Check size={14} className="text-brand-green" />}
+                              </div>
+                              <p className="text-xs text-muted-foreground">1 Million Context</p>
+                            </div>
+                          </button>
+                          <button 
+                            onClick={() => { setSelectedAppModel('GPT-5.2 (Beta)'); setIsAppModelDropdownOpen(false); }}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'GPT-5.2 (Beta)' ? 'bg-brand-purple/10' : ''}`}
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 6v6l4 2" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">GPT-5.2 (Beta)</span>
+                                {selectedAppModel === 'GPT-5.2 (Beta)' && <Check size={14} className="text-brand-green" />}
+                              </div>
+                              <p className="text-xs text-muted-foreground">OpenAI's Latest Model</p>
+                            </div>
+                          </button>
+                          <button 
+                            onClick={() => { setSelectedAppModel('Gemini 3 Pro'); setIsAppModelDropdownOpen(false); }}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Gemini 3 Pro' ? 'bg-brand-purple/10' : ''}`}
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                                <polygon points="12,2 22,12 12,22 2,12" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">Gemini 3 Pro</span>
+                                {selectedAppModel === 'Gemini 3 Pro' && <Check size={14} className="text-brand-green" />}
+                              </div>
+                              <p className="text-xs text-muted-foreground">Google's Latest Model</p>
+                            </div>
+                          </button>
+                          <button 
+                            onClick={() => { setSelectedAppModel('GPT-5.1'); setIsAppModelDropdownOpen(false); }}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'GPT-5.1' ? 'bg-brand-purple/10' : ''}`}
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 6v6l4 2" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">GPT-5.1</span>
+                                {selectedAppModel === 'GPT-5.1' && <Check size={14} className="text-brand-green" />}
+                              </div>
+                              <p className="text-xs text-muted-foreground">OpenAI's Older Model</p>
+                            </div>
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
                     {/* Reference Button */}
                     <Tooltip>
