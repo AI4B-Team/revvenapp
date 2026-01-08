@@ -41,6 +41,7 @@ interface Project {
   id: string;
   name: string;
   updated_at: string;
+  thumbnail_url: string | null;
 }
 
 const Index = () => {
@@ -302,8 +303,15 @@ const Index = () => {
                     onClick={() => navigate('/create', { state: { projectId: project.id } })}
                     className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group relative"
                   >
-                    {/* Gray Preview */}
-                    <div className={`aspect-[4/3] ${projectBgColor} relative overflow-hidden`}>
+                    {/* Thumbnail Preview */}
+                    <div className={`aspect-[4/3] ${project.thumbnail_url ? '' : projectBgColor} relative overflow-hidden`}>
+                      {project.thumbnail_url && (
+                        <img 
+                          src={project.thumbnail_url} 
+                          alt={project.name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       
                       {/* More Options Button */}
