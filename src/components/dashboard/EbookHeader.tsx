@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 interface EbookHeaderProps {
   onExportClick?: () => void;
   onPublishClick?: () => void;
+  showTabs?: boolean;
 }
 
 // Tab configuration - same as NewEbook.tsx (without review/ebook)
@@ -38,6 +39,7 @@ const TABS = [
 const EbookHeader = ({ 
   onExportClick,
   onPublishClick,
+  showTabs = true,
 }: EbookHeaderProps) => {
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
@@ -204,27 +206,29 @@ const EbookHeader = ({
         </div>
 
         {/* Center Section - Tab Icons (absolutely centered) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1">
-          {TABS.map((tab) => {
-            const isEbook = tab.id === 'review';
-            return (
-              <Tooltip key={tab.id}>
-                <TooltipTrigger asChild>
-                  <button 
-                    disabled
-                    className={`flex items-center gap-2 py-1.5 px-3 text-sm font-medium rounded-lg transition-all text-gray-400 cursor-not-allowed border border-transparent ${isEbook ? 'border border-gray-500' : ''}`}
-                  >
-                    <tab.icon className="w-4 h-4" />
-                    <span className="hidden md:inline">{tab.label}</span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>{tab.label}</p>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </div>
+        {showTabs && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1">
+            {TABS.map((tab) => {
+              const isEbook = tab.id === 'review';
+              return (
+                <Tooltip key={tab.id}>
+                  <TooltipTrigger asChild>
+                    <button 
+                      disabled
+                      className={`flex items-center gap-2 py-1.5 px-3 text-sm font-medium rounded-lg transition-all text-gray-400 cursor-not-allowed border border-transparent ${isEbook ? 'border border-gray-500' : ''}`}
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      <span className="hidden md:inline">{tab.label}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>{tab.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </div>
+        )}
 
         {/* Spacer */}
         <div className="flex-1" />
