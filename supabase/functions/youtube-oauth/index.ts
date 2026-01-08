@@ -11,8 +11,8 @@ const YOUTUBE_CLIENT_SECRET = Deno.env.get('YOUTUBE_CLIENT_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-// Get the app URL for redirects
-const APP_URL = 'https://82e744b5-adf9-4635-a4c4-d4aad03b4ede.lovableproject.com';
+// Get the app URL for redirects - use published URL
+const APP_URL = 'https://revvenapp.lovable.app';
 
 serve(async (req) => {
   const url = new URL(req.url);
