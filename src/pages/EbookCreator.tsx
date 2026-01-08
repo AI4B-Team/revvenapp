@@ -365,7 +365,23 @@ const EbookCreator = () => {
                 <h3 className="font-semibold text-foreground truncate group-hover:text-emerald-600 transition-colors">{book.title}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{book.description}</p>
               </div>
-              <StatusBadge status={book.status} />
+              <div className="flex items-center gap-2">
+                <StatusBadge status={book.status} />
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity relative">
+                  <button onClick={(e) => { e.stopPropagation(); navigate('/ebook-creator/new?tab=design', { state: { book } }); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors" title="Edit"><Edit className="w-5 h-5" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowCoverDesigner(true); }} className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg transition-colors" title="Design Cover"><Palette className="w-5 h-5" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors" title="Export"><Download className="w-5 h-5" /></button>
+                  <div className="relative">
+                    <button onClick={(e) => { e.stopPropagation(); setShowDropdown(showDropdown === book.id ? null : book.id); }} className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"><MoreVertical className="w-5 h-5" /></button>
+                    {showDropdown === book.id && (
+                      <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg py-1 z-10">
+                        <button onClick={(e) => { e.stopPropagation(); duplicateEbook(book); }} className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center gap-2"><Copy className="w-4 h-4" />Duplicate</button>
+                        <button onClick={(e) => { e.stopPropagation(); deleteEbook(book.id); }} className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"><Trash2 className="w-4 h-4" />Delete</button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
               {isModified ? (
@@ -379,28 +395,14 @@ const EbookCreator = () => {
             <div className="flex items-center gap-2 mt-3">
               {book.tags.map(tag => <span key={tag} className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full font-medium">{tag}</span>)}
             </div>
-            {book.status !== 'published' && (
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-xs text-muted-foreground mb-1"><span>Progress</span><span>{Math.round(book.progress)}%</span></div>
-                <ProgressBar progress={book.progress} color={book.coverColor} />
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity relative">
-            <button onClick={(e) => { e.stopPropagation(); navigate('/ebook-creator/new?tab=design', { state: { book } }); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors" title="Edit"><Edit className="w-5 h-5" /></button>
-            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowCoverDesigner(true); }} className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg transition-colors" title="Design Cover"><Palette className="w-5 h-5" /></button>
-            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors" title="Export"><Download className="w-5 h-5" /></button>
-            <div className="relative">
-              <button onClick={(e) => { e.stopPropagation(); setShowDropdown(showDropdown === book.id ? null : book.id); }} className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"><MoreVertical className="w-5 h-5" /></button>
-              {showDropdown === book.id && (
-                <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg py-1 z-10">
-                  <button onClick={(e) => { e.stopPropagation(); duplicateEbook(book); }} className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center gap-2"><Copy className="w-4 h-4" />Duplicate</button>
-                  <button onClick={(e) => { e.stopPropagation(); deleteEbook(book.id); }} className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"><Trash2 className="w-4 h-4" />Delete</button>
-                </div>
-              )}
-            </div>
           </div>
         </div>
+        {book.status !== 'published' && (
+          <div className="mt-3 pl-20">
+            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1"><span>Progress</span><span>{Math.round(book.progress)}%</span></div>
+            <ProgressBar progress={book.progress} color={book.coverColor} />
+          </div>
+        )}
       </div>
     );
   };
@@ -636,14 +638,14 @@ const EbookCreator = () => {
                     </div>
                     <button
                       onClick={() => setActiveProjectTab('ebooks')}
-                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeProjectTab === 'ebooks' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeProjectTab === 'ebooks' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                     >
                       <Book className="w-4 h-4" />
                       eBooks
                     </button>
                     <button
                       onClick={() => setActiveProjectTab('audiobooks')}
-                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors ${activeProjectTab === 'audiobooks' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeProjectTab === 'audiobooks' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                     >
                       <Headphones className="w-4 h-4" />
                       AudioBooks
