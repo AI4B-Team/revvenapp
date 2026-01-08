@@ -124,7 +124,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Design mode state
   const [selectedDesignType, setSelectedDesignType] = useState('');
   const [isDesignTypeDropdownOpen, setIsDesignTypeDropdownOpen] = useState(false);
-  
+
+  // Apps mode state
+  const [selectedAppType, setSelectedAppType] = useState('');
+  const [isAppTypeDropdownOpen, setIsAppTypeDropdownOpen] = useState(false);
+
   // Animate mode dropdown state (Video)
   const [selectedAnimateMode, setSelectedAnimateMode] = useState('');
   const [isAnimateModeDropdownOpen, setIsAnimateModeDropdownOpen] = useState(false);
@@ -7140,7 +7144,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           }}
                         />
                       )}
-                      {!documentType && <ChevronDown size={14} className="text-muted-foreground" />}
+                      
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-56 bg-background border-border z-50">
@@ -7250,28 +7254,63 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <>
                 {/* Apps Mode Controls */}
                 {/* Type Dropdown */}
-                <Popover>
+                <Popover open={isAppTypeDropdownOpen} onOpenChange={setIsAppTypeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className="px-3 py-2 bg-secondary hover:opacity-90 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground">
-                      <LayoutGrid size={16} className="text-muted-foreground" />
-                      Type
+                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                      selectedAppType 
+                        ? 'bg-brand-green/15 text-foreground' 
+                        : 'bg-secondary text-foreground'
+                    }`}>
+                      {(() => {
+                        const appTypeIcons = {
+                          'Web App': Code,
+                          'AI Agent': Bot,
+                          'SaaS': Package,
+                          'Landing Page': LayoutList,
+                        } as Record<string, typeof LayoutGrid>;
+                        const IconComponent = appTypeIcons[selectedAppType] || LayoutGrid;
+                        return <IconComponent size={16} className="text-muted-foreground" />;
+                      })()}
+                      {selectedAppType || 'Type'}
+                      {selectedAppType && (
+                        <X 
+                          size={14} 
+                          className="text-muted-foreground hover:text-foreground cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAppType('');
+                          }}
+                        />
+                      )}
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-56 bg-background border-border z-50">
                     <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button 
+                        onClick={() => { setSelectedAppType('Web App'); setIsAppTypeDropdownOpen(false); }}
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      >
                         <Code size={16} className="text-brand-blue" />
                         Web App
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button 
+                        onClick={() => { setSelectedAppType('AI Agent'); setIsAppTypeDropdownOpen(false); }}
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      >
                         <Bot size={16} className="text-brand-purple" />
                         AI Agent
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button 
+                        onClick={() => { setSelectedAppType('SaaS'); setIsAppTypeDropdownOpen(false); }}
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      >
                         <Package size={16} className="text-brand-green" />
                         SaaS
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                      <button 
+                        onClick={() => { setSelectedAppType('Landing Page'); setIsAppTypeDropdownOpen(false); }}
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                      >
                         <LayoutList size={16} className="text-brand-yellow" />
                         Landing Page
                       </button>
@@ -7279,86 +7318,91 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                {/* Vertical separator */}
-                <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+                {/* Only show separator and other controls when type is selected */}
+                {selectedAppType && (
+                  <>
+                    {/* Vertical separator */}
+                    <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
-                {/* Reference Button */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 bg-secondary">
-                      <ReferenceLinkIcon size={18} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Reference</TooltipContent>
-                </Tooltip>
-
-                {/* Theme Button with Dropdown */}
-                <Popover open={isThemeDropdownOpen} onOpenChange={setIsThemeDropdownOpen}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <PopoverTrigger asChild>
-                        <button className={`p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 ${
-                          isThemeDropdownOpen || selectedTheme !== 'default' ? 'bg-brand-green/15' : 'bg-secondary'
-                        }`}>
-                          <Palette size={18} />
+                    {/* Reference Button */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 bg-secondary">
+                          <ReferenceLinkIcon size={18} />
                         </button>
-                      </PopoverTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>Theme</TooltipContent>
-                  </Tooltip>
-                  <PopoverContent className="w-72 p-0 bg-background border-border z-50" align="start">
-                    <div className="p-3 border-b border-border">
-                      <div className="relative">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                        <input
-                          type="text"
-                          placeholder="Search themes..."
-                          value={themeSearchQuery}
-                          onChange={(e) => setThemeSearchQuery(e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-secondary rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-brand-green/50"
-                        />
-                      </div>
-                    </div>
-                    <div className="p-2 max-h-80 overflow-y-auto">
-                      <p className="px-3 py-2 text-xs font-medium text-muted-foreground">Default themes</p>
-                      {colorThemes
-                        .filter(theme => theme.name.toLowerCase().includes(themeSearchQuery.toLowerCase()))
-                        .map((theme) => (
-                          <button
-                            key={theme.id}
-                            onClick={() => {
-                              setSelectedTheme(theme.id);
-                              setIsThemeDropdownOpen(false);
-                              setThemeSearchQuery('');
-                            }}
-                            className={`w-full px-3 py-2.5 text-sm text-left hover:bg-secondary rounded-lg transition flex items-center justify-between ${
-                              selectedTheme === theme.id ? 'bg-brand-green/10' : ''
-                            }`}
-                          >
-                            <span className={selectedTheme === theme.id ? 'text-brand-green font-medium' : ''}>{theme.name}</span>
-                            <div className="flex -space-x-1">
-                              {theme.colors.map((color, idx) => (
-                                <div
-                                  key={idx}
-                                  className="w-5 h-5 rounded-full border-2 border-background"
-                                  style={{ backgroundColor: color }}
-                                />
-                              ))}
-                            </div>
+                      </TooltipTrigger>
+                      <TooltipContent>Reference</TooltipContent>
+                    </Tooltip>
+
+                    {/* Theme Button with Dropdown */}
+                    <Popover open={isThemeDropdownOpen} onOpenChange={setIsThemeDropdownOpen}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <button className={`p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 ${
+                              isThemeDropdownOpen || selectedTheme !== 'default' ? 'bg-brand-green/15' : 'bg-secondary'
+                            }`}>
+                              <Palette size={18} />
+                            </button>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>Theme</TooltipContent>
+                      </Tooltip>
+                      <PopoverContent className="w-72 p-0 bg-background border-border z-50" align="start">
+                        <div className="p-3 border-b border-border">
+                          <div className="relative">
+                            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                            <input
+                              type="text"
+                              placeholder="Search themes..."
+                              value={themeSearchQuery}
+                              onChange={(e) => setThemeSearchQuery(e.target.value)}
+                              className="w-full pl-9 pr-3 py-2 text-sm bg-secondary rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-brand-green/50"
+                            />
+                          </div>
+                        </div>
+                        <div className="p-2 max-h-80 overflow-y-auto">
+                          <p className="px-3 py-2 text-xs font-medium text-muted-foreground">Default themes</p>
+                          {colorThemes
+                            .filter(theme => theme.name.toLowerCase().includes(themeSearchQuery.toLowerCase()))
+                            .map((theme) => (
+                              <button
+                                key={theme.id}
+                                onClick={() => {
+                                  setSelectedTheme(theme.id);
+                                  setIsThemeDropdownOpen(false);
+                                  setThemeSearchQuery('');
+                                }}
+                                className={`w-full px-3 py-2.5 text-sm text-left hover:bg-secondary rounded-lg transition flex items-center justify-between ${
+                                  selectedTheme === theme.id ? 'bg-brand-green/10' : ''
+                                }`}
+                              >
+                                <span className={selectedTheme === theme.id ? 'text-brand-green font-medium' : ''}>{theme.name}</span>
+                                <div className="flex -space-x-1">
+                                  {theme.colors.map((color, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="w-5 h-5 rounded-full border-2 border-background"
+                                      style={{ backgroundColor: color }}
+                                    />
+                                  ))}
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                        <div className="p-2 border-t border-border flex items-center justify-between">
+                          <button className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition">
+                            <Plus size={16} />
+                            Create new
                           </button>
-                        ))}
-                    </div>
-                    <div className="p-2 border-t border-border flex items-center justify-between">
-                      <button className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition">
-                        <Plus size={16} />
-                        Create new
-                      </button>
-                      <button className="p-2 text-muted-foreground hover:text-foreground transition">
-                        <SlidersHorizontal size={16} />
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                          <button className="p-2 text-muted-foreground hover:text-foreground transition">
+                            <SlidersHorizontal size={16} />
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </>
+                )}
               </>
             ) : (
               <>
