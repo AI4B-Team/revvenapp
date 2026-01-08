@@ -381,6 +381,13 @@ const Create = () => {
       emoji: '🔥',
       onClick: () => navigate('/viral-shorts')
     },
+    { 
+      name: 'AutoYT', 
+      description: 'Generate & publish to YouTube',
+      bgColor: 'bg-tool-red',
+      emoji: '▶️',
+      onClick: () => navigate('/autoyt')
+    },
   ];
 
   const audioTools = [
