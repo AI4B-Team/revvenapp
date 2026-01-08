@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  X, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Send, Clock, Calendar, 
+  X, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Send, Clock, Calendar as CalendarIcon, 
   Edit, Trash2, Copy, ExternalLink, Film, Play, Save, XCircle, Hash, Sparkles, 
   Search, Check, Image as ImageIcon, Upload, BarChart3, Eye, TrendingUp, Users,
-  RefreshCw, Loader2, FileText
+  RefreshCw, Loader2, FileText, Youtube
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -12,11 +12,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { getPlatformIcon } from './SocialIcons';
 import ContentScoreBadge from './ContentScoreBadge';
 import StatusBadge from './StatusBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -79,13 +85,18 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [currentSlide, setCurrentSlide] = useState(0);
   
   // New feature states
-  // New feature states
   const [showHashtagPanel, setShowHashtagPanel] = useState(false);
   const [hashtagSearchQuery, setHashtagSearchQuery] = useState('');
   const [hashtagSuggestions, setHashtagSuggestions] = useState<HashtagSuggestion[]>([]);
   const [isLoadingHashtags, setIsLoadingHashtags] = useState(false);
   const [isAIWriting, setIsAIWriting] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'predictions' | 'results'>('details');
+  
+  // YouTube scheduling states
+  const [showYTSchedule, setShowYTSchedule] = useState(false);
+  const [ytScheduledDate, setYtScheduledDate] = useState<Date | undefined>(undefined);
+  const [ytScheduledTime, setYtScheduledTime] = useState('12:00');
+  const [isPublishingToYT, setIsPublishingToYT] = useState(false);
   
   // Check if post is published (for showing Results tab)
   const isPublished = post?.status === 'published' || post?.status === 'posted';
@@ -117,6 +128,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       setEditedStatus(post.status);
       setIsEditing(false);
       setShowHashtagPanel(false);
+      setShowYTSchedule(false);
+      setYtScheduledDate(undefined);
+      setYtScheduledTime('12:00');
       setActiveTab('details');
     }
   }, [post]);
@@ -146,6 +160,58 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
     setEditedImageUrl(post.imageUrl);
     setEditedStatus(post.status);
     setIsEditing(false);
+  };
+
+  // Publish to YouTube with optional scheduling
+  const handlePublishToYouTube = async () => {
+    if (!post) return;
+    
+    setIsPublishingToYT(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please login to publish to YouTube');
+        return;
+      }
+
+      // Calculate scheduled time if scheduling
+      let scheduledAt: string | null = null;
+      if (showYTSchedule && ytScheduledDate) {
+        const [hours, minutes] = ytScheduledTime.split(':').map(Number);
+        const scheduledDateTime = new Date(ytScheduledDate);
+        scheduledDateTime.setHours(hours, minutes, 0, 0);
+        scheduledAt = scheduledDateTime.toISOString();
+      }
+
+      // Create entry in autoyt_videos table
+      const { data, error } = await supabase.from('autoyt_videos').insert({
+        user_id: user.id,
+        prompt: editedCaption || post.title || 'Content post',
+        title: post.title,
+        description: editedCaption,
+        tags: editedHashtags ? editedHashtags.split(',').map(t => t.trim()) : [],
+        status: scheduledAt ? 'scheduled' : 'pending',
+        scheduled_at: scheduledAt,
+        source_type: 'content',
+        source_image_url: editedImageUrl || post.imageUrl,
+      }).select().single();
+
+      if (error) throw error;
+
+      toast.success(
+        scheduledAt 
+          ? `Scheduled for YouTube on ${format(new Date(scheduledAt), 'MMM d, yyyy')} at ${ytScheduledTime}`
+          : 'Added to YouTube publishing queue'
+      );
+      
+      setShowYTSchedule(false);
+      setYtScheduledDate(undefined);
+    } catch (err) {
+      console.error('Failed to publish to YouTube:', err);
+      toast.error('Failed to publish to YouTube');
+    } finally {
+      setIsPublishingToYT(false);
+    }
   };
 
   const updateScene = (sceneIndex: number, field: keyof VideoScene, value: string) => {
@@ -1168,7 +1234,105 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
             </ScrollArea>
 
             {/* Actions */}
-            <div className="p-6 pt-4 border-t border-border">
+            <div className="p-6 pt-4 border-t border-border space-y-4">
+              {/* YouTube Publish Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={showYTSchedule ? 'default' : 'outline'}
+                    size="sm"
+                    className={cn(
+                      "gap-2",
+                      showYTSchedule && "bg-red-600 hover:bg-red-700 text-white"
+                    )}
+                    onClick={() => setShowYTSchedule(!showYTSchedule)}
+                  >
+                    <Youtube className="w-4 h-4" />
+                    Publish to YouTube
+                  </Button>
+                  {showYTSchedule && (
+                    <span className="text-xs text-muted-foreground">
+                      Schedule or publish instantly
+                    </span>
+                  )}
+                </div>
+
+                {showYTSchedule && (
+                  <div className="flex items-end gap-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Select Date (optional)</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={cn(
+                              "w-[180px] justify-start text-left font-normal",
+                              !ytScheduledDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {ytScheduledDate ? format(ytScheduledDate, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={ytScheduledDate}
+                            onSelect={setYtScheduledDate}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {ytScheduledDate && (
+                      <div className="space-y-2">
+                        <Label className="text-xs">Select Time</Label>
+                        <Select value={ytScheduledTime} onValueChange={setYtScheduledTime}>
+                          <SelectTrigger className="w-[120px]">
+                            <SelectValue placeholder="Time" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, hour) => {
+                              const hourStr = hour.toString().padStart(2, '0');
+                              return ['00', '30'].map(min => (
+                                <SelectItem key={`${hourStr}:${min}`} value={`${hourStr}:${min}`}>
+                                  {`${hourStr}:${min}`}
+                                </SelectItem>
+                              ));
+                            }).flat()}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={handlePublishToYouTube}
+                      disabled={isPublishingToYT}
+                      size="sm"
+                      className="bg-red-600 hover:bg-red-700 text-white gap-2"
+                    >
+                      {isPublishingToYT ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                      {ytScheduledDate ? 'Schedule' : 'Publish Now'}
+                    </Button>
+
+                    {ytScheduledDate && (
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        {format(ytScheduledDate, "MMM d, yyyy")} at {ytScheduledTime}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Edit/Save Actions */}
               <div className="flex gap-3">
                 {isEditing ? (
                   <>
