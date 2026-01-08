@@ -175,22 +175,25 @@ serve(async (req) => {
       })
       .eq('id', videoId);
 
-    // Generate video with VO3 (Veo 3)
+    // Generate video with Veo 3.1
     const veoPayload: any = {
       prompt,
       aspectRatio: '16:9',
-      duration: 5,
+      model: 'veo3_fast',
     };
 
     // If image-to-video, include the source image
     if (sourceType === 'image' && sourceImageUrl) {
-      veoPayload.image = sourceImageUrl;
+      veoPayload.imageUrls = [sourceImageUrl];
+      veoPayload.generationType = 'REFERENCE_2_VIDEO';
+    } else {
+      veoPayload.generationType = 'TEXT_2_VIDEO';
     }
 
-    console.log('Calling VO3 API with payload:', veoPayload);
+    console.log('Calling Veo 3.1 API with payload:', veoPayload);
 
-    // Call VO3 API via KIE
-    const veoResponse = await fetch('https://api.kieai.erweima.ai/api/v1/veo3/generate', {
+    // Call Veo 3.1 API via KIE
+    const veoResponse = await fetch('https://api.kie.ai/api/v1/veo/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -259,7 +262,7 @@ async function pollVideoCompletion(
     attempts++;
 
     try {
-      const statusResponse = await fetch(`https://api.kieai.erweima.ai/api/v1/veo3/status/${taskId}`, {
+      const statusResponse = await fetch(`https://api.kie.ai/api/v1/veo/detail/${taskId}`, {
         headers: {
           'Authorization': `Bearer ${KIE_AI_API_KEY}`,
         },
