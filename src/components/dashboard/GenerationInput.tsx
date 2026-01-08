@@ -4171,7 +4171,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                           : 'bg-secondary text-foreground'
                       }`}>
-                        <LayoutGrid size={16} className={selectedAnimateMode ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'} />
+                        {(() => {
+                          const currentMode = animateModes.find(m => m.value === selectedAnimateMode);
+                          const IconComponent = currentMode?.icon || LayoutGrid;
+                          return <IconComponent size={16} className={selectedAnimateMode ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'} />;
+                        })()}
 {selectedAnimateMode ? (
                           <>
                             {animateModes.find(m => m.value === selectedAnimateMode)?.label}
@@ -6724,7 +6728,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         ? 'bg-brand-green/15 text-foreground' 
                         : 'bg-secondary text-foreground'
                     }`}>
-                      <LayoutGrid size={16} className="text-muted-foreground" />
+                      {(() => {
+                        const designTypeIcons = {
+                          'Brochure': BookOpen,
+                          'Business Card': User,
+                          'Cover': ImageIcon,
+                          'Flyer': FileText,
+                          'Infographic': LayoutList,
+                          'Invitation': Gift,
+                          'Logo': Sparkles,
+                          'Poster': Presentation,
+                          'Thumbnail': Film,
+                        } as Record<string, typeof LayoutGrid>;
+                        const IconComponent = designTypeIcons[selectedDesignType] || LayoutGrid;
+                        return <IconComponent size={16} className="text-muted-foreground" />;
+                      })()}
                       {selectedDesignType || 'Type'}
                       {selectedDesignType && (
                         <X 
@@ -7097,7 +7115,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         ? 'bg-brand-green/15 text-foreground' 
                         : 'bg-secondary hover:opacity-90 text-foreground'
                     }`}>
-                      <LayoutGrid size={16} className="text-muted-foreground" />
+                      {(() => {
+                        const documentTypeIcons = {
+                          'Ebook': BookOpen,
+                          'Whitepaper': FileText,
+                          'Report': LayoutList,
+                          'Business Plan': Presentation,
+                          'Handbook': Package,
+                          'Proposal': FileText,
+                          'Case Study': LayoutList,
+                          'Cover Letter': FileText,
+                        } as Record<string, typeof LayoutGrid>;
+                        const IconComponent = documentTypeIcons[documentType] || LayoutGrid;
+                        return <IconComponent size={16} className="text-muted-foreground" />;
+                      })()}
                       {documentType || 'Type'}
                       {documentType && (
                         <X 
@@ -7342,7 +7373,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       : 'bg-secondary text-foreground'
                   }`}
                 >
-                  <LayoutGrid size={16} className="text-muted-foreground" />
+                  {(() => {
+                    const currentMode = createModes.find(m => m.value === selectedCreateMode);
+                    const IconComponent = currentMode?.icon || LayoutGrid;
+                    return <IconComponent size={16} className="text-muted-foreground" />;
+                  })()}
                   {selectedCreateMode ? (
                     <>
                       <span>{createModes.find(m => m.value === selectedCreateMode)?.label || 'Type'}</span>
