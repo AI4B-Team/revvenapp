@@ -233,7 +233,10 @@ export type Database = {
           created_at: string
           description: string | null
           error_message: string | null
+          facebook_page_id: string | null
+          facebook_post_id: string | null
           id: string
+          post_to_facebook: boolean | null
           prompt: string
           published_at: string | null
           scheduled_at: string | null
@@ -255,7 +258,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           error_message?: string | null
+          facebook_page_id?: string | null
+          facebook_post_id?: string | null
           id?: string
+          post_to_facebook?: boolean | null
           prompt: string
           published_at?: string | null
           scheduled_at?: string | null
@@ -277,7 +283,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           error_message?: string | null
+          facebook_page_id?: string | null
+          facebook_post_id?: string | null
           id?: string
+          post_to_facebook?: boolean | null
           prompt?: string
           published_at?: string | null
           scheduled_at?: string | null
@@ -299,6 +308,13 @@ export type Database = {
             columns: ["channel_id"]
             isOneToOne: false
             referencedRelation: "youtube_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "autoyt_videos_facebook_page_id_fkey"
+            columns: ["facebook_page_id"]
+            isOneToOne: false
+            referencedRelation: "facebook_pages"
             referencedColumns: ["id"]
           },
         ]
@@ -381,6 +397,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           video_url?: string | null
+        }
+        Relationships: []
+      }
+      facebook_pages: {
+        Row: {
+          created_at: string
+          id: string
+          page_access_token: string
+          page_id: string
+          page_name: string
+          page_picture: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_access_token: string
+          page_id: string
+          page_name: string
+          page_picture?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_access_token?: string
+          page_id?: string
+          page_name?: string
+          page_picture?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
