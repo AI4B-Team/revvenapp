@@ -6712,42 +6712,55 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : isDesignMode ? (
               <>
                 {/* Design Mode Controls */}
-                {/* Type Dropdown - Single button */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                {/* Type Dropdown */}
+                <Popover>
+                  <PopoverTrigger asChild>
                     <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground hover:opacity-90">
                       <LayoutGrid size={16} className="text-muted-foreground" />
                       Type
                     </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-72 bg-background border-border z-50 p-2">
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Flame size={20} className="text-green-600 dark:text-green-400" />
-                        </div>
-                        <span className="font-medium text-base">Start With A Template</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Sparkles size={20} className="text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <span className="font-medium text-base">Build With AI</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <FileText size={20} className="text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <span className="font-medium text-base">Start With A File</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <BookOpen size={16} className="text-brand-blue" />
+                        Brochure
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <User size={16} className="text-brand-purple" />
+                        Business Card
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <ImageIcon size={16} className="text-brand-green" />
+                        Cover
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <FileText size={16} className="text-brand-yellow" />
+                        Flyer
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <LayoutList size={16} className="text-brand-red" />
+                        Infographic
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Gift size={16} className="text-brand-pink" />
+                        Invitation
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Sparkles size={16} className="text-brand-blue" />
+                        Logo
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Presentation size={16} className="text-brand-green" />
+                        Poster
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Film size={16} className="text-brand-red" />
+                        Thumbnail
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
             ) : isContentMode ? (
               <>
                 {/* Content Mode Controls */}
@@ -8078,11 +8091,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </button>
                 </div>
               </PopoverContent>
-              </Popover>
-                </>
-                )}
-              </>
-            )}
+            </Popover>
           </div>
 
           <div className="flex items-center gap-3 justify-end flex-nowrap shrink-0 ml-6">
