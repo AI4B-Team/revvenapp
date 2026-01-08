@@ -50,10 +50,10 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-// Progress bar component
-const ProgressBar = ({ progress, color = '#10B981' }: { progress: number; color?: string }) => (
+// Progress bar component - always green
+const ProgressBar = ({ progress }: { progress: number }) => (
   <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(progress, 100)}%`, backgroundColor: color }} />
+    <div className="h-full rounded-full transition-all duration-500 bg-emerald-500" style={{ width: `${Math.min(progress, 100)}%` }} />
   </div>
 );
 
@@ -387,7 +387,7 @@ const EbookCreator = () => {
         {book.status !== 'published' && (
           <div className="mt-3 pl-20">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1"><span>Progress</span><span>{Math.round(book.progress)}%</span></div>
-            <ProgressBar progress={book.progress} color={book.coverColor} />
+            <ProgressBar progress={book.progress} />
           </div>
         )}
       </div>
@@ -426,7 +426,7 @@ const EbookCreator = () => {
             )}
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground"><span>{book.chapters} ch</span><span>•</span><span>{(book.words / 1000).toFixed(1)}k words</span></div>
-          {book.status !== 'published' && <div className="mt-3"><ProgressBar progress={book.progress} color={book.coverColor} /></div>}
+          {book.status !== 'published' && <div className="mt-3"><ProgressBar progress={book.progress} /></div>}
         </div>
       </div>
     );
