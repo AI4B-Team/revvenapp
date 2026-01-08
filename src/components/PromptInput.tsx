@@ -201,7 +201,7 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
       
       {/* Prompt Input Box */}
       <div className="relative w-fit max-w-full mx-auto">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-fit max-w-full min-w-[340px] sm:min-w-[520px] md:min-w-[50rem]">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible flex flex-col w-fit max-w-full min-w-[340px] sm:min-w-[520px] md:min-w-[50rem]">
           {/* Left side icons - only shown when an option is selected */}
           {selectedOption && (
             <div className="flex flex-col gap-1 absolute left-4 top-4">
@@ -227,12 +227,12 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
           )}
 
           {/* Input area - always show textarea for real-time transcription */}
-          <div className={`px-6 pt-5 pb-3 flex-1 ${selectedOption ? 'pl-14' : ''}`}>
+          <div className={`px-6 pt-4 pb-2 ${selectedOption ? 'pl-14' : ''}`}>
             <textarea
               placeholder={isListening ? 'Listening...' : placeholdersByIntent[intent || 'default']}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              rows={3}
+              rows={2}
               className="w-full border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
             />
           </div>
