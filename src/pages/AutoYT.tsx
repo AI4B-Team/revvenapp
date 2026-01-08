@@ -34,6 +34,8 @@ interface FacebookPage {
   page_id: string;
   page_name: string;
   page_picture: string | null;
+  token_expires_at: string | null;
+  token_type: string | null;
 }
 
 interface AutoYTVideo {
@@ -190,7 +192,7 @@ const AutoYT = () => {
   const loadFacebookPages = async () => {
     const { data, error } = await supabase
       .from('facebook_pages')
-      .select('*')
+      .select('id, page_id, page_name, page_picture, token_expires_at, token_type')
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -198,7 +200,7 @@ const AutoYT = () => {
       return;
     }
     
-    setFacebookPages(data || []);
+    setFacebookPages((data as FacebookPage[]) || []);
     if (data && data.length > 0 && !selectedFacebookPage) {
       setSelectedFacebookPage(data[0].page_id);
     }
@@ -1251,58 +1253,103 @@ const AutoYT = () => {
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          {facebookPages.map(page => (
-                            <div 
-                              key={page.id} 
-                              className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border"
-                            >
-                              <div className="flex items-center gap-4">
-                                {page.page_picture ? (
-                                  <img 
-                                    src={page.page_picture} 
-                                    alt={page.page_name}
-                                    className="w-12 h-12 rounded-full"
-                                  />
-                                ) : (
-                                  <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center">
-                                    <FaFacebook className="w-6 h-6 text-blue-500" />
-                                  </div>
+                          {facebookPages.map(page => {
+                            const isExpired = page.token_expires_at ? new Date(page.token_expires_at) < new Date() : false;
+                            const daysUntilExpiry = page.token_expires_at 
+                              ? Math.ceil((new Date(page.token_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                              : null;
+                            const isExpiringSoon = daysUntilExpiry !== null && daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+                            
+                            return (
+                              <div 
+                                key={page.id} 
+                                className={cn(
+                                  "flex items-center justify-between p-4 bg-muted/30 rounded-lg border",
+                                  isExpired && "border-destructive/50 bg-destructive/5",
+                                  isExpiringSoon && !isExpired && "border-yellow-500/50 bg-yellow-500/5"
                                 )}
-                                <div>
-                                  <h4 className="font-medium">{page.page_name}</h4>
-                                  <p className="text-sm text-muted-foreground">Page ID: {page.page_id}</p>
+                              >
+                                <div className="flex items-center gap-4">
+                                  {page.page_picture ? (
+                                    <img 
+                                      src={page.page_picture} 
+                                      alt={page.page_name}
+                                      className="w-12 h-12 rounded-full"
+                                    />
+                                  ) : (
+                                    <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center">
+                                      <FaFacebook className="w-6 h-6 text-blue-500" />
+                                    </div>
+                                  )}
+                                  <div>
+                                    <h4 className="font-medium">{page.page_name}</h4>
+                                    <p className="text-sm text-muted-foreground">Page ID: {page.page_id}</p>
+                                    {page.token_expires_at && (
+                                      <div className="flex items-center gap-2 mt-1">
+                                        {isExpired ? (
+                                          <Badge variant="destructive" className="text-xs">
+                                            <AlertCircle className="w-3 h-3 mr-1" />
+                                            Token Expired
+                                          </Badge>
+                                        ) : isExpiringSoon ? (
+                                          <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-600">
+                                            <Clock className="w-3 h-3 mr-1" />
+                                            Expires in {daysUntilExpiry} days
+                                          </Badge>
+                                        ) : (
+                                          <Badge variant="outline" className="text-xs text-green-600 border-green-500">
+                                            <CheckCircle className="w-3 h-3 mr-1" />
+                                            Valid until {format(new Date(page.token_expires_at), 'MMM d, yyyy')}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                  {(isExpired || isExpiringSoon) && (
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={connectFacebook}
+                                      disabled={isConnectingFacebook}
+                                    >
+                                      <RefreshCw className="w-4 h-4 mr-1" />
+                                      Refresh Token
+                                    </Button>
+                                  )}
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button variant="outline" size="sm">
+                                        Disconnect
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                      <DialogHeader>
+                                        <DialogTitle>Disconnect Page?</DialogTitle>
+                                      </DialogHeader>
+                                      <p className="text-muted-foreground">
+                                        Are you sure you want to disconnect "{page.page_name}"? 
+                                        You won't be able to post to this page until you reconnect.
+                                      </p>
+                                      <DialogFooter>
+                                        <DialogClose asChild>
+                                          <Button variant="outline">Cancel</Button>
+                                        </DialogClose>
+                                        <Button 
+                                          variant="destructive"
+                                          onClick={() => disconnectFacebookPage(page.page_id)}
+                                        >
+                                          Disconnect
+                                        </Button>
+                                      </DialogFooter>
+                                    </DialogContent>
+                                  </Dialog>
                                 </div>
                               </div>
-                              
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    Disconnect
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Disconnect Page?</DialogTitle>
-                                  </DialogHeader>
-                                  <p className="text-muted-foreground">
-                                    Are you sure you want to disconnect "{page.page_name}"? 
-                                    You won't be able to post to this page until you reconnect.
-                                  </p>
-                                  <DialogFooter>
-                                    <DialogClose asChild>
-                                      <Button variant="outline">Cancel</Button>
-                                    </DialogClose>
-                                    <Button 
-                                      variant="destructive"
-                                      onClick={() => disconnectFacebookPage(page.page_id)}
-                                    >
-                                      Disconnect
-                                    </Button>
-                                  </DialogFooter>
-                                </DialogContent>
-                              </Dialog>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </CardContent>

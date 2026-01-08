@@ -408,6 +408,8 @@ export type Database = {
           page_id: string
           page_name: string
           page_picture: string | null
+          token_expires_at: string | null
+          token_type: string | null
           updated_at: string
           user_id: string
         }
@@ -418,6 +420,8 @@ export type Database = {
           page_id: string
           page_name: string
           page_picture?: string | null
+          token_expires_at?: string | null
+          token_type?: string | null
           updated_at?: string
           user_id: string
         }
@@ -428,6 +432,8 @@ export type Database = {
           page_id?: string
           page_name?: string
           page_picture?: string | null
+          token_expires_at?: string | null
+          token_type?: string | null
           updated_at?: string
           user_id?: string
         }
