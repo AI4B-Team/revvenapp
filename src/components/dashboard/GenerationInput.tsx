@@ -1453,23 +1453,37 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const handleGenerate = async () => {
     // Handle Content mode - never fall through to image generation
     if (isContentMode) {
-      if (!showSocialButtons) {
-        // Already generated content, regenerate option
+      // Require content type to be selected first
+      if (!contentType) {
         toast({
-          title: "Content already generated",
-          description: "Your 30-day content plan is displayed in the calendar below.",
-        });
-        return;
-      }
-      
-      if (selectedPlatforms.length === 0) {
-        toast({
-          title: "Platforms required",
-          description: "Please select at least one social platform",
+          title: "Content type required",
+          description: "Please select a content type (Social, Newsletter, or Article)",
           variant: "destructive",
         });
         return;
       }
+      
+      // Only require platforms for Social content type
+      if (contentType === 'Social') {
+        if (!showSocialButtons) {
+          // Already generated content, regenerate option
+          toast({
+            title: "Content already generated",
+            description: "Your 30-day content plan is displayed in the calendar below.",
+          });
+          return;
+        }
+        
+        if (selectedPlatforms.length === 0) {
+          toast({
+            title: "Platforms required",
+            description: "Please select at least one social platform below",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+      
       if (!prompt.trim()) {
         toast({
           title: "Prompt required",
