@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { 
   ChevronDown, Sliders, Search, ZoomIn, ZoomOut, 
-  Heart, Calendar, Layers, Image, Video, Headphones, 
-  Palette, FileText, Grid3x3, Mic, User, RefreshCw, 
+  Heart, Calendar, Layers, Image, Video, 
+  Palette, FileText, Code, Mic, User, RefreshCw, 
   Captions, AudioLines, Music
 } from 'lucide-react';
 import {
@@ -57,12 +57,13 @@ const FilterToolbar = ({
 
   const contentTypes = [
     { name: 'All', icon: Layers, color: '' },
-    { name: 'Image', icon: Image, color: 'text-blue-500' },
-    { name: 'Video', icon: Video, color: 'text-red-500' },
-    { name: 'Audio', icon: Headphones, color: 'text-green-500' },
-    { name: 'Design', icon: Palette, color: 'text-yellow-500' },
-    { name: 'Content', icon: FileText, color: 'text-blue-500' },
-    { name: 'Apps', icon: Grid3x3, color: 'text-green-500' }
+    { name: 'Image', icon: Image, color: 'text-brand-blue' },
+    { name: 'Video', icon: Video, color: 'text-brand-red' },
+    { name: 'Audio', icon: Music, color: 'text-brand-green' },
+    { name: 'Design', icon: Palette, color: 'text-brand-yellow' },
+    { name: 'Content', icon: Calendar, color: 'text-brand-purple' },
+    { name: 'Document', icon: FileText, color: 'text-brand-blue' },
+    { name: 'App', icon: Code, color: 'text-brand-red' }
   ];
 
   const audioModes = [
