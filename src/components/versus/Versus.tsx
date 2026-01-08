@@ -260,69 +260,57 @@ const Versus: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background text-foreground">
-        {/* Controls Bar */}
-        <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border">
-          <div className="max-w-[1800px] mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                  <Sparkles className="w-5 h-5 text-white" />
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
+        <main className="flex-1 max-w-[1800px] mx-auto p-4 w-full">
+          {/* Top Controls - inline with panels */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              {winnerModel && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                  <Star className="w-4 h-4 text-amber-500 fill-current" />
+                  <span className="text-sm text-amber-500 font-medium">Winner: {winnerModel.displayName}</span>
                 </div>
-                <div>
-                  <h1 className="text-lg font-bold tracking-tight">Versus</h1>
-                  <p className="text-xs text-muted-foreground">Compare AI models side by side</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                {winnerModel && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-                    <Star className="w-4 h-4 text-amber-500 fill-current" />
-                    <span className="text-sm text-amber-500 font-medium">Winner: {winnerModel.displayName}</span>
-                  </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsFinalDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-500 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-medium">Final Answer</span>
+                {finalAnswerChunks.length > 0 && (
+                  <span className="px-1.5 py-0.5 text-xs bg-emerald-500 text-white rounded-full">
+                    {finalAnswerChunks.length}
+                  </span>
                 )}
-                
-                <button
-                  onClick={() => setIsFinalDrawerOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-500 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="text-sm font-medium">Final Answer</span>
-                  {finalAnswerChunks.length > 0 && (
-                    <span className="px-1.5 py-0.5 text-xs bg-emerald-500 text-white rounded-full">
-                      {finalAnswerChunks.length}
-                    </span>
-                  )}
-                </button>
+              </button>
 
-                <div className="flex items-center bg-muted rounded-xl p-1 border border-border">
-                  {[1, 2, 3, 4].map((mode) => (
-                    <button
-                      key={mode}
-                      onClick={() => setLayoutMode(mode as LayoutMode)}
-                      className={`p-2 rounded-lg transition-colors ${layoutMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                    >
-                      {mode === 1 && <div className="w-5 h-5 border-2 border-current rounded-sm" />}
-                      {mode === 2 && <Columns2 className="w-5 h-5" />}
-                      {mode === 3 && <Columns3 className="w-5 h-5" />}
-                      {mode === 4 && <Grid2X2 className="w-5 h-5" />}
-                    </button>
-                  ))}
-                </div>
-
-                <button 
-                  onClick={() => setShowSettings(!showSettings)}
-                  className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 border border-border text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Settings2 className="w-5 h-5" />
-                </button>
+              <div className="flex items-center bg-muted rounded-xl p-1 border border-border">
+                {[1, 2, 3, 4].map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setLayoutMode(mode as LayoutMode)}
+                    className={`p-2 rounded-lg transition-colors ${layoutMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                  >
+                    {mode === 1 && <div className="w-5 h-5 border-2 border-current rounded-sm" />}
+                    {mode === 2 && <Columns2 className="w-5 h-5" />}
+                    {mode === 3 && <Columns3 className="w-5 h-5" />}
+                    {mode === 4 && <Grid2X2 className="w-5 h-5" />}
+                  </button>
+                ))}
               </div>
+
+              <button 
+                onClick={() => setShowSettings(!showSettings)}
+                className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 border border-border text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Settings2 className="w-5 h-5" />
+              </button>
             </div>
           </div>
-        </div>
-
-        <main className="max-w-[1800px] mx-auto p-4">
+          
           {rounds.length > 0 && (
             <div className="mb-4">
               <RoundHistory
@@ -335,7 +323,7 @@ const Versus: React.FC = () => {
             </div>
           )}
 
-          <div className={`grid ${getGridClass()} gap-4 mb-4`}>
+          <div className={`grid ${getGridClass()} gap-4 mb-6`}>
             {visiblePanels.map(panel => (
               <ChatPanel
                 key={panel.id}
@@ -351,130 +339,130 @@ const Versus: React.FC = () => {
               />
             ))}
           </div>
+        </main>
 
-          {/* Input Area */}
-          <div className="sticky bottom-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-card border-2 border-emerald-500/50 rounded-2xl shadow-lg shadow-emerald-500/10 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-muted">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
-                      <Link2 className="w-4 h-4" />
-                      <span className="text-sm font-medium">Synced</span>
-                    </div>
-                    
-                    {customCount > 0 && (
-                      <span className="text-xs text-muted-foreground">
-                        Sending to: {syncedCount} synced, {customCount} custom
-                      </span>
-                    )}
+        {/* Input Area - positioned at bottom */}
+        <div className="sticky bottom-0 pb-6 pt-2 bg-gradient-to-t from-background via-background to-transparent">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="bg-card border-2 border-emerald-500/50 rounded-2xl shadow-lg shadow-emerald-500/10 overflow-hidden">
+              {/* Header row with sync badge and clear */}
+              <div className="flex items-center justify-between px-4 py-2">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
+                    <Link2 className="w-4 h-4" />
+                    <span className="text-sm font-medium">Synced</span>
                   </div>
                   
-                  <button
-                    onClick={handleClearAll}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    Clear All
-                  </button>
+                  {customCount > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      Sending to: {syncedCount} synced, {customCount} custom
+                    </span>
+                  )}
                 </div>
+                
+                <button
+                  onClick={handleClearAll}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Clear All
+                </button>
+              </div>
 
-                <div className="p-4">
-                  <div className="flex items-end gap-3">
-                    <div className="flex-1 relative">
-                      <textarea
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                          }
-                        }}
-                        placeholder="Send a message to compare models..."
-                        rows={1}
-                        className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 resize-none transition-all"
-                        style={{ minHeight: '48px', maxHeight: '200px' }}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <button className="p-3 rounded-xl bg-muted hover:bg-muted/80 border border-border text-muted-foreground hover:text-foreground transition-colors">
-                        <Paperclip className="w-5 h-5" />
-                      </button>
-                      
-                      {/* Mic Button with Audio Waves like Create app */}
-                      {isSupported && (
-                        isListening ? (
-                          <div className="flex items-center gap-2">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button 
-                                  onClick={handleCancelRecording}
-                                  className="p-2 rounded-xl transition-colors bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50"
-                                >
-                                  <X size={18} className="text-red-500" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>Cancel</TooltipContent>
-                            </Tooltip>
-                            
-                            {/* Audio Wave Animation */}
-                            <div className="flex items-center gap-[2px] px-2">
-                              {[...Array(12)].map((_, i) => (
-                                <div
-                                  key={i}
-                                  className="w-[2px] bg-red-400 rounded-full origin-center"
-                                  style={{
-                                    height: '16px',
-                                    animation: 'audioWave 0.6s ease-in-out infinite',
-                                    animationDelay: `${i * 0.05}s`,
-                                  }}
-                                />
-                              ))}
-                            </div>
-                            
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button 
-                                  onClick={handleMicClick}
-                                  className="p-2 rounded-xl transition-colors bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50"
-                                >
-                                  <Check size={18} className="text-green-600" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>Done</TooltipContent>
-                            </Tooltip>
-                          </div>
-                        ) : (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button 
-                                onClick={handleMicClick}
-                                className="p-3 rounded-xl bg-muted hover:bg-muted/80 border border-border text-muted-foreground hover:text-foreground transition-colors"
-                              >
-                                <Mic className="w-5 h-5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>Speak</TooltipContent>
-                          </Tooltip>
-                        )
-                      )}
-                      
-                      <button
-                        onClick={handleSendMessage}
-                        disabled={!inputValue.trim()}
-                        className="p-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-emerald-500/20"
-                      >
-                        <Send className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
+              {/* Input row */}
+              <div className="px-4 pb-4 flex items-end gap-3">
+                <div className="flex-1 relative">
+                  <textarea
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    placeholder="Send a message to compare models..."
+                    rows={1}
+                    className="w-full px-4 py-3 bg-transparent text-foreground placeholder-muted-foreground focus:outline-none resize-none transition-all"
+                    style={{ minHeight: '48px', maxHeight: '200px' }}
+                  />
+                </div>
+                
+                <div className="flex items-center gap-2 pb-1">
+                  <button className="p-3 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors">
+                    <Paperclip className="w-5 h-5" />
+                  </button>
+                  
+                  {/* Mic Button with Audio Waves like Create app */}
+                  {isSupported && (
+                    isListening ? (
+                      <div className="flex items-center gap-2">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleCancelRecording}
+                              className="p-2 rounded-xl transition-colors bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50"
+                            >
+                              <X size={18} className="text-red-500" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Cancel</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Audio Wave Animation */}
+                        <div className="flex items-center gap-[2px] px-2">
+                          {[...Array(12)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="w-[2px] bg-red-400 rounded-full origin-center"
+                              style={{
+                                height: '16px',
+                                animation: 'audioWave 0.6s ease-in-out infinite',
+                                animationDelay: `${i * 0.05}s`,
+                              }}
+                            />
+                          ))}
+                        </div>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleMicClick}
+                              className="p-2 rounded-xl transition-colors bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50"
+                            >
+                              <Check size={18} className="text-green-600" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Done</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={handleMicClick}
+                            className="p-3 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <Mic className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>Speak</TooltipContent>
+                      </Tooltip>
+                    )
+                  )}
+                  
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!inputValue.trim()}
+                    className="p-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-emerald-500/20"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </main>
+        </div>
 
         <FinalAnswerDrawer
           isOpen={isFinalDrawerOpen}
