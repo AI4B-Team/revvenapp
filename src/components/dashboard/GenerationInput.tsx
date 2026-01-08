@@ -1,4 +1,6 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch } from 'lucide-react';
+import { FaGithub } from 'react-icons/fa';
+import githubLogo from '@/assets/model-logos/github.png';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
 import UGCCharacterBox from './UGCCharacterBox';
@@ -128,8 +130,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Apps mode state
   const [selectedAppType, setSelectedAppType] = useState('');
   const [isAppTypeDropdownOpen, setIsAppTypeDropdownOpen] = useState(false);
-  const [selectedAppModel, setSelectedAppModel] = useState('');
+  const [selectedAppModel, setSelectedAppModel] = useState('Auto');
   const [isAppModelDropdownOpen, setIsAppModelDropdownOpen] = useState(false);
+  const [isAppAdvancedOpen, setIsAppAdvancedOpen] = useState(false);
+  const [isAppGithubOpen, setIsAppGithubOpen] = useState(false);
+  const [appGithubTab, setAppGithubTab] = useState<'private' | 'public'>('private');
+  const [appMcpMemoryEnabled, setAppMcpMemoryEnabled] = useState(false);
+  const [appBudgetCredits, setAppBudgetCredits] = useState(25);
 
   // Animate mode dropdown state (Video)
   const [selectedAnimateMode, setSelectedAnimateMode] = useState('');
@@ -7326,27 +7333,50 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {/* Vertical separator */}
                     <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
-                    {/* Model Dropdown */}
+                    {/* Model Dropdown with Box icon and Auto default */}
                     <Popover open={isAppModelDropdownOpen} onOpenChange={setIsAppModelDropdownOpen}>
-                      <PopoverTrigger asChild>
-                        <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
-                          selectedAppModel 
-                            ? 'bg-brand-purple/15 text-foreground' 
-                            : 'bg-secondary text-foreground'
-                        }`}>
-                          <Sparkles size={16} className="text-brand-purple" />
-                          {selectedAppModel || 'Model'}
-                          <ChevronDown size={14} />
-                        </button>
-                      </PopoverTrigger>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                              selectedAppModel && selectedAppModel !== 'Auto'
+                                ? 'bg-brand-purple/15 text-foreground' 
+                                : 'bg-secondary text-foreground'
+                            }`}>
+                              <Box size={16} className="text-muted-foreground" />
+                              {selectedAppModel || 'Auto'}
+                            </button>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>Model</TooltipContent>
+                      </Tooltip>
                       <PopoverContent className="w-80 bg-background border-border z-50 p-2" align="start">
                         <div className="space-y-1">
+                          {/* Auto Option */}
+                          <button 
+                            onClick={() => { setSelectedAppModel('Auto'); setIsAppModelDropdownOpen(false); }}
+                            className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Auto' ? 'bg-brand-green/10' : ''}`}
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
+                              <Box size={14} className="text-slate-600" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">Auto</span>
+                                <Badge className="bg-brand-green text-primary text-[10px] px-1.5 py-0 h-4">SUGGESTED</Badge>
+                                {selectedAppModel === 'Auto' && <Check size={14} className="text-brand-green" />}
+                              </div>
+                              <p className="text-xs text-muted-foreground">AI picks what's best</p>
+                            </div>
+                          </button>
                           <button 
                             onClick={() => { setSelectedAppModel('Claude 4.5 Sonnet'); setIsAppModelDropdownOpen(false); }}
                             className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Claude 4.5 Sonnet' ? 'bg-brand-purple/10' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center flex-shrink-0">
-                              <Sparkles size={14} className="text-white" />
+                            <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
@@ -7360,8 +7390,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             onClick={() => { setSelectedAppModel('Claude 4.5 Opus'); setIsAppModelDropdownOpen(false); }}
                             className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Claude 4.5 Opus' ? 'bg-brand-purple/10' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center flex-shrink-0">
-                              <Sparkles size={14} className="text-white" />
+                            <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
@@ -7375,13 +7407,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             onClick={() => { setSelectedAppModel('Claude 4.5 Sonnet - 1M'); setIsAppModelDropdownOpen(false); }}
                             className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Claude 4.5 Sonnet - 1M' ? 'bg-brand-purple/10' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center flex-shrink-0">
-                              <Sparkles size={14} className="text-white" />
+                            <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-sm">Claude 4.5 Sonnet - 1M</span>
-                                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-1.5 py-0 h-4">PRO</Badge>
+                                <Badge className="bg-purple-500 text-white text-[10px] px-1.5 py-0 h-4">PRO</Badge>
                                 {selectedAppModel === 'Claude 4.5 Sonnet - 1M' && <Check size={14} className="text-brand-green" />}
                               </div>
                               <p className="text-xs text-muted-foreground">1 Million Context</p>
@@ -7391,10 +7425,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             onClick={() => { setSelectedAppModel('GPT-5.2 (Beta)'); setIsAppModelDropdownOpen(false); }}
                             className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'GPT-5.2 (Beta)' ? 'bg-brand-purple/10' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M12 6v6l4 2" />
+                            <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center flex-shrink-0">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="#27272a" strokeWidth="2" />
+                                <path d="M12 6v6l4 2" stroke="#27272a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </div>
                             <div className="flex-1">
@@ -7409,8 +7443,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             onClick={() => { setSelectedAppModel('Gemini 3 Pro'); setIsAppModelDropdownOpen(false); }}
                             className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'Gemini 3 Pro' ? 'bg-brand-purple/10' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                            <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="#3b82f6">
                                 <polygon points="12,2 22,12 12,22 2,12" />
                               </svg>
                             </div>
@@ -7426,10 +7460,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             onClick={() => { setSelectedAppModel('GPT-5.1'); setIsAppModelDropdownOpen(false); }}
                             className={`w-full px-3 py-2.5 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3 ${selectedAppModel === 'GPT-5.1' ? 'bg-brand-purple/10' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M12 6v6l4 2" />
+                            <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center flex-shrink-0">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="#27272a" strokeWidth="2" />
+                                <path d="M12 6v6l4 2" stroke="#27272a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </div>
                             <div className="flex-1">
@@ -7452,6 +7486,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Reference</TooltipContent>
+                    </Tooltip>
+
+                    {/* GitHub Button */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => setIsAppGithubOpen(!isAppGithubOpen)}
+                          className={`p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 ${
+                            isAppGithubOpen ? 'bg-brand-green/15' : 'bg-secondary'
+                          }`}
+                        >
+                          <FaGithub size={18} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>GitHub</TooltipContent>
                     </Tooltip>
 
                     {/* Theme Button with Dropdown */}
@@ -7521,6 +7570,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </div>
                       </PopoverContent>
                     </Popover>
+
+                    {/* Advanced Button */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => setIsAppAdvancedOpen(!isAppAdvancedOpen)}
+                          className={`p-2.5 rounded-lg transition-colors text-muted-foreground hover:brightness-90 ${
+                            isAppAdvancedOpen ? 'bg-brand-green/15' : 'bg-secondary'
+                          }`}
+                        >
+                          <SlidersHorizontal size={18} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Advanced</TooltipContent>
+                    </Tooltip>
                   </>
                 )}
               </>
@@ -8555,6 +8619,250 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </button>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Apps GitHub Panel - below the prompt box */}
+        {isAppsMode && selectedAppType && isAppGithubOpen && (
+          <div className="absolute left-0 right-0 top-full mt-3 bg-card border border-border rounded-xl shadow-xl p-6 z-50">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <FaGithub size={20} />
+                <h3 className="font-semibold text-lg">Add from GitHub</h3>
+              </div>
+              <button 
+                onClick={() => setIsAppGithubOpen(false)}
+                className="p-1 rounded-md hover:bg-secondary transition"
+              >
+                <X size={18} className="text-muted-foreground" />
+              </button>
+            </div>
+            
+            {/* Repository Type Toggle */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setAppGithubTab('private')}
+                className={`flex-1 px-4 py-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
+                  appGithubTab === 'private'
+                    ? 'bg-zinc-800 text-white'
+                    : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                }`}
+              >
+                <Lock size={16} />
+                Private Repository
+              </button>
+              <button
+                onClick={() => setAppGithubTab('public')}
+                className={`flex-1 px-4 py-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
+                  appGithubTab === 'public'
+                    ? 'bg-zinc-800 text-white'
+                    : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                }`}
+              >
+                <Globe size={16} />
+                Public Repository
+              </button>
+            </div>
+
+            {/* GitHub Authentication Required */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-base">GitHub Authentication Required</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Connect your GitHub account to access all your private and public repositories.
+                </p>
+              </div>
+              <button className="px-4 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-medium flex items-center gap-2 transition whitespace-nowrap">
+                <FaGithub size={16} />
+                Connect to GitHub
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Apps Advanced Controls Panel - below the prompt box */}
+        {isAppsMode && selectedAppType && isAppAdvancedOpen && (
+          <div className="absolute left-0 right-0 top-full mt-3 bg-card border border-border rounded-xl shadow-xl p-6 z-50">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <SlidersHorizontal size={20} className="text-brand-blue" />
+                <h3 className="font-semibold text-lg text-brand-blue">Advanced Controls</h3>
+              </div>
+              <button 
+                onClick={() => setIsAppAdvancedOpen(false)}
+                className="p-1 rounded-md hover:bg-secondary transition"
+              >
+                <X size={18} className="text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Select MCPs to use */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-sm font-medium text-muted-foreground">Select MCPs to use</p>
+                <Badge className="bg-brand-green text-primary text-[10px] px-1.5 py-0 h-4">New</Badge>
+              </div>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="w-full px-4 py-3 bg-secondary rounded-lg text-sm font-medium transition flex items-center justify-between hover:bg-secondary/80">
+                    <div className="flex items-center gap-2">
+                      <Settings size={16} className="text-muted-foreground" />
+                      <span>Select MCP Tools</span>
+                    </div>
+                    <ChevronDown size={16} className="text-muted-foreground" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0 bg-card border-border z-50" align="start" style={{ width: 'var(--radix-popover-trigger-width)' }}>
+                  <div className="p-2 space-y-1">
+                    {/* New MCP Server */}
+                    <button className="w-full px-3 py-3 text-left hover:bg-secondary rounded-lg transition flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                        <Plus size={16} className="text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">New MCP Server</p>
+                        <p className="text-xs text-muted-foreground">Add a Custom MCP server</p>
+                      </div>
+                    </button>
+                    
+                    {/* Memory MCP */}
+                    <div className="w-full px-3 py-3 hover:bg-secondary rounded-lg transition flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                          <Brain size={16} className="text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">Memory MCP</p>
+                          <p className="text-xs text-muted-foreground">Enable memory for your agent</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setAppMcpMemoryEnabled(!appMcpMemoryEnabled)}
+                        className={`w-12 h-6 rounded-full transition-colors ${appMcpMemoryEnabled ? 'bg-brand-green' : 'bg-zinc-300'}`}
+                      >
+                        <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${appMcpMemoryEnabled ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                      </button>
+                    </div>
+                    
+                    {/* Supabase MCP */}
+                    <div className="w-full px-3 py-3 hover:bg-secondary rounded-lg transition flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <Zap size={16} className="text-emerald-500" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm">Supabase MCP</p>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                            <Key size={10} />
+                            Key needed
+                          </Badge>
+                        </div>
+                      </div>
+                      <button className="px-3 py-1.5 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 hover:bg-secondary/80">
+                        <Settings size={14} />
+                        Configure
+                      </button>
+                    </div>
+                    
+                    {/* Notion MCP */}
+                    <div className="w-full px-3 py-3 hover:bg-secondary rounded-lg transition flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center font-bold text-sm">
+                          N
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm">Notion MCP</p>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                            <Key size={10} />
+                            Key needed
+                          </Badge>
+                        </div>
+                      </div>
+                      <button className="px-3 py-1.5 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 hover:bg-secondary/80">
+                        <Settings size={14} />
+                        Configure
+                      </button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Select Template and Budget */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">Select Template</p>
+                <input 
+                  type="text"
+                  placeholder="us-central1-docker.pkg.dev/emergent-default/emerg"
+                  className="w-full px-4 py-3 bg-secondary rounded-lg text-sm border-0 focus:outline-none focus:ring-2 focus:ring-brand-green/50"
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">Budget (Credits)</p>
+                <div className="flex items-center gap-2 bg-secondary rounded-lg px-4 py-2">
+                  <button 
+                    onClick={() => setAppBudgetCredits(Math.max(0, appBudgetCredits - 5))}
+                    className="p-1 rounded hover:bg-background transition"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <div className="flex-1 flex items-center justify-center gap-1">
+                    <div className="w-4 h-4 rounded-full bg-yellow-400" />
+                    <span className="font-semibold text-lg">{appBudgetCredits}</span>
+                  </div>
+                  <button 
+                    onClick={() => setAppBudgetCredits(appBudgetCredits + 5)}
+                    className="p-1 rounded hover:bg-background transition"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Model Selection */}
+            <div>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Model</p>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="w-full px-4 py-3 bg-secondary rounded-lg text-sm font-medium transition flex items-center justify-between hover:bg-secondary/80">
+                    <div className="flex items-center gap-2">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>{selectedAppModel || 'Claude 4.5 Sonnet'}</span>
+                    </div>
+                    <ChevronDown size={16} className="text-muted-foreground" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-2 bg-card border-border z-50" align="start" style={{ width: 'var(--radix-popover-trigger-width)' }}>
+                  <div className="space-y-1">
+                    <button 
+                      onClick={() => setSelectedAppModel('Claude 4.5 Sonnet')}
+                      className={`w-full px-3 py-2 text-left hover:bg-secondary rounded-lg transition flex items-center gap-2 ${selectedAppModel === 'Claude 4.5 Sonnet' ? 'bg-brand-purple/10' : ''}`}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Claude 4.5 Sonnet
+                      {selectedAppModel === 'Claude 4.5 Sonnet' && <Check size={14} className="ml-auto text-brand-green" />}
+                    </button>
+                    <button 
+                      onClick={() => setSelectedAppModel('Claude 4.5 Opus')}
+                      className={`w-full px-3 py-2 text-left hover:bg-secondary rounded-lg transition flex items-center gap-2 ${selectedAppModel === 'Claude 4.5 Opus' ? 'bg-brand-purple/10' : ''}`}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Claude 4.5 Opus
+                      {selectedAppModel === 'Claude 4.5 Opus' && <Check size={14} className="ml-auto text-brand-green" />}
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         )}
