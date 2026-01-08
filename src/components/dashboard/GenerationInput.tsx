@@ -3845,7 +3845,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           : isDesignMode
                             ? "Describe your design vision..."
                             : isAudioMode
-                              ? "Describe the audio you want to generate..."
+                              ? "Describe your sound, music, or voiceover..."
                               : (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync'))
                                 ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
                                 : (isVideoMode && selectedAnimateMode === 'Story')
