@@ -7341,7 +7341,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
                               selectedAppModel && selectedAppModel !== 'Auto'
                                 ? 'bg-brand-purple/15 text-foreground' 
-                                : 'bg-secondary text-foreground'
+                                : 'bg-secondary text-muted-foreground'
                             }`}>
                               <Box size={16} className="text-muted-foreground" />
                               {selectedAppModel || 'Auto'}
