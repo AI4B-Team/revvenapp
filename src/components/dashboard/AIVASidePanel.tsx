@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 interface AIVASidePanelProps {
   isOpen: boolean;
   onClose: () => void;
+  sidebarCollapsed?: boolean;
 }
 
 // App-specific suggestions
@@ -264,7 +265,7 @@ const appSuggestions: Record<string, { title: string; suggestions: string[] }> =
   },
 };
 
-const AIVASidePanel = ({ isOpen, onClose }: AIVASidePanelProps) => {
+const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePanelProps) => {
   const [message, setMessage] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -300,24 +301,21 @@ const AIVASidePanel = ({ isOpen, onClose }: AIVASidePanelProps) => {
     inputRef.current?.focus();
   };
 
-  if (!isOpen) return null;
+  // Calculate left position based on sidebar state
+  const leftPosition = sidebarCollapsed ? 'left-16' : 'left-64';
 
   return (
-    <>
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/20 z-40"
-        onClick={onClose}
-      />
-      
-      {/* Side Panel */}
-      <div 
-        className={`fixed left-16 lg:left-64 top-0 h-full bg-background border-r border-border shadow-xl z-50 transition-all duration-300 flex flex-col ${
-          isExpanded ? 'w-[600px]' : 'w-[400px]'
-        }`}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+    <div 
+      className={`fixed ${leftPosition} top-0 h-full bg-background border-r border-border shadow-xl z-40 flex flex-col transition-all duration-300 ${
+        isOpen 
+          ? (isExpanded ? 'w-[600px] translate-x-0' : 'w-[400px] translate-x-0')
+          : 'w-0 -translate-x-full'
+      }`}
+    >
+      {isOpen && (
+        <>
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-3">
             <TooltipProvider>
               <Tooltip>
@@ -457,8 +455,9 @@ const AIVASidePanel = ({ isOpen, onClose }: AIVASidePanelProps) => {
             </div>
           </div>
         </div>
-      </div>
-    </>
+        </>
+      )}
+    </div>
   );
 };
 

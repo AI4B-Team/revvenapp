@@ -601,6 +601,7 @@ const Create = () => {
       <AIVASidePanel 
         isOpen={isAIVAPanelOpen}
         onClose={() => setIsAIVAPanelOpen(false)}
+        sidebarCollapsed={isSidebarCollapsed}
       />
 
       <AIPersonaSidebar 
@@ -608,7 +609,7 @@ const Create = () => {
         onClose={() => setIdentitySidebarOpen(false)}
       />
       
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} ${isAIVAPanelOpen ? (isSidebarCollapsed ? 'lg:pl-[400px]' : 'lg:pl-[400px]') : ''}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
         {/* Show Image Editing Canvas when in edit mode */}
