@@ -118,11 +118,24 @@ interface SocialContentCalendarProps {
 type ViewMode = 'calendar' | 'list' | 'kanban' | 'grid' | 'feed';
 type TimeRange = 'day' | 'week' | 'month';
 
+// Platform options for filtering
+const PLATFORM_OPTIONS = [
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'twitter', label: 'Twitter/X' },
+  { id: 'linkedin', label: 'LinkedIn' },
+  { id: 'tiktok', label: 'TikTok' },
+  { id: 'threads', label: 'Threads' },
+  { id: 'youtube', label: 'YouTube' },
+  { id: 'pinterest', label: 'Pinterest' },
+];
+
 // Filter types
 interface FilterState {
   statuses: string[];
   labels: string[];
   contentTypes: string[];
+  platforms: string[];
 }
 
 const CONTENT_TYPE_OPTIONS = [
@@ -169,6 +182,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     statuses: [],
     labels: [],
     contentTypes: [],
+    platforms: [],
   });
   const [previewPost, setPreviewPost] = useState<ContentItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -352,7 +366,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   // Filter content based on selected filters
   const filteredContent = useMemo(() => {
-    if (filters.statuses.length === 0 && filters.labels.length === 0 && filters.contentTypes.length === 0) {
+    if (filters.statuses.length === 0 && filters.labels.length === 0 && filters.contentTypes.length === 0 && filters.platforms.length === 0) {
       return allContent;
     }
     
@@ -360,7 +374,8 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       const statusMatch = filters.statuses.length === 0 || filters.statuses.includes(item.status);
       const labelMatch = filters.labels.length === 0 || filters.labels.includes(getPillarId(item));
       const contentTypeMatch = filters.contentTypes.length === 0 || filters.contentTypes.includes(item.type || 'post');
-      return statusMatch && labelMatch && contentTypeMatch;
+      const platformMatch = filters.platforms.length === 0 || filters.platforms.includes(item.platform);
+      return statusMatch && labelMatch && contentTypeMatch && platformMatch;
     });
   }, [allContent, filters]);
 
@@ -392,11 +407,20 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     }));
   };
 
-  const resetFilters = () => {
-    setFilters({ statuses: [], labels: [], contentTypes: [] });
+  const togglePlatformFilter = (platformId: string) => {
+    setFilters(prev => ({
+      ...prev,
+      platforms: prev.platforms.includes(platformId)
+        ? prev.platforms.filter(p => p !== platformId)
+        : [...prev.platforms, platformId]
+    }));
   };
 
-  const hasActiveFilters = filters.statuses.length > 0 || filters.labels.length > 0 || filters.contentTypes.length > 0;
+  const resetFilters = () => {
+    setFilters({ statuses: [], labels: [], contentTypes: [], platforms: [] });
+  };
+
+  const hasActiveFilters = filters.statuses.length > 0 || filters.labels.length > 0 || filters.contentTypes.length > 0 || filters.platforms.length > 0;
 
   const handleDeletePost = (postId: string) => {
     onDeletePost?.(postId);
@@ -1666,6 +1690,25 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 </div>
               </div>
               
+              {/* Platform Filters */}
+              <div className="px-4 py-3 border-b border-border">
+                <h4 className="text-sm font-medium text-foreground mb-3">Platforms</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {PLATFORM_OPTIONS.map(platform => (
+                    <label key={platform.id} className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={filters.platforms.includes(platform.id)}
+                        onCheckedChange={() => togglePlatformFilter(platform.id)}
+                      />
+                      <div className="w-4 h-4 flex items-center justify-center">
+                        {getPlatformIcon(platform.id, 'w-3.5 h-3.5')}
+                      </div>
+                      <span className="text-xs text-foreground">{platform.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
               {/* Labels Filters */}
               <div className="px-4 py-3">
                 <div className="flex items-center justify-between mb-3">
@@ -1733,6 +1776,38 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+      </div>
+
+      {/* Platform Filter Bar */}
+      <div className="px-4 py-2 border-b border-border flex items-center gap-2 overflow-x-auto">
+        <span className="text-xs text-muted-foreground shrink-0">Platforms:</span>
+        <div className="flex items-center gap-1">
+          {PLATFORM_OPTIONS.map(platform => {
+            const isActive = filters.platforms.includes(platform.id);
+            return (
+              <button
+                key={platform.id}
+                onClick={() => togglePlatformFilter(platform.id)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  isActive 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                {getPlatformIcon(platform.id, 'w-3.5 h-3.5')}
+                <span className="hidden sm:inline">{platform.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        {filters.platforms.length > 0 && (
+          <button
+            onClick={() => setFilters(prev => ({ ...prev, platforms: [] }))}
+            className="ml-auto text-xs text-muted-foreground hover:text-foreground shrink-0"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {/* View Content */}
