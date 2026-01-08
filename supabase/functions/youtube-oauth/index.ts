@@ -11,6 +11,9 @@ const YOUTUBE_CLIENT_SECRET = Deno.env.get('YOUTUBE_CLIENT_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
+// Get the app URL for redirects
+const APP_URL = 'https://82e744b5-adf9-4635-a4c4-d4aad03b4ede.lovableproject.com';
+
 serve(async (req) => {
   const url = new URL(req.url);
   console.log('Request URL:', url.href);
@@ -29,82 +32,10 @@ serve(async (req) => {
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state'); // Contains user_id
       
-      const errorHtml = (message: string) => `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connection Error</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f0f0f 0%,#1a1a2e 100%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff}
-.container{text-align:center;padding:3rem;background:rgba(255,255,255,0.05);border-radius:1.5rem;border:1px solid rgba(255,255,255,0.1);max-width:400px}
-.icon{width:80px;height:80px;margin:0 auto 1.5rem;background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%);border-radius:50%;display:flex;align-items:center;justify-content:center}
-.icon svg{width:40px;height:40px;stroke:#fff}
-h1{font-size:1.5rem;font-weight:700;margin-bottom:0.75rem;color:#ef4444}
-p{color:rgba(255,255,255,0.7);margin-bottom:1rem;line-height:1.6}
-.close-btn{background:#ef4444;color:#fff;border:none;padding:0.75rem 2rem;border-radius:0.5rem;cursor:pointer;font-size:1rem;margin-top:1rem}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>
-<h1>Connection Failed</h1>
-<p>${message}</p>
-<button class="close-btn" onclick="window.close()">Close Window</button>
-</div>
-<script>
-window.opener && window.opener.postMessage({type:'youtube_oauth_error',error:'${message}'},'*');
-setTimeout(function(){window.close()},3000);
-</script>
-</body>
-</html>`;
-
-      const successHtml = (channelName: string) => `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouTube Connected</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f0f0f 0%,#1a1a2e 100%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff}
-.container{text-align:center;padding:3rem;background:rgba(255,255,255,0.05);border-radius:1.5rem;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px);max-width:400px;animation:fadeIn 0.5s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.icon{width:80px;height:80px;margin:0 auto 1.5rem;background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.4)}50%{box-shadow:0 0 0 20px rgba(34,197,94,0)}}
-.icon svg{width:40px;height:40px;stroke:#fff}
-h1{font-size:1.75rem;font-weight:700;margin-bottom:0.75rem}
-p{color:rgba(255,255,255,0.7);margin-bottom:1.5rem;line-height:1.6}
-.channel-name{display:inline-block;background:rgba(239,68,68,0.2);color:#ef4444;padding:0.5rem 1rem;border-radius:0.5rem;font-weight:600;margin-bottom:1.5rem}
-.closing{font-size:0.875rem;color:rgba(255,255,255,0.5)}
-.close-btn{background:#22c55e;color:#fff;border:none;padding:0.75rem 2rem;border-radius:0.5rem;cursor:pointer;font-size:1rem;margin-top:1rem}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="icon"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
-<h1>Successfully Connected!</h1>
-<div class="channel-name">${channelName}</div>
-<p>Your YouTube channel has been linked. You can now generate and publish videos directly.</p>
-<p class="closing">This window will close automatically...</p>
-<button class="close-btn" onclick="window.close()">Close Window</button>
-</div>
-<script>
-window.opener && window.opener.postMessage({type:'youtube_oauth_success'},'*');
-setTimeout(function(){window.close()},2000);
-</script>
-</body>
-</html>`;
-      
       if (!code || !state) {
         console.log('Missing code or state');
-        const html = errorHtml('Missing authorization code');
-        return new Response(html, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
-        });
+        const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent('Missing authorization code')}&provider=YouTube`;
+        return Response.redirect(redirectUrl, 302);
       }
 
       // Exchange code for tokens
@@ -129,10 +60,8 @@ setTimeout(function(){window.close()},2000);
 
       if (!tokens.access_token) {
         console.log('Failed to get access token:', tokens);
-        const html = errorHtml('Failed to get access token');
-        return new Response(html, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
-        });
+        const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent('Failed to get access token')}&provider=YouTube`;
+        return Response.redirect(redirectUrl, 302);
       }
 
       // Get channel info
@@ -143,10 +72,9 @@ setTimeout(function(){window.close()},2000);
       console.log('Channel data:', channelData);
 
       if (!channelData.items || channelData.items.length === 0) {
-        const html = errorHtml('No YouTube channel found for this account');
-        return new Response(html, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
-        });
+        const errorMsg = channelData.error?.message || 'No YouTube channel found for this account';
+        const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(errorMsg)}&provider=YouTube`;
+        return Response.redirect(redirectUrl, 302);
       }
 
       const channel = channelData.items[0];
@@ -167,24 +95,14 @@ setTimeout(function(){window.close()},2000);
 
       if (insertError) {
         console.error('Error storing channel:', insertError);
-        const html = errorHtml('Failed to save channel connection');
-        return new Response(html, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
-        });
+        const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent('Failed to save channel connection')}&provider=YouTube`;
+        return Response.redirect(redirectUrl, 302);
       }
 
-      // Escape channel title for safe HTML insertion
-      const safeTitle = channel.snippet.title
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-
-      const html = successHtml(safeTitle);
-      return new Response(html, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
+      // Success - redirect to callback page
+      const channelName = encodeURIComponent(channel.snippet.title);
+      const redirectUrl = `${APP_URL}/oauth/callback?success=true&channel=${channelName}&provider=YouTube`;
+      return Response.redirect(redirectUrl, 302);
     }
 
     // Regular API calls
