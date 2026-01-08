@@ -1,13 +1,58 @@
 import { AIProvider, AIModel } from './types';
 
+// Import model logos
+import grokLogo from '@/assets/model-logos/grok.png';
+
 export const AI_PROVIDERS: AIProvider[] = [
-  { id: 'openai', name: 'OpenAI', icon: '◎', color: '#10a37f' },
-  { id: 'anthropic', name: 'Anthropic', icon: '◈', color: '#d4a574' },
-  { id: 'google', name: 'Google', icon: '✦', color: '#4285f4' },
-  { id: 'xai', name: 'xAI', icon: '✕', color: '#1a1a1a' },
-  { id: 'meta', name: 'Meta', icon: '∞', color: '#0668E1' },
-  { id: 'mistral', name: 'Mistral', icon: '▣', color: '#ff7000' },
-  { id: 'perplexity', name: 'Perplexity', icon: '◉', color: '#20b8cd' },
+  { 
+    id: 'openai', 
+    name: 'OpenAI', 
+    icon: '◎', 
+    color: '#10a37f' 
+  },
+  { 
+    id: 'anthropic', 
+    name: 'Anthropic', 
+    icon: '◈', 
+    color: '#d4a574' 
+  },
+  { 
+    id: 'google', 
+    name: 'Google', 
+    icon: '✦', 
+    color: '#4285f4' 
+  },
+  { 
+    id: 'xai', 
+    name: 'xAI', 
+    icon: '𝕏', 
+    logo: grokLogo,
+    color: '#ffffff' 
+  },
+  { 
+    id: 'meta', 
+    name: 'Meta', 
+    icon: '∞', 
+    color: '#0668E1' 
+  },
+  { 
+    id: 'mistral', 
+    name: 'Mistral', 
+    icon: '▣', 
+    color: '#ff7000' 
+  },
+  { 
+    id: 'perplexity', 
+    name: 'Perplexity', 
+    icon: '◉', 
+    color: '#20b8cd' 
+  },
+  { 
+    id: 'deepseek', 
+    name: 'DeepSeek', 
+    icon: '🔍', 
+    color: '#6366f1' 
+  },
 ];
 
 export const AI_MODELS: AIModel[] = [
@@ -153,6 +198,18 @@ export const AI_MODELS: AIModel[] = [
     supportsVision: false,
     supportsFiles: false,
     tier: 'balanced'
+  },
+  
+  // DeepSeek
+  { 
+    id: 'deepseek-r1', 
+    providerId: 'deepseek', 
+    name: 'DeepSeek R1', 
+    displayName: 'DeepSeek R1', 
+    capabilities: ['reasoning', 'code'],
+    supportsVision: false,
+    supportsFiles: false,
+    tier: 'deep'
   },
 ];
 
