@@ -94,6 +94,28 @@ const AutoYT = () => {
   useEffect(() => {
     loadChannels();
     loadVideos();
+    
+    // Subscribe to realtime updates for video status changes
+    const channel = supabase
+      .channel('autoyt-videos-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'autoyt_videos'
+        },
+        (payload) => {
+          console.log('Video update received:', payload);
+          // Reload videos when any change occurs
+          loadVideos();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadChannels = async () => {
