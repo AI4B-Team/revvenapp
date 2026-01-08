@@ -92,7 +92,7 @@ const VideoDownloader = () => {
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
       
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
         <main className="flex-1 overflow-auto bg-background">
@@ -269,6 +269,7 @@ const VideoDownloader = () => {
       <AIVASidePanel 
         isOpen={isAIVAPanelOpen} 
         onClose={() => setIsAIVAPanelOpen(false)}
+        sidebarCollapsed={isSidebarCollapsed}
       />
     </div>
   );
