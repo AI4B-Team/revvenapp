@@ -254,7 +254,7 @@ async function pollVideoCompletion(
   publishMode: string
 ) {
   const KIE_AI_API_KEY = Deno.env.get('KIE_AI_API_KEY');
-  const maxAttempts = 60; // 5 minutes max
+  const maxAttempts = 120; // 10 minutes max (video generation can take a while)
   let attempts = 0;
 
   while (attempts < maxAttempts) {
@@ -262,17 +262,28 @@ async function pollVideoCompletion(
     attempts++;
 
     try {
-      const statusResponse = await fetch(`https://api.kie.ai/api/v1/veo/detail/${taskId}`, {
+      // Use the correct record-info endpoint with query parameter
+      const statusResponse = await fetch(`https://api.kie.ai/api/v1/veo/record-info?taskId=${taskId}`, {
         headers: {
           'Authorization': `Bearer ${KIE_AI_API_KEY}`,
         },
       });
 
       const statusData = await statusResponse.json();
-      console.log(`Poll attempt ${attempts}:`, statusData);
+      console.log(`Poll attempt ${attempts}:`, JSON.stringify(statusData));
 
-      if (statusData.data?.status === 'completed') {
-        const videoUrl = statusData.data.videoUrl;
+      // successFlag: 0=generating, 1=success, 2=failed, 3=generation failed
+      const successFlag = statusData.data?.successFlag;
+      
+      if (successFlag === 1) {
+        // Success - get video URL from response.resultUrls
+        const videoUrl = statusData.data?.response?.resultUrls?.[0] || 
+                         statusData.data?.response?.originUrls?.[0];
+        
+        if (!videoUrl) {
+          console.error('No video URL in response:', statusData);
+          continue;
+        }
         
         // Update video record
         await supabase
@@ -292,16 +303,20 @@ async function pollVideoCompletion(
         return;
       }
 
-      if (statusData.data?.status === 'failed') {
+      if (successFlag === 2 || successFlag === 3) {
+        // Failed
+        const errorMessage = statusData.data?.errorMessage || 'Video generation failed';
         await supabase
           .from('autoyt_videos')
           .update({
             status: 'failed',
-            error_message: statusData.data.error || 'Video generation failed',
+            error_message: errorMessage,
           })
           .eq('id', videoId);
         return;
       }
+      
+      // successFlag === 0 means still generating, continue polling
     } catch (error) {
       console.error('Error polling video status:', error);
     }
@@ -312,7 +327,7 @@ async function pollVideoCompletion(
     .from('autoyt_videos')
     .update({
       status: 'failed',
-      error_message: 'Video generation timed out',
+      error_message: 'Video generation timed out after 10 minutes',
     })
     .eq('id', videoId);
 }
