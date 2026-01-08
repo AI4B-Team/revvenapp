@@ -132,15 +132,38 @@ serve(async (req) => {
       sourceImageUrl,
       publishMode,
       category,
-      visibility
+      visibility,
+      regenerateMetadataOnly
     } = await req.json();
 
-    console.log('Generating video:', { videoId, prompt, sourceType, publishMode });
+    console.log('Generating video:', { videoId, prompt, sourceType, publishMode, regenerateMetadataOnly });
 
     // Generate metadata with AI
     console.log('Generating metadata with AI...');
     const metadata = await generateVideoMetadata(prompt);
     console.log('Generated metadata:', metadata);
+
+    // Update video record with generated metadata
+    await supabase
+      .from('autoyt_videos')
+      .update({
+        title: metadata.title,
+        description: metadata.description,
+        tags: metadata.tags,
+      })
+      .eq('id', videoId);
+
+    // If only regenerating metadata, return early
+    if (regenerateMetadataOnly) {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        title: metadata.title,
+        description: metadata.description,
+        tags: metadata.tags
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
     // Update video record with generated metadata
     await supabase
@@ -206,7 +229,9 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true, 
       taskId: veoData.data.taskId,
-      metadata
+      title: metadata.title,
+      description: metadata.description,
+      tags: metadata.tags
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
