@@ -97,7 +97,7 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors border",
+            "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-colors border",
             getPastelBg(selectedOption.color),
             selectedOption.color.replace('text-', 'border-')
           )}
@@ -138,7 +138,7 @@ const AutoDropdown = ({ intent, selectedOption, onSelect }: AutoDropdownProps) =
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+          "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-colors",
           "text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200",
           isOpen && "bg-slate-200"
         )}
