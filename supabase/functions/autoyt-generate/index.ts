@@ -9,6 +9,96 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const KIE_AI_API_KEY = Deno.env.get('KIE_AI_API_KEY');
+const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+
+async function generateVideoMetadata(prompt: string): Promise<{ title: string; description: string; tags: string[] }> {
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a YouTube SEO expert. Generate optimized metadata for a YouTube video based on the given prompt. Return a JSON object with:
+- title: Catchy, SEO-friendly title (max 100 characters)
+- description: Engaging description with keywords (150-300 words)
+- tags: Array of 8-15 relevant tags for discoverability
+
+Only return valid JSON, no other text.`
+          },
+          {
+            role: 'user',
+            content: `Generate YouTube metadata for a video about: ${prompt}`
+          }
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "generate_metadata",
+              description: "Generate YouTube video metadata",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Video title, max 100 chars" },
+                  description: { type: "string", description: "Video description, 150-300 words" },
+                  tags: { 
+                    type: "array", 
+                    items: { type: "string" },
+                    description: "8-15 relevant tags"
+                  }
+                },
+                required: ["title", "description", "tags"],
+                additionalProperties: false
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "generate_metadata" } }
+      }),
+    });
+
+    const data = await response.json();
+    console.log('AI metadata response:', JSON.stringify(data));
+
+    // Extract from tool call
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      const parsed = JSON.parse(toolCall.function.arguments);
+      return {
+        title: parsed.title || prompt.slice(0, 100),
+        description: parsed.description || '',
+        tags: parsed.tags || []
+      };
+    }
+
+    // Fallback: try parsing content as JSON
+    const content = data.choices?.[0]?.message?.content;
+    if (content) {
+      const parsed = JSON.parse(content);
+      return {
+        title: parsed.title || prompt.slice(0, 100),
+        description: parsed.description || '',
+        tags: parsed.tags || []
+      };
+    }
+
+    throw new Error('No valid response from AI');
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    // Fallback to basic metadata
+    return {
+      title: prompt.slice(0, 100),
+      description: `Video created from prompt: ${prompt}`,
+      tags: prompt.split(' ').filter(w => w.length > 3).slice(0, 10)
+    };
+  }
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -41,14 +131,26 @@ serve(async (req) => {
       sourceType, 
       sourceImageUrl,
       publishMode,
-      title,
-      description,
-      tags,
       category,
       visibility
     } = await req.json();
 
     console.log('Generating video:', { videoId, prompt, sourceType, publishMode });
+
+    // Generate metadata with AI
+    console.log('Generating metadata with AI...');
+    const metadata = await generateVideoMetadata(prompt);
+    console.log('Generated metadata:', metadata);
+
+    // Update video record with generated metadata
+    await supabase
+      .from('autoyt_videos')
+      .update({
+        title: metadata.title,
+        description: metadata.description,
+        tags: metadata.tags,
+      })
+      .eq('id', videoId);
 
     // Generate video with VO3 (Veo 3)
     const veoPayload: any = {
@@ -103,7 +205,8 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ 
       success: true, 
-      taskId: veoData.data.taskId 
+      taskId: veoData.data.taskId,
+      metadata
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
