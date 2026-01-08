@@ -388,11 +388,12 @@ const Versus: React.FC = () => {
                   />
                 </div>
                 
-                <div className="flex items-center gap-2 pb-1">
+                <div className="flex items-center justify-between pb-1">
                   <button className="p-3 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors">
                     <Paperclip className="w-5 h-5" />
                   </button>
                   
+                  <div className="flex items-center gap-2">
                   {/* Mic Button with Audio Waves like Create app */}
                   {isSupported && (
                     isListening ? (
@@ -458,6 +459,7 @@ const Versus: React.FC = () => {
                   >
                     <Send className="w-5 h-5" />
                   </button>
+                  </div>
                 </div>
               </div>
             </div>
