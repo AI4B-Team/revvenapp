@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Zap, Brain, Gauge } from 'lucide-react';
 import { AIModel } from './types';
 import { AI_PROVIDERS, AI_MODELS, getModelById, getProviderById } from './data';
-import grokLogo from '@/assets/model-logos/grok.png';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ModelSelectorProps {
   selectedModelId: string;
@@ -118,7 +118,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
       </button>
       
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Search */}
           <div className="p-3 border-b border-border">
             <div className="relative">
@@ -154,50 +154,52 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
             </div>
           </div>
           
-          {/* Model List */}
-          <div className="max-h-64 overflow-y-auto">
-            {Object.entries(groupedModels).map(([providerId, models]) => {
-              const provider = getProviderById(providerId);
-              return (
-                <div key={providerId}>
-                  <div className="px-3 py-2 bg-muted border-b border-border">
-                    <p className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
-                      <ProviderIcon provider={provider} size="sm" />
-                      {provider?.name}
-                    </p>
+          {/* Model List - with proper ScrollArea */}
+          <ScrollArea className="h-[280px]">
+            <div className="py-1">
+              {Object.entries(groupedModels).map(([providerId, models]) => {
+                const provider = getProviderById(providerId);
+                return (
+                  <div key={providerId}>
+                    <div className="px-3 py-2 bg-muted/50 border-b border-border sticky top-0 z-10">
+                      <p className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
+                        <ProviderIcon provider={provider} size="sm" />
+                        {provider?.name}
+                      </p>
+                    </div>
+                    {models.map(model => (
+                      <button
+                        key={model.id}
+                        onClick={() => handleModelSelect(model.id)}
+                        className={`w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors ${
+                          model.id === selectedModelId ? 'bg-primary/10' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {getTierIcon(model.tier)}
+                          <p className={`text-sm font-medium ${model.id === selectedModelId ? 'text-primary' : 'text-foreground'}`}>
+                            {model.displayName}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          {model.supportsVision && (
+                            <span className="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-400 rounded">
+                              vision
+                            </span>
+                          )}
+                          {model.capabilities.slice(0, 1).map(cap => (
+                            <span key={cap} className="px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground rounded">
+                              {cap}
+                            </span>
+                          ))}
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                  {models.map(model => (
-                    <button
-                      key={model.id}
-                      onClick={() => handleModelSelect(model.id)}
-                      className={`w-full px-4 py-3 flex items-center justify-between hover:bg-muted transition-colors ${
-                        model.id === selectedModelId ? 'bg-primary/10' : ''
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {getTierIcon(model.tier)}
-                        <p className={`text-sm font-medium ${model.id === selectedModelId ? 'text-primary' : 'text-foreground'}`}>
-                          {model.displayName}
-                        </p>
-                      </div>
-                      <div className="flex gap-1">
-                        {model.supportsVision && (
-                          <span className="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-400 rounded">
-                            vision
-                          </span>
-                        )}
-                        {model.capabilities.slice(0, 1).map(cap => (
-                          <span key={cap} className="px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground rounded">
-                            {cap}
-                          </span>
-                        ))}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
         </div>
       )}
     </div>
