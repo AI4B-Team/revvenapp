@@ -60,24 +60,13 @@ serve(async (req) => {
       });
     }
 
-    if (!video.channel_id) {
-      return new Response(JSON.stringify({ error: 'No channel selected' }), {
+    // Check if we have at least one platform to publish to
+    const hasYouTube = !!video.channel_id;
+    const hasFacebook = video.post_to_facebook && !!video.facebook_page_id;
+
+    if (!hasYouTube && !hasFacebook) {
+      return new Response(JSON.stringify({ error: 'No platform selected for publishing' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Get channel with tokens
-    const { data: channel, error: channelError } = await supabase
-      .from('youtube_channels')
-      .select('*')
-      .eq('id', video.channel_id)
-      .eq('user_id', user.id)
-      .single();
-
-    if (channelError || !channel) {
-      return new Response(JSON.stringify({ error: 'Channel not found' }), {
-        status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
@@ -89,7 +78,8 @@ serve(async (req) => {
       .eq('id', videoId);
 
     // Start publishing in background
-    (globalThis as any).EdgeRuntime?.waitUntil?.(publishToYouTube(supabase, video, channel)) || publishToYouTube(supabase, video, channel);
+    const publishPromise = publishToPlatforms(supabase, video, user.id);
+    (globalThis as any).EdgeRuntime?.waitUntil?.(publishPromise) || publishPromise;
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -103,7 +93,95 @@ serve(async (req) => {
   }
 });
 
-async function publishToYouTube(supabase: any, video: any, channel: any) {
+async function publishToPlatforms(supabase: any, video: any, userId: string) {
+  const results = {
+    youtube: { success: false, videoId: null as string | null, error: null as string | null },
+    facebook: { success: false, postId: null as string | null, error: null as string | null },
+  };
+
+  // Publish to YouTube if channel is set
+  if (video.channel_id) {
+    try {
+      const { data: channel, error: channelError } = await supabase
+        .from('youtube_channels')
+        .select('*')
+        .eq('id', video.channel_id)
+        .eq('user_id', userId)
+        .single();
+
+      if (channelError || !channel) {
+        results.youtube.error = 'YouTube channel not found';
+      } else {
+        const ytResult = await publishToYouTube(supabase, video, channel);
+        results.youtube = ytResult;
+      }
+    } catch (error: any) {
+      results.youtube.error = error?.message || 'Failed to publish to YouTube';
+    }
+  }
+
+  // Publish to Facebook if enabled
+  if (video.post_to_facebook && video.facebook_page_id) {
+    try {
+      const { data: fbPage, error: fbError } = await supabase
+        .from('facebook_pages')
+        .select('*')
+        .eq('id', video.facebook_page_id)
+        .eq('user_id', userId)
+        .single();
+
+      if (fbError || !fbPage) {
+        results.facebook.error = 'Facebook page not found';
+      } else {
+        const fbResult = await publishToFacebook(video, fbPage);
+        results.facebook = fbResult;
+      }
+    } catch (error: any) {
+      results.facebook.error = error?.message || 'Failed to publish to Facebook';
+    }
+  }
+
+  // Determine overall status
+  const ytSuccess = !video.channel_id || results.youtube.success;
+  const fbSuccess = !video.post_to_facebook || !video.facebook_page_id || results.facebook.success;
+  
+  const overallSuccess = ytSuccess && fbSuccess;
+  const partialSuccess = results.youtube.success || results.facebook.success;
+
+  let status = 'failed';
+  let errorMessage = null;
+
+  if (overallSuccess) {
+    status = 'published';
+  } else if (partialSuccess) {
+    status = 'partial';
+    const errors = [];
+    if (results.youtube.error) errors.push(`YouTube: ${results.youtube.error}`);
+    if (results.facebook.error) errors.push(`Facebook: ${results.facebook.error}`);
+    errorMessage = errors.join('; ');
+  } else {
+    const errors = [];
+    if (results.youtube.error) errors.push(`YouTube: ${results.youtube.error}`);
+    if (results.facebook.error) errors.push(`Facebook: ${results.facebook.error}`);
+    errorMessage = errors.join('; ');
+  }
+
+  // Update video record
+  await supabase
+    .from('autoyt_videos')
+    .update({
+      status,
+      youtube_video_id: results.youtube.videoId,
+      facebook_post_id: results.facebook.postId,
+      published_at: overallSuccess || partialSuccess ? new Date().toISOString() : null,
+      error_message: errorMessage,
+    })
+    .eq('id', video.id);
+
+  console.log('Publishing complete:', { status, results });
+}
+
+async function publishToYouTube(supabase: any, video: any, channel: any): Promise<{ success: boolean; videoId: string | null; error: string | null }> {
   try {
     // Refresh token if needed
     let accessToken = channel.access_token;
@@ -144,7 +222,7 @@ async function publishToYouTube(supabase: any, video: any, channel: any) {
     // Upload to YouTube
     const metadata = {
       snippet: {
-        title: video.title || 'AutoYT Video',
+        title: video.title || 'Auto Post Video',
         description: video.description || '',
         tags: video.tags || [],
         categoryId: video.category || '22',
@@ -199,27 +277,51 @@ async function publishToYouTube(supabase: any, video: any, channel: any) {
     console.log('YouTube upload result:', uploadResult);
 
     if (uploadResult.id) {
-      await supabase
-        .from('autoyt_videos')
-        .update({
-          status: 'published',
-          youtube_video_id: uploadResult.id,
-          published_at: new Date().toISOString(),
-        })
-        .eq('id', video.id);
-      
-      console.log('Video published successfully:', uploadResult.id);
+      console.log('Video published to YouTube successfully:', uploadResult.id);
+      return { success: true, videoId: uploadResult.id, error: null };
     } else {
       throw new Error('Upload failed: ' + JSON.stringify(uploadResult));
     }
   } catch (error: any) {
     console.error('Error publishing to YouTube:', error);
-    await supabase
-      .from('autoyt_videos')
-      .update({
-        status: 'failed',
-        error_message: error?.message || 'Failed to publish to YouTube',
-      })
-      .eq('id', video.id);
+    return { success: false, videoId: null, error: error?.message || 'Failed to publish to YouTube' };
+  }
+}
+
+async function publishToFacebook(video: any, fbPage: any): Promise<{ success: boolean; postId: string | null; error: string | null }> {
+  try {
+    const pageAccessToken = fbPage.page_access_token;
+    const pageId = fbPage.page_id;
+
+    console.log('Publishing video to Facebook page:', fbPage.page_name);
+
+    // Post video to Facebook page
+    const postUrl = `https://graph.facebook.com/v19.0/${pageId}/videos`;
+    const postBody = {
+      file_url: video.video_url,
+      description: video.description || video.title || 'Auto Post Video',
+      access_token: pageAccessToken,
+    };
+
+    console.log('Posting to Facebook:', postUrl);
+
+    const postResponse = await fetch(postUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(postBody),
+    });
+
+    const postData = await postResponse.json();
+
+    if (postData.error) {
+      console.error('Facebook posting error:', postData.error);
+      throw new Error(postData.error.message || 'Failed to post to Facebook');
+    }
+
+    console.log('Video posted to Facebook successfully:', postData.id);
+    return { success: true, postId: postData.id, error: null };
+  } catch (error: any) {
+    console.error('Error publishing to Facebook:', error);
+    return { success: false, postId: null, error: error?.message || 'Failed to publish to Facebook' };
   }
 }
