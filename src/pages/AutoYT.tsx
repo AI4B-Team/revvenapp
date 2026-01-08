@@ -556,12 +556,12 @@ const AutoYT = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-red-500/10 rounded-xl">
-                  <Youtube className="w-8 h-8 text-red-500" />
+                <div className="p-3 bg-primary/10 rounded-xl">
+                  <Send className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold">AutoYT</h1>
-                  <p className="text-muted-foreground">Generate and publish videos to YouTube with AI</p>
+                  <h1 className="text-2xl font-bold">Auto Post</h1>
+                  <p className="text-muted-foreground">Generate and publish videos to social platforms with AI</p>
                 </div>
               </div>
               
