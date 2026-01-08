@@ -438,13 +438,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [designModeState, setDesignModeState] = useState<DesignModeState>({});
   
   // Video mode specific state
-  const [videoModel, setVideoModel] = useState('veo3_fast');
+  const [videoModel, setVideoModel] = useState('auto');
   const [videoAspectRatio, setVideoAspectRatio] = useState('16:9');
   const [videoDuration, setVideoDuration] = useState('10');
   const [videoQuality, setVideoQuality] = useState('1080p');
   
   // Video model options
   const videoModels = [
+    { value: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
     { value: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation' },
     { value: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output' },
     { value: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard (no people photos)' },
@@ -5078,13 +5079,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
                               <button className={`p-2.5 rounded-lg transition flex items-center gap-1.5 ${
-                                videoModel !== 'veo3_fast' 
+                                videoModel !== 'auto' 
                                   ? 'bg-purple-100 text-purple-600' 
                                   : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                               }`}>
                                 <Box size={18} />
                                 <span className="text-xs font-medium">
-                                  {videoModel === 'veo3_fast' ? 'Veo 3.1' : 
+                                  {videoModel === 'auto' ? 'Auto' :
+                                   videoModel === 'veo3_fast' ? 'Veo 3.1' : 
                                    videoModel === 'veo3' ? 'Veo 3.1Q' : 
                                    videoModel === 'kling-2.6' ? 'Kling 2.6' :
                                    videoModel === 'sora-2-pro' ? 'Sora 2' :
@@ -5092,7 +5094,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                    videoModel === 'wan-2.2' ? 'Wan 2.2' :
                                    videoModel === 'seedance' ? 'Seedance' :
                                    videoModel === 'hailuo' ? 'Hailuo' :
-                                   videoModels.find(m => m.value === videoModel)?.label || 'VEO3'}
+                                   videoModels.find(m => m.value === videoModel)?.label || 'Auto'}
                                 </span>
                               </button>
                             </PopoverTrigger>
@@ -5106,22 +5108,22 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             {videoModels
                               .filter((model) => {
                                 if (selectedAnimateMode === 'Podcast') {
-                                  return ['veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
+                                  return ['auto', 'veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
                                 }
                                 if (selectedAnimateMode === 'Draw') {
-                                  return ['veo3', 'veo3_fast'].includes(model.value);
+                                  return ['auto', 'veo3', 'veo3_fast'].includes(model.value);
                                 }
                                 if (selectedAnimateMode === 'UGC') {
-                                  return ['veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
+                                  return ['auto', 'veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
                                 }
                                 if (selectedAnimateMode === 'Story') {
-                                  return model.value === 'sora-2-pro';
+                                  return ['auto', 'sora-2-pro'].includes(model.value);
                                 }
                                 if (selectedAnimateMode === 'Recast') {
-                                  return ['wan-2.5', 'wan-2.2'].includes(model.value);
+                                  return ['auto', 'wan-2.5', 'wan-2.2'].includes(model.value);
                                 }
                                 if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') {
-                                  return false;
+                                  return model.value === 'auto';
                                 }
                                 return true;
                               })
