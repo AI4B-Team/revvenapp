@@ -25,6 +25,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface UploadedFile {
   id: string;
@@ -354,9 +359,30 @@ const EbookCreator = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity relative">
-                  <button onClick={(e) => { e.stopPropagation(); navigate('/ebook-creator/new?tab=design', { state: { book } }); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors" title="Edit"><Edit className="w-5 h-5" /></button>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowCoverDesigner(true); }} className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg transition-colors" title="Design Cover"><Palette className="w-5 h-5" /></button>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors" title="Export"><Download className="w-5 h-5" /></button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button onClick={(e) => { e.stopPropagation(); navigate('/ebook-creator/new?tab=design', { state: { book } }); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors"><Edit className="w-5 h-5" /></button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-white text-gray-900 border border-gray-200 shadow-lg rounded-lg px-3 py-1.5 text-sm font-medium">
+                      Edit
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowCoverDesigner(true); }} className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg transition-colors"><Palette className="w-5 h-5" /></button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-white text-gray-900 border border-gray-200 shadow-lg rounded-lg px-3 py-1.5 text-sm font-medium">
+                      Design
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"><Download className="w-5 h-5" /></button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-white text-gray-900 border border-gray-200 shadow-lg rounded-lg px-3 py-1.5 text-sm font-medium">
+                      Export
+                    </TooltipContent>
+                  </Tooltip>
                   <div className="relative">
                     <button onClick={(e) => { e.stopPropagation(); setShowDropdown(showDropdown === book.id ? null : book.id); }} className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"><MoreVertical className="w-5 h-5" /></button>
                     {showDropdown === book.id && (
