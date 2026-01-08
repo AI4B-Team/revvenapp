@@ -189,12 +189,13 @@ const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps
   }
 
   const intentKey = intent;
-  const pages = suggestionsByIntent[intentKey] || suggestionsByIntent.Create;
-  const allSuggestions = pages.flat();
-  const totalPages = pages.length;
+  const allPages = suggestionsByIntent[intentKey] || suggestionsByIntent.Create;
+  const allSuggestions = allPages.flat(); // All 24 suggestions for shuffling
+  const displayPages = allPages.slice(0, 2); // Only show first 2 pages (12 suggestions)
+  const totalPages = displayPages.length;
   
   // Use shuffled suggestions if available, otherwise use paged suggestions
-  const currentSuggestions = shuffledSuggestions || pages[currentPage] || pages[0];
+  const currentSuggestions = shuffledSuggestions || displayPages[currentPage] || displayPages[0];
 
   const handlePrev = () => {
     setShuffledSuggestions(null); // Clear shuffled state when using arrows
