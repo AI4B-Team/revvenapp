@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Youtube, Plus, Video, Upload, Clock, Send, Trash2, Eye, Settings, Link2, CheckCircle, AlertCircle, Loader2, Image, Type, Calendar as CalendarIcon, RefreshCw, Pencil, X } from 'lucide-react';
+import { FaFacebook } from 'react-icons/fa';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +27,13 @@ interface YouTubeChannel {
   channel_id: string;
   channel_title: string;
   channel_thumbnail: string | null;
+}
+
+interface FacebookPage {
+  id: string;
+  page_id: string;
+  page_name: string;
+  page_picture: string | null;
 }
 
 interface AutoYTVideo {
@@ -40,6 +49,8 @@ interface AutoYTVideo {
   category: string | null;
   visibility: string;
   youtube_video_id: string | null;
+  facebook_post_id?: string | null;
+  post_to_facebook?: boolean;
   status: string;
   scheduled_at: string | null;
   published_at: string | null;
@@ -76,6 +87,12 @@ const AutoYT = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeTab, setActiveTab] = useState('create');
   
+  // Facebook state
+  const [facebookPages, setFacebookPages] = useState<FacebookPage[]>([]);
+  const [selectedFacebookPage, setSelectedFacebookPage] = useState<string | null>(null);
+  const [postToFacebook, setPostToFacebook] = useState(false);
+  const [isConnectingFacebook, setIsConnectingFacebook] = useState(false);
+  
   // Create video form state
   const [sourceType, setSourceType] = useState<'text' | 'image'>('text');
   const [videoModel, setVideoModel] = useState<'vo3' | 'vo3.1' | 'sora2'>('vo3');
@@ -100,6 +117,7 @@ const AutoYT = () => {
   useEffect(() => {
     loadChannels();
     loadVideos();
+    loadFacebookPages();
     
     // Subscribe to realtime updates for video status changes
     const channel = supabase
@@ -119,8 +137,21 @@ const AutoYT = () => {
       )
       .subscribe();
 
+    // Listen for Facebook OAuth messages
+    const handleMessage = async (event: MessageEvent) => {
+      if (event.data.type === 'FACEBOOK_AUTH_SUCCESS') {
+        await loadFacebookPages();
+        toast.success('Facebook Page connected successfully!');
+      } else if (event.data.type === 'FACEBOOK_AUTH_ERROR') {
+        toast.error(event.data.error || 'Failed to connect Facebook');
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener('message', handleMessage);
     };
   }, []);
 
@@ -154,6 +185,95 @@ const AutoYT = () => {
     }
     
     setVideos(data || []);
+  };
+
+  const loadFacebookPages = async () => {
+    const { data, error } = await supabase
+      .from('facebook_pages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error loading Facebook pages:', error);
+      return;
+    }
+    
+    setFacebookPages(data || []);
+    if (data && data.length > 0 && !selectedFacebookPage) {
+      setSelectedFacebookPage(data[0].page_id);
+    }
+  };
+
+  const connectFacebook = async () => {
+    setIsConnectingFacebook(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in first');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('facebook-oauth', {
+        body: { action: 'get_auth_url', userId: session.user.id }
+      });
+      
+      if (error) throw error;
+      
+      // Open OAuth popup
+      window.open(data.auth_url, 'facebook_oauth', 'width=600,height=700');
+    } catch (error: any) {
+      console.error('Error connecting Facebook:', error);
+      toast.error(error.message || 'Failed to connect Facebook');
+    } finally {
+      setIsConnectingFacebook(false);
+    }
+  };
+
+  const disconnectFacebookPage = async (pageId: string) => {
+    const { error } = await supabase
+      .from('facebook_pages')
+      .delete()
+      .eq('page_id', pageId);
+    
+    if (error) {
+      toast.error('Failed to disconnect page');
+      return;
+    }
+    
+    toast.success('Facebook Page disconnected');
+    loadFacebookPages();
+  };
+
+  const postToFacebookPage = async (videoId: string, message: string, videoUrl?: string) => {
+    if (!selectedFacebookPage) {
+      toast.error('Please select a Facebook Page');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('facebook-oauth', {
+        body: {
+          action: 'post_to_page',
+          pageId: selectedFacebookPage,
+          message,
+          videoUrl
+        }
+      });
+      
+      if (error) throw error;
+      
+      // Update video record with Facebook post ID
+      await supabase
+        .from('autoyt_videos')
+        .update({ facebook_post_id: data.post_id })
+        .eq('id', videoId);
+      
+      toast.success('Posted to Facebook!');
+      loadVideos();
+    } catch (error: any) {
+      console.error('Error posting to Facebook:', error);
+      toast.error(error.message || 'Failed to post to Facebook');
+    }
   };
 
   const connectYouTube = async () => {
@@ -647,6 +767,64 @@ const AutoYT = () => {
                             </Select>
                           </div>
                         </div>
+
+                        {/* Facebook Cross-Post */}
+                        <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <FaFacebook className="w-5 h-5 text-blue-500" />
+                              <div>
+                                <span className="font-medium">Also post to Facebook</span>
+                                <p className="text-sm text-muted-foreground">Share this video on your Facebook Page</p>
+                              </div>
+                            </div>
+                            <Switch 
+                              checked={postToFacebook} 
+                              onCheckedChange={setPostToFacebook}
+                              disabled={facebookPages.length === 0}
+                            />
+                          </div>
+                          
+                          {postToFacebook && facebookPages.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-blue-500/20">
+                              <Label className="text-sm">Select Page</Label>
+                              <Select value={selectedFacebookPage || ''} onValueChange={setSelectedFacebookPage}>
+                                <SelectTrigger className="mt-1">
+                                  <SelectValue placeholder="Select a page" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {facebookPages.map(page => (
+                                    <SelectItem key={page.id} value={page.page_id}>
+                                      <div className="flex items-center gap-2">
+                                        {page.page_picture && (
+                                          <img src={page.page_picture} alt="" className="w-5 h-5 rounded-full" />
+                                        )}
+                                        {page.page_name}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                          
+                          {facebookPages.length === 0 && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="mt-3"
+                              onClick={connectFacebook}
+                              disabled={isConnectingFacebook}
+                            >
+                              {isConnectingFacebook ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              ) : (
+                                <FaFacebook className="w-4 h-4 mr-2" />
+                              )}
+                              Connect Facebook Page
+                            </Button>
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -956,70 +1134,167 @@ const AutoYT = () => {
                 </TabsContent>
 
                 {/* Channels Tab */}
-                <TabsContent value="channels" className="mt-6">
+                <TabsContent value="channels" className="mt-6 space-y-6">
+                  {/* YouTube Channels */}
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle>Connected Channels</CardTitle>
+                      <div className="flex items-center gap-2">
+                        <Youtube className="w-5 h-5 text-red-500" />
+                        <CardTitle>YouTube Channels</CardTitle>
+                      </div>
                       <Button onClick={connectYouTube} disabled={isConnecting} size="sm">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Channel
                       </Button>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        {channels.map(channel => (
-                          <div 
-                            key={channel.id} 
-                            className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border"
-                          >
-                            <div className="flex items-center gap-4">
-                              {channel.channel_thumbnail ? (
-                                <img 
-                                  src={channel.channel_thumbnail} 
-                                  alt={channel.channel_title}
-                                  className="w-12 h-12 rounded-full"
-                                />
-                              ) : (
-                                <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center">
-                                  <Youtube className="w-6 h-6 text-red-500" />
+                      {channels.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-4">No YouTube channels connected</p>
+                      ) : (
+                        <div className="space-y-4">
+                          {channels.map(channel => (
+                            <div 
+                              key={channel.id} 
+                              className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border"
+                            >
+                              <div className="flex items-center gap-4">
+                                {channel.channel_thumbnail ? (
+                                  <img 
+                                    src={channel.channel_thumbnail} 
+                                    alt={channel.channel_title}
+                                    className="w-12 h-12 rounded-full"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center">
+                                    <Youtube className="w-6 h-6 text-red-500" />
+                                  </div>
+                                )}
+                                <div>
+                                  <h4 className="font-medium">{channel.channel_title}</h4>
+                                  <p className="text-sm text-muted-foreground">{channel.channel_id}</p>
                                 </div>
-                              )}
-                              <div>
-                                <h4 className="font-medium">{channel.channel_title}</h4>
-                                <p className="text-sm text-muted-foreground">{channel.channel_id}</p>
                               </div>
-                            </div>
-                            
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  Disconnect
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Disconnect Channel?</DialogTitle>
-                                </DialogHeader>
-                                <p className="text-muted-foreground">
-                                  Are you sure you want to disconnect "{channel.channel_title}"? 
-                                  You won't be able to publish videos to this channel until you reconnect.
-                                </p>
-                                <DialogFooter>
-                                  <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
-                                  </DialogClose>
-                                  <Button 
-                                    variant="destructive"
-                                    onClick={() => disconnectChannel(channel.id)}
-                                  >
+                              
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm">
                                     Disconnect
                                   </Button>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        ))}
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Disconnect Channel?</DialogTitle>
+                                  </DialogHeader>
+                                  <p className="text-muted-foreground">
+                                    Are you sure you want to disconnect "{channel.channel_title}"? 
+                                    You won't be able to publish videos to this channel until you reconnect.
+                                  </p>
+                                  <DialogFooter>
+                                    <DialogClose asChild>
+                                      <Button variant="outline">Cancel</Button>
+                                    </DialogClose>
+                                    <Button 
+                                      variant="destructive"
+                                      onClick={() => disconnectChannel(channel.id)}
+                                    >
+                                      Disconnect
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Facebook Pages */}
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FaFacebook className="w-5 h-5 text-blue-500" />
+                        <CardTitle>Facebook Pages</CardTitle>
                       </div>
+                      <Button onClick={connectFacebook} disabled={isConnectingFacebook} size="sm">
+                        {isConnectingFacebook ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Plus className="w-4 h-4 mr-2" />
+                        )}
+                        Add Page
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                      {facebookPages.length === 0 ? (
+                        <div className="text-center py-8">
+                          <FaFacebook className="w-12 h-12 mx-auto mb-4 text-blue-500/50" />
+                          <p className="text-muted-foreground mb-4">No Facebook pages connected</p>
+                          <Button onClick={connectFacebook} disabled={isConnectingFacebook}>
+                            {isConnectingFacebook ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <FaFacebook className="w-4 h-4 mr-2" />
+                            )}
+                            Connect Facebook Page
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {facebookPages.map(page => (
+                            <div 
+                              key={page.id} 
+                              className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border"
+                            >
+                              <div className="flex items-center gap-4">
+                                {page.page_picture ? (
+                                  <img 
+                                    src={page.page_picture} 
+                                    alt={page.page_name}
+                                    className="w-12 h-12 rounded-full"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center">
+                                    <FaFacebook className="w-6 h-6 text-blue-500" />
+                                  </div>
+                                )}
+                                <div>
+                                  <h4 className="font-medium">{page.page_name}</h4>
+                                  <p className="text-sm text-muted-foreground">Page ID: {page.page_id}</p>
+                                </div>
+                              </div>
+                              
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    Disconnect
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Disconnect Page?</DialogTitle>
+                                  </DialogHeader>
+                                  <p className="text-muted-foreground">
+                                    Are you sure you want to disconnect "{page.page_name}"? 
+                                    You won't be able to post to this page until you reconnect.
+                                  </p>
+                                  <DialogFooter>
+                                    <DialogClose asChild>
+                                      <Button variant="outline">Cancel</Button>
+                                    </DialogClose>
+                                    <Button 
+                                      variant="destructive"
+                                      onClick={() => disconnectFacebookPage(page.page_id)}
+                                    >
+                                      Disconnect
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>

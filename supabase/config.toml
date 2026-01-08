@@ -143,3 +143,6 @@ verify_jwt = true
 
 [functions.autoyt-publish]
 verify_jwt = true
+
+[functions.facebook-oauth]
+verify_jwt = false
