@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useEbooks, Ebook } from '@/contexts/EbookContext';
 import { 
   Book, Plus, Upload, Link, Mic, Search, Settings, Download, Edit, Trash2, 
   Eye, Clock, FileText, Layers, X, Check, ChevronDown, Image, Palette, 
@@ -56,20 +57,7 @@ const ProgressBar = ({ progress, color = '#10B981' }: { progress: number; color?
   </div>
 );
 
-interface Ebook {
-  id: number;
-  title: string;
-  description: string;
-  chapters: number;
-  words: number;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  coverColor: string;
-  coverImage?: string;
-  tags: string[];
-  progress: number;
-}
+// Ebook interface is imported from context
 
 // Platform icons data matching TranscribeApp
 const PLATFORMS = [
@@ -107,13 +95,7 @@ const EbookCreator = () => {
   const [isRecording, setIsRecording] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [ebooks, setEbooks] = useState<Ebook[]>([
-    { id: 1, title: 'The Ultimate Guide to AI Marketing', description: 'A comprehensive guide to leveraging AI in your marketing strategy', chapters: 12, words: 45000, status: 'published', createdAt: '2025-12-15', updatedAt: '2025-12-17', coverColor: '#10B981', coverImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=200&h=300&fit=crop', tags: ['Marketing', 'AI', 'Business'], progress: 100 },
-    { id: 2, title: 'Passive Income Mastery', description: 'Build multiple streams of passive income with proven strategies', chapters: 8, words: 32000, status: 'draft', createdAt: '2025-12-10', updatedAt: '2025-12-18', coverColor: '#6366F1', coverImage: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=200&h=300&fit=crop', tags: ['Finance', 'Business'], progress: 75 },
-    { id: 3, title: 'Digital Product Blueprint', description: 'Create and sell digital products that generate revenue 24/7', chapters: 10, words: 28000, status: 'generating', createdAt: '2025-12-18', updatedAt: '2025-12-19', coverColor: '#F59E0B', coverImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=300&fit=crop', tags: ['Ecommerce', 'Digital Products'], progress: 45 },
-    { id: 4, title: 'Social Media Automation Secrets', description: 'Automate your social media presence and grow your audience', chapters: 6, words: 18000, status: 'draft', createdAt: '2025-12-05', updatedAt: '2025-12-16', coverColor: '#EC4899', coverImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=300&fit=crop', tags: ['Social Media', 'Automation'], progress: 60 },
-    { id: 5, title: 'Content Creation Playbook', description: 'Master content creation across all platforms', chapters: 15, words: 52000, status: 'published', createdAt: '2025-11-20', updatedAt: '2025-12-01', coverColor: '#8B5CF6', coverImage: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=200&h=300&fit=crop', tags: ['Content', 'Marketing'], progress: 100 }
-  ]);
+  const { ebooks, deleteEbook: contextDeleteEbook, addEbook } = useEbooks();
 
   const filteredEbooks = ebooks.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.description.toLowerCase().includes(searchQuery.toLowerCase()) || book.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -121,15 +103,15 @@ const EbookCreator = () => {
     return matchesSearch && matchesFilter;
   });
 
-  const deleteEbook = (id: number) => { 
-    setEbooks(prev => prev.filter(book => book.id !== id)); 
+  const handleDeleteEbook = (id: number) => { 
+    contextDeleteEbook(id); 
     setShowDropdown(null); 
     toast.success('eBook deleted');
   };
   
   const duplicateEbook = (book: Ebook) => {
     const newBook = { ...book, id: Date.now(), title: `${book.title} (Copy)`, status: 'draft', progress: 0, createdAt: new Date().toISOString().split('T')[0], updatedAt: new Date().toISOString().split('T')[0] };
-    setEbooks(prev => [newBook, ...prev]); 
+    addEbook(newBook); 
     setShowDropdown(null);
     toast.success('eBook duplicated');
   };
@@ -380,7 +362,7 @@ const EbookCreator = () => {
                     {showDropdown === book.id && (
                       <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg py-1 z-10">
                         <button onClick={(e) => { e.stopPropagation(); duplicateEbook(book); }} className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center gap-2"><Copy className="w-4 h-4" />Duplicate</button>
-                        <button onClick={(e) => { e.stopPropagation(); deleteEbook(book.id); }} className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"><Trash2 className="w-4 h-4" />Delete</button>
+                        <button onClick={(e) => { e.stopPropagation(); handleDeleteEbook(book.id); }} className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"><Trash2 className="w-4 h-4" />Delete</button>
                       </div>
                     )}
                   </div>
