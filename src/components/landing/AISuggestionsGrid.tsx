@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Video, Image, FileText, Sparkles, Music, Mic, Search, BarChart3, Lightbulb, Calendar, Zap, Target, TrendingUp, Users, Mail, Bot } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Video, Image, FileText, Sparkles, Music, Mic, Search, BarChart3, Lightbulb, Calendar, Zap, Target, TrendingUp, Users, Mail, Bot, RefreshCw } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { IconTooltip } from '@/components/ui/IconTooltip';
 
 export interface Suggestion {
   id: string;
@@ -121,30 +122,47 @@ const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps
     setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
   };
 
+  const handleNewIdea = () => {
+    // Randomly select a new page
+    const randomPage = Math.floor(Math.random() * totalPages);
+    setCurrentPage(randomPage);
+  };
+
   return (
     <div className="w-full mx-auto mt-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-slate-700">
           Not Sure Where To Start? Try One Of These...
         </h3>
-        {totalPages > 1 && (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <IconTooltip label="More Ideas" side="top">
             <button
-              onClick={handlePrev}
+              onClick={handleNewIdea}
               className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
-              aria-label="Previous suggestions"
+              aria-label="New idea"
             >
-              <ChevronLeft size={16} className="text-slate-600" />
+              <RefreshCw size={16} className="text-slate-600" />
             </button>
-            <button
-              onClick={handleNext}
-              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
-              aria-label="Next suggestions"
-            >
-              <ChevronRight size={16} className="text-slate-600" />
-            </button>
-          </div>
-        )}
+          </IconTooltip>
+          {totalPages > 1 && (
+            <>
+              <button
+                onClick={handlePrev}
+                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+                aria-label="Previous suggestions"
+              >
+                <ChevronLeft size={16} className="text-slate-600" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+                aria-label="Next suggestions"
+              >
+                <ChevronRight size={16} className="text-slate-600" />
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
