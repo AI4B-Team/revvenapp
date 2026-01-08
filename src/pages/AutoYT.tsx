@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Youtube, Plus, Video, Upload, Clock, Send, Trash2, Eye, Settings, Link2, CheckCircle, AlertCircle, Loader2, Image, Type, Calendar, RefreshCw, Pencil, X } from 'lucide-react';
+import { format } from 'date-fns';
+import { Youtube, Plus, Video, Upload, Clock, Send, Trash2, Eye, Settings, Link2, CheckCircle, AlertCircle, Loader2, Image, Type, Calendar as CalendarIcon, RefreshCw, Pencil, X } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -80,7 +84,9 @@ const AutoYT = () => {
   const [category, setCategory] = useState('22');
   const [visibility, setVisibility] = useState('private');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [publishMode, setPublishMode] = useState<'instant' | 'queue'>('instant');
+  const [publishMode, setPublishMode] = useState<'instant' | 'queue' | 'schedule'>('instant');
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [scheduledTime, setScheduledTime] = useState('12:00');
   
   // Generated metadata state (shown after video generation)
   const [generatedVideoId, setGeneratedVideoId] = useState<string | null>(null);
@@ -210,6 +216,11 @@ const AutoYT = () => {
       toast.error('Please connect a YouTube channel first');
       return;
     }
+
+    if (publishMode === 'schedule' && !scheduledDate) {
+      toast.error('Please select a date and time for scheduling');
+      return;
+    }
     
     setIsGenerating(true);
     
@@ -218,6 +229,15 @@ const AutoYT = () => {
       if (!session) {
         toast.error('Please sign in');
         return;
+      }
+
+      // Calculate scheduled_at datetime if scheduling
+      let scheduledAt: string | null = null;
+      if (publishMode === 'schedule' && scheduledDate) {
+        const [hours, minutes] = scheduledTime.split(':').map(Number);
+        const scheduledDateTime = new Date(scheduledDate);
+        scheduledDateTime.setHours(hours, minutes, 0, 0);
+        scheduledAt = scheduledDateTime.toISOString();
       }
 
       // Create video record (title, description, tags will be AI-generated)
@@ -232,7 +252,8 @@ const AutoYT = () => {
           title: prompt.slice(0, 100), // Placeholder, will be replaced by AI
           category,
           visibility,
-          status: 'generating'
+          status: publishMode === 'schedule' ? 'scheduled' : 'generating',
+          scheduled_at: scheduledAt
         })
         .select()
         .single();
@@ -372,7 +393,8 @@ const AutoYT = () => {
       pending: { variant: 'secondary', icon: <Clock className="w-3 h-3" /> },
       generating: { variant: 'outline', icon: <Loader2 className="w-3 h-3 animate-spin" /> },
       ready: { variant: 'default', icon: <CheckCircle className="w-3 h-3" /> },
-      queued: { variant: 'secondary', icon: <Calendar className="w-3 h-3" /> },
+      queued: { variant: 'secondary', icon: <Clock className="w-3 h-3" /> },
+      scheduled: { variant: 'secondary', icon: <CalendarIcon className="w-3 h-3" /> },
       publishing: { variant: 'outline', icon: <Loader2 className="w-3 h-3 animate-spin" /> },
       published: { variant: 'default', icon: <Youtube className="w-3 h-3" /> },
       failed: { variant: 'destructive', icon: <AlertCircle className="w-3 h-3" /> }
@@ -632,7 +654,7 @@ const AutoYT = () => {
                   {/* Publish Options */}
                   {!showMetadataEditor && (
                     <Card className="mt-6">
-                      <CardContent className="pt-6">
+                      <CardContent className="pt-6 space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex gap-2">
                             <Button
@@ -649,11 +671,18 @@ const AutoYT = () => {
                               <Clock className="w-4 h-4 mr-2" />
                               Add to Queue
                             </Button>
+                            <Button
+                              variant={publishMode === 'schedule' ? 'default' : 'outline'}
+                              onClick={() => setPublishMode('schedule')}
+                            >
+                              <CalendarIcon className="w-4 h-4 mr-2" />
+                              Schedule
+                            </Button>
                           </div>
 
                           <Button 
                             onClick={generateAndPublish} 
-                            disabled={isGenerating || !prompt.trim()}
+                            disabled={isGenerating || !prompt.trim() || (publishMode === 'schedule' && !scheduledDate)}
                             size="lg"
                           >
                             {isGenerating ? (
@@ -664,6 +693,64 @@ const AutoYT = () => {
                             Generate Video
                           </Button>
                         </div>
+
+                        {/* Schedule Date & Time Picker */}
+                        {publishMode === 'schedule' && (
+                          <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
+                            <div className="space-y-2">
+                              <Label>Select Date</Label>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    className={cn(
+                                      "w-[240px] justify-start text-left font-normal",
+                                      !scheduledDate && "text-muted-foreground"
+                                    )}
+                                  >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {scheduledDate ? format(scheduledDate, "PPP") : <span>Pick a date</span>}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                  <Calendar
+                                    mode="single"
+                                    selected={scheduledDate}
+                                    onSelect={setScheduledDate}
+                                    disabled={(date) => date < new Date()}
+                                    initialFocus
+                                    className={cn("p-3 pointer-events-auto")}
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Select Time</Label>
+                              <Select value={scheduledTime} onValueChange={setScheduledTime}>
+                                <SelectTrigger className="w-[140px]">
+                                  <SelectValue placeholder="Select time" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from({ length: 24 }, (_, hour) => {
+                                    const hourStr = hour.toString().padStart(2, '0');
+                                    return ['00', '30'].map(min => (
+                                      <SelectItem key={`${hourStr}:${min}`} value={`${hourStr}:${min}`}>
+                                        {`${hourStr}:${min}`}
+                                      </SelectItem>
+                                    ));
+                                  }).flat()}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {scheduledDate && (
+                              <div className="ml-auto text-sm text-muted-foreground">
+                                Scheduled for: {format(scheduledDate, "MMM d, yyyy")} at {scheduledTime}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   )}
