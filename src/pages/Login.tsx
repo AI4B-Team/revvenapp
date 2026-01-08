@@ -36,7 +36,7 @@ export default function LoginPage() {
     const handleAuthRedirect = async (session: Session) => {
       const isValidated = await checkInviteCodeValidation(session.user.id);
       if (isValidated) {
-        navigate('/onboarding-dashboard');
+        navigate('/dashboard');
       } else {
         navigate('/invite-verification');
       }
@@ -164,7 +164,7 @@ export default function LoginPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/onboarding-dashboard`,
+        emailRedirectTo: `${window.location.origin}/dashboard`,
         data: {
           full_name: fullName,
           invite_code: inviteCode,
@@ -242,7 +242,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/invite-verification`,
+        redirectTo: `${window.location.origin}/dashboard`,
       }
     });
 
