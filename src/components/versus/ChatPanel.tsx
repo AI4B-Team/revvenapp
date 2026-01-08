@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Maximize2, Link2, Unlink, Copy, Check, Loader2, Star, Plus, MessageSquare, ImageOff, FileX, AlertCircle } from 'lucide-react';
+import { Maximize2, Link2, Unlink, Copy, Check, Loader2, Star, Plus, MessageSquare, ImageOff, FileX, AlertCircle, Eye, Wrench, Globe } from 'lucide-react';
 import { PanelState, Message, LayoutMode, Attachment } from './types';
 import { getModelById, getProviderById } from './data';
 import ModelSelector from './ModelSelector';
-import grokLogo from '@/assets/model-logos/grok.png';
 
 // Provider logo/icon component
 const ProviderIcon: React.FC<{ provider: ReturnType<typeof getProviderById>; size?: 'sm' | 'md' | 'lg' }> = ({ provider, size = 'md' }) => {
@@ -133,18 +132,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
           
           {/* Capability badges */}
           {model?.supportsVision && (
-            <span className="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-400 rounded" title="Supports vision">
-              👁
-            </span>
-          )}
-          {model?.capabilities.includes('web') && (
-            <span className="px-1.5 py-0.5 text-[10px] bg-blue-500/20 text-blue-400 rounded" title="Web search">
-              🌐
+            <span className="p-1.5 bg-muted/80 rounded-lg" title="Supports vision">
+              <Eye className="w-4 h-4 text-muted-foreground" />
             </span>
           )}
           {model?.capabilities.includes('tools') && (
-            <span className="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded" title="Tool use">
-              🔧
+            <span className="p-1.5 bg-muted/80 rounded-lg" title="Tool use">
+              <Wrench className="w-4 h-4 text-muted-foreground" />
             </span>
           )}
           
