@@ -84,7 +84,7 @@ const AutoYT = () => {
   const [category, setCategory] = useState('22');
   const [visibility, setVisibility] = useState('private');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [publishMode, setPublishMode] = useState<'instant' | 'queue' | 'schedule'>('instant');
+  const [publishMode, setPublishMode] = useState<'instant' | 'schedule'>('instant');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
   const [scheduledTime, setScheduledTime] = useState('12:00');
   
@@ -663,13 +663,6 @@ const AutoYT = () => {
                             >
                               <Send className="w-4 h-4 mr-2" />
                               Publish Instantly
-                            </Button>
-                            <Button
-                              variant={publishMode === 'queue' ? 'default' : 'outline'}
-                              onClick={() => setPublishMode('queue')}
-                            >
-                              <Clock className="w-4 h-4 mr-2" />
-                              Add to Queue
                             </Button>
                             <Button
                               variant={publishMode === 'schedule' ? 'default' : 'outline'}
