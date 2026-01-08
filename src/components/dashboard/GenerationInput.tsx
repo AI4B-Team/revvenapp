@@ -5484,12 +5484,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </Popover>
                   )}
 
-                  {/* Separator - always visible */}
-                  <div className="w-px h-6 bg-border mx-1" />
-
                   {/* Audio controls - only show when type is selected */}
                   {selectedAudioMode && (
                     <>
+                  {/* Separator - only visible when controls are shown */}
+                  <div className="w-px h-6 bg-border mx-1" />
                   {/* Transcribe Mode Controls */}
                   {selectedAudioMode === 'Transcribe' && (
                     <>
