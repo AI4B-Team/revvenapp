@@ -211,6 +211,20 @@ const Index = () => {
       return;
     }
 
+    // Generate AI thumbnail in the background
+    supabase.functions.invoke('generate-project-thumbnail', {
+      body: { projectId: data.id, projectName }
+    }).then(({ data: thumbData, error: thumbError }) => {
+      if (thumbError) {
+        console.error('Thumbnail generation error:', thumbError);
+      } else if (thumbData?.thumbnailUrl) {
+        // Update local state with new thumbnail
+        setProjects(prev => prev.map(p => 
+          p.id === data.id ? { ...p, thumbnail_url: thumbData.thumbnailUrl } : p
+        ));
+      }
+    });
+
     toast.success('Project created');
     setCreateDialogOpen(false);
     setNewProjectName('');
