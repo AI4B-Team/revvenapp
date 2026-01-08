@@ -109,11 +109,14 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [shuffledSuggestions, setShuffledSuggestions] = useState<Suggestion[] | null>(null);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [shuffleKey, setShuffleKey] = useState(0);
 
   // Reset page and shuffled suggestions when intent changes
   useEffect(() => {
     setCurrentPage(0);
     setShuffledSuggestions(null);
+    setShuffleKey(0);
   }, [intent]);
 
   // Don't render if no intent is selected
@@ -131,18 +134,29 @@ const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps
 
   const handlePrev = () => {
     setShuffledSuggestions(null); // Clear shuffled state when using arrows
+    setShuffleKey(0);
     setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
   };
 
   const handleNext = () => {
     setShuffledSuggestions(null); // Clear shuffled state when using arrows
+    setShuffleKey(0);
     setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
   };
 
   const handleNewIdea = () => {
+    // Start spin animation
+    setIsSpinning(true);
+    
     // Shuffle all suggestions for this intent and take first 6
     const shuffled = shuffleArray(allSuggestions).slice(0, 6);
     setShuffledSuggestions(shuffled);
+    setShuffleKey(prev => prev + 1); // Force re-render with new key
+    
+    // Stop spin animation after 500ms
+    setTimeout(() => {
+      setIsSpinning(false);
+    }, 500);
   };
 
   return (
@@ -158,7 +172,10 @@ const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps
               className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
               aria-label="New idea"
             >
-              <RefreshCw size={16} className="text-slate-600" />
+              <RefreshCw 
+                size={16} 
+                className={`text-slate-600 transition-transform duration-500 ${isSpinning ? 'animate-spin' : ''}`} 
+              />
             </button>
           </IconTooltip>
           {totalPages > 1 && (
@@ -187,7 +204,7 @@ const AISuggestionsGrid = ({ intent, onSuggestionClick }: AISuggestionsGridProps
           const IconComponent = suggestion.icon;
           return (
             <button
-              key={suggestion.id}
+              key={`${suggestion.id}-${shuffleKey}`}
               onClick={() => onSuggestionClick(suggestion)}
               className="flex items-center gap-3 px-5 py-3.5 bg-white border border-gray-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50 transition-all text-left shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
             >
