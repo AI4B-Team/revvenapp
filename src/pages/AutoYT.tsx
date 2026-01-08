@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Youtube, Plus, Video, Upload, Clock, Send, Trash2, Eye, Settings, Link2, CheckCircle, AlertCircle, Loader2, Image, Type, Calendar as CalendarIcon, RefreshCw, Pencil, X } from 'lucide-react';
+import { Youtube, Plus, Video, Upload, Clock, Send, Trash2, Eye, Settings, Link2, CheckCircle, AlertCircle, Loader2, Image, Type, Calendar as CalendarIcon, RefreshCw, Pencil, X, Check } from 'lucide-react';
 import { FaFacebook } from 'react-icons/fa';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { YouTubeIcon, FacebookIcon } from '@/components/dashboard/SocialIcons';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -747,65 +749,117 @@ const AutoYT = () => {
                         <CardTitle className="text-lg">Select Platforms</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {/* YouTube Platform */}
-                        <div className={cn(
-                          "p-4 border rounded-lg transition-colors",
-                          channels.length === 0 
-                            ? "bg-muted/50 border-muted" 
-                            : postToYouTube 
-                              ? "bg-red-500/10 border-red-500/50" 
-                              : "border-border hover:border-red-500/30"
-                        )}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                "p-2 rounded-full",
-                                channels.length === 0 ? "bg-muted" : "bg-red-500/20"
-                              )}>
-                                <Youtube className={cn(
-                                  "w-5 h-5",
-                                  channels.length === 0 ? "text-muted-foreground" : "text-red-500"
-                                )} />
-                              </div>
-                              <div>
-                                <span className={cn(
-                                  "font-medium",
-                                  channels.length === 0 && "text-muted-foreground"
-                                )}>YouTube</span>
-                                {channels.length === 0 ? (
-                                  <p className="text-sm text-muted-foreground">Not connected</p>
-                                ) : (
-                                  <p className="text-sm text-muted-foreground">
-                                    {channels.length} channel{channels.length > 1 ? 's' : ''} connected
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                            {channels.length > 0 ? (
-                              <Switch 
-                                checked={postToYouTube} 
-                                onCheckedChange={setPostToYouTube}
-                              />
-                            ) : (
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={connectYouTube}
+                        <p className="text-sm text-muted-foreground text-center mb-4">
+                          Choose platforms to post your video. Connect platforms first to enable posting.
+                        </p>
+                        
+                        <div className="flex items-center justify-center gap-4 flex-wrap">
+                          {/* YouTube Platform */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => {
+                                  if (channels.length > 0) {
+                                    setPostToYouTube(!postToYouTube);
+                                  } else {
+                                    connectYouTube();
+                                  }
+                                }}
                                 disabled={isConnecting}
-                              >
-                                {isConnecting ? (
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                ) : (
-                                  <Link2 className="w-4 h-4 mr-2" />
+                                className={cn(
+                                  "relative p-4 rounded-2xl transition-all border-2 flex-shrink-0",
+                                  channels.length === 0
+                                    ? "bg-muted/50 border-dashed border-muted-foreground/30 hover:border-red-500/50 cursor-pointer"
+                                    : postToYouTube
+                                      ? "bg-card shadow-lg border-emerald-500"
+                                      : "bg-muted/50 hover:bg-muted border-transparent hover:border-emerald-500"
                                 )}
-                                Connect
-                              </Button>
-                            )}
-                          </div>
-                          
+                              >
+                                <YouTubeIcon className="w-10 h-10" />
+                                {postToYouTube && channels.length > 0 && (
+                                  <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                                    <Check className="w-4 h-4 text-white" />
+                                  </div>
+                                )}
+                                {channels.length === 0 && (
+                                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-muted text-muted-foreground text-[10px] rounded-full whitespace-nowrap">
+                                    {isConnecting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Connect'}
+                                  </div>
+                                )}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                {channels.length === 0 
+                                  ? 'Click to connect YouTube' 
+                                  : postToYouTube 
+                                    ? 'YouTube selected - click to deselect' 
+                                    : 'Click to select YouTube'}
+                              </p>
+                              {channels.length > 0 && (
+                                <p className="text-xs text-muted-foreground">
+                                  {channels.length} channel{channels.length > 1 ? 's' : ''} connected
+                                </p>
+                              )}
+                            </TooltipContent>
+                          </Tooltip>
+
+                          {/* Facebook Platform */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => {
+                                  if (facebookPages.length > 0) {
+                                    setPostToFacebook(!postToFacebook);
+                                  } else {
+                                    connectFacebook();
+                                  }
+                                }}
+                                disabled={isConnectingFacebook}
+                                className={cn(
+                                  "relative p-4 rounded-2xl transition-all border-2 flex-shrink-0",
+                                  facebookPages.length === 0
+                                    ? "bg-muted/50 border-dashed border-muted-foreground/30 hover:border-blue-500/50 cursor-pointer"
+                                    : postToFacebook
+                                      ? "bg-card shadow-lg border-emerald-500"
+                                      : "bg-muted/50 hover:bg-muted border-transparent hover:border-emerald-500"
+                                )}
+                              >
+                                <FacebookIcon className="w-10 h-10" />
+                                {postToFacebook && facebookPages.length > 0 && (
+                                  <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                                    <Check className="w-4 h-4 text-white" />
+                                  </div>
+                                )}
+                                {facebookPages.length === 0 && (
+                                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-muted text-muted-foreground text-[10px] rounded-full whitespace-nowrap">
+                                    {isConnectingFacebook ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Connect'}
+                                  </div>
+                                )}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                {facebookPages.length === 0 
+                                  ? 'Click to connect Facebook' 
+                                  : postToFacebook 
+                                    ? 'Facebook selected - click to deselect' 
+                                    : 'Click to select Facebook'}
+                              </p>
+                              {facebookPages.length > 0 && (
+                                <p className="text-xs text-muted-foreground">
+                                  {facebookPages.length} page{facebookPages.length > 1 ? 's' : ''} connected
+                                </p>
+                              )}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+
+                        {/* Channel/Page Selection (when platform is selected) */}
+                        <div className="space-y-3 mt-4">
                           {postToYouTube && channels.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-red-500/20">
-                              <Label className="text-sm">Select Channel</Label>
+                            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                              <Label className="text-sm text-red-600 dark:text-red-400">YouTube Channel</Label>
                               <Select value={selectedChannel || ''} onValueChange={setSelectedChannel}>
                                 <SelectTrigger className="mt-1">
                                   <SelectValue placeholder="Select a channel" />
@@ -825,67 +879,10 @@ const AutoYT = () => {
                               </Select>
                             </div>
                           )}
-                        </div>
-
-                        {/* Facebook Platform */}
-                        <div className={cn(
-                          "p-4 border rounded-lg transition-colors",
-                          facebookPages.length === 0 
-                            ? "bg-muted/50 border-muted" 
-                            : postToFacebook 
-                              ? "bg-blue-500/10 border-blue-500/50" 
-                              : "border-border hover:border-blue-500/30"
-                        )}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                "p-2 rounded-full",
-                                facebookPages.length === 0 ? "bg-muted" : "bg-blue-500/20"
-                              )}>
-                                <FaFacebook className={cn(
-                                  "w-5 h-5",
-                                  facebookPages.length === 0 ? "text-muted-foreground" : "text-blue-500"
-                                )} />
-                              </div>
-                              <div>
-                                <span className={cn(
-                                  "font-medium",
-                                  facebookPages.length === 0 && "text-muted-foreground"
-                                )}>Facebook</span>
-                                {facebookPages.length === 0 ? (
-                                  <p className="text-sm text-muted-foreground">Not connected</p>
-                                ) : (
-                                  <p className="text-sm text-muted-foreground">
-                                    {facebookPages.length} page{facebookPages.length > 1 ? 's' : ''} connected
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                            {facebookPages.length > 0 ? (
-                              <Switch 
-                                checked={postToFacebook} 
-                                onCheckedChange={setPostToFacebook}
-                              />
-                            ) : (
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={connectFacebook}
-                                disabled={isConnectingFacebook}
-                              >
-                                {isConnectingFacebook ? (
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                ) : (
-                                  <Link2 className="w-4 h-4 mr-2" />
-                                )}
-                                Connect
-                              </Button>
-                            )}
-                          </div>
                           
                           {postToFacebook && facebookPages.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-blue-500/20">
-                              <Label className="text-sm">Select Page</Label>
+                            <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                              <Label className="text-sm text-blue-600 dark:text-blue-400">Facebook Page</Label>
                               <Select value={selectedFacebookPage || ''} onValueChange={setSelectedFacebookPage}>
                                 <SelectTrigger className="mt-1">
                                   <SelectValue placeholder="Select a page" />
@@ -907,9 +904,16 @@ const AutoYT = () => {
                           )}
                         </div>
 
+                        {/* Platform selection summary */}
+                        {(postToYouTube || postToFacebook) && (
+                          <p className="text-sm text-muted-foreground text-center mt-3">
+                            {[postToYouTube && 'YouTube', postToFacebook && 'Facebook'].filter(Boolean).join(' & ')} selected
+                          </p>
+                        )}
+
                         {/* No platform selected warning */}
                         {!postToYouTube && !postToFacebook && (channels.length > 0 || facebookPages.length > 0) && (
-                          <p className="text-sm text-amber-500 flex items-center gap-2">
+                          <p className="text-sm text-amber-500 flex items-center justify-center gap-2 mt-3">
                             <AlertCircle className="w-4 h-4" />
                             Select at least one platform to post your video
                           </p>
