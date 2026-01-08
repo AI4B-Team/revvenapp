@@ -410,7 +410,8 @@ const AutoYT = () => {
         .from('autoyt_videos')
         .insert({
           user_id: session.user.id,
-          channel_id: selectedChannel,
+          channel_id: postToYouTube ? selectedChannel : null,
+          facebook_page_id: postToFacebook ? selectedFacebookPage : null,
           prompt,
           source_type: sourceType,
           source_image_url: sourceType === 'image' ? sourceImageUrl : null,
@@ -884,7 +885,7 @@ const AutoYT = () => {
                                 </SelectTrigger>
                                 <SelectContent>
                                   {facebookPages.map(page => (
-                                    <SelectItem key={page.id} value={page.page_id}>
+                                    <SelectItem key={page.id} value={page.id}>
                                       <div className="flex items-center gap-2">
                                         {page.page_picture && (
                                           <img src={page.page_picture} alt="" className="w-5 h-5 rounded-full" />
