@@ -66,6 +66,7 @@ interface Ebook {
   createdAt: string;
   updatedAt: string;
   coverColor: string;
+  coverImage?: string;
   tags: string[];
   progress: number;
 }
@@ -107,11 +108,11 @@ const EbookCreator = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [ebooks, setEbooks] = useState<Ebook[]>([
-    { id: 1, title: 'The Ultimate Guide to AI Marketing', description: 'A comprehensive guide to leveraging AI in your marketing strategy', chapters: 12, words: 45000, status: 'published', createdAt: '2025-12-15', updatedAt: '2025-12-17', coverColor: '#10B981', tags: ['Marketing', 'AI', 'Business'], progress: 100 },
-    { id: 2, title: 'Passive Income Mastery', description: 'Build multiple streams of passive income with proven strategies', chapters: 8, words: 32000, status: 'draft', createdAt: '2025-12-10', updatedAt: '2025-12-18', coverColor: '#6366F1', tags: ['Finance', 'Business'], progress: 75 },
-    { id: 3, title: 'Digital Product Blueprint', description: 'Create and sell digital products that generate revenue 24/7', chapters: 10, words: 28000, status: 'generating', createdAt: '2025-12-18', updatedAt: '2025-12-19', coverColor: '#F59E0B', tags: ['Ecommerce', 'Digital Products'], progress: 45 },
-    { id: 4, title: 'Social Media Automation Secrets', description: 'Automate your social media presence and grow your audience', chapters: 6, words: 18000, status: 'draft', createdAt: '2025-12-05', updatedAt: '2025-12-16', coverColor: '#EC4899', tags: ['Social Media', 'Automation'], progress: 60 },
-    { id: 5, title: 'Content Creation Playbook', description: 'Master content creation across all platforms', chapters: 15, words: 52000, status: 'published', createdAt: '2025-11-20', updatedAt: '2025-12-01', coverColor: '#8B5CF6', tags: ['Content', 'Marketing'], progress: 100 }
+    { id: 1, title: 'The Ultimate Guide to AI Marketing', description: 'A comprehensive guide to leveraging AI in your marketing strategy', chapters: 12, words: 45000, status: 'published', createdAt: '2025-12-15', updatedAt: '2025-12-17', coverColor: '#10B981', coverImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=200&h=300&fit=crop', tags: ['Marketing', 'AI', 'Business'], progress: 100 },
+    { id: 2, title: 'Passive Income Mastery', description: 'Build multiple streams of passive income with proven strategies', chapters: 8, words: 32000, status: 'draft', createdAt: '2025-12-10', updatedAt: '2025-12-18', coverColor: '#6366F1', coverImage: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=200&h=300&fit=crop', tags: ['Finance', 'Business'], progress: 75 },
+    { id: 3, title: 'Digital Product Blueprint', description: 'Create and sell digital products that generate revenue 24/7', chapters: 10, words: 28000, status: 'generating', createdAt: '2025-12-18', updatedAt: '2025-12-19', coverColor: '#F59E0B', coverImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=300&fit=crop', tags: ['Ecommerce', 'Digital Products'], progress: 45 },
+    { id: 4, title: 'Social Media Automation Secrets', description: 'Automate your social media presence and grow your audience', chapters: 6, words: 18000, status: 'draft', createdAt: '2025-12-05', updatedAt: '2025-12-16', coverColor: '#EC4899', coverImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=300&fit=crop', tags: ['Social Media', 'Automation'], progress: 60 },
+    { id: 5, title: 'Content Creation Playbook', description: 'Master content creation across all platforms', chapters: 15, words: 52000, status: 'published', createdAt: '2025-11-20', updatedAt: '2025-12-01', coverColor: '#8B5CF6', coverImage: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=200&h=300&fit=crop', tags: ['Content', 'Marketing'], progress: 100 }
   ]);
 
   const filteredEbooks = ebooks.filter(book => {
@@ -356,9 +357,13 @@ const EbookCreator = () => {
       <div className="group bg-card border border-border rounded-xl p-4 hover:border-muted-foreground hover:shadow-md transition-all duration-200 cursor-pointer"
         onClick={() => navigate('/ebook-creator/new?tab=design', { state: { book } })}>
         <div className="flex items-start gap-4">
-          <div className="w-16 h-20 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style={{ backgroundColor: book.coverColor + '20', borderLeft: `4px solid ${book.coverColor}` }}>
-            <Book className="w-8 h-8" style={{ color: book.coverColor }} />
-          </div>
+          {book.coverImage ? (
+            <img src={book.coverImage} alt={book.title} className="w-16 h-20 rounded-lg object-cover flex-shrink-0 shadow-sm" />
+          ) : (
+            <div className="w-16 h-20 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style={{ backgroundColor: book.coverColor + '20', borderLeft: `4px solid ${book.coverColor}` }}>
+              <Book className="w-8 h-8" style={{ color: book.coverColor }} />
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -415,9 +420,13 @@ const EbookCreator = () => {
       <div className="group bg-card border border-border rounded-xl overflow-hidden hover:border-muted-foreground hover:shadow-lg transition-all duration-200 cursor-pointer"
         onClick={() => navigate('/ebook-creator/new?tab=design', { state: { book } })}>
         <div className="h-40 flex items-center justify-center relative" style={{ backgroundColor: book.coverColor + '15' }}>
-          <div className="w-24 h-32 rounded-lg shadow-xl flex items-center justify-center" style={{ backgroundColor: book.coverColor }}>
-            <Book className="w-12 h-12 text-white/80" />
-          </div>
+          {book.coverImage ? (
+            <img src={book.coverImage} alt={book.title} className="w-24 h-32 rounded-lg shadow-xl object-cover" />
+          ) : (
+            <div className="w-24 h-32 rounded-lg shadow-xl flex items-center justify-center" style={{ backgroundColor: book.coverColor }}>
+              <Book className="w-12 h-12 text-white/80" />
+            </div>
+          )}
           <div className="absolute top-3 right-3"><StatusBadge status={book.status} /></div>
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
             <button onClick={(e) => { e.stopPropagation(); navigate('/ebook-creator/new?tab=design', { state: { book } }); }} className="p-2 bg-background rounded-lg text-foreground hover:bg-emerald-500 hover:text-white transition-colors"><Edit className="w-5 h-5" /></button>
