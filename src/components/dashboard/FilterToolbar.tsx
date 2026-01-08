@@ -342,7 +342,7 @@ const FilterToolbar = ({
                       searchQuery
                     });
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors"
+                  className="flex-1 px-4 py-2 bg-brand-green hover:bg-brand-green/90 text-primary rounded-lg font-medium transition-colors"
                 >
                   Apply
                 </button>
