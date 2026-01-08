@@ -226,6 +226,83 @@ export type Database = {
         }
         Relationships: []
       }
+      autoyt_videos: {
+        Row: {
+          category: string | null
+          channel_id: string | null
+          created_at: string
+          description: string | null
+          error_message: string | null
+          id: string
+          prompt: string
+          published_at: string | null
+          scheduled_at: string | null
+          source_image_url: string | null
+          source_type: string
+          status: string
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+          video_url: string | null
+          visibility: string | null
+          youtube_video_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          channel_id?: string | null
+          created_at?: string
+          description?: string | null
+          error_message?: string | null
+          id?: string
+          prompt: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          source_image_url?: string | null
+          source_type?: string
+          status?: string
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+          visibility?: string | null
+          youtube_video_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          channel_id?: string | null
+          created_at?: string
+          description?: string | null
+          error_message?: string | null
+          id?: string
+          prompt?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          source_image_url?: string | null
+          source_type?: string
+          status?: string
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+          visibility?: string | null
+          youtube_video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "autoyt_videos_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "youtube_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       editor_chat_messages: {
         Row: {
           content: string
@@ -969,6 +1046,45 @@ export type Database = {
           status?: string
           type?: string
           url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      youtube_channels: {
+        Row: {
+          access_token: string
+          channel_id: string
+          channel_thumbnail: string | null
+          channel_title: string
+          created_at: string
+          id: string
+          refresh_token: string
+          token_expires_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          channel_id: string
+          channel_thumbnail?: string | null
+          channel_title: string
+          created_at?: string
+          id?: string
+          refresh_token: string
+          token_expires_at: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          channel_id?: string
+          channel_thumbnail?: string | null
+          channel_title?: string
+          created_at?: string
+          id?: string
+          refresh_token?: string
+          token_expires_at?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
