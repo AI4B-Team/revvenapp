@@ -6762,11 +6762,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
+                {/* Vertical separator */}
+                <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+
                 {/* Start Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-foreground hover:opacity-90">
-                      <Play size={16} className="text-muted-foreground" />
+                      <Zap size={16} className="text-muted-foreground" />
                       Start
                     </button>
                   </DropdownMenuTrigger>
