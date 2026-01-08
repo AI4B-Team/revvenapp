@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Youtube, Plus, Video, Upload, Clock, Send, Trash2, Eye, Settings, Link2, CheckCircle, AlertCircle, Loader2, Image, Type, Calendar } from 'lucide-react';
+import { Youtube, Plus, Video, Upload, Clock, Send, Trash2, Eye, Settings, Link2, CheckCircle, AlertCircle, Loader2, Image, Type, Calendar, RefreshCw, Pencil, X } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -80,6 +80,15 @@ const AutoYT = () => {
   const [visibility, setVisibility] = useState('private');
   const [isGenerating, setIsGenerating] = useState(false);
   const [publishMode, setPublishMode] = useState<'instant' | 'queue'>('instant');
+  
+  // Generated metadata state (shown after video generation)
+  const [generatedVideoId, setGeneratedVideoId] = useState<string | null>(null);
+  const [generatedTitle, setGeneratedTitle] = useState('');
+  const [generatedDescription, setGeneratedDescription] = useState('');
+  const [generatedTags, setGeneratedTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState('');
+  const [isRegeneratingMetadata, setIsRegeneratingMetadata] = useState(false);
+  const [showMetadataEditor, setShowMetadataEditor] = useState(false);
 
   useEffect(() => {
     loadChannels();
@@ -222,17 +231,14 @@ const AutoYT = () => {
       
       if (error) throw error;
       
-      toast.success(publishMode === 'instant' 
-        ? 'Video generation started! Title, description & tags will be AI-generated.'
-        : 'Video added to queue!');
+      // Show metadata editor with AI-generated content
+      setGeneratedVideoId(videoRecord.id);
+      setGeneratedTitle(data.title || '');
+      setGeneratedDescription(data.description || '');
+      setGeneratedTags(data.tags || []);
+      setShowMetadataEditor(true);
       
-      // Reset form
-      setPrompt('');
-      setSourceImageUrl('');
-      
-      // Reload videos
-      loadVideos();
-      setActiveTab('history');
+      toast.success('Video generation started! Review and edit metadata below.');
     } catch (error: any) {
       console.error('Error generating video:', error);
       toast.error(error.message || 'Failed to generate video');
@@ -254,6 +260,73 @@ const AutoYT = () => {
     } catch (error: any) {
       toast.error(error.message || 'Failed to publish video');
     }
+  };
+
+  const regenerateMetadata = async () => {
+    if (!generatedVideoId || !prompt.trim()) return;
+    
+    setIsRegeneratingMetadata(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('autoyt-generate', {
+        body: {
+          videoId: generatedVideoId,
+          prompt,
+          regenerateMetadataOnly: true
+        }
+      });
+      
+      if (error) throw error;
+      
+      setGeneratedTitle(data.title || '');
+      setGeneratedDescription(data.description || '');
+      setGeneratedTags(data.tags || []);
+      
+      toast.success('Metadata regenerated!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to regenerate metadata');
+    } finally {
+      setIsRegeneratingMetadata(false);
+    }
+  };
+
+  const saveMetadata = async () => {
+    if (!generatedVideoId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('autoyt_videos')
+        .update({
+          title: generatedTitle,
+          description: generatedDescription,
+          tags: generatedTags
+        })
+        .eq('id', generatedVideoId);
+      
+      if (error) throw error;
+      
+      toast.success('Metadata saved!');
+      
+      // Reset and reload
+      setShowMetadataEditor(false);
+      setGeneratedVideoId(null);
+      setPrompt('');
+      setSourceImageUrl('');
+      loadVideos();
+      setActiveTab('history');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to save metadata');
+    }
+  };
+
+  const addTag = () => {
+    if (newTag.trim() && !generatedTags.includes(newTag.trim())) {
+      setGeneratedTags([...generatedTags, newTag.trim()]);
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setGeneratedTags(generatedTags.filter(tag => tag !== tagToRemove));
   };
 
   const deleteVideo = async (videoId: string) => {
@@ -504,41 +577,152 @@ const AutoYT = () => {
                   </div>
 
                   {/* Publish Options */}
-                  <Card className="mt-6">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex gap-2">
-                          <Button
-                            variant={publishMode === 'instant' ? 'default' : 'outline'}
-                            onClick={() => setPublishMode('instant')}
+                  {!showMetadataEditor && (
+                    <Card className="mt-6">
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex gap-2">
+                            <Button
+                              variant={publishMode === 'instant' ? 'default' : 'outline'}
+                              onClick={() => setPublishMode('instant')}
+                            >
+                              <Send className="w-4 h-4 mr-2" />
+                              Publish Instantly
+                            </Button>
+                            <Button
+                              variant={publishMode === 'queue' ? 'default' : 'outline'}
+                              onClick={() => setPublishMode('queue')}
+                            >
+                              <Clock className="w-4 h-4 mr-2" />
+                              Add to Queue
+                            </Button>
+                          </div>
+
+                          <Button 
+                            onClick={generateAndPublish} 
+                            disabled={isGenerating || !prompt.trim()}
+                            size="lg"
                           >
-                            <Send className="w-4 h-4 mr-2" />
-                            Publish Instantly
-                          </Button>
-                          <Button
-                            variant={publishMode === 'queue' ? 'default' : 'outline'}
-                            onClick={() => setPublishMode('queue')}
-                          >
-                            <Clock className="w-4 h-4 mr-2" />
-                            Add to Queue
+                            {isGenerating ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <Video className="w-4 h-4 mr-2" />
+                            )}
+                            Generate Video
                           </Button>
                         </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
-                        <Button 
-                          onClick={generateAndPublish} 
-                          disabled={isGenerating || !prompt.trim()}
-                          size="lg"
-                        >
-                          {isGenerating ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          ) : (
-                            <Video className="w-4 h-4 mr-2" />
-                          )}
-                          Generate Video
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {/* Metadata Editor - Shows after generation */}
+                  {showMetadataEditor && (
+                    <Card className="mt-6 border-primary/50">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="flex items-center gap-2">
+                            <Pencil className="w-5 h-5" />
+                            Edit Video Metadata
+                          </CardTitle>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={regenerateMetadata}
+                              disabled={isRegeneratingMetadata}
+                            >
+                              {isRegeneratingMetadata ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              ) : (
+                                <RefreshCw className="w-4 h-4 mr-2" />
+                              )}
+                              Regenerate
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setShowMetadataEditor(false);
+                                setGeneratedVideoId(null);
+                              }}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Title</Label>
+                          <Input
+                            value={generatedTitle}
+                            onChange={(e) => setGeneratedTitle(e.target.value)}
+                            placeholder="Video title..."
+                            maxLength={100}
+                          />
+                          <p className="text-xs text-muted-foreground">{generatedTitle.length}/100 characters</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Description</Label>
+                          <Textarea
+                            value={generatedDescription}
+                            onChange={(e) => setGeneratedDescription(e.target.value)}
+                            placeholder="Video description..."
+                            rows={5}
+                            maxLength={5000}
+                          />
+                          <p className="text-xs text-muted-foreground">{generatedDescription.length}/5000 characters</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Tags</Label>
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {generatedTags.map((tag, index) => (
+                              <Badge key={index} variant="secondary" className="gap-1">
+                                {tag}
+                                <button
+                                  onClick={() => removeTag(tag)}
+                                  className="ml-1 hover:text-destructive"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <Input
+                              value={newTag}
+                              onChange={(e) => setNewTag(e.target.value)}
+                              placeholder="Add tag..."
+                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                            />
+                            <Button variant="outline" onClick={addTag} type="button">
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-4 border-t">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowMetadataEditor(false);
+                              setGeneratedVideoId(null);
+                              loadVideos();
+                              setActiveTab('history');
+                            }}
+                          >
+                            Skip & Continue
+                          </Button>
+                          <Button onClick={saveMetadata}>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Save Metadata
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </TabsContent>
 
                 {/* History Tab */}
