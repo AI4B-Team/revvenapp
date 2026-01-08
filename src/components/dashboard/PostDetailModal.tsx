@@ -3,7 +3,7 @@ import {
   X, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Send, Clock, Calendar as CalendarIcon, 
   Edit, Trash2, Copy, ExternalLink, Film, Play, Save, XCircle, Hash, Sparkles, 
   Search, Check, Image as ImageIcon, Upload, BarChart3, Eye, TrendingUp, Users,
-  RefreshCw, Loader2, FileText, Youtube
+  RefreshCw, Loader2, FileText, Youtube, Facebook
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -98,6 +98,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [ytScheduledTime, setYtScheduledTime] = useState('12:00');
   const [isPublishingToYT, setIsPublishingToYT] = useState(false);
   
+  // Facebook scheduling states
+  const [showFBSchedule, setShowFBSchedule] = useState(false);
+  const [fbScheduledDate, setFbScheduledDate] = useState<Date | undefined>(undefined);
+  const [fbScheduledTime, setFbScheduledTime] = useState('12:00');
+  const [isPublishingToFB, setIsPublishingToFB] = useState(false);
+  
   // Check if post is published (for showing Results tab)
   const isPublished = post?.status === 'published' || post?.status === 'posted';
 
@@ -131,6 +137,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       setShowYTSchedule(false);
       setYtScheduledDate(undefined);
       setYtScheduledTime('12:00');
+      setShowFBSchedule(false);
+      setFbScheduledDate(undefined);
+      setFbScheduledTime('12:00');
       setActiveTab('details');
     }
   }, [post]);
@@ -211,6 +220,59 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       toast.error('Failed to publish to YouTube');
     } finally {
       setIsPublishingToYT(false);
+    }
+  };
+
+  // Publish to Facebook with optional scheduling
+  const handlePublishToFacebook = async () => {
+    if (!post) return;
+    
+    setIsPublishingToFB(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please login to publish to Facebook');
+        return;
+      }
+
+      // Calculate scheduled time if scheduling
+      let scheduledAt: string | null = null;
+      if (showFBSchedule && fbScheduledDate) {
+        const [hours, minutes] = fbScheduledTime.split(':').map(Number);
+        const scheduledDateTime = new Date(fbScheduledDate);
+        scheduledDateTime.setHours(hours, minutes, 0, 0);
+        scheduledAt = scheduledDateTime.toISOString();
+      }
+
+      // Create entry in autoyt_videos table with Facebook post flag
+      const { data, error } = await supabase.from('autoyt_videos').insert({
+        user_id: user.id,
+        prompt: editedCaption || post.title || 'Content post',
+        title: post.title,
+        description: editedCaption,
+        tags: editedHashtags ? editedHashtags.split(',').map(t => t.trim()) : [],
+        status: scheduledAt ? 'scheduled' : 'pending',
+        scheduled_at: scheduledAt,
+        source_type: 'content',
+        source_image_url: editedImageUrl || post.imageUrl,
+        post_to_facebook: true,
+      }).select().single();
+
+      if (error) throw error;
+
+      toast.success(
+        scheduledAt 
+          ? `Scheduled for Facebook on ${format(new Date(scheduledAt), 'MMM d, yyyy')} at ${fbScheduledTime}`
+          : 'Added to Facebook publishing queue'
+      );
+      
+      setShowFBSchedule(false);
+      setFbScheduledDate(undefined);
+    } catch (err) {
+      console.error('Failed to publish to Facebook:', err);
+      toast.error('Failed to publish to Facebook');
+    } finally {
+      setIsPublishingToFB(false);
     }
   };
 
@@ -1326,6 +1388,103 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                     {ytScheduledDate && (
                       <span className="text-xs text-muted-foreground ml-auto">
                         {format(ytScheduledDate, "MMM d, yyyy")} at {ytScheduledTime}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Facebook Publish Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={showFBSchedule ? 'default' : 'outline'}
+                    size="sm"
+                    className={cn(
+                      "gap-2",
+                      showFBSchedule && "bg-blue-600 hover:bg-blue-700 text-white"
+                    )}
+                    onClick={() => setShowFBSchedule(!showFBSchedule)}
+                  >
+                    <Facebook className="w-4 h-4" />
+                    Publish to Facebook
+                  </Button>
+                  {showFBSchedule && (
+                    <span className="text-xs text-muted-foreground">
+                      Schedule or publish instantly
+                    </span>
+                  )}
+                </div>
+
+                {showFBSchedule && (
+                  <div className="flex items-end gap-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Select Date (optional)</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={cn(
+                              "w-[180px] justify-start text-left font-normal",
+                              !fbScheduledDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {fbScheduledDate ? format(fbScheduledDate, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={fbScheduledDate}
+                            onSelect={setFbScheduledDate}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {fbScheduledDate && (
+                      <div className="space-y-2">
+                        <Label className="text-xs">Select Time</Label>
+                        <Select value={fbScheduledTime} onValueChange={setFbScheduledTime}>
+                          <SelectTrigger className="w-[120px]">
+                            <SelectValue placeholder="Time" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, hour) => {
+                              const hourStr = hour.toString().padStart(2, '0');
+                              return ['00', '30'].map(min => (
+                                <SelectItem key={`fb-${hourStr}:${min}`} value={`${hourStr}:${min}`}>
+                                  {`${hourStr}:${min}`}
+                                </SelectItem>
+                              ));
+                            }).flat()}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={handlePublishToFacebook}
+                      disabled={isPublishingToFB}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                    >
+                      {isPublishingToFB ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                      {fbScheduledDate ? 'Schedule' : 'Publish Now'}
+                    </Button>
+
+                    {fbScheduledDate && (
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        {format(fbScheduledDate, "MMM d, yyyy")} at {fbScheduledTime}
                       </span>
                     )}
                   </div>
