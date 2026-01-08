@@ -5,14 +5,31 @@ import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import { 
-  Search, Plus, Settings, Zap
+  Search, Plus, Settings, Zap, Trash2, MoreVertical
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Project {
   id: string;
   name: string;
-  updatedAt: string;
+  updated_at: string;
 }
 
 const Index = () => {
@@ -22,22 +39,44 @@ const Index = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [userName, setUserName] = useState('');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
   // Plain gray color for project cards
   const projectBgColor = 'bg-gray-300';
-
-  // Sample projects - in real app, these would come from database
-  const [projects] = useState<Project[]>([
-    { id: '1', name: 'Revven 2.0', updatedAt: '8 hours ago' },
-    { id: '2', name: 'Revven 2.0', updatedAt: '9 hours ago' },
-    { id: '3', name: 'Untitled', updatedAt: '2 days ago' },
-    { id: '4', name: 'Untitled', updatedAt: '5 days ago' },
-  ]);
 
   // Filter projects based on search
   const filteredProjects = projects.filter(project => 
     project.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Fetch projects from database
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching projects:', error);
+      } else {
+        setProjects(data || []);
+      }
+      setIsLoading(false);
+    };
+
+    fetchProjects();
+  }, []);
 
   // Get user profile
   useEffect(() => {
@@ -58,8 +97,43 @@ const Index = () => {
     getProfile();
   }, []);
 
-  const formatTimeAgo = (time: string) => {
-    return `Updated ${time}`;
+  const formatTimeAgo = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffHours < 1) return 'Updated just now';
+    if (diffHours < 24) return `Updated ${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `Updated ${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return `Updated on ${date.toLocaleDateString()}`;
+  };
+
+  const handleDeleteProject = async () => {
+    if (!projectToDelete) return;
+
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', projectToDelete.id);
+
+    if (error) {
+      toast.error('Failed to delete project');
+      console.error('Error deleting project:', error);
+    } else {
+      setProjects(prev => prev.filter(p => p.id !== projectToDelete.id));
+      toast.success('Project deleted');
+    }
+
+    setDeleteDialogOpen(false);
+    setProjectToDelete(null);
+  };
+
+  const openDeleteDialog = (project: Project, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setProjectToDelete(project);
+    setDeleteDialogOpen(true);
   };
 
   return (
@@ -135,23 +209,47 @@ const Index = () => {
             </div>
 
             {/* Projects Grid */}
-            {filteredProjects.length > 0 ? (
+            {isLoading ? (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground text-lg">Loading projects...</p>
+              </div>
+            ) : filteredProjects.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredProjects.map((project) => (
                   <div 
                     key={project.id}
-                    onClick={() => navigate('/create')}
-                    className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group"
+                    onClick={() => navigate('/create', { state: { projectId: project.id } })}
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group relative"
                   >
                     {/* Gray Preview */}
                     <div className={`aspect-[4/3] ${projectBgColor} relative overflow-hidden`}>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      
+                      {/* More Options Button */}
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <button className="p-1.5 bg-white/90 hover:bg-white rounded-lg shadow-sm">
+                              <MoreVertical size={16} className="text-gray-600" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenuItem 
+                              className="text-destructive focus:text-destructive gap-2"
+                              onClick={(e) => openDeleteDialog(project, e)}
+                            >
+                              <Trash2 size={14} />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
                     
                     {/* Project Info */}
                     <div className="p-4">
                       <h3 className="font-semibold text-foreground mb-1">{project.name}</h3>
-                      <p className="text-sm text-muted-foreground">{formatTimeAgo(project.updatedAt)}</p>
+                      <p className="text-sm text-muted-foreground">{formatTimeAgo(project.updated_at)}</p>
                     </div>
                   </div>
                 ))}
@@ -159,6 +257,7 @@ const Index = () => {
             ) : (
               <div className="text-center py-16">
                 <p className="text-muted-foreground text-lg">No Projects Found</p>
+                <p className="text-muted-foreground text-sm mt-2">Click "Create project" to get started</p>
               </div>
             )}
           </div>
@@ -169,6 +268,27 @@ const Index = () => {
         isOpen={charactersModalOpen} 
         onClose={() => setCharactersModalOpen(false)}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Project</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{projectToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteProject}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
