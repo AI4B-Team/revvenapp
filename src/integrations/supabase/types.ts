@@ -770,6 +770,7 @@ export type Database = {
         Row: {
           account_handle: string | null
           account_name: string | null
+          auto_publish: boolean
           caption: string | null
           carousel_images: string[] | null
           created_at: string
@@ -788,6 +789,7 @@ export type Database = {
         Insert: {
           account_handle?: string | null
           account_name?: string | null
+          auto_publish?: boolean
           caption?: string | null
           carousel_images?: string[] | null
           created_at?: string
@@ -806,6 +808,7 @@ export type Database = {
         Update: {
           account_handle?: string | null
           account_name?: string | null
+          auto_publish?: boolean
           caption?: string | null
           carousel_images?: string[] | null
           created_at?: string

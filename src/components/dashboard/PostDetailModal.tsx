@@ -58,6 +58,7 @@ interface ContentItem {
   accountHandle?: string;
   accountAvatar?: string;
   videoScript?: VideoScript | null;
+  autoPublish?: boolean;
 }
 
 interface PostDetailModalProps {
@@ -105,7 +106,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [isPublishingToFB, setIsPublishingToFB] = useState(false);
   
   // Auto publish mode - when ON, auto-publish by schedule; when OFF, user publishes manually
-  const [autoPublishMode, setAutoPublishMode] = useState(true);
+  const [autoPublishMode, setAutoPublishMode] = useState(post?.autoPublish ?? true);
   
   // Check if post is published (for showing Results tab)
   const isPublished = post?.status === 'published' || post?.status === 'posted';
@@ -149,7 +150,22 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
 
   if (!post) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Save auto_publish to database
+    try {
+      const { error } = await supabase
+        .from('social_posts')
+        .update({ auto_publish: autoPublishMode })
+        .eq('id', post.id);
+      
+      if (error) {
+        console.error('Failed to update auto_publish:', error);
+        toast.error('Failed to save publish settings');
+      }
+    } catch (err) {
+      console.error('Error saving auto_publish:', err);
+    }
+
     const updatedPost: ContentItem = {
       ...post,
       caption: editedCaption,
@@ -159,6 +175,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       type: editedType,
       imageUrl: editedImageUrl,
       status: editedStatus,
+      autoPublish: autoPublishMode,
     };
     onSave?.(updatedPost);
     setIsEditing(false);
@@ -1358,7 +1375,25 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                 </div>
                 <Switch
                   checked={autoPublishMode}
-                  onCheckedChange={setAutoPublishMode}
+                  onCheckedChange={async (checked) => {
+                    setAutoPublishMode(checked);
+                    // Save to database immediately
+                    try {
+                      const { error } = await supabase
+                        .from('social_posts')
+                        .update({ auto_publish: checked })
+                        .eq('id', post.id);
+                      
+                      if (error) {
+                        console.error('Failed to update auto_publish:', error);
+                        toast.error('Failed to save publish settings');
+                      } else {
+                        toast.success(checked ? 'Auto-publish enabled' : 'Manual publish enabled');
+                      }
+                    } catch (err) {
+                      console.error('Error saving auto_publish:', err);
+                    }
+                  }}
                 />
               </div>
 
