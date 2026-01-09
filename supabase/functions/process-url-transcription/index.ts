@@ -72,13 +72,18 @@ serve(async (req) => {
           // Use RapidAPI Instagram Downloader for Instagram URLs
           console.log("[BG-TRANSCRIBE] Detected Instagram URL, using dedicated Instagram API...");
           
+          const RAPIDAPI_INSTAGRAM_KEY = Deno.env.get("RAPIDAPI_INSTAGRAM_KEY");
+          if (!RAPIDAPI_INSTAGRAM_KEY) {
+            throw new Error("RAPIDAPI_INSTAGRAM_KEY not configured");
+          }
+          
           const rapidApiInstagramUrl = `https://instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com/?url=${encodeURIComponent(cleanUrl)}`;
           
           const instagramResponse = await fetch(rapidApiInstagramUrl, {
             method: 'GET',
             headers: {
               'x-rapidapi-host': 'instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com',
-              'x-rapidapi-key': RAPIDAPI_KEY,
+              'x-rapidapi-key': RAPIDAPI_INSTAGRAM_KEY,
             }
           });
           
