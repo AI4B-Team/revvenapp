@@ -142,139 +142,125 @@ const ArticleHub = () => {
 
   // Source Cards
   const SourceCards = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch mb-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
       {/* Start With AI */}
       <button
         onClick={() => navigate('/article/new?source=ai-generate')}
-        className="group relative pt-8 px-8 pb-2 rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50 hover:bg-emerald-100 transition-all duration-300 min-h-[300px] flex flex-col"
+        className="group relative p-6 rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50 hover:bg-emerald-100 transition-all duration-300 flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 group-hover:from-emerald-200 group-hover:to-emerald-300 flex items-center justify-center mb-5 transition-all duration-300">
-            <Sparkles className="w-9 h-9 text-emerald-600 group-hover:scale-110 transition-all duration-300" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 group-hover:from-emerald-200 group-hover:to-emerald-300 flex items-center justify-center mb-4 transition-all duration-300">
+            <Sparkles className="w-7 h-7 text-emerald-600 group-hover:scale-110 transition-all duration-300" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Start With AI</h3>
-          <p className="text-sm text-gray-500 mb-4">Create From Scratch With AI</p>
-          {/* Workflow: Idea → Generate → Design → Article */}
-          <div className="flex items-center gap-2 text-xs text-gray-600">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Start With AI</h3>
+          <p className="text-xs text-gray-500 mb-3">Create From Scratch With AI</p>
+          {/* Workflow: Idea → Generate → Edit → Article */}
+          <div className="flex items-center gap-1.5 text-[10px] text-gray-600">
             <div className="flex flex-col items-center">
-              <Lightbulb className="w-4 h-4 text-emerald-500" />
+              <Lightbulb className="w-3.5 h-3.5 text-emerald-500" />
               <span>Idea</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <Cpu className="w-4 h-4 text-emerald-500" />
+              <Cpu className="w-3.5 h-3.5 text-emerald-500" />
               <span>Generate</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <PenTool className="w-4 h-4 text-emerald-500" />
+              <PenTool className="w-3.5 h-3.5 text-emerald-500" />
               <span>Edit</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <FileText className="w-4 h-4 text-emerald-500" />
+              <FileText className="w-3.5 h-3.5 text-emerald-500" />
               <span>Article</span>
             </div>
           </div>
-
-          <div className="absolute bottom-3 left-0 right-0 flex justify-center">
-            <span className="px-2.5 py-1 bg-emerald-200 text-emerald-700 text-xs rounded-full font-medium">Recommended</span>
-          </div>
+          <span className="mt-3 px-2 py-0.5 bg-emerald-200 text-emerald-700 text-[10px] rounded-full font-medium">Recommended</span>
         </div>
       </button>
 
       {/* Upload File */}
       <button
         onClick={() => handleSourceCardClick('upload')}
-        className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-amber-400/50 hover:bg-amber-50 transition-all duration-300 min-h-[300px] flex flex-col"
+        className="group relative p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-amber-400/50 hover:bg-amber-50 transition-all duration-300 flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-200 group-hover:from-amber-200 group-hover:to-amber-300 flex items-center justify-center mb-5 transition-all duration-300">
-            <Upload className="w-9 h-9 text-amber-600 group-hover:scale-110 transition-all duration-300" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-200 group-hover:from-amber-200 group-hover:to-amber-300 flex items-center justify-center mb-4 transition-all duration-300">
+            <Upload className="w-7 h-7 text-amber-600 group-hover:scale-110 transition-all duration-300" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
-          <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center gap-2 mb-4">
-            <Upload className="w-5 h-5 text-gray-500 flex-shrink-0" />
-            <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Drag & Drop Your File</span>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload File</h3>
+          <div className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white flex items-center gap-2 mb-3">
+            <Upload className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span className="text-xs text-gray-500 flex-1 text-center">Drag & Drop Your File</span>
           </div>
-          <div className="flex justify-center gap-1.5 items-center flex-wrap">
-            <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
-              <div className="w-4 h-4 rounded bg-gray-500 flex items-center justify-center">
-                <FileText className="w-2.5 h-2.5 text-white" />
-              </div>
-              <span className="text-[10px] font-semibold text-gray-600">PDF</span>
+          <div className="flex justify-center gap-1 items-center flex-wrap">
+            <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
+              <FileText className="w-3 h-3 text-gray-500" />
+              <span className="text-[10px] font-medium text-gray-600">PDF</span>
             </div>
-            <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
-              <div className="w-4 h-4 rounded bg-gray-500 flex items-center justify-center">
-                <FileText className="w-2.5 h-2.5 text-white" />
-              </div>
-              <span className="text-[10px] font-semibold text-gray-600">DOCX</span>
+            <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
+              <FileText className="w-3 h-3 text-gray-500" />
+              <span className="text-[10px] font-medium text-gray-600">DOCX</span>
             </div>
-            <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
-              <div className="w-4 h-4 rounded bg-gray-500 flex items-center justify-center">
-                <FileText className="w-2.5 h-2.5 text-white" />
-              </div>
-              <span className="text-[10px] font-semibold text-gray-600">TXT</span>
-            </div>
-            <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
-              <span className="text-[10px] font-semibold text-gray-600">+ more</span>
+            <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
+              <span className="text-[10px] font-medium text-gray-600">+more</span>
             </div>
           </div>
         </div>
       </button>
 
       {/* Insert Link */}
-      <div
-        className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300 cursor-pointer min-h-[300px] flex flex-col"
+      <button
         onClick={() => handleSourceCardClick('link')}
+        className="group relative p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300 flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 group-hover:from-blue-500/20 group-hover:to-blue-600/20 flex items-center justify-center mb-5 transition-all duration-300">
-            <Link2 className="w-9 h-9 text-blue-500 group-hover:scale-110 transition-all duration-300" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 group-hover:from-blue-200 group-hover:to-blue-300 flex items-center justify-center mb-4 transition-all duration-300">
+            <Link2 className="w-7 h-7 text-blue-500 group-hover:scale-110 transition-all duration-300" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Insert Link</h3>
-          <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center gap-2 mb-4">
-            <Link2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Paste Website Link</span>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Insert Link</h3>
+          <div className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white flex items-center gap-2 mb-3">
+            <Link2 className="w-4 h-4 text-blue-400 flex-shrink-0" />
+            <span className="text-xs text-gray-500 flex-1 text-center">Paste Website Link</span>
           </div>
-          <div className="flex flex-wrap justify-center gap-2">
-            {PLATFORMS.map((platform, i) => (
-              <div key={i} className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
-                <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
+          <div className="flex flex-wrap justify-center gap-1.5">
+            {PLATFORMS.slice(0, 4).map((platform, i) => (
+              <div key={i} className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center">
+                <platform.icon className="w-3.5 h-3.5" style={{ color: platform.color }} />
               </div>
             ))}
-            <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-500">
+            <div className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] text-gray-500">
               +45
             </div>
           </div>
         </div>
-      </div>
+      </button>
 
       {/* Record Audio */}
       <button
         onClick={() => handleSourceCardClick('record')}
-        className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-300 min-h-[300px] flex flex-col"
+        className="group relative p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-300 flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/10 group-hover:from-rose-500/20 group-hover:to-rose-600/20 flex items-center justify-center mb-5 transition-all duration-300">
-            <Mic className="w-9 h-9 text-rose-500 group-hover:scale-110 transition-all duration-300" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-100 to-rose-200 group-hover:from-rose-200 group-hover:to-rose-300 flex items-center justify-center mb-4 transition-all duration-300">
+            <Mic className="w-7 h-7 text-rose-500 group-hover:scale-110 transition-all duration-300" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Record Audio</h3>
-          <p className="text-sm text-gray-500">Click To Start Recording</p>
-          <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-            <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-            <span className="px-1.5 py-0.5 rounded bg-rose-500 text-white font-bold text-[10px] uppercase tracking-wide">Live</span>
-            Real-Time Transcription
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Record Audio</h3>
+          <p className="text-xs text-gray-500 mb-2">Click To Start Recording</p>
+          <div className="flex items-center gap-1.5 text-[10px] text-gray-500 mb-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+            <span className="px-1 py-0.5 rounded bg-rose-500 text-white font-bold text-[8px] uppercase">Live</span>
+            <span>Real-Time Transcription</span>
           </div>
           {/* Audio Wave Graphic */}
-          <div className="mt-3 flex items-center justify-center gap-[2px] h-5">
-            {[...Array(28)].map((_, i) => (
+          <div className="flex items-center justify-center gap-[1px] h-4">
+            {[...Array(20)].map((_, i) => (
               <div
                 key={i}
-                className="w-[2px] bg-rose-400/60 rounded-full group-hover:bg-rose-500 transition-colors duration-300 group-hover:animate-[audioWave_1s_ease-in-out_infinite]"
+                className="w-[2px] bg-rose-400/60 rounded-full group-hover:bg-rose-500 transition-colors duration-300"
                 style={{
-                  height: `${Math.sin((i / 28) * Math.PI * 3) * 6 + 8}px`,
-                  animationDelay: `${i * 0.05}s`,
+                  height: `${Math.sin((i / 20) * Math.PI * 2.5) * 5 + 6}px`,
                 }}
               />
             ))}
@@ -393,55 +379,54 @@ const ArticleHub = () => {
         <Header />
 
         <main className="flex-1 overflow-y-auto">
-          <div className="p-8">
+          <div className="p-6">
             {/* Source Cards */}
             <SourceCards />
 
             {/* Projects Section */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+              <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-muted-foreground" />
-                  <h2 className="text-xl font-semibold">Projects</h2>
+                  <h2 className="text-lg font-semibold">Projects</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setActiveProjectTab('articles')}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                       activeProjectTab === 'articles' 
                         ? 'bg-emerald-500 text-white' 
                         : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
                     }`}
                   >
-                    <FileText className="w-4 h-4 inline-block mr-1.5" />
+                    <FileText className="w-3.5 h-3.5 inline-block mr-1" />
                     Articles
                   </button>
                   <button
                     onClick={() => setActiveProjectTab('press')}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                       activeProjectTab === 'press' 
                         ? 'bg-emerald-500 text-white' 
                         : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
                     }`}
                   >
-                    <Headphones className="w-4 h-4 inline-block mr-1.5" />
                     Press Releases
                   </button>
                 </div>
                 <span className="text-sm text-muted-foreground">{filteredArticles.length} Articles</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 
                     placeholder="Search articles" 
-                    className="pl-9 w-64" 
+                    className="pl-8 w-48 h-9 text-sm" 
                     value={searchQuery} 
                     onChange={(e) => setSearchQuery(e.target.value)} 
                   />
                 </div>
-                <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-card">
-                  <Filter className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border bg-card">
+                  <Filter className="w-3.5 h-3.5 text-muted-foreground" />
                   <select 
                     value={filterStatus} 
                     onChange={(e) => setFilterStatus(e.target.value)} 
@@ -452,18 +437,17 @@ const ArticleHub = () => {
                     <option value="draft">Draft</option>
                     <option value="generating">Generating</option>
                   </select>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <div className="flex items-center border border-border rounded-lg overflow-hidden">
                   <button 
                     onClick={() => setViewMode('list')} 
-                    className={`p-2 ${viewMode === 'list' ? 'bg-muted' : 'hover:bg-muted'}`}
+                    className={`p-1.5 ${viewMode === 'list' ? 'bg-muted' : 'hover:bg-muted'}`}
                   >
                     <List className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => setViewMode('grid')} 
-                    className={`p-2 ${viewMode === 'grid' ? 'bg-muted' : 'hover:bg-muted'}`}
+                    className={`p-1.5 ${viewMode === 'grid' ? 'bg-muted' : 'hover:bg-muted'}`}
                   >
                     <Grid className="w-4 h-4" />
                   </button>
