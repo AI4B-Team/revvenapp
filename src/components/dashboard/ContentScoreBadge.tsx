@@ -157,21 +157,24 @@ const ScoreBreakdownFull: React.FC<ScoreBreakdownFullProps> = ({
     // Generate prompts for 3 carousel slides based on the caption
     const promptResponse = await supabase.functions.invoke('editor-chat', {
       body: {
-        messages: [{ 
-          role: 'user', 
-          content: `Based on this social media post caption, generate 3 short image descriptions for a carousel. Each should be visually distinct but thematically connected.
+        messages: [
+          { role: 'system', content: 'You are a visual content expert. Be specific and concise.' },
+          { 
+            role: 'user', 
+            content: `Based on this social media post caption, generate 3 short image descriptions for a carousel. Each should be visually distinct but thematically connected.
 
 Caption: "${currentCaption}"
 
 Return ONLY 3 image descriptions, one per line, no numbering. Each should be 1 sentence describing what to show visually.`
-        }],
-        systemPrompt: 'You are a visual content expert. Be specific and concise.',
+          }
+        ],
+        stream: false,
       },
     });
     
     if (promptResponse.error) throw promptResponse.error;
     
-    const descriptions = (promptResponse.data?.reply || promptResponse.data?.content || '')
+    const descriptions = (promptResponse.data?.message || promptResponse.data?.reply || promptResponse.data?.content || '')
       .split('\n')
       .filter((line: string) => line.trim())
       .slice(0, 3);
@@ -277,18 +280,24 @@ Provide a brief, specific description (1-2 sentences) of the ideal visual conten
       
       const { data, error } = await supabase.functions.invoke('editor-chat', {
         body: {
-          messages: [{ role: 'user', content: prompt }],
-          systemPrompt: 'You are a social media expert. Be concise and direct.',
+          messages: [
+            { role: 'system', content: 'You are a social media expert. Be concise and direct. Only return the requested content, no explanations.' },
+            { role: 'user', content: prompt }
+          ],
+          stream: false,
         },
       });
       
       if (error) throw error;
       
-      const result = data?.reply || data?.content || '';
+      // The edge function returns 'message' for non-streaming responses
+      const result = data?.message || data?.reply || data?.content || '';
       
       if (result) {
         onSuggestionApplied(category, result.trim());
         toast.success(`${category.charAt(0).toUpperCase() + category.slice(1)} improved!`);
+      } else {
+        toast.error('No suggestion generated');
       }
     } catch (error) {
       console.error('Error improving content:', error);

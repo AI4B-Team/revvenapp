@@ -40,24 +40,33 @@ serve(async (req) => {
 
     console.log('Processing chat request with', messages.length, 'messages, streaming:', stream);
 
-    // Build messages for AI
-    const systemPrompt = `You are Cora, a professional AI design assistant specializing in image editing and enhancement. You help users edit their photos with suggestions and creative ideas. Be concise, friendly, and helpful. When users ask to edit images, describe what changes you would make. If they share an image, analyze it and suggest improvements.`;
+    // Default system prompt
+    const defaultSystemPrompt = `You are Cora, a professional AI design assistant specializing in image editing and enhancement. You help users edit their photos with suggestions and creative ideas. Be concise, friendly, and helpful. When users ask to edit images, describe what changes you would make. If they share an image, analyze it and suggest improvements.`;
 
-    const aiMessages = [
-      { role: 'system', content: systemPrompt },
-      ...messages.map((msg: any) => {
-        if (msg.image) {
-          return {
-            role: msg.role,
-            content: [
-              { type: 'text', text: msg.content || 'Please analyze this image' },
-              { type: 'image_url', image_url: { url: msg.image } }
-            ]
-          };
-        }
-        return { role: msg.role, content: msg.content };
-      })
-    ];
+    // Check if messages already include a system message
+    const hasSystemMessage = messages.some((msg: any) => msg.role === 'system');
+
+    const aiMessages = [];
+    
+    // Only add default system prompt if no system message was provided
+    if (!hasSystemMessage) {
+      aiMessages.push({ role: 'system', content: defaultSystemPrompt });
+    }
+
+    // Add all messages from the request
+    for (const msg of messages) {
+      if (msg.image) {
+        aiMessages.push({
+          role: msg.role,
+          content: [
+            { type: 'text', text: msg.content || 'Please analyze this image' },
+            { type: 'image_url', image_url: { url: msg.image } }
+          ]
+        });
+      } else {
+        aiMessages.push({ role: msg.role, content: msg.content });
+      }
+    }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
