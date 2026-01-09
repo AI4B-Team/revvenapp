@@ -217,8 +217,8 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
         });
 
         if (error) throw error;
-        if (data?.url) {
-          window.open(data.url, 'YouTube Login', 'width=600,height=700');
+        if (data?.auth_url) {
+          window.open(data.auth_url, 'YouTube Login', 'width=600,height=700');
         }
       } catch (err) {
         console.error('Error connecting YouTube:', err);
