@@ -73,6 +73,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import OAuthCallback from "./pages/OAuthCallback";
 import AutoYT from "./pages/AutoYT";
+import Article from "./pages/Article";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -146,6 +147,7 @@ const App = () => (
               <Route path="/lead-generation" element={<LeadGeneration />} />
               <Route path="/autoyt" element={<AutoYT />} />
               <Route path="/newsletter" element={<Newsletter />} />
+              <Route path="/article" element={<Article />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/oauth/callback" element={<OAuthCallback />} />
