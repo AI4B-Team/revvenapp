@@ -69,33 +69,24 @@ serve(async (req) => {
         let title = "media_audio";
         
         if (isInstagramUrl) {
-          // Use Instagram120 RapidAPI for Instagram URLs
-          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using Instagram120 API...");
+          // Use Instagram Downloader RapidAPI for Instagram URLs
+          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using Instagram Downloader API...");
           
-          // Extract shortcode from Instagram URL
-          // Formats: /reel/SHORTCODE/, /p/SHORTCODE/, /tv/SHORTCODE/
-          const shortcodeMatch = cleanUrl.match(/\/(reel|p|tv)\/([A-Za-z0-9_-]+)/);
-          if (!shortcodeMatch) {
-            throw new Error("Could not extract shortcode from Instagram URL");
-          }
-          const shortcode = shortcodeMatch[2];
-          console.log(`[BG-TRANSCRIBE] Extracted Instagram shortcode: ${shortcode}`);
+          const apiUrl = `https://instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com/convert?url=${encodeURIComponent(cleanUrl)}`;
           
-          const downloadResponse = await fetch("https://instagram120.p.rapidapi.com/api/instagram/links", {
-            method: "POST",
+          const downloadResponse = await fetch(apiUrl, {
+            method: "GET",
             headers: {
-              "Content-Type": "application/json",
-              "x-rapidapi-host": "instagram120.p.rapidapi.com",
+              "x-rapidapi-host": "instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com",
               "x-rapidapi-key": RAPIDAPI_KEY,
             },
-            body: JSON.stringify({ url: cleanUrl }),
           });
 
           const responseText = await downloadResponse.text();
-          console.log("[BG-TRANSCRIBE] Instagram120 API response:", responseText.substring(0, 500));
+          console.log("[BG-TRANSCRIBE] Instagram Downloader API response:", responseText.substring(0, 500));
           
           if (!downloadResponse.ok) {
-            console.error("[BG-TRANSCRIBE] Instagram120 API error:", downloadResponse.status, responseText);
+            console.error("[BG-TRANSCRIBE] Instagram Downloader API error:", downloadResponse.status, responseText);
             throw new Error(`Failed to extract from Instagram: ${downloadResponse.status}`);
           }
 
@@ -107,18 +98,15 @@ serve(async (req) => {
             throw new Error(`API returned invalid JSON response`);
           }
           
-          console.log("[BG-TRANSCRIBE] Instagram120 API parsed:", JSON.stringify(downloadData).substring(0, 1000));
+          console.log("[BG-TRANSCRIBE] Instagram Downloader API parsed:", JSON.stringify(downloadData).substring(0, 1000));
 
-          title = downloadData.caption || downloadData.title || "instagram_media";
+          title = downloadData.title || downloadData.caption || "instagram_media";
 
-          // Extract video URL from response
-          // API returns urls array with objects containing url and type
-          if (downloadData.urls && Array.isArray(downloadData.urls)) {
-            const videoUrl = downloadData.urls.find((u: any) => u.type === 'video' || u.url?.includes('.mp4'));
-            if (videoUrl?.url) {
-              downloadUrl = videoUrl.url;
-            } else if (downloadData.urls[0]?.url) {
-              downloadUrl = downloadData.urls[0].url;
+          // Extract video URL from response - check common response formats
+          if (downloadData.result && Array.isArray(downloadData.result)) {
+            const videoResult = downloadData.result.find((r: any) => r.url);
+            if (videoResult?.url) {
+              downloadUrl = videoResult.url;
             }
           }
           
@@ -127,14 +115,22 @@ serve(async (req) => {
             downloadUrl = downloadData.url;
           }
 
-          // Try video_url field
-          if (!downloadUrl && downloadData.video_url) {
-            downloadUrl = downloadData.video_url;
+          // Try video field
+          if (!downloadUrl && downloadData.video) {
+            downloadUrl = downloadData.video;
           }
 
           // Try download_url field
           if (!downloadUrl && downloadData.download_url) {
             downloadUrl = downloadData.download_url;
+          }
+
+          // Try medias array
+          if (!downloadUrl && downloadData.medias && Array.isArray(downloadData.medias)) {
+            const media = downloadData.medias.find((m: any) => m.url);
+            if (media?.url) {
+              downloadUrl = media.url;
+            }
           }
           
           if (downloadUrl) {
