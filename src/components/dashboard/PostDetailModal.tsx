@@ -235,36 +235,68 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
         return;
       }
 
-      // Calculate scheduled time if scheduling
-      let scheduledAt: string | null = null;
-      if (showFBSchedule && fbScheduledDate) {
-        const [hours, minutes] = fbScheduledTime.split(':').map(Number);
-        const scheduledDateTime = new Date(fbScheduledDate);
-        scheduledDateTime.setHours(hours, minutes, 0, 0);
-        scheduledAt = scheduledDateTime.toISOString();
+      // Get user's connected Facebook page
+      const { data: facebookPages, error: pagesError } = await supabase
+        .from('facebook_pages')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (pagesError || !facebookPages || facebookPages.length === 0) {
+        toast.error('No Facebook page connected. Please connect a Facebook page first.');
+        return;
       }
 
-      // Create entry in autoyt_videos table with Facebook post flag
-      const { data, error } = await supabase.from('autoyt_videos').insert({
-        user_id: user.id,
-        prompt: editedCaption || post.title || 'Content post',
-        title: post.title,
-        description: editedCaption,
-        tags: editedHashtags ? editedHashtags.split(',').map(t => t.trim()) : [],
-        status: scheduledAt ? 'scheduled' : 'pending',
-        scheduled_at: scheduledAt,
-        source_type: 'content',
-        source_image_url: editedImageUrl || post.imageUrl,
-        post_to_facebook: true,
-      }).select().single();
+      const page = facebookPages[0]; // Use the first connected page
 
-      if (error) throw error;
+      // Check if token is expired
+      if (page.token_expires_at) {
+        const expiresAt = new Date(page.token_expires_at);
+        if (expiresAt < new Date()) {
+          toast.error('Facebook token expired. Please reconnect your Facebook page.');
+          return;
+        }
+      }
 
-      toast.success(
-        scheduledAt 
-          ? `Scheduled for Facebook on ${format(new Date(scheduledAt), 'MMM d, yyyy')} at ${fbScheduledTime}`
-          : 'Added to Facebook publishing queue'
-      );
+      // Build the message with caption and hashtags
+      let message = editedCaption || post.caption || post.title || '';
+      if (editedHashtags) {
+        const hashtags = editedHashtags.split(',').map(t => `#${t.trim().replace('#', '')}`).filter(Boolean);
+        if (hashtags.length > 0) {
+          message += '\n\n' + hashtags.join(' ');
+        }
+      }
+
+      // Post directly to the connected Facebook page
+      const { data: postResult, error: postError } = await supabase.functions.invoke('facebook-oauth', {
+        body: {
+          action: 'post_to_page',
+          pageId: page.page_id,
+          message: message,
+          link: editedImageUrl || post.imageUrl || null,
+        }
+      });
+
+      if (postError) throw postError;
+      
+      if (postResult.error) {
+        if (postResult.token_expired) {
+          toast.error('Facebook token expired. Please reconnect your Facebook page.');
+        } else {
+          throw new Error(postResult.error);
+        }
+        return;
+      }
+
+      toast.success(`Posted to ${page.page_name} successfully!`);
+      
+      // Update post status to published
+      if (post.id) {
+        await supabase
+          .from('social_posts')
+          .update({ status: 'published' })
+          .eq('id', post.id);
+      }
       
       setShowFBSchedule(false);
       setFbScheduledDate(undefined);
