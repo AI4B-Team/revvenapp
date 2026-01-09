@@ -248,7 +248,7 @@ const Onboarding = () => {
               {/* AI Team Banner */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800 rounded-2xl p-6 mb-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-brand-green rounded-xl flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -265,7 +265,7 @@ const Onboarding = () => {
               {/* Rewards Info Banner */}
               <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 dark:border-yellow-700 rounded-2xl p-6 mb-8 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center">
                     <Gift className="w-6 h-6 text-white" />
                   </div>
                   <div>
