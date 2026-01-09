@@ -104,13 +104,34 @@ serve(async (req) => {
 
           title = downloadData.title || "instagram_media";
 
-          // Try multiple extraction strategies - USE PROXY URL (direct CDN fails with signature mismatch)
+          // Try multiple extraction strategies - extract direct CDN URL from proxy URL
           if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
             const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
             if (media?.url) {
-              // Use the proxy URL as-is (direct CDN URLs require valid signatures)
-              downloadUrl = media.url;
-              console.log(`[BG-TRANSCRIBE] Using proxy download URL`);
+              let mediaUrl = media.url;
+              
+              // Extract direct CDN URL from proxy URL if present
+              // The proxy URL format is: https://sp2.snapapi.space/download.php?url=ENCODED_URL
+              if (mediaUrl.includes('snapapi.space/download.php?url=')) {
+                try {
+                  const urlObj = new URL(mediaUrl);
+                  const encodedUrl = urlObj.searchParams.get('url');
+                  if (encodedUrl) {
+                    const directUrl = decodeURIComponent(encodedUrl);
+                    console.log(`[BG-TRANSCRIBE] Extracted direct CDN URL from proxy: ${directUrl.substring(0, 100)}...`);
+                    // Use Cloudinary fetch to download the direct CDN URL (it can handle Instagram CDN auth)
+                    const cloudName = "dfhyah2xw";
+                    const cloudinaryFetchUrl = `https://res.cloudinary.com/${cloudName}/video/fetch/${encodeURIComponent(directUrl)}`;
+                    downloadUrl = cloudinaryFetchUrl;
+                    console.log(`[BG-TRANSCRIBE] Using Cloudinary fetch URL for Instagram video`);
+                  }
+                } catch (e) {
+                  console.log(`[BG-TRANSCRIBE] Could not extract direct URL, using proxy`);
+                  downloadUrl = mediaUrl;
+                }
+              } else {
+                downloadUrl = mediaUrl;
+              }
             }
           }
 
