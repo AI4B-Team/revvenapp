@@ -458,24 +458,23 @@ const Onboarding = () => {
                   </div>
 
                   {/* Meet AIVA Card */}
-                  <div className="bg-gradient-to-b from-green-50 to-white dark:from-green-950/20 dark:to-card rounded-2xl shadow-sm p-6 border border-green-100 dark:border-green-800">
+                  <div className="bg-gradient-to-b from-violet-50 to-white dark:from-violet-950/20 dark:to-card rounded-2xl shadow-sm p-6 border border-violet-100 dark:border-violet-800">
                     <div className="flex items-start gap-3 mb-4">
-                      <div className="w-10 h-10 bg-brand-green rounded-xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-violet-500 rounded-xl flex items-center justify-center flex-shrink-0">
                         <Sparkles className="w-5 h-5 text-white" />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-foreground">Meet AIVA</h3>
                         <p className="text-muted-foreground text-sm">
-                          Your real-time assistant, coach, and helper for everything REVVEN. Available 24/7.
+                          Got questions? Need help creating content? AIVA knows the platform inside and out.
                         </p>
                       </div>
                     </div>
 
-                    {/* Avatar with geometric background */}
+                    {/* Avatar with soft gradient background */}
                     <div className="relative flex items-center justify-center py-6">
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-32 h-32 bg-brand-green rounded-2xl rotate-12 opacity-90"></div>
-                        <div className="absolute w-28 h-28 bg-green-400 rounded-2xl -rotate-6 opacity-70"></div>
+                        <div className="w-36 h-36 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full opacity-80 blur-sm"></div>
                       </div>
                       <img 
                         src={aivaAvatar}
