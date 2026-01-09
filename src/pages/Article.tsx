@@ -1,9 +1,12 @@
 /**
- * REVVEN — Article Studio (Lovable-ready)
+ * REVVEN — Article Studio with AI Generation
  */
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useCallback } from "react";
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Loader2, Sparkles, Download, Copy, RotateCcw, Wand2, CheckCircle2 } from "lucide-react";
 
 type ArticleType =
   | "Blog Post"
@@ -180,162 +183,6 @@ function generateLivePrompt(args: {
   return prompt;
 }
 
-function generateArticleDraft(args: {
-  articleType: ArticleType;
-  topic: string;
-  tones: string[];
-  styles: string[];
-  length: LengthPreset;
-  seoMode: boolean;
-  includeMeta: boolean;
-}) {
-  const topic = args.topic || "Your topic";
-  const keywords = extractKeywords(topic);
-
-  const base = `# ${topic}
-
-## Hook
-
-Most people approach **${topic}** like a checklist. The winners treat it like a system.
-
-## Why it matters
-
-Explain the stakes, who this helps, and what changes when it's done right.
-
-## The framework
-
-### 1) Define the goal
-
-- What outcome are you aiming for?
-- What does "success" look like?
-
-### 2) Build the engine
-
-- Inputs
-- Process
-- Outputs
-
-### 3) Measure and refine
-
-- Track what moves the needle
-- Cut what doesn't
-- Double down on what works
-
-## Examples
-
-- Example 1: A simple real-world scenario
-- Example 2: A more advanced scenario
-
-## Common mistakes
-
-- Doing too much at once
-- Skipping the foundation
-- Measuring the wrong thing
-
-## Action plan (next 7 days)
-
-1. Pick one KPI
-2. Create one repeatable workflow
-3. Publish / ship something small
-4. Review results and iterate
-
-## Summary
-
-Here's what to remember: clarity beats complexity, systems beat hustle, and consistency beats intensity.
-
-## Next steps
-
-If you want, I can generate:
-- A 30-day content plan
-- A checklist version
-- A social thread + email version
-
-`;
-
-  const meta = args.includeMeta
-    ? `## SEO Meta
-
-- SEO Title: ${topic} (Complete Guide)
-- Meta Description: Learn ${topic} with a simple framework, examples, and a 7-day action plan.
-- Suggested Keywords: ${keywords.join(", ") || "keyword1, keyword2, keyword3"}
-
-`
-    : "";
-
-  const lengthBoost =
-    args.length === "Short (400-700)"
-      ? `\n> Keep it tight. Expand only the Framework section.\n`
-      : args.length === "Long (2000-3000)"
-      ? `\n## Deep dive\nAdd additional sections: tools, templates, FAQs, and a case study.\n`
-      : "";
-
-  return `${meta}${base}${lengthBoost}`.trim();
-}
-
-function improveDraft(draft: string, mode: "hook" | "seo" | "structure" | "credibility") {
-  if (!draft) return draft;
-  switch (mode) {
-    case "hook": {
-      return draft.replace(
-        /## Hook[\s\S]*?(?=\n## )/m,
-        `## Hook
-
-You can spend months producing content on **guesswork**, or you can build a system that compounds. This guide gives you the system for **repeatable results**—without burning out.
-
-`
-      );
-    }
-    case "seo": {
-      const add = `
-
-## FAQs
-
-### What is the fastest way to get started?
-
-Start with one workflow and one metric. Ship something small within 24 hours.
-
-### How long does it take to see results?
-
-Typically 2–4 weeks of consistent execution, depending on distribution and baseline.
-
-### What tools help the most?
-
-A simple editor, a planning board, and analytics you actually check.
-
-`;
-      return draft.includes("## FAQs") ? draft : draft + add;
-    }
-    case "structure": {
-      if (hasHeadings(draft) && /(^|\n)\s*[-*•]\s+/m.test(draft)) return draft;
-      return draft + `
-
-## Checklist
-
-- Define the outcome
-- Choose the inputs
-- Create the workflow
-- Publish/ship
-- Review and iterate
-
-`;
-    }
-    case "credibility": {
-      const add = `
-
-## Credibility signals
-
-- Add one data point or study (even a directional one).
-- Include one mini case study ("before/after").
-- Define what would disprove your claim (shows rigor).
-
-`;
-      return draft.includes("Credibility signals") ? draft : draft + add;
-    }
-    default:
-      return draft;
-  }
-}
-
 export default function Article() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [articleType, setArticleType] = useState<ArticleType>("Blog Post");
@@ -349,7 +196,11 @@ export default function Article() {
   const [noDirectAddress, setNoDirectAddress] = useState<boolean>(true);
   const [draft, setDraft] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"Details" | "Analytics">("Details");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [generationPhase, setGenerationPhase] = useState<string>("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const livePrompt = useMemo(() => {
     return generateLivePrompt({
@@ -390,24 +241,274 @@ export default function Article() {
     else setList([...list, value]);
   };
 
-  const onGenerate = () => {
-    const nextDraft = generateArticleDraft({
-      articleType,
-      topic,
-      tones,
-      styles,
-      length: lengthPreset,
-      seoMode,
-      includeMeta,
-    });
-    setDraft(nextDraft);
-    setActiveTab("Details");
-    setTimeout(() => textareaRef.current?.focus(), 50);
-  };
+  const onGenerate = useCallback(async () => {
+    if (!topic.trim()) {
+      toast.error("Please enter a topic first");
+      return;
+    }
 
-  const onImprove = (mode: "hook" | "seo" | "structure" | "credibility") => {
-    setDraft((d) => improveDraft(d, mode));
-  };
+    // Cancel any existing generation
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    setIsGenerating(true);
+    setGenerationProgress(0);
+    setGenerationPhase("Analyzing topic...");
+    setDraft("");
+    setActiveTab("Details");
+
+    try {
+      // Get auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Simulate initial phases
+      await new Promise(r => setTimeout(r, 500));
+      setGenerationProgress(10);
+      setGenerationPhase("Building prompt...");
+      
+      await new Promise(r => setTimeout(r, 300));
+      setGenerationProgress(15);
+      setGenerationPhase("Generating content...");
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-article`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            articleType,
+            topic,
+            tones,
+            styles,
+            length: lengthPreset,
+            language,
+            seoMode,
+            includeMeta,
+            noDirectAddress,
+          }),
+          signal: abortControllerRef.current.signal,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 429) {
+          toast.error("Rate limit exceeded. Please wait a moment and try again.");
+        } else if (response.status === 402) {
+          toast.error("AI credits exhausted. Please add funds to continue.");
+        } else {
+          toast.error(errorData.error || "Failed to generate article");
+        }
+        throw new Error(errorData.error || "Generation failed");
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      // Stream the response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let fullContent = "";
+      let tokenCount = 0;
+
+      setGenerationProgress(20);
+      setGenerationPhase("Writing article...");
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              fullContent += content;
+              tokenCount++;
+              setDraft(fullContent);
+              
+              // Update progress based on estimated tokens
+              const progressEstimate = Math.min(95, 20 + (tokenCount / 20));
+              setGenerationProgress(progressEstimate);
+              
+              // Update phase based on content
+              if (tokenCount < 50) {
+                setGenerationPhase("Writing introduction...");
+              } else if (tokenCount < 150) {
+                setGenerationPhase("Developing main content...");
+              } else if (tokenCount < 300) {
+                setGenerationPhase("Adding examples...");
+              } else {
+                setGenerationPhase("Finishing up...");
+              }
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              fullContent += content;
+              setDraft(fullContent);
+            }
+          } catch { /* ignore */ }
+        }
+      }
+
+      setGenerationProgress(100);
+      setGenerationPhase("Complete!");
+      toast.success("Article generated successfully!");
+      
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 100);
+
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        toast.info("Generation cancelled");
+      } else {
+        console.error('Generation error:', error);
+        toast.error("Failed to generate article. Please try again.");
+      }
+    } finally {
+      setIsGenerating(false);
+      setGenerationProgress(0);
+      setGenerationPhase("");
+    }
+  }, [articleType, topic, tones, styles, lengthPreset, language, seoMode, includeMeta, noDirectAddress]);
+
+  const onCancelGeneration = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  }, []);
+
+  const onImprove = useCallback(async (mode: "hook" | "seo" | "structure" | "credibility") => {
+    if (!draft.trim()) {
+      toast.error("Generate a draft first");
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerationPhase(`Improving ${mode}...`);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const improvementPrompts: Record<string, string> = {
+        hook: `Rewrite only the introduction/hook section of this article to be more compelling and attention-grabbing. Keep everything else the same. Return the full article with the improved hook.\n\nArticle:\n${draft}`,
+        seo: `Add an FAQ section with 3-4 relevant questions and answers to this article for better SEO. Also ensure all headings are keyword-optimized. Return the full improved article.\n\nArticle:\n${draft}`,
+        structure: `Improve the structure of this article by adding a clear checklist or step-by-step summary. Ensure proper heading hierarchy and add bullet points where appropriate. Return the full improved article.\n\nArticle:\n${draft}`,
+        credibility: `Add credibility signals to this article: include at least one data point or statistic, add a mini case study or before/after example, and reference relevant research or studies. Return the full improved article.\n\nArticle:\n${draft}`,
+      };
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-article`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            articleType,
+            topic: improvementPrompts[mode],
+            tones,
+            styles,
+            length: lengthPreset,
+            language,
+            seoMode: false,
+            includeMeta: false,
+            noDirectAddress: false,
+          }),
+        }
+      );
+
+      if (!response.ok || !response.body) {
+        throw new Error("Improvement failed");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let fullContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              fullContent += content;
+              setDraft(fullContent);
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      toast.success(`${mode.charAt(0).toUpperCase() + mode.slice(1)} improved!`);
+
+    } catch (error) {
+      console.error('Improvement error:', error);
+      toast.error("Failed to improve. Please try again.");
+    } finally {
+      setIsGenerating(false);
+      setGenerationPhase("");
+    }
+  }, [draft, articleType, tones, styles, lengthPreset, language]);
 
   const quickStarts: { label: string; type: ArticleType; preset: Partial<{ seoMode: boolean; includeMeta: boolean; length: LengthPreset }> }[] =
     [
@@ -427,9 +528,18 @@ export default function Article() {
   const copyPrompt = async () => {
     try {
       await navigator.clipboard.writeText(livePrompt);
-      alert("Prompt copied.");
+      toast.success("Prompt copied to clipboard");
     } catch {
-      alert("Copy failed. Your browser may block clipboard access.");
+      toast.error("Failed to copy. Your browser may block clipboard access.");
+    }
+  };
+
+  const copyDraft = async () => {
+    try {
+      await navigator.clipboard.writeText(draft);
+      toast.success("Article copied to clipboard");
+    } catch {
+      toast.error("Failed to copy");
     }
   };
 
@@ -441,6 +551,7 @@ export default function Article() {
     a.download = `${(topic || "article").replace(/[^\w]+/g, "-").toLowerCase()}-draft.md`;
     a.click();
     URL.revokeObjectURL(url);
+    toast.success("Article downloaded");
   };
 
   return (
@@ -456,7 +567,7 @@ export default function Article() {
             <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-sm">
-                  <span className="text-white font-bold">✦</span>
+                  <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div>
                   <div className="font-semibold leading-tight">Article Studio</div>
@@ -467,15 +578,48 @@ export default function Article() {
                 <button className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50">
                   Save Template
                 </button>
-                <button
-                  onClick={onGenerate}
-                  className="px-4 py-2 text-sm rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
-                >
-                  Generate Draft
-                </button>
+                {isGenerating ? (
+                  <button
+                    onClick={onCancelGeneration}
+                    className="px-4 py-2 text-sm rounded-xl bg-red-500 text-white hover:bg-red-600 shadow-sm flex items-center gap-2"
+                  >
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Cancel
+                  </button>
+                ) : (
+                  <button
+                    onClick={onGenerate}
+                    disabled={!topic.trim()}
+                    className="px-4 py-2 text-sm rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Wand2 className="w-4 h-4" />
+                    Generate Draft
+                  </button>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Generation Progress Overlay */}
+          {isGenerating && generationPhase && (
+            <div className="mx-auto max-w-6xl px-4 py-3">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
+                  <span className="text-sm font-medium text-emerald-700">{generationPhase}</span>
+                </div>
+                <div className="h-2 bg-emerald-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-emerald-500 transition-all duration-300 ease-out"
+                    style={{ width: `${generationProgress}%` }}
+                  />
+                </div>
+                <div className="mt-2 text-xs text-emerald-600">
+                  {wordCount(draft) > 0 && `${wordCount(draft)} words generated`}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mx-auto max-w-6xl px-4 py-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -487,6 +631,7 @@ export default function Article() {
                       value={articleType}
                       onChange={(e) => setArticleType(e.target.value as ArticleType)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-200"
+                      disabled={isGenerating}
                     >
                       {["Blog Post", "Ultimate Guide", "Listicle", "Thought Leadership", "Case Study", "Press Article"].map((x) => (
                         <option key={x} value={x}>
@@ -504,13 +649,15 @@ export default function Article() {
                       onChange={(e) => setTopic(e.target.value)}
                       placeholder="e.g., digital marketing for local businesses"
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-200"
+                      disabled={isGenerating}
                     />
                     <button
-                      onClick={() => setTopic((t) => (t ? t : "digital marketing for business"))}
+                      onClick={() => setTopic("")}
                       className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
-                      title="Reset"
+                      title="Clear"
+                      disabled={isGenerating}
                     >
-                      ↺
+                      <RotateCcw className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
@@ -528,6 +675,7 @@ export default function Article() {
                       <button
                         className="text-emerald-700 hover:underline"
                         onClick={() => setTones([tonesList[Math.floor(Math.random() * tonesList.length)]])}
+                        disabled={isGenerating}
                       >
                         Randomize
                       </button>
@@ -536,7 +684,12 @@ export default function Article() {
                 >
                   <div className="flex flex-wrap gap-2">
                     {tonesList.map((t) => (
-                      <button key={t} onClick={() => toggleInList(t, tones, setTones)} className={chipClass(tones.includes(t))}>
+                      <button 
+                        key={t} 
+                        onClick={() => toggleInList(t, tones, setTones)} 
+                        className={chipClass(tones.includes(t))}
+                        disabled={isGenerating}
+                      >
                         {t}
                       </button>
                     ))}
@@ -546,7 +699,12 @@ export default function Article() {
                 <Card title="Style" subtitle="How it should feel when someone reads it.">
                   <div className="flex flex-wrap gap-2">
                     {stylesList.map((s) => (
-                      <button key={s} onClick={() => toggleInList(s, styles, setStyles)} className={chipClass(styles.includes(s))}>
+                      <button 
+                        key={s} 
+                        onClick={() => toggleInList(s, styles, setStyles)} 
+                        className={chipClass(styles.includes(s))}
+                        disabled={isGenerating}
+                      >
                         {s}
                       </button>
                     ))}
@@ -559,6 +717,7 @@ export default function Article() {
                       value={lengthPreset}
                       onChange={(e) => setLengthPreset(e.target.value as LengthPreset)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-200"
+                      disabled={isGenerating}
                     >
                       {["Short (400-700)", "Medium (1000-1500)", "Long (2000-3000)"].map((x) => (
                         <option key={x} value={x}>
@@ -574,6 +733,7 @@ export default function Article() {
                       value={language}
                       onChange={(e) => setLanguage(e.target.value as LanguagePreset)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-200"
+                      disabled={isGenerating}
                     >
                       {["English (US)", "English (UK)", "Spanish", "Portuguese", "French"].map((x) => (
                         <option key={x} value={x}>
@@ -586,9 +746,9 @@ export default function Article() {
 
                 <Card title="Optimization" subtitle="Keep it simple for most users, powerful for pros.">
                   <div className="flex flex-wrap gap-3">
-                    <Toggle label="SEO Mode" checked={seoMode} onChange={setSeoMode} />
-                    <Toggle label="Include Meta" checked={includeMeta} onChange={setIncludeMeta} />
-                    <Toggle label="Avoid Direct Address" checked={noDirectAddress} onChange={setNoDirectAddress} />
+                    <Toggle label="SEO Mode" checked={seoMode} onChange={setSeoMode} disabled={isGenerating} />
+                    <Toggle label="Include Meta" checked={includeMeta} onChange={setIncludeMeta} disabled={isGenerating} />
+                    <Toggle label="Avoid Direct Address" checked={noDirectAddress} onChange={setNoDirectAddress} disabled={isGenerating} />
                   </div>
                 </Card>
 
@@ -598,7 +758,8 @@ export default function Article() {
                       <button
                         key={q.label}
                         onClick={() => applyQuickStart(q)}
-                        className="text-left px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
+                        className="text-left px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50"
+                        disabled={isGenerating}
                       >
                         <div className="text-sm font-medium">{q.label}</div>
                         <div className="text-xs text-slate-500">{q.type}</div>
@@ -624,24 +785,16 @@ export default function Article() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={copyPrompt}
-                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
+                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-1.5"
                         title="Copy prompt"
                       >
+                        <Copy className="w-3 h-3" />
                         Copy
-                      </button>
-                      <button
-                        onClick={() => {
-                          setDraft((d) => (d ? d : `<!-- PROMPT -->\n${livePrompt}\n\n<!-- DRAFT -->\n`));
-                        }}
-                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
-                        title="Insert prompt into editor"
-                      >
-                        Insert
                       </button>
                     </div>
                   }
                 >
-                  <pre className="whitespace-pre-wrap text-xs leading-relaxed bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-700">
+                  <pre className="whitespace-pre-wrap text-xs leading-relaxed bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-700 max-h-48 overflow-auto">
                     {livePrompt}
                   </pre>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -717,29 +870,36 @@ export default function Article() {
                         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                           <button
                             onClick={() => onImprove("hook")}
-                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm"
+                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            disabled={isGenerating || !draft}
                           >
-                            Improve Hook
+                            <Wand2 className="w-3 h-3" />
+                            Hook
                           </button>
                           <button
                             onClick={() => onImprove("structure")}
-                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm"
+                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            disabled={isGenerating || !draft}
                           >
-                            Improve Structure
+                            <Wand2 className="w-3 h-3" />
+                            Structure
                           </button>
                           <button
                             onClick={() => onImprove("credibility")}
-                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm"
+                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            disabled={isGenerating || !draft}
                           >
-                            Add Credibility
+                            <Wand2 className="w-3 h-3" />
+                            Credibility
                           </button>
                           <button
                             onClick={() => onImprove("seo")}
-                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm"
-                            disabled={!seoMode}
+                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            disabled={isGenerating || !draft || !seoMode}
                             title={!seoMode ? "Enable SEO Mode first" : "Add FAQs and SEO sections"}
                           >
-                            Improve SEO
+                            <Wand2 className="w-3 h-3" />
+                            SEO
                           </button>
                         </div>
                       </>
@@ -766,19 +926,40 @@ export default function Article() {
 
                 {/* Editor */}
                 <Card
-                  title="Draft Editor"
-                  subtitle="Edit your draft. Replace this stub with your LLM output."
+                  title={
+                    <div className="flex items-center gap-2">
+                      Draft Editor
+                      {draft && (
+                        <span className="flex items-center gap-1 text-xs text-emerald-600">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Ready
+                        </span>
+                      )}
+                    </div>
+                  }
+                  subtitle="Edit your draft or let AI generate it for you."
                   right={
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={downloadDraft}
-                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
+                        onClick={copyDraft}
+                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-1.5 disabled:opacity-50"
+                        disabled={!draft}
                       >
+                        <Copy className="w-3 h-3" />
+                        Copy
+                      </button>
+                      <button
+                        onClick={downloadDraft}
+                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-1.5 disabled:opacity-50"
+                        disabled={!draft}
+                      >
+                        <Download className="w-3 h-3" />
                         Export
                       </button>
                       <button
                         onClick={() => setDraft("")}
-                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
+                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50"
+                        disabled={!draft || isGenerating}
                       >
                         Clear
                       </button>
@@ -789,15 +970,18 @@ export default function Article() {
                     ref={textareaRef}
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
-                    placeholder='Click "Generate Draft" to create an article. Or paste your own content here.'
-                    className="w-full min-h-[420px] rounded-xl border border-slate-200 bg-white p-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-emerald-200"
+                    placeholder='Click "Generate Draft" to create an article, or paste your own content here to analyze and improve it.'
+                    className="w-full min-h-[420px] rounded-xl border border-slate-200 bg-white p-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-emerald-200 font-mono"
+                    disabled={isGenerating}
                   />
                   <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
                     <div>
                       Words: {wordCount(draft)} · Sentences: {sentenceCount(draft)}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 rounded-lg bg-slate-100 border border-slate-200">Draft</span>
+                      <span className="px-2 py-1 rounded-lg bg-slate-100 border border-slate-200">
+                        Markdown
+                      </span>
                     </div>
                   </div>
                 </Card>
@@ -810,18 +994,30 @@ export default function Article() {
                   >
                     Edit Inputs
                   </button>
-                  <button
-                    onClick={onGenerate}
-                    className="w-full px-4 py-3 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
-                  >
-                    Generate Draft
-                  </button>
+                  {isGenerating ? (
+                    <button
+                      onClick={onCancelGeneration}
+                      className="w-full px-4 py-3 rounded-2xl bg-red-500 text-white hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Cancel Generation
+                    </button>
+                  ) : (
+                    <button
+                      onClick={onGenerate}
+                      disabled={!topic.trim()}
+                      className="w-full px-4 py-3 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Wand2 className="w-4 h-4" />
+                      Generate Draft
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="mt-8 text-center text-xs text-slate-400">
-              REVVEN · Article Studio prototype — wire-ready for your production LLM integration
+              REVVEN · Article Studio — Powered by AI
             </div>
           </div>
         </main>
@@ -850,15 +1046,17 @@ function Card(props: {
   );
 }
 
-function Toggle(props: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle(props: { label: string; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
     <button
       onClick={() => props.onChange(!props.checked)}
       className={[
         "px-3 py-2 rounded-xl border text-sm transition inline-flex items-center gap-2",
         props.checked ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50",
+        props.disabled ? "opacity-50 cursor-not-allowed" : "",
       ].join(" ")}
       aria-pressed={props.checked}
+      disabled={props.disabled}
     >
       <span
         className={[
