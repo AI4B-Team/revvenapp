@@ -447,7 +447,7 @@ export default function LoginPage() {
               
               {/* Password Requirements - Only show in Sign Up mode when focused */}
               {isSignUp && isPasswordFocused && password.length > 0 && (
-                <div className="absolute left-full top-0 ml-3 w-64 bg-white border border-gray-200 shadow-lg rounded-md p-4 z-50">
+                <div className="absolute right-full top-0 mr-3 w-64 bg-white border border-gray-200 shadow-lg rounded-md p-4 z-50">
                   <div className="space-y-3">
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">
