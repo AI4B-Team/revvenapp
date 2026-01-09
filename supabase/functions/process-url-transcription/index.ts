@@ -138,18 +138,38 @@ serve(async (req) => {
         console.log(`[BG-TRANSCRIBE] Download URL obtained: ${downloadUrl.substring(0, 100)}...`);
 
         // Step 2: Download video from snap-video URL
-        console.log(`[BG-TRANSCRIBE] Step 2: Downloading video...`);
+        console.log(`[BG-TRANSCRIBE] Step 2: Downloading video from: ${downloadUrl.substring(0, 80)}...`);
+        
+        // Determine referer based on source
+        const isInstagram = downloadUrl.includes('instagram') || cleanUrl.includes('instagram');
+        const isYouTube = downloadUrl.includes('youtube') || downloadUrl.includes('ytdl') || cleanUrl.includes('youtube');
+        const referer = isInstagram ? 'https://www.instagram.com/' : 
+                        isYouTube ? 'https://www.youtube.com/' : 
+                        'https://www.google.com/';
+        
+        console.log(`[BG-TRANSCRIBE] Using referer: ${referer}, isInstagram: ${isInstagram}, isYouTube: ${isYouTube}`);
         
         const videoResponse = await fetch(downloadUrl, {
+          method: 'GET',
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': '*/*',
+            'Accept': 'video/mp4,video/*,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
-            'Referer': 'https://www.instagram.com/',
+            'Accept-Encoding': 'identity',
+            'Referer': referer,
+            'Origin': referer.replace(/\/$/, ''),
+            'Sec-Fetch-Dest': 'video',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'cross-site',
           }
         });
+        
+        console.log(`[BG-TRANSCRIBE] Video download response status: ${videoResponse.status}`);
+        console.log(`[BG-TRANSCRIBE] Video download response headers: ${JSON.stringify(Object.fromEntries(videoResponse.headers.entries()))}`);
+        
         if (!videoResponse.ok) {
-          console.error("[BG-TRANSCRIBE] Video download failed:", videoResponse.status);
+          const errorBody = await videoResponse.text().catch(() => 'Could not read error body');
+          console.error("[BG-TRANSCRIBE] Video download failed:", videoResponse.status, errorBody.substring(0, 200));
           throw new Error(`Failed to download video: ${videoResponse.status}`);
         }
         
