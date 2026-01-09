@@ -104,6 +104,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [fbScheduledTime, setFbScheduledTime] = useState('12:00');
   const [isPublishingToFB, setIsPublishingToFB] = useState(false);
   
+  // Manual publish mode - when ON, user publishes manually; when OFF, auto-publish by schedule
+  const [manualPublishMode, setManualPublishMode] = useState(false);
+  
   // Check if post is published (for showing Results tab)
   const isPublished = post?.status === 'published' || post?.status === 'posted';
 
@@ -1329,199 +1332,234 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
 
             {/* Actions */}
             <div className="p-6 pt-4 border-t border-border space-y-4">
-              {/* YouTube Publish Section */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={showYTSchedule ? 'default' : 'outline'}
-                    size="sm"
-                    className={cn(
-                      "gap-2",
-                      showYTSchedule && "bg-red-600 hover:bg-red-700 text-white"
-                    )}
-                    onClick={() => setShowYTSchedule(!showYTSchedule)}
-                  >
-                    <Youtube className="w-4 h-4" />
-                    Publish to YouTube
-                  </Button>
-                  {showYTSchedule && (
-                    <span className="text-xs text-muted-foreground">
-                      Schedule or publish instantly
-                    </span>
-                  )}
-                </div>
-
-                {showYTSchedule && (
-                  <div className="flex items-end gap-4 p-4 bg-muted/50 rounded-lg">
-                    <div className="space-y-2">
-                      <Label className="text-xs">Select Date (optional)</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className={cn(
-                              "w-[180px] justify-start text-left font-normal",
-                              !ytScheduledDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {ytScheduledDate ? format(ytScheduledDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={ytScheduledDate}
-                            onSelect={setYtScheduledDate}
-                            disabled={(date) => date < new Date()}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
-                    {ytScheduledDate && (
-                      <div className="space-y-2">
-                        <Label className="text-xs">Select Time</Label>
-                        <Select value={ytScheduledTime} onValueChange={setYtScheduledTime}>
-                          <SelectTrigger className="w-[120px]">
-                            <SelectValue placeholder="Time" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({ length: 24 }, (_, hour) => {
-                              const hourStr = hour.toString().padStart(2, '0');
-                              return ['00', '30'].map(min => (
-                                <SelectItem key={`${hourStr}:${min}`} value={`${hourStr}:${min}`}>
-                                  {`${hourStr}:${min}`}
-                                </SelectItem>
-                              ));
-                            }).flat()}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    <Button
-                      onClick={handlePublishToYouTube}
-                      disabled={isPublishingToYT}
-                      size="sm"
-                      className="bg-red-600 hover:bg-red-700 text-white gap-2"
-                    >
-                      {isPublishingToYT ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Send className="w-4 h-4" />
-                      )}
-                      {ytScheduledDate ? 'Schedule' : 'Publish Now'}
-                    </Button>
-
-                    {ytScheduledDate && (
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        {format(ytScheduledDate, "MMM d, yyyy")} at {ytScheduledTime}
-                      </span>
+              {/* Auto/Manual Publish Toggle */}
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center",
+                    manualPublishMode ? "bg-amber-100 dark:bg-amber-900/30" : "bg-emerald-100 dark:bg-emerald-900/30"
+                  )}>
+                    {manualPublishMode ? (
+                      <Send className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    ) : (
+                      <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     )}
                   </div>
-                )}
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {manualPublishMode ? 'Manual Publish' : 'Auto Publish'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {manualPublishMode 
+                        ? 'You will publish this post manually' 
+                        : 'Post will be published automatically on schedule'}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={manualPublishMode}
+                  onCheckedChange={setManualPublishMode}
+                />
               </div>
 
-              {/* Facebook Publish Section */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={showFBSchedule ? 'default' : 'outline'}
-                    size="sm"
-                    className={cn(
-                      "gap-2",
-                      showFBSchedule && "bg-blue-600 hover:bg-blue-700 text-white"
-                    )}
-                    onClick={() => setShowFBSchedule(!showFBSchedule)}
-                  >
-                    <Facebook className="w-4 h-4" />
-                    Publish to Facebook
-                  </Button>
-                  {showFBSchedule && (
-                    <span className="text-xs text-muted-foreground">
-                      Schedule or publish instantly
-                    </span>
-                  )}
-                </div>
-
-                {showFBSchedule && (
-                  <div className="flex items-end gap-4 p-4 bg-muted/50 rounded-lg">
-                    <div className="space-y-2">
-                      <Label className="text-xs">Select Date (optional)</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className={cn(
-                              "w-[180px] justify-start text-left font-normal",
-                              !fbScheduledDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {fbScheduledDate ? format(fbScheduledDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={fbScheduledDate}
-                            onSelect={setFbScheduledDate}
-                            disabled={(date) => date < new Date()}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
+              {/* Manual Publish Buttons - Only show when manual mode is ON */}
+              {manualPublishMode && (
+                <>
+                  {/* YouTube Publish Section */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={showYTSchedule ? 'default' : 'outline'}
+                        size="sm"
+                        className={cn(
+                          "gap-2",
+                          showYTSchedule && "bg-red-600 hover:bg-red-700 text-white"
+                        )}
+                        onClick={() => setShowYTSchedule(!showYTSchedule)}
+                      >
+                        <Youtube className="w-4 h-4" />
+                        Publish to YouTube
+                      </Button>
+                      {showYTSchedule && (
+                        <span className="text-xs text-muted-foreground">
+                          Schedule or publish instantly
+                        </span>
+                      )}
                     </div>
 
-                    {fbScheduledDate && (
-                      <div className="space-y-2">
-                        <Label className="text-xs">Select Time</Label>
-                        <Select value={fbScheduledTime} onValueChange={setFbScheduledTime}>
-                          <SelectTrigger className="w-[120px]">
-                            <SelectValue placeholder="Time" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({ length: 24 }, (_, hour) => {
-                              const hourStr = hour.toString().padStart(2, '0');
-                              return ['00', '30'].map(min => (
-                                <SelectItem key={`fb-${hourStr}:${min}`} value={`${hourStr}:${min}`}>
-                                  {`${hourStr}:${min}`}
-                                </SelectItem>
-                              ));
-                            }).flat()}
-                          </SelectContent>
-                        </Select>
+                    {showYTSchedule && (
+                      <div className="flex items-end gap-4 p-4 bg-muted/50 rounded-lg">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Select Date (optional)</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className={cn(
+                                  "w-[180px] justify-start text-left font-normal",
+                                  !ytScheduledDate && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {ytScheduledDate ? format(ytScheduledDate, "PPP") : <span>Pick a date</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={ytScheduledDate}
+                                onSelect={setYtScheduledDate}
+                                disabled={(date) => date < new Date()}
+                                initialFocus
+                                className={cn("p-3 pointer-events-auto")}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+
+                        {ytScheduledDate && (
+                          <div className="space-y-2">
+                            <Label className="text-xs">Select Time</Label>
+                            <Select value={ytScheduledTime} onValueChange={setYtScheduledTime}>
+                              <SelectTrigger className="w-[120px]">
+                                <SelectValue placeholder="Time" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.from({ length: 24 }, (_, hour) => {
+                                  const hourStr = hour.toString().padStart(2, '0');
+                                  return ['00', '30'].map(min => (
+                                    <SelectItem key={`${hourStr}:${min}`} value={`${hourStr}:${min}`}>
+                                      {`${hourStr}:${min}`}
+                                    </SelectItem>
+                                  ));
+                                }).flat()}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        <Button
+                          onClick={handlePublishToYouTube}
+                          disabled={isPublishingToYT}
+                          size="sm"
+                          className="bg-red-600 hover:bg-red-700 text-white gap-2"
+                        >
+                          {isPublishingToYT ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
+                          {ytScheduledDate ? 'Schedule' : 'Publish Now'}
+                        </Button>
+
+                        {ytScheduledDate && (
+                          <span className="text-xs text-muted-foreground ml-auto">
+                            {format(ytScheduledDate, "MMM d, yyyy")} at {ytScheduledTime}
+                          </span>
+                        )}
                       </div>
                     )}
+                  </div>
 
-                    <Button
-                      onClick={handlePublishToFacebook}
-                      disabled={isPublishingToFB}
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
-                    >
-                      {isPublishingToFB ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Send className="w-4 h-4" />
+                  {/* Facebook Publish Section */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={showFBSchedule ? 'default' : 'outline'}
+                        size="sm"
+                        className={cn(
+                          "gap-2",
+                          showFBSchedule && "bg-blue-600 hover:bg-blue-700 text-white"
+                        )}
+                        onClick={() => setShowFBSchedule(!showFBSchedule)}
+                      >
+                        <Facebook className="w-4 h-4" />
+                        Publish to Facebook
+                      </Button>
+                      {showFBSchedule && (
+                        <span className="text-xs text-muted-foreground">
+                          Schedule or publish instantly
+                        </span>
                       )}
-                      {fbScheduledDate ? 'Schedule' : 'Publish Now'}
-                    </Button>
+                    </div>
 
-                    {fbScheduledDate && (
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        {format(fbScheduledDate, "MMM d, yyyy")} at {fbScheduledTime}
-                      </span>
+                    {showFBSchedule && (
+                      <div className="flex items-end gap-4 p-4 bg-muted/50 rounded-lg">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Select Date (optional)</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className={cn(
+                                  "w-[180px] justify-start text-left font-normal",
+                                  !fbScheduledDate && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {fbScheduledDate ? format(fbScheduledDate, "PPP") : <span>Pick a date</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={fbScheduledDate}
+                                onSelect={setFbScheduledDate}
+                                disabled={(date) => date < new Date()}
+                                initialFocus
+                                className={cn("p-3 pointer-events-auto")}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+
+                        {fbScheduledDate && (
+                          <div className="space-y-2">
+                            <Label className="text-xs">Select Time</Label>
+                            <Select value={fbScheduledTime} onValueChange={setFbScheduledTime}>
+                              <SelectTrigger className="w-[120px]">
+                                <SelectValue placeholder="Time" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.from({ length: 24 }, (_, hour) => {
+                                  const hourStr = hour.toString().padStart(2, '0');
+                                  return ['00', '30'].map(min => (
+                                    <SelectItem key={`${hourStr}:${min}`} value={`${hourStr}:${min}`}>
+                                      {`${hourStr}:${min}`}
+                                    </SelectItem>
+                                  ));
+                                }).flat()}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        <Button
+                          onClick={handlePublishToFacebook}
+                          disabled={isPublishingToFB}
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                        >
+                          {isPublishingToFB ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
+                          {fbScheduledDate ? 'Schedule' : 'Publish Now'}
+                        </Button>
+
+                        {fbScheduledDate && (
+                          <span className="text-xs text-muted-foreground ml-auto">
+                            {format(fbScheduledDate, "MMM d, yyyy")} at {fbScheduledTime}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
 
               {/* Edit/Save Actions */}
               <div className="flex gap-3">
