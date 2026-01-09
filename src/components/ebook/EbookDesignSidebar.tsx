@@ -370,7 +370,7 @@ const EbookDesignSidebar = ({
   const [showTranslated, setShowTranslated] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   
-  const PEXELS_API_KEY = "gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT";
+  // Pexels API key moved to edge function for security
 
   // Expose openImageSection function via ref
   const openImageSection = () => {
@@ -389,22 +389,16 @@ const EbookDesignSidebar = ({
 
   const viewingTemplate = TEMPLATES.find(t => t.id === viewingTemplateId);
 
-  // Fetch stock images from Pexels
+  // Fetch stock images from Pexels via edge function
   const fetchStockImages = async (query: string, page: number = 1) => {
     setIsLoadingStock(true);
     try {
-      const response = await fetch(
-        `https://api.pexels.com/v1/search?query=${encodeURIComponent(query || 'business professional')}&per_page=30&page=${page}`,
-        {
-          headers: {
-            Authorization: PEXELS_API_KEY
-          }
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('pexels-proxy', {
+        body: { type: 'images', query: query || 'business professional', page, per_page: 30 }
+      });
       
-      if (!response.ok) throw new Error('Failed to fetch stock images');
+      if (error) throw new Error('Failed to fetch stock images');
       
-      const data = await response.json();
       if (page === 1) {
         setStockImages(data.photos || []);
       } else {
@@ -522,22 +516,16 @@ const EbookDesignSidebar = ({
     }
   };
 
-  // Fetch stock videos from Pexels
+  // Fetch stock videos from Pexels via edge function
   const fetchStockVideos = async (query: string) => {
     setIsLoadingStockVideos(true);
     try {
-      const response = await fetch(
-        `https://api.pexels.com/videos/search?query=${encodeURIComponent(query || 'business')}&per_page=20`,
-        {
-          headers: {
-            Authorization: PEXELS_API_KEY
-          }
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('pexels-proxy', {
+        body: { type: 'videos', query: query || 'business', per_page: 20 }
+      });
       
-      if (!response.ok) throw new Error('Failed to fetch stock videos');
+      if (error) throw new Error('Failed to fetch stock videos');
       
-      const data = await response.json();
       setStockVideos(data.videos || []);
     } catch (error) {
       console.error('Error fetching Pexels videos:', error);

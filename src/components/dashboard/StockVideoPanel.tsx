@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Play, Clock, User, Loader2, Video, Plus, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
-const PEXELS_API_KEY = 'gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT';
+import { supabase } from "@/integrations/supabase/client";
 
 interface PexelsVideo {
   id: number;
@@ -47,18 +47,12 @@ const StockVideoPanel: React.FC<StockVideoPanelProps> = ({ onSelectVideo }) => {
   const fetchVideos = async (query: string, pageNum: number = 1, append: boolean = false) => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=15&page=${pageNum}`,
-        {
-          headers: {
-            Authorization: PEXELS_API_KEY,
-          },
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('pexels-proxy', {
+        body: { type: 'videos', query, page: pageNum, per_page: 15 }
+      });
 
-      if (!response.ok) throw new Error('Failed to fetch videos');
+      if (error) throw new Error('Failed to fetch videos');
 
-      const data = await response.json();
       setVideos(prev => append ? [...prev, ...data.videos] : data.videos);
       setHasMore(data.videos.length === 15);
     } catch (error) {
