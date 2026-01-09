@@ -210,36 +210,49 @@ serve(async (req) => {
         let videoResponse: Response | null = null;
         
         if (isProxyUrl) {
-          // For snapapi.space proxy, try with minimal headers first
-          console.log(`[BG-TRANSCRIBE] Using snapapi.space proxy, trying with Accept header...`);
+          // For snapapi.space proxy, try multiple times with delays
+          console.log(`[BG-TRANSCRIBE] Using snapapi.space proxy...`);
           
-          // Try with video Accept header
-          videoResponse = await fetch(downloadUrl, {
-            method: 'GET',
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Accept': 'video/mp4,video/*,*/*',
-            },
-          });
+          // Helper for delay
+          const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
           
-          console.log(`[BG-TRANSCRIBE] Proxy response status: ${videoResponse.status}`);
+          // Try up to 3 times with different configurations
+          const attempts = [
+            { headers: {} as Record<string, string>, desc: 'no headers' },
+            { headers: { 'Accept': '*/*' } as Record<string, string>, desc: 'Accept */*' },
+            { headers: { 'Accept': 'video/mp4,video/*,*/*', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' } as Record<string, string>, desc: 'video Accept + UA' },
+          ];
           
-          // If 415, retry with different Accept header
-          if (videoResponse.status === 415) {
-            console.log(`[BG-TRANSCRIBE] Got 415, retrying with application/octet-stream...`);
-            videoResponse = await fetch(downloadUrl, {
-              method: 'GET',
-              headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'application/octet-stream,*/*',
-              },
-            });
-            console.log(`[BG-TRANSCRIBE] Retry response status: ${videoResponse.status}`);
+          for (let i = 0; i < attempts.length; i++) {
+            const attempt = attempts[i];
+            console.log(`[BG-TRANSCRIBE] Proxy attempt ${i + 1}: ${attempt.desc}`);
+            
+            try {
+              videoResponse = await fetch(downloadUrl, {
+                method: 'GET',
+                headers: attempt.headers,
+              });
+              
+              console.log(`[BG-TRANSCRIBE] Attempt ${i + 1} status: ${videoResponse.status}`);
+              
+              if (videoResponse.ok) {
+                console.log(`[BG-TRANSCRIBE] Success on attempt ${i + 1}`);
+                break;
+              }
+              
+              // Wait before next attempt
+              if (i < attempts.length - 1) {
+                console.log(`[BG-TRANSCRIBE] Waiting 1s before retry...`);
+                await delay(1000);
+              }
+            } catch (e) {
+              console.log(`[BG-TRANSCRIBE] Attempt ${i + 1} error: ${e}`);
+            }
           }
           
-          // If still failing, extract direct URL and try Instagram CDN directly
-          if (!videoResponse.ok && downloadUrl.includes('download.php?url=')) {
-            console.log(`[BG-TRANSCRIBE] Proxy failed, trying direct Instagram CDN...`);
+          // If all proxy attempts failed, try direct CDN as last resort
+          if (!videoResponse?.ok && downloadUrl.includes('download.php?url=')) {
+            console.log(`[BG-TRANSCRIBE] All proxy attempts failed, trying direct Instagram CDN...`);
             try {
               const urlObj = new URL(downloadUrl);
               const encodedUrl = urlObj.searchParams.get('url');
