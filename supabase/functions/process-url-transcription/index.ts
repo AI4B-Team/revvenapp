@@ -152,7 +152,7 @@ serve(async (req) => {
         // Step 3: Upload binary to Cloudinary
         console.log(`[BG-TRANSCRIBE] Step 3: Uploading to Cloudinary...`);
         
-        const CLOUDINARY_CLOUD_NAME = "dszt275xv";
+        const CLOUDINARY_CLOUD_NAME = Deno.env.get("CLOUDINARY_CLOUD_NAME") || "dfhyah2xw";
         const CLOUDINARY_UPLOAD_PRESET = "revven";
 
         // Upload as blob directly (no base64 to save memory)
