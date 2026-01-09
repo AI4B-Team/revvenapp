@@ -458,15 +458,15 @@ const Onboarding = () => {
                   </div>
 
                   {/* Meet AIVA Card */}
-                  <div className="bg-gradient-to-b from-violet-50 to-white dark:from-violet-950/20 dark:to-card rounded-2xl shadow-sm p-6 border border-violet-100 dark:border-violet-800">
+                  <div className="bg-gradient-to-b from-amber-50 to-white dark:from-amber-950/20 dark:to-card rounded-2xl shadow-sm p-6 border border-amber-100 dark:border-amber-800">
                     <div className="flex items-start gap-3 mb-4">
-                      <div className="w-10 h-10 bg-violet-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center flex-shrink-0">
                         <Sparkles className="w-5 h-5 text-white" />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-foreground">Meet AIVA</h3>
                         <p className="text-muted-foreground text-sm">
-                          Got questions? Need help creating content? AIVA knows the platform inside and out.
+                          Got questions? AIVA knows the platform inside and out.
                         </p>
                       </div>
                     </div>
@@ -474,7 +474,7 @@ const Onboarding = () => {
                     {/* Avatar with soft gradient background */}
                     <div className="relative flex items-center justify-center py-6">
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-36 h-36 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full opacity-80 blur-sm"></div>
+                        <div className="w-36 h-36 bg-gradient-to-br from-amber-300 to-orange-400 rounded-full opacity-80 blur-sm"></div>
                       </div>
                       <img 
                         src={aivaAvatar}
