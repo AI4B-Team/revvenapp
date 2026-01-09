@@ -62,76 +62,130 @@ serve(async (req) => {
         
         console.log("[BG-TRANSCRIBE] Cleaned URL:", cleanUrl);
         
-        const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "x-rapidapi-host": "snap-video3.p.rapidapi.com",
-            "x-rapidapi-key": RAPIDAPI_KEY,
-          },
-          body: `url=${encodeURIComponent(cleanUrl)}`,
-        });
-
-        const responseText = await downloadResponse.text();
-        console.log("[BG-TRANSCRIBE] Snap Video API raw response:", responseText.substring(0, 500));
+        // Check if this is an Instagram URL - use dedicated Instagram API
+        const isInstagramUrl = cleanUrl.includes('instagram.com');
         
-        if (!downloadResponse.ok) {
-          console.error("[BG-TRANSCRIBE] Snap Video API error:", downloadResponse.status, responseText);
-          throw new Error(`Failed to extract from URL: ${downloadResponse.status} - ${responseText.substring(0, 100)}`);
-        }
-
-        let downloadData;
-        try {
-          downloadData = JSON.parse(responseText);
-        } catch (parseError) {
-          console.error("[BG-TRANSCRIBE] Failed to parse API response as JSON:", responseText.substring(0, 200));
-          throw new Error(`API returned invalid JSON response. Platform may not be supported.`);
-        }
-        
-        console.log("[BG-TRANSCRIBE] Snap Video API parsed response:", JSON.stringify(downloadData).substring(0, 1000));
-
         let downloadUrl: string | null = null;
-        const title = downloadData.title || downloadData.meta?.title || "media_audio";
-
-        // Try multiple extraction strategies
-        // 1. medias array (most common)
-        if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
-          const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
-          if (media?.url) {
-            downloadUrl = media.url;
+        let title = "media_audio";
+        
+        if (isInstagramUrl) {
+          // Use RapidAPI Instagram Downloader for Instagram URLs
+          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using dedicated Instagram API...");
+          
+          const rapidApiInstagramUrl = `https://instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com/?url=${encodeURIComponent(cleanUrl)}`;
+          
+          const instagramResponse = await fetch(rapidApiInstagramUrl, {
+            method: 'GET',
+            headers: {
+              'x-rapidapi-host': 'instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com',
+              'x-rapidapi-key': RAPIDAPI_KEY,
+            }
+          });
+          
+          console.log(`[BG-TRANSCRIBE] Instagram API response status: ${instagramResponse.status}`);
+          
+          if (!instagramResponse.ok) {
+            const errorText = await instagramResponse.text();
+            console.error("[BG-TRANSCRIBE] Instagram API error:", errorText.substring(0, 200));
+            throw new Error(`Instagram API failed: ${instagramResponse.status}`);
           }
-        }
+          
+          const instagramData = await instagramResponse.json();
+          console.log(`[BG-TRANSCRIBE] Instagram API data: ${JSON.stringify(instagramData).substring(0, 800)}`);
+          
+          // Extract video URL from RapidAPI response - try multiple structures
+          if (instagramData.result && Array.isArray(instagramData.result)) {
+            const videoItem = instagramData.result.find((item: any) => item.type === 'video' || item.url?.includes('.mp4'));
+            downloadUrl = videoItem?.url || instagramData.result[0]?.url;
+          } else if (instagramData.video) {
+            downloadUrl = instagramData.video;
+          } else if (instagramData.video_url) {
+            downloadUrl = instagramData.video_url;
+          } else if (instagramData.url) {
+            downloadUrl = instagramData.url;
+          } else if (instagramData.download_url) {
+            downloadUrl = instagramData.download_url;
+          } else if (instagramData.media && Array.isArray(instagramData.media)) {
+            const videoMedia = instagramData.media.find((m: any) => m.type === 'video' || m.url?.includes('.mp4'));
+            downloadUrl = videoMedia?.url || instagramData.media[0]?.url;
+          }
+          
+          title = instagramData.title || instagramData.caption || "instagram_media";
+          
+        } else {
+          // Use Snap Video API for other platforms (YouTube, TikTok, etc.)
+          console.log("[BG-TRANSCRIBE] Using Snap Video API for non-Instagram URL...");
+          
+          const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "x-rapidapi-host": "snap-video3.p.rapidapi.com",
+              "x-rapidapi-key": RAPIDAPI_KEY,
+            },
+            body: `url=${encodeURIComponent(cleanUrl)}`,
+          });
 
-        // 2. Direct url field
-        if (!downloadUrl && downloadData.url) {
-          downloadUrl = downloadData.url;
-        }
+          const responseText = await downloadResponse.text();
+          console.log("[BG-TRANSCRIBE] Snap Video API raw response:", responseText.substring(0, 500));
+          
+          if (!downloadResponse.ok) {
+            console.error("[BG-TRANSCRIBE] Snap Video API error:", downloadResponse.status, responseText);
+            throw new Error(`Failed to extract from URL: ${downloadResponse.status} - ${responseText.substring(0, 100)}`);
+          }
 
-        // 3. download_url field
-        if (!downloadUrl && downloadData.download_url) {
-          downloadUrl = downloadData.download_url;
-        }
+          let downloadData;
+          try {
+            downloadData = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error("[BG-TRANSCRIBE] Failed to parse API response as JSON:", responseText.substring(0, 200));
+            throw new Error(`API returned invalid JSON response. Platform may not be supported.`);
+          }
+          
+          console.log("[BG-TRANSCRIBE] Snap Video API parsed response:", JSON.stringify(downloadData).substring(0, 1000));
 
-        // 4. video_url or audio_url field
-        if (!downloadUrl && (downloadData.video_url || downloadData.audio_url)) {
-          downloadUrl = downloadData.video_url || downloadData.audio_url;
-        }
+          title = downloadData.title || downloadData.meta?.title || "media_audio";
 
-        // 5. result object
-        if (!downloadUrl && downloadData.result) {
-          downloadUrl = downloadData.result.url || downloadData.result.download_url || downloadData.result.video_url;
-        }
+          // Try multiple extraction strategies
+          // 1. medias array (most common)
+          if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
+            const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
+            if (media?.url) {
+              downloadUrl = media.url;
+            }
+          }
 
-        // 6. data object
-        if (!downloadUrl && downloadData.data) {
-          downloadUrl = downloadData.data.url || downloadData.data.download_url;
-          if (!downloadUrl && downloadData.data.medias && downloadData.data.medias.length > 0) {
-            downloadUrl = downloadData.data.medias[0].url;
+          // 2. Direct url field
+          if (!downloadUrl && downloadData.url) {
+            downloadUrl = downloadData.url;
+          }
+
+          // 3. download_url field
+          if (!downloadUrl && downloadData.download_url) {
+            downloadUrl = downloadData.download_url;
+          }
+
+          // 4. video_url or audio_url field
+          if (!downloadUrl && (downloadData.video_url || downloadData.audio_url)) {
+            downloadUrl = downloadData.video_url || downloadData.audio_url;
+          }
+
+          // 5. result object
+          if (!downloadUrl && downloadData.result) {
+            downloadUrl = downloadData.result.url || downloadData.result.download_url || downloadData.result.video_url;
+          }
+
+          // 6. data object
+          if (!downloadUrl && downloadData.data) {
+            downloadUrl = downloadData.data.url || downloadData.data.download_url;
+            if (!downloadUrl && downloadData.data.medias && downloadData.data.medias.length > 0) {
+              downloadUrl = downloadData.data.medias[0].url;
+            }
           }
         }
 
         if (!downloadUrl) {
-          console.error("[BG-TRANSCRIBE] Could not find download URL. Response keys:", Object.keys(downloadData));
+          console.error("[BG-TRANSCRIBE] Could not find download URL from API response");
           throw new Error("No download URL found in API response");
         }
 
@@ -166,62 +220,6 @@ serve(async (req) => {
         
         console.log(`[BG-TRANSCRIBE] Video download response status: ${videoResponse.status}`);
         console.log(`[BG-TRANSCRIBE] Video download response headers: ${JSON.stringify(Object.fromEntries(videoResponse.headers.entries()))}`);
-        
-        // If primary download fails for Instagram, try RapidAPI fallback
-        if (!videoResponse.ok && isInstagram) {
-          console.log(`[BG-TRANSCRIBE] Primary download failed for Instagram, trying RapidAPI fallback...`);
-          
-          try {
-            const rapidApiInstagramUrl = `https://instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com/?url=${encodeURIComponent(cleanUrl)}`;
-            
-            const rapidApiResponse = await fetch(rapidApiInstagramUrl, {
-              method: 'GET',
-              headers: {
-                'x-rapidapi-host': 'instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com',
-                'x-rapidapi-key': RAPIDAPI_KEY,
-              }
-            });
-            
-            console.log(`[BG-TRANSCRIBE] RapidAPI Instagram response status: ${rapidApiResponse.status}`);
-            
-            if (rapidApiResponse.ok) {
-              const rapidApiData = await rapidApiResponse.json();
-              console.log(`[BG-TRANSCRIBE] RapidAPI Instagram data: ${JSON.stringify(rapidApiData).substring(0, 500)}`);
-              
-              // Extract video URL from RapidAPI response
-              let fallbackUrl: string | null = null;
-              
-              // Try different response structures
-              if (rapidApiData.result && Array.isArray(rapidApiData.result)) {
-                const videoItem = rapidApiData.result.find((item: any) => item.type === 'video' || item.url?.includes('.mp4'));
-                fallbackUrl = videoItem?.url || rapidApiData.result[0]?.url;
-              } else if (rapidApiData.video_url) {
-                fallbackUrl = rapidApiData.video_url;
-              } else if (rapidApiData.url) {
-                fallbackUrl = rapidApiData.url;
-              } else if (rapidApiData.download_url) {
-                fallbackUrl = rapidApiData.download_url;
-              }
-              
-              if (fallbackUrl) {
-                console.log(`[BG-TRANSCRIBE] Got fallback URL: ${fallbackUrl.substring(0, 80)}...`);
-                
-                // Download from fallback URL
-                videoResponse = await fetch(fallbackUrl, {
-                  method: 'GET',
-                  headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': '*/*',
-                  }
-                });
-                
-                console.log(`[BG-TRANSCRIBE] Fallback download response status: ${videoResponse.status}`);
-              }
-            }
-          } catch (fallbackError) {
-            console.error(`[BG-TRANSCRIBE] RapidAPI fallback error:`, fallbackError);
-          }
-        }
         
         if (!videoResponse.ok) {
           const errorBody = await videoResponse.text().catch(() => 'Could not read error body');
