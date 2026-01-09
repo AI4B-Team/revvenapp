@@ -563,8 +563,8 @@ export default function Article() {
         
         <main className="flex-1 overflow-auto bg-white">
           {/* Top bar */}
-          <div className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-slate-200">
-            <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+          <div className="sticky top-0 z-20 bg-white/80 backdrop-blur">
+            <div className="px-6 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-sm">
                   <Sparkles className="w-4 h-4 text-white" />
@@ -575,7 +575,7 @@ export default function Article() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50">
+                <button className="px-3 py-2 text-sm rounded-xl bg-slate-100 hover:bg-slate-200">
                   Save Template
                 </button>
                 {isGenerating ? (
@@ -602,8 +602,8 @@ export default function Article() {
 
           {/* Generation Progress Overlay */}
           {isGenerating && generationPhase && (
-            <div className="mx-auto max-w-6xl px-4 py-3">
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+            <div className="px-6 py-3">
+              <div className="bg-emerald-50 rounded-xl p-4">
                 <div className="flex items-center gap-3 mb-2">
                   <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
                   <span className="text-sm font-medium text-emerald-700">{generationPhase}</span>
@@ -621,7 +621,7 @@ export default function Article() {
             </div>
           )}
 
-          <div className="mx-auto max-w-6xl px-4 py-6">
+          <div className="px-6 py-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* LEFT: Controls */}
               <div className="space-y-4">
@@ -818,11 +818,11 @@ export default function Article() {
                 </Card>
 
                 {/* Content Score / Tabs */}
-                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <div className="rounded-2xl bg-slate-50 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
-                        <div className={`h-10 w-10 rounded-2xl border flex items-center justify-center ${scoreLabel.tone}`}>
+                        <div className={`h-10 w-10 rounded-2xl flex items-center justify-center ${scoreLabel.tone}`}>
                           <span className="font-semibold">{scores.total || 0}</span>
                         </div>
                         <div>
@@ -848,10 +848,10 @@ export default function Article() {
                     </div>
                   </div>
 
-                  <div className="p-4">
+                  <div className="px-4 pb-4">
                     {activeTab === "Details" ? (
                       <>
-                        <div className="mb-3 rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-sm text-slate-700">
+                        <div className="mb-3 rounded-xl bg-white px-3 py-2 text-sm text-slate-700">
                           <span className="font-medium">Biggest opportunity:</span>{" "}
                           {scores.credibility < 65
                             ? "Add credibility signals (data, examples, mini case study)."
@@ -870,7 +870,7 @@ export default function Article() {
                         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                           <button
                             onClick={() => onImprove("hook")}
-                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
                             disabled={isGenerating || !draft}
                           >
                             <Wand2 className="w-3 h-3" />
@@ -878,7 +878,7 @@ export default function Article() {
                           </button>
                           <button
                             onClick={() => onImprove("structure")}
-                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
                             disabled={isGenerating || !draft}
                           >
                             <Wand2 className="w-3 h-3" />
@@ -886,7 +886,7 @@ export default function Article() {
                           </button>
                           <button
                             onClick={() => onImprove("credibility")}
-                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
                             disabled={isGenerating || !draft}
                           >
                             <Wand2 className="w-3 h-3" />
@@ -894,7 +894,7 @@ export default function Article() {
                           </button>
                           <button
                             onClick={() => onImprove("seo")}
-                            className="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
                             disabled={isGenerating || !draft || !seoMode}
                             title={!seoMode ? "Enable SEO Mode first" : "Add FAQs and SEO sections"}
                           >
@@ -916,7 +916,7 @@ export default function Article() {
                           <MetricCard title="Est. Likes" value={`${predicted.estLikes}`} subtitle="Hook + clarity lift this" />
                           <MetricCard title="Est. Shares" value={`${predicted.estShares}`} subtitle="Frameworks + checklists lift this" />
                         </div>
-                        <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800">
+                        <div className="mt-4 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800">
                           Tip: SEO-first formats typically win over time; story-first formats spike early.
                         </div>
                       </>
@@ -942,7 +942,7 @@ export default function Article() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={copyDraft}
-                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-1.5 disabled:opacity-50"
+                        className="px-3 py-2 text-sm rounded-xl bg-white hover:bg-slate-100 flex items-center gap-1.5 disabled:opacity-50"
                         disabled={!draft}
                       >
                         <Copy className="w-3 h-3" />
@@ -950,7 +950,7 @@ export default function Article() {
                       </button>
                       <button
                         onClick={downloadDraft}
-                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-1.5 disabled:opacity-50"
+                        className="px-3 py-2 text-sm rounded-xl bg-white hover:bg-slate-100 flex items-center gap-1.5 disabled:opacity-50"
                         disabled={!draft}
                       >
                         <Download className="w-3 h-3" />
@@ -958,7 +958,7 @@ export default function Article() {
                       </button>
                       <button
                         onClick={() => setDraft("")}
-                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50"
+                        className="px-3 py-2 text-sm rounded-xl bg-white hover:bg-slate-100 disabled:opacity-50"
                         disabled={!draft || isGenerating}
                       >
                         Clear
@@ -971,7 +971,7 @@ export default function Article() {
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     placeholder='Click "Generate Draft" to create an article, or paste your own content here to analyze and improve it.'
-                    className="w-full min-h-[420px] rounded-xl border border-slate-200 bg-white p-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-emerald-200 font-mono"
+                    className="w-full min-h-[420px] rounded-xl bg-white p-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-emerald-200 font-mono"
                     disabled={isGenerating}
                   />
                   <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
@@ -979,7 +979,7 @@ export default function Article() {
                       Words: {wordCount(draft)} · Sentences: {sentenceCount(draft)}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 rounded-lg bg-slate-100 border border-slate-200">
+                      <span className="px-2 py-1 rounded-lg bg-white">
                         Markdown
                       </span>
                     </div>
@@ -990,7 +990,7 @@ export default function Article() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setActiveTab("Details")}
-                    className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200"
                   >
                     Edit Inputs
                   </button>
@@ -1033,15 +1033,15 @@ function Card(props: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="px-4 py-3 border-b border-slate-200 flex items-start justify-between gap-4">
+    <div className="rounded-2xl bg-slate-50">
+      <div className="px-4 py-3 flex items-start justify-between gap-4">
         <div>
           <div className="font-semibold">{props.title}</div>
           {props.subtitle ? <div className="text-xs text-slate-500 mt-0.5">{props.subtitle}</div> : null}
         </div>
         {props.right ? <div className="shrink-0">{props.right}</div> : null}
       </div>
-      <div className="p-4">{props.children}</div>
+      <div className="px-4 pb-4">{props.children}</div>
     </div>
   );
 }
@@ -1091,7 +1091,7 @@ function ScoreRow(props: { label: string; value: number; hint: string }) {
 
 function MetricCard(props: { title: string; value: string; subtitle: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl bg-slate-100 p-4">
       <div className="text-xs text-slate-500">{props.title}</div>
       <div className="text-2xl font-semibold mt-1">{props.value}</div>
       <div className="text-xs text-slate-500 mt-1">{props.subtitle}</div>
