@@ -146,3 +146,6 @@ verify_jwt = true
 
 [functions.facebook-oauth]
 verify_jwt = false
+
+[functions.generate-article]
+verify_jwt = true
