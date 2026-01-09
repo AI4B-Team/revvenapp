@@ -175,12 +175,13 @@ serve(async (req) => {
       })
       .eq('id', videoId);
 
-    // Generate video with Veo 3.1 - always 30 seconds
+    // Generate video with Veo 3.1 - always 25 seconds
     const veoPayload: any = {
       prompt,
       aspectRatio: '16:9',
       model: 'veo3_fast',
-      duration: 30,
+      duration: 25,
+      seconds: 25,
     };
 
     // If image-to-video, include the source image
