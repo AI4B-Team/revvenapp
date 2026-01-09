@@ -1,7 +1,7 @@
 import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook } from 'react-icons/fa';
-import { FaGithub } from 'react-icons/fa';
+import { FaGithub, FaFigma } from 'react-icons/fa';
 import githubLogo from '@/assets/model-logos/github.png';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
@@ -147,6 +147,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [appGithubTab, setAppGithubTab] = useState<'private' | 'public'>('private');
   const [appMcpMemoryEnabled, setAppMcpMemoryEnabled] = useState(false);
   const [appBudgetCredits, setAppBudgetCredits] = useState(25);
+  
+  // Import slideout and modal state
+  const [isImportSlideoutOpen, setIsImportSlideoutOpen] = useState(false);
+  const [isGithubConnectModalOpen, setIsGithubConnectModalOpen] = useState(false);
+  const [isFigmaConnectModalOpen, setIsFigmaConnectModalOpen] = useState(false);
 
   // Animate mode dropdown state (Video)
   const [selectedAnimateMode, setSelectedAnimateMode] = useState('');
@@ -3721,17 +3726,56 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </>
                 ) : isAppsMode ? (
                   <>
-                    {/* Apps Category Icon - Always First */}
+                    {/* Import Icon - Always First */}
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="p-1.5 transition hover:opacity-70">
+                        <button 
+                          onClick={() => setIsImportSlideoutOpen(!isImportSlideoutOpen)}
+                          className="p-1.5 transition hover:opacity-70"
+                        >
                           <Code size={20} strokeWidth={2.5} className="text-brand-red" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black text-white">
-                        <p>App</p>
+                        <p>Import</p>
                       </TooltipContent>
                     </Tooltip>
+                    
+                    {/* Import Slideout Panel */}
+                    {isImportSlideoutOpen && (
+                      <>
+                        {/* Backdrop to close on outside click */}
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={() => setIsImportSlideoutOpen(false)}
+                        />
+                        <div className="absolute left-10 top-0 z-50 flex items-center">
+                          <div className="bg-white border border-border rounded-xl shadow-lg p-4 flex items-center gap-3">
+                            <span className="text-sm font-medium text-foreground whitespace-nowrap">Import From</span>
+                            <button
+                              onClick={() => {
+                                setIsFigmaConnectModalOpen(true);
+                                setIsImportSlideoutOpen(false);
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
+                            >
+                              <FaFigma size={16} />
+                              Figma
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsGithubConnectModalOpen(true);
+                                setIsImportSlideoutOpen(false);
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
+                            >
+                              <FaGithub size={16} />
+                              GitHub
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
                     {/* Auto Prompt - Always Second */}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -9509,6 +9553,80 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           setTimeout(() => setShowTranscribeConfirmModal(true), 100);
         }}
       />
+
+      {/* GitHub Connect Modal */}
+      {isGithubConnectModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setIsGithubConnectModalOpen(false)}>
+          <div className="relative bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <button 
+              onClick={() => setIsGithubConnectModalOpen(false)} 
+              className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-lg transition text-muted-foreground"
+            >
+              <X size={20} />
+            </button>
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 mx-auto bg-black rounded-2xl flex items-center justify-center">
+                <FaGithub size={40} className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Connect to GitHub</h3>
+                <p className="text-sm text-muted-foreground">
+                  To get started, log in to GitHub with your account or create one.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  // TODO: Implement GitHub OAuth
+                  setIsGithubConnectModalOpen(false);
+                }}
+                className="w-full py-3 bg-[#2563eb] text-white font-medium rounded-xl hover:opacity-90 transition"
+              >
+                Log in to GitHub
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Figma Connect Modal */}
+      {isFigmaConnectModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setIsFigmaConnectModalOpen(false)}>
+          <div className="relative bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <button 
+              onClick={() => setIsFigmaConnectModalOpen(false)} 
+              className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-lg transition text-muted-foreground"
+            >
+              <X size={20} />
+            </button>
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 mx-auto bg-black rounded-2xl flex items-center justify-center">
+                <svg width="32" height="48" viewBox="0 0 38 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 28.5C19 25.9804 20.0009 23.5641 21.7825 21.7825C23.5641 20.0009 25.9804 19 28.5 19C31.0196 19 33.4359 20.0009 35.2175 21.7825C36.9991 23.5641 38 25.9804 38 28.5C38 31.0196 36.9991 33.4359 35.2175 35.2175C33.4359 36.9991 31.0196 38 28.5 38C25.9804 38 23.5641 36.9991 21.7825 35.2175C20.0009 33.4359 19 31.0196 19 28.5Z" fill="#1ABCFE"/>
+                  <path d="M0 47.5C0 44.9804 1.00089 42.5641 2.78249 40.7825C4.56408 39.0009 6.98044 38 9.5 38H19V47.5C19 50.0196 17.9991 52.4359 16.2175 54.2175C14.4359 55.9991 12.0196 57 9.5 57C6.98044 57 4.56408 55.9991 2.78249 54.2175C1.00089 52.4359 0 50.0196 0 47.5Z" fill="#0ACF83"/>
+                  <path d="M19 0V19H28.5C31.0196 19 33.4359 17.9991 35.2175 16.2175C36.9991 14.4359 38 12.0196 38 9.5C38 6.98044 36.9991 4.56408 35.2175 2.78249C33.4359 1.00089 31.0196 0 28.5 0H19Z" fill="#FF7262"/>
+                  <path d="M0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19H19V0H9.5C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5Z" fill="#F24E1E"/>
+                  <path d="M0 28.5C0 31.0196 1.00089 33.4359 2.78249 35.2175C4.56408 36.9991 6.98044 38 9.5 38H19V19H9.5C6.98044 19 4.56408 20.0009 2.78249 21.7825C1.00089 23.5641 0 25.9804 0 28.5Z" fill="#A259FF"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Connect to Figma</h3>
+                <p className="text-sm text-muted-foreground">
+                  To get started, log in to Figma with your account or create one.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  // TODO: Implement Figma OAuth
+                  setIsFigmaConnectModalOpen(false);
+                }}
+                className="w-full py-3 bg-[#2563eb] text-white font-medium rounded-xl hover:opacity-90 transition"
+              >
+                Log in to Figma
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
