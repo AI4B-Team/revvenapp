@@ -140,7 +140,14 @@ serve(async (req) => {
         // Step 2: Download video from snap-video URL
         console.log(`[BG-TRANSCRIBE] Step 2: Downloading video...`);
         
-        const videoResponse = await fetch(downloadUrl);
+        const videoResponse = await fetch(downloadUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': '*/*',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://www.instagram.com/',
+          }
+        });
         if (!videoResponse.ok) {
           console.error("[BG-TRANSCRIBE] Video download failed:", videoResponse.status);
           throw new Error(`Failed to download video: ${videoResponse.status}`);
@@ -149,20 +156,37 @@ serve(async (req) => {
         const videoArrayBuffer = await videoResponse.arrayBuffer();
         console.log(`[BG-TRANSCRIBE] Video downloaded: ${videoArrayBuffer.byteLength} bytes`);
         
-        // Step 3: Upload binary to Cloudinary
+        // Step 3: Upload binary to Cloudinary using signed upload
         console.log(`[BG-TRANSCRIBE] Step 3: Uploading to Cloudinary...`);
         
         const CLOUDINARY_CLOUD_NAME = Deno.env.get("CLOUDINARY_CLOUD_NAME") || "dfhyah2xw";
-        const CLOUDINARY_UPLOAD_PRESET = "revven";
+        const CLOUDINARY_API_KEY = Deno.env.get("CLOUDINARY_API_KEY");
+        const CLOUDINARY_API_SECRET = Deno.env.get("CLOUDINARY_API_SECRET");
+
+        if (!CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+          throw new Error("Cloudinary API credentials not configured");
+        }
+
+        // Generate signature for signed upload
+        const timestamp = Math.floor(Date.now() / 1000);
+        const folder = "ugc-audio";
+        const paramsToSign = `folder=${folder}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+        
+        const encoder = new TextEncoder();
+        const data = encoder.encode(paramsToSign);
+        const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
         // Upload as blob directly (no base64 to save memory)
         const videoBlob = new Blob([videoArrayBuffer], { type: 'video/mp4' });
         
         const formData = new FormData();
         formData.append("file", videoBlob, "video.mp4");
-        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        formData.append("resource_type", "video");
-        formData.append("folder", "ugc-audio");
+        formData.append("api_key", CLOUDINARY_API_KEY);
+        formData.append("timestamp", timestamp.toString());
+        formData.append("signature", signature);
+        formData.append("folder", folder);
 
         const cloudinaryResponse = await fetch(
           `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`,
