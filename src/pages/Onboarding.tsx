@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import aivaAvatar from '@/assets/aiva-avatar.png';
 import {
   Dialog,
   DialogContent,
@@ -477,14 +478,14 @@ const Onboarding = () => {
                         <div className="absolute w-28 h-28 bg-green-400 rounded-2xl -rotate-6 opacity-70"></div>
                       </div>
                       <img 
-                        src="/lovable-uploads/a1d7ef28-7506-40a0-81a6-06377997dc14.png"
+                        src={aivaAvatar}
                         alt="AIVA Assistant"
                         className="relative z-10 w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg"
                       />
                     </div>
 
                     <button className="w-full bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary text-foreground border border-border py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
-                      Chat with AIVA
+                      Chat With AIVA
                       <span className="text-lg">→</span>
                     </button>
                   </div>
