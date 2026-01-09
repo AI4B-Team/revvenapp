@@ -1437,31 +1437,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                       <div className="flex items-end gap-4 p-4 bg-muted/50 rounded-lg">
                         <div className="space-y-2">
                           <Label className="text-xs">Select Date (optional)</Label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={cn(
-                                  "w-[180px] justify-start text-left font-normal",
-                                  !ytScheduledDate && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {ytScheduledDate ? format(ytScheduledDate, "PPP") : <span>Pick a date</span>}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 z-[9999]" align="start" sideOffset={5}>
-                              <Calendar
-                                mode="single"
-                                selected={ytScheduledDate}
-                                onSelect={setYtScheduledDate}
-                                disabled={(date) => date < new Date()}
-                                initialFocus
-                                className="p-3 pointer-events-auto bg-popover"
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          <Input
+                            type="date"
+                            className="w-[180px]"
+                            min={format(new Date(), "yyyy-MM-dd")}
+                            value={ytScheduledDate ? format(ytScheduledDate, "yyyy-MM-dd") : ""}
+                            onChange={(e) => setYtScheduledDate(e.target.value ? new Date(e.target.value) : undefined)}
+                          />
                         </div>
 
                         {ytScheduledDate && (
@@ -1534,31 +1516,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                       <div className="flex items-end gap-4 p-4 bg-muted/50 rounded-lg">
                         <div className="space-y-2">
                           <Label className="text-xs">Select Date (optional)</Label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={cn(
-                                  "w-[180px] justify-start text-left font-normal",
-                                  !fbScheduledDate && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {fbScheduledDate ? format(fbScheduledDate, "PPP") : <span>Pick a date</span>}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 z-[9999]" align="start" sideOffset={5}>
-                              <Calendar
-                                mode="single"
-                                selected={fbScheduledDate}
-                                onSelect={setFbScheduledDate}
-                                disabled={(date) => date < new Date()}
-                                initialFocus
-                                className="p-3 pointer-events-auto bg-popover"
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          <Input
+                            type="date"
+                            className="w-[180px]"
+                            min={format(new Date(), "yyyy-MM-dd")}
+                            value={fbScheduledDate ? format(fbScheduledDate, "yyyy-MM-dd") : ""}
+                            onChange={(e) => setFbScheduledDate(e.target.value ? new Date(e.target.value) : undefined)}
+                          />
                         </div>
 
                         {fbScheduledDate && (
