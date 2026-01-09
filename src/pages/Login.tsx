@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,10 +7,14 @@ import { useToast } from '@/components/ui/use-toast';
 import { Session } from '@supabase/supabase-js';
 import RevvenLogo from '@/components/RevvenLogo';
 import AuthShowcase from '@/components/auth/AuthShowcase';
+import { Eye, EyeOff, Check, Circle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [fullName, setFullName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -21,6 +25,35 @@ export default function LoginPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Password strength calculation
+  const passwordStrength = useMemo(() => {
+    const checks = {
+      length: password.length >= 8,
+      upperLower: /[a-z]/.test(password) && /[A-Z]/.test(password),
+      symbol: /[#$&@!%^*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+    };
+    
+    const passedChecks = Object.values(checks).filter(Boolean).length;
+    
+    let strength: 'weak' | 'medium' | 'strong' = 'weak';
+    if (passedChecks === 3) strength = 'strong';
+    else if (passedChecks === 2) strength = 'medium';
+    
+    return { checks, strength, passedChecks };
+  }, [password]);
+
+  const strengthColors = {
+    weak: 'bg-orange-400',
+    medium: 'bg-yellow-400',
+    strong: 'bg-green-500',
+  };
+
+  const strengthLabels = {
+    weak: 'Weak',
+    medium: 'Medium',
+    strong: 'Strong',
+  };
 
   useEffect(() => {
     const checkInviteCodeValidation = async (userId: string): Promise<boolean> => {
@@ -376,17 +409,102 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Password Input */}
-            <div>
-              <Input
-                type="password"
-                placeholder="Enter Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
-                required
-                minLength={6}
-              />
+            {/* Password Input with Strength Indicator */}
+            <div className="relative">
+              <Popover open={isSignUp && isPasswordFocused && password.length > 0}>
+                <PopoverTrigger asChild>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onFocus={() => setIsPasswordFocused(true)}
+                      onBlur={() => setTimeout(() => setIsPasswordFocused(false), 200)}
+                      className="h-12 bg-white border-2 border-gray-400 focus:border-green-600 pr-24"
+                      required
+                      minLength={6}
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                      {/* Strength Badge - Only show in Sign Up mode when password has content */}
+                      {isSignUp && password.length > 0 && (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                          passwordStrength.strength === 'weak' ? 'text-orange-600' :
+                          passwordStrength.strength === 'medium' ? 'text-yellow-600' :
+                          'text-green-600'
+                        }`}>
+                          {strengthLabels[passwordStrength.strength]}
+                        </span>
+                      )}
+                      {/* Show/Hide Password Toggle */}
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="p-1 text-gray-400 hover:text-gray-600 transition"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent 
+                  side="right" 
+                  align="start" 
+                  className="w-64 bg-white border border-gray-200 shadow-lg p-4"
+                  sideOffset={12}
+                >
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        {passwordStrength.strength === 'weak' ? 'Weak Password' :
+                         passwordStrength.strength === 'medium' ? 'Medium Password' :
+                         'Strong Password'}
+                      </h4>
+                      {/* Strength Bar */}
+                      <div className="flex gap-1">
+                        <div className={`h-1 flex-1 rounded ${passwordStrength.passedChecks >= 1 ? strengthColors[passwordStrength.strength] : 'bg-gray-200'}`} />
+                        <div className={`h-1 flex-1 rounded ${passwordStrength.passedChecks >= 2 ? strengthColors[passwordStrength.strength] : 'bg-gray-200'}`} />
+                        <div className={`h-1 flex-1 rounded ${passwordStrength.passedChecks >= 3 ? strengthColors[passwordStrength.strength] : 'bg-gray-200'}`} />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Password Must Include:</p>
+                      <ul className="space-y-1.5">
+                        <li className="flex items-center gap-2 text-sm">
+                          {passwordStrength.checks.length ? (
+                            <Check size={14} className="text-green-500" />
+                          ) : (
+                            <Circle size={14} className="text-gray-300" />
+                          )}
+                          <span className={passwordStrength.checks.length ? 'text-gray-700' : 'text-gray-500'}>
+                            At Least 8 Characters
+                          </span>
+                        </li>
+                        <li className="flex items-center gap-2 text-sm">
+                          {passwordStrength.checks.upperLower ? (
+                            <Check size={14} className="text-green-500" />
+                          ) : (
+                            <Circle size={14} className="text-gray-300" />
+                          )}
+                          <span className={passwordStrength.checks.upperLower ? 'text-gray-700' : 'text-gray-500'}>
+                            Upper & Lower Case Letters
+                          </span>
+                        </li>
+                        <li className="flex items-center gap-2 text-sm">
+                          {passwordStrength.checks.symbol ? (
+                            <Check size={14} className="text-green-500" />
+                          ) : (
+                            <Circle size={14} className="text-gray-300" />
+                          )}
+                          <span className={passwordStrength.checks.symbol ? 'text-gray-700' : 'text-gray-500'}>
+                            A Symbol (#$&)
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Forgot Password - Only for Sign In */}
