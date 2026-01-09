@@ -411,48 +411,43 @@ export default function LoginPage() {
 
             {/* Password Input with Strength Indicator */}
             <div className="relative">
-              <Popover open={isSignUp && isPasswordFocused && password.length > 0}>
-                <PopoverTrigger asChild>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      onFocus={() => setIsPasswordFocused(true)}
-                      onBlur={() => setTimeout(() => setIsPasswordFocused(false), 200)}
-                      className="h-12 bg-white border-2 border-gray-400 focus:border-green-600 pr-24"
-                      required
-                      minLength={6}
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                      {/* Strength Badge - Only show in Sign Up mode when password has content */}
-                      {isSignUp && password.length > 0 && (
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          passwordStrength.strength === 'weak' ? 'text-orange-600' :
-                          passwordStrength.strength === 'medium' ? 'text-yellow-600' :
-                          'text-green-600'
-                        }`}>
-                          {strengthLabels[passwordStrength.strength]}
-                        </span>
-                      )}
-                      {/* Show/Hide Password Toggle */}
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="p-1 text-gray-400 hover:text-gray-600 transition"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent 
-                  side="right" 
-                  align="start" 
-                  className="w-64 bg-white border border-gray-200 shadow-lg p-4"
-                  sideOffset={12}
-                >
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setIsPasswordFocused(true)}
+                  onBlur={() => setIsPasswordFocused(false)}
+                  className="h-12 bg-white border-2 border-gray-400 focus:border-green-600 pr-24"
+                  required
+                  minLength={6}
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  {/* Strength Badge - Only show in Sign Up mode when password has content */}
+                  {isSignUp && password.length > 0 && (
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                      passwordStrength.strength === 'weak' ? 'text-orange-600' :
+                      passwordStrength.strength === 'medium' ? 'text-yellow-600' :
+                      'text-green-600'
+                    }`}>
+                      {strengthLabels[passwordStrength.strength]}
+                    </span>
+                  )}
+                  {/* Show/Hide Password Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="p-1 text-gray-400 hover:text-gray-600 transition"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+              
+              {/* Password Requirements - Only show in Sign Up mode when focused */}
+              {isSignUp && isPasswordFocused && password.length > 0 && (
+                <div className="absolute left-full top-0 ml-3 w-64 bg-white border border-gray-200 shadow-lg rounded-md p-4 z-50">
                   <div className="space-y-3">
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">
@@ -503,8 +498,8 @@ export default function LoginPage() {
                       </ul>
                     </div>
                   </div>
-                </PopoverContent>
-              </Popover>
+                </div>
+              )}
             </div>
 
             {/* Forgot Password - Only for Sign In */}
