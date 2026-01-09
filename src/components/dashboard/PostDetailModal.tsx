@@ -347,12 +347,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
     try {
       const { data, error } = await supabase.functions.invoke('editor-chat', {
         body: {
-          messages: [{
-            role: 'user',
-            content: `Generate 10 relevant hashtags for this ${post.platform} post about: "${editedCaption}". 
-            Return ONLY a JSON array of objects with "tag" (without #) and "relevance" (High, Medium, or Low).
-            Example: [{"tag": "marketing", "relevance": "High"}, {"tag": "business", "relevance": "Medium"}]`
-          }]
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a social media hashtag expert. Generate relevant, trending hashtags that will maximize reach and engagement. Always respond with valid JSON only.'
+            },
+            {
+              role: 'user',
+              content: `Generate 10 relevant hashtags for this ${post.platform} post about: "${editedCaption}". 
+              Return ONLY a JSON array of objects with "tag" (without #) and "relevance" (High, Medium, or Low).
+              Example: [{"tag": "marketing", "relevance": "High"}, {"tag": "business", "relevance": "Medium"}]`
+            }
+          ],
+          stream: false
         }
       });
 
@@ -363,9 +370,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         setHashtagSuggestions(parsed.map((h: any) => ({ ...h, selected: false })));
+        toast.success(`Generated ${parsed.length} hashtag suggestions`);
+      } else {
+        throw new Error('Invalid response format');
       }
     } catch (err) {
       console.error('Failed to generate hashtags:', err);
+      toast.error('Failed to generate hashtags, showing fallback suggestions');
       // Fallback suggestions
       setHashtagSuggestions([
         { tag: 'marketing', relevance: 'High', selected: false },
