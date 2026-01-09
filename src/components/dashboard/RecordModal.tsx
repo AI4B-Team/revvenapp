@@ -281,9 +281,9 @@ export default function RecordModal({
               if (container) {
                 container.style.transform = 'translateY(-' + (e.data.position * 2) + 'px)';
                 if (e.data.text !== undefined) {
-                  container.innerHTML = e.data.text 
-                    ? '<p>' + e.data.text + '</p>' 
-                    : '<p class="placeholder">Enter your script in the main recording window...</p>';
+                  // Use textContent to prevent XSS attacks
+                  container.textContent = e.data.text || 'Enter your script in the main recording window...';
+                  container.style.padding = '20px';
                 }
               }
               if (e.data.backgroundColor) {

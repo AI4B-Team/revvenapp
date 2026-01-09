@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { validateFile, createPreviewUrl, MAX_IMAGES } from "@/utils/imageUtils";
 import FileFormatIcons from '@/components/ui/FileFormatIcons';
 
-const PEXELS_API_KEY = "gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT";
 
 interface PexelsPhoto {
   id: number;
@@ -83,18 +82,12 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   const fetchStockImages = async (query: string, page: number = 1) => {
     setIsLoadingStock(true);
     try {
-      const response = await fetch(
-        `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=30&page=${page}`,
-        {
-          headers: {
-            Authorization: PEXELS_API_KEY
-          }
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('pexels-proxy', {
+        body: { type: 'images', query, page, per_page: 30 }
+      });
       
-      if (!response.ok) throw new Error('Failed to fetch stock images');
+      if (error) throw new Error('Failed to fetch stock images');
       
-      const data = await response.json();
       if (page === 1) {
         setStockImages(data.photos || []);
       } else {
