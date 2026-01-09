@@ -419,8 +419,8 @@ const Onboarding = () => {
                   })}
                 </div>
 
-                {/* Right Column - Video Tutorial */}
-                <div className="lg:col-span-1">
+                {/* Right Column - Video Tutorial & Meet AIVA */}
+                <div className="lg:col-span-1 space-y-6">
                   <div className="bg-card rounded-2xl shadow-sm p-6 border border-border sticky top-6">
                     <h3 className="text-xl font-bold text-foreground mb-3">
                       Watch This 3 Minute Overview
@@ -453,6 +453,39 @@ const Onboarding = () => {
                       className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-semibold transition-colors"
                     >
                       Play Overview
+                    </button>
+                  </div>
+
+                  {/* Meet AIVA Card */}
+                  <div className="bg-gradient-to-b from-green-50 to-white dark:from-green-950/20 dark:to-card rounded-2xl shadow-sm p-6 border border-green-100 dark:border-green-800">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-10 h-10 bg-brand-green rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-foreground">Meet AIVA</h3>
+                        <p className="text-muted-foreground text-sm">
+                          Your real-time assistant, coach, and helper for everything REVVEN. Available 24/7.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Avatar with geometric background */}
+                    <div className="relative flex items-center justify-center py-6">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-32 h-32 bg-brand-green rounded-2xl rotate-12 opacity-90"></div>
+                        <div className="absolute w-28 h-28 bg-green-400 rounded-2xl -rotate-6 opacity-70"></div>
+                      </div>
+                      <img 
+                        src="/lovable-uploads/a1d7ef28-7506-40a0-81a6-06377997dc14.png"
+                        alt="AIVA Assistant"
+                        className="relative z-10 w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg"
+                      />
+                    </div>
+
+                    <button className="w-full bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary text-foreground border border-border py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                      Chat with AIVA
+                      <span className="text-lg">→</span>
                     </button>
                   </div>
                 </div>
