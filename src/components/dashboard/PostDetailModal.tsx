@@ -104,8 +104,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [fbScheduledTime, setFbScheduledTime] = useState('12:00');
   const [isPublishingToFB, setIsPublishingToFB] = useState(false);
   
-  // Manual publish mode - when ON, user publishes manually; when OFF, auto-publish by schedule
-  const [manualPublishMode, setManualPublishMode] = useState(false);
+  // Auto publish mode - when ON, auto-publish by schedule; when OFF, user publishes manually
+  const [autoPublishMode, setAutoPublishMode] = useState(true);
   
   // Check if post is published (for showing Results tab)
   const isPublished = post?.status === 'published' || post?.status === 'posted';
@@ -1337,33 +1337,33 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center",
-                    manualPublishMode ? "bg-amber-100 dark:bg-amber-900/30" : "bg-emerald-100 dark:bg-emerald-900/30"
+                    autoPublishMode ? "bg-emerald-100 dark:bg-emerald-900/30" : "bg-amber-100 dark:bg-amber-900/30"
                   )}>
-                    {manualPublishMode ? (
-                      <Send className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    ) : (
+                    {autoPublishMode ? (
                       <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    ) : (
+                      <Send className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     )}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {manualPublishMode ? 'Manual Publish' : 'Auto Publish'}
+                      {autoPublishMode ? 'Auto Publish' : 'Manual Publish'}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {manualPublishMode 
-                        ? 'You will publish this post manually' 
-                        : 'Post will be published automatically on schedule'}
+                      {autoPublishMode 
+                        ? 'Post will be published automatically on schedule' 
+                        : 'You will publish this post manually'}
                     </p>
                   </div>
                 </div>
                 <Switch
-                  checked={manualPublishMode}
-                  onCheckedChange={setManualPublishMode}
+                  checked={autoPublishMode}
+                  onCheckedChange={setAutoPublishMode}
                 />
               </div>
 
-              {/* Manual Publish Buttons - Only show when manual mode is ON */}
-              {manualPublishMode && (
+              {/* Manual Publish Buttons - Only show when auto mode is OFF */}
+              {!autoPublishMode && (
                 <>
                   {/* YouTube Publish Section */}
                   <div className="space-y-3">
