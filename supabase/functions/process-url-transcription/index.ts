@@ -319,58 +319,47 @@ serve(async (req) => {
           name: title,
         }).eq('id', recordId);
 
-        // Step 3: Transcribe using ElevenLabs
-        console.log(`[BG-TRANSCRIBE] Step 3: Transcribing audio...`);
+        // Step 3: Transcribe using OpenAI Whisper (handles video files directly)
+        console.log(`[BG-TRANSCRIBE] Step 3: Transcribing audio with OpenAI Whisper...`);
         
-        const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-        if (!ELEVENLABS_API_KEY) {
-          throw new Error("ELEVENLABS_API_KEY not configured");
+        const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+        if (!OPENAI_API_KEY) {
+          throw new Error("OPENAI_API_KEY not configured");
         }
 
-        // Fetch audio from Cloudinary - use audio extraction transformation
-        // Convert video URL to audio-only URL using Cloudinary transformations
-        const audioOnlyUrl = audioUrl.replace('/upload/', '/upload/f_mp3/').replace('.mp4', '.mp3');
-        console.log(`[BG-TRANSCRIBE] Fetching audio from: ${audioOnlyUrl}`);
+        // Fetch video/audio from Cloudinary
+        console.log(`[BG-TRANSCRIBE] Fetching media from: ${audioUrl}`);
         
-        let audioBlob: Blob;
-        let audioFileName: string;
-        
-        const audioResponse = await fetch(audioOnlyUrl);
-        if (audioResponse.ok) {
-          const audioArrayBuffer = await audioResponse.arrayBuffer();
-          audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
-          audioFileName = "audio.mp3";
-          console.log(`[BG-TRANSCRIBE] Audio extracted successfully: ${audioArrayBuffer.byteLength} bytes`);
-        } else {
-          console.log(`[BG-TRANSCRIBE] Audio extraction failed (${audioResponse.status}), using original video`);
-          // Fallback to original URL if transformation fails
-          const originalResponse = await fetch(audioUrl);
-          if (!originalResponse.ok) {
-            throw new Error(`Failed to fetch audio: ${originalResponse.status}`);
-          }
-          const audioArrayBuffer = await originalResponse.arrayBuffer();
-          audioBlob = new Blob([audioArrayBuffer], { type: 'video/mp4' });
-          audioFileName = "video.mp4";
+        const mediaResponse = await fetch(audioUrl);
+        if (!mediaResponse.ok) {
+          throw new Error(`Failed to fetch media: ${mediaResponse.status}`);
         }
+        const mediaArrayBuffer = await mediaResponse.arrayBuffer();
+        console.log(`[BG-TRANSCRIBE] Media fetched: ${mediaArrayBuffer.byteLength} bytes`);
+        
+        // Determine file type from URL
+        const isVideo = audioUrl.includes('.mp4') || audioUrl.includes('video');
+        const mimeType = isVideo ? 'video/mp4' : 'audio/mpeg';
+        const fileName = isVideo ? 'video.mp4' : 'audio.mp3';
+        
+        const mediaBlob = new Blob([mediaArrayBuffer], { type: mimeType });
 
-        // Send to ElevenLabs
+        // Send to OpenAI Whisper
         const transcribeFormData = new FormData();
-        transcribeFormData.append("file", audioBlob, audioFileName);
-        transcribeFormData.append("model_id", "scribe_v1");
-        transcribeFormData.append("tag_audio_events", "false");
-        transcribeFormData.append("diarize", "false");
+        transcribeFormData.append("file", mediaBlob, fileName);
+        transcribeFormData.append("model", "whisper-1");
 
-        const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+        const transcribeResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
           method: "POST",
           headers: {
-            "xi-api-key": ELEVENLABS_API_KEY,
+            "Authorization": `Bearer ${OPENAI_API_KEY}`,
           },
           body: transcribeFormData,
         });
 
         if (!transcribeResponse.ok) {
           const errorText = await transcribeResponse.text();
-          console.error("[BG-TRANSCRIBE] ElevenLabs error:", transcribeResponse.status, errorText);
+          console.error("[BG-TRANSCRIBE] OpenAI Whisper error:", transcribeResponse.status, errorText);
           throw new Error(`Transcription failed: ${transcribeResponse.status}`);
         }
 
