@@ -12,7 +12,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -1131,7 +1130,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                   <div className="bg-muted/50 rounded-lg p-4 mb-6">
                     <div className="flex items-center justify-center gap-4 text-sm">
                       <div className="flex items-center gap-2 text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
+                        <CalendarIcon className="w-4 h-4" />
                         <span>{post.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
