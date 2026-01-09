@@ -149,7 +149,7 @@ serve(async (req) => {
         
         console.log(`[BG-TRANSCRIBE] Using referer: ${referer}, isInstagram: ${isInstagram}, isYouTube: ${isYouTube}`);
         
-        const videoResponse = await fetch(downloadUrl, {
+        let videoResponse = await fetch(downloadUrl, {
           method: 'GET',
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -166,6 +166,62 @@ serve(async (req) => {
         
         console.log(`[BG-TRANSCRIBE] Video download response status: ${videoResponse.status}`);
         console.log(`[BG-TRANSCRIBE] Video download response headers: ${JSON.stringify(Object.fromEntries(videoResponse.headers.entries()))}`);
+        
+        // If primary download fails for Instagram, try RapidAPI fallback
+        if (!videoResponse.ok && isInstagram) {
+          console.log(`[BG-TRANSCRIBE] Primary download failed for Instagram, trying RapidAPI fallback...`);
+          
+          try {
+            const rapidApiInstagramUrl = `https://instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com/?url=${encodeURIComponent(cleanUrl)}`;
+            
+            const rapidApiResponse = await fetch(rapidApiInstagramUrl, {
+              method: 'GET',
+              headers: {
+                'x-rapidapi-host': 'instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com',
+                'x-rapidapi-key': RAPIDAPI_KEY,
+              }
+            });
+            
+            console.log(`[BG-TRANSCRIBE] RapidAPI Instagram response status: ${rapidApiResponse.status}`);
+            
+            if (rapidApiResponse.ok) {
+              const rapidApiData = await rapidApiResponse.json();
+              console.log(`[BG-TRANSCRIBE] RapidAPI Instagram data: ${JSON.stringify(rapidApiData).substring(0, 500)}`);
+              
+              // Extract video URL from RapidAPI response
+              let fallbackUrl: string | null = null;
+              
+              // Try different response structures
+              if (rapidApiData.result && Array.isArray(rapidApiData.result)) {
+                const videoItem = rapidApiData.result.find((item: any) => item.type === 'video' || item.url?.includes('.mp4'));
+                fallbackUrl = videoItem?.url || rapidApiData.result[0]?.url;
+              } else if (rapidApiData.video_url) {
+                fallbackUrl = rapidApiData.video_url;
+              } else if (rapidApiData.url) {
+                fallbackUrl = rapidApiData.url;
+              } else if (rapidApiData.download_url) {
+                fallbackUrl = rapidApiData.download_url;
+              }
+              
+              if (fallbackUrl) {
+                console.log(`[BG-TRANSCRIBE] Got fallback URL: ${fallbackUrl.substring(0, 80)}...`);
+                
+                // Download from fallback URL
+                videoResponse = await fetch(fallbackUrl, {
+                  method: 'GET',
+                  headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': '*/*',
+                  }
+                });
+                
+                console.log(`[BG-TRANSCRIBE] Fallback download response status: ${videoResponse.status}`);
+              }
+            }
+          } catch (fallbackError) {
+            console.error(`[BG-TRANSCRIBE] RapidAPI fallback error:`, fallbackError);
+          }
+        }
         
         if (!videoResponse.ok) {
           const errorBody = await videoResponse.text().catch(() => 'Could not read error body');
