@@ -36,6 +36,14 @@ interface ConnectedPage {
   token_expires_at: string | null;
 }
 
+interface YouTubeChannel {
+  id: string;
+  channel_id: string;
+  channel_title: string;
+  channel_thumbnail: string | null;
+  token_expires_at: string;
+}
+
 interface AddAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -130,12 +138,28 @@ const platforms: SocialPlatform[] = [
 
 const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) => {
   const [connectedPages, setConnectedPages] = useState<ConnectedPage[]>([]);
+  const [youtubeChannels, setYoutubeChannels] = useState<YouTubeChannel[]>([]);
   const [loading, setLoading] = useState(false);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       loadConnectedPages();
+      loadYouTubeChannels();
+      
+      // Listen for OAuth callbacks
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data?.type === 'FACEBOOK_AUTH_SUCCESS') {
+          loadConnectedPages();
+          toast.success('Facebook page connected successfully!');
+        } else if (event.data?.type === 'YOUTUBE_AUTH_SUCCESS') {
+          loadYouTubeChannels();
+          toast.success('YouTube channel connected successfully!');
+        }
+      };
+      
+      window.addEventListener('message', handleMessage);
+      return () => window.removeEventListener('message', handleMessage);
     }
   }, [isOpen]);
 
@@ -153,6 +177,20 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
     }
   };
 
+  const loadYouTubeChannels = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('youtube_channels')
+      .select('id, channel_id, channel_title, channel_thumbnail, token_expires_at')
+      .eq('user_id', user.id);
+
+    if (!error && data) {
+      setYoutubeChannels(data);
+    }
+  };
+
   const handleConnect = async (platformId: string) => {
     if (platformId === 'facebook') {
       setLoading(true);
@@ -163,20 +201,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
 
         if (error) throw error;
         if (data?.url) {
-          const popup = window.open(data.url, 'Facebook Login', 'width=600,height=700');
-          
-          const handleMessage = (event: MessageEvent) => {
-            if (event.data?.type === 'FACEBOOK_AUTH_SUCCESS') {
-              loadConnectedPages();
-              toast.success('Facebook page connected successfully!');
-              window.removeEventListener('message', handleMessage);
-            } else if (event.data?.type === 'FACEBOOK_AUTH_ERROR') {
-              toast.error(event.data.error || 'Failed to connect Facebook');
-              window.removeEventListener('message', handleMessage);
-            }
-          };
-          
-          window.addEventListener('message', handleMessage);
+          window.open(data.url, 'Facebook Login', 'width=600,height=700');
         }
       } catch (err) {
         console.error('Error connecting Facebook:', err);
@@ -184,9 +209,46 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
       } finally {
         setLoading(false);
       }
+    } else if (platformId === 'youtube') {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('youtube-oauth', {
+          body: { action: 'get_auth_url' }
+        });
+
+        if (error) throw error;
+        if (data?.url) {
+          window.open(data.url, 'YouTube Login', 'width=600,height=700');
+        }
+      } catch (err) {
+        console.error('Error connecting YouTube:', err);
+        toast.error('Failed to connect YouTube');
+      } finally {
+        setLoading(false);
+      }
     } else {
       console.log(`Connecting to ${platformId}`);
       toast.info(`${platformId} integration coming soon`);
+    }
+  };
+
+  const handleDisconnectYouTube = async (channelId: string, channelTitle: string) => {
+    setDisconnecting(channelId);
+    try {
+      const { error } = await supabase
+        .from('youtube_channels')
+        .delete()
+        .eq('id', channelId);
+
+      if (error) throw error;
+
+      setYoutubeChannels(prev => prev.filter(c => c.id !== channelId));
+      toast.success(`Disconnected ${channelTitle}`);
+    } catch (err) {
+      console.error('Error disconnecting channel:', err);
+      toast.error('Failed to disconnect channel');
+    } finally {
+      setDisconnecting(null);
     }
   };
 
@@ -249,10 +311,11 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
         </DialogHeader>
 
         {/* Connected Accounts Section */}
-        {connectedPages.length > 0 && (
+        {(connectedPages.length > 0 || youtubeChannels.length > 0) && (
           <div className="pb-4 border-b border-border">
             <h3 className="text-sm font-medium text-muted-foreground mb-3">Connected Accounts</h3>
             <div className="space-y-2">
+              {/* Facebook Pages */}
               {connectedPages.map(page => (
                 <div
                   key={page.id}
@@ -315,6 +378,48 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
                       )}
                     </Button>
                   </div>
+                </div>
+              ))}
+
+              {/* YouTube Channels */}
+              {youtubeChannels.map(channel => (
+                <div
+                  key={channel.id}
+                  className="flex items-center justify-between p-3 rounded-xl border border-border bg-card"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center overflow-hidden">
+                      {channel.channel_thumbnail ? (
+                        <img src={channel.channel_thumbnail} alt={channel.channel_title} className="w-full h-full object-cover" />
+                      ) : (
+                        <YouTubeIcon className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{channel.channel_title}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">YouTube Channel</span>
+                        {isTokenExpired(channel.token_expires_at) && (
+                          <span className="text-xs text-destructive flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" /> Expired
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDisconnectYouTube(channel.id, channel.channel_title)}
+                    disabled={disconnecting === channel.id}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    {disconnecting === channel.id ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
                 </div>
               ))}
             </div>
