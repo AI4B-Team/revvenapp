@@ -200,8 +200,8 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
         });
 
         if (error) throw error;
-        if (data?.url) {
-          window.open(data.url, 'Facebook Login', 'width=600,height=700');
+        if (data?.auth_url) {
+          window.open(data.auth_url, 'Facebook Login', 'width=600,height=700');
         }
       } catch (err) {
         console.error('Error connecting Facebook:', err);
