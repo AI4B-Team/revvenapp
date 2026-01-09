@@ -165,14 +165,11 @@ export default function LoginPage() {
     
     setIsLoading(true);
 
-    // Validate that the invite code exists and is not already used
-    const { data: codeData, error: codeError } = await supabase
-      .from('invite_codes')
-      .select('id, is_used')
-      .eq('code', inviteCode.toUpperCase())
-      .single();
+    // Validate that the invite code exists and is not already used using secure RPC function
+    const { data: codeCheck, error: codeError } = await supabase
+      .rpc('check_invite_code', { code_to_check: inviteCode.toUpperCase() });
 
-    if (codeError || !codeData) {
+    if (codeError || !codeCheck || codeCheck.length === 0 || !codeCheck[0].is_valid) {
       setIsLoading(false);
       toast({
         title: "Invalid Invite Code",
@@ -182,7 +179,7 @@ export default function LoginPage() {
       return;
     }
 
-    if (codeData.is_used) {
+    if (codeCheck[0].is_used) {
       setIsLoading(false);
       toast({
         title: "Code Already Used",
@@ -244,17 +241,12 @@ export default function LoginPage() {
       }
     }
 
-    // Mark the invite code as used and store the new user's info
-    await supabase
-      .from('invite_codes')
-      .update({
-        is_used: true,
-        used_at: new Date().toISOString(),
-        used_by_email: email,
-        used_by_name: fullName,
-        used_by_user_id: authData.user?.id,
-      })
-      .eq('code', inviteCode.toUpperCase());
+    // Mark the invite code as used using secure RPC function
+    await supabase.rpc('redeem_invite_code', {
+      code_to_redeem: inviteCode.toUpperCase(),
+      redeemer_email: email,
+      redeemer_name: fullName
+    });
 
     // Mark the user's invite code as validated in their profile
     if (authData.user) {

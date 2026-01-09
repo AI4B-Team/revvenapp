@@ -49,14 +49,11 @@ export default function SignupPage() {
     setValidatingCode(true);
     try {
       const { data, error } = await supabase
-        .from('invite_codes')
-        .select('id, is_used')
-        .eq('code', code.toUpperCase())
-        .single();
+        .rpc('check_invite_code', { code_to_check: code.toUpperCase() });
 
-      if (error || !data) {
+      if (error || !data || data.length === 0 || !data[0].is_valid) {
         setInviteCodeValid(false);
-      } else if (data.is_used) {
+      } else if (data[0].is_used) {
         setInviteCodeValid(false);
       } else {
         setInviteCodeValid(true);
@@ -95,16 +92,13 @@ export default function SignupPage() {
     }
 
     if (inviteCodeValid === null) {
-      // Validate the code before proceeding
+      // Validate the code before proceeding using secure RPC function
       setValidatingCode(true);
       const { data, error } = await supabase
-        .from('invite_codes')
-        .select('id, is_used')
-        .eq('code', inviteCode.toUpperCase())
-        .single();
+        .rpc('check_invite_code', { code_to_check: inviteCode.toUpperCase() });
       setValidatingCode(false);
 
-      if (error || !data || data.is_used) {
+      if (error || !data || data.length === 0 || !data[0].is_valid || data[0].is_used) {
         setInviteCodeValid(false);
         setError('Invalid or already used invite code. Please enter a valid code.');
         return;
@@ -208,19 +202,15 @@ export default function SignupPage() {
       
       console.log('Verifying OTP:', { email, code });
       
-      // Mark invite code as used and store the name and email of the person who signed up
+      // Mark invite code as used using secure RPC function
       const pendingInviteCode = localStorage.getItem('pendingInviteCode');
       if (pendingInviteCode) {
         const fullName = `${firstName} ${lastName}`.trim();
-        await supabase
-          .from('invite_codes')
-          .update({ 
-            is_used: true, 
-            used_at: new Date().toISOString(),
-            used_by_email: email,
-            used_by_name: fullName
-          })
-          .eq('code', pendingInviteCode);
+        await supabase.rpc('redeem_invite_code', {
+          code_to_redeem: pendingInviteCode,
+          redeemer_email: email,
+          redeemer_name: fullName
+        });
         
         localStorage.removeItem('pendingInviteCode');
       }
