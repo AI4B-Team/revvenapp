@@ -327,17 +327,35 @@ serve(async (req) => {
           throw new Error("ELEVENLABS_API_KEY not configured");
         }
 
-        // Fetch audio from Cloudinary
-        const audioResponse = await fetch(audioUrl);
-        if (!audioResponse.ok) {
-          throw new Error(`Failed to fetch audio: ${audioResponse.status}`);
+        // Fetch audio from Cloudinary - use audio extraction transformation
+        // Convert video URL to audio-only URL using Cloudinary transformations
+        const audioOnlyUrl = audioUrl.replace('/upload/', '/upload/f_mp3/').replace('.mp4', '.mp3');
+        console.log(`[BG-TRANSCRIBE] Fetching audio from: ${audioOnlyUrl}`);
+        
+        let audioBlob: Blob;
+        let audioFileName: string;
+        
+        const audioResponse = await fetch(audioOnlyUrl);
+        if (audioResponse.ok) {
+          const audioArrayBuffer = await audioResponse.arrayBuffer();
+          audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
+          audioFileName = "audio.mp3";
+          console.log(`[BG-TRANSCRIBE] Audio extracted successfully: ${audioArrayBuffer.byteLength} bytes`);
+        } else {
+          console.log(`[BG-TRANSCRIBE] Audio extraction failed (${audioResponse.status}), using original video`);
+          // Fallback to original URL if transformation fails
+          const originalResponse = await fetch(audioUrl);
+          if (!originalResponse.ok) {
+            throw new Error(`Failed to fetch audio: ${originalResponse.status}`);
+          }
+          const audioArrayBuffer = await originalResponse.arrayBuffer();
+          audioBlob = new Blob([audioArrayBuffer], { type: 'video/mp4' });
+          audioFileName = "video.mp4";
         }
-        const audioArrayBuffer = await audioResponse.arrayBuffer();
-        const audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
 
         // Send to ElevenLabs
         const transcribeFormData = new FormData();
-        transcribeFormData.append("file", audioBlob, "audio.mp3");
+        transcribeFormData.append("file", audioBlob, audioFileName);
         transcribeFormData.append("model_id", "scribe_v1");
         transcribeFormData.append("tag_audio_events", "false");
         transcribeFormData.append("diarize", "false");
