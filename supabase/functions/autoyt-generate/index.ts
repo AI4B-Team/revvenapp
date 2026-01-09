@@ -175,13 +175,11 @@ serve(async (req) => {
       })
       .eq('id', videoId);
 
-    // Generate video with Veo 3.1 - always 25 seconds
+    // Generate video with Veo 3.1 - will extend to ~24 seconds (3 x 8s segments)
     const veoPayload: any = {
       prompt,
       aspectRatio: '16:9',
       model: 'veo3_fast',
-      duration: 25,
-      seconds: 25,
     };
 
     // If image-to-video, include the source image
@@ -256,8 +254,20 @@ async function pollVideoCompletion(
   publishMode: string
 ) {
   const KIE_AI_API_KEY = Deno.env.get('KIE_AI_API_KEY');
-  const maxAttempts = 120; // 10 minutes max (video generation can take a while)
+  const maxAttempts = 120; // 10 minutes max per segment
   let attempts = 0;
+  let currentTaskId = taskId;
+  let extensionCount = 0;
+  const targetExtensions = 2; // Extend 2 times for ~24 seconds total (3 x 8s)
+
+  // Get original prompt for extensions
+  const { data: videoRecord } = await supabase
+    .from('autoyt_videos')
+    .select('prompt')
+    .eq('id', videoId)
+    .single();
+  
+  const originalPrompt = videoRecord?.prompt || '';
 
   while (attempts < maxAttempts) {
     await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
@@ -265,14 +275,14 @@ async function pollVideoCompletion(
 
     try {
       // Use the correct record-info endpoint with query parameter
-      const statusResponse = await fetch(`https://api.kie.ai/api/v1/veo/record-info?taskId=${taskId}`, {
+      const statusResponse = await fetch(`https://api.kie.ai/api/v1/veo/record-info?taskId=${currentTaskId}`, {
         headers: {
           'Authorization': `Bearer ${KIE_AI_API_KEY}`,
         },
       });
 
       const statusData = await statusResponse.json();
-      console.log(`Poll attempt ${attempts}:`, JSON.stringify(statusData));
+      console.log(`Poll attempt ${attempts} (extension ${extensionCount}/${targetExtensions}):`, JSON.stringify(statusData));
 
       // successFlag: 0=generating, 1=success, 2=failed, 3=generation failed
       const successFlag = statusData.data?.successFlag;
@@ -286,8 +296,39 @@ async function pollVideoCompletion(
           console.error('No video URL in response:', statusData);
           continue;
         }
+
+        // Check if we need more extensions
+        if (extensionCount < targetExtensions) {
+          console.log(`Extending video (${extensionCount + 1}/${targetExtensions})...`);
+          
+          // Call extend API
+          const extendResponse = await fetch('https://api.kie.ai/api/v1/veo/extend', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${KIE_AI_API_KEY}`,
+            },
+            body: JSON.stringify({
+              taskId: currentTaskId,
+              prompt: `Continue the scene: ${originalPrompt}`,
+            }),
+          });
+
+          const extendData = await extendResponse.json();
+          console.log('Extend response:', extendData);
+
+          if (extendData.data?.taskId) {
+            currentTaskId = extendData.data.taskId;
+            extensionCount++;
+            attempts = 0; // Reset attempts for new extension
+            continue;
+          } else {
+            console.error('Failed to extend video:', extendData);
+            // Continue with current video if extension fails
+          }
+        }
         
-        // Update video record
+        // All extensions complete or extension failed, save final video
         await supabase
           .from('autoyt_videos')
           .update({
@@ -313,7 +354,7 @@ async function pollVideoCompletion(
           }
         }
 
-        console.log('Video generation completed:', videoId);
+        console.log(`Video generation completed with ${extensionCount} extensions:`, videoId);
         return;
       }
 
