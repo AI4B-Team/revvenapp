@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   ChevronUp, ChevronDown, Check, Play, Image as ImageIcon, 
   Layout, Users, Sparkles, Video, DollarSign, Zap, FileText, 
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 
 const Onboarding = () => {
+  const navigate = useNavigate();
   const [completedTasks, setCompletedTasks] = useState(new Set(['create-project']));
   const [expandedSections, setExpandedSections] = useState(new Set(['getting-started']));
   const [activeTab, setActiveTab] = useState('Content');
@@ -483,7 +485,10 @@ const Onboarding = () => {
                       />
                     </div>
 
-                    <button className="w-full bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary text-foreground border border-border py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                    <button 
+                      onClick={() => navigate('/assistant')}
+                      className="w-full bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary text-foreground border border-border py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                    >
                       Chat With AIVA
                       <span className="text-lg">→</span>
                     </button>
