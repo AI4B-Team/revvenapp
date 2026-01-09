@@ -73,14 +73,28 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">4. AI Training and Content Processing</h2>
+            <h2 className="text-xl font-semibold text-foreground">4. Auto-Posting and Social Media Integration</h2>
+            <p>Our Service includes features that allow automated posting to your connected social media accounts. When you use these features:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Account Connections:</strong> We securely store OAuth tokens and access credentials for your connected social media accounts (YouTube, Facebook, Instagram, TikTok, etc.)</li>
+              <li><strong>Scheduled Content:</strong> Content you schedule for auto-posting is stored on our servers until published, then retained according to your plan settings</li>
+              <li><strong>Platform Data:</strong> We may receive analytics data from connected platforms about your posted content's performance</li>
+              <li><strong>Access Permissions:</strong> We only request the minimum permissions necessary to post content on your behalf</li>
+              <li><strong>Token Security:</strong> Access tokens are encrypted and stored securely. You can revoke access at any time through your account settings</li>
+              <li><strong>Publishing Actions:</strong> All auto-publishing actions are logged for your review and can be managed in your dashboard</li>
+            </ul>
+            <p>You maintain full control over auto-posting features and can disable them at any time. We never post content without your explicit scheduling or approval.</p>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold text-foreground">5. AI Training and Content Processing</h2>
             <p><strong>How Your Content is Processed:</strong> When you use our AI features, your prompts and inputs are sent to AI processing systems to generate outputs. This processing is necessary to provide the Service.</p>
             <p><strong>AI Model Training:</strong> We may use aggregated, de-identified data derived from user interactions to improve our AI models and Service quality. We do NOT use your specific User Content or Generated Content to train AI models without your explicit opt-in consent.</p>
             <p><strong>Third-Party AI Providers:</strong> Some AI features are powered by third-party providers who process data according to their own privacy policies. We select providers with strong privacy commitments and enter into data processing agreements with them.</p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">5. Information Sharing and Disclosure</h2>
+            <h2 className="text-xl font-semibold text-foreground">6. Information Sharing and Disclosure</h2>
             <p>We do NOT sell your personal information. We may share your information in the following circumstances:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Service Providers:</strong> With vendors who perform services on our behalf (cloud hosting, payment processing, analytics, customer support)</li>
@@ -92,7 +106,7 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">6. Data Retention</h2>
+            <h2 className="text-xl font-semibold text-foreground">7. Data Retention</h2>
             <p>We retain your information for as long as your account is active or as needed to provide the Service. Specifically:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Account Data:</strong> Retained until you delete your account</li>
@@ -105,7 +119,7 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">7. Data Security</h2>
+            <h2 className="text-xl font-semibold text-foreground">8. Data Security</h2>
             <p>We implement industry-standard security measures to protect your information, including:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Encryption of data in transit (TLS/SSL) and at rest (AES-256)</li>
@@ -118,7 +132,7 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">8. Your Rights and Choices</h2>
+            <h2 className="text-xl font-semibold text-foreground">9. Your Rights and Choices</h2>
             <p>Depending on your location, you may have the following rights:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Access:</strong> Request a copy of the personal information we hold about you</li>
@@ -133,7 +147,7 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">9. Cookies and Tracking Technologies</h2>
+            <h2 className="text-xl font-semibold text-foreground">10. Cookies and Tracking Technologies</h2>
             <p>We use cookies and similar technologies to:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Keep you logged in and remember your preferences</li>
@@ -145,17 +159,17 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">10. International Data Transfers</h2>
+            <h2 className="text-xl font-semibold text-foreground">11. International Data Transfers</h2>
             <p>Your information may be transferred to and processed in countries other than your country of residence, including the United States. These countries may have different data protection laws. We ensure appropriate safeguards are in place for such transfers, including Standard Contractual Clauses where required.</p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">11. Children's Privacy</h2>
+            <h2 className="text-xl font-semibold text-foreground">12. Children's Privacy</h2>
             <p>The Service is not intended for individuals under 18 years of age. We do not knowingly collect personal information from children. If we learn that we have collected personal information from a child under 18, we will take steps to delete that information promptly.</p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">12. California Privacy Rights (CCPA)</h2>
+            <h2 className="text-xl font-semibold text-foreground">13. California Privacy Rights (CCPA)</h2>
             <p>If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA), including:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>The right to know what personal information is collected, used, shared, or sold</li>
@@ -166,19 +180,19 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">13. European Privacy Rights (GDPR)</h2>
+            <h2 className="text-xl font-semibold text-foreground">14. European Privacy Rights (GDPR)</h2>
             <p>If you are in the European Economic Area (EEA), UK, or Switzerland, you have rights under the General Data Protection Regulation (GDPR) including access, rectification, erasure, restriction, portability, and objection. Our legal bases for processing include contract performance, legitimate interests, legal obligations, and consent where applicable.</p>
             <p>For GDPR inquiries or to contact our Data Protection Officer, email: dpo@revven.ai</p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">14. Changes to This Privacy Policy</h2>
+            <h2 className="text-xl font-semibold text-foreground">15. Changes to This Privacy Policy</h2>
             <p>We may update this Privacy Policy from time to time. We will notify you of material changes by posting the new policy on this page and updating the "Last updated" date. For significant changes, we will provide additional notice via email or in-app notification.</p>
             <p>We encourage you to review this Privacy Policy periodically.</p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">15. Contact Us</h2>
+            <h2 className="text-xl font-semibold text-foreground">16. Contact Us</h2>
             <p>If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
             <p>Email: privacy@revven.ai</p>
             <p>For data subject access requests: dsar@revven.ai</p>
