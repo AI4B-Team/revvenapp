@@ -69,20 +69,31 @@ serve(async (req) => {
         let title = "media_audio";
         
         if (isInstagramUrl) {
-          // Use RapidAPI Instagram Downloader for Instagram URLs
-          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using dedicated Instagram API...");
+          // Use RapidAPI Instagram Scraper API for Instagram URLs
+          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using Instagram Scraper API...");
           
           const RAPIDAPI_INSTAGRAM_KEY = Deno.env.get("RAPIDAPI_INSTAGRAM_KEY");
           if (!RAPIDAPI_INSTAGRAM_KEY) {
             throw new Error("RAPIDAPI_INSTAGRAM_KEY not configured");
           }
           
-          const rapidApiInstagramUrl = `https://instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com/?Userinfo=${encodeURIComponent(cleanUrl)}`;
+          // Extract the reel/post shortcode from URL
+          const shortcodeMatch = cleanUrl.match(/\/(reel|p)\/([A-Za-z0-9_-]+)/);
+          const shortcode = shortcodeMatch ? shortcodeMatch[2] : null;
+          
+          if (!shortcode) {
+            throw new Error("Could not extract Instagram shortcode from URL");
+          }
+          
+          console.log(`[BG-TRANSCRIBE] Extracted shortcode: ${shortcode}`);
+          
+          // Try the primary Instagram API
+          const rapidApiInstagramUrl = `https://instagram-scraper-api2.p.rapidapi.com/v1/post_info?code_or_id_or_url=${shortcode}`;
           
           const instagramResponse = await fetch(rapidApiInstagramUrl, {
             method: 'GET',
             headers: {
-              'x-rapidapi-host': 'instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com',
+              'x-rapidapi-host': 'instagram-scraper-api2.p.rapidapi.com',
               'x-rapidapi-key': RAPIDAPI_INSTAGRAM_KEY,
             }
           });
@@ -91,31 +102,37 @@ serve(async (req) => {
           
           if (!instagramResponse.ok) {
             const errorText = await instagramResponse.text();
-            console.error("[BG-TRANSCRIBE] Instagram API error:", errorText.substring(0, 200));
+            console.error("[BG-TRANSCRIBE] Instagram API error:", errorText.substring(0, 300));
             throw new Error(`Instagram API failed: ${instagramResponse.status}`);
           }
           
           const instagramData = await instagramResponse.json();
-          console.log(`[BG-TRANSCRIBE] Instagram API data: ${JSON.stringify(instagramData).substring(0, 800)}`);
+          console.log(`[BG-TRANSCRIBE] Instagram API data: ${JSON.stringify(instagramData).substring(0, 1000)}`);
           
-          // Extract video URL from RapidAPI response - try multiple structures
-          if (instagramData.result && Array.isArray(instagramData.result)) {
-            const videoItem = instagramData.result.find((item: any) => item.type === 'video' || item.url?.includes('.mp4'));
-            downloadUrl = videoItem?.url || instagramData.result[0]?.url;
-          } else if (instagramData.video) {
-            downloadUrl = instagramData.video;
+          // Extract video URL from instagram-scraper-api2 response structure
+          if (instagramData.data) {
+            const data = instagramData.data;
+            // Try video_url first (for reels/videos)
+            if (data.video_url) {
+              downloadUrl = data.video_url;
+            } else if (data.video_versions && data.video_versions.length > 0) {
+              downloadUrl = data.video_versions[0].url;
+            } else if (data.image_versions2 && data.image_versions2.candidates) {
+              // For images, get highest quality
+              downloadUrl = data.image_versions2.candidates[0]?.url;
+            }
+            title = data.caption?.text?.substring(0, 50) || "instagram_media";
           } else if (instagramData.video_url) {
             downloadUrl = instagramData.video_url;
           } else if (instagramData.url) {
             downloadUrl = instagramData.url;
-          } else if (instagramData.download_url) {
-            downloadUrl = instagramData.download_url;
-          } else if (instagramData.media && Array.isArray(instagramData.media)) {
-            const videoMedia = instagramData.media.find((m: any) => m.type === 'video' || m.url?.includes('.mp4'));
-            downloadUrl = videoMedia?.url || instagramData.media[0]?.url;
           }
           
-          title = instagramData.title || instagramData.caption || "instagram_media";
+          if (!downloadUrl) {
+            console.error("[BG-TRANSCRIBE] Instagram API response structure:", JSON.stringify(Object.keys(instagramData)));
+          }
+          
+          title = title || "instagram_media";
           
         } else {
           // Use Snap Video API for other platforms (YouTube, TikTok, etc.)
