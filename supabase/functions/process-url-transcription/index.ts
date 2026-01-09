@@ -72,9 +72,10 @@ serve(async (req) => {
           // Use Social Media Video Downloader API for Instagram URLs
           console.log("[BG-TRANSCRIBE] Detected Instagram URL, using Social Media Video Downloader API...");
           
-          const RAPIDAPI_INSTAGRAM_KEY = Deno.env.get("RAPIDAPI_INSTAGRAM_KEY");
-          if (!RAPIDAPI_INSTAGRAM_KEY) {
-            throw new Error("RAPIDAPI_INSTAGRAM_KEY not configured");
+          // Try RAPIDAPI_KEY first (the main key), fallback to RAPIDAPI_INSTAGRAM_KEY
+          const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY") || Deno.env.get("RAPIDAPI_INSTAGRAM_KEY");
+          if (!RAPIDAPI_KEY) {
+            throw new Error("RAPIDAPI_KEY not configured");
           }
           
           // Extract shortcode from Instagram URL (e.g., /reel/ABC123/ or /p/ABC123/)
@@ -96,7 +97,7 @@ serve(async (req) => {
             method: 'GET',
             headers: {
               'x-rapidapi-host': 'social-media-video-downloader.p.rapidapi.com',
-              'x-rapidapi-key': RAPIDAPI_INSTAGRAM_KEY,
+              'x-rapidapi-key': RAPIDAPI_KEY,
             }
           });
           
