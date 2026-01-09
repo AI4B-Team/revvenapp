@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, ChevronLeft, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook } from 'react-icons/fa';
 import { FaGithub, FaFigma } from 'react-icons/fa';
@@ -3741,7 +3741,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </TooltipContent>
                     </Tooltip>
                     
-                    {/* Import Slideout Panel */}
+                    {/* Import Slideout Panel - positioned to the right of the icon */}
                     {isImportSlideoutOpen && (
                       <>
                         {/* Backdrop to close on outside click */}
@@ -3749,30 +3749,34 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           className="fixed inset-0 z-40" 
                           onClick={() => setIsImportSlideoutOpen(false)}
                         />
-                        <div className="absolute left-10 top-0 z-50 flex items-center">
-                          <div className="bg-white border border-border rounded-xl shadow-lg p-4 flex items-center gap-3">
-                            <span className="text-sm font-medium text-foreground whitespace-nowrap">Import From</span>
-                            <button
-                              onClick={() => {
-                                setIsFigmaConnectModalOpen(true);
-                                setIsImportSlideoutOpen(false);
-                              }}
-                              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
-                            >
-                              <FaFigma size={16} />
-                              Figma
-                            </button>
-                            <button
-                              onClick={() => {
-                                setIsGithubConnectModalOpen(true);
-                                setIsImportSlideoutOpen(false);
-                              }}
-                              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
-                            >
-                              <FaGithub size={16} />
-                              GitHub
-                            </button>
-                          </div>
+                        <div className="bg-white border border-border rounded-xl shadow-lg p-3 flex items-center gap-3 z-50 ml-2">
+                          <button
+                            onClick={() => setIsImportSlideoutOpen(false)}
+                            className="p-1 hover:bg-secondary rounded transition text-muted-foreground"
+                          >
+                            <ChevronLeft size={16} />
+                          </button>
+                          <span className="text-sm font-medium text-foreground whitespace-nowrap">Import From:</span>
+                          <button
+                            onClick={() => {
+                              setIsFigmaConnectModalOpen(true);
+                              setIsImportSlideoutOpen(false);
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
+                          >
+                            <FaFigma size={16} />
+                            Figma
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsGithubConnectModalOpen(true);
+                              setIsImportSlideoutOpen(false);
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
+                          >
+                            <FaGithub size={16} />
+                            GitHub
+                          </button>
                         </div>
                       </>
                     )}
