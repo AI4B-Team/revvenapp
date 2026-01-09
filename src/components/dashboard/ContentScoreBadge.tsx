@@ -303,52 +303,66 @@ Provide a brief, specific description (1-2 sentences) of the ideal visual conten
   };
 
   return (
-    <div className="space-y-3 bg-muted/50 rounded-lg p-3">
-      <ScoreRowFull 
-        icon={MessageSquare} 
-        label="Caption Quality" 
-        score={animatedScores.caption}
-        targetScore={scoreResult.breakdown.caption}
-        suggestions={getCategorySuggestions('caption')}
-        onImprove={() => handleImprove('caption')}
-        isLoading={loadingCategory === 'caption'}
-        canImprove={!!onSuggestionApplied}
-        isHighlighted={scoreResult.biggestOpportunity === 'caption'}
-      />
-      <ScoreRowFull 
-        icon={Hash} 
-        label="Hashtags" 
-        score={animatedScores.hashtags}
-        targetScore={scoreResult.breakdown.hashtags}
-        suggestions={getCategorySuggestions('hashtags')}
-        onImprove={() => handleImprove('hashtags')}
-        isLoading={loadingCategory === 'hashtags'}
-        canImprove={!!onSuggestionApplied}
-        isHighlighted={scoreResult.biggestOpportunity === 'hashtags'}
-      />
-      <ScoreRowFull 
-        icon={Film} 
-        label="Content Type" 
-        score={animatedScores.contentType}
-        targetScore={scoreResult.breakdown.contentType}
-        suggestions={getCategorySuggestions('contentType')}
-        onImprove={() => handleImprove('contentType')}
-        isLoading={loadingCategory === 'contentType'}
-        canImprove={!!onSuggestionApplied}
-        isHighlighted={scoreResult.biggestOpportunity === 'contentType'}
-      />
-      <ScoreRowFull 
-        icon={Image} 
-        label="Media" 
-        score={animatedScores.media}
-        targetScore={scoreResult.breakdown.media}
-        suggestions={getCategorySuggestions('media')}
-        onImprove={() => handleImprove('media')}
-        isLoading={loadingCategory === 'media'}
-        canImprove={!!onSuggestionApplied}
-        isHighlighted={scoreResult.biggestOpportunity === 'media'}
-        onMediaAction={onMediaAction}
-      />
+    <div className="space-y-1">
+      {/* Biggest Opportunity Banner */}
+      {scoreResult.biggestOpportunity && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 rounded-xl mb-4 backdrop-blur-sm">
+          <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center">
+            <Lightbulb className="w-4 h-4 text-amber-500" />
+          </div>
+          <p className="text-sm text-foreground font-medium">
+            Your biggest opportunity: <span className="text-amber-600 dark:text-amber-400">Upgrade your {scoreResult.biggestOpportunity}</span>
+          </p>
+        </div>
+      )}
+      
+      <div className="space-y-2">
+        <ScoreRowFull 
+          icon={MessageSquare} 
+          label="Caption Quality" 
+          score={animatedScores.caption}
+          targetScore={scoreResult.breakdown.caption}
+          suggestions={getCategorySuggestions('caption')}
+          onImprove={() => handleImprove('caption')}
+          isLoading={loadingCategory === 'caption'}
+          canImprove={!!onSuggestionApplied}
+          isHighlighted={scoreResult.biggestOpportunity === 'caption'}
+        />
+        <ScoreRowFull 
+          icon={Hash} 
+          label="Hashtags" 
+          score={animatedScores.hashtags}
+          targetScore={scoreResult.breakdown.hashtags}
+          suggestions={getCategorySuggestions('hashtags')}
+          onImprove={() => handleImprove('hashtags')}
+          isLoading={loadingCategory === 'hashtags'}
+          canImprove={!!onSuggestionApplied}
+          isHighlighted={scoreResult.biggestOpportunity === 'hashtags'}
+        />
+        <ScoreRowFull 
+          icon={Film} 
+          label="Content Type" 
+          score={animatedScores.contentType}
+          targetScore={scoreResult.breakdown.contentType}
+          suggestions={getCategorySuggestions('contentType')}
+          onImprove={() => handleImprove('contentType')}
+          isLoading={loadingCategory === 'contentType'}
+          canImprove={!!onSuggestionApplied}
+          isHighlighted={scoreResult.biggestOpportunity === 'contentType'}
+        />
+        <ScoreRowFull 
+          icon={Image} 
+          label="Media" 
+          score={animatedScores.media}
+          targetScore={scoreResult.breakdown.media}
+          suggestions={getCategorySuggestions('media')}
+          onImprove={() => handleImprove('media')}
+          isLoading={loadingCategory === 'media'}
+          canImprove={!!onSuggestionApplied}
+          isHighlighted={scoreResult.biggestOpportunity === 'media'}
+          onMediaAction={onMediaAction}
+        />
+      </div>
     </div>
   );
 };
@@ -404,16 +418,22 @@ const ScoreRowFull: React.FC<ScoreRowFullProps> = ({
   isHighlighted,
   onMediaAction
 }) => {
-  const getBarColor = (s: number) => {
-    if (s >= 70) return 'bg-emerald-500';
-    if (s >= 50) return 'bg-amber-500';
-    return 'bg-red-500';
+  const getBarGradient = (s: number) => {
+    if (s >= 70) return 'bg-gradient-to-r from-emerald-400 to-emerald-500';
+    if (s >= 50) return 'bg-gradient-to-r from-amber-400 to-amber-500';
+    return 'bg-gradient-to-r from-red-400 to-red-500';
   };
 
   const getStatusLabel = (s: number) => {
-    if (s >= 70) return { text: 'Good', color: 'text-emerald-500' };
-    if (s >= 50) return { text: 'Fixable', color: 'text-amber-500' };
-    return { text: 'Needs work', color: 'text-red-500' };
+    if (s >= 70) return { text: 'Good', color: 'text-emerald-500', bg: 'bg-emerald-500/10' };
+    if (s >= 50) return { text: 'Fixable', color: 'text-amber-500', bg: 'bg-amber-500/10' };
+    return { text: 'Needs work', color: 'text-red-500', bg: 'bg-red-500/10' };
+  };
+
+  const getIconBg = (s: number) => {
+    if (s >= 70) return 'bg-emerald-500/10 text-emerald-500';
+    if (s >= 50) return 'bg-amber-500/10 text-amber-500';
+    return 'bg-red-500/10 text-red-500';
   };
 
   const showImproveButton = canImprove && targetScore < 80;
@@ -421,61 +441,94 @@ const ScoreRowFull: React.FC<ScoreRowFullProps> = ({
   const mediaSuggestion = suggestions.find(s => s.action);
 
   return (
-    <div className={`space-y-1.5 p-2 rounded-lg transition-colors ${isHighlighted ? 'border-l-2 border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20' : ''}`}>
-      <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-1.5">
-          <Icon className={`w-3.5 h-3.5 ${isHighlighted ? 'text-primary' : 'text-muted-foreground'}`} />
-          <span className={isHighlighted ? 'text-foreground font-medium' : 'text-muted-foreground'}>{label}</span>
-          <span className={`text-[10px] ${status.color}`}>({status.text})</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-foreground">{targetScore}/100</span>
-          {showImproveButton && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-5 px-1.5 text-[10px] text-primary hover:text-primary hover:bg-primary/10"
-              onClick={onImprove}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <>
-                  <Sparkles className="w-3 h-3 mr-0.5" />
-                  Improve
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-      </div>
-      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-        <div 
-          className={`h-full rounded-full transition-all duration-700 ease-out ${getBarColor(targetScore)}`}
-          style={{ width: `${score}%` }}
-        />
-      </div>
-      
-      {/* Suggestion with micro-action for media */}
-      {suggestions.length > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-[10px] text-muted-foreground pl-5 flex-1">
-            💡 {suggestions[0].message}
-          </p>
-          {mediaSuggestion?.action && onMediaAction && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-5 px-1.5 text-[10px] text-primary hover:text-primary hover:bg-primary/10"
-              onClick={() => onMediaAction(mediaSuggestion.action!)}
-            >
-              {mediaSuggestion.action}
-              <ArrowRight className="w-3 h-3 ml-0.5" />
-            </Button>
-          )}
-        </div>
+    <div 
+      className={`
+        relative overflow-hidden rounded-xl border transition-all duration-300 
+        ${isHighlighted 
+          ? 'border-amber-500/50 bg-gradient-to-r from-amber-500/5 via-amber-500/10 to-amber-500/5 shadow-[0_0_20px_-5px_rgba(245,158,11,0.3)]' 
+          : 'border-border/50 bg-card/50 hover:border-border hover:bg-card/80'
+        }
+      `}
+    >
+      {/* Highlight glow effect */}
+      {isHighlighted && (
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/5 to-amber-500/0 animate-pulse pointer-events-none" />
       )}
+      
+      <div className="relative p-4 space-y-3">
+        {/* Header Row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${getIconBg(targetScore)} transition-colors`}>
+              <Icon className="w-4.5 h-4.5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-semibold ${isHighlighted ? 'text-foreground' : 'text-foreground/90'}`}>
+                  {label}
+                </span>
+                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${status.bg} ${status.color}`}>
+                  {status.text}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <span className="text-lg font-bold text-foreground">{targetScore}</span>
+              <span className="text-sm text-muted-foreground">/100</span>
+            </div>
+            {showImproveButton && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 px-3 text-xs font-medium border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200 hover:shadow-[0_0_15px_-3px_hsl(var(--primary)/0.5)]"
+                onClick={onImprove}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                    Improve
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="h-2 bg-muted/50 rounded-full overflow-hidden backdrop-blur-sm">
+          <div 
+            className={`h-full rounded-full transition-all duration-700 ease-out ${getBarGradient(targetScore)} shadow-[0_0_8px_-2px_currentColor]`}
+            style={{ width: `${score}%` }}
+          />
+        </div>
+        
+        {/* Suggestion with micro-action */}
+        {suggestions.length > 0 && (
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <span className="text-amber-500">💡</span>
+              {suggestions[0].message}
+            </p>
+            {mediaSuggestion?.action && onMediaAction && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2.5 text-xs font-medium text-primary hover:text-primary hover:bg-primary/10 shrink-0"
+                onClick={() => onMediaAction(mediaSuggestion.action!)}
+              >
+                {mediaSuggestion.action}
+                <ArrowRight className="w-3 h-3 ml-1" />
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
