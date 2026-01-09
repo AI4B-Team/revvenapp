@@ -107,6 +107,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   // Auto publish mode - when ON, auto-publish by schedule; when OFF, user publishes manually
   const [autoPublishMode, setAutoPublishMode] = useState(post?.autoPublish ?? true);
   
+  // Reschedule states
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState<string>('');
+  const [rescheduleTime, setRescheduleTime] = useState<string>('12:00');
+  const [isRescheduling, setIsRescheduling] = useState(false);
+  
   // Check if post is published (for showing Results tab)
   const isPublished = post?.status === 'published' || post?.status === 'posted';
 
@@ -144,6 +150,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       setFbScheduledDate(undefined);
       setFbScheduledTime('12:00');
       setActiveTab('details');
+      setShowReschedule(false);
+      setRescheduleDate('');
+      setRescheduleTime('12:00');
     }
   }, [post]);
 
@@ -188,6 +197,53 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
     setEditedImageUrl(post.imageUrl);
     setEditedStatus(post.status);
     setIsEditing(false);
+  };
+
+  // Handle reschedule
+  const handleReschedule = async () => {
+    if (!rescheduleDate) {
+      toast.error('Please select a date');
+      return;
+    }
+    
+    setIsRescheduling(true);
+    try {
+      const [hours, minutes] = rescheduleTime.split(':').map(Number);
+      const newDate = new Date(rescheduleDate);
+      newDate.setHours(hours, minutes, 0, 0);
+      
+      const { error } = await supabase
+        .from('social_posts')
+        .update({ scheduled_date: newDate.toISOString() })
+        .eq('id', post.id);
+      
+      if (error) {
+        console.error('Reschedule error:', error);
+        toast.error('Failed to reschedule post');
+        return;
+      }
+      
+      // Update local state
+      const updatedPost: ContentItem = {
+        ...post,
+        date: newDate,
+      };
+      onSave?.(updatedPost);
+      setShowReschedule(false);
+      toast.success(`Post rescheduled to ${newDate.toLocaleDateString()} at ${rescheduleTime}`);
+    } catch (err) {
+      console.error('Reschedule error:', err);
+      toast.error('Failed to reschedule post');
+    } finally {
+      setIsRescheduling(false);
+    }
+  };
+
+  const openReschedulePanel = () => {
+    // Pre-fill with current post date
+    setRescheduleDate(format(post.date, 'yyyy-MM-dd'));
+    setRescheduleTime(format(post.date, 'HH:mm'));
+    setShowReschedule(true);
   };
 
   // Publish to YouTube with optional scheduling
@@ -1589,7 +1645,10 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                       <Edit className="w-4 h-4" />
                       Edit
                     </Button>
-                    <Button className="flex-1 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white">
+                    <Button 
+                      className="flex-1 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white"
+                      onClick={openReschedulePanel}
+                    >
                       <Clock className="w-4 h-4" />
                       Reschedule
                     </Button>
@@ -1609,6 +1668,92 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
 
           {/* Hashtag Suggestions Panel (Slide-in) */}
           {showHashtagPanel && renderHashtagPanel()}
+          
+          {/* Reschedule Panel (Slide-in) */}
+          {showReschedule && (
+            <div className="absolute right-0 top-0 bottom-0 w-[350px] bg-background border-l border-border shadow-xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <h3 className="font-semibold text-foreground">Reschedule Post</h3>
+                <Button variant="ghost" size="icon" onClick={() => setShowReschedule(false)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <div className="flex-1 p-4 space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Current Schedule</Label>
+                  <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4" />
+                      <span>{post.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{post.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">New Date</Label>
+                  <Input
+                    type="date"
+                    value={rescheduleDate}
+                    min={format(new Date(), 'yyyy-MM-dd')}
+                    onChange={(e) => setRescheduleDate(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">New Time</Label>
+                  <Select value={rescheduleTime} onValueChange={setRescheduleTime}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 24 }, (_, hour) => {
+                        const hourStr = hour.toString().padStart(2, '0');
+                        return ['00', '30'].map(min => (
+                          <SelectItem key={`${hourStr}:${min}`} value={`${hourStr}:${min}`}>
+                            {`${hour > 12 ? hour - 12 : hour === 0 ? 12 : hour}:${min} ${hour >= 12 ? 'PM' : 'AM'}`}
+                          </SelectItem>
+                        ));
+                      }).flat()}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    💡 <strong>Tip:</strong> Best posting times for {post.platform} are typically between 9 AM - 11 AM and 7 PM - 9 PM.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="p-4 border-t border-border space-y-2">
+                <Button 
+                  className="w-full gap-2 bg-emerald-500 hover:bg-emerald-600 text-white"
+                  onClick={handleReschedule}
+                  disabled={isRescheduling || !rescheduleDate}
+                >
+                  {isRescheduling ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Clock className="w-4 h-4" />
+                  )}
+                  {isRescheduling ? 'Rescheduling...' : 'Confirm Reschedule'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setShowReschedule(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
