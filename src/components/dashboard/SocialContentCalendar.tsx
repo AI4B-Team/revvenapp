@@ -1635,7 +1635,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 )}
               </button>
             </PopoverTrigger>
-            <PopoverContent align="end" side="bottom" className="w-64 p-0 bg-popover border-border">
+            <PopoverContent align="end" side="bottom" className="w-auto max-w-[700px] p-0 bg-popover border-border">
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <h3 className="font-semibold text-foreground">Filters</h3>
                 {hasActiveFilters && (
@@ -1649,89 +1649,92 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 )}
               </div>
               
-              {/* Status Filters */}
-              <div className="px-4 py-3 border-b border-border">
-                <h4 className="text-sm font-medium text-foreground mb-3">Status</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox
-                      checked={filters.statuses.length === 0}
-                      onCheckedChange={() => setFilters(prev => ({ ...prev, statuses: [] }))}
-                    />
-                    <span className="text-sm text-foreground">Select All</span>
-                  </label>
-                  {STATUS_OPTIONS.map(status => (
-                    <label key={status.id} className="flex items-center gap-2 cursor-pointer">
+              {/* Horizontal filter sections */}
+              <div className="flex divide-x divide-border">
+                {/* Status Filters */}
+                <div className="px-4 py-3 min-w-[140px]">
+                  <h4 className="text-sm font-medium text-foreground mb-3">Status</h4>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <Checkbox
-                        checked={filters.statuses.includes(status.id)}
-                        onCheckedChange={() => toggleStatusFilter(status.id)}
+                        checked={filters.statuses.length === 0}
+                        onCheckedChange={() => setFilters(prev => ({ ...prev, statuses: [] }))}
                       />
-                      <div className={`w-2 h-2 rounded-full ${status.color}`} />
-                      <span className="text-sm text-foreground">{status.label}</span>
+                      <span className="text-sm text-foreground">Select All</span>
                     </label>
-                  ))}
+                    {STATUS_OPTIONS.map(status => (
+                      <label key={status.id} className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          checked={filters.statuses.includes(status.id)}
+                          onCheckedChange={() => toggleStatusFilter(status.id)}
+                        />
+                        <div className={`w-2 h-2 rounded-full ${status.color}`} />
+                        <span className="text-sm text-foreground whitespace-nowrap">{status.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              
-              {/* Content Type Filters */}
-              <div className="px-4 py-3 border-b border-border">
-                <h4 className="text-sm font-medium text-foreground mb-3">Content Type</h4>
-                <div className="space-y-2">
-                  {CONTENT_TYPE_OPTIONS.map(type => (
-                    <label key={type.id} className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={filters.contentTypes.includes(type.id)}
-                        onCheckedChange={() => toggleContentTypeFilter(type.id)}
-                      />
-                      <type.icon className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm text-foreground">{type.label}</span>
-                    </label>
-                  ))}
+                
+                {/* Content Type Filters */}
+                <div className="px-4 py-3 min-w-[120px]">
+                  <h4 className="text-sm font-medium text-foreground mb-3">Content Type</h4>
+                  <div className="space-y-2">
+                    {CONTENT_TYPE_OPTIONS.map(type => (
+                      <label key={type.id} className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          checked={filters.contentTypes.includes(type.id)}
+                          onCheckedChange={() => toggleContentTypeFilter(type.id)}
+                        />
+                        <type.icon className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-foreground">{type.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              
-              {/* Platform Filters */}
-              <div className="px-4 py-3 border-b border-border">
-                <h4 className="text-sm font-medium text-foreground mb-3">Platforms</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {PLATFORM_OPTIONS.map(platform => (
-                    <label key={platform.id} className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={filters.platforms.includes(platform.id)}
-                        onCheckedChange={() => togglePlatformFilter(platform.id)}
-                      />
-                      <div className="w-4 h-4 flex items-center justify-center">
-                        {getPlatformIcon(platform.id, 'w-3.5 h-3.5')}
-                      </div>
-                      <span className="text-xs text-foreground">{platform.label}</span>
-                    </label>
-                  ))}
+                
+                {/* Platform Filters */}
+                <div className="px-4 py-3 min-w-[200px]">
+                  <h4 className="text-sm font-medium text-foreground mb-3">Platforms</h4>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                    {PLATFORM_OPTIONS.map(platform => (
+                      <label key={platform.id} className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          checked={filters.platforms.includes(platform.id)}
+                          onCheckedChange={() => togglePlatformFilter(platform.id)}
+                        />
+                        <div className="w-4 h-4 flex items-center justify-center">
+                          {getPlatformIcon(platform.id, 'w-3.5 h-3.5')}
+                        </div>
+                        <span className="text-xs text-foreground">{platform.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              
-              {/* Labels Filters */}
-              <div className="px-4 py-3">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium text-foreground">Labels</h4>
-                  <button 
-                    onClick={() => { setIsFilterOpen(false); setIsLabelsModalOpen(true); }}
-                    className="text-xs text-emerald-600 hover:underline"
-                  >
-                    Manage
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {LABEL_OPTIONS.map(label => (
-                    <label key={label.id} className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={filters.labels.includes(label.id)}
-                        onCheckedChange={() => toggleLabelFilter(label.id)}
-                      />
-                      <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${label.color} text-white`}>
-                        {label.label}
-                      </span>
-                    </label>
-                  ))}
+                
+                {/* Labels Filters */}
+                <div className="px-4 py-3 min-w-[150px]">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-medium text-foreground">Labels</h4>
+                    <button 
+                      onClick={() => { setIsFilterOpen(false); setIsLabelsModalOpen(true); }}
+                      className="text-xs text-emerald-600 hover:underline"
+                    >
+                      Manage
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {LABEL_OPTIONS.map(label => (
+                      <label key={label.id} className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          checked={filters.labels.includes(label.id)}
+                          onCheckedChange={() => toggleLabelFilter(label.id)}
+                        />
+                        <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${label.color} text-white`}>
+                          {label.label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </PopoverContent>
