@@ -77,7 +77,7 @@ serve(async (req) => {
             throw new Error("RAPIDAPI_INSTAGRAM_KEY not configured");
           }
           
-          const rapidApiInstagramUrl = `https://instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com/?url=${encodeURIComponent(cleanUrl)}`;
+          const rapidApiInstagramUrl = `https://instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com/?Userinfo=${encodeURIComponent(cleanUrl)}`;
           
           const instagramResponse = await fetch(rapidApiInstagramUrl, {
             method: 'GET',
