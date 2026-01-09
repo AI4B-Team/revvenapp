@@ -183,7 +183,7 @@ function generateLivePrompt(args: {
   return prompt;
 }
 
-export default function Article() {
+export default function NewArticle() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [articleType, setArticleType] = useState<ArticleType>("Blog Post");
   const [topic, setTopic] = useState<string>("digital marketing for business");

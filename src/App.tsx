@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useTrackVisitor } from "@/hooks/useLiveVisitors";
 import { EbookProvider } from "@/contexts/EbookContext";
+import { ArticleProvider } from "@/contexts/ArticleContext";
 
 // Component to track visitor presence
 const VisitorTracker = ({ children }: { children: React.ReactNode }) => {
@@ -73,7 +74,8 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import OAuthCallback from "./pages/OAuthCallback";
 import AutoYT from "./pages/AutoYT";
-import Article from "./pages/Article";
+import ArticleHub from "./pages/ArticleHub";
+import NewArticle from "./pages/NewArticle";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -97,8 +99,9 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <EbookProvider>
-              <VisitorTracker>
-                <Routes>
+              <ArticleProvider>
+                <VisitorTracker>
+                  <Routes>
                 <Route path="/sales" element={<Landing />} />
                 <Route path="/landing" element={<LandingNew />} />
                 <Route path="/" element={<LandingNew />} />
@@ -147,7 +150,8 @@ const App = () => (
               <Route path="/lead-generation" element={<LeadGeneration />} />
               <Route path="/autoyt" element={<AutoYT />} />
               <Route path="/newsletter" element={<Newsletter />} />
-              <Route path="/article" element={<Article />} />
+              <Route path="/article" element={<ArticleHub />} />
+              <Route path="/article/new" element={<NewArticle />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/oauth/callback" element={<OAuthCallback />} />
@@ -171,10 +175,11 @@ const App = () => (
               <Route path="/manage/roles" element={<AdminRoles />} />
               <Route path="/manage/analytics" element={<AdminAnalytics />} />
               <Route path="/manage/settings" element={<AdminSettings />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-                </Routes>
-              </VisitorTracker>
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </VisitorTracker>
+              </ArticleProvider>
             </EbookProvider>
           </BrowserRouter>
         </TooltipProvider>
