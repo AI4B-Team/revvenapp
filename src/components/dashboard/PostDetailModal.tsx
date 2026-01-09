@@ -1451,14 +1451,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                                 {ytScheduledDate ? format(ytScheduledDate, "PPP") : <span>Pick a date</span>}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent className="w-auto p-0 z-[200]" align="start">
                               <Calendar
                                 mode="single"
                                 selected={ytScheduledDate}
                                 onSelect={setYtScheduledDate}
                                 disabled={(date) => date < new Date()}
                                 initialFocus
-                                className={cn("p-3 pointer-events-auto")}
+                                className="p-3 pointer-events-auto"
                               />
                             </PopoverContent>
                           </Popover>
@@ -1548,14 +1548,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                                 {fbScheduledDate ? format(fbScheduledDate, "PPP") : <span>Pick a date</span>}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent className="w-auto p-0 z-[200]" align="start">
                               <Calendar
                                 mode="single"
                                 selected={fbScheduledDate}
                                 onSelect={setFbScheduledDate}
                                 disabled={(date) => date < new Date()}
                                 initialFocus
-                                className={cn("p-3 pointer-events-auto")}
+                                className="p-3 pointer-events-auto"
                               />
                             </PopoverContent>
                           </Popover>
@@ -1637,9 +1637,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
           </div>
 
           {/* Right Panel - Social Preview */}
-          <div className="w-[450px] bg-muted/30 p-6 flex flex-col overflow-y-auto">
+          <div className="w-[450px] bg-muted/30 p-6 flex flex-col overflow-y-auto relative z-0">
             <h3 className="font-semibold text-foreground capitalize mb-4">{post.platform} Preview</h3>
-            <div className="flex-1 flex items-start justify-center py-4">
+            <div className="flex-1 flex items-start justify-center py-4 overflow-hidden">
               {getSocialPreview()}
             </div>
           </div>
