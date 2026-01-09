@@ -1,7 +1,10 @@
-import React from 'react';
-import { Chrome } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Chrome, Trash2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
 import { 
   InstagramIcon, 
   FacebookIcon, 
@@ -23,6 +26,14 @@ interface SocialPlatform {
   description: string;
   Icon: React.FC<{ className?: string }>;
   available: boolean;
+}
+
+interface ConnectedPage {
+  id: string;
+  page_id: string;
+  page_name: string;
+  page_picture: string | null;
+  token_expires_at: string | null;
 }
 
 interface AddAccountModalProps {
@@ -118,41 +129,226 @@ const platforms: SocialPlatform[] = [
 ];
 
 const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) => {
-  const handleConnect = (platformId: string) => {
-    console.log(`Connecting to ${platformId}`);
-    // Integration logic would go here
+  const [connectedPages, setConnectedPages] = useState<ConnectedPage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [disconnecting, setDisconnecting] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadConnectedPages();
+    }
+  }, [isOpen]);
+
+  const loadConnectedPages = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('facebook_pages')
+      .select('id, page_id, page_name, page_picture, token_expires_at')
+      .eq('user_id', user.id);
+
+    if (!error && data) {
+      setConnectedPages(data);
+    }
+  };
+
+  const handleConnect = async (platformId: string) => {
+    if (platformId === 'facebook') {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('facebook-oauth', {
+          body: { action: 'get_auth_url' }
+        });
+
+        if (error) throw error;
+        if (data?.url) {
+          const popup = window.open(data.url, 'Facebook Login', 'width=600,height=700');
+          
+          const handleMessage = (event: MessageEvent) => {
+            if (event.data?.type === 'FACEBOOK_AUTH_SUCCESS') {
+              loadConnectedPages();
+              toast.success('Facebook page connected successfully!');
+              window.removeEventListener('message', handleMessage);
+            } else if (event.data?.type === 'FACEBOOK_AUTH_ERROR') {
+              toast.error(event.data.error || 'Failed to connect Facebook');
+              window.removeEventListener('message', handleMessage);
+            }
+          };
+          
+          window.addEventListener('message', handleMessage);
+        }
+      } catch (err) {
+        console.error('Error connecting Facebook:', err);
+        toast.error('Failed to connect Facebook');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      console.log(`Connecting to ${platformId}`);
+      toast.info(`${platformId} integration coming soon`);
+    }
+  };
+
+  const handleDisconnect = async (pageId: string, pageName: string) => {
+    setDisconnecting(pageId);
+    try {
+      const { error } = await supabase
+        .from('facebook_pages')
+        .delete()
+        .eq('id', pageId);
+
+      if (error) throw error;
+
+      setConnectedPages(prev => prev.filter(p => p.id !== pageId));
+      toast.success(`Disconnected ${pageName}`);
+    } catch (err) {
+      console.error('Error disconnecting page:', err);
+      toast.error('Failed to disconnect page');
+    } finally {
+      setDisconnecting(null);
+    }
+  };
+
+  const isTokenExpired = (expiresAt: string | null) => {
+    if (!expiresAt) return false;
+    return new Date(expiresAt) < new Date();
+  };
+
+  const isTokenExpiringSoon = (expiresAt: string | null) => {
+    if (!expiresAt) return false;
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+    return new Date(expiresAt) < sevenDaysFromNow && !isTokenExpired(expiresAt);
+  };
+
+  const handleRefreshToken = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('facebook-oauth', {
+        body: { action: 'refresh_token' }
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, 'Facebook Reconnect', 'width=600,height=700');
+      }
+    } catch (err) {
+      console.error('Error refreshing token:', err);
+      toast.error('Failed to refresh token');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">New Connection</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">Manage Connections</DialogTitle>
         </DialogHeader>
-        
-        <div className="grid grid-cols-2 gap-3 py-4">
-          {platforms.map(platform => {
-            const IconComponent = platform.Icon;
-            return (
-              <button
-                key={platform.id}
-                onClick={() => handleConnect(platform.id)}
-                className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all text-left group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center">
-                  <IconComponent className="w-7 h-7" />
+
+        {/* Connected Accounts Section */}
+        {connectedPages.length > 0 && (
+          <div className="pb-4 border-b border-border">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Connected Accounts</h3>
+            <div className="space-y-2">
+              {connectedPages.map(page => (
+                <div
+                  key={page.id}
+                  className="flex items-center justify-between p-3 rounded-xl border border-border bg-card"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center overflow-hidden">
+                      {page.page_picture ? (
+                        <img src={page.page_picture} alt={page.page_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <FacebookIcon className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{page.page_name}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Facebook Page</span>
+                        {isTokenExpired(page.token_expires_at) && (
+                          <span className="text-xs text-destructive flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" /> Expired
+                          </span>
+                        )}
+                        {isTokenExpiringSoon(page.token_expires_at) && (
+                          <span className="text-xs text-amber-500 flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" /> Expiring soon
+                          </span>
+                        )}
+                        {page.token_expires_at && !isTokenExpired(page.token_expires_at) && !isTokenExpiringSoon(page.token_expires_at) && (
+                          <span className="text-xs text-muted-foreground">
+                            Expires {format(new Date(page.token_expires_at), 'MMM d, yyyy')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {(isTokenExpired(page.token_expires_at) || isTokenExpiringSoon(page.token_expires_at)) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleRefreshToken}
+                        disabled={loading}
+                        className="gap-1"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        Refresh
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDisconnect(page.id, page.page_name)}
+                      disabled={disconnecting === page.id}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      {disconnecting === page.id ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-foreground group-hover:text-emerald-600 transition-colors">
-                    {platform.name}
-                  </h3>
-                  <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                    {platform.description}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Add New Connection */}
+        <div className="pt-2">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Add New Connection</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {platforms.map(platform => {
+              const IconComponent = platform.Icon;
+              return (
+                <button
+                  key={platform.id}
+                  onClick={() => handleConnect(platform.id)}
+                  disabled={loading}
+                  className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all text-left group disabled:opacity-50"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center">
+                    <IconComponent className="w-7 h-7" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground group-hover:text-emerald-600 transition-colors">
+                      {platform.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                      {platform.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
         
         {/* Manual Publishing */}
