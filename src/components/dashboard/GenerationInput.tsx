@@ -3935,6 +3935,30 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {ugcScriptText.length > 180 && <span className="ml-1">⚠️ Limit exceeded</span>}
                   </div>
                 )}
+                
+                {/* Stop Processing Button - shows only during generation */}
+                {(isGenerating || isTranscribing || isRevoicing) && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            setIsGenerating(false);
+                            setIsTranscribing(false);
+                            setIsRevoicing(false);
+                            toast({ title: "Processing stopped" });
+                          }}
+                          className="absolute top-2 right-2 p-2 bg-secondary hover:bg-secondary/80 rounded-lg transition z-10"
+                        >
+                          <div className="w-4 h-4 bg-foreground rounded-sm" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left">
+                        <p>Stop Processing</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </>
             )}
             <ResizeHandle 
