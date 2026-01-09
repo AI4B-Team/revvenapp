@@ -537,9 +537,9 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   const getContentForDate = (date: Date | null) => {
     if (!date) return [];
-    return filteredContent.filter(
-      item => item.date.toDateString() === date.toDateString()
-    );
+    return filteredContent
+      .filter(item => item.date.toDateString() === date.toDateString())
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
   };
 
   const handlePostClick = (item: ContentItem) => {
