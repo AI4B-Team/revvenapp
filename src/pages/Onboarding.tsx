@@ -24,36 +24,8 @@ const Onboarding = () => {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState('');
-  const [tutorialIndex, setTutorialIndex] = useState(0);
 
   const totalCredits = 1000;
-
-  const tutorials = [
-    {
-      id: 'tutorial-home',
-      title: 'Tutorial Home',
-      description: 'Get started with your platform and learn the basics of the dashboard.',
-      thumbnail: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800'
-    },
-    {
-      id: 'tutorial-branding',
-      title: 'Tutorial Branding',
-      description: 'Master the art of customizing your platform branding, colors, and visual identity.',
-      thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'
-    },
-    {
-      id: 'tutorial-content',
-      title: 'Tutorial Content',
-      description: 'Learn how to create engaging content using AI-powered tools.',
-      thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800'
-    },
-    {
-      id: 'tutorial-automation',
-      title: 'Tutorial Automation',
-      description: 'Set up automated workflows to streamline your content creation.',
-      thumbnail: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800'
-    }
-  ];
   
   // Calculate time remaining until deadline (24 hours from signup)
   useEffect(() => {
@@ -326,98 +298,10 @@ const Onboarding = () => {
                 </div>
               </div>
 
-              {/* Meet AIVA & Tutorials Row */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                {/* Meet AIVA Card */}
-                <div className="bg-gradient-to-b from-green-50 to-white dark:from-green-950/20 dark:to-card rounded-2xl shadow-sm p-6 border border-green-100 dark:border-green-800">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-8 h-8 bg-brand-green rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-4 h-4 text-white" />
-                    </div>
-                    <h3 className="text-lg font-bold text-foreground">Meet AIVA</h3>
-                  </div>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Your real-time assistant, coach, and helper for everything REVVEN. Available 24/7.
-                  </p>
-
-                  {/* Avatar with soft gradient background */}
-                  <div className="relative flex items-center justify-center py-4 mb-4">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-32 h-32 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full opacity-80 blur-sm"></div>
-                    </div>
-                    <img 
-                      src={aivaAvatar}
-                      alt="AIVA Assistant"
-                      className="relative z-10 w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                    />
-                  </div>
-
-                  <button 
-                    onClick={() => navigate('/assistant')}
-                    className="w-full bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary text-brand-green border border-brand-green py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    Chat with AIVA
-                    <span className="text-lg">→</span>
-                  </button>
-                </div>
-
-                {/* Tutorial Cards with Carousel */}
-                <div className="lg:col-span-2 relative">
-                  <div className="flex items-center gap-4">
-                    {/* Left Arrow */}
-                    <button 
-                      onClick={() => setTutorialIndex(prev => Math.max(0, prev - 1))}
-                      className={`w-10 h-10 rounded-full border border-border bg-card hover:bg-secondary flex items-center justify-center transition-colors flex-shrink-0 ${tutorialIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={tutorialIndex === 0}
-                    >
-                      <ChevronDown className="w-5 h-5 text-muted-foreground rotate-90" />
-                    </button>
-
-                    {/* Tutorial Cards Container */}
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
-                      {tutorials.slice(tutorialIndex, tutorialIndex + 2).map((tutorial, idx) => (
-                        <div key={tutorial.id} className="bg-card rounded-2xl shadow-sm p-5 border border-border">
-                          <h4 className="text-lg font-bold text-foreground mb-2">{tutorial.title}</h4>
-                          <p className="text-muted-foreground text-sm mb-4">{tutorial.description}</p>
-                          
-                          {/* Video Thumbnail */}
-                          <div 
-                            onClick={() => setIsVideoModalOpen(true)}
-                            className="relative aspect-video rounded-xl overflow-hidden bg-secondary group cursor-pointer"
-                          >
-                            <img
-                              src={tutorial.thumbnail}
-                              alt={tutorial.title}
-                              className="w-full h-full object-cover"
-                            />
-                            
-                            {/* Play Button Overlay */}
-                            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                              <div className="w-14 h-14 bg-white/90 group-hover:bg-white rounded-full flex items-center justify-center transition-all transform group-hover:scale-110 shadow-lg">
-                                <Play size={24} className="text-brand-green ml-1" fill="currentColor" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Right Arrow */}
-                    <button 
-                      onClick={() => setTutorialIndex(prev => Math.min(tutorials.length - 2, prev + 1))}
-                      className={`w-10 h-10 rounded-full border border-border bg-card hover:bg-secondary flex items-center justify-center transition-colors flex-shrink-0 ${tutorialIndex >= tutorials.length - 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={tutorialIndex >= tutorials.length - 2}
-                    >
-                      <ChevronDown className="w-5 h-5 text-muted-foreground -rotate-90" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Left Column - Onboarding Sections */}
-                <div className="lg:col-span-3 space-y-6">
+                <div className="lg:col-span-2 space-y-6">
                   
                   {/* Quick Start Card */}
                   <div className="bg-card rounded-2xl shadow-sm p-8 border border-border">
@@ -536,6 +420,79 @@ const Onboarding = () => {
                       </div>
                     );
                   })}
+                </div>
+
+                {/* Right Column - Video Tutorial & Meet AIVA */}
+                <div className="lg:col-span-1 space-y-6">
+                  <div className="bg-card rounded-2xl shadow-sm p-6 border border-border sticky top-6">
+                    <h3 className="text-xl font-bold text-foreground mb-3">
+                      Watch This 3 Minute Overview
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-6">
+                      Get started with REVVEN by watching this video.
+                    </p>
+
+                    {/* Video Thumbnail */}
+                    <div 
+                      onClick={() => setIsVideoModalOpen(true)}
+                      className="relative aspect-video rounded-xl overflow-hidden bg-secondary group cursor-pointer mb-4"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800"
+                        alt="Tutorial video"
+                        className="w-full h-full object-cover"
+                      />
+                      
+                      {/* Play Button Overlay */}
+                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                        <div className="w-16 h-16 bg-white/90 group-hover:bg-white rounded-full flex items-center justify-center transition-all transform group-hover:scale-110">
+                          <Play size={28} className="text-foreground ml-1" fill="currentColor" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setIsVideoModalOpen(true)}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-semibold transition-colors"
+                    >
+                      Play Overview
+                    </button>
+                  </div>
+
+                  {/* Meet AIVA Card */}
+                  <div className="bg-gradient-to-b from-amber-50 to-white dark:from-amber-950/20 dark:to-card rounded-2xl shadow-sm p-6 border border-amber-100 dark:border-amber-800">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-foreground">Meet AIVA</h3>
+                        <p className="text-muted-foreground text-sm">
+                          Got questions? AIVA knows the platform inside and out.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Avatar with soft gradient background */}
+                    <div className="relative flex items-center justify-center py-6">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-36 h-36 bg-gradient-to-br from-amber-300 to-orange-400 rounded-full opacity-80 blur-sm"></div>
+                      </div>
+                      <img 
+                        src={aivaAvatar}
+                        alt="AIVA Assistant"
+                        className="relative z-10 w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg"
+                      />
+                    </div>
+
+                    <button 
+                      onClick={() => navigate('/assistant')}
+                      className="w-full bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary text-foreground border border-border py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      Chat With AIVA
+                      <span className="text-lg">→</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
