@@ -1488,6 +1488,15 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
+              className="gap-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+              onClick={() => setIsAddAccountModalOpen(true)}
+            >
+              <UserPlus className="w-4 h-4" />
+              Connect Accounts
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
               className="gap-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
               onClick={() => setIsBestTimeModalOpen(true)}
             >
