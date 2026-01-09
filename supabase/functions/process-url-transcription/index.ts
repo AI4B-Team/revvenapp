@@ -104,29 +104,13 @@ serve(async (req) => {
 
           title = downloadData.title || "instagram_media";
 
-          // Try multiple extraction strategies (same as non-Instagram)
+          // Try multiple extraction strategies - USE PROXY URL (direct CDN fails with signature mismatch)
           if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
             const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
             if (media?.url) {
-              let mediaUrl = media.url;
-              
-              // Extract direct CDN URL from proxy URL if present
-              // The proxy URL format is: https://sp2.snapapi.space/download.php?url=ENCODED_URL
-              if (mediaUrl.includes('snapapi.space/download.php?url=')) {
-                try {
-                  const urlObj = new URL(mediaUrl);
-                  const encodedUrl = urlObj.searchParams.get('url');
-                  if (encodedUrl) {
-                    const directUrl = decodeURIComponent(encodedUrl);
-                    console.log(`[BG-TRANSCRIBE] Extracted direct CDN URL: ${directUrl.substring(0, 100)}`);
-                    mediaUrl = directUrl;
-                  }
-                } catch (e) {
-                  console.log(`[BG-TRANSCRIBE] Could not extract direct URL, using proxy`);
-                }
-              }
-              
-              downloadUrl = mediaUrl;
+              // Use the proxy URL as-is (direct CDN URLs require valid signatures)
+              downloadUrl = media.url;
+              console.log(`[BG-TRANSCRIBE] Using proxy download URL`);
             }
           }
 
@@ -217,31 +201,33 @@ serve(async (req) => {
 
         console.log(`[BG-TRANSCRIBE] Download URL obtained: ${downloadUrl.substring(0, 100)}...`);
 
-        // Step 2: Download video from snap-video URL
+        // Step 2: Download video from URL
         console.log(`[BG-TRANSCRIBE] Step 2: Downloading video from: ${downloadUrl.substring(0, 80)}...`);
         
-        // Determine referer based on source
-        const isInstagram = downloadUrl.includes('instagram') || cleanUrl.includes('instagram');
-        const isYouTube = downloadUrl.includes('youtube') || downloadUrl.includes('ytdl') || cleanUrl.includes('youtube');
-        const referer = isInstagram ? 'https://www.instagram.com/' : 
-                        isYouTube ? 'https://www.youtube.com/' : 
-                        'https://www.google.com/';
+        // Use simpler headers for proxy URLs (snapapi.space)
+        const isProxyUrl = downloadUrl.includes('snapapi.space');
         
-        console.log(`[BG-TRANSCRIBE] Using referer: ${referer}, isInstagram: ${isInstagram}, isYouTube: ${isYouTube}`);
+        const headers: Record<string, string> = {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': '*/*',
+        };
+        
+        // Only add complex headers for non-proxy URLs
+        if (!isProxyUrl) {
+          const isInstagram = downloadUrl.includes('instagram') || cleanUrl.includes('instagram');
+          const isYouTube = downloadUrl.includes('youtube') || downloadUrl.includes('ytdl') || cleanUrl.includes('youtube');
+          const referer = isInstagram ? 'https://www.instagram.com/' : 
+                          isYouTube ? 'https://www.youtube.com/' : 
+                          'https://www.google.com/';
+          headers['Referer'] = referer;
+          headers['Origin'] = referer.replace(/\/$/, '');
+        }
+        
+        console.log(`[BG-TRANSCRIBE] Using headers: ${JSON.stringify(headers)}`);
         
         let videoResponse = await fetch(downloadUrl, {
           method: 'GET',
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'video/mp4,video/*,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept-Encoding': 'identity',
-            'Referer': referer,
-            'Origin': referer.replace(/\/$/, ''),
-            'Sec-Fetch-Dest': 'video',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'cross-site',
-          }
+          headers,
         });
         
         console.log(`[BG-TRANSCRIBE] Video download response status: ${videoResponse.status}`);
