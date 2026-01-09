@@ -69,26 +69,33 @@ serve(async (req) => {
         let title = "media_audio";
         
         if (isInstagramUrl) {
-          // Use snap-video3 API for Instagram URLs (same API, different key)
-          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using snap-video3 API...");
+          // Use Instagram120 RapidAPI for Instagram URLs
+          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using Instagram120 API...");
           
-          const RAPIDAPI_INSTAGRAM_KEY = Deno.env.get("RAPIDAPI_INSTAGRAM_KEY") || RAPIDAPI_KEY;
+          // Extract shortcode from Instagram URL
+          // Formats: /reel/SHORTCODE/, /p/SHORTCODE/, /tv/SHORTCODE/
+          const shortcodeMatch = cleanUrl.match(/\/(reel|p|tv)\/([A-Za-z0-9_-]+)/);
+          if (!shortcodeMatch) {
+            throw new Error("Could not extract shortcode from Instagram URL");
+          }
+          const shortcode = shortcodeMatch[2];
+          console.log(`[BG-TRANSCRIBE] Extracted Instagram shortcode: ${shortcode}`);
           
-          const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
+          const downloadResponse = await fetch("https://instagram120.p.rapidapi.com/api/instagram/links", {
             method: "POST",
             headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              "x-rapidapi-host": "snap-video3.p.rapidapi.com",
-              "x-rapidapi-key": RAPIDAPI_INSTAGRAM_KEY,
+              "Content-Type": "application/json",
+              "x-rapidapi-host": "instagram120.p.rapidapi.com",
+              "x-rapidapi-key": RAPIDAPI_KEY,
             },
-            body: `url=${encodeURIComponent(cleanUrl)}`,
+            body: JSON.stringify({ url: cleanUrl }),
           });
 
           const responseText = await downloadResponse.text();
-          console.log("[BG-TRANSCRIBE] snap-video3 Instagram response:", responseText.substring(0, 500));
+          console.log("[BG-TRANSCRIBE] Instagram120 API response:", responseText.substring(0, 500));
           
           if (!downloadResponse.ok) {
-            console.error("[BG-TRANSCRIBE] snap-video3 Instagram error:", downloadResponse.status, responseText);
+            console.error("[BG-TRANSCRIBE] Instagram120 API error:", downloadResponse.status, responseText);
             throw new Error(`Failed to extract from Instagram: ${downloadResponse.status}`);
           }
 
@@ -100,28 +107,38 @@ serve(async (req) => {
             throw new Error(`API returned invalid JSON response`);
           }
           
-          console.log("[BG-TRANSCRIBE] snap-video3 Instagram parsed:", JSON.stringify(downloadData).substring(0, 1000));
+          console.log("[BG-TRANSCRIBE] Instagram120 API parsed:", JSON.stringify(downloadData).substring(0, 1000));
 
-          title = downloadData.title || "instagram_media";
+          title = downloadData.caption || downloadData.title || "instagram_media";
 
-          // Use the proxy URL directly - it handles Instagram CDN auth
-          if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
-            const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
-            if (media?.url) {
-              downloadUrl = media.url;
+          // Extract video URL from response
+          // API returns urls array with objects containing url and type
+          if (downloadData.urls && Array.isArray(downloadData.urls)) {
+            const videoUrl = downloadData.urls.find((u: any) => u.type === 'video' || u.url?.includes('.mp4'));
+            if (videoUrl?.url) {
+              downloadUrl = videoUrl.url;
+            } else if (downloadData.urls[0]?.url) {
+              downloadUrl = downloadData.urls[0].url;
             }
           }
           
-          if (downloadUrl) {
-            console.log(`[BG-TRANSCRIBE] Using proxy download URL: ${downloadUrl.substring(0, 80)}...`);
-          }
-
+          // Try direct url field
           if (!downloadUrl && downloadData.url) {
             downloadUrl = downloadData.url;
           }
 
+          // Try video_url field
+          if (!downloadUrl && downloadData.video_url) {
+            downloadUrl = downloadData.video_url;
+          }
+
+          // Try download_url field
           if (!downloadUrl && downloadData.download_url) {
             downloadUrl = downloadData.download_url;
+          }
+          
+          if (downloadUrl) {
+            console.log(`[BG-TRANSCRIBE] Instagram video URL: ${downloadUrl.substring(0, 80)}...`);
           }
           
         } else {
