@@ -77,8 +77,18 @@ serve(async (req) => {
             throw new Error("RAPIDAPI_INSTAGRAM_KEY not configured");
           }
           
-          // Use the social-media-video-downloader API for Instagram
-          const rapidApiInstagramUrl = `https://social-media-video-downloader.p.rapidapi.com/smvd/instagram/info?url=${encodeURIComponent(cleanUrl)}`;
+          // Extract shortcode from Instagram URL (e.g., /reel/ABC123/ or /p/ABC123/)
+          const shortcodeMatch = cleanUrl.match(/\/(reel|p)\/([A-Za-z0-9_-]+)/);
+          const shortcode = shortcodeMatch ? shortcodeMatch[2] : null;
+          
+          if (!shortcode) {
+            throw new Error("Could not extract Instagram shortcode from URL");
+          }
+          
+          console.log(`[BG-TRANSCRIBE] Extracted shortcode: ${shortcode}`);
+          
+          // Use the correct endpoint: /instagram/v3/media/post/details
+          const rapidApiInstagramUrl = `https://social-media-video-downloader.p.rapidapi.com/instagram/v3/media/post/details?shortcode=${shortcode}`;
           
           console.log(`[BG-TRANSCRIBE] Calling Instagram API: ${rapidApiInstagramUrl}`);
           
@@ -99,27 +109,35 @@ serve(async (req) => {
           }
           
           const instagramData = await instagramResponse.json();
-          console.log(`[BG-TRANSCRIBE] Instagram API data: ${JSON.stringify(instagramData).substring(0, 1000)}`);
+          console.log(`[BG-TRANSCRIBE] Instagram API data: ${JSON.stringify(instagramData).substring(0, 1500)}`);
           
-          // Extract video URL from social-media-video-downloader response
-          if (instagramData.links && Array.isArray(instagramData.links)) {
-            // Find video link with highest quality
-            const videoLink = instagramData.links.find((l: any) => l.quality === 'hd' || l.quality === '720p') 
-              || instagramData.links.find((l: any) => l.quality === 'sd')
-              || instagramData.links[0];
-            downloadUrl = videoLink?.link || videoLink?.url;
-          } else if (instagramData.url) {
-            downloadUrl = instagramData.url;
-          } else if (instagramData.video_url) {
-            downloadUrl = instagramData.video_url;
-          } else if (instagramData.download_url) {
-            downloadUrl = instagramData.download_url;
+          // Extract video URL from SMVD response structure
+          // Response has: contents[].videos[].url or contents[].audios[].url
+          if (instagramData.contents && Array.isArray(instagramData.contents) && instagramData.contents.length > 0) {
+            const content = instagramData.contents[0];
+            
+            // Try to get video URL first
+            if (content.videos && Array.isArray(content.videos) && content.videos.length > 0) {
+              // Get highest quality video
+              const video = content.videos.find((v: any) => v.label === '720p' || v.label === 'hd') || content.videos[0];
+              downloadUrl = video?.url;
+              console.log(`[BG-TRANSCRIBE] Found video URL from contents.videos: ${downloadUrl?.substring(0, 100)}`);
+            }
+            
+            // If no video, try audio
+            if (!downloadUrl && content.audios && Array.isArray(content.audios) && content.audios.length > 0) {
+              downloadUrl = content.audios[0]?.url;
+              console.log(`[BG-TRANSCRIBE] Found audio URL from contents.audios: ${downloadUrl?.substring(0, 100)}`);
+            }
           }
           
-          title = instagramData.title || instagramData.caption || "instagram_media";
+          // Get title from metadata
+          if (instagramData.metadata) {
+            title = instagramData.metadata.title || instagramData.metadata.caption?.substring(0, 50) || "instagram_media";
+          }
           
           if (!downloadUrl) {
-            console.error("[BG-TRANSCRIBE] Instagram API response structure:", JSON.stringify(instagramData).substring(0, 500));
+            console.error("[BG-TRANSCRIBE] Instagram API response structure:", JSON.stringify(instagramData).substring(0, 800));
           }
           
         } else {
