@@ -108,7 +108,25 @@ serve(async (req) => {
           if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
             const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
             if (media?.url) {
-              downloadUrl = media.url;
+              let mediaUrl = media.url;
+              
+              // Extract direct CDN URL from proxy URL if present
+              // The proxy URL format is: https://sp2.snapapi.space/download.php?url=ENCODED_URL
+              if (mediaUrl.includes('snapapi.space/download.php?url=')) {
+                try {
+                  const urlObj = new URL(mediaUrl);
+                  const encodedUrl = urlObj.searchParams.get('url');
+                  if (encodedUrl) {
+                    const directUrl = decodeURIComponent(encodedUrl);
+                    console.log(`[BG-TRANSCRIBE] Extracted direct CDN URL: ${directUrl.substring(0, 100)}`);
+                    mediaUrl = directUrl;
+                  }
+                } catch (e) {
+                  console.log(`[BG-TRANSCRIBE] Could not extract direct URL, using proxy`);
+                }
+              }
+              
+              downloadUrl = mediaUrl;
             }
           }
 
