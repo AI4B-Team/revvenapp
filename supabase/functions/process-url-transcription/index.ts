@@ -104,35 +104,16 @@ serve(async (req) => {
 
           title = downloadData.title || "instagram_media";
 
-          // Try multiple extraction strategies - extract direct CDN URL from proxy URL
+          // Use the proxy URL directly - it handles Instagram CDN auth
           if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
             const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
             if (media?.url) {
-              let mediaUrl = media.url;
-              
-              // Extract direct CDN URL from proxy URL if present
-              // The proxy URL format is: https://sp2.snapapi.space/download.php?url=ENCODED_URL
-              if (mediaUrl.includes('snapapi.space/download.php?url=')) {
-                try {
-                  const urlObj = new URL(mediaUrl);
-                  const encodedUrl = urlObj.searchParams.get('url');
-                  if (encodedUrl) {
-                    const directUrl = decodeURIComponent(encodedUrl);
-                    console.log(`[BG-TRANSCRIBE] Extracted direct CDN URL from proxy: ${directUrl.substring(0, 100)}...`);
-                    // Use Cloudinary fetch to download the direct CDN URL (it can handle Instagram CDN auth)
-                    const cloudName = "dfhyah2xw";
-                    const cloudinaryFetchUrl = `https://res.cloudinary.com/${cloudName}/video/fetch/${encodeURIComponent(directUrl)}`;
-                    downloadUrl = cloudinaryFetchUrl;
-                    console.log(`[BG-TRANSCRIBE] Using Cloudinary fetch URL for Instagram video`);
-                  }
-                } catch (e) {
-                  console.log(`[BG-TRANSCRIBE] Could not extract direct URL, using proxy`);
-                  downloadUrl = mediaUrl;
-                }
-              } else {
-                downloadUrl = mediaUrl;
-              }
+              downloadUrl = media.url;
             }
+          }
+          
+          if (downloadUrl) {
+            console.log(`[BG-TRANSCRIBE] Using proxy download URL: ${downloadUrl.substring(0, 80)}...`);
           }
 
           if (!downloadUrl && downloadData.url) {
@@ -225,39 +206,88 @@ serve(async (req) => {
         // Step 2: Download video from URL
         console.log(`[BG-TRANSCRIBE] Step 2: Downloading video from: ${downloadUrl.substring(0, 80)}...`);
         
-        // Use simpler headers for proxy URLs (snapapi.space)
         const isProxyUrl = downloadUrl.includes('snapapi.space');
+        let videoResponse: Response | null = null;
         
-        const headers: Record<string, string> = {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': '*/*',
-        };
-        
-        // Only add complex headers for non-proxy URLs
-        if (!isProxyUrl) {
+        if (isProxyUrl) {
+          // For snapapi.space proxy, try with minimal headers first
+          console.log(`[BG-TRANSCRIBE] Using snapapi.space proxy, trying with Accept header...`);
+          
+          // Try with video Accept header
+          videoResponse = await fetch(downloadUrl, {
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'video/mp4,video/*,*/*',
+            },
+          });
+          
+          console.log(`[BG-TRANSCRIBE] Proxy response status: ${videoResponse.status}`);
+          
+          // If 415, retry with different Accept header
+          if (videoResponse.status === 415) {
+            console.log(`[BG-TRANSCRIBE] Got 415, retrying with application/octet-stream...`);
+            videoResponse = await fetch(downloadUrl, {
+              method: 'GET',
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/octet-stream,*/*',
+              },
+            });
+            console.log(`[BG-TRANSCRIBE] Retry response status: ${videoResponse.status}`);
+          }
+          
+          // If still failing, extract direct URL and try Instagram CDN directly
+          if (!videoResponse.ok && downloadUrl.includes('download.php?url=')) {
+            console.log(`[BG-TRANSCRIBE] Proxy failed, trying direct Instagram CDN...`);
+            try {
+              const urlObj = new URL(downloadUrl);
+              const encodedUrl = urlObj.searchParams.get('url');
+              if (encodedUrl) {
+                const directUrl = decodeURIComponent(encodedUrl);
+                console.log(`[BG-TRANSCRIBE] Trying direct CDN: ${directUrl.substring(0, 80)}...`);
+                
+                videoResponse = await fetch(directUrl, {
+                  method: 'GET',
+                  headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'video/mp4,video/*,*/*',
+                    'Referer': 'https://www.instagram.com/',
+                    'Origin': 'https://www.instagram.com',
+                  },
+                });
+                console.log(`[BG-TRANSCRIBE] Direct CDN response status: ${videoResponse.status}`);
+              }
+            } catch (e) {
+              console.log(`[BG-TRANSCRIBE] Failed to extract/fetch direct URL: ${e}`);
+            }
+          }
+        } else {
+          // For non-proxy URLs, use standard headers
           const isInstagram = downloadUrl.includes('instagram') || cleanUrl.includes('instagram');
           const isYouTube = downloadUrl.includes('youtube') || downloadUrl.includes('ytdl') || cleanUrl.includes('youtube');
           const referer = isInstagram ? 'https://www.instagram.com/' : 
                           isYouTube ? 'https://www.youtube.com/' : 
                           'https://www.google.com/';
-          headers['Referer'] = referer;
-          headers['Origin'] = referer.replace(/\/$/, '');
+          
+          videoResponse = await fetch(downloadUrl, {
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'video/mp4,video/*,*/*',
+              'Referer': referer,
+              'Origin': referer.replace(/\/$/, ''),
+            },
+          });
         }
         
-        console.log(`[BG-TRANSCRIBE] Using headers: ${JSON.stringify(headers)}`);
+        console.log(`[BG-TRANSCRIBE] Final video response status: ${videoResponse?.status}`);
+        console.log(`[BG-TRANSCRIBE] Video download response headers: ${JSON.stringify(Object.fromEntries(videoResponse?.headers.entries() || []))}`);
         
-        let videoResponse = await fetch(downloadUrl, {
-          method: 'GET',
-          headers,
-        });
-        
-        console.log(`[BG-TRANSCRIBE] Video download response status: ${videoResponse.status}`);
-        console.log(`[BG-TRANSCRIBE] Video download response headers: ${JSON.stringify(Object.fromEntries(videoResponse.headers.entries()))}`);
-        
-        if (!videoResponse.ok) {
-          const errorBody = await videoResponse.text().catch(() => 'Could not read error body');
-          console.error("[BG-TRANSCRIBE] Video download failed:", videoResponse.status, errorBody.substring(0, 200));
-          throw new Error(`Failed to download video: ${videoResponse.status}`);
+        if (!videoResponse?.ok) {
+          const errorBody = await videoResponse?.text().catch(() => 'Could not read error body');
+          console.error("[BG-TRANSCRIBE] Video download failed:", videoResponse?.status, errorBody?.substring(0, 200));
+          throw new Error(`Failed to download video: ${videoResponse?.status}`);
         }
         
         const videoArrayBuffer = await videoResponse.arrayBuffer();
