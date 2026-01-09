@@ -69,76 +69,55 @@ serve(async (req) => {
         let title = "media_audio";
         
         if (isInstagramUrl) {
-          // Use Social Media Video Downloader API for Instagram URLs
-          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using Social Media Video Downloader API...");
+          // Use snap-video3 API for Instagram URLs (same API, different key)
+          console.log("[BG-TRANSCRIBE] Detected Instagram URL, using snap-video3 API...");
           
-          // Use RAPIDAPI_INSTAGRAM_KEY for social-media-video-downloader API
-          const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_INSTAGRAM_KEY");
-          if (!RAPIDAPI_KEY) {
-            throw new Error("RAPIDAPI_INSTAGRAM_KEY not configured");
-          }
+          const RAPIDAPI_INSTAGRAM_KEY = Deno.env.get("RAPIDAPI_INSTAGRAM_KEY") || RAPIDAPI_KEY;
           
-          // Extract shortcode from Instagram URL (e.g., /reel/ABC123/ or /p/ABC123/)
-          const shortcodeMatch = cleanUrl.match(/\/(reel|p)\/([A-Za-z0-9_-]+)/);
-          const shortcode = shortcodeMatch ? shortcodeMatch[2] : null;
-          
-          if (!shortcode) {
-            throw new Error("Could not extract Instagram shortcode from URL");
-          }
-          
-          console.log(`[BG-TRANSCRIBE] Extracted shortcode: ${shortcode}`);
-          
-          // Use the correct endpoint: /instagram/v3/media/post/details
-          const rapidApiInstagramUrl = `https://social-media-video-downloader.p.rapidapi.com/instagram/v3/media/post/details?shortcode=${shortcode}`;
-          
-          console.log(`[BG-TRANSCRIBE] Calling Instagram API: ${rapidApiInstagramUrl}`);
-          
-          const instagramResponse = await fetch(rapidApiInstagramUrl, {
-            method: 'GET',
+          const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
+            method: "POST",
             headers: {
-              'x-rapidapi-host': 'social-media-video-downloader.p.rapidapi.com',
-              'x-rapidapi-key': RAPIDAPI_KEY,
-            }
+              "Content-Type": "application/x-www-form-urlencoded",
+              "x-rapidapi-host": "snap-video3.p.rapidapi.com",
+              "x-rapidapi-key": RAPIDAPI_INSTAGRAM_KEY,
+            },
+            body: `url=${encodeURIComponent(cleanUrl)}`,
           });
+
+          const responseText = await downloadResponse.text();
+          console.log("[BG-TRANSCRIBE] snap-video3 Instagram response:", responseText.substring(0, 500));
           
-          console.log(`[BG-TRANSCRIBE] Instagram API response status: ${instagramResponse.status}`);
-          
-          if (!instagramResponse.ok) {
-            const errorText = await instagramResponse.text();
-            console.error("[BG-TRANSCRIBE] Instagram API error:", errorText.substring(0, 300));
-            throw new Error(`Instagram API failed: ${instagramResponse.status}`);
+          if (!downloadResponse.ok) {
+            console.error("[BG-TRANSCRIBE] snap-video3 Instagram error:", downloadResponse.status, responseText);
+            throw new Error(`Failed to extract from Instagram: ${downloadResponse.status}`);
+          }
+
+          let downloadData;
+          try {
+            downloadData = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error("[BG-TRANSCRIBE] Failed to parse Instagram API response:", responseText.substring(0, 200));
+            throw new Error(`API returned invalid JSON response`);
           }
           
-          const instagramData = await instagramResponse.json();
-          console.log(`[BG-TRANSCRIBE] Instagram API data: ${JSON.stringify(instagramData).substring(0, 1500)}`);
-          
-          // Extract video URL from SMVD response structure
-          // Response has: contents[].videos[].url or contents[].audios[].url
-          if (instagramData.contents && Array.isArray(instagramData.contents) && instagramData.contents.length > 0) {
-            const content = instagramData.contents[0];
-            
-            // Try to get video URL first
-            if (content.videos && Array.isArray(content.videos) && content.videos.length > 0) {
-              // Get highest quality video
-              const video = content.videos.find((v: any) => v.label === '720p' || v.label === 'hd') || content.videos[0];
-              downloadUrl = video?.url;
-              console.log(`[BG-TRANSCRIBE] Found video URL from contents.videos: ${downloadUrl?.substring(0, 100)}`);
-            }
-            
-            // If no video, try audio
-            if (!downloadUrl && content.audios && Array.isArray(content.audios) && content.audios.length > 0) {
-              downloadUrl = content.audios[0]?.url;
-              console.log(`[BG-TRANSCRIBE] Found audio URL from contents.audios: ${downloadUrl?.substring(0, 100)}`);
+          console.log("[BG-TRANSCRIBE] snap-video3 Instagram parsed:", JSON.stringify(downloadData).substring(0, 1000));
+
+          title = downloadData.title || "instagram_media";
+
+          // Try multiple extraction strategies (same as non-Instagram)
+          if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
+            const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
+            if (media?.url) {
+              downloadUrl = media.url;
             }
           }
-          
-          // Get title from metadata
-          if (instagramData.metadata) {
-            title = instagramData.metadata.title || instagramData.metadata.caption?.substring(0, 50) || "instagram_media";
+
+          if (!downloadUrl && downloadData.url) {
+            downloadUrl = downloadData.url;
           }
-          
-          if (!downloadUrl) {
-            console.error("[BG-TRANSCRIBE] Instagram API response structure:", JSON.stringify(instagramData).substring(0, 800));
+
+          if (!downloadUrl && downloadData.download_url) {
+            downloadUrl = downloadData.download_url;
           }
           
         } else {
@@ -319,47 +298,59 @@ serve(async (req) => {
           name: title,
         }).eq('id', recordId);
 
-        // Step 3: Transcribe using OpenAI Whisper (handles video files directly)
-        console.log(`[BG-TRANSCRIBE] Step 3: Transcribing audio with OpenAI Whisper...`);
+        // Step 3: Transcribe using ElevenLabs Scribe
+        console.log(`[BG-TRANSCRIBE] Step 3: Transcribing audio with ElevenLabs...`);
         
-        const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-        if (!OPENAI_API_KEY) {
-          throw new Error("OPENAI_API_KEY not configured");
+        const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+        if (!ELEVENLABS_API_KEY) {
+          throw new Error("ELEVENLABS_API_KEY not configured");
         }
 
-        // Fetch video/audio from Cloudinary
-        console.log(`[BG-TRANSCRIBE] Fetching media from: ${audioUrl}`);
+        // Fetch audio from Cloudinary - extract audio using Cloudinary transformation
+        // Use fl_attachment to force download and f_mp3 to convert to audio
+        const audioExtractUrl = audioUrl.replace('/upload/', '/upload/f_mp3,q_auto/').replace('.mp4', '.mp3');
+        console.log(`[BG-TRANSCRIBE] Extracting audio from: ${audioExtractUrl}`);
         
-        const mediaResponse = await fetch(audioUrl);
-        if (!mediaResponse.ok) {
-          throw new Error(`Failed to fetch media: ${mediaResponse.status}`);
+        let audioBlob: Blob;
+        let audioFileName: string;
+        
+        const audioResponse = await fetch(audioExtractUrl);
+        if (audioResponse.ok) {
+          const audioArrayBuffer = await audioResponse.arrayBuffer();
+          audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
+          audioFileName = "audio.mp3";
+          console.log(`[BG-TRANSCRIBE] Audio extracted: ${audioArrayBuffer.byteLength} bytes`);
+        } else {
+          // Fallback: fetch original and let ElevenLabs handle it
+          console.log(`[BG-TRANSCRIBE] Audio extraction failed (${audioResponse.status}), trying original...`);
+          const originalResponse = await fetch(audioUrl);
+          if (!originalResponse.ok) {
+            throw new Error(`Failed to fetch media: ${originalResponse.status}`);
+          }
+          const audioArrayBuffer = await originalResponse.arrayBuffer();
+          audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
+          audioFileName = "audio.mp3";
+          console.log(`[BG-TRANSCRIBE] Original fetched: ${audioArrayBuffer.byteLength} bytes`);
         }
-        const mediaArrayBuffer = await mediaResponse.arrayBuffer();
-        console.log(`[BG-TRANSCRIBE] Media fetched: ${mediaArrayBuffer.byteLength} bytes`);
-        
-        // Determine file type from URL
-        const isVideo = audioUrl.includes('.mp4') || audioUrl.includes('video');
-        const mimeType = isVideo ? 'video/mp4' : 'audio/mpeg';
-        const fileName = isVideo ? 'video.mp4' : 'audio.mp3';
-        
-        const mediaBlob = new Blob([mediaArrayBuffer], { type: mimeType });
 
-        // Send to OpenAI Whisper
+        // Send to ElevenLabs
         const transcribeFormData = new FormData();
-        transcribeFormData.append("file", mediaBlob, fileName);
-        transcribeFormData.append("model", "whisper-1");
+        transcribeFormData.append("file", audioBlob, audioFileName);
+        transcribeFormData.append("model_id", "scribe_v1");
+        transcribeFormData.append("tag_audio_events", "false");
+        transcribeFormData.append("diarize", "false");
 
-        const transcribeResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+        const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${OPENAI_API_KEY}`,
+            "xi-api-key": ELEVENLABS_API_KEY,
           },
           body: transcribeFormData,
         });
 
         if (!transcribeResponse.ok) {
           const errorText = await transcribeResponse.text();
-          console.error("[BG-TRANSCRIBE] OpenAI Whisper error:", transcribeResponse.status, errorText);
+          console.error("[BG-TRANSCRIBE] ElevenLabs error:", transcribeResponse.status, errorText);
           throw new Error(`Transcription failed: ${transcribeResponse.status}`);
         }
 
