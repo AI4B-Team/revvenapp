@@ -1790,37 +1790,6 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         </div>
       </div>
 
-      {/* Platform Filter Bar */}
-      <div className="px-4 py-2 border-b border-border flex items-center gap-2 overflow-x-auto">
-        <span className="text-xs text-muted-foreground shrink-0">Platforms:</span>
-        <div className="flex items-center gap-1">
-          {PLATFORM_OPTIONS.map(platform => {
-            const isActive = filters.platforms.includes(platform.id);
-            return (
-              <button
-                key={platform.id}
-                onClick={() => togglePlatformFilter(platform.id)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  isActive 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                {getPlatformIcon(platform.id, 'w-3.5 h-3.5', isActive ? 'mono' : 'brand')}
-                <span className="hidden sm:inline">{platform.label}</span>
-              </button>
-            );
-          })}
-        </div>
-        {filters.platforms.length > 0 && (
-          <button
-            onClick={() => setFilters(prev => ({ ...prev, platforms: [] }))}
-            className="ml-auto text-xs text-muted-foreground hover:text-foreground shrink-0"
-          >
-            Clear
-          </button>
-        )}
-      </div>
 
       {/* View Content */}
       {viewMode === 'calendar' && timeRange === 'day' && renderDayView()}
