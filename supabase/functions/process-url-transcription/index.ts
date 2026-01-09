@@ -102,8 +102,18 @@ serve(async (req) => {
 
           title = downloadData.title || downloadData.caption || "instagram_media";
 
-          // Extract video URL from response - check common response formats
-          if (downloadData.result && Array.isArray(downloadData.result)) {
+          // Extract video URL from response - API returns media array
+          if (downloadData.media && Array.isArray(downloadData.media)) {
+            const videoResult = downloadData.media.find((m: any) => m.type === 'video' && m.url);
+            if (videoResult?.url) {
+              downloadUrl = videoResult.url;
+            } else if (downloadData.media[0]?.url) {
+              downloadUrl = downloadData.media[0].url;
+            }
+          }
+
+          // Fallback: try result array
+          if (!downloadUrl && downloadData.result && Array.isArray(downloadData.result)) {
             const videoResult = downloadData.result.find((r: any) => r.url);
             if (videoResult?.url) {
               downloadUrl = videoResult.url;
@@ -118,19 +128,6 @@ serve(async (req) => {
           // Try video field
           if (!downloadUrl && downloadData.video) {
             downloadUrl = downloadData.video;
-          }
-
-          // Try download_url field
-          if (!downloadUrl && downloadData.download_url) {
-            downloadUrl = downloadData.download_url;
-          }
-
-          // Try medias array
-          if (!downloadUrl && downloadData.medias && Array.isArray(downloadData.medias)) {
-            const media = downloadData.medias.find((m: any) => m.url);
-            if (media?.url) {
-              downloadUrl = media.url;
-            }
           }
           
           if (downloadUrl) {
