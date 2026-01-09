@@ -1794,7 +1794,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                     : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
-                {getPlatformIcon(platform.id, 'w-3.5 h-3.5')}
+                {getPlatformIcon(platform.id, 'w-3.5 h-3.5', isActive ? 'mono' : 'brand')}
                 <span className="hidden sm:inline">{platform.label}</span>
               </button>
             );
