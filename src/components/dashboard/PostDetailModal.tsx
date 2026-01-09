@@ -1451,14 +1451,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                                 {ytScheduledDate ? format(ytScheduledDate, "PPP") : <span>Pick a date</span>}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                            <PopoverContent className="w-auto p-0 z-[9999]" align="start" sideOffset={5}>
                               <Calendar
                                 mode="single"
                                 selected={ytScheduledDate}
                                 onSelect={setYtScheduledDate}
                                 disabled={(date) => date < new Date()}
                                 initialFocus
-                                className="p-3 pointer-events-auto"
+                                className="p-3 pointer-events-auto bg-popover"
                               />
                             </PopoverContent>
                           </Popover>
@@ -1548,14 +1548,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                                 {fbScheduledDate ? format(fbScheduledDate, "PPP") : <span>Pick a date</span>}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                            <PopoverContent className="w-auto p-0 z-[9999]" align="start" sideOffset={5}>
                               <Calendar
                                 mode="single"
                                 selected={fbScheduledDate}
                                 onSelect={setFbScheduledDate}
                                 disabled={(date) => date < new Date()}
                                 initialFocus
-                                className="p-3 pointer-events-auto"
+                                className="p-3 pointer-events-auto bg-popover"
                               />
                             </PopoverContent>
                           </Popover>
