@@ -64,14 +64,11 @@ export default function InviteVerificationPage() {
     setIsValidating(true);
     try {
       const { data, error } = await supabase
-        .from('invite_codes')
-        .select('id, is_used')
-        .eq('code', code.toUpperCase())
-        .single();
+        .rpc('check_invite_code', { code_to_check: code.toUpperCase() });
 
-      if (error || !data) {
+      if (error || !data || data.length === 0 || !data[0].is_valid) {
         setInviteCodeValid(false);
-      } else if (data.is_used) {
+      } else if (data[0].is_used) {
         setInviteCodeValid(false);
       } else {
         setInviteCodeValid(true);
@@ -107,14 +104,11 @@ export default function InviteVerificationPage() {
 
     setIsLoading(true);
 
-    // Validate the invite code
-    const { data: codeData, error: codeError } = await supabase
-      .from('invite_codes')
-      .select('id, is_used')
-      .eq('code', inviteCode.toUpperCase())
-      .single();
+    // Validate the invite code using secure RPC function
+    const { data: codeCheck, error: codeError } = await supabase
+      .rpc('check_invite_code', { code_to_check: inviteCode.toUpperCase() });
 
-    if (codeError || !codeData) {
+    if (codeError || !codeCheck || codeCheck.length === 0 || !codeCheck[0].is_valid) {
       setIsLoading(false);
       setInviteCodeValid(false);
       toast({
@@ -125,7 +119,7 @@ export default function InviteVerificationPage() {
       return;
     }
 
-    if (codeData.is_used) {
+    if (codeCheck[0].is_used) {
       setIsLoading(false);
       setInviteCodeValid(false);
       toast({
@@ -145,17 +139,12 @@ export default function InviteVerificationPage() {
       return;
     }
 
-    // Mark the invite code as used
-    await supabase
-      .from('invite_codes')
-      .update({
-        is_used: true,
-        used_at: new Date().toISOString(),
-        used_by_email: user.email,
-        used_by_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-        used_by_user_id: user.id,
-      })
-      .eq('code', inviteCode.toUpperCase());
+    // Mark the invite code as used using secure RPC function
+    await supabase.rpc('redeem_invite_code', {
+      code_to_redeem: inviteCode.toUpperCase(),
+      redeemer_email: user.email || '',
+      redeemer_name: user.user_metadata?.full_name || user.email?.split('@')[0] || ''
+    });
 
     // Update profile to mark invite code as validated
     await supabase

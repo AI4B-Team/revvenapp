@@ -23,7 +23,21 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // Get user ID from auth header if available
+    let userId: string | null = null;
+    const authHeader = req.headers.get('Authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+      const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(authHeader.replace('Bearer ', ''));
+      if (!claimsError && claimsData?.claims?.sub) {
+        userId = claimsData.claims.sub as string;
+      }
+    }
 
     // Check if this is a file upload from n8n (binary data)
     if (contentType.includes('application/octet-stream') ||
@@ -97,10 +111,11 @@ serve(async (req) => {
       const fileUrl = urlData.publicUrl;
       console.log('File uploaded:', fileUrl);
 
-      // Save to history table
+      // Save to history table with user_id
       const { error: insertError } = await supabase
         .from('lead_generation_history')
         .insert({
+          user_id: userId,
           location: location,
           platform: platform,
           keywords: keywords,
@@ -197,10 +212,11 @@ serve(async (req) => {
         
         const fileUrl = urlData.publicUrl;
         
-        // Save to history table
+        // Save to history table with user_id
         const { error: insertError } = await supabase
           .from('lead_generation_history')
           .insert({
+            user_id: userId,
             location: payload.location || '',
             platform: payload.platform || '',
             keywords: payload.keywords || '',

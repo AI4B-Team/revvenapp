@@ -1179,6 +1179,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_invite_code: {
+        Args: { code_to_check: string }
+        Returns: {
+          is_used: boolean
+          is_valid: boolean
+        }[]
+      }
+      check_newsletter_subscription: {
+        Args: { check_email: string }
+        Returns: {
+          is_subscribed: boolean
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1191,6 +1204,31 @@ export type Database = {
         Returns: boolean
       }
       is_admin_or_moderator: { Args: { _user_id: string }; Returns: boolean }
+      redeem_invite_code: {
+        Args: {
+          code_to_redeem: string
+          redeemer_email: string
+          redeemer_name: string
+        }
+        Returns: boolean
+      }
+      subscribe_to_newsletter: {
+        Args: { subscriber_email: string; subscriber_name?: string }
+        Returns: boolean
+      }
+      unsubscribe_from_newsletter: {
+        Args: { unsub_email: string }
+        Returns: boolean
+      }
+      update_story_job_status: {
+        Args: {
+          job_id: string
+          new_error_message?: string
+          new_status: string
+          new_video_url?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
