@@ -1635,8 +1635,8 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 )}
               </button>
             </PopoverTrigger>
-            <PopoverContent align="end" side="bottom" className="w-auto max-w-[700px] p-0 bg-popover border-border">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <PopoverContent align="start" side="bottom" className="w-[850px] p-0 bg-popover border-border">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <h3 className="font-semibold text-foreground">Filters</h3>
                 {hasActiveFilters && (
                   <button 
@@ -1652,10 +1652,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               {/* Horizontal filter sections */}
               <div className="flex divide-x divide-border">
                 {/* Status Filters */}
-                <div className="px-4 py-3 min-w-[140px]">
-                  <h4 className="text-sm font-medium text-foreground mb-3">Status</h4>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                <div className="px-6 py-4 min-w-[180px]">
+                  <h4 className="text-sm font-medium text-foreground mb-4">Status</h4>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 cursor-pointer">
                       <Checkbox
                         checked={filters.statuses.length === 0}
                         onCheckedChange={() => setFilters(prev => ({ ...prev, statuses: [] }))}
@@ -1663,7 +1663,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                       <span className="text-sm text-foreground">Select All</span>
                     </label>
                     {STATUS_OPTIONS.map(status => (
-                      <label key={status.id} className="flex items-center gap-2 cursor-pointer">
+                      <label key={status.id} className="flex items-center gap-3 cursor-pointer">
                         <Checkbox
                           checked={filters.statuses.includes(status.id)}
                           onCheckedChange={() => toggleStatusFilter(status.id)}
@@ -1676,11 +1676,11 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 </div>
                 
                 {/* Content Type Filters */}
-                <div className="px-4 py-3 min-w-[120px]">
-                  <h4 className="text-sm font-medium text-foreground mb-3">Content Type</h4>
-                  <div className="space-y-2">
+                <div className="px-6 py-4 min-w-[160px]">
+                  <h4 className="text-sm font-medium text-foreground mb-4">Content Type</h4>
+                  <div className="space-y-3">
                     {CONTENT_TYPE_OPTIONS.map(type => (
-                      <label key={type.id} className="flex items-center gap-2 cursor-pointer">
+                      <label key={type.id} className="flex items-center gap-3 cursor-pointer">
                         <Checkbox
                           checked={filters.contentTypes.includes(type.id)}
                           onCheckedChange={() => toggleContentTypeFilter(type.id)}
@@ -1693,11 +1693,11 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 </div>
                 
                 {/* Platform Filters */}
-                <div className="px-4 py-3 min-w-[200px]">
-                  <h4 className="text-sm font-medium text-foreground mb-3">Platforms</h4>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div className="px-6 py-4 min-w-[280px]">
+                  <h4 className="text-sm font-medium text-foreground mb-4">Platforms</h4>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                     {PLATFORM_OPTIONS.map(platform => (
-                      <label key={platform.id} className="flex items-center gap-2 cursor-pointer">
+                      <label key={platform.id} className="flex items-center gap-3 cursor-pointer">
                         <Checkbox
                           checked={filters.platforms.includes(platform.id)}
                           onCheckedChange={() => togglePlatformFilter(platform.id)}
@@ -1705,15 +1705,15 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                         <div className="w-4 h-4 flex items-center justify-center">
                           {getPlatformIcon(platform.id, 'w-3.5 h-3.5')}
                         </div>
-                        <span className="text-xs text-foreground">{platform.label}</span>
+                        <span className="text-sm text-foreground">{platform.label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
                 
                 {/* Labels Filters */}
-                <div className="px-4 py-3 min-w-[150px]">
-                  <div className="flex items-center justify-between mb-3">
+                <div className="px-6 py-4 min-w-[180px]">
+                  <div className="flex items-center justify-between mb-4">
                     <h4 className="text-sm font-medium text-foreground">Labels</h4>
                     <button 
                       onClick={() => { setIsFilterOpen(false); setIsLabelsModalOpen(true); }}
@@ -1722,9 +1722,9 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                       Manage
                     </button>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {LABEL_OPTIONS.map(label => (
-                      <label key={label.id} className="flex items-center gap-2 cursor-pointer">
+                      <label key={label.id} className="flex items-center gap-3 cursor-pointer">
                         <Checkbox
                           checked={filters.labels.includes(label.id)}
                           onCheckedChange={() => toggleLabelFilter(label.id)}
