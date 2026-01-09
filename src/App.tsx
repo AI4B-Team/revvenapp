@@ -153,7 +153,9 @@ const App = () => (
               <Route path="/article" element={<ArticleHub />} />
               <Route path="/article/new" element={<NewArticle />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/oauth/callback" element={<OAuthCallback />} />
               <Route path="/assets" element={<Assets />} />
               <Route path="/integrations" element={<Integrations />} />
