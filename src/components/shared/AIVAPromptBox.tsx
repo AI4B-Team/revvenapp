@@ -313,12 +313,12 @@ const AIVAPromptBox = ({
           <div className="flex items-center gap-4 flex-nowrap px-4 pb-4 overflow-x-auto scrollbar-hide">
             {/* Left side controls */}
             <div className="flex items-center gap-2 flex-nowrap flex-shrink-0">
-              {/* Auto dropdown - visible when intent is selected BUT hidden for Document type */}
-              {intent && selectedOption?.id !== 'document' && (
+              {/* Auto dropdown - visible when intent is selected */}
+              {intent && (
                 <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
               )}
               
-              {/* For Document type: Show Type button directly without AutoDropdown */}
+              {/* For Document type: Show Type button directly after Document chip */}
               {selectedOption?.id === 'document' && (
                 <Tooltip>
                   <TooltipTrigger asChild>

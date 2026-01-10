@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowUpRight, Upload, ChevronDown, Layers, Sparkles, Check } from 'lucide-react';
+import { ArrowUpRight, Upload, ChevronLeft, ChevronRight, Layers, Sparkles, Check } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
-// Import template images
+// Import template images - Page 1
 import vinylTemplate from '@/assets/presentation-templates/vinyl.jpg';
 import whiteboardTemplate from '@/assets/presentation-templates/whiteboard.jpg';
 import groveTemplate from '@/assets/presentation-templates/grove.jpg';
@@ -18,6 +18,26 @@ import easelTemplate from '@/assets/presentation-templates/easel.jpg';
 import dioramaTemplate from '@/assets/presentation-templates/diorama.jpg';
 import chromaticTemplate from '@/assets/presentation-templates/chromatic.jpg';
 import glamourTemplate from '@/assets/presentation-templates/glamour.jpg';
+import amberTemplate from '@/assets/presentation-templates/amber.jpg';
+import arcticTemplate from '@/assets/presentation-templates/arctic.jpg';
+import ceruleanTemplate from '@/assets/presentation-templates/cerulean.jpg';
+// Import template images - Page 2
+import cobaltTemplate from '@/assets/presentation-templates/cobalt.jpg';
+import emeraldTemplate from '@/assets/presentation-templates/emerald.jpg';
+import sketchTemplate from '@/assets/presentation-templates/sketch.jpg';
+import basaltTemplate from '@/assets/presentation-templates/basalt.jpg';
+import mistTemplate from '@/assets/presentation-templates/mist.jpg';
+import onyxTemplate from '@/assets/presentation-templates/onyx.jpg';
+import sandTemplate from '@/assets/presentation-templates/sand.jpg';
+import neonTemplate from '@/assets/presentation-templates/neon.jpg';
+import linenTemplate from '@/assets/presentation-templates/linen.jpg';
+import alabasterTemplate from '@/assets/presentation-templates/alabaster.jpg';
+import patinaTemplate from '@/assets/presentation-templates/patina.jpg';
+import quartzTemplate from '@/assets/presentation-templates/quartz.jpg';
+import mahoganyTemplate from '@/assets/presentation-templates/mahogany.jpg';
+import ginkgoTemplate from '@/assets/presentation-templates/ginkgo.jpg';
+import sunsetTemplate from '@/assets/presentation-templates/sunset.jpg';
+import lavenderTemplate from '@/assets/presentation-templates/lavender.jpg';
 
 interface SamplePrompt {
   id: string;
@@ -38,7 +58,7 @@ const samplePrompts: SamplePrompt[] = [
   { id: '4', text: 'Create a sales presentation for a B2B software solution' },
 ];
 
-const templates: PresentationTemplate[] = [
+const templatesPage1: PresentationTemplate[] = [
   { id: 'vinyl', name: 'Vinyl', image: vinylTemplate, isPopular: true },
   { id: 'whiteboard', name: 'Whiteboard', image: whiteboardTemplate, isPopular: true },
   { id: 'grove', name: 'Grove', image: groveTemplate, isPopular: true },
@@ -47,6 +67,28 @@ const templates: PresentationTemplate[] = [
   { id: 'diorama', name: 'Diorama', image: dioramaTemplate, isPopular: true },
   { id: 'chromatic', name: 'Chromatic', image: chromaticTemplate, isPopular: true },
   { id: 'glamour', name: 'Glamour', image: glamourTemplate },
+  { id: 'amber', name: 'Amber', image: amberTemplate },
+  { id: 'arctic', name: 'Arctic', image: arcticTemplate },
+  { id: 'cerulean', name: 'Cerulean', image: ceruleanTemplate },
+];
+
+const templatesPage2: PresentationTemplate[] = [
+  { id: 'cobalt', name: 'Cobalt', image: cobaltTemplate },
+  { id: 'emerald', name: 'Emerald', image: emeraldTemplate, isPopular: true },
+  { id: 'sketch', name: 'Sketch', image: sketchTemplate },
+  { id: 'basalt', name: 'Basalt', image: basaltTemplate },
+  { id: 'mist', name: 'Mist', image: mistTemplate },
+  { id: 'onyx', name: 'Onyx', image: onyxTemplate },
+  { id: 'sand', name: 'Sand', image: sandTemplate },
+  { id: 'neon', name: 'Neon', image: neonTemplate, isPopular: true },
+  { id: 'linen', name: 'Linen', image: linenTemplate },
+  { id: 'alabaster', name: 'Alabaster', image: alabasterTemplate },
+  { id: 'patina', name: 'Patina', image: patinaTemplate },
+  { id: 'quartz', name: 'Quartz', image: quartzTemplate },
+  { id: 'mahogany', name: 'Mahogany', image: mahoganyTemplate },
+  { id: 'ginkgo', name: 'Ginkgo', image: ginkgoTemplate, isPopular: true },
+  { id: 'sunset', name: 'Sunset', image: sunsetTemplate },
+  { id: 'lavender', name: 'Lavender', image: lavenderTemplate },
 ];
 
 const slideCountOptions = [
@@ -66,6 +108,8 @@ interface PresentationTemplatesProps {
 const PresentationTemplates = ({ onPromptSelect, onTemplateSelect, onSlideCountChange }: PresentationTemplatesProps) => {
   const [slideCount, setSlideCount] = useState('8-12');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = 2;
 
   const handlePromptClick = (prompt: SamplePrompt) => {
     onPromptSelect?.(prompt.text);
@@ -81,11 +125,25 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect, onSlideCountC
     onSlideCountChange?.(value);
   };
 
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const currentTemplates = currentPage === 1 ? templatesPage1 : templatesPage2;
+
   return (
     <div className="w-full max-w-[850px] mx-auto mt-6 space-y-6">
       {/* Sample Prompts Section */}
       <div>
-        <h3 className="text-sm font-semibold text-muted-foreground mb-3">Sample prompts</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3">Sample Prompts</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {samplePrompts.map((prompt) => (
             <button
@@ -103,45 +161,75 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect, onSlideCountC
         </div>
       </div>
 
-      {/* Choose a Template Section */}
+      {/* Choose A Template Section */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground">Choose a template</h3>
-          <Select value={slideCount} onValueChange={handleSlideCountChange}>
-            <SelectTrigger className="w-[120px] h-9 text-sm bg-card border-border">
-              <div className="flex items-center gap-2">
-                <Layers size={14} className="text-muted-foreground" />
-                <SelectValue />
-              </div>
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-border">
-              {slideCountOptions.map((option) => (
-                <SelectItem 
-                  key={option.value} 
-                  value={option.value}
-                  className="text-sm"
-                >
-                  <span className="flex items-center gap-2">
-                    {option.label}
-                    {option.isPro && (
-                      <Sparkles size={12} className="text-violet-500" />
-                    )}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <h3 className="text-sm font-semibold text-muted-foreground">Choose A Template</h3>
+          <div className="flex items-center gap-2">
+            <Select value={slideCount} onValueChange={handleSlideCountChange}>
+              <SelectTrigger className="w-[120px] h-9 text-sm bg-card border-border">
+                <div className="flex items-center gap-2">
+                  <Layers size={14} className="text-muted-foreground" />
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border">
+                {slideCountOptions.map((option) => (
+                  <SelectItem 
+                    key={option.value} 
+                    value={option.value}
+                    className="text-sm"
+                  >
+                    <span className="flex items-center gap-2">
+                      {option.label}
+                      {option.isPro && (
+                        <Sparkles size={12} className="text-violet-500" />
+                      )}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {/* Pagination Arrows */}
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className={cn(
+                "p-2 rounded-lg border transition-colors",
+                currentPage === 1
+                  ? "border-border text-muted-foreground/40 cursor-not-allowed"
+                  : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={cn(
+                "p-2 rounded-lg border transition-colors",
+                currentPage === totalPages
+                  ? "border-border text-muted-foreground/40 cursor-not-allowed"
+                  : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {/* Import Template Card */}
-          <button className="group flex flex-col items-center justify-center aspect-[16/10] bg-card border-2 border-dashed border-border rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-200">
-            <Upload size={24} className="text-muted-foreground group-hover:text-emerald-500 mb-2 transition-colors" />
-            <span className="text-sm font-medium text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Import template</span>
-          </button>
+          {/* Import Template Card - Only on page 1 */}
+          {currentPage === 1 && (
+            <button className="group flex flex-col items-center justify-center aspect-[16/10] bg-card border-2 border-dashed border-border rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-200">
+              <Upload size={24} className="text-muted-foreground group-hover:text-emerald-500 mb-2 transition-colors" />
+              <span className="text-sm font-medium text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Import template</span>
+            </button>
+          )}
 
           {/* Template Cards */}
-          {templates.map((template) => (
+          {currentTemplates.map((template) => (
             <button
               key={template.id}
               onClick={() => handleTemplateClick(template)}
@@ -169,10 +257,26 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect, onSlideCountC
               <div className="flex items-center justify-center gap-1.5 py-2">
                 <span className="text-sm font-medium text-foreground">{template.name}</span>
                 {template.isPopular && (
-                  <span className="text-base">🍌</span>
+                  <span className="text-base">🔥</span>
                 )}
               </div>
             </button>
+          ))}
+        </div>
+
+        {/* Page Indicator */}
+        <div className="flex items-center justify-center gap-2 mt-4">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+              className={cn(
+                "w-2 h-2 rounded-full transition-colors",
+                currentPage === i + 1
+                  ? "bg-emerald-500"
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+              )}
+            />
           ))}
         </div>
       </div>
