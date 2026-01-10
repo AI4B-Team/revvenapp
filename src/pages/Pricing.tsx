@@ -263,7 +263,7 @@ const Pricing = () => {
             Choose Your Plan
           </h1>
           <p className="text-lg text-muted-foreground mb-8">
-            Start for free. Upgrade when you need more power.
+            Start for free. Upgrade when you need more power. Cancel anytime.
           </p>
 
           {/* Billing Toggle */}
