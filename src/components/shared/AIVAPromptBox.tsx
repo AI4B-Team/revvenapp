@@ -187,12 +187,14 @@ const AIVAPromptBox = ({
     setSelectedSubType(null);
     setShowTypeDropdown(false);
     onSubTypeChange?.(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intent]);
 
   // Notify parent when sub-type changes
   useEffect(() => {
     onSubTypeChange?.(selectedSubType);
-  }, [selectedSubType, onSubTypeChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSubType]);
 
   const handleOptionSelect = (option: AutoOption | null) => {
     setSelectedOption(option);
