@@ -2018,15 +2018,55 @@ const EbookCanvasEditor = ({
             
             <div className="w-px h-6 bg-gray-200 mx-1" />
             
+            {/* Lock */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                <button 
+                  onClick={() => toggleLock(currentElement.id)}
+                  className={`p-2 rounded transition-colors ${
+                    currentElement.locked 
+                      ? 'bg-red-50 text-red-500 hover:bg-red-100' 
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {currentElement.locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
+            </Tooltip>
+            
+            {/* Duplicate */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => {
+                    const newId = crypto.randomUUID();
+                    const newElement = {
+                      ...currentElement,
+                      id: newId,
+                      x: currentElement.x + 2,
+                      y: currentElement.y + 2,
+                      locked: false,
+                    };
+                    setPageElementsState(prev => {
+                      const currentPageElements = prev[selectedPage?.id || ''] || [];
+                      return {
+                        ...prev,
+                        [selectedPage?.id || '']: [...currentPageElements, newElement],
+                      };
+                    });
+                    setSelectedElement(newId);
+                    toast.success('Element duplicated');
+                  }}
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
+                >
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom"><p>Duplicate</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Duplicate (⌘D)</p></TooltipContent>
             </Tooltip>
             
+            {/* Delete */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
@@ -2200,27 +2240,55 @@ const EbookCanvasEditor = ({
             
             <div className="w-px h-6 bg-gray-200 mx-1" />
             
+            {/* Lock */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => toggleLock(currentElement.id)}
-                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
+                  className={`p-2 rounded transition-colors ${
+                    currentElement.locked 
+                      ? 'bg-red-50 text-red-500 hover:bg-red-100' 
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
                 >
-                  {currentElement.locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                  {currentElement.locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
             </Tooltip>
             
+            {/* Duplicate */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                <button 
+                  onClick={() => {
+                    const newId = crypto.randomUUID();
+                    const newElement = {
+                      ...currentElement,
+                      id: newId,
+                      x: currentElement.x + 2,
+                      y: currentElement.y + 2,
+                      locked: false,
+                    };
+                    setPageElementsState(prev => {
+                      const currentPageElements = prev[selectedPage?.id || ''] || [];
+                      return {
+                        ...prev,
+                        [selectedPage?.id || '']: [...currentPageElements, newElement],
+                      };
+                    });
+                    setSelectedElement(newId);
+                    toast.success('Element duplicated');
+                  }}
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
+                >
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom"><p>Duplicate</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Duplicate (⌘D)</p></TooltipContent>
             </Tooltip>
             
+            {/* Delete */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
@@ -2619,9 +2687,13 @@ const EbookCanvasEditor = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => toggleLock(currentElement.id)}
-                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
+                  className={`p-2 rounded transition-colors ${
+                    currentElement.locked 
+                      ? 'bg-red-50 text-red-500 hover:bg-red-100' 
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
                 >
-                  {currentElement.locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                  {currentElement.locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
@@ -2629,7 +2701,28 @@ const EbookCanvasEditor = ({
             
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                <button 
+                  onClick={() => {
+                    const newId = crypto.randomUUID();
+                    const newElement = {
+                      ...currentElement,
+                      id: newId,
+                      x: currentElement.x + 2,
+                      y: currentElement.y + 2,
+                      locked: false,
+                    };
+                    setPageElementsState(prev => {
+                      const currentPageElements = prev[selectedPage?.id || ''] || [];
+                      return {
+                        ...prev,
+                        [selectedPage?.id || '']: [...currentPageElements, newElement],
+                      };
+                    });
+                    setSelectedElement(newId);
+                    toast.success('Element duplicated');
+                  }}
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
+                >
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
