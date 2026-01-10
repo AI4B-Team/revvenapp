@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import RevvenLogo from '@/components/RevvenLogo';
-import AIVAPromptBox from '@/components/shared/AIVAPromptBox';
+import AIVAPromptBox, { type SubOptionType } from '@/components/shared/AIVAPromptBox';
 import AISuggestionsGrid, { type Suggestion } from '@/components/landing/AISuggestionsGrid';
+import PresentationTemplates from '@/components/shared/PresentationTemplates';
 import AuthModal from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +15,7 @@ const LandingNew = () => {
   const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
   const [prompt, setPrompt] = useState('');
   const [user, setUser] = useState<User | null>(null);
+  const [selectedSubType, setSelectedSubType] = useState<SubOptionType | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +44,17 @@ const LandingNew = () => {
     // Set the prompt to the suggestion's prompt
     setPrompt(suggestion.prompt);
   };
+
+  const handlePresentationPromptSelect = (promptText: string) => {
+    setPrompt(promptText);
+  };
+
+  const handleSubTypeChange = (subType: SubOptionType | null) => {
+    setSelectedSubType(subType);
+  };
+
+  // Check if Presentation is selected
+  const isPresentationSelected = selectedSubType?.id === 'presentation';
 
   return (
     <div className="h-screen bg-gradient-to-b from-slate-50 to-white flex flex-col overflow-hidden">
@@ -78,7 +91,7 @@ const LandingNew = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center px-6 pt-4 pb-6 w-full min-h-0">
+      <main className="flex-1 flex flex-col items-center px-6 pt-4 pb-6 w-full min-h-0 overflow-y-auto">
         {/* Shared AIVA Prompt Box with tagline */}
         <div className="w-full">
           <AIVAPromptBox 
@@ -88,16 +101,23 @@ const LandingNew = () => {
             onPromptChange={setPrompt}
             selectedIntent={selectedIntent}
             onIntentChange={setSelectedIntent}
+            onSubTypeChange={handleSubTypeChange}
           />
         </div>
 
-        {/* AI Suggestions Grid */}
-        <div className="w-full mx-auto max-w-[800px]">
-          <AISuggestionsGrid
-            intent={selectedIntent}
-            onSuggestionClick={handleSuggestionClick}
+        {/* Conditionally show Presentation Templates or AI Suggestions */}
+        {isPresentationSelected ? (
+          <PresentationTemplates
+            onPromptSelect={handlePresentationPromptSelect}
           />
-        </div>
+        ) : (
+          <div className="w-full mx-auto max-w-[800px]">
+            <AISuggestionsGrid
+              intent={selectedIntent}
+              onSuggestionClick={handleSuggestionClick}
+            />
+          </div>
+        )}
       </main>
 
       {/* Auth Modal */}

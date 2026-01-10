@@ -120,6 +120,13 @@ const documentTypes: SubOption[] = [
   { id: 'presentation', label: 'Presentation', icon: Monitor, color: 'text-orange-500' },
 ];
 
+export interface SubOptionType {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  color?: string;
+}
+
 interface AIVAPromptBoxProps {
   onGenerate?: () => void;
   showGreeting?: boolean;
@@ -129,6 +136,7 @@ interface AIVAPromptBoxProps {
   onPromptChange?: (prompt: string) => void;
   selectedIntent?: Intent | null;
   onIntentChange?: (intent: Intent | null) => void;
+  onSubTypeChange?: (subType: SubOptionType | null) => void;
 }
 
 const AIVAPromptBox = ({ 
@@ -140,6 +148,7 @@ const AIVAPromptBox = ({
   onPromptChange,
   selectedIntent: externalIntent,
   onIntentChange,
+  onSubTypeChange,
 }: AIVAPromptBoxProps) => {
   const [internalPrompt, setInternalPrompt] = useState('');
   const [internalIntent, setInternalIntent] = useState<Intent | null>(null);
@@ -177,7 +186,13 @@ const AIVAPromptBox = ({
     setSelectedOption(null);
     setSelectedSubType(null);
     setShowTypeDropdown(false);
+    onSubTypeChange?.(null);
   }, [intent]);
+
+  // Notify parent when sub-type changes
+  useEffect(() => {
+    onSubTypeChange?.(selectedSubType);
+  }, [selectedSubType, onSubTypeChange]);
 
   const handleOptionSelect = (option: AutoOption | null) => {
     setSelectedOption(option);

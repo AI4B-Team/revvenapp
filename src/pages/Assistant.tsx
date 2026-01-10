@@ -3,8 +3,9 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
-import AIVAPromptBox from '@/components/shared/AIVAPromptBox';
+import AIVAPromptBox, { type SubOptionType } from '@/components/shared/AIVAPromptBox';
 import AISuggestionsGrid, { type Suggestion } from '@/components/landing/AISuggestionsGrid';
+import PresentationTemplates from '@/components/shared/PresentationTemplates';
 import { supabase } from '@/integrations/supabase/client';
 import type { Intent } from '@/components/IntentSelector';
 
@@ -15,6 +16,7 @@ const Assistant = () => {
   const [userName, setUserName] = useState('');
   const [prompt, setPrompt] = useState('');
   const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
+  const [selectedSubType, setSelectedSubType] = useState<SubOptionType | null>(null);
 
   // Get user profile
   useEffect(() => {
@@ -49,6 +51,17 @@ const Assistant = () => {
     setPrompt(suggestion.prompt);
   };
 
+  const handlePresentationPromptSelect = (promptText: string) => {
+    setPrompt(promptText);
+  };
+
+  const handleSubTypeChange = (subType: SubOptionType | null) => {
+    setSelectedSubType(subType);
+  };
+
+  // Check if Presentation is selected
+  const isPresentationSelected = selectedSubType?.id === 'presentation';
+
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
       <Sidebar 
@@ -72,16 +85,23 @@ const Assistant = () => {
                 onPromptChange={setPrompt}
                 selectedIntent={selectedIntent}
                 onIntentChange={setSelectedIntent}
+                onSubTypeChange={handleSubTypeChange}
               />
             </div>
             
-            {/* AI Suggestions Grid */}
-            <div className="w-full mx-auto max-w-[800px]">
-              <AISuggestionsGrid
-                intent={selectedIntent}
-                onSuggestionClick={handleSuggestionClick}
+            {/* Conditionally show Presentation Templates or AI Suggestions */}
+            {isPresentationSelected ? (
+              <PresentationTemplates
+                onPromptSelect={handlePresentationPromptSelect}
               />
-            </div>
+            ) : (
+              <div className="w-full mx-auto max-w-[800px]">
+                <AISuggestionsGrid
+                  intent={selectedIntent}
+                  onSuggestionClick={handleSuggestionClick}
+                />
+              </div>
+            )}
           </div>
         </main>
       </div>
