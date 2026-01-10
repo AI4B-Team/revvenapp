@@ -21,7 +21,8 @@ const Pricing = () => {
       buttonText: 'Get Started Free',
       buttonVariant: 'outline' as const,
       popular: false,
-      color: 'bg-muted',
+      color: 'bg-slate-600',
+      href: '/signup',
     },
     {
       name: 'Starter',
@@ -33,6 +34,7 @@ const Pricing = () => {
       buttonVariant: 'outline' as const,
       popular: false,
       color: 'bg-blue-500',
+      href: '/signup?plan=starter',
     },
     {
       name: 'Creator',
@@ -44,6 +46,7 @@ const Pricing = () => {
       buttonVariant: 'default' as const,
       popular: true,
       color: 'bg-brand-purple',
+      href: '/signup?plan=creator',
     },
     {
       name: 'Pro',
@@ -55,6 +58,7 @@ const Pricing = () => {
       buttonVariant: 'outline' as const,
       popular: false,
       color: 'bg-amber-500',
+      href: '/signup?plan=pro',
     },
   ];
 
@@ -295,7 +299,7 @@ const Pricing = () => {
               return (
                 <Card
                   key={plan.name}
-                  className={`relative p-6 ${plan.popular ? 'border-2 border-primary shadow-lg scale-105' : 'border'}`}
+                  className={`relative p-6 ${plan.popular ? 'border-2 border-primary shadow-lg lg:scale-105' : 'border'}`}
                 >
                   {plan.popular && (
                     <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary">
@@ -317,9 +321,15 @@ const Pricing = () => {
                         <span className="text-muted-foreground">/month</span>
                       )}
                     </div>
-                    {isAnnual && price > 0 && (
+                    {isAnnual && plan.monthlyPrice > 0 && (
                       <p className="text-sm text-muted-foreground mt-1">
-                        Billed annually (${price * 12}/year)
+                        <span className="line-through text-muted-foreground/60">${plan.monthlyPrice}/mo</span>
+                        {' '}· Billed annually (${price * 12}/year)
+                      </p>
+                    )}
+                    {!isAnnual && plan.monthlyPrice > 0 && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Billed monthly
                       </p>
                     )}
                   </div>
@@ -328,13 +338,15 @@ const Pricing = () => {
                     {plan.description}
                   </p>
 
-                  <Button
-                    className="w-full mb-6"
-                    variant={plan.buttonVariant}
-                  >
-                    {plan.buttonText}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  <Link to={plan.href}>
+                    <Button
+                      className="w-full mb-6"
+                      variant={plan.buttonVariant}
+                    >
+                      {plan.buttonText}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
 
                   {/* Quick feature highlights */}
                   <ul className="space-y-2 text-sm">
@@ -482,10 +494,12 @@ const Pricing = () => {
                   </li>
                 </ul>
               </div>
-              <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 shrink-0">
-                Contact Sales
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
+              <a href="mailto:sales@revven.com?subject=Enterprise%20Plan%20Inquiry">
+                <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 shrink-0">
+                  Contact Sales
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </a>
             </div>
           </Card>
         </div>
