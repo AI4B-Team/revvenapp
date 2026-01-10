@@ -2438,7 +2438,7 @@ const EbookCanvasEditor = ({
             {/* GhostInk AI Writer - First button */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 rounded-lg flex items-center gap-2 shadow-sm transition-all hover:shadow-md">
+                <button className="px-3 py-1.5 text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 rounded-lg flex items-center gap-2 shadow-sm transition-all hover:shadow-md">
                   <Sparkles className="w-4 h-4" />
                   Writer
                 </button>
@@ -2940,6 +2940,7 @@ const EbookCanvasEditor = ({
         return (
           <div
             key={element.id}
+            data-element-id={element.id}
             onClick={(e) => handleElementClick(e, element.id)}
           style={baseStyle}
           className={`bg-gray-100 border-2 border-dashed flex flex-col items-center justify-center p-4 ${
@@ -3010,6 +3011,7 @@ const EbookCanvasEditor = ({
       return (
         <div
           key={element.id}
+          data-element-id={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
           style={{
             ...baseStyle,
@@ -3193,6 +3195,7 @@ const EbookCanvasEditor = ({
       return (
         <div
           key={element.id}
+          data-element-id={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
           style={{
             ...baseStyle,
@@ -3257,6 +3260,7 @@ const EbookCanvasEditor = ({
       return (
         <div
           key={element.id}
+          data-element-id={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
           style={{
             ...baseStyle,
@@ -4122,7 +4126,11 @@ const EbookCanvasEditor = ({
                             ref={isSelected ? pageCanvasRef : undefined}
                             onClick={(e) => {
                               onPageSelect(page.id);
-                              if (e.target === e.currentTarget) {
+                              // Deselect element if clicking on the canvas background (not on an element)
+                              // Check if the click was on the page canvas itself or empty space
+                              const target = e.target as HTMLElement;
+                              const isClickOnElement = target.closest('[data-element-id]');
+                              if (!isClickOnElement) {
                                 setSelectedElement(null);
                               }
                             }}
