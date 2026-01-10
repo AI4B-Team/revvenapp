@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowUpRight, Upload, ChevronDown, Layers, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Upload, ChevronDown, Layers, Sparkles, Check } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 // Import template images
 import vinylTemplate from '@/assets/presentation-templates/vinyl.jpg';
@@ -23,7 +24,7 @@ interface SamplePrompt {
   text: string;
 }
 
-interface PresentationTemplate {
+export interface PresentationTemplate {
   id: string;
   name: string;
   image: string;
@@ -59,9 +60,10 @@ const slideCountOptions = [
 interface PresentationTemplatesProps {
   onPromptSelect?: (prompt: string) => void;
   onTemplateSelect?: (template: PresentationTemplate) => void;
+  onSlideCountChange?: (count: string) => void;
 }
 
-const PresentationTemplates = ({ onPromptSelect, onTemplateSelect }: PresentationTemplatesProps) => {
+const PresentationTemplates = ({ onPromptSelect, onTemplateSelect, onSlideCountChange }: PresentationTemplatesProps) => {
   const [slideCount, setSlideCount] = useState('8-12');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
@@ -74,22 +76,27 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect }: Presentatio
     onTemplateSelect?.(template);
   };
 
+  const handleSlideCountChange = (value: string) => {
+    setSlideCount(value);
+    onSlideCountChange?.(value);
+  };
+
   return (
     <div className="w-full max-w-[850px] mx-auto mt-6 space-y-6">
       {/* Sample Prompts Section */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Sample prompts</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3">Sample prompts</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {samplePrompts.map((prompt) => (
             <button
               key={prompt.id}
               onClick={() => handlePromptClick(prompt)}
-              className="group relative p-4 text-left bg-white border border-gray-200 rounded-xl hover:border-emerald-300 hover:shadow-sm transition-all duration-200"
+              className="group relative p-4 text-left bg-card border border-border rounded-xl hover:border-emerald-300 hover:shadow-sm transition-all duration-200"
             >
-              <p className="text-sm text-gray-600 line-clamp-3 pr-5">{prompt.text}</p>
+              <p className="text-sm text-muted-foreground line-clamp-3 pr-5">{prompt.text}</p>
               <ArrowUpRight 
                 size={14} 
-                className="absolute bottom-3 right-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" 
+                className="absolute bottom-3 right-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" 
               />
             </button>
           ))}
@@ -99,15 +106,15 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect }: Presentatio
       {/* Choose a Template Section */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-700">Choose a template</h3>
-          <Select value={slideCount} onValueChange={setSlideCount}>
-            <SelectTrigger className="w-[120px] h-9 text-sm bg-white border-gray-200">
+          <h3 className="text-sm font-semibold text-muted-foreground">Choose a template</h3>
+          <Select value={slideCount} onValueChange={handleSlideCountChange}>
+            <SelectTrigger className="w-[120px] h-9 text-sm bg-card border-border">
               <div className="flex items-center gap-2">
-                <Layers size={14} className="text-gray-500" />
+                <Layers size={14} className="text-muted-foreground" />
                 <SelectValue />
               </div>
             </SelectTrigger>
-            <SelectContent className="bg-white border-gray-200">
+            <SelectContent className="bg-popover border-border">
               {slideCountOptions.map((option) => (
                 <SelectItem 
                   key={option.value} 
@@ -128,9 +135,9 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect }: Presentatio
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {/* Import Template Card */}
-          <button className="group flex flex-col items-center justify-center aspect-[16/10] bg-white border-2 border-dashed border-gray-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-200">
-            <Upload size={24} className="text-gray-400 group-hover:text-emerald-500 mb-2 transition-colors" />
-            <span className="text-sm font-medium text-gray-500 group-hover:text-emerald-600 transition-colors">Import template</span>
+          <button className="group flex flex-col items-center justify-center aspect-[16/10] bg-card border-2 border-dashed border-border rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-200">
+            <Upload size={24} className="text-muted-foreground group-hover:text-emerald-500 mb-2 transition-colors" />
+            <span className="text-sm font-medium text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Import template</span>
           </button>
 
           {/* Template Cards */}
@@ -138,21 +145,29 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect }: Presentatio
             <button
               key={template.id}
               onClick={() => handleTemplateClick(template)}
-              className={`group relative flex flex-col overflow-hidden rounded-xl transition-all duration-200 ${
+              className={cn(
+                "group relative flex flex-col overflow-hidden rounded-xl transition-all duration-200 bg-card",
                 selectedTemplate === template.id 
-                  ? 'ring-2 ring-emerald-500 ring-offset-2' 
+                  ? 'ring-2 ring-emerald-500 ring-offset-2 ring-offset-background' 
                   : 'hover:shadow-lg'
-              }`}
+              )}
             >
-              <div className="aspect-[16/10] overflow-hidden rounded-xl">
+              <div className="aspect-[16/10] overflow-hidden rounded-t-xl relative">
                 <img 
                   src={template.image} 
                   alt={template.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
+                {selectedTemplate === template.id && (
+                  <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
+                    <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                      <Check size={18} className="text-white" />
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="flex items-center justify-center gap-1.5 py-2">
-                <span className="text-sm font-medium text-gray-700">{template.name}</span>
+                <span className="text-sm font-medium text-foreground">{template.name}</span>
                 {template.isPopular && (
                   <span className="text-base">🍌</span>
                 )}
