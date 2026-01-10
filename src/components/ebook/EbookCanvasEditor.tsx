@@ -1156,11 +1156,13 @@ const EbookCanvasEditor = ({
   const handleElementClick = (e: React.MouseEvent, elementId: string) => {
     e.stopPropagation();
     const element = currentPageElements.find(el => el.id === elementId);
-    if (!element?.locked) {
-      setSelectedElement(elementId);
-    } else {
+    // Only show locked message if element exists AND is explicitly locked (true)
+    if (element?.locked === true) {
       toast.info('Element is locked. Unlock it first.');
+      return;
     }
+    // Select element if found (whether locked is false or undefined)
+    setSelectedElement(elementId);
   };
 
   // Handle move handle mouse down
