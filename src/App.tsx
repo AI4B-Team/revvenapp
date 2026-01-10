@@ -76,6 +76,7 @@ import OAuthCallback from "./pages/OAuthCallback";
 import AutoYT from "./pages/AutoYT";
 import ArticleHub from "./pages/ArticleHub";
 import NewArticle from "./pages/NewArticle";
+import Pricing from "./pages/Pricing";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -152,6 +153,7 @@ const App = () => (
               <Route path="/newsletter" element={<Newsletter />} />
               <Route path="/article" element={<ArticleHub />} />
               <Route path="/article/new" element={<NewArticle />} />
+              <Route path="/pricing" element={<Pricing />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
