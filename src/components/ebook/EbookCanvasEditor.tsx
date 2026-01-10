@@ -1719,7 +1719,7 @@ const EbookCanvasEditor = ({
               className="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 rounded flex items-center gap-2"
             >
               <Sparkles className="w-4 h-4 text-purple-500" />
-              Edit
+              Edit With AI
             </button>
             
             <div className="w-px h-6 bg-gray-200 mx-1" />
