@@ -91,7 +91,9 @@ const EbookCreator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [activeProjectTab, setActiveProjectTab] = useState<'ebooks' | 'audiobooks'>('ebooks');
+  const [deleteConfirmBook, setDeleteConfirmBook] = useState<Ebook | null>(null);
   
   // Modal states for source cards
   const [sourceModalOpen, setSourceModalOpen] = useState(false);
@@ -108,10 +110,17 @@ const EbookCreator = () => {
     return matchesSearch && matchesFilter;
   });
 
-  const handleDeleteEbook = (id: number) => { 
-    contextDeleteEbook(id); 
-    setShowDropdown(null); 
-    toast.success('eBook deleted');
+  const handleDeleteEbook = (book: Ebook) => { 
+    setDeleteConfirmBook(book);
+    setShowDropdown(null);
+  };
+  
+  const confirmDeleteEbook = () => {
+    if (deleteConfirmBook) {
+      contextDeleteEbook(deleteConfirmBook.id); 
+      setDeleteConfirmBook(null);
+      toast.success('eBook deleted');
+    }
   };
   
   const duplicateEbook = (book: Ebook) => {
@@ -388,7 +397,7 @@ const EbookCreator = () => {
                     {showDropdown === book.id && (
                       <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg py-1 z-10">
                         <button onClick={(e) => { e.stopPropagation(); duplicateEbook(book); }} className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center gap-2"><Copy className="w-4 h-4" />Duplicate</button>
-                        <button onClick={(e) => { e.stopPropagation(); handleDeleteEbook(book.id); }} className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"><Trash2 className="w-4 h-4" />Delete</button>
+                        <button onClick={(e) => { e.stopPropagation(); handleDeleteEbook(book); }} className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"><Trash2 className="w-4 h-4" />Delete</button>
                       </div>
                     )}
                   </div>
@@ -673,26 +682,26 @@ const EbookCreator = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input
                         type="text"
                         placeholder="Search eBooks"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-64 pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                        className="w-64 pl-10 pr-4 py-2.5 rounded-xl bg-muted border border-border text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
                       />
                     </div>
                     <div className="relative">
                       <button
-                        onClick={() => setShowDropdown(showDropdown === -1 ? null : -1)}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted border border-border text-sm text-muted-foreground hover:bg-muted/80 transition-colors"
                       >
                         <Filter className="w-4 h-4" />
                         Filter
                         <ChevronDown className="w-4 h-4" />
                       </button>
-                      {showDropdown === -1 && (
-                        <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-xl shadow-lg py-1 z-20">
+                      {showFilterDropdown && (
+                        <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg py-1 z-50">
                           {[
                             { value: 'all', label: 'All' },
                             { value: 'published', label: 'Published' },
@@ -700,8 +709,8 @@ const EbookCreator = () => {
                           ].map((option) => (
                             <button
                               key={option.value}
-                              onClick={() => { setFilterStatus(option.value); setShowDropdown(null); }}
-                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
+                              onClick={() => { setFilterStatus(option.value); setShowFilterDropdown(false); }}
+                              className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center justify-between"
                             >
                               {option.label}
                               {filterStatus === option.value && <Check className="w-4 h-4 text-emerald-500" />}
@@ -710,23 +719,32 @@ const EbookCreator = () => {
                         </div>
                       )}
                     </div>
-                    <div className="flex border border-gray-200 rounded-xl overflow-hidden">
-                      <button onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:bg-gray-50'}`}><List className="w-5 h-5" /></button>
-                      <button onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:bg-gray-50'}`}><Grid className="w-5 h-5" /></button>
+                    <div className="flex border border-border rounded-xl overflow-hidden">
+                      <button onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`}><List className="w-5 h-5" /></button>
+                      <button onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`}><Grid className="w-5 h-5" /></button>
                     </div>
                   </div>
                 </div>
-                <div className="bg-white rounded-2xl border border-gray-200 p-4">
-                  {viewMode === 'list' ? (
+                <div className="bg-card rounded-2xl border border-border p-4">
+                  {activeProjectTab === 'audiobooks' ? (
+                    <div className="text-center py-12">
+                      <Headphones className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-1">No AudioBooks Yet</h3>
+                      <p className="text-muted-foreground mb-4">Convert your eBooks into audiobooks</p>
+                      <Button variant="outline" onClick={() => toast.info('AudioBook conversion coming soon')}>
+                        <Volume2 className="w-5 h-5 mr-2" />Convert eBook to Audio
+                      </Button>
+                    </div>
+                  ) : viewMode === 'list' ? (
                     <div className="space-y-3">{filteredEbooks.map(book => <EbookListItem key={book.id} book={book} />)}</div>
                   ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">{filteredEbooks.map(book => <EbookGridItem key={book.id} book={book} />)}</div>
                   )}
-                  {filteredEbooks.length === 0 && (
+                  {activeProjectTab === 'ebooks' && filteredEbooks.length === 0 && (
                     <div className="text-center py-12">
-                      <Book className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">No eBooks Found</h3>
-                      <p className="text-gray-500 mb-4">Create your first eBook to get started</p>
+                      <Book className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-1">No eBooks Found</h3>
+                      <p className="text-muted-foreground mb-4">{searchQuery ? 'Try a different search term' : 'Create your first eBook to get started'}</p>
                       <Button onClick={() => navigate('/ebook-creator/new')} className="bg-emerald-500 hover:bg-emerald-600 text-white">
                         <Plus className="w-5 h-5 mr-2" />Create eBook
                       </Button>
@@ -744,6 +762,26 @@ const EbookCreator = () => {
       {showCoverDesigner && <CoverDesignerModal />}
       {showExportModal && <ExportModal />}
       {isGenerating && <GenerationOverlay />}
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirmBook} onOpenChange={(open) => !open && setDeleteConfirmBook(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete eBook</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground">
+              Are you sure you want to delete <span className="font-semibold text-foreground">"{deleteConfirmBook?.title}"</span>? This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => setDeleteConfirmBook(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={confirmDeleteEbook}>
+              <Trash2 className="w-4 h-4 mr-2" />Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       {/* Source Modal */}
       <Dialog open={sourceModalOpen} onOpenChange={setSourceModalOpen}>
