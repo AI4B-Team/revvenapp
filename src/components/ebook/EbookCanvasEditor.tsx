@@ -106,6 +106,8 @@ interface EbookCanvasEditorProps {
   onGridViewChange?: (isGridView: boolean) => void;
   onOpenImageSection?: () => void;
   onCoverImageChange?: (coverImageUrl: string) => void;
+  zoom?: number;
+  onZoomChange?: (zoom: number) => void;
 }
 
 const TOOLS = [
@@ -449,7 +451,9 @@ const EbookCanvasEditor = ({
   redoRef,
   onGridViewChange,
   onOpenImageSection,
-  onCoverImageChange
+  onCoverImageChange,
+  zoom: externalZoom,
+  onZoomChange
 }: EbookCanvasEditorProps) => {
   // Internal pages state if no onPagesChange is provided
   const [internalPages, setInternalPages] = useState<Page[]>(pages);
@@ -577,7 +581,18 @@ const EbookCanvasEditor = ({
   const [draggedPageIndex, setDraggedPageIndex] = useState<number | null>(null);
   const [dragOverPageIndex, setDragOverPageIndex] = useState<number | null>(null);
   const [activeTool, setActiveTool] = useState('select');
-  const [zoom, setZoom] = useState(100);
+  const [internalZoom, setInternalZoom] = useState(100);
+  
+  // Use external zoom if provided, otherwise use internal state
+  const zoom = externalZoom !== undefined ? externalZoom : internalZoom;
+  const setZoom = (value: number | ((prev: number) => number)) => {
+    const newValue = typeof value === 'function' ? value(zoom) : value;
+    if (onZoomChange) {
+      onZoomChange(newValue);
+    } else {
+      setInternalZoom(newValue);
+    }
+  };
   const [showGrid, setShowGrid] = useState(false);
   const [showRulers, setShowRulers] = useState(false);
   const [selectedFont, setSelectedFont] = useState('Inter');

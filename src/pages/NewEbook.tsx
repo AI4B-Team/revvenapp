@@ -1460,6 +1460,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     updateEbook(currentBookId, { coverImage: coverImageUrl });
                   }
                 }}
+                zoom={zoom}
+                onZoomChange={setZoom}
               />
 
               {/* Generation Overlay */}
