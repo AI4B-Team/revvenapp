@@ -78,6 +78,14 @@ interface CanvasElement {
   rotation?: number;
   isPlaceholder?: boolean;
   zIndex?: number;
+  // Premium properties
+  opacity?: number;
+  shadow?: string;
+  borderRadius?: number;
+  filter?: string;
+  blendMode?: string;
+  link?: string;
+  animation?: string;
 }
 
 interface EbookCanvasEditorProps {
@@ -1757,12 +1765,12 @@ const EbookCanvasEditor = ({
             {/* Opacity */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                <button className={`p-2 rounded hover:bg-gray-100 ${(currentElement.opacity !== undefined && currentElement.opacity < 100) ? 'text-blue-600' : 'text-gray-600'}`}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Blend className="w-4 h-4" />
                     </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>Opacity</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>Opacity ({currentElement.opacity ?? 100}%)</p></TooltipContent>
                   </Tooltip>
                 </button>
               </PopoverTrigger>
@@ -1770,9 +1778,27 @@ const EbookCanvasEditor = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-700">Opacity</span>
-                    <span className="text-sm text-gray-500">100%</span>
+                    <span className="text-sm text-gray-500">{currentElement.opacity ?? 100}%</span>
                   </div>
-                  <Slider defaultValue={[100]} max={100} step={1} className="w-full" />
+                  <Slider 
+                    value={[currentElement.opacity ?? 100]} 
+                    max={100} 
+                    min={0}
+                    step={1} 
+                    onValueChange={(value) => updateElement(currentElement.id, { opacity: value[0] })}
+                    className="w-full" 
+                  />
+                  <div className="flex gap-1">
+                    {[25, 50, 75, 100].map(val => (
+                      <button
+                        key={val}
+                        onClick={() => updateElement(currentElement.id, { opacity: val })}
+                        className={`flex-1 py-1 text-xs rounded border ${currentElement.opacity === val ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        {val}%
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>
@@ -1845,7 +1871,7 @@ const EbookCanvasEditor = ({
             {/* Filters */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                <button className={`p-2 rounded hover:bg-gray-100 ${currentElement.filter ? 'text-blue-600' : 'text-gray-600'}`}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Filter className="w-4 h-4" />
@@ -1854,17 +1880,34 @@ const EbookCanvasEditor = ({
                   </Tooltip>
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-56 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
-                <div className="space-y-2">
+              <PopoverContent className="w-64 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+                <div className="space-y-3">
                   <span className="text-sm font-medium text-gray-700">Apply Filter</span>
                   <div className="grid grid-cols-3 gap-2">
-                    {['None', 'B&W', 'Sepia', 'Vintage', 'Warm', 'Cool'].map(filter => (
+                    {[
+                      { name: 'None', value: '' },
+                      { name: 'B&W', value: 'grayscale(100%)' },
+                      { name: 'Sepia', value: 'sepia(100%)' },
+                      { name: 'Vintage', value: 'sepia(50%) contrast(90%)' },
+                      { name: 'Warm', value: 'saturate(130%) hue-rotate(-10deg)' },
+                      { name: 'Cool', value: 'saturate(110%) hue-rotate(10deg)' },
+                      { name: 'Blur', value: 'blur(2px)' },
+                      { name: 'Brighten', value: 'brightness(120%)' },
+                      { name: 'Darken', value: 'brightness(80%)' },
+                    ].map(filter => (
                       <button 
-                        key={filter}
-                        onClick={() => toast.info(`Applied ${filter} filter`)}
-                        className="p-2 text-xs border border-gray-200 rounded hover:bg-gray-100"
+                        key={filter.name}
+                        onClick={() => {
+                          updateElement(currentElement.id, { filter: filter.value || undefined });
+                          toast.success(`Applied ${filter.name} filter`);
+                        }}
+                        className={`p-2 text-xs border rounded transition-colors ${
+                          currentElement.filter === filter.value 
+                            ? 'bg-blue-50 border-blue-300 text-blue-700' 
+                            : 'border-gray-200 hover:bg-gray-100'
+                        }`}
                       >
-                        {filter}
+                        {filter.name}
                       </button>
                     ))}
                   </div>
@@ -1921,6 +1964,91 @@ const EbookCanvasEditor = ({
                     <button onClick={() => toast.info('Applied rounded square mask')} className="aspect-square border border-gray-200 rounded p-2 hover:bg-gray-100 flex items-center justify-center">
                       <Square className="w-6 h-6 text-gray-800 rounded-sm" />
                     </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
+            {/* Shadow */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className={`p-2 rounded hover:bg-gray-100 ${currentElement.shadow ? 'text-blue-600' : 'text-gray-600'}`}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Droplet className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Shadow</p></TooltipContent>
+                  </Tooltip>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+                <div className="space-y-3">
+                  <span className="text-sm font-medium text-gray-700">Drop Shadow</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { name: 'None', value: '' },
+                      { name: 'Soft', value: '0 4px 6px rgba(0,0,0,0.1)' },
+                      { name: 'Medium', value: '0 10px 15px rgba(0,0,0,0.15)' },
+                      { name: 'Strong', value: '0 20px 25px rgba(0,0,0,0.25)' },
+                      { name: 'Glow', value: '0 0 20px rgba(99,102,241,0.4)' },
+                      { name: 'Inset', value: 'inset 0 2px 4px rgba(0,0,0,0.2)' },
+                    ].map(shadow => (
+                      <button 
+                        key={shadow.name}
+                        onClick={() => {
+                          updateElement(currentElement.id, { shadow: shadow.value || undefined });
+                          toast.success(`Applied ${shadow.name} shadow`);
+                        }}
+                        className={`p-2 text-xs border rounded transition-colors ${
+                          currentElement.shadow === shadow.value 
+                            ? 'bg-blue-50 border-blue-300 text-blue-700' 
+                            : 'border-gray-200 hover:bg-gray-100'
+                        }`}
+                      >
+                        {shadow.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
+            {/* Border Radius */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className={`p-2 rounded hover:bg-gray-100 ${currentElement.borderRadius ? 'text-blue-600' : 'text-gray-600'}`}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Square className="w-4 h-4 rounded-sm" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Corner Radius</p></TooltipContent>
+                  </Tooltip>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Corner Radius</span>
+                    <span className="text-sm text-gray-500">{currentElement.borderRadius ?? 0}px</span>
+                  </div>
+                  <Slider 
+                    value={[currentElement.borderRadius ?? 0]} 
+                    max={50} 
+                    min={0}
+                    step={1} 
+                    onValueChange={(value) => updateElement(currentElement.id, { borderRadius: value[0] })}
+                    className="w-full" 
+                  />
+                  <div className="flex gap-1">
+                    {[0, 8, 16, 24, 50].map(val => (
+                      <button
+                        key={val}
+                        onClick={() => updateElement(currentElement.id, { borderRadius: val })}
+                        className={`flex-1 py-1 text-xs rounded border ${currentElement.borderRadius === val ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        {val}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </PopoverContent>
@@ -2772,6 +2900,10 @@ const EbookCanvasEditor = ({
       cursor: element.locked ? 'not-allowed' : (isMoving && isSelected ? 'move' : 'pointer'),
       transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
       zIndex: elementZIndex,
+      opacity: element.opacity !== undefined ? element.opacity / 100 : 1,
+      boxShadow: element.shadow,
+      borderRadius: element.borderRadius ? `${element.borderRadius}px` : undefined,
+      filter: element.filter,
     };
     
     // Selection label component - only shows when selected
@@ -2877,7 +3009,10 @@ const EbookCanvasEditor = ({
         <div
           key={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
-          style={baseStyle}
+          style={{
+            ...baseStyle,
+            overflow: 'hidden', // Required for borderRadius to clip image
+          }}
           className={`transition-all group/image ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : 'hover:ring-2 hover:ring-gray-300'}`}
         >
           <SelectionLabel />
@@ -2885,6 +3020,7 @@ const EbookCanvasEditor = ({
             src={element.src} 
             alt="Element" 
             className="w-full h-full object-cover"
+            style={{ borderRadius: element.borderRadius ? `${element.borderRadius}px` : undefined }}
             draggable={false}
           />
           {/* Hover overlay with actions - Replace, Edit, Delete */}
