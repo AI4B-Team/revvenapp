@@ -3726,60 +3726,62 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </>
                 ) : isAppsMode ? (
                   <>
-                    {/* Import Icon - Always First */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={() => setIsImportSlideoutOpen(!isImportSlideoutOpen)}
-                          className="p-1.5 transition hover:opacity-70"
-                        >
-                          <Code size={20} strokeWidth={2.5} className="text-brand-red" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black border-black text-white">
-                        <p>Import</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    
-                    {/* Import Slideout Panel - positioned to the right of the icon */}
-                    {isImportSlideoutOpen && (
-                      <>
-                        {/* Backdrop to close on outside click */}
-                        <div 
-                          className="fixed inset-0 z-40" 
-                          onClick={() => setIsImportSlideoutOpen(false)}
-                        />
-                        <div className="bg-white border border-border rounded-xl shadow-lg p-3 flex items-center gap-3 z-50 ml-2">
-                          <button
+                    {/* Import Icon - with absolute positioned slideout overlay */}
+                    <div className="relative">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => setIsImportSlideoutOpen(!isImportSlideoutOpen)}
+                            className="p-1.5 transition hover:opacity-70"
+                          >
+                            <Code size={20} strokeWidth={2.5} className="text-brand-red" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black text-white">
+                          <p>Import</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      
+                      {/* Import Slideout Panel - absolute overlay to the right of the icon */}
+                      {isImportSlideoutOpen && (
+                        <>
+                          {/* Backdrop to close on outside click */}
+                          <div 
+                            className="fixed inset-0 z-40" 
                             onClick={() => setIsImportSlideoutOpen(false)}
-                            className="p-1 hover:bg-secondary rounded transition text-muted-foreground"
-                          >
-                            <ChevronLeft size={16} />
-                          </button>
-                          <span className="text-sm font-medium text-foreground whitespace-nowrap">Import From:</span>
-                          <button
-                            onClick={() => {
-                              setIsFigmaConnectModalOpen(true);
-                              setIsImportSlideoutOpen(false);
-                            }}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
-                          >
-                            <FaFigma size={16} />
-                            Figma
-                          </button>
-                          <button
-                            onClick={() => {
-                              setIsGithubConnectModalOpen(true);
-                              setIsImportSlideoutOpen(false);
-                            }}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
-                          >
-                            <FaGithub size={16} />
-                            GitHub
-                          </button>
-                        </div>
-                      </>
-                    )}
+                          />
+                          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 bg-white border border-border rounded-xl shadow-lg p-3 flex items-center gap-3 z-50">
+                            <button
+                              onClick={() => setIsImportSlideoutOpen(false)}
+                              className="p-1 hover:bg-secondary rounded transition text-muted-foreground"
+                            >
+                              <ChevronLeft size={16} />
+                            </button>
+                            <span className="text-sm font-medium text-foreground whitespace-nowrap">Import From:</span>
+                            <button
+                              onClick={() => {
+                                setIsFigmaConnectModalOpen(true);
+                                setIsImportSlideoutOpen(false);
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
+                            >
+                              <FaFigma size={16} />
+                              Figma
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsGithubConnectModalOpen(true);
+                                setIsImportSlideoutOpen(false);
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-white hover:bg-secondary transition text-sm font-medium text-foreground"
+                            >
+                              <FaGithub size={16} />
+                              GitHub
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                     {/* Auto Prompt - Always Second */}
                     <Tooltip>
                       <TooltipTrigger asChild>
