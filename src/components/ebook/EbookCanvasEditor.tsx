@@ -2919,19 +2919,37 @@ const EbookCanvasEditor = ({
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize z-20" />
-              {/* Rotation and Move handles */}
+              {/* Rotation, Move and Lock handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
                 <div 
-                  onMouseDown={(e) => handleMoveStart(e, element.id)}
-                  className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-move flex items-center justify-center shadow-sm hover:bg-blue-50 active:bg-blue-100"
+                  onMouseDown={(e) => !element.locked && handleMoveStart(e, element.id)}
+                  className={`w-6 h-6 bg-white border-2 rounded-full flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-gray-300 cursor-not-allowed opacity-50' 
+                      : 'border-blue-500 cursor-move hover:bg-blue-50 active:bg-blue-100'
+                  }`}
                 >
-                  <Move className="w-3 h-3 text-blue-500" />
+                  <Move className={`w-3 h-3 ${element.locked ? 'text-gray-400' : 'text-blue-500'}`} />
                 </div>
                 <div 
-                  onMouseDown={(e) => handleRotateStart(e, element.id)}
-                  className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center shadow-sm hover:bg-blue-50 active:bg-blue-100"
+                  onMouseDown={(e) => !element.locked && handleRotateStart(e, element.id)}
+                  className={`w-6 h-6 bg-white border-2 rounded-full flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-gray-300 cursor-not-allowed opacity-50' 
+                      : 'border-blue-500 cursor-grab hover:bg-blue-50 active:bg-blue-100'
+                  }`}
                 >
-                  <RotateCw className="w-3 h-3 text-blue-500" />
+                  <RotateCw className={`w-3 h-3 ${element.locked ? 'text-gray-400' : 'text-blue-500'}`} />
+                </div>
+                <div 
+                  onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
+                  className={`w-6 h-6 bg-white border-2 rounded-full cursor-pointer flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-red-500 hover:bg-red-50 active:bg-red-100' 
+                      : 'border-blue-500 hover:bg-blue-50 active:bg-blue-100'
+                  }`}
+                >
+                  {element.locked ? <Lock className="w-3 h-3 text-red-500" /> : <Unlock className="w-3 h-3 text-blue-500" />}
                 </div>
               </div>
             </>
@@ -2965,19 +2983,37 @@ const EbookCanvasEditor = ({
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-sw-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-s-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-se-resize z-20" />
-              {/* Rotation and Move handles */}
+              {/* Rotation, Move and Lock handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
                 <div 
-                  onMouseDown={(e) => handleMoveStart(e, element.id)}
-                  className="w-6 h-6 bg-white border-2 border-red-500 rounded-full cursor-move flex items-center justify-center shadow-sm hover:bg-red-50 active:bg-red-100"
+                  onMouseDown={(e) => !element.locked && handleMoveStart(e, element.id)}
+                  className={`w-6 h-6 bg-white border-2 rounded-full flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-gray-300 cursor-not-allowed opacity-50' 
+                      : 'border-red-500 cursor-move hover:bg-red-50 active:bg-red-100'
+                  }`}
                 >
-                  <Move className="w-3 h-3 text-red-500" />
+                  <Move className={`w-3 h-3 ${element.locked ? 'text-gray-400' : 'text-red-500'}`} />
                 </div>
                 <div 
-                  onMouseDown={(e) => handleRotateStart(e, element.id)}
-                  className="w-6 h-6 bg-white border-2 border-red-500 rounded-full cursor-grab flex items-center justify-center shadow-sm hover:bg-red-50 active:bg-red-100"
+                  onMouseDown={(e) => !element.locked && handleRotateStart(e, element.id)}
+                  className={`w-6 h-6 bg-white border-2 rounded-full flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-gray-300 cursor-not-allowed opacity-50' 
+                      : 'border-red-500 cursor-grab hover:bg-red-50 active:bg-red-100'
+                  }`}
                 >
-                  <RotateCw className="w-3 h-3 text-red-500" />
+                  <RotateCw className={`w-3 h-3 ${element.locked ? 'text-gray-400' : 'text-red-500'}`} />
+                </div>
+                <div 
+                  onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
+                  className={`w-6 h-6 bg-white border-2 rounded-full cursor-pointer flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-red-500 hover:bg-red-50 active:bg-red-100' 
+                      : 'border-red-500 hover:bg-red-50 active:bg-red-100'
+                  }`}
+                >
+                  {element.locked ? <Lock className="w-3 h-3 text-red-500" /> : <Unlock className="w-3 h-3 text-red-500" />}
                 </div>
               </div>
             </>
@@ -3015,19 +3051,37 @@ const EbookCanvasEditor = ({
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize z-20" />
               <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize z-20" />
-              {/* Rotation and Move handles */}
+              {/* Rotation, Move and Lock handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
                 <div 
-                  onMouseDown={(e) => handleMoveStart(e, element.id)}
-                  className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-move flex items-center justify-center shadow-sm hover:bg-blue-50 active:bg-blue-100"
+                  onMouseDown={(e) => !element.locked && handleMoveStart(e, element.id)}
+                  className={`w-6 h-6 bg-white border-2 rounded-full flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-gray-300 cursor-not-allowed opacity-50' 
+                      : 'border-blue-500 cursor-move hover:bg-blue-50 active:bg-blue-100'
+                  }`}
                 >
-                  <Move className="w-3 h-3 text-blue-500" />
+                  <Move className={`w-3 h-3 ${element.locked ? 'text-gray-400' : 'text-blue-500'}`} />
                 </div>
                 <div 
-                  onMouseDown={(e) => handleRotateStart(e, element.id)}
-                  className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center shadow-sm hover:bg-blue-50 active:bg-blue-100"
+                  onMouseDown={(e) => !element.locked && handleRotateStart(e, element.id)}
+                  className={`w-6 h-6 bg-white border-2 rounded-full flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-gray-300 cursor-not-allowed opacity-50' 
+                      : 'border-blue-500 cursor-grab hover:bg-blue-50 active:bg-blue-100'
+                  }`}
                 >
-                  <RotateCw className="w-3 h-3 text-blue-500" />
+                  <RotateCw className={`w-3 h-3 ${element.locked ? 'text-gray-400' : 'text-blue-500'}`} />
+                </div>
+                <div 
+                  onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
+                  className={`w-6 h-6 bg-white border-2 rounded-full cursor-pointer flex items-center justify-center shadow-sm transition-colors ${
+                    element.locked 
+                      ? 'border-red-500 hover:bg-red-50 active:bg-red-100' 
+                      : 'border-blue-500 hover:bg-blue-50 active:bg-blue-100'
+                  }`}
+                >
+                  {element.locked ? <Lock className="w-3 h-3 text-red-500" /> : <Unlock className="w-3 h-3 text-blue-500" />}
                 </div>
               </div>
             </>
