@@ -83,6 +83,10 @@ interface CanvasElement {
   shadow?: string;
   borderRadius?: number;
   filter?: string;
+  // Text formatting
+  fontWeight?: 'normal' | 'bold';
+  fontStyle?: 'normal' | 'italic';
+  textDecoration?: 'none' | 'underline' | 'line-through';
   blendMode?: string;
   link?: string;
   animation?: string;
@@ -1148,7 +1152,11 @@ const EbookCanvasEditor = ({
   }, [selectedElement, clipboard, currentPageElements, pageElementsState, selectedPageId, selectedPage?.id]);
 
   const handleCanvasClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
+    // Deselect when clicking on the canvas background (gray area)
+    // Check if click was NOT on an element
+    const target = e.target as HTMLElement;
+    const isClickOnElement = target.closest('[data-element-id]');
+    if (!isClickOnElement) {
       setSelectedElement(null);
     }
   };
@@ -1156,13 +1164,13 @@ const EbookCanvasEditor = ({
   const handleElementClick = (e: React.MouseEvent, elementId: string) => {
     e.stopPropagation();
     const element = currentPageElements.find(el => el.id === elementId);
-    // Only show locked message if element exists AND is explicitly locked (true)
-    if (element?.locked === true) {
-      toast.info('Element is locked. Unlock it first.');
-      return;
-    }
-    // Select element if found (whether locked is false or undefined)
+    // Always select the element - even if locked, so user can unlock it via toolbar
+    // Only prevent move/resize on locked elements, not selection
     setSelectedElement(elementId);
+    // Show locked message as informational but still select
+    if (element?.locked === true) {
+      toast.info('Element is locked. Use the lock icon to unlock it.');
+    }
   };
 
   // Handle move handle mouse down
@@ -1576,7 +1584,7 @@ const EbookCanvasEditor = ({
 
     // Align popover with full alignment options
     const AlignPopover = () => (
-      <PopoverContent className="w-64 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+      <PopoverContent className="w-64 p-3 bg-white border border-gray-200 shadow-xl z-[200]" align="center" sideOffset={8}>
         <div className="flex items-center gap-2 mb-3">
           <span className="text-sm font-medium text-gray-700">Align To</span>
           <button className="text-gray-400 hover:text-gray-600">
@@ -1584,27 +1592,45 @@ const EbookCanvasEditor = ({
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2 mb-4">
-          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+          <button 
+            onClick={() => { if (currentElement) updateElement(currentElement.id, { y: 0 }); }}
+            className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600"
+          >
             <ArrowUpToLine className="w-4 h-4" />
             <span className="text-xs">Top</span>
           </button>
-          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+          <button 
+            onClick={() => { if (currentElement) updateElement(currentElement.id, { y: 50 - currentElement.height / 2 }); }}
+            className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600"
+          >
             <ArrowUpDown className="w-4 h-4" />
             <span className="text-xs">Middle</span>
           </button>
-          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+          <button 
+            onClick={() => { if (currentElement) updateElement(currentElement.id, { y: 100 - currentElement.height }); }}
+            className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600"
+          >
             <ArrowDownToLine className="w-4 h-4" />
             <span className="text-xs">Bottom</span>
           </button>
-          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+          <button 
+            onClick={() => { if (currentElement) updateElement(currentElement.id, { x: 0 }); }}
+            className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600"
+          >
             <AlignLeft className="w-4 h-4" />
             <span className="text-xs">Left</span>
           </button>
-          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+          <button 
+            onClick={() => { if (currentElement) updateElement(currentElement.id, { x: 50 - currentElement.width / 2 }); }}
+            className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600"
+          >
             <AlignCenter className="w-4 h-4" />
             <span className="text-xs">Center</span>
           </button>
-          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+          <button 
+            onClick={() => { if (currentElement) updateElement(currentElement.id, { x: 100 - currentElement.width }); }}
+            className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600"
+          >
             <AlignRight className="w-4 h-4" />
             <span className="text-xs">Right</span>
           </button>
@@ -1627,20 +1653,32 @@ const EbookCanvasEditor = ({
 
     // Layers popover
     const LayersPopover = () => (
-      <PopoverContent className="w-40 p-1 bg-white border border-gray-200 shadow-lg z-50" align="center" sideOffset={8}>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap">
+      <PopoverContent className="w-44 p-1 bg-white border border-gray-200 shadow-xl z-[200]" align="center" sideOffset={8}>
+        <button 
+          onClick={() => { if (currentElement) bringToFront(currentElement.id); }}
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap"
+        >
           <ArrowUpToLine className="w-4 h-4" /> 
           <span>Move To Front</span>
         </button>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap">
+        <button 
+          onClick={() => { if (currentElement) bringToFront(currentElement.id); }}
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap"
+        >
           <ChevronUp className="w-4 h-4" /> 
           <span>Move Forward</span>
         </button>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap">
+        <button 
+          onClick={() => { if (currentElement) sendToBack(currentElement.id); }}
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap"
+        >
           <ChevronDown className="w-4 h-4" /> 
           <span>Move Backwards</span>
         </button>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap">
+        <button 
+          onClick={() => { if (currentElement) sendToBack(currentElement.id); }}
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded whitespace-nowrap"
+        >
           <ArrowDownToLine className="w-4 h-4" /> 
           <span>Move To Back</span>
         </button>
@@ -2580,10 +2618,10 @@ const EbookCanvasEditor = ({
             
             {/* Text Color */}
             <Popover>
-              <PopoverTrigger asChild>
-                <button className="p-1.5 rounded hover:bg-gray-100 flex items-center gap-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button className="p-1.5 rounded hover:bg-gray-100 flex items-center gap-1">
                       <div className="flex flex-col items-center">
                         <span className="text-sm font-bold" style={{ color: currentElement.textColor || '#000000' }}>A</span>
                         <div 
@@ -2591,11 +2629,11 @@ const EbookCanvasEditor = ({
                           style={{ backgroundColor: currentElement.textColor || '#000000' }}
                         />
                       </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>Text Color</p></TooltipContent>
-                  </Tooltip>
-                </button>
-              </PopoverTrigger>
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="bottom"><p>Text Color</p></TooltipContent>
+              </Tooltip>
               <ColorPickerPopover 
                 label="Text Color" 
                 value={currentElement.textColor || '#000000'} 
@@ -2605,19 +2643,19 @@ const EbookCanvasEditor = ({
             
             {/* Highlight/Background Color */}
             <Popover>
-              <PopoverTrigger asChild>
-                <button className="p-1.5 rounded hover:bg-gray-100">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button className="p-1.5 rounded hover:bg-gray-100">
                       <div className="w-5 h-5 rounded border border-gray-300 flex items-center justify-center bg-yellow-200">
                         <span className="text-[10px] font-bold text-gray-800">H</span>
                       </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>Highlight Color</p></TooltipContent>
-                  </Tooltip>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-3 bg-white border border-gray-200 shadow-lg" align="center">
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="bottom"><p>Highlight Color</p></TooltipContent>
+              </Tooltip>
+              <PopoverContent className="w-48 p-3 bg-white border border-gray-200 shadow-lg z-[200]" align="center">
                 <p className="text-xs text-gray-500 mb-2">Highlight Color</p>
                 <div className="grid grid-cols-6 gap-1.5">
                   {['transparent', '#fef08a', '#bbf7d0', '#bfdbfe', '#fbcfe8', '#fecaca', '#fed7aa', '#e9d5ff'].map(color => (
@@ -2639,7 +2677,10 @@ const EbookCanvasEditor = ({
             <div className="flex items-center">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                  <button 
+                    onClick={() => updateElement(currentElement.id, { fontWeight: currentElement.fontWeight === 'bold' ? 'normal' : 'bold' })}
+                    className={`p-2 rounded hover:bg-gray-100 transition-colors ${currentElement.fontWeight === 'bold' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
+                  >
                     <Bold className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
@@ -2647,7 +2688,10 @@ const EbookCanvasEditor = ({
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                  <button 
+                    onClick={() => updateElement(currentElement.id, { fontStyle: currentElement.fontStyle === 'italic' ? 'normal' : 'italic' })}
+                    className={`p-2 rounded hover:bg-gray-100 transition-colors ${currentElement.fontStyle === 'italic' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
+                  >
                     <Italic className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
@@ -2655,7 +2699,10 @@ const EbookCanvasEditor = ({
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                  <button 
+                    onClick={() => updateElement(currentElement.id, { textDecoration: currentElement.textDecoration === 'underline' ? 'none' : 'underline' })}
+                    className={`p-2 rounded hover:bg-gray-100 transition-colors ${currentElement.textDecoration === 'underline' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
+                  >
                     <Underline className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
@@ -2663,7 +2710,10 @@ const EbookCanvasEditor = ({
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                  <button 
+                    onClick={() => updateElement(currentElement.id, { textDecoration: currentElement.textDecoration === 'line-through' ? 'none' : 'line-through' })}
+                    className={`p-2 rounded hover:bg-gray-100 transition-colors ${currentElement.textDecoration === 'line-through' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
+                  >
                     <Strikethrough className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
@@ -3266,6 +3316,9 @@ const EbookCanvasEditor = ({
             ...baseStyle,
             fontFamily: element.fontFamily,
             fontSize: `${element.fontSize}px`,
+            fontWeight: element.fontWeight || 'normal',
+            fontStyle: element.fontStyle || 'normal',
+            textDecoration: element.textDecoration || 'none',
             color: element.textColor,
             textAlign: element.textAlign || 'left',
             lineHeight: 1.2,
