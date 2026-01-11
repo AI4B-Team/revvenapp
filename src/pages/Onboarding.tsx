@@ -9,6 +9,8 @@ import {
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import aivaAvatar from '@/assets/aiva-avatar.png';
+import { markOnboardingComplete } from '@/hooks/useRouteTracker';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +61,17 @@ const Onboarding = () => {
   };
 
   const totalCredits = 1000;
+  
+  // Mark onboarding as complete when user views this page
+  useEffect(() => {
+    const markComplete = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        markOnboardingComplete(user.id);
+      }
+    };
+    markComplete();
+  }, []);
   
   // Calculate time remaining until deadline (24 hours from signup)
   useEffect(() => {

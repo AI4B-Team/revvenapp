@@ -58,6 +58,7 @@ interface AppTabsProps {
 
 const RECENT_KEY = 'app-recent';
 const OPEN_TABS_KEY = 'app-open-tabs';
+const DEFAULT_TABS = ['create']; // Create app is always shown by default
 
 const AppTabs = ({ className = '' }: AppTabsProps) => {
   const navigate = useNavigate();
@@ -72,7 +73,12 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
   });
   const [openTabs, setOpenTabs] = useState<string[]>(() => {
     const saved = localStorage.getItem(OPEN_TABS_KEY);
-    return saved ? JSON.parse(saved) : [];
+    const savedTabs = saved ? JSON.parse(saved) : [];
+    // Always ensure 'create' is in the tabs (at the beginning)
+    if (!savedTabs.includes('create')) {
+      return ['create', ...savedTabs];
+    }
+    return savedTabs;
   });
   
   // Find current app based on path
@@ -266,7 +272,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
                 <Plus size={18} strokeWidth={2.5} />
               </button>
             </TooltipTrigger>
-            <TooltipContent>Add App</TooltipContent>
+            <TooltipContent>Explore Apps</TooltipContent>
           </Tooltip>
           
           {/* Dropdown for adding apps */}

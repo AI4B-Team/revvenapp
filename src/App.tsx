@@ -7,15 +7,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useTrackVisitor } from "@/hooks/useLiveVisitors";
+import { useRouteTracker } from "@/hooks/useRouteTracker";
 import { EbookProvider } from "@/contexts/EbookContext";
 import { ArticleProvider } from "@/contexts/ArticleContext";
 
 // Preload-heavy route statically to avoid dynamic import fetch failures in preview.
 import Create from "./pages/Create";
 
-// Component to track visitor presence
+// Component to track visitor presence and route history
 const VisitorTracker = ({ children }: { children: ReactNode }) => {
   useTrackVisitor();
+  useRouteTracker();
   return <>{children}</>;
 };
 
