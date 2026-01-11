@@ -58,6 +58,7 @@ const samplePrompts: SamplePrompt[] = [
   { id: '4', text: 'Create a sales presentation for a B2B software solution' },
 ];
 
+// Page 1: 11 templates (+ Import Template card = 12 total)
 const templatesPage1: PresentationTemplate[] = [
   { id: 'vinyl', name: 'Vinyl', image: vinylTemplate, isPopular: true },
   { id: 'whiteboard', name: 'Whiteboard', image: whiteboardTemplate, isPopular: true },
@@ -70,10 +71,11 @@ const templatesPage1: PresentationTemplate[] = [
   { id: 'amber', name: 'Amber', image: amberTemplate },
   { id: 'arctic', name: 'Arctic', image: arcticTemplate },
   { id: 'cerulean', name: 'Cerulean', image: ceruleanTemplate },
-  { id: 'cobalt', name: 'Cobalt', image: cobaltTemplate },
 ];
 
+// Page 2: 12 templates
 const templatesPage2: PresentationTemplate[] = [
+  { id: 'cobalt', name: 'Cobalt', image: cobaltTemplate },
   { id: 'emerald', name: 'Emerald', image: emeraldTemplate, isPopular: true },
   { id: 'sketch', name: 'Sketch', image: sketchTemplate },
   { id: 'basalt', name: 'Basalt', image: basaltTemplate },
@@ -85,10 +87,6 @@ const templatesPage2: PresentationTemplate[] = [
   { id: 'alabaster', name: 'Alabaster', image: alabasterTemplate },
   { id: 'patina', name: 'Patina', image: patinaTemplate },
   { id: 'quartz', name: 'Quartz', image: quartzTemplate },
-  { id: 'mahogany', name: 'Mahogany', image: mahoganyTemplate },
-  { id: 'ginkgo', name: 'Ginkgo', image: ginkgoTemplate, isPopular: true },
-  { id: 'sunset', name: 'Sunset', image: sunsetTemplate },
-  { id: 'lavender', name: 'Lavender', image: lavenderTemplate },
 ];
 
 const slideCountOptions = [
