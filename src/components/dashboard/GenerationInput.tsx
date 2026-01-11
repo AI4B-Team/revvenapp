@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, ChevronLeft, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, ChevronLeft, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook } from 'react-icons/fa';
 import { FaGithub, FaFigma } from 'react-icons/fa';
@@ -7035,7 +7035,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <Flame size={16} className="text-orange-500" />
+                          <Target size={16} className="text-orange-500" />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -7062,21 +7062,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <span className="text-base">
-                            {(() => {
-                              const langFlags: Record<string, string> = {
-                                'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Portuguese': '🇵🇹',
-                                'Bengali': '🇧🇩', 'Italian': '🇮🇹', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
-                                'Arabic': '🇸🇦', 'Hindi': '🇮🇳', 'Russian': '🇷🇺', 'Dutch': '🇳🇱', 'Polish': '🇵🇱',
-                                'Turkish': '🇹🇷', 'Vietnamese': '🇻🇳', 'Thai': '🇹🇭', 'Indonesian': '🇮🇩', 'Malay': '🇲🇾',
-                                'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰', 'Finnish': '🇫🇮', 'Greek': '🇬🇷',
-                                'Czech': '🇨🇿', 'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Ukrainian': '🇺🇦', 'Hebrew': '🇮🇱',
-                                'Swahili': '🇰🇪', 'Tagalog': '🇵🇭', 'Tamil': '🇮🇳', 'Telugu': '🇮🇳', 'Urdu': '🇵🇰',
-                                'Persian': '🇮🇷', 'Catalan': '🇪🇸', 'Croatian': '🇭🇷', 'Slovak': '🇸🇰', 'Bulgarian': '🇧🇬'
-                              };
-                              return langFlags[contentLanguage] || '🌐';
-                            })()}
-                          </span>
+                          <Languages size={16} className="text-blue-500" />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
