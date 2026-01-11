@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 import type { Intent } from '@/components/IntentSelector';
+import { isStorageAccessible } from '@/utils/isStorageAccessible';
 
 const PresentationTemplates = lazy(() => import('@/components/shared/PresentationTemplates'));
 
@@ -20,17 +21,36 @@ const LandingNew = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+    // Some browsers block storage access inside iframes; avoid hard-failing the app.
+    if (!isStorageAccessible()) {
+      setUser(null);
+      return;
+    }
+
+    let unsubscribe: (() => void) | undefined;
+
+    try {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
         setUser(session?.user ?? null);
-      }
-    );
+      });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+      unsubscribe = () => subscription.unsubscribe();
 
-    return () => subscription.unsubscribe();
+      supabase.auth
+        .getSession()
+        .then(({ data: { session } }) => {
+          setUser(session?.user ?? null);
+        })
+        .catch(() => setUser(null));
+    } catch {
+      setUser(null);
+    }
+
+    return () => {
+      unsubscribe?.();
+    };
   }, []);
 
   const handleGenerate = () => {
