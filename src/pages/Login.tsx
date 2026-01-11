@@ -66,12 +66,30 @@ export default function LoginPage() {
       return profile?.invite_code_validated === true;
     };
 
+    const checkIfFirstLogin = (userId: string): boolean => {
+      const hasCompletedOnboarding = localStorage.getItem(`onboarding_completed_${userId}`);
+      return !hasCompletedOnboarding;
+    };
+
+    const getLastVisitedRoute = (): string => {
+      return localStorage.getItem('last_visited_route') || '/dashboard';
+    };
+
     const handleAuthRedirect = async (session: Session) => {
       const isValidated = await checkInviteCodeValidation(session.user.id);
-      if (isValidated) {
-        navigate('/dashboard');
-      } else {
+      if (!isValidated) {
         navigate('/invite-verification');
+        return;
+      }
+      
+      // Check if first-time user (hasn't completed onboarding)
+      const isFirstLogin = checkIfFirstLogin(session.user.id);
+      if (isFirstLogin) {
+        navigate('/onboarding');
+      } else {
+        // Returning user: restore last state
+        const lastRoute = getLastVisitedRoute();
+        navigate(lastRoute);
       }
     };
 
