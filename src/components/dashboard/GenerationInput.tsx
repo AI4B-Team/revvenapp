@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, ChevronLeft, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss, Target, ImagePlus, GalleryHorizontal, PlayCircle, UserCircle, Wand2 } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, ChevronLeft, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss, Flag, BadgeCheck, ImagePlus, GalleryHorizontal, PlayCircle, UserCircle, Wand2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook } from 'react-icons/fa';
 import { FaGithub, FaFigma } from 'react-icons/fa';
@@ -31,6 +31,7 @@ import { ImageToPromptModal } from './ImageToPromptModal';
 import VideoFrameBoxes from './VideoFrameBoxes';
 import { socialPlatforms, getPlatformIcon } from './SocialIcons';
 import SocialContentCalendar from './SocialContentCalendar';
+import ContentPromptChips from './ContentPromptChips';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -3983,55 +3984,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         </div>
 
-        {/* Content Mode Selections Display - Show selected options as badges */}
-        {isContentMode && contentType === 'Social' && selectedPlatforms.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mt-4 mb-2">
-            {/* Post Type */}
-            {contentPostType && contentPostType !== 'Single Image' && (
-              <Badge variant="secondary" className="text-xs px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
-                {contentPostType}
-              </Badge>
-            )}
-            {/* Goal */}
-            {contentGoal && contentGoal !== 'Engagement' && (
-              <Badge variant="secondary" className="text-xs px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">
-                {contentGoal}
-              </Badge>
-            )}
-            {/* Language */}
-            {contentLanguage && contentLanguage !== 'English' && (
-              <Badge variant="secondary" className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                {contentLanguage}
-              </Badge>
-            )}
-            {/* Frequency */}
-            {contentDays && contentDays !== 30 && (
-              <Badge variant="secondary" className="text-xs px-2 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
-                {contentDays} Days
-              </Badge>
-            )}
-            {/* Time */}
-            {contentTime && contentTime !== 'Auto' && (
-              <Badge variant="secondary" className="text-xs px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300">
-                {contentTime}
-              </Badge>
-            )}
-            {/* Style */}
-            {contentStyle && contentStyle !== 'AI Generated' && (
-              <Badge variant="secondary" className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-                {contentStyle}
-              </Badge>
-            )}
-            {/* Brand */}
-            {brandDistillsEnabled && (
-              <Badge variant="secondary" className="text-xs px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
-                <Sparkles size={10} className="mr-1" />
-                Brand
-              </Badge>
-            )}
-          </div>
-        )}
-
         {/* UGC Character Box - Show in Avatar Video and Lip-Sync mode when a character is selected */}
         {isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && videoModeState.characters.length > 0 && (
           <UGCCharacterBox
@@ -7129,7 +7081,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <Target size={16} className="text-orange-500" />
+                          <Flag size={16} className="text-orange-500" />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -7395,7 +7347,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2">
-                        <Sparkles size={16} className="text-amber-500" />
+                        <BadgeCheck size={16} className="text-amber-500" />
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Brand</span>
                         <Switch 
                           checked={brandDistillsEnabled} 
