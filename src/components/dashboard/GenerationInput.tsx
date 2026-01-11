@@ -146,6 +146,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isAppGithubOpen, setIsAppGithubOpen] = useState(false);
   const [appGithubTab, setAppGithubTab] = useState<'private' | 'public'>('private');
   const [appMcpMemoryEnabled, setAppMcpMemoryEnabled] = useState(false);
+  const [selectedWebsiteBuildType, setSelectedWebsiteBuildType] = useState('');
+  const [isWebsiteBuildDropdownOpen, setIsWebsiteBuildDropdownOpen] = useState(false);
   const [appBudgetCredits, setAppBudgetCredits] = useState(25);
   
   // Import slideout and modal state
@@ -7441,6 +7443,79 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </div>
                   </PopoverContent>
                 </Popover>
+
+                {/* Build Dropdown - only show when Website is selected */}
+                {selectedAppType === 'Website' && (
+                  <Popover open={isWebsiteBuildDropdownOpen} onOpenChange={setIsWebsiteBuildDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 text-primary ${
+                        selectedWebsiteBuildType 
+                          ? 'bg-brand-blue/15' 
+                          : 'bg-secondary'
+                      }`}>
+                        <Layers size={16} className="text-muted-foreground" />
+                        {selectedWebsiteBuildType || 'Build'}
+                        <ChevronDown size={14} className="text-muted-foreground" />
+                        {selectedWebsiteBuildType && (
+                          <X 
+                            size={14} 
+                            className="text-muted-foreground hover:text-foreground cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedWebsiteBuildType('');
+                            }}
+                          />
+                        )}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 bg-background border-border z-50">
+                      <div className="space-y-1">
+                        <button 
+                          onClick={() => { setSelectedWebsiteBuildType('Landing Page'); setIsWebsiteBuildDropdownOpen(false); }}
+                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                        >
+                          <FileText size={16} className="text-brand-blue" />
+                          Landing Page
+                        </button>
+                        <button 
+                          onClick={() => { setSelectedWebsiteBuildType('Multi-Page Site'); setIsWebsiteBuildDropdownOpen(false); }}
+                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                        >
+                          <LayoutGrid size={16} className="text-brand-purple" />
+                          Multi-Page Site
+                        </button>
+                        <button 
+                          onClick={() => { setSelectedWebsiteBuildType('Link In Bio'); setIsWebsiteBuildDropdownOpen(false); }}
+                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                        >
+                          <Link2 size={16} className="text-brand-green" />
+                          Link In Bio
+                        </button>
+                        <button 
+                          onClick={() => { setSelectedWebsiteBuildType('Blog'); setIsWebsiteBuildDropdownOpen(false); }}
+                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                        >
+                          <Rss size={16} className="text-orange-500" />
+                          Blog
+                        </button>
+                        <button 
+                          onClick={() => { setSelectedWebsiteBuildType('Membership'); setIsWebsiteBuildDropdownOpen(false); }}
+                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                        >
+                          <Lock size={16} className="text-brand-yellow" />
+                          Membership
+                        </button>
+                        <button 
+                          onClick={() => { setSelectedWebsiteBuildType('Ecommerce'); setIsWebsiteBuildDropdownOpen(false); }}
+                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                        >
+                          <Package size={16} className="text-pink-500" />
+                          Ecommerce
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
 
                 {/* Only show separator and other controls when type is selected */}
                 {selectedAppType && (
