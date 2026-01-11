@@ -7034,10 +7034,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 hover:brightness-90 bg-secondary text-muted-foreground">
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
                           <Flame size={16} className="text-orange-500" />
-                          {contentGoal}
-                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -7063,7 +7061,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 hover:brightness-90 bg-secondary text-muted-foreground">
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
                           <span className="text-base">
                             {(() => {
                               const langFlags: Record<string, string> = {
@@ -7079,8 +7077,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               return langFlags[contentLanguage] || '🌐';
                             })()}
                           </span>
-                          {contentLanguage}
-                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -7169,10 +7165,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 hover:brightness-90 bg-secondary text-muted-foreground">
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
                           <Calendar size={16} />
-                          {contentDays} Days
-                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
