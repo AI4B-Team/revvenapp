@@ -289,7 +289,7 @@ const Index = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search projects..."
+                  placeholder="Search Projects"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-white rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
@@ -300,7 +300,7 @@ const Index = () => {
                 className="flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors"
               >
                 <Plus size={18} />
-                Create project
+                Create Project
               </button>
             </div>
 
