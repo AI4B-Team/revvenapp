@@ -34,10 +34,6 @@ import linenTemplate from '@/assets/presentation-templates/linen.jpg';
 import alabasterTemplate from '@/assets/presentation-templates/alabaster.jpg';
 import patinaTemplate from '@/assets/presentation-templates/patina.jpg';
 import quartzTemplate from '@/assets/presentation-templates/quartz.jpg';
-import mahoganyTemplate from '@/assets/presentation-templates/mahogany.jpg';
-import ginkgoTemplate from '@/assets/presentation-templates/ginkgo.jpg';
-import sunsetTemplate from '@/assets/presentation-templates/sunset.jpg';
-import lavenderTemplate from '@/assets/presentation-templates/lavender.jpg';
 
 interface SamplePrompt {
   id: string;
@@ -239,9 +235,11 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect, onSlideCountC
               )}
             >
               <div className="aspect-[16/10] overflow-hidden rounded-t-xl relative">
-                <img 
-                  src={template.image} 
+                <img
+                  src={template.image}
                   alt={template.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 {selectedTemplate === template.id && (
