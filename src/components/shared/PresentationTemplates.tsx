@@ -70,10 +70,10 @@ const templatesPage1: PresentationTemplate[] = [
   { id: 'amber', name: 'Amber', image: amberTemplate },
   { id: 'arctic', name: 'Arctic', image: arcticTemplate },
   { id: 'cerulean', name: 'Cerulean', image: ceruleanTemplate },
+  { id: 'cobalt', name: 'Cobalt', image: cobaltTemplate },
 ];
 
 const templatesPage2: PresentationTemplate[] = [
-  { id: 'cobalt', name: 'Cobalt', image: cobaltTemplate },
   { id: 'emerald', name: 'Emerald', image: emeraldTemplate, isPopular: true },
   { id: 'sketch', name: 'Sketch', image: sketchTemplate },
   { id: 'basalt', name: 'Basalt', image: basaltTemplate },
@@ -224,7 +224,7 @@ const PresentationTemplates = ({ onPromptSelect, onTemplateSelect, onSlideCountC
           {currentPage === 1 && (
             <button className="group flex flex-col items-center justify-center aspect-[16/10] bg-card border-2 border-dashed border-border rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-200">
               <Upload size={24} className="text-muted-foreground group-hover:text-emerald-500 mb-2 transition-colors" />
-              <span className="text-sm font-medium text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Import template</span>
+              <span className="text-sm font-medium text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Import Template</span>
             </button>
           )}
 
