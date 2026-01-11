@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, ChevronLeft, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss, Target } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, ChevronLeft, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code, Search, LayoutGrid, Box, Brush, Link, Hash, Clock, SlidersHorizontal, Headphones, Volume2, Languages, CircleUser, Globe, Settings, Lock, Brain, Key, Minus, GitBranch, Lightbulb, Cpu, Link2, Rss, Target, ImagePlus, GalleryHorizontal, PlayCircle, UserCircle, Wand2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook } from 'react-icons/fa';
 import { FaGithub, FaFigma } from 'react-icons/fa';
@@ -18,6 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Switch } from '@/components/ui/switch';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -119,6 +120,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [generatedContent, setGeneratedContent] = useState<any[]>([]);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const [contentDays, setContentDays] = useState(30);
+  const [contentPostType, setContentPostType] = useState('Single Image');
+  const [contentTime, setContentTime] = useState('Auto');
+  const [contentStyle, setContentStyle] = useState('AI Generated');
+  const [brandDistillsEnabled, setBrandDistillsEnabled] = useState(true);
 
   // Document mode state
   const [documentType, setDocumentType] = useState('');
@@ -7028,6 +7033,46 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {contentType && (
                   <>
                     <div className="w-px h-8 bg-slate-200 mx-1" />
+
+                {/* Post Type Dropdown */}
+                <Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
+                          {contentPostType === 'Single Image' && <ImageIcon size={16} className="text-emerald-500" />}
+                          {contentPostType === 'Carousel' && <GalleryHorizontal size={16} className="text-blue-500" />}
+                          {contentPostType === 'Videos' && <Video size={16} className="text-purple-500" />}
+                          {contentPostType === 'Voiceover Videos' && <Mic size={16} className="text-rose-500" />}
+                          {contentPostType === 'Avatar Videos' && <UserCircle size={16} className="text-violet-500" />}
+                        </button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Post Type</TooltipContent>
+                  </Tooltip>
+                  <PopoverContent className="w-52 bg-background border-border z-[100]">
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Post Type</p>
+                      {[
+                        { value: 'Single Image', icon: ImageIcon, color: 'text-emerald-500' },
+                        { value: 'Carousel', icon: GalleryHorizontal, color: 'text-blue-500' },
+                        { value: 'Videos', icon: Video, color: 'text-purple-500' },
+                        { value: 'Voiceover Videos', icon: Mic, color: 'text-rose-500' },
+                        { value: 'Avatar Videos', icon: UserCircle, color: 'text-violet-500' },
+                      ].map((type) => (
+                        <button 
+                          key={type.value}
+                          onClick={() => setContentPostType(type.value)}
+                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentPostType === type.value ? 'bg-secondary' : ''}`}
+                        >
+                          <type.icon size={16} className={type.color} />
+                          {type.value}
+                          {contentPostType === type.value && <Check size={14} className="ml-auto text-brand-green" />}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
                     
                 {/* Goal Dropdown */}
                 <Popover>
@@ -7047,9 +7092,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <button 
                           key={goal}
                           onClick={() => setContentGoal(goal)}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === goal ? 'bg-secondary' : ''}`}
+                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${contentGoal === goal ? 'bg-secondary' : ''}`}
                         >
                           {goal}
+                          {contentGoal === goal && <Check size={14} className="text-brand-green" />}
                         </button>
                       ))}
                     </div>
@@ -7140,13 +7186,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         >
                           <span>{lang.flag}</span>
                           {lang.name}
+                          {contentLanguage === lang.name && <Check size={14} className="ml-auto text-brand-green" />}
                         </button>
                       ))}
                     </div>
                   </PopoverContent>
                 </Popover>
                 
-                {/* Days Selector */}
+                {/* Frequency Selector (previously Duration) */}
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -7156,11 +7203,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>Duration</TooltipContent>
+                    <TooltipContent>Frequency</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-64 bg-background border-border z-[100] p-4">
                     <div className="space-y-4">
-                      <p className="text-sm font-medium text-foreground">Content Duration</p>
+                      <p className="text-sm font-medium text-foreground">Content Frequency</p>
                       <p className="text-xs text-muted-foreground">Select how many days of content to generate</p>
                       
                       <div className="grid grid-cols-3 gap-2">
@@ -7212,6 +7259,106 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </div>
                   </PopoverContent>
                 </Popover>
+
+                {/* Time Selector */}
+                <Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
+                          <Clock size={16} className="text-amber-500" />
+                        </button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Time</TooltipContent>
+                  </Tooltip>
+                  <PopoverContent className="w-56 bg-background border-border z-[100]">
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground px-1">Posting Time</p>
+                      <button 
+                        onClick={() => setContentTime('Auto')}
+                        className={`w-full px-3 py-2.5 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentTime === 'Auto' ? 'bg-secondary' : ''}`}
+                      >
+                        <Wand2 size={16} className="text-emerald-500" />
+                        <div className="flex-1">
+                          <span className="font-medium">Auto</span>
+                          <p className="text-xs text-muted-foreground">AI picks the best times</p>
+                        </div>
+                        {contentTime === 'Auto' && <Check size={14} className="text-brand-green" />}
+                      </button>
+                      <div className="border-t border-border pt-2">
+                        <p className="text-xs text-muted-foreground px-1 mb-2">Recommended for {contentDays <= 7 ? 'this week' : contentDays <= 30 ? 'this month' : 'your plan'}</p>
+                        {['9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '8:00 PM'].map((time) => (
+                          <button 
+                            key={time}
+                            onClick={() => setContentTime(time)}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${contentTime === time ? 'bg-secondary' : ''}`}
+                          >
+                            <span className="flex items-center gap-2">
+                              <Clock size={14} className="text-muted-foreground" />
+                              {time}
+                            </span>
+                            {contentTime === time && <Check size={14} className="text-brand-green" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Style Selector */}
+                <Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
+                          <Brush size={16} className="text-purple-500" />
+                        </button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Style</TooltipContent>
+                  </Tooltip>
+                  <PopoverContent className="w-52 bg-background border-border z-[100]">
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Content Style</p>
+                      <button 
+                        onClick={() => setContentStyle('AI Generated')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentStyle === 'AI Generated' ? 'bg-secondary' : ''}`}
+                      >
+                        <Sparkles size={16} className="text-violet-500" />
+                        AI Generated
+                        {contentStyle === 'AI Generated' && <Check size={14} className="ml-auto text-brand-green" />}
+                      </button>
+                      <button 
+                        onClick={() => setContentStyle('Stock')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentStyle === 'Stock' ? 'bg-secondary' : ''}`}
+                      >
+                        <ImageIcon size={16} className="text-blue-500" />
+                        Stock
+                        {contentStyle === 'Stock' && <Check size={14} className="ml-auto text-brand-green" />}
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Brand Toggle */}
+                <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Brand</span>
+                        <Switch 
+                          checked={brandDistillsEnabled} 
+                          onCheckedChange={setBrandDistillsEnabled}
+                          className="data-[state=checked]:bg-brand-green"
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[200px]">
+                      <p>Your brand distills will be applied to the posts</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                   </>
                 )}
               </>
