@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import RevvenLogo from '@/components/RevvenLogo';
 import AIVAPromptBox, { type SubOptionType } from '@/components/shared/AIVAPromptBox';
 import AISuggestionsGrid, { type Suggestion } from '@/components/landing/AISuggestionsGrid';
-import PresentationTemplates from '@/components/shared/PresentationTemplates';
 import AuthModal from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 import type { Intent } from '@/components/IntentSelector';
+
+const PresentationTemplates = lazy(() => import('@/components/shared/PresentationTemplates'));
 
 const LandingNew = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -107,9 +108,15 @@ const LandingNew = () => {
 
         {/* Conditionally show Presentation Templates or AI Suggestions */}
         {isPresentationSelected ? (
-          <PresentationTemplates
-            onPromptSelect={handlePresentationPromptSelect}
-          />
+          <Suspense
+            fallback={
+              <div className="w-full mx-auto max-w-[850px] mt-6">
+                <p className="text-sm text-muted-foreground">Loading templates…</p>
+              </div>
+            }
+          >
+            <PresentationTemplates onPromptSelect={handlePresentationPromptSelect} />
+          </Suspense>
         ) : (
           <div className="w-full mx-auto max-w-[800px]">
             <AISuggestionsGrid

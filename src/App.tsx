@@ -1,3 +1,4 @@
+import { Suspense, lazy, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,84 +11,86 @@ import { EbookProvider } from "@/contexts/EbookContext";
 import { ArticleProvider } from "@/contexts/ArticleContext";
 
 // Component to track visitor presence
-const VisitorTracker = ({ children }: { children: React.ReactNode }) => {
+const VisitorTracker = ({ children }: { children: ReactNode }) => {
   useTrackVisitor();
   return <>{children}</>;
 };
-import Landing from "./pages/Landing";
-import LandingNew from "./pages/LandingNew";
-import Index from "./pages/Index";
-import Create from "./pages/Create";
-import AIAgents from "./pages/AIAgents";
-import Assistant from "./pages/Assistant";
-import Templates from "./pages/Templates";
-import Monetize from "./pages/Monetize";
-import Contacts from "./pages/Contacts";
-import Revenue from "./pages/Revenue";
-import Community from "./pages/Community";
-import Apps from "./pages/Apps";
-import Assets from "./pages/Assets";
-import Integrations from "./pages/Integrations";
-import Websites from "./pages/Websites";
-import Funnels from "./pages/Funnels";
-import Store from "./pages/Store";
-import Products from "./pages/Products";
-import Onboarding from "./pages/Onboarding";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import Brand from "./pages/Brand";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import SignupFlow from "./pages/SignupFlow";
-import InviteVerification from "./pages/InviteVerification";
-import OnboardingDashboard from "./pages/OnboardingDashboard";
-import AIInfluencer from "./pages/AIInfluencer";
-import Marketing from "./pages/Marketing";
-import Edit from "./pages/Edit";
-import VideoDownloader from "./pages/VideoDownloader";
-import Versus from "./pages/Versus";
-import Transcribe from "./pages/Transcribe";
-import TranscriptDetail from "./pages/TranscriptDetail";
-import VoiceCloner from "./pages/VoiceCloner";
-import VoiceChanger from "./pages/VoiceChanger";
-import Voiceovers from "./pages/Voiceovers";
-import AudioDubber from "./pages/AudioDubber";
-import NoiseRemover from "./pages/NoiseRemover";
-import BackgroundRemover from "./pages/BackgroundRemover";
-import ImageUpscaler from "./pages/ImageUpscaler";
-import ImageEnhancer from "./pages/ImageEnhancer";
-import BlogWriter from "./pages/BlogWriter";
-import SocialPosts from "./pages/SocialPosts";
-import EmailGenerator from "./pages/EmailGenerator";
-import AdCopyWriter from "./pages/AdCopyWriter";
-import ScriptWriter from "./pages/ScriptWriter";
-import SEOOptimizer from "./pages/SEOOptimizer";
-import EbookCreator from "./pages/EbookCreator";
-import NewEbook from "./pages/NewEbook";
-import ExplainerVideo from "./pages/ExplainerVideo";
-import ViralShorts from "./pages/ViralShorts";
-import Sessions from "./pages/Sessions";
-import AIStory from "./pages/AIStory";
-import LeadGeneration from "./pages/LeadGeneration";
-import Newsletter from "./pages/Newsletter";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import OAuthCallback from "./pages/OAuthCallback";
-import AutoYT from "./pages/AutoYT";
-import ArticleHub from "./pages/ArticleHub";
-import NewArticle from "./pages/NewArticle";
-import Pricing from "./pages/Pricing";
+
+// Route-level code-splitting to keep initial preview loads fast
+const Landing = lazy(() => import("./pages/Landing"));
+const LandingNew = lazy(() => import("./pages/LandingNew"));
+const Index = lazy(() => import("./pages/Index"));
+const Create = lazy(() => import("./pages/Create"));
+const AIAgents = lazy(() => import("./pages/AIAgents"));
+const Assistant = lazy(() => import("./pages/Assistant"));
+const Templates = lazy(() => import("./pages/Templates"));
+const Monetize = lazy(() => import("./pages/Monetize"));
+const Contacts = lazy(() => import("./pages/Contacts"));
+const Revenue = lazy(() => import("./pages/Revenue"));
+const Community = lazy(() => import("./pages/Community"));
+const Apps = lazy(() => import("./pages/Apps"));
+const Assets = lazy(() => import("./pages/Assets"));
+const Integrations = lazy(() => import("./pages/Integrations"));
+const Websites = lazy(() => import("./pages/Websites"));
+const Funnels = lazy(() => import("./pages/Funnels"));
+const Store = lazy(() => import("./pages/Store"));
+const Products = lazy(() => import("./pages/Products"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const Settings = lazy(() => import("./pages/Settings"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Brand = lazy(() => import("./pages/Brand"));
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const SignupFlow = lazy(() => import("./pages/SignupFlow"));
+const InviteVerification = lazy(() => import("./pages/InviteVerification"));
+const OnboardingDashboard = lazy(() => import("./pages/OnboardingDashboard"));
+const AIInfluencer = lazy(() => import("./pages/AIInfluencer"));
+const Marketing = lazy(() => import("./pages/Marketing"));
+const Edit = lazy(() => import("./pages/Edit"));
+const VideoDownloader = lazy(() => import("./pages/VideoDownloader"));
+const Versus = lazy(() => import("./pages/Versus"));
+const Transcribe = lazy(() => import("./pages/Transcribe"));
+const TranscriptDetail = lazy(() => import("./pages/TranscriptDetail"));
+const VoiceCloner = lazy(() => import("./pages/VoiceCloner"));
+const VoiceChanger = lazy(() => import("./pages/VoiceChanger"));
+const Voiceovers = lazy(() => import("./pages/Voiceovers"));
+const AudioDubber = lazy(() => import("./pages/AudioDubber"));
+const NoiseRemover = lazy(() => import("./pages/NoiseRemover"));
+const BackgroundRemover = lazy(() => import("./pages/BackgroundRemover"));
+const ImageUpscaler = lazy(() => import("./pages/ImageUpscaler"));
+const ImageEnhancer = lazy(() => import("./pages/ImageEnhancer"));
+const BlogWriter = lazy(() => import("./pages/BlogWriter"));
+const SocialPosts = lazy(() => import("./pages/SocialPosts"));
+const EmailGenerator = lazy(() => import("./pages/EmailGenerator"));
+const AdCopyWriter = lazy(() => import("./pages/AdCopyWriter"));
+const ScriptWriter = lazy(() => import("./pages/ScriptWriter"));
+const SEOOptimizer = lazy(() => import("./pages/SEOOptimizer"));
+const EbookCreator = lazy(() => import("./pages/EbookCreator"));
+const NewEbook = lazy(() => import("./pages/NewEbook"));
+const ExplainerVideo = lazy(() => import("./pages/ExplainerVideo"));
+const ViralShorts = lazy(() => import("./pages/ViralShorts"));
+const Sessions = lazy(() => import("./pages/Sessions"));
+const AIStory = lazy(() => import("./pages/AIStory"));
+const LeadGeneration = lazy(() => import("./pages/LeadGeneration"));
+const Newsletter = lazy(() => import("./pages/Newsletter"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
+const AutoYT = lazy(() => import("./pages/AutoYT"));
+const ArticleHub = lazy(() => import("./pages/ArticleHub"));
+const NewArticle = lazy(() => import("./pages/NewArticle"));
+const Pricing = lazy(() => import("./pages/Pricing"));
 
 // Admin pages
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminPosts from "./pages/admin/AdminPosts";
-import AdminImages from "./pages/admin/AdminImages";
-import AdminVideos from "./pages/admin/AdminVideos";
-import AdminAudio from "./pages/admin/AdminAudio";
-import AdminRoles from "./pages/admin/AdminRoles";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminSettings from "./pages/admin/AdminSettings";
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminPosts = lazy(() => import("./pages/admin/AdminPosts"));
+const AdminImages = lazy(() => import("./pages/admin/AdminImages"));
+const AdminVideos = lazy(() => import("./pages/admin/AdminVideos"));
+const AdminAudio = lazy(() => import("./pages/admin/AdminAudio"));
+const AdminRoles = lazy(() => import("./pages/admin/AdminRoles"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 
 const queryClient = new QueryClient();
 
@@ -102,86 +105,94 @@ const App = () => (
             <EbookProvider>
               <ArticleProvider>
                 <VisitorTracker>
-                  <Routes>
-                <Route path="/sales" element={<Landing />} />
-                <Route path="/landing" element={<LandingNew />} />
-                <Route path="/" element={<LandingNew />} />
-                <Route path="/dashboard" element={<Index />} />
-              <Route path="/create" element={<Create />} />
-              <Route path="/edit" element={<Edit />} />
-              <Route path="/ai-influencer" element={<AIInfluencer />} />
-              <Route path="/automate" element={<AIAgents />} />
-              <Route path="/ai-agents" element={<AIAgents />} />
-              <Route path="/templates" element={<Templates />} />
-              <Route path="/assistant" element={<Assistant />} />
-              <Route path="/monetize" element={<Monetize />} />
-              <Route path="/websites" element={<Websites />} />
-              <Route path="/funnels" element={<Funnels />} />
-              <Route path="/store" element={<Store />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/revenue" element={<Revenue />} />
-              <Route path="/marketing" element={<Marketing />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/apps" element={<Apps />} />
-              <Route path="/sessions" element={<Sessions />} />
-              <Route path="/video-downloader" element={<VideoDownloader />} />
-              <Route path="/versus" element={<Versus />} />
-              <Route path="/transcribe" element={<Transcribe />} />
-              <Route path="/transcribe/:id" element={<TranscriptDetail />} />
-              <Route path="/voice-cloner" element={<VoiceCloner />} />
-              <Route path="/voice-changer" element={<VoiceChanger />} />
-              <Route path="/voiceovers" element={<Voiceovers />} />
-              <Route path="/audio-dubber" element={<AudioDubber />} />
-              <Route path="/noise-remover" element={<NoiseRemover />} />
-              <Route path="/background-remover" element={<BackgroundRemover />} />
-              <Route path="/image-upscaler" element={<ImageUpscaler />} />
-              <Route path="/image-enhancer" element={<ImageEnhancer />} />
-              <Route path="/blog-writer" element={<BlogWriter />} />
-              <Route path="/social-posts" element={<SocialPosts />} />
-              <Route path="/email-generator" element={<EmailGenerator />} />
-              <Route path="/ad-copy-writer" element={<AdCopyWriter />} />
-              <Route path="/script-writer" element={<ScriptWriter />} />
-              <Route path="/seo-optimizer" element={<SEOOptimizer />} />
-              <Route path="/ebook-creator" element={<EbookCreator />} />
-              <Route path="/ebook-creator/new" element={<NewEbook />} />
-              <Route path="/explainer-video" element={<ExplainerVideo />} />
-              <Route path="/viral-shorts" element={<ViralShorts />} />
-              <Route path="/ai-story" element={<AIStory />} />
-              <Route path="/lead-generation" element={<LeadGeneration />} />
-              <Route path="/autoyt" element={<AutoYT />} />
-              <Route path="/newsletter" element={<Newsletter />} />
-              <Route path="/article" element={<ArticleHub />} />
-              <Route path="/article/new" element={<NewArticle />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/oauth/callback" element={<OAuthCallback />} />
-              <Route path="/assets" element={<Assets />} />
-              <Route path="/integrations" element={<Integrations />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/signup/flow" element={<SignupFlow />} />
-              <Route path="/invite-verification" element={<InviteVerification />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
-              <Route path="/account" element={<Settings />} />
-              <Route path="/brand" element={<Brand />} />
-              {/* Admin Routes */}
-              <Route path="/manage" element={<AdminDashboard />} />
-              <Route path="/manage/users" element={<AdminUsers />} />
-              <Route path="/manage/posts" element={<AdminPosts />} />
-              <Route path="/manage/images" element={<AdminImages />} />
-              <Route path="/manage/videos" element={<AdminVideos />} />
-              <Route path="/manage/audio" element={<AdminAudio />} />
-              <Route path="/manage/roles" element={<AdminRoles />} />
-              <Route path="/manage/analytics" element={<AdminAnalytics />} />
-              <Route path="/manage/settings" element={<AdminSettings />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  <Suspense
+                    fallback={
+                      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+                        <p className="text-muted-foreground">Loading…</p>
+                      </div>
+                    }
+                  >
+                    <Routes>
+                  <Route path="/sales" element={<Landing />} />
+                  <Route path="/landing" element={<LandingNew />} />
+                  <Route path="/" element={<LandingNew />} />
+                  <Route path="/dashboard" element={<Index />} />
+                <Route path="/create" element={<Create />} />
+                <Route path="/edit" element={<Edit />} />
+                <Route path="/ai-influencer" element={<AIInfluencer />} />
+                <Route path="/automate" element={<AIAgents />} />
+                <Route path="/ai-agents" element={<AIAgents />} />
+                <Route path="/templates" element={<Templates />} />
+                <Route path="/assistant" element={<Assistant />} />
+                <Route path="/monetize" element={<Monetize />} />
+                <Route path="/websites" element={<Websites />} />
+                <Route path="/funnels" element={<Funnels />} />
+                <Route path="/store" element={<Store />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/contacts" element={<Contacts />} />
+                <Route path="/revenue" element={<Revenue />} />
+                <Route path="/marketing" element={<Marketing />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/apps" element={<Apps />} />
+                <Route path="/sessions" element={<Sessions />} />
+                <Route path="/video-downloader" element={<VideoDownloader />} />
+                <Route path="/versus" element={<Versus />} />
+                <Route path="/transcribe" element={<Transcribe />} />
+                <Route path="/transcribe/:id" element={<TranscriptDetail />} />
+                <Route path="/voice-cloner" element={<VoiceCloner />} />
+                <Route path="/voice-changer" element={<VoiceChanger />} />
+                <Route path="/voiceovers" element={<Voiceovers />} />
+                <Route path="/audio-dubber" element={<AudioDubber />} />
+                <Route path="/noise-remover" element={<NoiseRemover />} />
+                <Route path="/background-remover" element={<BackgroundRemover />} />
+                <Route path="/image-upscaler" element={<ImageUpscaler />} />
+                <Route path="/image-enhancer" element={<ImageEnhancer />} />
+                <Route path="/blog-writer" element={<BlogWriter />} />
+                <Route path="/social-posts" element={<SocialPosts />} />
+                <Route path="/email-generator" element={<EmailGenerator />} />
+                <Route path="/ad-copy-writer" element={<AdCopyWriter />} />
+                <Route path="/script-writer" element={<ScriptWriter />} />
+                <Route path="/seo-optimizer" element={<SEOOptimizer />} />
+                <Route path="/ebook-creator" element={<EbookCreator />} />
+                <Route path="/ebook-creator/new" element={<NewEbook />} />
+                <Route path="/explainer-video" element={<ExplainerVideo />} />
+                <Route path="/viral-shorts" element={<ViralShorts />} />
+                <Route path="/ai-story" element={<AIStory />} />
+                <Route path="/lead-generation" element={<LeadGeneration />} />
+                <Route path="/autoyt" element={<AutoYT />} />
+                <Route path="/newsletter" element={<Newsletter />} />
+                <Route path="/article" element={<ArticleHub />} />
+                <Route path="/article/new" element={<NewArticle />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/oauth/callback" element={<OAuthCallback />} />
+                <Route path="/assets" element={<Assets />} />
+                <Route path="/integrations" element={<Integrations />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/signup/flow" element={<SignupFlow />} />
+                <Route path="/invite-verification" element={<InviteVerification />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
+                <Route path="/account" element={<Settings />} />
+                <Route path="/brand" element={<Brand />} />
+                {/* Admin Routes */}
+                <Route path="/manage" element={<AdminDashboard />} />
+                <Route path="/manage/users" element={<AdminUsers />} />
+                <Route path="/manage/posts" element={<AdminPosts />} />
+                <Route path="/manage/images" element={<AdminImages />} />
+                <Route path="/manage/videos" element={<AdminVideos />} />
+                <Route path="/manage/audio" element={<AdminAudio />} />
+                <Route path="/manage/roles" element={<AdminRoles />} />
+                <Route path="/manage/analytics" element={<AdminAnalytics />} />
+                <Route path="/manage/settings" element={<AdminSettings />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
                 </VisitorTracker>
               </ArticleProvider>
             </EbookProvider>
