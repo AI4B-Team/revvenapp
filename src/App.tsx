@@ -10,6 +10,9 @@ import { useTrackVisitor } from "@/hooks/useLiveVisitors";
 import { EbookProvider } from "@/contexts/EbookContext";
 import { ArticleProvider } from "@/contexts/ArticleContext";
 
+// Preload-heavy route statically to avoid dynamic import fetch failures in preview.
+import Create from "./pages/Create";
+
 // Component to track visitor presence
 const VisitorTracker = ({ children }: { children: ReactNode }) => {
   useTrackVisitor();
@@ -20,7 +23,6 @@ const VisitorTracker = ({ children }: { children: ReactNode }) => {
 const Landing = lazy(() => import("./pages/Landing"));
 const LandingNew = lazy(() => import("./pages/LandingNew"));
 const Index = lazy(() => import("./pages/Index"));
-const Create = lazy(() => import("./pages/Create"));
 const AIAgents = lazy(() => import("./pages/AIAgents"));
 const Assistant = lazy(() => import("./pages/Assistant"));
 const Templates = lazy(() => import("./pages/Templates"));
