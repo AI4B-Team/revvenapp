@@ -3983,6 +3983,55 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         </div>
 
+        {/* Content Mode Selections Display - Show selected options as badges */}
+        {isContentMode && contentType === 'Social' && selectedPlatforms.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mt-4 mb-2">
+            {/* Post Type */}
+            {contentPostType && contentPostType !== 'Single Image' && (
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
+                {contentPostType}
+              </Badge>
+            )}
+            {/* Goal */}
+            {contentGoal && contentGoal !== 'Engagement' && (
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">
+                {contentGoal}
+              </Badge>
+            )}
+            {/* Language */}
+            {contentLanguage && contentLanguage !== 'English' && (
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                {contentLanguage}
+              </Badge>
+            )}
+            {/* Frequency */}
+            {contentDays && contentDays !== 30 && (
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
+                {contentDays} Days
+              </Badge>
+            )}
+            {/* Time */}
+            {contentTime && contentTime !== 'Auto' && (
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300">
+                {contentTime}
+              </Badge>
+            )}
+            {/* Style */}
+            {contentStyle && contentStyle !== 'AI Generated' && (
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                {contentStyle}
+              </Badge>
+            )}
+            {/* Brand */}
+            {brandDistillsEnabled && (
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+                <Sparkles size={10} className="mr-1" />
+                Brand
+              </Badge>
+            )}
+          </div>
+        )}
+
         {/* UGC Character Box - Show in Avatar Video and Lip-Sync mode when a character is selected */}
         {isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && videoModeState.characters.length > 0 && (
           <UGCCharacterBox
@@ -7346,6 +7395,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2">
+                        <Sparkles size={16} className="text-amber-500" />
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Brand</span>
                         <Switch 
                           checked={brandDistillsEnabled} 
