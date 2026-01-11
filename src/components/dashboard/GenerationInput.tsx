@@ -9443,7 +9443,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         <div className="flex justify-center mt-6">
         <div className="p-6 bg-card rounded-xl border-2 border-border shadow-sm">
           <p className="text-foreground font-semibold mb-6 text-center text-xl">
-            Choose Your Platforms To Generate {contentDays} Days Of Content For Each One
+            {contentDays !== 30 
+              ? `Choose Your Platforms To Generate ${contentDays} Days Of Content For Each One`
+              : 'Choose Your Platforms To Generate Content For Each One'
+            }
           </p>
           
           <div className="flex items-center justify-center gap-3 flex-nowrap overflow-visible pb-2 px-2 pt-3">
