@@ -661,7 +661,7 @@ const Forms = () => {
               {templateCategories.find(c => c.id === selectedCategory)?.name}
             </h2>
             <p className="text-muted-foreground">
-              {filteredTemplates.length} professional templates to get you started
+              5 Professional Templates To Get You Started
             </p>
           </div>
 
