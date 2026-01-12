@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Image as ImageIcon, Music, Sparkles, Loader2, Play, Download, X, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Image as ImageIcon, Music, Sparkles, Loader2, Play, Download, X, AlertCircle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
@@ -255,231 +254,205 @@ const InfinityTalk = () => {
             </div>
           </div>
 
-          <div className="max-w-4xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Left Column - Inputs */}
-              <div className="space-y-6">
-                {/* Image Upload */}
-                <div className="p-6 rounded-xl border bg-card">
-                  <Label className="text-base font-semibold mb-4 block">Face Image</Label>
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
+          <div className="max-w-3xl mx-auto">
+            {/* Result Video - Show above when generated */}
+            {resultVideoUrl && (
+              <div className="mb-6 p-4 rounded-xl border bg-card">
+                <div className="relative rounded-lg overflow-hidden bg-black aspect-video">
+                  <video
+                    src={resultVideoUrl}
+                    controls
+                    className="w-full h-full object-contain"
                   />
+                </div>
+                <div className="flex gap-3 mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => window.open(resultVideoUrl, '_blank')}
+                    className="flex-1"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Open
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const a = document.createElement('a');
+                      a.href = resultVideoUrl;
+                      a.download = 'infinity-talk-video.mp4';
+                      a.click();
+                    }}
+                    className="flex-1"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                  <Button variant="ghost" onClick={handleReset}>
+                    Create Another
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Error State */}
+            {taskState === 'error' && (
+              <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-destructive">Generation Failed</p>
+                    <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleReset}>
+                    Try Again
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Generation Progress */}
+            {isGenerating && (
+              <div className="mb-6 p-6 rounded-xl border bg-card">
+                <div className="flex items-center gap-3 mb-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-violet-500" />
+                  <span className="font-medium">Generating your talking video...</span>
+                </div>
+                <Progress value={progress} className="h-2" />
+                <p className="text-sm text-muted-foreground text-center mt-3">
+                  This may take 1-3 minutes. Please don't close this page.
+                </p>
+              </div>
+            )}
+
+            {/* Unified Prompt Box */}
+            {!resultVideoUrl && taskState !== 'error' && (
+              <div className="rounded-xl border bg-card overflow-hidden">
+                {/* Hidden file inputs */}
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
+                />
+                <input
+                  ref={audioInputRef}
+                  type="file"
+                  accept="audio/mpeg,audio/wav,audio/x-wav,audio/aac,audio/mp4,audio/ogg"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && handleAudioUpload(e.target.files[0])}
+                />
+
+                {/* Prompt Input */}
+                <div className="p-4">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe the person and scene, e.g., 'A young woman with long dark hair talking on a podcast.'"
+                    disabled={isGenerating}
+                    className="min-h-[80px] resize-none border-0 p-0 focus-visible:ring-0 text-base"
+                    maxLength={5000}
+                  />
+                </div>
+
+                {/* Attachments & Controls */}
+                <div className="px-4 pb-4 flex flex-wrap items-center gap-3">
+                  {/* Image Preview/Upload */}
                   {imagePreview ? (
-                    <div className="relative aspect-square max-w-xs rounded-lg overflow-hidden group mx-auto">
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    <div className="relative group">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-violet-500">
+                        <img src={imagePreview} alt="Face" className="w-full h-full object-cover" />
+                      </div>
                       <button
                         onClick={() => {
                           setImageUrl('');
                           setImagePreview('');
                         }}
-                        className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
                       >
-                        <X className="w-4 h-4 text-white" />
+                        <X className="w-3 h-3" />
                       </button>
                     </div>
                   ) : (
-                    <Button
-                      variant="outline"
+                    <button
                       onClick={() => imageInputRef.current?.click()}
                       disabled={isGenerating}
-                      className="w-full h-40 border-dashed flex flex-col gap-3"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed hover:bg-muted/50 transition text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
                     >
-                      <ImageIcon className="w-10 h-10 text-muted-foreground" />
-                      <div className="text-center">
-                        <p className="font-medium">Upload face image</p>
-                        <p className="text-sm text-muted-foreground">JPEG, PNG, or WebP • Max 10MB</p>
-                      </div>
-                    </Button>
+                      <ImageIcon className="w-4 h-4" />
+                      <span>Add Face</span>
+                    </button>
                   )}
-                </div>
 
-                {/* Audio Upload */}
-                <div className="p-6 rounded-xl border bg-card">
-                  <Label className="text-base font-semibold mb-4 block">Audio (max 15 seconds)</Label>
-                  <input
-                    ref={audioInputRef}
-                    type="file"
-                    accept="audio/mpeg,audio/wav,audio/x-wav,audio/aac,audio/mp4,audio/ogg"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.[0] && handleAudioUpload(e.target.files[0])}
-                  />
+                  {/* Audio Preview/Upload */}
                   {audioFile ? (
-                    <div className="flex items-center gap-3 p-4 rounded-lg border bg-muted/50">
-                      <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
-                        <Music className="w-5 h-5 text-violet-500" />
-                      </div>
-                      <span className="flex-1 text-sm font-medium truncate">{audioFile.name}</span>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/30 group">
+                      <Music className="w-4 h-4 text-violet-500" />
+                      <span className="text-sm font-medium max-w-[120px] truncate">{audioFile.name}</span>
                       <button
                         onClick={() => {
                           setAudioUrl('');
                           setAudioFile(null);
                         }}
-                        className="p-2 hover:bg-muted rounded-full transition"
+                        className="p-0.5 hover:bg-violet-500/20 rounded transition"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-3 h-3" />
                       </button>
                     </div>
                   ) : (
-                    <Button
-                      variant="outline"
+                    <button
                       onClick={() => audioInputRef.current?.click()}
                       disabled={isGenerating}
-                      className="w-full h-32 border-dashed flex flex-col gap-3"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed hover:bg-muted/50 transition text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
                     >
-                      <Music className="w-10 h-10 text-muted-foreground" />
-                      <div className="text-center">
-                        <p className="font-medium">Upload audio file</p>
-                        <p className="text-sm text-muted-foreground">MP3, WAV, AAC, OGG • Max 15 sec</p>
-                      </div>
-                    </Button>
+                      <Music className="w-4 h-4" />
+                      <span>Add Audio</span>
+                    </button>
                   )}
-                </div>
 
-                {/* Prompt & Settings */}
-                <div className="p-6 rounded-xl border bg-card space-y-4">
-                  <div>
-                    <Label className="text-base font-semibold mb-2 block">Prompt</Label>
-                    <Textarea
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="Describe the person and scene, e.g., 'A young woman with long dark hair talking on a podcast.'"
-                      disabled={isGenerating}
-                      className="min-h-[100px] resize-none"
-                      maxLength={5000}
-                    />
-                    <p className="text-xs text-muted-foreground text-right mt-1">{prompt.length}/5000</p>
-                  </div>
+                  {/* Resolution Select */}
+                  <Select value={resolution} onValueChange={(v) => setResolution(v as '480p' | '720p')} disabled={isGenerating}>
+                    <SelectTrigger className="w-auto h-9 text-sm gap-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="480p">480p</SelectItem>
+                      <SelectItem value="720p">720p</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                  <div>
-                    <Label className="text-base font-semibold mb-2 block">Resolution</Label>
-                    <Select value={resolution} onValueChange={(v) => setResolution(v as '480p' | '720p')} disabled={isGenerating}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="480p">480p (Faster)</SelectItem>
-                        <SelectItem value="720p">720p (Higher Quality)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {/* Spacer */}
+                  <div className="flex-1" />
 
+                  {/* Character count */}
+                  <span className="text-xs text-muted-foreground">{prompt.length}/5000</span>
+
+                  {/* Generate Button */}
                   <Button
                     onClick={handleGenerate}
                     disabled={!canGenerate}
-                    size="lg"
-                    className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+                    className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
                   >
                     {isGenerating ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Generating...
-                      </>
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <>
-                        <Sparkles className="w-5 h-5 mr-2" />
-                        Generate Talking Video
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Generate
                       </>
                     )}
                   </Button>
                 </div>
+
+                {/* Helper text */}
+                {(!imageUrl || !audioUrl) && (
+                  <div className="px-4 pb-3 flex items-center gap-2 text-xs text-muted-foreground">
+                    <AlertCircle className="w-3 h-3" />
+                    {!imageUrl && !audioUrl ? 'Add a face image and audio (max 15s) to generate' : 
+                     !imageUrl ? 'Add a face image to continue' : 'Add audio (max 15 seconds) to continue'}
+                  </div>
+                )}
               </div>
-
-              {/* Right Column - Result */}
-              <div className="space-y-6">
-                <div className="p-6 rounded-xl border bg-card min-h-[400px] flex flex-col">
-                  <Label className="text-base font-semibold mb-4 block">Result</Label>
-                  
-                  {/* Idle State */}
-                  {taskState === 'idle' && !resultVideoUrl && (
-                    <div className="flex-1 flex items-center justify-center">
-                      <div className="text-center text-muted-foreground">
-                        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                          <Play className="w-8 h-8" />
-                        </div>
-                        <p>Your generated video will appear here</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Generation Progress */}
-                  {isGenerating && (
-                    <div className="flex-1 flex flex-col items-center justify-center">
-                      <div className="w-full max-w-xs space-y-4">
-                        <div className="flex items-center justify-center gap-2 mb-4">
-                          <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
-                          <span className="font-medium">Generating your video...</span>
-                        </div>
-                        <Progress value={progress} className="h-3" />
-                        <p className="text-sm text-muted-foreground text-center">
-                          This may take 1-3 minutes. Please don't close this page.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Error State */}
-                  {taskState === 'error' && (
-                    <div className="flex-1 flex items-center justify-center">
-                      <div className="p-6 rounded-lg bg-destructive/10 border border-destructive/20 max-w-sm">
-                        <div className="flex items-start gap-3">
-                          <AlertCircle className="w-6 h-6 text-destructive shrink-0" />
-                          <div>
-                            <p className="font-semibold text-destructive">Generation Failed</p>
-                            <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
-                            <Button variant="outline" size="sm" onClick={handleReset} className="mt-3">
-                              Try Again
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Success State */}
-                  {resultVideoUrl && (
-                    <div className="flex-1 flex flex-col">
-                      <div className="relative rounded-lg overflow-hidden bg-black aspect-video">
-                        <video
-                          src={resultVideoUrl}
-                          controls
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <div className="flex gap-3 mt-4">
-                        <Button
-                          variant="outline"
-                          onClick={() => window.open(resultVideoUrl, '_blank')}
-                          className="flex-1"
-                        >
-                          <Play className="w-4 h-4 mr-2" />
-                          Open
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            const a = document.createElement('a');
-                            a.href = resultVideoUrl;
-                            a.download = 'infinity-talk-video.mp4';
-                            a.click();
-                          }}
-                          className="flex-1"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
-                        </Button>
-                      </div>
-                      <Button variant="ghost" onClick={handleReset} className="w-full mt-2">
-                        Create Another
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </main>
       </div>
