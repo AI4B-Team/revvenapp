@@ -71,6 +71,7 @@ interface FormField {
 }
 
 const Forms = () => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeView, setActiveView] = useState<string>('dashboard');
   const [forms, setForms] = useState<Form[]>([
     { 
@@ -990,8 +991,8 @@ const Forms = () => {
 
   return (
     <div className="min-h-screen bg-white flex">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
+      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
         {/* Forms Header */}
