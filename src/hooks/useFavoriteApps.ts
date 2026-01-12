@@ -1,57 +1,58 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 
 const FAVORITES_KEY = 'app-favorites';
 
-export const useFavoriteApps = () => {
-  const [favorites, setFavorites] = useState<string[]>(() => {
+// Get favorites from localStorage
+const getFavorites = (): string[] => {
+  try {
     const saved = localStorage.getItem(FAVORITES_KEY);
     return saved ? JSON.parse(saved) : ['create'];
+  } catch {
+    return ['create'];
+  }
+};
+
+// Set favorites to localStorage and notify
+const setFavoritesToStorage = (favorites: string[]) => {
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  window.dispatchEvent(new CustomEvent('favorites-updated'));
+};
+
+// Subscribers for sync
+let listeners: (() => void)[] = [];
+
+const subscribe = (listener: () => void) => {
+  listeners = [...listeners, listener];
+  
+  const handleUpdate = () => listener();
+  
+  window.addEventListener('favorites-updated', handleUpdate);
+  window.addEventListener('storage', (e) => {
+    if (e.key === FAVORITES_KEY) handleUpdate();
   });
+  
+  return () => {
+    listeners = listeners.filter(l => l !== listener);
+    window.removeEventListener('favorites-updated', handleUpdate);
+  };
+};
 
-  // Listen for storage events from other components
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === FAVORITES_KEY && e.newValue) {
-        setFavorites(JSON.parse(e.newValue));
-      }
-    };
+const getSnapshot = () => {
+  return localStorage.getItem(FAVORITES_KEY) || JSON.stringify(['create']);
+};
 
-    // Also listen for custom events within the same tab
-    const handleCustomEvent = () => {
-      const saved = localStorage.getItem(FAVORITES_KEY);
-      if (saved) {
-        setFavorites(JSON.parse(saved));
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('favorites-updated', handleCustomEvent);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('favorites-updated', handleCustomEvent);
-    };
-  }, []);
-
-  // Save favorites to localStorage
-  useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-  }, [favorites]);
+export const useFavoriteApps = () => {
+  // Use useSyncExternalStore for proper sync across components
+  const favoritesJson = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  const favorites = JSON.parse(favoritesJson) as string[];
 
   const toggleFavorite = useCallback((appId: string) => {
-    setFavorites(prev => {
-      const newFavorites = prev.includes(appId) 
-        ? prev.filter(id => id !== appId)
-        : [...prev, appId];
-      
-      // Save immediately
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites));
-      
-      // Dispatch custom event for other components in the same tab
-      window.dispatchEvent(new CustomEvent('favorites-updated'));
-      
-      return newFavorites;
-    });
+    const currentFavorites = getFavorites();
+    const newFavorites = currentFavorites.includes(appId) 
+      ? currentFavorites.filter(id => id !== appId)
+      : [...currentFavorites, appId];
+    
+    setFavoritesToStorage(newFavorites);
   }, []);
 
   const isFavorite = useCallback((appId: string) => {
