@@ -20,6 +20,7 @@ import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
 import CollectionsView from '@/components/dashboard/CollectionsView';
 import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
+import InfinityTalkModal from '@/components/dashboard/InfinityTalkModal';
 
 import SocialContentCalendar from '@/components/dashboard/SocialContentCalendar';
 import { socialPlatforms } from '@/components/dashboard/SocialIcons';
@@ -63,6 +64,7 @@ const Create = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
+  const [infinityTalkModalOpen, setInfinityTalkModalOpen] = useState(false);
   // Separate state for each content type
   const [imageCharacters, setImageCharacters] = useState<any[]>([]);
   const [videoCharacters, setVideoCharacters] = useState<any[]>([]);
@@ -402,6 +404,13 @@ const Create = () => {
       bgColor: 'bg-tool-red',
       emoji: '▶️',
       onClick: () => navigate('/autoyt')
+    },
+    { 
+      name: 'Infinity Talk', 
+      description: 'Make images talk with audio',
+      bgColor: 'bg-tool-purple',
+      emoji: '🗣️',
+      onClick: () => setInfinityTalkModalOpen(true)
     },
   ];
 
@@ -1231,6 +1240,11 @@ const Create = () => {
           currentRefs.handleImagesSelect(images);
           setIsCharacterReference(true);
         }}
+      />
+
+      <InfinityTalkModal
+        open={infinityTalkModalOpen}
+        onOpenChange={setInfinityTalkModalOpen}
       />
 
       {/* Audio Player Bar - only show in Audio section */}
