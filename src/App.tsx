@@ -84,6 +84,7 @@ const AutoYT = lazy(() => import("./pages/AutoYT"));
 const ArticleHub = lazy(() => import("./pages/ArticleHub"));
 const NewArticle = lazy(() => import("./pages/NewArticle"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const Forms = lazy(() => import("./pages/Forms"));
 
 // Admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -168,6 +169,7 @@ const App = () => (
                 <Route path="/article" element={<ArticleHub />} />
                 <Route path="/article/new" element={<NewArticle />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/forms" element={<Forms />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
