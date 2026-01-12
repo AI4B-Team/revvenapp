@@ -615,7 +615,7 @@ const Forms = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search templates"
+                placeholder="Search Templates"
                 className="w-full bg-background text-foreground pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-border"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -656,6 +656,12 @@ const Forms = () => {
 
         {/* Templates Grid */}
         <div className="col-span-9">
+          <button
+            onClick={() => setActiveView('dashboard')}
+            className="text-muted-foreground hover:text-foreground text-sm mb-4 flex items-center"
+          >
+            ← Back
+          </button>
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-foreground mb-2">
               {templateCategories.find(c => c.id === selectedCategory)?.name}
@@ -690,8 +696,8 @@ const Forms = () => {
                   <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{template.fields} fields</span>
-                    <button className="text-emerald-500 hover:text-emerald-400 font-medium">
-                      Use template →
+                    <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
+                      Use Template
                     </button>
                   </div>
                 </div>
