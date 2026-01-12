@@ -85,6 +85,7 @@ const ArticleHub = lazy(() => import("./pages/ArticleHub"));
 const NewArticle = lazy(() => import("./pages/NewArticle"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Forms = lazy(() => import("./pages/Forms"));
+const InfinityTalk = lazy(() => import("./pages/InfinityTalk"));
 
 // Admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -170,6 +171,7 @@ const App = () => (
                 <Route path="/article/new" element={<NewArticle />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/forms" element={<Forms />} />
+                <Route path="/infinity-talk" element={<InfinityTalk />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
