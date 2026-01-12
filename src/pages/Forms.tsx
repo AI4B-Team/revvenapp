@@ -9,7 +9,10 @@ import {
   ArrowRight, Check, X, FolderOpen, Folder, MoreVertical,
   TrendingUp, Users, MessageSquare, Bell, Lock, Unlock,
   ExternalLink, Palette, Type, Layout, Sparkles, Target,
-  GitBranch, RefreshCw, Box, Package
+  GitBranch, RefreshCw, Box, Package, Key, Webhook, Globe,
+  CreditCard, Award, Calculator, Link, PlayCircle, PauseCircle,
+  ArrowUpRight, ArrowDownRight, Activity, PieChart, BarChart2,
+  ChevronLeft, MoreHorizontal, FileDown, Layers, Shield
 } from 'lucide-react';
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -59,6 +62,21 @@ interface FormBuilder {
   notifications: boolean;
   redirectUrl: string;
   customCss: string;
+  quizMode: boolean;
+  scheduling: {
+    enabled: boolean;
+    startDate: string;
+    endDate: string;
+    timezone: string;
+  };
+  payments: {
+    enabled: boolean;
+    provider: 'stripe' | 'paypal' | null;
+    currency: string;
+  };
+  urlParameters: { id: string; name: string; defaultValue: string }[];
+  calculations: { id: string; name: string; formula: string; type: 'number' | 'text' }[];
+  webhooks: { id: string; url: string; events: string[]; active: boolean }[];
 }
 
 interface FormField {
@@ -68,6 +86,19 @@ interface FormField {
   required: boolean;
   placeholder: string;
   options: string[];
+  quizAnswer?: string;
+  quizPoints?: number;
+}
+
+interface Submission {
+  id: string;
+  formId: number;
+  submittedAt: string;
+  status: 'finished' | 'in_progress';
+  respondentEmail: string;
+  data: Record<string, any>;
+  quizScore?: { score: number; maxScore: number };
+  paymentStatus?: string;
 }
 
 const Forms = () => {
@@ -122,7 +153,64 @@ const Forms = () => {
     branding: true,
     notifications: true,
     redirectUrl: '',
-    customCss: ''
+    customCss: '',
+    quizMode: false,
+    scheduling: {
+      enabled: false,
+      startDate: '',
+      endDate: '',
+      timezone: 'UTC'
+    },
+    payments: {
+      enabled: false,
+      provider: null,
+      currency: 'USD'
+    },
+    urlParameters: [],
+    calculations: [],
+    webhooks: []
+  });
+
+  // Sample submissions data
+  const [submissions] = useState<Submission[]>([
+    {
+      id: 'sub_1',
+      formId: 1,
+      submittedAt: '2026-01-12T10:30:00Z',
+      status: 'finished',
+      respondentEmail: 'john@example.com',
+      data: { name: 'John Doe', email: 'john@example.com', message: 'Great service!' },
+      quizScore: { score: 85, maxScore: 100 }
+    },
+    {
+      id: 'sub_2',
+      formId: 1,
+      submittedAt: '2026-01-11T14:22:00Z',
+      status: 'finished',
+      respondentEmail: 'jane@example.com',
+      data: { name: 'Jane Smith', email: 'jane@example.com', message: 'Very helpful' },
+      paymentStatus: 'paid'
+    },
+    {
+      id: 'sub_3',
+      formId: 1,
+      submittedAt: '2026-01-10T09:15:00Z',
+      status: 'in_progress',
+      respondentEmail: 'bob@example.com',
+      data: { name: 'Bob Wilson' }
+    }
+  ]);
+
+  // API Key state
+  const [apiKey, setApiKey] = useState('rev_live_xxxxxxxxxxxxxxxxxxxxxxxxxx');
+  const [showApiKey, setShowApiKey] = useState(false);
+
+  // Submission filters
+  const [submissionFilters, setSubmissionFilters] = useState({
+    status: 'all' as 'all' | 'finished' | 'in_progress',
+    search: '',
+    dateRange: { start: '', end: '' },
+    sortOrder: 'desc' as 'asc' | 'desc'
   });
 
   const fieldTypes: FieldType[] = [
@@ -709,6 +797,529 @@ const Forms = () => {
     );
   };
 
+  // Premium Feature: Submissions View with filtering, pagination, search
+  const SubmissionsView = () => {
+    const filteredSubmissions = submissions.filter(sub => {
+      if (submissionFilters.status !== 'all' && sub.status !== submissionFilters.status) return false;
+      if (submissionFilters.search && !sub.respondentEmail.toLowerCase().includes(submissionFilters.search.toLowerCase())) return false;
+      return true;
+    });
+
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Submissions</h2>
+            <p className="text-muted-foreground">{filteredSubmissions.length} total responses</p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2">
+              <FileDown className="w-4 h-4" />
+              <span>Export CSV</span>
+            </button>
+            <button className="bg-muted hover:bg-muted/80 text-foreground px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2">
+              <RefreshCw className="w-4 h-4" />
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-muted/50 border border-border rounded-lg p-4">
+          <div className="flex items-center space-x-4 flex-wrap gap-y-3">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search by email..."
+                className="w-full bg-background text-foreground pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-border"
+                value={submissionFilters.search}
+                onChange={(e) => setSubmissionFilters({ ...submissionFilters, search: e.target.value })}
+              />
+            </div>
+            <select
+              className="bg-background border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              value={submissionFilters.status}
+              onChange={(e) => setSubmissionFilters({ ...submissionFilters, status: e.target.value as any })}
+            >
+              <option value="all">All Status</option>
+              <option value="finished">Finished</option>
+              <option value="in_progress">In Progress</option>
+            </select>
+            <select
+              className="bg-background border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              value={submissionFilters.sortOrder}
+              onChange={(e) => setSubmissionFilters({ ...submissionFilters, sortOrder: e.target.value as 'asc' | 'desc' })}
+            >
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+            <div className="flex items-center space-x-2">
+              <input
+                type="date"
+                className="bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                value={submissionFilters.dateRange.start}
+                onChange={(e) => setSubmissionFilters({ ...submissionFilters, dateRange: { ...submissionFilters.dateRange, start: e.target.value } })}
+              />
+              <span className="text-muted-foreground">to</span>
+              <input
+                type="date"
+                className="bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                value={submissionFilters.dateRange.end}
+                onChange={(e) => setSubmissionFilters({ ...submissionFilters, dateRange: { ...submissionFilters.dateRange, end: e.target.value } })}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submissions Table */}
+        <div className="bg-muted/50 border border-border rounded-lg overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-muted">
+              <tr>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground">Submission ID</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground">Email</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground">Submitted</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground">Status</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground">Score</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filteredSubmissions.map((sub) => (
+                <tr key={sub.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-6 py-4 text-sm text-foreground font-mono">{sub.id}</td>
+                  <td className="px-6 py-4 text-sm text-foreground">{sub.respondentEmail}</td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                    {new Date(sub.submittedAt).toLocaleDateString()} {new Date(sub.submittedAt).toLocaleTimeString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      sub.status === 'finished' 
+                        ? 'bg-emerald-500/20 text-emerald-500' 
+                        : 'bg-yellow-500/20 text-yellow-500'
+                    }`}>
+                      {sub.status === 'finished' ? 'Finished' : 'In Progress'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    {sub.quizScore ? (
+                      <span className="text-emerald-500 font-medium">{sub.quizScore.score}/{sub.quizScore.maxScore}</span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-2">
+                      <button className="p-1.5 bg-muted hover:bg-emerald-500/20 rounded text-muted-foreground hover:text-emerald-500 transition-colors">
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button className="p-1.5 bg-muted hover:bg-blue-500/20 rounded text-muted-foreground hover:text-blue-500 transition-colors">
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button className="p-1.5 bg-muted hover:bg-red-500/20 rounded text-muted-foreground hover:text-red-500 transition-colors">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">Showing 1-{filteredSubmissions.length} of {filteredSubmissions.length} submissions</p>
+          <div className="flex items-center space-x-2">
+            <button className="p-2 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground transition-colors" disabled>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="px-4 py-2 bg-emerald-500/20 text-emerald-500 rounded-lg font-medium">1</span>
+            <button className="p-2 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground transition-colors" disabled>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Premium Feature: Analytics Dashboard
+  const AnalyticsView = () => {
+    const analyticsData = {
+      totalViews: 4521,
+      totalSubmissions: 847,
+      conversionRate: 18.7,
+      avgCompletionTime: '2m 34s',
+      dropOffRate: 23.4,
+      topCountries: [
+        { country: 'United States', submissions: 423, percentage: 50 },
+        { country: 'United Kingdom', submissions: 156, percentage: 18 },
+        { country: 'Canada', submissions: 98, percentage: 12 },
+        { country: 'Australia', submissions: 87, percentage: 10 },
+        { country: 'Germany', submissions: 83, percentage: 10 }
+      ],
+      weeklyData: [
+        { day: 'Mon', views: 245, submissions: 42 },
+        { day: 'Tue', views: 312, submissions: 58 },
+        { day: 'Wed', views: 287, submissions: 51 },
+        { day: 'Thu', views: 398, submissions: 74 },
+        { day: 'Fri', views: 456, submissions: 89 },
+        { day: 'Sat', views: 234, submissions: 38 },
+        { day: 'Sun', views: 189, submissions: 31 }
+      ]
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Analytics</h2>
+            <p className="text-muted-foreground">Track your form performance</p>
+          </div>
+          <select className="bg-background border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option>Last 90 days</option>
+            <option>All time</option>
+          </select>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="bg-muted/50 border border-border rounded-lg p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Eye className="w-5 h-5 text-blue-500" />
+              <span className="text-emerald-500 text-sm flex items-center">
+                <ArrowUpRight className="w-3 h-3 mr-1" />
+                12%
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{analyticsData.totalViews.toLocaleString()}</p>
+            <p className="text-sm text-muted-foreground">Total Views</p>
+          </div>
+
+          <div className="bg-muted/50 border border-border rounded-lg p-5">
+            <div className="flex items-center justify-between mb-2">
+              <FileText className="w-5 h-5 text-emerald-500" />
+              <span className="text-emerald-500 text-sm flex items-center">
+                <ArrowUpRight className="w-3 h-3 mr-1" />
+                8%
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{analyticsData.totalSubmissions.toLocaleString()}</p>
+            <p className="text-sm text-muted-foreground">Submissions</p>
+          </div>
+
+          <div className="bg-muted/50 border border-border rounded-lg p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Target className="w-5 h-5 text-purple-500" />
+              <span className="text-emerald-500 text-sm flex items-center">
+                <ArrowUpRight className="w-3 h-3 mr-1" />
+                3.2%
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{analyticsData.conversionRate}%</p>
+            <p className="text-sm text-muted-foreground">Conversion Rate</p>
+          </div>
+
+          <div className="bg-muted/50 border border-border rounded-lg p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Clock className="w-5 h-5 text-orange-500" />
+            </div>
+            <p className="text-2xl font-bold text-foreground">{analyticsData.avgCompletionTime}</p>
+            <p className="text-sm text-muted-foreground">Avg. Completion</p>
+          </div>
+
+          <div className="bg-muted/50 border border-border rounded-lg p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Activity className="w-5 h-5 text-red-500" />
+              <span className="text-red-500 text-sm flex items-center">
+                <ArrowDownRight className="w-3 h-3 mr-1" />
+                2.1%
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{analyticsData.dropOffRate}%</p>
+            <p className="text-sm text-muted-foreground">Drop-off Rate</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-12 gap-6">
+          {/* Weekly Chart */}
+          <div className="col-span-8 bg-muted/50 border border-border rounded-lg p-6">
+            <h3 className="text-lg font-bold text-foreground mb-4 flex items-center">
+              <BarChart2 className="w-5 h-5 mr-2 text-emerald-500" />
+              Weekly Performance
+            </h3>
+            <div className="h-64 flex items-end justify-between space-x-4">
+              {analyticsData.weeklyData.map((day, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center">
+                  <div className="w-full flex flex-col space-y-1">
+                    <div 
+                      className="w-full bg-blue-500/30 rounded-t"
+                      style={{ height: `${(day.views / 500) * 150}px` }}
+                    />
+                    <div 
+                      className="w-full bg-emerald-500 rounded-t"
+                      style={{ height: `${(day.submissions / 100) * 150}px` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">{day.day}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-center space-x-6 mt-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-blue-500/30 rounded" />
+                <span className="text-sm text-muted-foreground">Views</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-emerald-500 rounded" />
+                <span className="text-sm text-muted-foreground">Submissions</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Countries */}
+          <div className="col-span-4 bg-muted/50 border border-border rounded-lg p-6">
+            <h3 className="text-lg font-bold text-foreground mb-4 flex items-center">
+              <Globe className="w-5 h-5 mr-2 text-emerald-500" />
+              Top Countries
+            </h3>
+            <div className="space-y-4">
+              {analyticsData.topCountries.map((country, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-foreground">{country.country}</span>
+                    <span className="text-sm text-muted-foreground">{country.submissions}</span>
+                  </div>
+                  <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-emerald-500 rounded-full"
+                      style={{ width: `${country.percentage}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Premium Feature: Webhooks Management
+  const WebhooksView = () => {
+    const [webhooks, setWebhooks] = useState([
+      { id: 'wh_1', url: 'https://api.myapp.com/webhook/forms', events: ['submission.created'], active: true },
+      { id: 'wh_2', url: 'https://zapier.com/hooks/catch/123456', events: ['submission.created', 'submission.updated'], active: true },
+      { id: 'wh_3', url: 'https://n8n.mycompany.com/webhook/abc', events: ['submission.created'], active: false }
+    ]);
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Webhooks</h2>
+            <p className="text-muted-foreground">Send form data to external services in real-time</p>
+          </div>
+          <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2">
+            <Plus className="w-4 h-4" />
+            <span>Add Webhook</span>
+          </button>
+        </div>
+
+        {/* Webhook Cards */}
+        <div className="space-y-4">
+          {webhooks.map((webhook) => (
+            <div key={webhook.id} className={`bg-muted/50 border rounded-lg p-6 transition-all ${webhook.active ? 'border-emerald-500/50' : 'border-border'}`}>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <Webhook className={`w-5 h-5 ${webhook.active ? 'text-emerald-500' : 'text-muted-foreground'}`} />
+                    <code className="text-sm bg-background px-3 py-1 rounded border border-border text-foreground font-mono">
+                      {webhook.url}
+                    </code>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${webhook.active ? 'bg-emerald-500/20 text-emerald-500' : 'bg-muted text-muted-foreground'}`}>
+                      {webhook.active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-3">
+                    <span className="text-xs text-muted-foreground">Events:</span>
+                    {webhook.events.map((event, i) => (
+                      <span key={i} className="text-xs bg-blue-500/20 text-blue-500 px-2 py-0.5 rounded">
+                        {event}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button className="p-2 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button className="p-2 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                    <PlayCircle className="w-4 h-4" />
+                  </button>
+                  <button className="p-2 bg-muted hover:bg-red-500/20 rounded-lg text-muted-foreground hover:text-red-500 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Webhook Events Documentation */}
+        <div className="bg-muted/50 border border-border rounded-lg p-6">
+          <h3 className="text-lg font-bold text-foreground mb-4">Available Events</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { event: 'submission.created', description: 'Triggered when a new form submission is created' },
+              { event: 'submission.updated', description: 'Triggered when a submission is edited or updated' },
+              { event: 'submission.deleted', description: 'Triggered when a submission is permanently deleted' },
+              { event: 'form.published', description: 'Triggered when a form is published or made live' }
+            ].map((item, i) => (
+              <div key={i} className="flex items-start space-x-3">
+                <code className="text-xs bg-background px-2 py-1 rounded border border-border text-emerald-500 font-mono whitespace-nowrap">
+                  {item.event}
+                </code>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Premium Feature: Developer/API Settings
+  const DeveloperView = () => {
+    const copyApiKey = () => {
+      navigator.clipboard.writeText(apiKey);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Developer Settings</h2>
+            <p className="text-muted-foreground">API access and developer tools</p>
+          </div>
+        </div>
+
+        {/* API Key Section */}
+        <div className="bg-muted/50 border border-border rounded-lg p-6">
+          <div className="flex items-center space-x-3 mb-4">
+            <Key className="w-5 h-5 text-emerald-500" />
+            <h3 className="text-lg font-bold text-foreground">API Key</h3>
+          </div>
+          <p className="text-muted-foreground mb-4">
+            Use this key to authenticate API requests. Keep it secure and never share it publicly.
+          </p>
+          <div className="flex items-center space-x-3">
+            <div className="flex-1 relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={apiKey}
+                readOnly
+                className="w-full bg-background text-foreground font-mono px-4 py-3 rounded-lg border border-border focus:outline-none pr-24"
+              />
+              <button
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showApiKey ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+              </button>
+            </div>
+            <button
+              onClick={copyApiKey}
+              className="bg-muted hover:bg-muted/80 text-foreground px-4 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2"
+            >
+              <Copy className="w-4 h-4" />
+              <span>Copy</span>
+            </button>
+            <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-4 py-3 rounded-lg font-medium transition-colors">
+              Regenerate
+            </button>
+          </div>
+        </div>
+
+        {/* API Endpoints */}
+        <div className="bg-muted/50 border border-border rounded-lg p-6">
+          <div className="flex items-center space-x-3 mb-4">
+            <Code className="w-5 h-5 text-emerald-500" />
+            <h3 className="text-lg font-bold text-foreground">REST API Endpoints</h3>
+          </div>
+          <div className="space-y-4">
+            {[
+              { method: 'GET', endpoint: '/api/v1/forms', description: 'List all forms' },
+              { method: 'GET', endpoint: '/api/v1/forms/{formId}', description: 'Get form metadata' },
+              { method: 'GET', endpoint: '/api/v1/forms/{formId}/submissions', description: 'Get all submissions' },
+              { method: 'POST', endpoint: '/api/v1/forms/{formId}/submissions', description: 'Create a submission' },
+              { method: 'DELETE', endpoint: '/api/v1/webhooks/{webhookId}', description: 'Remove a webhook' }
+            ].map((endpoint, i) => (
+              <div key={i} className="flex items-center space-x-4 p-3 bg-background rounded-lg border border-border">
+                <span className={`px-2 py-1 rounded text-xs font-bold ${
+                  endpoint.method === 'GET' ? 'bg-blue-500/20 text-blue-500' :
+                  endpoint.method === 'POST' ? 'bg-emerald-500/20 text-emerald-500' :
+                  'bg-red-500/20 text-red-500'
+                }`}>
+                  {endpoint.method}
+                </span>
+                <code className="font-mono text-sm text-foreground flex-1">{endpoint.endpoint}</code>
+                <span className="text-sm text-muted-foreground">{endpoint.description}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Rate Limits */}
+        <div className="bg-muted/50 border border-border rounded-lg p-6">
+          <div className="flex items-center space-x-3 mb-4">
+            <Shield className="w-5 h-5 text-emerald-500" />
+            <h3 className="text-lg font-bold text-foreground">Rate Limits</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-background rounded-lg border border-border p-4">
+              <p className="text-3xl font-bold text-foreground">100</p>
+              <p className="text-sm text-muted-foreground">Requests per minute</p>
+            </div>
+            <div className="bg-background rounded-lg border border-border p-4">
+              <p className="text-3xl font-bold text-foreground">10,000</p>
+              <p className="text-sm text-muted-foreground">Requests per day</p>
+            </div>
+            <div className="bg-background rounded-lg border border-border p-4">
+              <p className="text-3xl font-bold text-foreground">150</p>
+              <p className="text-sm text-muted-foreground">Max submissions per request</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Code Example */}
+        <div className="bg-muted/50 border border-border rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <Code className="w-5 h-5 text-emerald-500" />
+              <h3 className="text-lg font-bold text-foreground">Quick Start</h3>
+            </div>
+            <button className="text-sm text-emerald-500 hover:text-emerald-400 transition-colors flex items-center space-x-1">
+              <Copy className="w-4 h-4" />
+              <span>Copy</span>
+            </button>
+          </div>
+          <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm font-mono">
+{`curl --request GET \\
+  --url https://api.revven.com/v1/api/forms \\
+  --header 'Authorization: Bearer YOUR_API_KEY'`}
+          </pre>
+        </div>
+      </div>
+    );
+  };
+
   const renderFormBuilder = () => (
     <div className="grid grid-cols-12 gap-4 h-[calc(100vh-200px)]">
       {/* Left Sidebar - Field Types */}
@@ -1068,21 +1679,23 @@ const Forms = () => {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex items-center space-x-1 mt-4">
+            <div className="flex items-center space-x-1 mt-4 overflow-x-auto">
               {[
                 { id: 'dashboard', label: 'Dashboard', icon: LayoutTemplate },
                 { id: 'create', label: 'Create', icon: Plus },
                 { id: 'templates', label: 'Templates', icon: Grid3x3 },
                 { id: 'submissions', label: 'Submissions', icon: Database },
                 { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-                { id: 'integrations', label: 'Integrations', icon: Link2 }
+                { id: 'integrations', label: 'Integrations', icon: Link2 },
+                { id: 'webhooks', label: 'Webhooks', icon: Webhook },
+                { id: 'developer', label: 'Developer', icon: Code }
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveView(tab.id)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap ${
                       activeView === tab.id
                         ? 'bg-emerald-500/20 text-emerald-600'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -1105,20 +1718,10 @@ const Forms = () => {
             {activeView === 'templates' && <TemplatesView />}
             {activeView === 'builder' && renderFormBuilder()}
             {activeView === 'integrations' && renderIntegrationsView()}
-            {activeView === 'submissions' && (
-              <div className="bg-muted/50 border border-border rounded-lg p-8 text-center">
-                <Database className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-foreground mb-2">Submissions View</h3>
-                <p className="text-muted-foreground">View and manage form submissions with advanced filtering</p>
-              </div>
-            )}
-            {activeView === 'analytics' && (
-              <div className="bg-muted/50 border border-border rounded-lg p-8 text-center">
-                <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-foreground mb-2">Analytics Dashboard</h3>
-                <p className="text-muted-foreground">Track form performance and conversion metrics</p>
-              </div>
-            )}
+            {activeView === 'submissions' && <SubmissionsView />}
+            {activeView === 'analytics' && <AnalyticsView />}
+            {activeView === 'webhooks' && <WebhooksView />}
+            {activeView === 'developer' && <DeveloperView />}
           </div>
         </div>
 
