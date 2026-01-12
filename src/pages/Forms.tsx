@@ -322,7 +322,7 @@ const Forms = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => setActiveView('create')}
-            className="group bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white rounded-lg p-6 transition-all duration-300 transform hover:scale-105"
+            className="group bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg p-6 transition-all duration-300 transform hover:scale-105"
           >
             <div className="flex items-center justify-between mb-3">
               <Plus className="w-8 h-8" />
@@ -334,7 +334,7 @@ const Forms = () => {
 
           <button
             onClick={() => setActiveView('templates')}
-            className="group bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white rounded-lg p-6 transition-all duration-300 transform hover:scale-105"
+            className="group bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-6 transition-all duration-300 transform hover:scale-105"
           >
             <div className="flex items-center justify-between mb-3">
               <LayoutTemplate className="w-8 h-8" />
@@ -346,7 +346,7 @@ const Forms = () => {
 
           <button
             onClick={() => setActiveView('integrations')}
-            className="group bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 text-white rounded-lg p-6 transition-all duration-300 transform hover:scale-105"
+            className="group bg-purple-500 hover:bg-purple-600 text-white rounded-lg p-6 transition-all duration-300 transform hover:scale-105"
           >
             <div className="flex items-center justify-between mb-3">
               <Link2 className="w-8 h-8" />
@@ -840,7 +840,7 @@ const Forms = () => {
           {/* Submit Button Preview */}
           {formBuilder.fields.length > 0 && (
             <div className="mt-8">
-              <button className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold py-4 rounded-lg transition-all duration-300 transform hover:scale-105">
+              <button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-lg transition-all duration-300 transform hover:scale-105">
                 Submit Form
               </button>
             </div>
@@ -1001,7 +1001,7 @@ const Forms = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 rounded-lg">
+                  <div className="bg-emerald-500 p-2 rounded-lg">
                     <FileText className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -1014,7 +1014,7 @@ const Forms = () => {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => setActiveView('create')}
-                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                 >
                   <Plus className="w-5 h-5" />
                   <span>New Form</span>
@@ -1109,7 +1109,7 @@ const Forms = () => {
                       setShowTemplateModal(false);
                       setActiveView('builder');
                     }}
-                    className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white px-6 py-4 rounded-lg font-bold transition-all duration-300 transform hover:scale-105"
+                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 rounded-lg font-bold transition-all duration-300 transform hover:scale-105"
                   >
                     Use This Template
                   </button>
