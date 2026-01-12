@@ -50,6 +50,7 @@ export const allApps: AppTab[] = [
   { id: 'lead-generation', label: 'Lead Generation', icon: Users, color: 'text-white', bgColor: 'bg-blue-700', path: '/lead-generation' },
   { id: 'ai-agents', label: 'AI Agents', icon: Bot, color: 'text-white', bgColor: 'bg-purple-600', path: '/ai-agents' },
   { id: 'versus', label: 'Versus', icon: Zap, color: 'text-white', bgColor: 'bg-orange-600', path: '/versus' },
+  { id: 'forms', label: 'Forms', icon: ClipboardList, color: 'text-white', bgColor: 'bg-indigo-600', path: '/forms' },
 ];
 
 interface AppTabsProps {
