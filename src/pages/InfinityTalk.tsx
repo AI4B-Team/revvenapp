@@ -2,13 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Music, Sparkles, Loader2, Play, Download, X, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Image as ImageIcon, Music, Sparkles, Loader2, Play, Download, X, AlertCircle, ArrowLeft, Upload, CheckCircle2, Film, Zap, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { useResizableTextarea } from '@/hooks/useResizableTextarea';
+import ResizeHandle from '@/components/ui/ResizeHandle';
 
 type TaskState = 'idle' | 'uploading' | 'generating' | 'success' | 'error';
 
@@ -17,6 +22,7 @@ const InfinityTalk = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imagePreview, setImagePreview] = useState('');
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -30,6 +36,12 @@ const InfinityTalk = () => {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { height: promptHeight, isResizing: isPromptResizing, handleResizeStart: handlePromptResizeStart } = useResizableTextarea({
+    minHeight: 120,
+    maxHeight: 400,
+    initialHeight: 150,
+  });
 
   useEffect(() => {
     return () => {
@@ -49,7 +61,10 @@ const InfinityTalk = () => {
       return;
     }
 
+    setSelectedImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
     setTaskState('uploading');
+    
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -61,11 +76,12 @@ const InfinityTalk = () => {
       if (error) throw error;
       
       setImageUrl(data.url);
-      setImagePreview(URL.createObjectURL(file));
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload image');
+      setSelectedImageFile(null);
+      setImagePreview('');
     } finally {
       setTaskState('idle');
     }
@@ -89,7 +105,9 @@ const InfinityTalk = () => {
         return;
       }
 
+      setAudioFile(file);
       setTaskState('uploading');
+      
       try {
         const formData = new FormData();
         formData.append('file', file);
@@ -101,15 +119,26 @@ const InfinityTalk = () => {
         if (error) throw error;
         
         setAudioUrl(data.url);
-        setAudioFile(file);
         toast.success('Audio uploaded successfully');
       } catch (error) {
         console.error('Upload error:', error);
         toast.error('Failed to upload audio');
+        setAudioFile(null);
       } finally {
         setTaskState('idle');
       }
     };
+  };
+
+  const handleRemoveImage = () => {
+    setImageUrl('');
+    setImagePreview('');
+    setSelectedImageFile(null);
+  };
+
+  const handleRemoveAudio = () => {
+    setAudioUrl('');
+    setAudioFile(null);
   };
 
   const pollTaskStatus = async (taskIdToCheck: string) => {
@@ -204,6 +233,7 @@ const InfinityTalk = () => {
   const handleReset = () => {
     setImageUrl('');
     setImagePreview('');
+    setSelectedImageFile(null);
     setAudioUrl('');
     setAudioFile(null);
     setPrompt('');
@@ -220,7 +250,8 @@ const InfinityTalk = () => {
   };
 
   const isGenerating = taskState === 'generating';
-  const canGenerate = imageUrl && audioUrl && prompt.trim() && !isGenerating;
+  const isUploading = taskState === 'uploading';
+  const canGenerate = imageUrl && audioUrl && prompt.trim() && !isGenerating && !isUploading;
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -323,135 +354,221 @@ const InfinityTalk = () => {
               </div>
             )}
 
-            {/* Unified Prompt Box */}
-            {!resultVideoUrl && taskState !== 'error' && (
-              <div className="rounded-xl border bg-card overflow-hidden">
-                {/* Hidden file inputs */}
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
-                />
-                <input
-                  ref={audioInputRef}
-                  type="file"
-                  accept="audio/mpeg,audio/wav,audio/x-wav,audio/aac,audio/mp4,audio/ogg"
-                  className="hidden"
-                  onChange={(e) => e.target.files?.[0] && handleAudioUpload(e.target.files[0])}
-                />
-
-                {/* Prompt Input */}
-                <div className="p-4">
-                  <Textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe the person and scene, e.g., 'A young woman with long dark hair talking on a podcast.'"
-                    disabled={isGenerating}
-                    className="min-h-[80px] resize-none border-0 p-0 focus-visible:ring-0 text-base"
-                    maxLength={5000}
+            {/* Main Prompt Box - Card Layout */}
+            {!resultVideoUrl && taskState !== 'error' && !isGenerating && (
+              <Card className="border-2 border-primary/20 shadow-2xl animate-fade-in overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-primary/20 transition-all duration-500">
+                <div className="absolute top-0 left-0 w-40 h-40 bg-gradient-to-bl from-violet-500/20 to-transparent rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-purple-500/10 to-transparent rounded-full blur-2xl" />
+                
+                <CardHeader className="relative pb-8 border-b border-border/50">
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
+                      <Film className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Create Talking Video</CardTitle>
+                      <CardDescription className="text-base mt-1">Make any face come alive with your audio</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="space-y-8 relative pt-8">
+                  {/* Hidden file inputs */}
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
                   />
-                </div>
+                  <input
+                    ref={audioInputRef}
+                    type="file"
+                    accept="audio/mpeg,audio/wav,audio/x-wav,audio/aac,audio/mp4,audio/ogg"
+                    className="hidden"
+                    onChange={(e) => e.target.files?.[0] && handleAudioUpload(e.target.files[0])}
+                  />
 
-                {/* Attachments & Controls */}
-                <div className="px-4 pb-4 flex flex-wrap items-center gap-3">
-                  {/* Image Preview/Upload */}
-                  {imagePreview ? (
-                    <div className="relative group">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-violet-500">
-                        <img src={imagePreview} alt="Face" className="w-full h-full object-cover" />
+                  {/* Face Image Upload */}
+                  <div className="space-y-3 group">
+                    <Label className="text-sm font-bold flex items-center gap-2 text-foreground">
+                      <ImageIcon className="w-4 h-4 text-violet-500 group-hover:animate-pulse" />
+                      Face Image
+                    </Label>
+                    {imagePreview ? (
+                      <div className="relative border-2 border-violet-500/50 rounded-lg p-4 bg-violet-500/5">
+                        <div className="flex items-start gap-4">
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="w-32 h-32 object-cover rounded-lg shadow-lg"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                Image selected
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleRemoveImage}
+                                disabled={isUploading}
+                                className="h-8 w-8 p-0 hover:bg-destructive/10"
+                              >
+                                <X className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {selectedImageFile?.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {selectedImageFile ? `${(selectedImageFile.size / 1024 / 1024).toFixed(2)} MB` : ''}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => {
-                          setImageUrl('');
-                          setImagePreview('');
-                        }}
-                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                    ) : (
+                      <div 
+                        onClick={() => imageInputRef.current?.click()}
+                        className="relative border-2 border-dashed border-border hover:border-violet-500/50 rounded-lg p-6 transition-all duration-300 hover:bg-violet-500/5 cursor-pointer group"
                       >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => imageInputRef.current?.click()}
-                      disabled={isGenerating}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed hover:bg-muted/50 transition text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
-                    >
-                      <ImageIcon className="w-4 h-4" />
-                      <span>Add Face</span>
-                    </button>
-                  )}
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <Upload className="w-8 h-8 text-muted-foreground group-hover:text-violet-500 transition-colors" />
+                          <p className="text-sm text-muted-foreground">Click to upload face image</p>
+                          <p className="text-xs text-muted-foreground">JPEG, PNG, WebP (max 10MB)</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-                  {/* Audio Preview/Upload */}
-                  {audioFile ? (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/30 group">
-                      <Music className="w-4 h-4 text-violet-500" />
-                      <span className="text-sm font-medium max-w-[120px] truncate">{audioFile.name}</span>
-                      <button
-                        onClick={() => {
-                          setAudioUrl('');
-                          setAudioFile(null);
-                        }}
-                        className="p-0.5 hover:bg-violet-500/20 rounded transition"
+                  {/* Audio Upload */}
+                  <div className="space-y-3 group">
+                    <Label className="text-sm font-bold flex items-center gap-2 text-foreground">
+                      <Music className="w-4 h-4 text-violet-500 group-hover:animate-pulse" />
+                      Audio File
+                    </Label>
+                    {audioFile ? (
+                      <div className="relative border-2 border-violet-500/50 rounded-lg p-4 bg-violet-500/5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-violet-500/20">
+                              <Music className="w-5 h-5 text-violet-500" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                <span className="text-sm font-semibold">{audioFile.name}</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {(audioFile.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleRemoveAudio}
+                            disabled={isUploading}
+                            className="h-8 w-8 p-0 hover:bg-destructive/10"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div 
+                        onClick={() => audioInputRef.current?.click()}
+                        className="relative border-2 border-dashed border-border hover:border-violet-500/50 rounded-lg p-6 transition-all duration-300 hover:bg-violet-500/5 cursor-pointer group"
                       >
-                        <X className="w-3 h-3" />
-                      </button>
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <Upload className="w-8 h-8 text-muted-foreground group-hover:text-violet-500 transition-colors" />
+                          <p className="text-sm text-muted-foreground">Click to upload audio</p>
+                          <p className="text-xs text-muted-foreground">MP3, WAV, AAC, OGG (max 15 seconds)</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Prompt/Description */}
+                  <div className="space-y-3 group">
+                    <Label className="text-sm font-bold flex items-center gap-2 text-foreground">
+                      <Wand2 className="w-4 h-4 text-violet-500 group-hover:animate-pulse" />
+                      Prompt / Description
+                    </Label>
+                    <div className="relative" style={{ height: promptHeight }}>
+                      <Textarea
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder="Describe the person and scene, e.g., 'A young woman with long dark hair talking on a podcast.'"
+                        disabled={isUploading}
+                        maxLength={5000}
+                        className="h-full text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-violet-500/30 border-2 hover:border-violet-500/50"
+                      />
+                      <ResizeHandle 
+                        onResizeStart={handlePromptResizeStart} 
+                        isResizing={isPromptResizing}
+                        variant="subtle"
+                      />
+                      {isPromptResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => audioInputRef.current?.click()}
-                      disabled={isGenerating}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed hover:bg-muted/50 transition text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
-                    >
-                      <Music className="w-4 h-4" />
-                      <span>Add Audio</span>
-                    </button>
-                  )}
+                    <p className="text-sm text-muted-foreground flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="w-3 h-3" />
+                        Describe how the character should appear and behave
+                      </span>
+                      <span className="text-xs">{prompt.length}/5000</span>
+                    </p>
+                  </div>
 
-                  {/* Resolution Select */}
-                  <Select value={resolution} onValueChange={(v) => setResolution(v as '480p' | '720p')} disabled={isGenerating}>
-                    <SelectTrigger className="w-auto h-9 text-sm gap-2">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="480p">480p</SelectItem>
-                      <SelectItem value="720p">720p</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {/* Spacer */}
-                  <div className="flex-1" />
-
-                  {/* Character count */}
-                  <span className="text-xs text-muted-foreground">{prompt.length}/5000</span>
+                  {/* Resolution */}
+                  <div className="space-y-3 group">
+                    <Label className="text-sm font-bold flex items-center gap-2 text-foreground">
+                      <Film className="w-4 h-4 text-violet-500 group-hover:animate-pulse" />
+                      Video Resolution
+                    </Label>
+                    <Select value={resolution} onValueChange={(v) => setResolution(v as '480p' | '720p')} disabled={isUploading}>
+                      <SelectTrigger className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-violet-500/30 border-2 hover:border-violet-500/50 bg-background">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-2 border-border shadow-xl z-[100]">
+                        <SelectItem value="480p" className="cursor-pointer hover:bg-accent">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">480p</span>
+                            <span className="text-xs text-muted-foreground">- Faster generation</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="720p" className="cursor-pointer hover:bg-accent">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">720p</span>
+                            <span className="text-xs text-muted-foreground">- Higher quality</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                   {/* Generate Button */}
-                  <Button
+                  <Button 
                     onClick={handleGenerate}
                     disabled={!canGenerate}
-                    className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+                    className="w-full h-14 text-lg font-bold shadow-2xl hover:shadow-violet-500/50 transition-all duration-300 gap-3 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:scale-[1.02] group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isGenerating ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        Uploading...
+                      </>
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Generate
+                        <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
+                        Generate Talking Video
+                        <Zap className="w-5 h-5" />
                       </>
                     )}
                   </Button>
-                </div>
-
-                {/* Helper text */}
-                {(!imageUrl || !audioUrl) && (
-                  <div className="px-4 pb-3 flex items-center gap-2 text-xs text-muted-foreground">
-                    <AlertCircle className="w-3 h-3" />
-                    {!imageUrl && !audioUrl ? 'Add a face image and audio (max 15s) to generate' : 
-                     !imageUrl ? 'Add a face image to continue' : 'Add audio (max 15 seconds) to continue'}
-                  </div>
-                )}
-              </div>
+                </CardContent>
+              </Card>
             )}
           </div>
         </main>
