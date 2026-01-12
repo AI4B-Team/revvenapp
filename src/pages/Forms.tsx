@@ -796,7 +796,7 @@ const Forms = () => {
             {filteredTemplates.map((template) => (
               <div
                 key={template.id}
-                className="group bg-muted/50 border border-border rounded-lg overflow-hidden hover:border-emerald-500/50 transition-all duration-300 cursor-pointer"
+                className="group bg-background border border-border rounded-lg overflow-hidden hover:border-emerald-500/50 transition-all duration-300 cursor-pointer shadow-sm"
                 onClick={() => {
                   setSelectedTemplate(template);
                   setShowTemplateModal(true);
