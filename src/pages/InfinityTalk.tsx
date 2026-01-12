@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Image as ImageIcon, Music, Sparkles, Loader2, Play, Download, X, AlertCircle, ArrowLeft, Upload, CheckCircle2, Film, Zap, Wand2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Image as ImageIcon, Music, Sparkles, Loader2, Play, Download, X, AlertCircle, ArrowLeft, Upload, Film, ChevronDown, Check, User, Mic, RatioIcon, LayoutGrid, Pause } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
@@ -32,15 +30,18 @@ const InfinityTalk = () => {
   const [resultVideoUrl, setResultVideoUrl] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isPlayingAudioPreview, setIsPlayingAudioPreview] = useState(false);
+  const [isHoveringAudioIcon, setIsHoveringAudioIcon] = useState(false);
   
   const imageInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
 
   const { height: promptHeight, isResizing: isPromptResizing, handleResizeStart: handlePromptResizeStart } = useResizableTextarea({
-    minHeight: 120,
-    maxHeight: 400,
-    initialHeight: 150,
+    minHeight: 100,
+    maxHeight: 300,
+    initialHeight: 120,
   });
 
   useEffect(() => {
@@ -76,7 +77,7 @@ const InfinityTalk = () => {
       if (error) throw error;
       
       setImageUrl(data.url);
-      toast.success('Image uploaded successfully');
+      toast.success('Image uploaded');
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload image');
@@ -119,7 +120,7 @@ const InfinityTalk = () => {
         if (error) throw error;
         
         setAudioUrl(data.url);
-        toast.success('Audio uploaded successfully');
+        toast.success('Audio uploaded');
       } catch (error) {
         console.error('Upload error:', error);
         toast.error('Failed to upload audio');
@@ -139,6 +140,8 @@ const InfinityTalk = () => {
   const handleRemoveAudio = () => {
     setAudioUrl('');
     setAudioFile(null);
+    audioPreviewRef.current?.pause();
+    setIsPlayingAudioPreview(false);
   };
 
   const pollTaskStatus = async (taskIdToCheck: string) => {
@@ -354,221 +357,225 @@ const InfinityTalk = () => {
               </div>
             )}
 
-            {/* Main Prompt Box - Card Layout */}
+            {/* Main Prompt Box - Same Style as Video in Create Page */}
             {!resultVideoUrl && taskState !== 'error' && !isGenerating && (
-              <Card className="border-2 border-primary/20 shadow-2xl animate-fade-in overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-primary/20 transition-all duration-500">
-                <div className="absolute top-0 left-0 w-40 h-40 bg-gradient-to-bl from-violet-500/20 to-transparent rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-purple-500/10 to-transparent rounded-full blur-2xl" />
-                
-                <CardHeader className="relative pb-8 border-b border-border/50">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
-                      <Film className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Create Talking Video</CardTitle>
-                      <CardDescription className="text-base mt-1">Make any face come alive with your audio</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="space-y-8 relative pt-8">
-                  {/* Hidden file inputs */}
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
-                  />
-                  <input
-                    ref={audioInputRef}
-                    type="file"
-                    accept="audio/mpeg,audio/wav,audio/x-wav,audio/aac,audio/mp4,audio/ogg"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.[0] && handleAudioUpload(e.target.files[0])}
-                  />
+              <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
+                {/* Hidden file inputs */}
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
+                />
+                <input
+                  ref={audioInputRef}
+                  type="file"
+                  accept="audio/mpeg,audio/wav,audio/x-wav,audio/aac,audio/mp4,audio/ogg"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && handleAudioUpload(e.target.files[0])}
+                />
 
-                  {/* Face Image Upload */}
-                  <div className="space-y-3 group">
-                    <Label className="text-sm font-bold flex items-center gap-2 text-foreground">
-                      <ImageIcon className="w-4 h-4 text-violet-500 group-hover:animate-pulse" />
-                      Face Image
-                    </Label>
-                    {imagePreview ? (
-                      <div className="relative border-2 border-violet-500/50 rounded-lg p-4 bg-violet-500/5">
-                        <div className="flex items-start gap-4">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="w-32 h-32 object-cover rounded-lg shadow-lg"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                Image selected
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleRemoveImage}
-                                disabled={isUploading}
-                                className="h-8 w-8 p-0 hover:bg-destructive/10"
-                              >
-                                <X className="w-4 h-4 text-destructive" />
-                              </Button>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {selectedImageFile?.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {selectedImageFile ? `${(selectedImageFile.size / 1024 / 1024).toFixed(2)} MB` : ''}
-                            </p>
+                {/* Attachments Above Textarea */}
+                {(imagePreview || audioFile) && (
+                  <div className="px-4 pt-4 flex items-center gap-3 flex-wrap">
+                    {/* Image Preview */}
+                    {imagePreview && (
+                      <div className="relative group">
+                        <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-violet-500 bg-muted">
+                          <img src={imagePreview} alt="Face" className="w-full h-full object-cover" />
+                        </div>
+                        <button
+                          onClick={handleRemoveImage}
+                          className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Audio Preview */}
+                    {audioFile && (
+                      <div 
+                        className="flex items-center gap-2 bg-secondary/80 rounded-xl px-3 py-1.5 group"
+                        onMouseEnter={() => setIsHoveringAudioIcon(true)}
+                        onMouseLeave={() => setIsHoveringAudioIcon(false)}
+                      >
+                        <div 
+                          className="w-8 h-8 bg-violet-500 rounded-full flex items-center justify-center cursor-pointer relative overflow-hidden flex-shrink-0"
+                          onClick={() => {
+                            if (isPlayingAudioPreview) {
+                              audioPreviewRef.current?.pause();
+                              setIsPlayingAudioPreview(false);
+                            } else {
+                              if (!audioPreviewRef.current && audioUrl) {
+                                audioPreviewRef.current = new Audio(audioUrl);
+                                audioPreviewRef.current.onended = () => setIsPlayingAudioPreview(false);
+                              }
+                              audioPreviewRef.current?.play();
+                              setIsPlayingAudioPreview(true);
+                            }
+                          }}
+                        >
+                          <Music size={14} className={`text-white transition ${isHoveringAudioIcon ? 'opacity-30' : 'opacity-100'}`} />
+                          <div className={`absolute inset-0 flex items-center justify-center transition ${isHoveringAudioIcon ? 'opacity-100' : 'opacity-0'}`}>
+                            {isPlayingAudioPreview ? (
+                              <Pause size={12} className="text-white" />
+                            ) : (
+                              <Play size={12} className="text-white ml-0.5" />
+                            )}
                           </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div 
-                        onClick={() => imageInputRef.current?.click()}
-                        className="relative border-2 border-dashed border-border hover:border-violet-500/50 rounded-lg p-6 transition-all duration-300 hover:bg-violet-500/5 cursor-pointer group"
-                      >
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <Upload className="w-8 h-8 text-muted-foreground group-hover:text-violet-500 transition-colors" />
-                          <p className="text-sm text-muted-foreground">Click to upload face image</p>
-                          <p className="text-xs text-muted-foreground">JPEG, PNG, WebP (max 10MB)</p>
-                        </div>
+                        <span className="text-sm font-medium text-foreground max-w-32 truncate">
+                          {audioFile.name}
+                        </span>
+                        <button
+                          onClick={handleRemoveAudio}
+                          className="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition opacity-0 group-hover:opacity-100"
+                        >
+                          <X size={14} className="text-muted-foreground hover:text-red-500" />
+                        </button>
                       </div>
                     )}
                   </div>
+                )}
 
-                  {/* Audio Upload */}
-                  <div className="space-y-3 group">
-                    <Label className="text-sm font-bold flex items-center gap-2 text-foreground">
-                      <Music className="w-4 h-4 text-violet-500 group-hover:animate-pulse" />
-                      Audio File
-                    </Label>
-                    {audioFile ? (
-                      <div className="relative border-2 border-violet-500/50 rounded-lg p-4 bg-violet-500/5">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-violet-500/20">
-                              <Music className="w-5 h-5 text-violet-500" />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                <span className="text-sm font-semibold">{audioFile.name}</span>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {(audioFile.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleRemoveAudio}
+                {/* Textarea */}
+                <div className="px-4 pt-4 relative" style={{ height: promptHeight }}>
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe the person and scene, e.g., 'A young woman with long dark hair talking on a podcast.'"
+                    disabled={isUploading}
+                    maxLength={5000}
+                    className="w-full h-full bg-transparent text-foreground text-sm placeholder:text-muted-foreground resize-none focus:outline-none"
+                  />
+                  <ResizeHandle 
+                    onResizeStart={handlePromptResizeStart} 
+                    isResizing={isPromptResizing}
+                    variant="subtle"
+                  />
+                  {isPromptResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
+                </div>
+
+                {/* Bottom Controls Bar */}
+                <div className="px-4 pb-4 pt-2 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <TooltipProvider delayDuration={100}>
+                      {/* Face Image Button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => imageInputRef.current?.click()}
                             disabled={isUploading}
-                            className="h-8 w-8 p-0 hover:bg-destructive/10"
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                              imageUrl ? 'bg-violet-500/15 text-violet-600 dark:text-violet-400' : 'bg-secondary text-muted-foreground'
+                            }`}
                           >
-                            <X className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div 
-                        onClick={() => audioInputRef.current?.click()}
-                        className="relative border-2 border-dashed border-border hover:border-violet-500/50 rounded-lg p-6 transition-all duration-300 hover:bg-violet-500/5 cursor-pointer group"
-                      >
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <Upload className="w-8 h-8 text-muted-foreground group-hover:text-violet-500 transition-colors" />
-                          <p className="text-sm text-muted-foreground">Click to upload audio</p>
-                          <p className="text-xs text-muted-foreground">MP3, WAV, AAC, OGG (max 15 seconds)</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                            <User size={16} />
+                            {imageUrl && <span className="text-xs">Face</span>}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          <p>Face Image</p>
+                        </TooltipContent>
+                      </Tooltip>
 
-                  {/* Prompt/Description */}
-                  <div className="space-y-3 group">
-                    <Label className="text-sm font-bold flex items-center gap-2 text-foreground">
-                      <Wand2 className="w-4 h-4 text-violet-500 group-hover:animate-pulse" />
-                      Prompt / Description
-                    </Label>
-                    <div className="relative" style={{ height: promptHeight }}>
-                      <Textarea
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        placeholder="Describe the person and scene, e.g., 'A young woman with long dark hair talking on a podcast.'"
-                        disabled={isUploading}
-                        maxLength={5000}
-                        className="h-full text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-violet-500/30 border-2 hover:border-violet-500/50"
-                      />
-                      <ResizeHandle 
-                        onResizeStart={handlePromptResizeStart} 
-                        isResizing={isPromptResizing}
-                        variant="subtle"
-                      />
-                      {isPromptResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
-                    </div>
-                    <p className="text-sm text-muted-foreground flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <Sparkles className="w-3 h-3" />
-                        Describe how the character should appear and behave
-                      </span>
-                      <span className="text-xs">{prompt.length}/5000</span>
-                    </p>
-                  </div>
+                      {/* Audio Button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => audioInputRef.current?.click()}
+                            disabled={isUploading}
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                              audioUrl ? 'bg-violet-500/15 text-violet-600 dark:text-violet-400' : 'bg-secondary text-muted-foreground'
+                            }`}
+                          >
+                            <Mic size={16} />
+                            {audioUrl && <span className="text-xs">Audio</span>}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          <p>Audio (max 15s)</p>
+                        </TooltipContent>
+                      </Tooltip>
 
-                  {/* Resolution */}
-                  <div className="space-y-3 group">
-                    <Label className="text-sm font-bold flex items-center gap-2 text-foreground">
-                      <Film className="w-4 h-4 text-violet-500 group-hover:animate-pulse" />
-                      Video Resolution
-                    </Label>
-                    <Select value={resolution} onValueChange={(v) => setResolution(v as '480p' | '720p')} disabled={isUploading}>
-                      <SelectTrigger className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-violet-500/30 border-2 hover:border-violet-500/50 bg-background">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border-2 border-border shadow-xl z-[100]">
-                        <SelectItem value="480p" className="cursor-pointer hover:bg-accent">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">480p</span>
-                            <span className="text-xs text-muted-foreground">- Faster generation</span>
+                      <div className="w-px h-6 bg-border mx-1" />
+
+                      {/* Resolution Dropdown */}
+                      <Popover>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                resolution !== '480p' ? 'bg-violet-500/15 text-violet-600 dark:text-violet-400' : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                <RatioIcon size={16} />
+                                {resolution}
+                                <ChevronDown size={14} />
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <p>Resolution</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <PopoverContent className="w-48 bg-background border-border z-50 p-2" align="start">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setResolution('480p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${
+                                resolution === '480p' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <span>480p <span className="text-xs text-muted-foreground">- Faster</span></span>
+                              {resolution === '480p' && <Check size={14} className="text-violet-500" />}
+                            </button>
+                            <button 
+                              onClick={() => setResolution('720p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${
+                                resolution === '720p' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <span>720p <span className="text-xs text-muted-foreground">- Higher quality</span></span>
+                              {resolution === '720p' && <Check size={14} className="text-violet-500" />}
+                            </button>
                           </div>
-                        </SelectItem>
-                        <SelectItem value="720p" className="cursor-pointer hover:bg-accent">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">720p</span>
-                            <span className="text-xs text-muted-foreground">- Higher quality</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                        </PopoverContent>
+                      </Popover>
+                    </TooltipProvider>
                   </div>
 
-                  {/* Generate Button */}
-                  <Button 
-                    onClick={handleGenerate}
-                    disabled={!canGenerate}
-                    className="w-full h-14 text-lg font-bold shadow-2xl hover:shadow-violet-500/50 transition-all duration-300 gap-3 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:scale-[1.02] group disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="w-6 h-6 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
-                        Generate Talking Video
-                        <Zap className="w-5 h-5" />
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
+                  {/* Right Side - Character count and Generate Button */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground">{prompt.length}/5000</span>
+                    <Button
+                      onClick={handleGenerate}
+                      disabled={!canGenerate}
+                      size="sm"
+                      className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 gap-2"
+                    >
+                      {isUploading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          Generate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Helper text when missing inputs */}
+                {(!imageUrl || !audioUrl) && (
+                  <div className="px-4 pb-3 flex items-center gap-2 text-xs text-muted-foreground border-t border-border/50 pt-3">
+                    <AlertCircle className="w-3 h-3" />
+                    {!imageUrl && !audioUrl ? 'Add a face image and audio (max 15s) to generate' : 
+                     !imageUrl ? 'Add a face image to continue' : 'Add audio (max 15 seconds) to continue'}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </main>
