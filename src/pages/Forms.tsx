@@ -46,7 +46,7 @@ interface Template {
 interface Integration {
   id: string;
   name: string;
-  icon: string;
+  icon: React.ReactNode;
   connected: boolean;
 }
 
@@ -227,15 +227,50 @@ const Forms = () => {
     }
   ];
 
+  // Brand logo components
+  const GoogleDriveIcon = () => (
+    <svg viewBox="0 0 87.3 78" className="w-6 h-6">
+      <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066DA"/>
+      <path d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L1.2 52.35c-.8 1.4-1.2 2.95-1.2 4.5h27.5L43.65 25z" fill="#00AC47"/>
+      <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.85l5.8 10.6 7.9 13.2z" fill="#EA4335"/>
+      <path d="M43.65 25L57.4 1.2c-1.35-.8-2.9-1.2-4.5-1.2H34.35c-1.6 0-3.15.45-4.5 1.2L43.65 25z" fill="#00832D"/>
+      <path d="M59.85 53H27.5l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.85c1.6 0 3.15-.45 4.5-1.2L59.85 53z" fill="#2684FC"/>
+      <path d="M73.4 26.5L60.1 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.2 28h27.45c0-1.55-.4-3.1-1.2-4.5l-12.7-22z" fill="#FFBA00"/>
+    </svg>
+  );
+
+  const NotionIcon = () => (
+    <svg viewBox="0 0 100 100" className="w-6 h-6">
+      <path d="M6.017 4.313l55.333-4.087c6.797-.583 8.543-.19 12.817 2.917l17.663 12.443c2.913 2.14 3.883 2.723 3.883 5.053v68.243c0 4.277-1.553 6.807-6.99 7.193L24.467 99.967c-4.08.193-6.023-.39-8.16-3.113L3.3 79.94c-2.333-3.113-3.3-5.443-3.3-8.167V11.113c0-3.497 1.553-6.413 6.017-6.8z" fill="#fff"/>
+      <path fillRule="evenodd" clipRule="evenodd" d="M61.35.227l-55.333 4.087C1.553 4.7 0 7.617 0 11.113v60.66c0 2.723.967 5.053 3.3 8.167l13.007 16.913c2.137 2.723 4.08 3.307 8.16 3.113l64.257-3.89c5.433-.387 6.99-2.917 6.99-7.193V20.64c0-2.21-.873-2.847-3.443-4.733L75.5 3.397c-4.273-3.107-6.02-3.5-12.15-3.17zM25.92 19.523c-5.247.353-6.437.433-9.417-1.99L8.927 11.507c-.77-.78-.383-1.753 1.557-1.947l53.193-3.887c4.467-.39 6.793 1.167 8.54 2.527l9.123 6.61c.39.197 1.36 1.36.193 1.36l-54.933 3.307-.68.047zM19.803 88.3V30.367c0-2.53.777-3.697 3.103-3.893L86 22.78c2.14-.193 3.107 1.167 3.107 3.693v57.547c0 2.53-.39 4.67-3.883 4.863l-60.377 3.5c-3.493.193-5.043-.97-5.043-4.083zm59.6-54.827c.387 1.75 0 3.5-1.75 3.7l-2.917.553v42.773c-2.527 1.36-4.853 2.137-6.797 2.137-3.107 0-3.883-.977-6.21-3.887l-19.03-29.94v28.967l6.02 1.363s0 3.5-4.857 3.5l-13.39.777c-.39-.78 0-2.723 1.357-3.11l3.497-.97v-38.3L30.48 40.667c-.39-1.75.58-4.277 3.3-4.473l14.367-.967 19.8 30.327V37.943l-5.047-.583c-.39-2.143 1.163-3.7 3.103-3.89l13.4-.78z" fill="#000"/>
+    </svg>
+  );
+
+  const GoogleSheetsIcon = () => (
+    <svg viewBox="0 0 48 48" className="w-6 h-6">
+      <path fill="#43a047" d="M37 45H11c-2.2 0-4-1.8-4-4V7c0-2.2 1.8-4 4-4h19l11 11v27c0 2.2-1.8 4-4 4z"/>
+      <path fill="#c8e6c9" d="M40 14H30V4z"/>
+      <path fill="#2e7d32" d="M30 14l10 10V14z"/>
+      <path fill="#e8f5e9" d="M31 23H17v16h14V23zm-12 2h4v3h-4v-3zm0 5h4v3h-4v-3zm0 5h4v2h-4v-2zm6-10h4v3h-4v-3zm0 5h4v3h-4v-3zm0 5h4v2h-4v-2z"/>
+    </svg>
+  );
+
+  const HubSpotIcon = () => (
+    <svg viewBox="0 0 512 512" className="w-6 h-6">
+      <path fill="#ff7a59" d="M267.4 211.6c-3.5-4.5-5.9-9.7-7.1-15.3-1.2-5.6-1.2-11.3-.1-16.9 1.1-5.6 3.4-10.8 6.7-15.3 3.3-4.5 7.5-8.2 12.3-10.9v-40.8c0-9.3-7.5-16.8-16.8-16.8H97.2c-9.3 0-16.8 7.5-16.8 16.8v165.3c0 9.3 7.5 16.8 16.8 16.8h165.3c9.3 0 16.8-7.5 16.8-16.8V222.5c-4.9-2.7-9.1-6.4-12.3-10.9zm88.2-5.4c-6.6 0-11.9-5.3-11.9-11.9v-28.8c0-6.6 5.3-11.9 11.9-11.9 6.6 0 11.9 5.3 11.9 11.9v28.8c0 6.6-5.3 11.9-11.9 11.9zm47.1 47.1c0 6.6-5.3 11.9-11.9 11.9h-28.8c-6.6 0-11.9-5.3-11.9-11.9 0-6.6 5.3-11.9 11.9-11.9h28.8c6.6 0 11.9 5.3 11.9 11.9z"/>
+      <circle cx="355.6" cy="253.3" r="35.8" fill="#ff7a59"/>
+    </svg>
+  );
+
   const integrations: Integration[] = [
-    { id: 'google-sheets', name: 'Google Sheets', icon: '📊', connected: true },
-    { id: 'notion', name: 'Notion', icon: '📝', connected: false },
-    { id: 'hubspot', name: 'HubSpot', icon: '🎯', connected: true },
-    { id: 'mailchimp', name: 'Mailchimp', icon: '📧', connected: false },
-    { id: 'slack', name: 'Slack', icon: '💬', connected: true },
-    { id: 'zapier', name: 'Zapier', icon: '⚡', connected: true },
-    { id: 'stripe', name: 'Stripe', icon: '💳', connected: false },
-    { id: 'paypal', name: 'PayPal', icon: '💰', connected: false }
+    { id: 'google-drive', name: 'Google Drive', icon: <GoogleDriveIcon />, connected: true },
+    { id: 'notion', name: 'Notion', icon: <NotionIcon />, connected: false },
+    { id: 'google-sheets', name: 'Google Sheets', icon: <GoogleSheetsIcon />, connected: true },
+    { id: 'hubspot', name: 'HubSpot', icon: <HubSpotIcon />, connected: true },
+    { id: 'slack', name: 'Slack', icon: <span className="text-xl">💬</span>, connected: true },
+    { id: 'zapier', name: 'Zapier', icon: <span className="text-xl">⚡</span>, connected: true },
+    { id: 'stripe', name: 'Stripe', icon: <span className="text-xl">💳</span>, connected: false },
+    { id: 'paypal', name: 'PayPal', icon: <span className="text-xl">💰</span>, connected: false }
   ];
 
   const dashboardStats = {
