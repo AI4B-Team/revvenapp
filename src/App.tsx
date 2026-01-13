@@ -86,6 +86,7 @@ const NewArticle = lazy(() => import("./pages/NewArticle"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Forms = lazy(() => import("./pages/Forms"));
 const InfinityTalk = lazy(() => import("./pages/InfinityTalk"));
+const Signature = lazy(() => import("./pages/Signature"));
 
 // Admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -172,6 +173,7 @@ const App = () => (
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/forms" element={<Forms />} />
                 <Route path="/infinity-talk" element={<InfinityTalk />} />
+                <Route path="/signature" element={<Signature />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
