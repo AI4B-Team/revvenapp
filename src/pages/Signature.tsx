@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Plus, FileText, Send, Clock, CheckCircle, XCircle, AlertCircle, 
   Search, Filter, Download, Upload, Edit3, Eye, Trash2, Copy,
@@ -9,7 +9,7 @@ import {
   Clock4, Bell, Zap, BarChart3, TrendingUp, FileCheck, AlertTriangle,
   History, Share2, Lock, Unlock, Globe, Building2, UserCheck,
   Layers, Move, RotateCw, ZoomIn, ZoomOut, Undo, Redo,
-  ArrowUpRight, Sparkles
+  ArrowUpRight, Sparkles, Command
 } from 'lucide-react';
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -233,9 +233,24 @@ const folders: Folder[] = [
   { id: 'archived', name: 'Archived', count: 45, color: 'bg-gray-500' }
 ];
 
+// Signature field interface
+interface SignatureField {
+  id: string;
+  type: 'signature' | 'initials' | 'date' | 'text' | 'checkbox';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  page: number;
+  signed: boolean;
+  signatureData?: string;
+  label?: string;
+  required: boolean;
+}
+
 const Signature = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [activeView, setActiveView] = useState<'dashboard' | 'documents' | 'templates' | 'editor' | 'settings'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'documents' | 'templates' | 'editor' | 'signing' | 'settings'>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [selectedFolder, setSelectedFolder] = useState('all');
@@ -243,6 +258,21 @@ const Signature = () => {
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  
+  // Signing state
+  const [signatureFields, setSignatureFields] = useState<SignatureField[]>([
+    { id: 'sig1', type: 'signature', x: 100, y: 200, width: 200, height: 60, page: 1, signed: false, label: 'Signer 1 Signature', required: true },
+    { id: 'sig2', type: 'signature', x: 450, y: 200, width: 200, height: 60, page: 1, signed: false, label: 'Signer 2 Signature', required: true },
+    { id: 'sig3', type: 'initials', x: 100, y: 350, width: 80, height: 40, page: 1, signed: false, label: 'Initials', required: true },
+    { id: 'date1', type: 'date', x: 200, y: 350, width: 120, height: 30, page: 1, signed: false, label: 'Date', required: true },
+  ]);
+  const [activeSignatureField, setActiveSignatureField] = useState<string | null>(null);
+  const [showAutoFillPrompt, setShowAutoFillPrompt] = useState(false);
+  const [currentSignature, setCurrentSignature] = useState<string | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const signaturePadRef = useRef<HTMLCanvasElement>(null);
 
   // Dashboard stats
   const stats = {
@@ -306,6 +336,92 @@ const Signature = () => {
 
   const handleResend = (requestId: string) => {
     toast.success("Request resent to recipients");
+  };
+
+  // Signature handling functions
+  const getUnsignedSignatureFields = () => {
+    return signatureFields.filter(f => f.type === 'signature' && !f.signed);
+  };
+
+  const handleSignatureFieldClick = (fieldId: string) => {
+    const field = signatureFields.find(f => f.id === fieldId);
+    if (field && !field.signed && (field.type === 'signature' || field.type === 'initials')) {
+      setActiveSignatureField(fieldId);
+      setShowSignaturePad(true);
+    } else if (field && field.type === 'date' && !field.signed) {
+      // Auto-fill date
+      const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+      setSignatureFields(prev => prev.map(f => 
+        f.id === fieldId ? { ...f, signed: true, signatureData: today } : f
+      ));
+      toast.success("Date filled");
+    }
+  };
+
+  const handleSignatureComplete = (signatureData: string) => {
+    if (!activeSignatureField) return;
+    
+    const field = signatureFields.find(f => f.id === activeSignatureField);
+    
+    setSignatureFields(prev => prev.map(f => 
+      f.id === activeSignatureField ? { ...f, signed: true, signatureData } : f
+    ));
+    
+    setCurrentSignature(signatureData);
+    setShowSignaturePad(false);
+    
+    // Check if there are other unsigned signature fields
+    const unsignedFields = signatureFields.filter(f => 
+      f.id !== activeSignatureField && 
+      f.type === 'signature' && 
+      !f.signed
+    );
+    
+    if (unsignedFields.length > 0) {
+      setShowAutoFillPrompt(true);
+    } else {
+      toast.success("Signed!");
+    }
+    
+    setActiveSignatureField(null);
+  };
+
+  const handleAutoFillAllSignatures = useCallback(() => {
+    if (!currentSignature) return;
+    
+    setSignatureFields(prev => prev.map(f => 
+      f.type === 'signature' && !f.signed 
+        ? { ...f, signed: true, signatureData: currentSignature } 
+        : f
+    ));
+    
+    setShowAutoFillPrompt(false);
+    toast.success("All signature fields filled!");
+  }, [currentSignature]);
+
+  const handleDeclineAutoFill = () => {
+    setShowAutoFillPrompt(false);
+    toast.success("Signed!");
+  };
+
+  // Keyboard shortcut for auto-fill (Cmd/Ctrl + Enter)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (showAutoFillPrompt && (e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleAutoFillAllSignatures();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAutoFillPrompt, handleAutoFillAllSignatures]);
+
+  const clearSignature = (fieldId: string) => {
+    setSignatureFields(prev => prev.map(f => 
+      f.id === fieldId ? { ...f, signed: false, signatureData: undefined } : f
+    ));
+    toast.success("Signature cleared");
   };
 
   // Dashboard View
@@ -995,6 +1111,253 @@ const Signature = () => {
     </div>
   );
 
+  // Signing View with Auto-Fill Feature
+  const renderSigningView = () => {
+    const signedCount = signatureFields.filter(f => f.signed).length;
+    const totalRequired = signatureFields.filter(f => f.required).length;
+    
+    return (
+      <div className="space-y-4">
+        {/* Signing Header */}
+        <div className="flex items-center justify-between bg-card/50 border border-border/50 rounded-xl p-4">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setActiveView('documents')}
+              className="text-muted-foreground"
+            >
+              <X className="w-4 h-4 mr-1" /> Cancel
+            </Button>
+            <div>
+              <h3 className="font-medium text-foreground">Employment Agreement - John Smith</h3>
+              <p className="text-sm text-muted-foreground">
+                {signedCount} of {totalRequired} required fields completed
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="border-border/50">
+              <Download className="w-4 h-4 mr-2" /> Download
+            </Button>
+            <Button 
+              className="bg-primary hover:bg-primary/90"
+              disabled={signedCount < totalRequired}
+            >
+              <Check className="w-4 h-4 mr-2" /> Finish Signing
+            </Button>
+          </div>
+        </div>
+
+        {/* Document Canvas with Signature Fields */}
+        <div className="relative bg-card/50 border border-border/50 rounded-xl overflow-hidden">
+          {/* Document simulation */}
+          <div className="bg-white p-12 min-h-[800px] relative mx-auto max-w-[850px] shadow-lg">
+            {/* Sample document content */}
+            <div className="text-gray-800">
+              <h1 className="text-2xl font-bold text-center mb-8 text-gray-900">EMPLOYMENT AGREEMENT</h1>
+              
+              <p className="mb-4 text-sm leading-relaxed text-gray-700">
+                This Employment Agreement ("Agreement") is entered into as of the date last signed below, by and between 
+                ABC Corporation ("Company") and the undersigned employee ("Employee").
+              </p>
+              
+              <p className="mb-4 text-sm leading-relaxed text-gray-700">
+                WHEREAS, the Company desires to employ the Employee, and the Employee desires to be employed by the Company, 
+                subject to the terms and conditions set forth herein;
+              </p>
+              
+              <p className="mb-4 text-sm leading-relaxed text-gray-700">
+                NOW, THEREFORE, in consideration of the mutual covenants and agreements hereinafter set forth and for other 
+                good and valuable consideration, the receipt and sufficiency of which are hereby acknowledged, the parties 
+                agree as follows...
+              </p>
+
+              <p className="mt-8 mb-2 text-sm font-semibold text-gray-900">
+                I have read and agree to the terms and conditions set forth above:
+              </p>
+            </div>
+
+            {/* Signature Fields */}
+            <div className="mt-8 grid grid-cols-2 gap-8">
+              {/* Left column - Signer 1 */}
+              <div className="space-y-4">
+                <div className="relative">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Name: <span className="font-normal">DOLMAR ANTOINE CROSS</span></p>
+                </div>
+                
+                {/* Signature Field 1 */}
+                <div className="relative">
+                  <p className="text-sm font-medium text-gray-700 mb-1">Signature:</p>
+                  <div 
+                    onClick={() => handleSignatureFieldClick('sig1')}
+                    className={`relative border-b-2 border-gray-400 h-16 flex items-end justify-start cursor-pointer transition-all group ${
+                      signatureFields.find(f => f.id === 'sig1')?.signed 
+                        ? 'bg-transparent' 
+                        : 'hover:bg-blue-50/50'
+                    }`}
+                  >
+                    {signatureFields.find(f => f.id === 'sig1')?.signed ? (
+                      <>
+                        <img 
+                          src={signatureFields.find(f => f.id === 'sig1')?.signatureData} 
+                          alt="Signature" 
+                          className="h-14 object-contain"
+                        />
+                        {/* Signed badge with delete option */}
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1">
+                          <span className="bg-gray-700 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                            Signed
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); clearSignature('sig1'); }}
+                              className="hover:bg-white/20 rounded p-0.5"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <span className="text-blue-500 text-sm mb-2 group-hover:underline">Click to sign</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <p className="text-sm font-medium text-gray-700">Title: <span className="font-normal">Owner</span></p>
+                </div>
+                
+                {/* Date Field */}
+                <div className="relative">
+                  <p className="text-sm font-medium text-gray-700 mb-1">Date:</p>
+                  <div 
+                    onClick={() => handleSignatureFieldClick('date1')}
+                    className={`border-b-2 border-gray-400 h-8 flex items-end cursor-pointer ${
+                      signatureFields.find(f => f.id === 'date1')?.signed 
+                        ? '' 
+                        : 'hover:bg-blue-50/50'
+                    }`}
+                  >
+                    {signatureFields.find(f => f.id === 'date1')?.signed ? (
+                      <span className="text-gray-800 mb-1">{signatureFields.find(f => f.id === 'date1')?.signatureData}</span>
+                    ) : (
+                      <span className="text-blue-500 text-sm mb-1">Click to fill date</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right column - Signer 2 */}
+              <div className="space-y-4">
+                <div className="relative">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Name: <span className="font-normal border-b border-gray-400 inline-block w-48"></span></p>
+                </div>
+                
+                {/* Signature Field 2 */}
+                <div className="relative">
+                  <p className="text-sm font-medium text-gray-700 mb-1">Signature:</p>
+                  <div 
+                    onClick={() => handleSignatureFieldClick('sig2')}
+                    className={`relative border-b-2 border-gray-400 h-16 flex items-end justify-start cursor-pointer transition-all group ${
+                      signatureFields.find(f => f.id === 'sig2')?.signed 
+                        ? 'bg-transparent' 
+                        : 'hover:bg-blue-50/50'
+                    }`}
+                  >
+                    {signatureFields.find(f => f.id === 'sig2')?.signed ? (
+                      <>
+                        <img 
+                          src={signatureFields.find(f => f.id === 'sig2')?.signatureData} 
+                          alt="Signature" 
+                          className="h-14 object-contain"
+                        />
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1">
+                          <span className="bg-gray-700 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                            Signed
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); clearSignature('sig2'); }}
+                              className="hover:bg-white/20 rounded p-0.5"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <span className="text-blue-500 text-sm mb-2 group-hover:underline">Click to sign</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <p className="text-sm font-medium text-gray-700">Title: <span className="font-normal border-b border-gray-400 inline-block w-48"></span></p>
+                </div>
+                
+                <div className="relative">
+                  <p className="text-sm font-medium text-gray-700">Date: <span className="font-normal border-b border-gray-400 inline-block w-32"></span></p>
+                </div>
+              </div>
+            </div>
+
+            {/* Auto-fill prompt */}
+            {showAutoFillPrompt && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+                <div className="bg-white rounded-lg shadow-2xl border border-gray-200 p-4 flex items-center gap-4 animate-in fade-in zoom-in duration-200">
+                  <div className="text-left">
+                    <p className="font-semibold text-blue-600 text-sm uppercase tracking-wide">AUTO-FILL ALL SIGNATURES</p>
+                    <p className="text-gray-600 text-sm flex items-center gap-1">
+                      Press <kbd className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono border">Command</kbd> + <kbd className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono border">Enter</kbd> to fill out
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={handleDeclineAutoFill}
+                      className="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                    >
+                      <X className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <button 
+                      onClick={handleAutoFillAllSignatures}
+                      className="w-10 h-10 rounded-lg bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-colors"
+                    >
+                      <Check className="w-5 h-5 text-white" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Page number */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-gray-400 text-sm">1</div>
+          </div>
+        </div>
+
+        {/* Signature Pad Modal */}
+        {showSignaturePad && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-2xl w-full max-w-lg">
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <h3 className="font-semibold text-foreground">Draw Your Signature</h3>
+                <button 
+                  onClick={() => { setShowSignaturePad(false); setActiveSignatureField(null); }}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6">
+                <SignaturePad 
+                  onComplete={handleSignatureComplete}
+                  onCancel={() => { setShowSignaturePad(false); setActiveSignatureField(null); }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar />
@@ -1004,58 +1367,190 @@ const Signature = () => {
         
         <main className="flex-1 p-6 overflow-auto">
           {/* Page Header */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-              <span>Apps</span>
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-foreground">Signature</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                    <PenTool className="w-5 h-5 text-white" />
-                  </div>
-                  Signature
-                </h1>
-                <p className="text-muted-foreground mt-1">Send, sign, and manage documents electronically</p>
+          {activeView !== 'signing' && (
+            <div className="mb-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                <span>Apps</span>
+                <ChevronRight className="w-4 h-4" />
+                <span className="text-foreground">Signature</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                      <PenTool className="w-5 h-5 text-white" />
+                    </div>
+                    Signature
+                  </h1>
+                  <p className="text-muted-foreground mt-1">Send, sign, and manage documents electronically</p>
+                </div>
+                {activeView === 'dashboard' && (
+                  <Button onClick={() => setActiveView('signing')} variant="outline" className="border-primary text-primary">
+                    <PenTool className="w-4 h-4 mr-2" /> Try Signing Demo
+                  </Button>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
           {/* Navigation Tabs */}
-          <div className="flex items-center gap-1 mb-6 border-b border-border/50">
-            {[
-              { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-              { id: 'documents', label: 'Documents', icon: FileText },
-              { id: 'templates', label: 'Templates', icon: Layers },
-              { id: 'settings', label: 'Settings', icon: Settings }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveView(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                  activeView === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          {activeView !== 'signing' && (
+            <div className="flex items-center gap-1 mb-6 border-b border-border/50">
+              {[
+                { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+                { id: 'documents', label: 'Documents', icon: FileText },
+                { id: 'templates', label: 'Templates', icon: Layers },
+                { id: 'settings', label: 'Settings', icon: Settings }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveView(tab.id as any)}
+                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                    activeView === tab.id
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Content */}
           {activeView === 'dashboard' && renderDashboard()}
           {activeView === 'documents' && renderDocuments()}
           {activeView === 'templates' && renderTemplates()}
           {activeView === 'settings' && renderSettings()}
+          {activeView === 'signing' && renderSigningView()}
         </main>
       </div>
 
       {/* Modals */}
       {showNewRequestModal && renderNewRequestModal()}
+    </div>
+  );
+};
+
+// Signature Pad Component
+interface SignaturePadProps {
+  onComplete: (signatureData: string) => void;
+  onCancel: () => void;
+}
+
+const SignaturePad: React.FC<SignaturePadProps> = ({ onComplete, onCancel }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [hasDrawn, setHasDrawn] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }, []);
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    setIsDrawing(true);
+    setHasDrawn(true);
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
+    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
+    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setHasDrawn(false);
+  };
+
+  const handleComplete = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const signatureData = canvas.toDataURL('image/png');
+    onComplete(signatureData);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="border-2 border-dashed border-border rounded-xl overflow-hidden bg-white">
+        <canvas
+          ref={canvasRef}
+          width={400}
+          height={150}
+          className="w-full cursor-crosshair touch-none"
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+        />
+      </div>
+      <p className="text-center text-sm text-muted-foreground">Draw your signature above</p>
+      <div className="flex gap-3">
+        <Button variant="outline" className="flex-1" onClick={clearCanvas}>
+          <RefreshCw className="w-4 h-4 mr-2" /> Clear
+        </Button>
+        <Button variant="outline" className="flex-1" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button 
+          className="flex-1 bg-primary hover:bg-primary/90" 
+          onClick={handleComplete}
+          disabled={!hasDrawn}
+        >
+          <Check className="w-4 h-4 mr-2" /> Apply
+        </Button>
+      </div>
     </div>
   );
 };
