@@ -4187,8 +4187,14 @@ const EbookCanvasEditor = ({
                           }
                         </div>
                         
-                        {/* Page Canvas with Vertical Toolbar */}
-                        <div className="flex items-start gap-2">
+                        {/* Page Canvas with Vertical Toolbar - wrapped together for unified scaling */}
+                        <div 
+                          className="flex items-start"
+                          style={{
+                            transform: `scale(${zoom / 100})`,
+                            transformOrigin: 'top center',
+                          }}
+                        >
                           {/* Page Canvas */}
                           <div 
                             ref={isSelected ? pageCanvasRef : undefined}
@@ -4208,8 +4214,6 @@ const EbookCanvasEditor = ({
                             style={{
                               width: `${8.5 * 72}px`,
                               height: `${11 * 72}px`,
-                              transform: `scale(${zoom / 100})`,
-                              transformOrigin: 'top center',
                             }}
                           >
                             {/* Locked Page Hover Overlay */}
@@ -4284,11 +4288,7 @@ const EbookCanvasEditor = ({
                           
                           {/* Vertical Page Actions Toolbar - hide during scroll */}
                           <div 
-                            className={`flex flex-col gap-1 pt-2 transition-opacity duration-150 ${isScrolling ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-                            style={{
-                              transform: `scale(${zoom / 100})`,
-                              transformOrigin: 'top left',
-                            }}
+                            className={`flex flex-col gap-1 pt-2 ml-2 transition-opacity duration-150 ${isScrolling ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                           >
                             {PAGE_ACTIONS.map((action) => {
                               const isPageLocked = page.locked ?? false;
