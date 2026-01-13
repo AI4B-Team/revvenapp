@@ -4177,24 +4177,26 @@ const EbookCanvasEditor = ({
                           </div>
                         )}
                         
-                        {/* Page Label - hide during scroll */}
-                        <div className={`mb-2 text-xs font-medium text-gray-500 transition-opacity duration-150 ${isScrolling ? 'opacity-0' : 'opacity-100'}`}>
-                          {page.type === 'cover' 
-                            ? `Cover Page - ${page.title}`
-                            : page.type === 'chapter-page'
-                            ? `Chapter Page - ${page.title}`
-                            : `Page ${pageIndex + 1} - ${page.title}`
-                          }
-                        </div>
-                        
                         {/* Page Canvas with Vertical Toolbar - wrapped together for unified scaling */}
                         <div 
-                          className="flex items-start"
+                          className="flex flex-col items-center"
                           style={{
                             transform: `scale(${zoom / 100})`,
                             transformOrigin: 'top center',
                           }}
                         >
+                          {/* Page Label - hide during scroll */}
+                          <div className={`mb-2 text-xs font-medium text-gray-500 transition-opacity duration-150 ${isScrolling ? 'opacity-0' : 'opacity-100'}`}>
+                            {page.type === 'cover' 
+                              ? `Cover Page - ${page.title}`
+                              : page.type === 'chapter-page'
+                              ? `Chapter Page - ${page.title}`
+                              : `Page ${pageIndex + 1} - ${page.title}`
+                            }
+                          </div>
+                          
+                          {/* Page and Toolbar Row */}
+                          <div className="flex items-start">
                           {/* Page Canvas */}
                           <div 
                             ref={isSelected ? pageCanvasRef : undefined}
@@ -4392,6 +4394,7 @@ const EbookCanvasEditor = ({
                             })}
                           </div>
                         </div>
+                      </div>
                       </div>
                     );
                   })}
