@@ -1360,9 +1360,9 @@ const Signature = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar />
+      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
       
-      <div className="flex-1 flex flex-col">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
         <main className="flex-1 p-6 overflow-auto">
