@@ -480,14 +480,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
               <div className="px-6 border-b border-border bg-muted/10">
-                <TabsList className="bg-transparent h-auto p-0 gap-6">
-                  <TabsTrigger 
-                    value="general" 
-                    className="bg-transparent px-0 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                  >
-                    <Settings className="w-4 h-4 mr-2" />
-                    General
-                  </TabsTrigger>
+              <TabsList className="bg-transparent h-auto p-0 gap-6">
                   <TabsTrigger 
                     value="schedule" 
                     className="bg-transparent px-0 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
@@ -501,6 +494,13 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                   >
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Analytics
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="general" 
+                    className="bg-transparent px-0 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    General
                   </TabsTrigger>
                 </TabsList>
               </div>
