@@ -17,6 +17,7 @@ import EbookDesignSidebar from '@/components/ebook/EbookDesignSidebar';
 import EbookContentPreview from '@/components/ebook/EbookContentPreview';
 import EbookCanvasEditor from '@/components/ebook/EbookCanvasEditor';
 import EbookGenerationOverlay from '@/components/ebook/EbookGenerationOverlay';
+import ChapterSequenceEditor, { ChapterData } from '@/components/ebook/ChapterSequenceEditor';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
@@ -336,6 +337,11 @@ const NewEbook = () => {
   const [sharePassword, setSharePassword] = useState('');
   const [selectedDownloadFormat, setSelectedDownloadFormat] = useState<string>('pdf');
   const [currentMatch, setCurrentMatch] = useState(0);
+  
+  // Chapter sequence state for Generate tab
+  const [chapterSequence, setChapterSequence] = useState<ChapterData[]>([]);
+  const [bookDescription, setBookDescription] = useState('');
+  const [showChapterEditor, setShowChapterEditor] = useState(false);
 
   // Zoom handlers
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
@@ -644,6 +650,79 @@ const NewEbook = () => {
                 ].map(stripTrailingPunctuation);
 
                 setTitleSuggestions(suggestions);
+                
+                // Generate initial chapter sequence based on topic
+                const generatedChapters: ChapterData[] = [
+                  {
+                    id: 'chapter-1',
+                    title: 'Introduction',
+                    description: `An introduction to ${topicTitleCase}, covering the fundamentals and setting the stage for what readers will learn throughout this book.`,
+                    topics: ['Overview', 'Why This Matters', 'What You Will Learn'],
+                    includeImages: bookData.includeImages,
+                    pageCount: 5,
+                  },
+                  {
+                    id: 'chapter-2',
+                    title: 'Understanding the Basics',
+                    description: `This chapter covers the foundational concepts of ${topicTitleCase}. Readers will gain a solid understanding of key terminology and principles.`,
+                    topics: ['Key Concepts', 'Core Principles', 'Common Terminology'],
+                    includeImages: bookData.includeImages,
+                    pageCount: 8,
+                  },
+                  {
+                    id: 'chapter-3',
+                    title: 'Getting Started',
+                    description: `A practical guide to taking your first steps in ${topicTitleCase}. This chapter provides step-by-step instructions for beginners.`,
+                    topics: ['Setting Up', 'First Steps', 'Quick Wins'],
+                    includeImages: bookData.includeImages,
+                    pageCount: 10,
+                  },
+                  {
+                    id: 'chapter-4',
+                    title: 'Strategies and Techniques',
+                    description: `Explore proven strategies and techniques that will help you master ${topicTitleCase} and achieve better results.`,
+                    topics: ['Best Practices', 'Proven Methods', 'Expert Tips'],
+                    includeImages: bookData.includeImages,
+                    pageCount: 12,
+                  },
+                  {
+                    id: 'chapter-5',
+                    title: 'Common Challenges and Solutions',
+                    description: `Learn how to overcome the most common obstacles and challenges when working with ${topicTitleCase}.`,
+                    topics: ['Problem Solving', 'Troubleshooting', 'Avoiding Pitfalls'],
+                    includeImages: bookData.includeImages,
+                    pageCount: 8,
+                  },
+                  {
+                    id: 'chapter-6',
+                    title: 'Advanced Techniques',
+                    description: `Take your skills to the next level with advanced techniques and insider knowledge about ${topicTitleCase}.`,
+                    topics: ['Advanced Strategies', 'Professional Tips', 'Optimization'],
+                    includeImages: bookData.includeImages,
+                    pageCount: 10,
+                  },
+                  {
+                    id: 'chapter-7',
+                    title: 'Case Studies and Examples',
+                    description: `Real-world case studies and practical examples that demonstrate successful applications of ${topicTitleCase}.`,
+                    topics: ['Success Stories', 'Real Examples', 'Lessons Learned'],
+                    includeImages: bookData.includeImages,
+                    pageCount: 8,
+                  },
+                  {
+                    id: 'chapter-8',
+                    title: 'Conclusion and Next Steps',
+                    description: `A summary of key takeaways and guidance on how to continue your journey with ${topicTitleCase}.`,
+                    topics: ['Key Takeaways', 'Action Plan', 'Resources'],
+                    includeImages: bookData.includeImages,
+                    pageCount: 5,
+                  },
+                ];
+                
+                setChapterSequence(generatedChapters);
+                setBookDescription(`This comprehensive guide to ${topicTitleCase} will take you from beginner to expert. You'll learn the fundamentals, explore advanced strategies, and gain practical insights from real-world examples. By the end, you'll have the confidence and knowledge to succeed.`);
+                setShowChapterEditor(false);
+                
                 setActiveTab('generate');
                 toast.success('Generating Title Ideas...');
                 return 100;
@@ -2295,8 +2374,86 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       )}
                     </div>
 
+                    {/* Chapter Sequence Editor - Shows when title is selected */}
+                    {bookData.selectedTitle && (
+                      <div className="mt-8">
+                        <div className="flex items-center justify-between mb-4">
+                          <h2 className="text-2xl font-bold text-gray-900">Chapter Outline</h2>
+                          <Button
+                            variant="outline"
+                            onClick={() => setShowChapterEditor(!showChapterEditor)}
+                            className="flex items-center gap-2"
+                          >
+                            {showChapterEditor ? (
+                              <>
+                                <ChevronDown className="w-4 h-4" />
+                                Collapse
+                              </>
+                            ) : (
+                              <>
+                                <Pencil className="w-4 h-4" />
+                                Edit Chapters
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                        
+                        {!showChapterEditor ? (
+                          /* Collapsed View - Summary */
+                          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                            <div className="flex items-center gap-4 mb-4">
+                              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                <BookOpen className="w-6 h-6 text-emerald-600" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-gray-900">{chapterSequence.length} Chapters</h3>
+                                <p className="text-sm text-gray-500">
+                                  ~{chapterSequence.reduce((acc, ch) => acc + ch.pageCount, 0)} pages • {bookData.includeImages ? 'With illustrations' : 'Text only'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              {chapterSequence.slice(0, 4).map((chapter, index) => (
+                                <div key={chapter.id} className="flex items-center gap-3 text-sm">
+                                  <span className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-medium">
+                                    {index + 1}
+                                  </span>
+                                  <span className="text-gray-700">{chapter.title}</span>
+                                </div>
+                              ))}
+                              {chapterSequence.length > 4 && (
+                                <p className="text-sm text-gray-400 pl-9">
+                                  +{chapterSequence.length - 4} more chapters...
+                                </p>
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              onClick={() => setShowChapterEditor(true)}
+                              className="mt-4 w-full text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                            >
+                              <Pencil className="w-4 h-4 mr-2" />
+                              Edit Chapter Details
+                            </Button>
+                          </div>
+                        ) : (
+                          /* Expanded View - Full Editor */
+                          <ChapterSequenceEditor
+                            bookTitle={bookData.selectedTitle}
+                            bookDescription={bookDescription}
+                            chapters={chapterSequence}
+                            onBookTitleChange={(title) => setBookData(prev => ({ ...prev, selectedTitle: title }))}
+                            onBookDescriptionChange={setBookDescription}
+                            onChaptersChange={setChapterSequence}
+                            includeImages={bookData.includeImages}
+                            onIncludeImagesChange={(include) => setBookData(prev => ({ ...prev, includeImages: include }))}
+                          />
+                        )}
+                      </div>
+                    )}
+
                     {/* Navigation Buttons */}
-                    <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <div className="flex items-center justify-between pt-6 border-t border-gray-200 mt-8">
                       <Button
                         variant="outline"
                         onClick={() => setActiveTab('idea')}
@@ -2335,7 +2492,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                             </>
                           ) : (
                             <>
-                              Continue
+                              Generate eBook
                               <ArrowRight className="w-4 h-4" />
                             </>
                           )}
