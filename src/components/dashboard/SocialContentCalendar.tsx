@@ -154,11 +154,11 @@ const STATUS_OPTIONS = [
 ];
 
 const LABEL_OPTIONS = [
-  { id: 'influencer', label: 'INFLUENCER', color: 'bg-slate-800 dark:bg-slate-700' },
-  { id: 'educational', label: 'EDUCATIONAL', color: 'bg-blue-600' },
-  { id: 'promotional', label: 'PROMOTIONAL', color: 'bg-purple-600' },
-  { id: 'engagement', label: 'ENGAGEMENT', color: 'bg-pink-600' },
-  { id: 'behind-scenes', label: 'BEHIND THE SCENES', color: 'bg-amber-600' },
+  { id: 'influencer', label: 'INFLUENCER', color: 'bg-slate-800 dark:bg-slate-700', dotColor: 'bg-slate-800 dark:bg-slate-400', bgColor: 'bg-slate-100 dark:bg-slate-800/50' },
+  { id: 'educational', label: 'EDUCATIONAL', color: 'bg-blue-600', dotColor: 'bg-blue-600 dark:bg-blue-400', bgColor: 'bg-blue-100 dark:bg-blue-900/50' },
+  { id: 'promotional', label: 'PROMOTIONAL', color: 'bg-purple-600', dotColor: 'bg-purple-600 dark:bg-purple-400', bgColor: 'bg-purple-100 dark:bg-purple-900/50' },
+  { id: 'engagement', label: 'ENGAGEMENT', color: 'bg-pink-600', dotColor: 'bg-pink-600 dark:bg-pink-400', bgColor: 'bg-pink-100 dark:bg-pink-900/50' },
+  { id: 'behind-scenes', label: 'BEHIND THE SCENES', color: 'bg-amber-600', dotColor: 'bg-amber-600 dark:bg-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-900/50' },
 ];
 
 const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({ 
@@ -588,12 +588,12 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         <div className="flex gap-2">
           {/* Left column: Tag, Social Icon, Rating - stacked vertically */}
           <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-            {/* Tag label in a box */}
+            {/* Tag label - colored dot in light box */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className={`w-5 h-5 rounded flex items-center justify-center ${label.color}`}>
-                    <div className="w-2 h-2 rounded-full bg-current opacity-80" />
+                  <div className={`w-5 h-5 rounded flex items-center justify-center ${label.bgColor || 'bg-muted'}`}>
+                    <div className={`w-2 h-2 rounded-full ${label.dotColor || label.color}`} />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="text-xs">
@@ -1309,15 +1309,19 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
           const content = getContentForDate(date);
           const today = isToday(date);
           const holidays = getHolidaysForDate(date);
+          const isPastDate = date && date < new Date(new Date().setHours(0, 0, 0, 0));
           
           return (
             <div
               key={index}
-              className={`min-h-[140px] border-b border-r border-border p-2 transition-colors ${
+              className={`min-h-[140px] border-b border-r border-border p-2 transition-colors relative ${
                 date
                   ? 'hover:bg-muted/30 cursor-pointer'
                   : 'bg-muted/20'
-              } ${index % 7 === 0 ? 'border-l' : ''}`}
+              } ${index % 7 === 0 ? 'border-l' : ''} ${isPastDate ? 'bg-muted/40' : ''}`}
+              style={isPastDate ? {
+                backgroundImage: 'repeating-linear-gradient(135deg, transparent, transparent 4px, rgba(128, 128, 128, 0.08) 4px, rgba(128, 128, 128, 0.08) 8px)'
+              } : undefined}
             >
               {date && (
                 <>
