@@ -529,12 +529,15 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     return () => canvasElement.removeEventListener('wheel', handleWheel);
   }, []);
 
-  // Handle click outside image to deselect
+  // Handle click outside image to deselect - but not when using the select tool
   const handleCanvasClick = (e: React.MouseEvent) => {
     // Only deselect if clicking directly on the canvas background, not on the image
+    // When the select tool is active, clicking the canvas background keeps selection mode active
     if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('canvas-background')) {
-      setIsImageSelected(false);
-      setActiveTool(null);
+      if (activeTool !== 'select') {
+        setIsImageSelected(false);
+        setActiveTool(null);
+      }
     }
   };
 
@@ -809,6 +812,17 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         });
       } finally {
         setIsProcessing(false);
+      }
+    } else if (toolId === 'select') {
+      // Toggle select tool - when active, clicking image selects it
+      if (activeTool === 'select') {
+        setActiveTool(null);
+      } else {
+        setActiveTool('select');
+        // If there's an image loaded, ensure it's selected when using select tool
+        if (selectedImage) {
+          setIsImageSelected(true);
+        }
       }
     } else if (!selectedImage && ['download', 'save', 'upscale', 'publish', 'use', 'animate', 'removebg'].includes(toolId)) {
       toast({
