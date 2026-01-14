@@ -37,14 +37,14 @@ const MasterCloser = () => {
   const [callMode, setCallMode] = useState<CallMode>('start-call');
 
   const navigation = [
-    { id: 'dashboard', name: 'Dashboard', icon: BarChart3, view: 'dashboard' },
-    { id: 'live-call', name: 'Live Call', icon: Mic, view: 'live-call', highlight: true },
-    { id: 'agent-settings', name: 'Agent Settings', icon: Sliders, view: 'agent-settings' },
-    { id: 'objections', name: 'Objections', icon: MessageSquare, view: 'objections' },
-    { id: 'planner', name: 'Call Planner', icon: BookOpen, view: 'planner' },
-    { id: 'analytics', name: 'Analytics', icon: BarChart3, view: 'analytics' },
+    { id: 'dashboard', name: 'Command Center', icon: BarChart3, view: 'dashboard' },
+    { id: 'live-call', name: 'Call Studio', icon: Mic, view: 'live-call', highlight: true },
+    { id: 'agent-settings', name: 'Voice Agent', icon: Bot, view: 'agent-settings' },
+    { id: 'objections', name: 'Objection Vault', icon: MessageSquare, view: 'objections' },
+    { id: 'planner', name: 'Call Prep', icon: BookOpen, view: 'planner' },
+    { id: 'analytics', name: 'Performance', icon: BarChart3, view: 'analytics' },
     { id: 'team', name: 'Team', icon: Users, view: 'team' },
-    { id: 'settings', name: 'Settings', icon: Settings, view: 'settings' }
+    { id: 'settings', name: 'Preferences', icon: Settings, view: 'settings' }
   ];
 
   const handleStartCall = (mode: CallMode) => {
