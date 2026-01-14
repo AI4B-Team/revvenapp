@@ -778,17 +778,29 @@ const NewEbook = () => {
   const handleAutoPrompt = async () => {
     setIsEnhancingPrompt(true);
     try {
+      // Get brand data from localStorage if available
+      let brandContext = null;
+      try {
+        const savedBrandData = localStorage.getItem('brandData');
+        if (savedBrandData) {
+          brandContext = JSON.parse(savedBrandData);
+        }
+      } catch (e) {
+        console.log('No brand data found');
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
         body: { 
           contentType: 'ebook',
           specificMode: bookData.contentType,
+          brandContext,
         }
       });
 
       if (error) throw error;
       if (data?.suggestion) {
         setBookData(prev => ({ ...prev, prompt: data.suggestion }));
-        toast.success('Prompt generated!');
+        toast.success(brandContext ? 'Personalized ebook idea generated!' : 'Ebook idea generated!');
       }
     } catch (error) {
       console.error('Error generating prompt:', error);

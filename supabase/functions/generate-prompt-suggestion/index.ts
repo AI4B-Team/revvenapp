@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { contentType, specificMode, characterImages, referenceImages, musicWithVocals } = await req.json();
+    const { contentType, specificMode, characterImages, referenceImages, musicWithVocals, brandContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -27,6 +27,7 @@ serve(async (req) => {
     const isAudio = contentType?.toLowerCase() === 'audio';
     const isDesign = contentType?.toLowerCase() === 'design';
     const isContent = contentType?.toLowerCase() === 'content';
+    const isEbook = contentType?.toLowerCase() === 'ebook';
 
     // Mode-specific prompt guidance with examples
     const getModeConfig = () => {
@@ -277,6 +278,82 @@ BAD EXAMPLES (too vague):
 Return ONLY the topic/niche description in 1-2 sentences. Be specific about the angle and content style.`,
           example: "30-day home organization challenge with room-by-room decluttering tips, storage hacks, and satisfying before/after transformations",
           type: "social_content"
+        };
+      }
+
+      // EBOOK MODE
+      if (isEbook) {
+        const hasBrand = brandContext && (brandContext.identity || brandContext.voice || brandContext.knowledge);
+        
+        if (hasBrand) {
+          // Use brand context to generate personalized ebook ideas
+          const brandInfo = [];
+          if (brandContext.identity?.brandName) brandInfo.push(`Brand: ${brandContext.identity.brandName}`);
+          if (brandContext.identity?.industry) brandInfo.push(`Industry: ${brandContext.identity.industry}`);
+          if (brandContext.identity?.targetAudience) brandInfo.push(`Target Audience: ${brandContext.identity.targetAudience}`);
+          if (brandContext.identity?.brandDescription) brandInfo.push(`About: ${brandContext.identity.brandDescription}`);
+          if (brandContext.voice?.toneOfVoice) brandInfo.push(`Tone: ${brandContext.voice.toneOfVoice}`);
+          if (brandContext.knowledge?.dataSources?.length > 0) {
+            brandInfo.push(`Knowledge areas: ${brandContext.knowledge.dataSources.map((d: any) => d.name || d.title).join(', ')}`);
+          }
+          
+          return {
+            guidance: `Generate a compelling EBOOK topic idea tailored to this brand:
+
+${brandInfo.join('\n')}
+
+Create an ebook topic that:
+- Aligns with the brand's expertise and industry
+- Appeals to their target audience
+- Showcases their unique perspective
+- Could establish them as a thought leader
+
+GOOD EXAMPLES:
+- "The Ultimate Guide to Sustainable Fashion for Conscious Consumers"
+- "10 Secrets Top Real Estate Investors Don't Want You to Know"
+- "From Burnout to Balance: A Working Mom's Guide to Self-Care"
+- "The Small Business Owner's Playbook for AI Automation"
+- "Mastering Plant-Based Nutrition: A Complete Beginner's Cookbook"
+
+Return ONLY the ebook topic/title idea in 1-2 sentences. Be specific and compelling.`,
+            example: "The Complete Guide to Building a Six-Figure Freelance Business in 2024",
+            type: "ebook_branded"
+          };
+        }
+        
+        // No brand context - generate creative ebook ideas
+        return {
+          guidance: `Generate a compelling EBOOK topic idea that would make a great digital product.
+
+Create an ebook topic that:
+- Solves a real problem or teaches a valuable skill
+- Has clear commercial appeal
+- Could attract a wide audience
+- Offers actionable, valuable content
+
+DIVERSE CATEGORIES TO CHOOSE FROM:
+- Business & Entrepreneurship
+- Personal Development & Self-Help
+- Health & Wellness
+- Finance & Investing
+- Technology & AI
+- Creative Skills (Writing, Design, Photography)
+- Lifestyle (Travel, Food, Home)
+- Career Development
+- Relationships & Communication
+- Hobbies & Special Interests
+
+GOOD EXAMPLES:
+- "The Side Hustle Blueprint: 50 Business Ideas You Can Start This Weekend"
+- "Meal Prep Mastery: 30 Days of Healthy Eating Without the Stress"
+- "The Introvert's Guide to Networking and Building Genuine Connections"
+- "Crypto for Beginners: A Plain-English Guide to Digital Investing"
+- "The Minimalist Home: Declutter Your Space, Transform Your Life"
+- "Remote Work Revolution: Thriving in the New World of Work"
+
+Return ONLY the ebook topic/title idea in 1-2 sentences. Be specific, compelling, and marketable.`,
+          example: "The Complete Guide to Passive Income: Building Wealth While You Sleep",
+          type: "ebook"
         };
       }
 
