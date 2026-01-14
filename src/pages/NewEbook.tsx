@@ -754,9 +754,9 @@ const NewEbook = () => {
                 setBookDescription(`This comprehensive guide to ${topicTitleCase} will take you from beginner to expert. You'll learn the fundamentals, explore advanced strategies, and gain practical insights from real-world examples. By the end, you'll have the confidence and knowledge to succeed.`);
                 setShowChapterEditor(false);
                 
-                // Update course builder progress
-                setCompletedSteps(['source', 'details']);
-                setCourseBuilderStep('outline');
+                // Update course builder progress - only source is complete, now on details step
+                setCompletedSteps(['source']);
+                setCourseBuilderStep('details');
                 
                 setActiveTab('generate');
                 toast.success('Generating Title Ideas...');
