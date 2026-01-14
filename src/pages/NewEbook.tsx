@@ -2598,6 +2598,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                             if (!completedSteps.includes('details')) {
                               setCompletedSteps(prev => [...prev, 'details']);
                             }
+                            // Scroll to top of page
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
                           disabled={!bookData.selectedTitle}
                           className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2"
