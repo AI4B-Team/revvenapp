@@ -355,6 +355,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [textElements, setTextElements] = useState<TextElement[]>([]);
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
+  const [draggingTextId, setDraggingTextId] = useState<string | null>(null);
+  const [textDragOffset, setTextDragOffset] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -914,6 +916,41 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     setTextElements(prev => prev.filter(t => t.id !== id));
     if (selectedTextId === id) setSelectedTextId(null);
     if (editingTextId === id) setEditingTextId(null);
+  };
+
+  // Text element dragging handlers
+  const handleTextDragStart = (e: React.MouseEvent, textId: string) => {
+    if (editingTextId === textId) return; // Don't drag while editing
+    e.stopPropagation();
+    e.preventDefault();
+    
+    const textEl = textElements.find(t => t.id === textId);
+    if (!textEl) return;
+    
+    setDraggingTextId(textId);
+    setSelectedTextId(textId);
+    setTextDragOffset({
+      x: e.clientX - textEl.x,
+      y: e.clientY - textEl.y
+    });
+  };
+
+  const handleTextDragMove = (e: React.MouseEvent) => {
+    if (!draggingTextId) return;
+    
+    const parentRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const newX = e.clientX - parentRect.left - textDragOffset.x + (textElements.find(t => t.id === draggingTextId)?.x || 0);
+    const newY = e.clientY - parentRect.top - textDragOffset.y + (textElements.find(t => t.id === draggingTextId)?.y || 0);
+    
+    // Simpler calculation: just use relative position within the container
+    const relativeX = e.clientX - parentRect.left;
+    const relativeY = e.clientY - parentRect.top;
+    
+    updateTextElement(draggingTextId, { x: relativeX, y: relativeY });
+  };
+
+  const handleTextDragEnd = () => {
+    setDraggingTextId(null);
   };
 
   const canvasTools = [
@@ -1617,24 +1654,33 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           }}
                         />
                         {/* Text elements overlay */}
-                        {textElements.map((textEl) => (
-                          <div
-                            key={textEl.id}
-                            className={`absolute cursor-move ${selectedTextId === textEl.id ? 'ring-2 ring-blue-500' : ''}`}
-                            style={{
-                              left: textEl.x,
-                              top: textEl.y,
-                              transform: 'translate(-50%, -50%)',
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedTextId(textEl.id);
-                            }}
-                            onDoubleClick={(e) => {
-                              e.stopPropagation();
-                              setEditingTextId(textEl.id);
-                            }}
-                          >
+                        <div 
+                          className="absolute inset-0"
+                          style={{ pointerEvents: textElements.length > 0 ? 'auto' : 'none' }}
+                          onMouseMove={handleTextDragMove}
+                          onMouseUp={handleTextDragEnd}
+                          onMouseLeave={handleTextDragEnd}
+                        >
+                          {textElements.map((textEl) => (
+                            <div
+                              key={textEl.id}
+                              className={`absolute ${selectedTextId === textEl.id ? 'ring-2 ring-blue-500 rounded' : ''} ${draggingTextId === textEl.id ? 'cursor-grabbing' : 'cursor-grab'}`}
+                              style={{
+                                left: textEl.x,
+                                top: textEl.y,
+                                transform: 'translate(-50%, -50%)',
+                                zIndex: selectedTextId === textEl.id ? 10 : 1,
+                              }}
+                              onMouseDown={(e) => handleTextDragStart(e, textEl.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTextId(textEl.id);
+                              }}
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTextId(textEl.id);
+                              }}
+                            >
                             {editingTextId === textEl.id ? (
                               <input
                                 type="text"
@@ -1688,8 +1734,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                                 ×
                               </button>
                             )}
-                          </div>
-                        ))}
+                            </div>
+                          ))}
+                        </div>
                         {/* Processing overlay */}
                         {isProcessing && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
