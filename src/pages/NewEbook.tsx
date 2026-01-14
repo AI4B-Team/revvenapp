@@ -8,7 +8,7 @@ import {
   Briefcase, Coffee, GraduationCap, Heart, Shield, Flame, Search, ChevronDown,
   Check, Pencil, Eye, UserPlus, MoreVertical, Loader2, Wand2, RefreshCw,
   ArrowRight, PenLine, Target, Zap, Award, Undo2, Redo2, ZoomIn, ZoomOut, Replace, Minus,
-  Share2, Lock as LockIcon, Cloud, Calendar, Copy, Code, Monitor, Rss, MoreHorizontal
+  Share2, Lock as LockIcon, Cloud, Calendar, Copy, Code, Monitor, Rss, MoreHorizontal, Shuffle
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -64,6 +64,7 @@ import {
   HoverCardTrigger,
   HoverCardContent,
 } from '@/components/ui/hover-card';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UploadedFile {
   id: string;
@@ -352,6 +353,7 @@ const NewEbook = () => {
   const [generationMode, setGenerationMode] = useState<GenerationMode>('text-interactive');
   const [isGeneratingLessons, setIsGeneratingLessons] = useState(false);
   const [currentLessonIndex, setCurrentLessonIndex] = useState(1);
+  const [isEnhancingPrompt, setIsEnhancingPrompt] = useState(false);
 
   // Zoom handlers
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
@@ -770,6 +772,30 @@ const NewEbook = () => {
   const handleGenerationComplete = () => {
     setIsGeneratingBook(false);
     toast.success('Your book is ready!');
+  };
+
+  // Auto Prompt handler - generates a creative prompt suggestion
+  const handleAutoPrompt = async () => {
+    setIsEnhancingPrompt(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
+        body: { 
+          contentType: 'ebook',
+          specificMode: bookData.contentType,
+        }
+      });
+
+      if (error) throw error;
+      if (data?.suggestion) {
+        setBookData(prev => ({ ...prev, prompt: data.suggestion }));
+        toast.success('Prompt generated!');
+      }
+    } catch (error) {
+      console.error('Error generating prompt:', error);
+      toast.error('Failed to generate prompt');
+    } finally {
+      setIsEnhancingPrompt(false);
+    }
   };
 
   const getFileIcon = (file: UploadedFile) => {
@@ -1633,6 +1659,28 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 <div className="bg-white rounded-2xl border-2 border-emerald-500 shadow-sm p-6 max-w-5xl mx-auto">
                   {/* Uploaded Files Preview - Now inline with textarea */}
                   <div className="flex items-start gap-3">
+                    {/* Auto Prompt Button - Top Left */}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={handleAutoPrompt}
+                            disabled={isEnhancingPrompt}
+                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 mt-1"
+                          >
+                            {isEnhancingPrompt ? (
+                              <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
+                            ) : (
+                              <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black text-white">
+                          <p>Auto Prompt</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
                     {/* Source File Icon */}
                     {uploadedFiles.length > 0 && (
                       <div className="flex flex-col gap-2 pt-1">
