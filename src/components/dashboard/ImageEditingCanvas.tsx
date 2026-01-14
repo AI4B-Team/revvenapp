@@ -1695,20 +1695,18 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                               }}
                             >
                             {editingTextId === textEl.id ? (
-                              <input
-                                type="text"
+                              <textarea
                                 value={textEl.text}
                                 onChange={(e) => updateTextElement(textEl.id, { text: e.target.value })}
                                 onBlur={() => setEditingTextId(null)}
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter') setEditingTextId(null);
                                   if (e.key === 'Escape') setEditingTextId(null);
                                   if (e.key === 'Delete' || e.key === 'Backspace') {
                                     if (textEl.text === '') deleteTextElement(textEl.id);
                                   }
                                 }}
                                 autoFocus
-                                className="bg-transparent border-none outline-none text-center min-w-[100px]"
+                                className="bg-transparent border-none outline-none resize-none overflow-hidden"
                                 style={{
                                   fontSize: `${textEl.fontSize}px`,
                                   fontFamily: textEl.fontFamily,
@@ -1717,10 +1715,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                                   fontStyle: textEl.isItalic ? 'italic' : 'normal',
                                   textDecoration: textEl.isUnderline ? 'underline' : 'none',
                                   textAlign: textEl.alignment.toLowerCase() as any,
+                                  minWidth: '150px',
+                                  width: 'auto',
                                 }}
+                                rows={1}
                               />
                             ) : (
-                              <span
+                              <div
                                 style={{
                                   fontSize: `${textEl.fontSize}px`,
                                   fontFamily: textEl.fontFamily,
@@ -1729,12 +1730,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                                   fontStyle: textEl.isItalic ? 'italic' : 'normal',
                                   textDecoration: textEl.isUnderline ? 'underline' : 'none',
                                   textAlign: textEl.alignment.toLowerCase() as any,
-                                  whiteSpace: 'nowrap',
+                                  minWidth: '150px',
+                                  whiteSpace: 'pre-wrap',
                                   userSelect: 'none',
+                                  display: 'block',
                                 }}
                               >
                                 {textEl.text}
-                              </span>
+                              </div>
                             )}
                             {selectedTextId === textEl.id && !editingTextId && (
                               <button
