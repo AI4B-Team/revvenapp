@@ -1260,68 +1260,48 @@ const EbookDesignSidebar = ({
           <SectionHeader id="text" title="Text" icon={Type} />
           {expandedSections.has('text') && (
             <div className="p-3 border-b border-gray-200">
-              {/* Tab Links - Centered */}
-              <div className="flex items-center justify-center gap-4 mb-4 border-b border-gray-200">
-                <button
-                  onClick={() => setTextTab('stock')}
-                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
-                    textTab === 'stock' 
-                      ? 'text-blue-500 border-b-2 border-blue-500' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  <Images className="w-3.5 h-3.5" />
-                  Stock
-                </button>
-                <button
-                  onClick={() => setTextTab('creations')}
-                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
-                    textTab === 'creations' 
-                      ? 'text-blue-500 border-b-2 border-blue-500' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Creations
-                </button>
-                <button
-                  onClick={() => setTextTab('community')}
-                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
-                    textTab === 'community' 
-                      ? 'text-blue-500 border-b-2 border-blue-500' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  Community
-                </button>
-                <button
-                  onClick={() => setTextTab('uploads')}
-                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
-                    textTab === 'uploads' 
-                      ? 'text-blue-500 border-b-2 border-blue-500' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  Uploads
-                </button>
-              </div>
+              {/* Add Text Button */}
+              <button
+                className="w-full py-3 px-4 mb-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50/50 transition-all flex items-center justify-center gap-2 font-medium"
+              >
+                <Type className="w-4 h-4" />
+                Add A Text Box
+              </button>
               
-              {/* Search */}
-              <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  value={textSearch}
-                  onChange={(e) => setTextSearch(e.target.value)}
-                  placeholder="Press [Enter] To Search"
-                  className="pl-9"
-                />
-              </div>
-              
-              <div className="text-center py-8 text-gray-400">
-                <Type className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Text templates coming soon</p>
+              {/* Text Style Options */}
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Click To Add To Page</p>
+                
+                {/* Title */}
+                <button className="w-full p-3 text-left rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 group">
+                  <span className="text-2xl font-bold text-gray-800 group-hover:text-emerald-700">Add A Title</span>
+                </button>
+                
+                {/* Heading */}
+                <button className="w-full p-3 text-left rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 group">
+                  <span className="text-xl font-semibold text-gray-800 group-hover:text-emerald-700">Add A Heading</span>
+                </button>
+                
+                {/* Subheading */}
+                <button className="w-full p-3 text-left rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 group">
+                  <span className="text-lg font-medium text-gray-700 group-hover:text-emerald-700">Add A Subheading</span>
+                </button>
+                
+                {/* Body Text */}
+                <button className="w-full p-3 text-left rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 group">
+                  <span className="text-base text-gray-600 group-hover:text-emerald-700">Add Body Text</span>
+                </button>
+                
+                {/* Small Text / Caption */}
+                <button className="w-full p-3 text-left rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 group">
+                  <span className="text-sm text-gray-500 group-hover:text-emerald-700">Add A Caption</span>
+                </button>
+                
+                {/* Quote */}
+                <button className="w-full p-3 text-left rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 group flex items-start gap-2">
+                  <span className="text-2xl text-gray-400 leading-none">"</span>
+                  <span className="text-base italic text-gray-600 group-hover:text-emerald-700">Add A Quote</span>
+                </button>
               </div>
             </div>
           )}
