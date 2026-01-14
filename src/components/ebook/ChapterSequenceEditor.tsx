@@ -668,7 +668,7 @@ const ChapterSequenceEditor: React.FC<ChapterSequenceEditorProps> = ({
             ) : (
               <>
                 <Wand2 className="w-4 h-4 mr-2" />
-                Add with AI
+                Add With AI
               </>
             )}
           </Button>
