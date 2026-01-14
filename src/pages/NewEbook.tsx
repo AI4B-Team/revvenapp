@@ -1372,12 +1372,27 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="text-xs"><p>Zoom Out</p></TooltipContent>
                   </Tooltip>
-                  <button 
-                    onClick={handleZoomFit}
-                    className="px-2 py-0.5 text-xs font-medium text-gray-600 hover:bg-white hover:text-gray-900 rounded transition-colors min-w-[40px] text-center"
-                  >
-                    {zoom}%
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button 
+                        className="px-2 py-0.5 text-xs font-medium text-gray-600 hover:bg-white hover:text-gray-900 rounded transition-colors min-w-[50px] text-center flex items-center justify-center gap-1"
+                      >
+                        {zoom}%
+                        <ChevronDown className="w-3 h-3" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="min-w-[80px]">
+                      {[25, 50, 75, 100, 125, 150, 175, 200].map((level) => (
+                        <DropdownMenuItem
+                          key={level}
+                          onClick={() => setZoom(level)}
+                          className={zoom === level ? 'bg-emerald-50 text-emerald-700' : ''}
+                        >
+                          {level}%
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
