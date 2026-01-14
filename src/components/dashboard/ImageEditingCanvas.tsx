@@ -935,23 +935,38 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     });
   };
 
-  const handleTextDragMove = (e: React.MouseEvent) => {
-    if (!draggingTextId) return;
-    
-    const parentRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const newX = e.clientX - parentRect.left - textDragOffset.x + (textElements.find(t => t.id === draggingTextId)?.x || 0);
-    const newY = e.clientY - parentRect.top - textDragOffset.y + (textElements.find(t => t.id === draggingTextId)?.y || 0);
-    
-    // Simpler calculation: just use relative position within the container
-    const relativeX = e.clientX - parentRect.left;
-    const relativeY = e.clientY - parentRect.top;
-    
-    updateTextElement(draggingTextId, { x: relativeX, y: relativeY });
-  };
-
   const handleTextDragEnd = () => {
     setDraggingTextId(null);
   };
+
+  // Use document-level events for smooth dragging
+  useEffect(() => {
+    if (!draggingTextId) return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      // Find the image container to get relative position
+      const imageContainer = document.querySelector('.bg-white.rounded-xl.shadow-xl.overflow-hidden');
+      if (!imageContainer) return;
+      
+      const parentRect = imageContainer.getBoundingClientRect();
+      const relativeX = e.clientX - parentRect.left;
+      const relativeY = e.clientY - parentRect.top;
+      
+      updateTextElement(draggingTextId, { x: relativeX, y: relativeY });
+    };
+    
+    const handleMouseUp = () => {
+      setDraggingTextId(null);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [draggingTextId]);
 
   const canvasTools = [
     { id: 'select', icon: <MousePointer2 className="w-4 h-4" />, tooltip: 'Select' },
@@ -1656,10 +1671,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                         {/* Text elements overlay */}
                         <div 
                           className="absolute inset-0"
-                          style={{ pointerEvents: textElements.length > 0 ? 'auto' : 'none' }}
-                          onMouseMove={handleTextDragMove}
-                          onMouseUp={handleTextDragEnd}
-                          onMouseLeave={handleTextDragEnd}
+                          style={{ pointerEvents: 'none' }}
                         >
                           {textElements.map((textEl) => (
                             <div
@@ -1670,6 +1682,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                                 top: textEl.y,
                                 transform: 'translate(-50%, -50%)',
                                 zIndex: selectedTextId === textEl.id ? 10 : 1,
+                                pointerEvents: 'auto',
                               }}
                               onMouseDown={(e) => handleTextDragStart(e, textEl.id)}
                               onClick={(e) => {
