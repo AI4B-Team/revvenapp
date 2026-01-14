@@ -1603,18 +1603,20 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               <div className="space-y-2 pt-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-200">Opacity</span>
-                  <span className="text-xs text-slate-400">
-                    {layers.find(l => l.id === selectedLayerId)?.opacity}%
-                  </span>
                 </div>
                 <Slider
-                  value={layers.find(l => l.id === selectedLayerId)?.opacity || 100}
+                  value={layers.find(l => l.id === selectedLayerId)?.opacity ?? 100}
                   onChange={(value) => {
-                    if (selectedLayerId) updateLayer(selectedLayerId, { opacity: value });
+                    if (selectedLayerId) {
+                      setLayers(prev => prev.map(l => 
+                        l.id === selectedLayerId ? { ...l, opacity: value } : l
+                      ));
+                    }
                   }}
                   min={0}
                   max={100}
                   step={1}
+                  suffix="%"
                 />
               </div>
             )}
