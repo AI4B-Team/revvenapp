@@ -84,9 +84,9 @@ const MasterCloser = () => {
 
   const getModeLabel = () => {
     switch (callMode) {
-      case 'voice-agent': return 'Voice Agent Active';
+      case 'voice-agent': return 'LIVE Agent';
       case 'listen': return 'Listening...';
-      default: return 'Call Active';
+      default: return 'LIVE Call';
     }
   };
 
