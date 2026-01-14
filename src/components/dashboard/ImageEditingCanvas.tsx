@@ -364,11 +364,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     opacity: number;
   }
   const [layers, setLayers] = useState<Layer[]>([
-    { id: 'base-image', name: 'Background', type: 'image', visible: true, locked: false, opacity: 100 },
-    { id: 'drawing-layer', name: 'Drawing', type: 'drawing', visible: true, locked: false, opacity: 100 },
     { id: 'text-layer', name: 'Text', type: 'text', visible: true, locked: false, opacity: 100 },
+    { id: 'drawing-layer', name: 'Drawing', type: 'drawing', visible: true, locked: false, opacity: 100 },
+    { id: 'base-image', name: 'Background', type: 'image', visible: true, locked: false, opacity: 100 },
   ]);
-  const [selectedLayerId, setSelectedLayerId] = useState<string>('base-image');
+  const [selectedLayerId, setSelectedLayerId] = useState<string | null>('text-layer');
+  const [isUpscaling, setIsUpscaling] = useState(false);
+  const [upscaleScale, setUpscaleScale] = useState<'2x' | '4x'>('2x');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -1057,6 +1059,63 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     });
   };
 
+  // Handle upscale image
+  const handleUpscale = async () => {
+    if (!selectedImage) {
+      toast({
+        title: 'No Image',
+        description: 'Please select an image to upscale.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUpscaling(true);
+    try {
+      // Get composited image to upscale (includes text and brush strokes)
+      const compositedImage = await getCompositedImage();
+      const imageToUpscale = compositedImage || selectedImage;
+
+      // Upload to Cloudinary first if it's a data URL
+      let imageUrl = imageToUpscale;
+      if (imageToUpscale.startsWith('data:')) {
+        const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-reference-image', {
+          body: { image: imageToUpscale },
+        });
+        if (uploadError) throw uploadError;
+        imageUrl = uploadData.url;
+      }
+
+      // Call upscale edge function
+      const scaleFactor = upscaleScale === '4x' ? '4' : '2';
+      const { data, error } = await supabase.functions.invoke('upscale-image', {
+        body: { image_url: imageUrl, scale_factor: scaleFactor },
+      });
+
+      if (error) throw error;
+
+      if (data?.image_url) {
+        setSelectedImage(data.image_url);
+        setIsImageSelected(true);
+        toast({
+          title: 'Image Upscaled',
+          description: `Successfully upscaled to ${upscaleScale}!`,
+        });
+      } else {
+        throw new Error('No upscaled image returned');
+      }
+    } catch (error: any) {
+      console.error('Upscale error:', error);
+      toast({
+        title: 'Upscale Failed',
+        description: error.message || 'Failed to upscale image',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUpscaling(false);
+    }
+  };
+
   // Text element dragging handlers
   const handleTextDragStart = (e: React.MouseEvent, textId: string) => {
     if (editingTextId === textId) return; // Don't drag while editing
@@ -1510,26 +1569,34 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </div>
 
             {/* Layer controls */}
-            <div className="flex items-center gap-2 pt-2 border-t border-slate-700">
-              <button
-                onClick={() => moveLayer(selectedLayerId, 'up')}
-                className="flex-1 px-3 py-2 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-medium hover:bg-slate-600 transition-colors flex items-center justify-center gap-1"
-              >
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-                Up
-              </button>
-              <button
-                onClick={() => moveLayer(selectedLayerId, 'down')}
-                className="flex-1 px-3 py-2 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-medium hover:bg-slate-600 transition-colors flex items-center justify-center gap-1"
-              >
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-                Down
-              </button>
-            </div>
+            {selectedLayerId && (
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-700">
+                <button
+                  onClick={() => {
+                    if (selectedLayerId) moveLayer(selectedLayerId, 'up');
+                  }}
+                  disabled={!selectedLayerId || layers.findIndex(l => l.id === selectedLayerId) === 0}
+                  className="flex-1 px-3 py-2 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-medium hover:bg-slate-600 transition-colors flex items-center justify-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                  Up
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedLayerId) moveLayer(selectedLayerId, 'down');
+                  }}
+                  disabled={!selectedLayerId || layers.findIndex(l => l.id === selectedLayerId) === layers.length - 1}
+                  className="flex-1 px-3 py-2 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-medium hover:bg-slate-600 transition-colors flex items-center justify-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  Down
+                </button>
+              </div>
+            )}
 
             {/* Selected layer opacity */}
             {selectedLayerId && (
@@ -1542,12 +1609,60 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 </div>
                 <Slider
                   value={layers.find(l => l.id === selectedLayerId)?.opacity || 100}
-                  onChange={(value) => updateLayer(selectedLayerId, { opacity: value })}
+                  onChange={(value) => {
+                    if (selectedLayerId) updateLayer(selectedLayerId, { opacity: value });
+                  }}
                   min={0}
                   max={100}
                   step={1}
                 />
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Upscale panel */}
+        {activeTool === 'upscale' && (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <span className="text-sm text-slate-200">Scale Factor</span>
+              <div className="grid grid-cols-2 gap-2">
+                {['2x', '4x'].map((scale) => (
+                  <button
+                    key={scale}
+                    onClick={() => setUpscaleScale(scale as '2x' | '4x')}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      upscaleScale === scale
+                        ? 'bg-indigo-500 text-white'
+                        : 'bg-slate-700/60 text-slate-300 hover:bg-slate-600'
+                    }`}
+                  >
+                    {scale}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={handleUpscale}
+              disabled={isUpscaling || !selectedImage}
+              className="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium text-sm hover:from-indigo-600 hover:to-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isUpscaling ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Upscaling...
+                </>
+              ) : (
+                <>
+                  <ZoomIn className="w-4 h-4" />
+                  Upscale Image
+                </>
+              )}
+            </button>
+
+            {!selectedImage && (
+              <p className="text-xs text-amber-400 text-center">Select an image first</p>
             )}
           </div>
         )}
