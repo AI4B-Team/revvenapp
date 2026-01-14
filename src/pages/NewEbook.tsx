@@ -2279,7 +2279,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       Book Outline
                     </h1>
                     <p className="text-gray-500 text-center text-lg mb-8">
-                      Customize your chapters and table of contents. You can add, remove, or reorder chapters.
+                      Customize Your Chapters & Table of Contents. You Can Add, Remove, or Reorder Chapters.
                     </p>
                     
                     {/* Selected Title Display */}
