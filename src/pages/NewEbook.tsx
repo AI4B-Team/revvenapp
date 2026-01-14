@@ -2198,6 +2198,12 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   onStepClick={(step) => {
                     if (completedSteps.includes(step) || step === courseBuilderStep) {
                       setCourseBuilderStep(step);
+                      // Sync showOutlineView with step
+                      if (step === 'outline') {
+                        setShowOutlineView(true);
+                      } else if (step === 'details') {
+                        setShowOutlineView(false);
+                      }
                     }
                   }}
                 />
@@ -2252,14 +2258,56 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   </div>
                 )}
 
-                <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
-                  Choose A Title
-                </h1>
-                <p className="text-gray-500 text-center text-lg mb-8">
-                  Select A Title Or Tweak One To Match Your Voice. You Can Change It Anytime.
-                </p>
+                {/* Book Title View */}
+                {!showOutlineView && (
+                  <>
+                    <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
+                      Choose A Title
+                    </h1>
+                    <p className="text-gray-500 text-center text-lg mb-8">
+                      Select A Title Or Tweak One To Match Your Voice. You Can Change It Anytime.
+                    </p>
+                  </>
+                )}
 
-              {titleSuggestions.length > 0 ? (
+                {/* Book Outline View Header */}
+                {showOutlineView && (
+                  <>
+                    <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
+                      Book Outline
+                    </h1>
+                    <p className="text-gray-500 text-center text-lg mb-8">
+                      Customize your chapters and table of contents. You can add, remove, or reorder chapters.
+                    </p>
+                    
+                    {/* Selected Title Display */}
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <BookOpen className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-emerald-600 font-medium">Selected Title</p>
+                          <p className="text-gray-900 font-semibold">{bookData.selectedTitle}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setShowOutlineView(false);
+                            setCourseBuilderStep('details');
+                          }}
+                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100"
+                        >
+                          <Pencil className="w-4 h-4 mr-1" />
+                          Change
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+              {titleSuggestions.length > 0 && !showOutlineView ? (
                   <>
                     <div ref={titleCardsRef} className="space-y-3">
                       {titleSuggestions.map((title, index) => {
@@ -2517,93 +2565,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       )}
                     </div>
 
-                    {/* Chapter Sequence Editor - Shows when title is selected */}
-                    {bookData.selectedTitle && (
-                      <div className="mt-8">
-                        <div className="flex items-center justify-between mb-4">
-                          <h2 className="text-2xl font-bold text-gray-900">Chapter Outline</h2>
-                          <Button
-                            variant="outline"
-                            onClick={() => setShowChapterEditor(!showChapterEditor)}
-                            className="flex items-center gap-2"
-                          >
-                            {showChapterEditor ? (
-                              <>
-                                <ChevronDown className="w-4 h-4" />
-                                Collapse
-                              </>
-                            ) : (
-                              <>
-                                <Pencil className="w-4 h-4" />
-                                Edit Chapters
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                        
-                        {!showChapterEditor ? (
-                          /* Collapsed View - Summary */
-                          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                            <div className="flex items-center gap-4 mb-4">
-                              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                <BookOpen className="w-6 h-6 text-emerald-600" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-gray-900">{chapterSequence.length} Chapters</h3>
-                                <p className="text-sm text-gray-500">
-                                  ~{chapterSequence.reduce((acc, ch) => acc + ch.pageCount, 0)} pages • {bookData.includeImages ? 'With illustrations' : 'Text only'}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              {chapterSequence.slice(0, 4).map((chapter, index) => (
-                                <div key={chapter.id} className="flex items-center gap-3 text-sm">
-                                  <span className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-medium">
-                                    {index + 1}
-                                  </span>
-                                  <span className="text-gray-700">{chapter.title}</span>
-                                </div>
-                              ))}
-                              {chapterSequence.length > 4 && (
-                                <p className="text-sm text-gray-400 pl-9">
-                                  +{chapterSequence.length - 4} more chapters...
-                                </p>
-                              )}
-                            </div>
-                            <Button
-                              variant="ghost"
-                              onClick={() => setShowChapterEditor(true)}
-                              className="mt-4 w-full text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                            >
-                              <Pencil className="w-4 h-4 mr-2" />
-                              Edit Chapter Details
-                            </Button>
-                          </div>
-                        ) : (
-                          /* Expanded View - Full Editor */
-                          <ChapterSequenceEditor
-                            bookTitle={bookData.selectedTitle}
-                            bookDescription={bookDescription}
-                            chapters={chapterSequence}
-                            onBookTitleChange={(title) => setBookData(prev => ({ ...prev, selectedTitle: title }))}
-                            onBookDescriptionChange={setBookDescription}
-                            onChaptersChange={setChapterSequence}
-                            includeImages={bookData.includeImages}
-                            onIncludeImagesChange={(include) => setBookData(prev => ({ ...prev, includeImages: include }))}
-                          />
-                        )}
-                        
-                        {/* Lesson Settings Panel */}
-                        <LessonSettingsPanel
-                          generationMode={generationMode}
-                          onGenerationModeChange={setGenerationMode}
-                          includeImages={bookData.includeImages}
-                          onIncludeImagesChange={(include) => setBookData(prev => ({ ...prev, includeImages: include }))}
-                        />
-                      </div>
-                    )}
-
-                    {/* Navigation Buttons */}
+                    {/* Navigation Buttons - Title Selection View */}
                     <div className="flex items-center justify-between pt-6 border-t border-gray-200 mt-8">
                       <Button
                         variant="outline"
@@ -2616,9 +2578,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       <div className="flex items-center gap-3">
                         <Button
                           variant="outline"
-                          onClick={() => {
-                            handleGenerate();
-                          }}
+                          onClick={() => handleGenerate()}
                           disabled={isGenerating}
                           className="flex items-center gap-2"
                         >
@@ -2631,27 +2591,139 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               toast.error('Please select a title first');
                               return;
                             }
-                            handleGenerateBook();
+                            setShowOutlineView(true);
+                            setCourseBuilderStep('outline');
+                            if (!completedSteps.includes('details')) {
+                              setCompletedSteps(prev => [...prev, 'details']);
+                            }
                           }}
-                          disabled={!bookData.selectedTitle || isGeneratingBook}
+                          disabled={!bookData.selectedTitle}
                           className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2"
                         >
-                          {isGeneratingBook ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              Generating...
-                            </>
-                          ) : (
-                            <>
-                              Generate eBook
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
+                          Continue
+                          <ArrowRight className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
                   </>
-                ) : (
+                ) : titleSuggestions.length > 0 && showOutlineView ? (
+                  <>
+                    {/* Chapter Outline Editor - Book Outline View */}
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-2xl font-bold text-gray-900">Chapter Outline</h2>
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowChapterEditor(!showChapterEditor)}
+                          className="flex items-center gap-2"
+                        >
+                          {showChapterEditor ? (
+                            <>
+                              <ChevronDown className="w-4 h-4" />
+                              Collapse
+                            </>
+                          ) : (
+                            <>
+                              <Pencil className="w-4 h-4" />
+                              Edit Chapters
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      {!showChapterEditor ? (
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                              <BookOpen className="w-6 h-6 text-emerald-600" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{chapterSequence.length} Chapters</h3>
+                              <p className="text-sm text-gray-500">
+                                ~{chapterSequence.reduce((acc, ch) => acc + ch.pageCount, 0)} pages • {bookData.includeImages ? 'With illustrations' : 'Text only'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            {chapterSequence.slice(0, 4).map((chapter, index) => (
+                              <div key={chapter.id} className="flex items-center gap-3 text-sm">
+                                <span className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-medium">
+                                  {index + 1}
+                                </span>
+                                <span className="text-gray-700">{chapter.title}</span>
+                              </div>
+                            ))}
+                            {chapterSequence.length > 4 && (
+                              <p className="text-sm text-gray-400 pl-9">
+                                +{chapterSequence.length - 4} more chapters...
+                              </p>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            onClick={() => setShowChapterEditor(true)}
+                            className="mt-4 w-full text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          >
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit Chapter Details
+                          </Button>
+                        </div>
+                      ) : (
+                        <ChapterSequenceEditor
+                          bookTitle={bookData.selectedTitle}
+                          bookDescription={bookDescription}
+                          chapters={chapterSequence}
+                          onBookTitleChange={(title) => setBookData(prev => ({ ...prev, selectedTitle: title }))}
+                          onBookDescriptionChange={setBookDescription}
+                          onChaptersChange={setChapterSequence}
+                          includeImages={bookData.includeImages}
+                          onIncludeImagesChange={(include) => setBookData(prev => ({ ...prev, includeImages: include }))}
+                        />
+                      )}
+                      
+                      <LessonSettingsPanel
+                        generationMode={generationMode}
+                        onGenerationModeChange={setGenerationMode}
+                        includeImages={bookData.includeImages}
+                        onIncludeImagesChange={(include) => setBookData(prev => ({ ...prev, includeImages: include }))}
+                      />
+                    </div>
+
+                    {/* Navigation Buttons - Outline View */}
+                    <div className="flex items-center justify-between pt-6 border-t border-gray-200 mt-8">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowOutlineView(false);
+                          setCourseBuilderStep('details');
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                        Back
+                      </Button>
+                      <Button
+                        onClick={() => handleGenerateBook()}
+                        disabled={isGeneratingBook}
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2"
+                      >
+                        {isGeneratingBook ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            Generate eBook
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                ) : null}
+                {/* Empty state when no titles */}
+                {titleSuggestions.length === 0 && !showOutlineView && (
                   <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
                     <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500">Complete the Idea step first to generate title ideas</p>
