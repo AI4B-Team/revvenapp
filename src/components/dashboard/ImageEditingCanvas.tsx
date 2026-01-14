@@ -337,6 +337,24 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushStrokes, setBrushStrokes] = useState<Array<{ points: Array<{x: number, y: number}>, color: string, size: number, opacity: number, isEraser?: boolean }>>([]);
   const [currentStroke, setCurrentStroke] = useState<Array<{x: number, y: number}>>([]);
+  
+  // Text elements state
+  interface TextElement {
+    id: string;
+    text: string;
+    x: number;
+    y: number;
+    fontSize: number;
+    fontFamily: string;
+    color: string;
+    isBold: boolean;
+    isItalic: boolean;
+    isUnderline: boolean;
+    alignment: 'Left' | 'Center' | 'Right' | 'Justify';
+  }
+  const [textElements, setTextElements] = useState<TextElement[]>([]);
+  const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
+  const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -852,6 +870,52 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     }
   };
 
+  // Handle text tool click - add text element at clicked position
+  const handleTextClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (activeTool !== 'text' || !drawingCanvasRef.current) return;
+    
+    const canvas = drawingCanvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const newTextId = `text-${Date.now()}`;
+    const newText: TextElement = {
+      id: newTextId,
+      text: 'Double-click to edit',
+      x,
+      y,
+      fontSize: toolSettings.fontSize || 24,
+      fontFamily: 'Inter',
+      color: toolSettings.textColor || '#000000',
+      isBold: false,
+      isItalic: false,
+      isUnderline: false,
+      alignment: 'Left',
+    };
+    
+    setTextElements(prev => [...prev, newText]);
+    setSelectedTextId(newTextId);
+    setEditingTextId(newTextId);
+    
+    toast({
+      title: "Text Added",
+      description: "Click on the text to edit it",
+    });
+  };
+
+  // Update text element
+  const updateTextElement = (id: string, updates: Partial<TextElement>) => {
+    setTextElements(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+  };
+
+  // Delete text element
+  const deleteTextElement = (id: string) => {
+    setTextElements(prev => prev.filter(t => t.id !== id));
+    if (selectedTextId === id) setSelectedTextId(null);
+    if (editingTextId === id) setEditingTextId(null);
+  };
+
   const canvasTools = [
     { id: 'select', icon: <MousePointer2 className="w-4 h-4" />, tooltip: 'Select' },
     { id: 'brush', icon: <Paintbrush className="w-4 h-4" />, tooltip: 'Brush' },
@@ -1121,6 +1185,41 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const renderToolSettingsPanel = () => {
     if (!currentToolSettings) return null;
 
+    // Helper to update selected text when text tool settings change
+    const handleTextSettingChange = (key: string, value: any) => {
+      setToolSettings({ ...toolSettings, [key]: value });
+      
+      // If text tool is active and a text is selected, apply changes to it
+      if (activeTool === 'text' && selectedTextId) {
+        const updates: Record<string, any> = {};
+        if (key === 'fontSize') updates.fontSize = value;
+        if (key === 'textColor') updates.color = value;
+        if (Object.keys(updates).length > 0) {
+          updateTextElement(selectedTextId, updates);
+        }
+      }
+    };
+
+    // Handle text style button clicks
+    const handleTextStyleClick = (style: string) => {
+      if (activeTool === 'text' && selectedTextId) {
+        const selectedText = textElements.find(t => t.id === selectedTextId);
+        if (selectedText) {
+          if (style === 'Bold') updateTextElement(selectedTextId, { isBold: !selectedText.isBold });
+          if (style === 'Italic') updateTextElement(selectedTextId, { isItalic: !selectedText.isItalic });
+          if (style === 'Underline') updateTextElement(selectedTextId, { isUnderline: !selectedText.isUnderline });
+        }
+      }
+    };
+
+    // Handle text alignment change
+    const handleTextAlignmentClick = (alignment: string) => {
+      if (activeTool === 'text' && selectedTextId) {
+        updateTextElement(selectedTextId, { alignment: alignment as 'Left' | 'Center' | 'Right' | 'Justify' });
+      }
+      setToolSettings({ ...toolSettings, alignment });
+    };
+
     return (
       <div className="p-5 space-y-5">
         <div className="flex items-center justify-between">
@@ -1136,6 +1235,16 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           </button>
         </div>
 
+        {/* Text tool: Show selected text info */}
+        {activeTool === 'text' && selectedTextId && (
+          <div className="bg-slate-700/40 rounded-lg p-3 mb-2">
+            <span className="text-xs text-slate-400">Selected Text</span>
+            <p className="text-sm text-white truncate">
+              {textElements.find(t => t.id === selectedTextId)?.text || 'None'}
+            </p>
+          </div>
+        )}
+
         {currentToolSettings.settings.map((setting: any, index: number) => (
           <div key={index} className="space-y-2">
             {setting.type === 'slider' && (
@@ -1145,7 +1254,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 </div>
                 <Slider
                   value={toolSettings[setting.key] || setting.min}
-                  onChange={(value) => setToolSettings({ ...toolSettings, [setting.key]: value })}
+                  onChange={(value) => handleTextSettingChange(setting.key, value)}
                   min={setting.min}
                   max={setting.max}
                   step={setting.step || 1}
@@ -1158,11 +1267,38 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 <div className="grid grid-cols-2 gap-2">
                   {setting.options.map((opt: string) => {
                     const settingKey = setting.key || setting.label.toLowerCase().replace(/\s+/g, '');
-                    const isSelected = toolSettings[settingKey] === opt || (!toolSettings[settingKey] && opt === setting.options[0]);
+                    let isSelected = toolSettings[settingKey] === opt || (!toolSettings[settingKey] && opt === setting.options[0]);
+                    
+                    // For text style buttons, check actual text element state
+                    if (activeTool === 'text' && setting.label === 'Style' && selectedTextId) {
+                      const selectedText = textElements.find(t => t.id === selectedTextId);
+                      if (selectedText) {
+                        if (opt === 'Bold') isSelected = selectedText.isBold;
+                        if (opt === 'Italic') isSelected = selectedText.isItalic;
+                        if (opt === 'Underline') isSelected = selectedText.isUnderline;
+                      }
+                    }
+                    
+                    // For text alignment, check actual text element state
+                    if (activeTool === 'text' && setting.label === 'Alignment' && selectedTextId) {
+                      const selectedText = textElements.find(t => t.id === selectedTextId);
+                      if (selectedText) {
+                        isSelected = selectedText.alignment === opt;
+                      }
+                    }
+                    
                     return (
                       <button
                         key={opt}
-                        onClick={() => setToolSettings({ ...toolSettings, [settingKey]: opt })}
+                        onClick={() => {
+                          if (activeTool === 'text' && setting.label === 'Style') {
+                            handleTextStyleClick(opt);
+                          } else if (activeTool === 'text' && setting.label === 'Alignment') {
+                            handleTextAlignmentClick(opt);
+                          } else {
+                            setToolSettings({ ...toolSettings, [settingKey]: opt });
+                          }
+                        }}
                         className={`px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                           isSelected 
                             ? 'bg-indigo-500 text-white' 
@@ -1189,7 +1325,16 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               <>
                 <span className="text-sm text-slate-200">{setting.label}</span>
                 <div className="relative">
-                  <select className="w-full bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2.5 text-sm appearance-none cursor-pointer">
+                  <select 
+                    className="w-full bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2.5 text-sm appearance-none cursor-pointer"
+                    value={toolSettings.fontFamily || 'Inter'}
+                    onChange={(e) => {
+                      setToolSettings({ ...toolSettings, fontFamily: e.target.value });
+                      if (activeTool === 'text' && selectedTextId) {
+                        updateTextElement(selectedTextId, { fontFamily: e.target.value });
+                      }
+                    }}
+                  >
                     {setting.options.map((opt: string) => (
                       <option key={opt} value={opt}>{opt}</option>
                     ))}
@@ -1205,7 +1350,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                   <input
                     type="color"
                     value={toolSettings[setting.key] || '#000000'}
-                    onChange={(e) => setToolSettings({ ...toolSettings, [setting.key]: e.target.value })}
+                    onChange={(e) => handleTextSettingChange(setting.key, e.target.value)}
                     className="w-8 h-8 rounded-lg border border-slate-600 cursor-pointer bg-transparent p-0 overflow-hidden"
                   />
                   <input 
@@ -1214,7 +1359,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                     onChange={(e) => {
                       const value = e.target.value;
                       if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                        setToolSettings({ ...toolSettings, [setting.key]: value });
+                        handleTextSettingChange(setting.key, value);
                       }
                     }}
                     className="flex-1 bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2 text-sm"
@@ -1224,6 +1369,17 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             )}
           </div>
         ))}
+
+        {/* Delete selected text button */}
+        {activeTool === 'text' && selectedTextId && (
+          <button
+            onClick={() => deleteTextElement(selectedTextId)}
+            className="w-full px-4 py-2.5 bg-red-500/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-500/30 transition-colors flex items-center justify-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete Selected Text
+          </button>
+        )}
       </div>
     );
   };
@@ -1442,21 +1598,98 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           className="w-full h-auto"
                           draggable={false}
                         />
-                        {/* Drawing canvas overlay for brush/eraser/fill tools */}
+                        {/* Drawing canvas overlay for brush/eraser/fill/text tools */}
                         <canvas
                           ref={drawingCanvasRef}
                           className="absolute inset-0 w-full h-full"
                           style={{
-                            cursor: activeTool === 'fill' ? 'crosshair' : 
+                            cursor: activeTool === 'fill' || activeTool === 'text' ? 'crosshair' : 
                                    (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
-                            pointerEvents: (activeTool === 'brush' || activeTool === 'eraser' || activeTool === 'fill') ? 'auto' : 'none',
+                            pointerEvents: (activeTool === 'brush' || activeTool === 'eraser' || activeTool === 'fill' || activeTool === 'text') ? 'auto' : 'none',
                           }}
                           onMouseDown={handleBrushStart}
                           onMouseMove={handleBrushMove}
                           onMouseUp={handleBrushEnd}
                           onMouseLeave={handleBrushEnd}
-                          onClick={handleFillClick}
+                          onClick={(e) => {
+                            if (activeTool === 'fill') handleFillClick(e);
+                            if (activeTool === 'text') handleTextClick(e);
+                          }}
                         />
+                        {/* Text elements overlay */}
+                        {textElements.map((textEl) => (
+                          <div
+                            key={textEl.id}
+                            className={`absolute cursor-move ${selectedTextId === textEl.id ? 'ring-2 ring-blue-500' : ''}`}
+                            style={{
+                              left: textEl.x,
+                              top: textEl.y,
+                              transform: 'translate(-50%, -50%)',
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTextId(textEl.id);
+                            }}
+                            onDoubleClick={(e) => {
+                              e.stopPropagation();
+                              setEditingTextId(textEl.id);
+                            }}
+                          >
+                            {editingTextId === textEl.id ? (
+                              <input
+                                type="text"
+                                value={textEl.text}
+                                onChange={(e) => updateTextElement(textEl.id, { text: e.target.value })}
+                                onBlur={() => setEditingTextId(null)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') setEditingTextId(null);
+                                  if (e.key === 'Escape') setEditingTextId(null);
+                                  if (e.key === 'Delete' || e.key === 'Backspace') {
+                                    if (textEl.text === '') deleteTextElement(textEl.id);
+                                  }
+                                }}
+                                autoFocus
+                                className="bg-transparent border-none outline-none text-center min-w-[100px]"
+                                style={{
+                                  fontSize: `${textEl.fontSize}px`,
+                                  fontFamily: textEl.fontFamily,
+                                  color: textEl.color,
+                                  fontWeight: textEl.isBold ? 'bold' : 'normal',
+                                  fontStyle: textEl.isItalic ? 'italic' : 'normal',
+                                  textDecoration: textEl.isUnderline ? 'underline' : 'none',
+                                  textAlign: textEl.alignment.toLowerCase() as any,
+                                }}
+                              />
+                            ) : (
+                              <span
+                                style={{
+                                  fontSize: `${textEl.fontSize}px`,
+                                  fontFamily: textEl.fontFamily,
+                                  color: textEl.color,
+                                  fontWeight: textEl.isBold ? 'bold' : 'normal',
+                                  fontStyle: textEl.isItalic ? 'italic' : 'normal',
+                                  textDecoration: textEl.isUnderline ? 'underline' : 'none',
+                                  textAlign: textEl.alignment.toLowerCase() as any,
+                                  whiteSpace: 'nowrap',
+                                  userSelect: 'none',
+                                }}
+                              >
+                                {textEl.text}
+                              </span>
+                            )}
+                            {selectedTextId === textEl.id && !editingTextId && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteTextElement(textEl.id);
+                                }}
+                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        ))}
                         {/* Processing overlay */}
                         {isProcessing && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
