@@ -695,6 +695,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   // Redraw all strokes when canvas size changes or strokes update
   useEffect(() => {
     if (!drawingCanvasRef.current || !imageRef.current) return;
+    // Don't redraw while actively drawing - it causes flicker and resets composite operation
+    if (isDrawing) return;
     
     const canvas = drawingCanvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -705,28 +707,27 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     canvas.width = imgRect.width;
     canvas.height = imgRect.height;
     
-    // Redraw all strokes
+    // Redraw all strokes in order - this preserves the eraser effect
     brushStrokes.forEach(stroke => {
-      const isEraser = stroke.isEraser === true;
+      const isEraserStroke = stroke.isEraser === true;
       
-      if (isEraser) {
+      // Set composite operation before drawing
+      if (isEraserStroke) {
         ctx.globalCompositeOperation = 'destination-out';
-        ctx.fillStyle = 'rgba(0,0,0,1)';
-        ctx.strokeStyle = 'rgba(0,0,0,1)';
       } else {
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = stroke.color;
-        ctx.strokeStyle = stroke.color;
       }
       
       ctx.globalAlpha = stroke.opacity / 100;
       
       if (stroke.points.length < 2) {
         // Single point - draw a circle
+        ctx.fillStyle = isEraserStroke ? 'rgba(0,0,0,1)' : stroke.color;
         ctx.beginPath();
         ctx.arc(stroke.points[0].x, stroke.points[0].y, stroke.size / 2, 0, Math.PI * 2);
         ctx.fill();
       } else {
+        ctx.strokeStyle = isEraserStroke ? 'rgba(0,0,0,1)' : stroke.color;
         ctx.lineWidth = stroke.size;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -738,7 +739,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         ctx.stroke();
       }
     });
-  }, [brushStrokes, selectedImage]);
+    
+    // Reset to default composite operation
+    ctx.globalCompositeOperation = 'source-over';
+  }, [brushStrokes, selectedImage, isDrawing]);
 
   // Clear brush strokes function
   const clearBrushStrokes = () => {
