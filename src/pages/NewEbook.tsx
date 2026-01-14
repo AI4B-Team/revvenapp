@@ -1666,7 +1666,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           <button 
                             onClick={handleAutoPrompt}
                             disabled={isEnhancingPrompt}
-                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 mt-1"
+                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                           >
                             {isEnhancingPrompt ? (
                               <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
