@@ -22,7 +22,7 @@ serve(async (req) => {
 
     console.log('Starting background removal for:', imageUrl);
 
-    // Create the task using BRIA RMBG model
+    // Create the task using Recraft remove-background model
     const createResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
       method: 'POST',
       headers: {
@@ -30,9 +30,9 @@ serve(async (req) => {
         'Authorization': `Bearer ${kieApiKey}`,
       },
       body: JSON.stringify({
-        model: 'bria/rmbg-2.0',
+        model: 'recraft/remove-background',
         input: {
-          image_url: imageUrl,
+          image: imageUrl,
         },
       }),
     });
