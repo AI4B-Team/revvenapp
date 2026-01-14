@@ -615,14 +615,19 @@ const NewEbook = () => {
     setUploadedFiles(prev => prev.filter(f => f.id !== id));
   };
 
-  // Click outside to deselect title
+  // Click outside to deselect title (only when not clicking on buttons)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Don't deselect if clicking a button (Continue, Regenerate, etc.)
+      if (target.closest('button')) {
+        return;
+      }
       if (
         activeTab === 'generate' &&
         bookData.selectedTitle &&
         titleCardsRef.current &&
-        !titleCardsRef.current.contains(event.target as Node)
+        !titleCardsRef.current.contains(target)
       ) {
         setBookData(prev => ({ ...prev, selectedTitle: '' }));
       }
