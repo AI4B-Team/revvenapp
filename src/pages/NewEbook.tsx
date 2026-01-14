@@ -19,7 +19,7 @@ import EbookCanvasEditor from '@/components/ebook/EbookCanvasEditor';
 import EbookGenerationOverlay from '@/components/ebook/EbookGenerationOverlay';
 import ChapterSequenceEditor, { ChapterData } from '@/components/ebook/ChapterSequenceEditor';
 import CourseBuilderProgress, { CourseBuilderStep } from '@/components/ebook/CourseBuilderProgress';
-import LessonSettingsPanel, { GenerationMode } from '@/components/ebook/LessonSettingsPanel';
+import LessonSettingsPanel, { GenerationMode, WordCountOption } from '@/components/ebook/LessonSettingsPanel';
 import GenerationProgressPanel from '@/components/ebook/GenerationProgressPanel';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -352,6 +352,7 @@ const NewEbook = () => {
   const [courseBuilderStep, setCourseBuilderStep] = useState<CourseBuilderStep>('source');
   const [completedSteps, setCompletedSteps] = useState<CourseBuilderStep[]>([]);
   const [generationMode, setGenerationMode] = useState<GenerationMode>('text-interactive');
+  const [wordsPerChapter, setWordsPerChapter] = useState<WordCountOption>(1500);
   const [isGeneratingLessons, setIsGeneratingLessons] = useState(false);
   const [currentLessonIndex, setCurrentLessonIndex] = useState(1);
   const [isEnhancingPrompt, setIsEnhancingPrompt] = useState(false);
@@ -2693,6 +2694,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                         onGenerationModeChange={setGenerationMode}
                         includeImages={bookData.includeImages}
                         onIncludeImagesChange={(include) => setBookData(prev => ({ ...prev, includeImages: include }))}
+                        wordsPerChapter={wordsPerChapter}
+                        onWordsPerChapterChange={setWordsPerChapter}
                       />
                     </div>
 
