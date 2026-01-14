@@ -17,12 +17,18 @@ import {
   ThumbsDown,
   Zap,
   Brain,
-  Target
+  Target,
+  Headphones,
+  Bot,
+  Radio
 } from 'lucide-react';
+import type { CallMode, CallType } from '@/pages/MasterCloser';
 
 interface MCLiveCallProps {
   isActive: boolean;
   onEndCall: () => void;
+  callMode: CallMode;
+  callType: CallType;
 }
 
 interface TranscriptMessage {
@@ -41,7 +47,7 @@ interface AISuggestion {
   reasoning?: string;
 }
 
-const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall }) => {
+const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, callType }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [sentiment, setSentiment] = useState(75);
@@ -148,11 +154,30 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall }) => {
         <div className="border-b border-border bg-muted/50 p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
-                <Phone className="w-6 h-6 text-white" />
+              <div className={`w-12 h-12 ${callMode === 'listen' ? 'bg-blue-500' : 'bg-emerald-500'} rounded-full flex items-center justify-center`}>
+                {callMode === 'listen' ? (
+                  <Headphones className="w-6 h-6 text-white" />
+                ) : (
+                  <Phone className="w-6 h-6 text-white" />
+                )}
               </div>
               <div>
-                <h2 className="font-bold text-lg text-foreground">Sarah Johnson</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-bold text-lg text-foreground">Sarah Johnson</h2>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    callMode === 'listen' 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : callType === 'ai-voice-agent' 
+                        ? 'bg-purple-100 text-purple-700' 
+                        : 'bg-emerald-100 text-emerald-700'
+                  }`}>
+                    {callMode === 'listen' 
+                      ? '🎧 Listen Mode' 
+                      : callType === 'ai-voice-agent' 
+                        ? '🤖 AI Voice Agent' 
+                        : '🎙️ Transcription'}
+                  </span>
+                </div>
                 <p className="text-sm text-muted-foreground">VP of Marketing • Acme Corp</p>
               </div>
             </div>
@@ -160,13 +185,15 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall }) => {
             <div className="flex items-center gap-3">
               <div className="text-right">
                 <div className="text-2xl font-bold font-mono text-foreground">{formatDuration(callDuration)}</div>
-                <div className="text-xs text-muted-foreground">Call Duration</div>
+                <div className="text-xs text-muted-foreground">
+                  {callMode === 'listen' ? 'Listening Duration' : 'Call Duration'}
+                </div>
               </div>
               
               <button
                 onClick={onEndCall}
                 className="p-3 bg-red-500 hover:bg-red-600 rounded-full transition-colors text-white"
-                title="End Call"
+                title={callMode === 'listen' ? 'Stop Listening' : 'End Call'}
               >
                 <PhoneOff className="w-5 h-5" />
               </button>
@@ -175,26 +202,54 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall }) => {
 
           {/* Call Controls */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsMuted(!isMuted)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                isMuted ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'
-              }`}
-            >
-              {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              <span className="text-sm">{isMuted ? 'Unmute' : 'Mute'}</span>
-            </button>
+            {callMode === 'listen' ? (
+              <>
+                {/* Listen Mode Controls */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-blue-100 border border-blue-200 rounded-lg">
+                  <Radio className="w-4 h-4 text-blue-600 animate-pulse" />
+                  <span className="text-sm font-medium text-blue-700">Capturing Tab Audio</span>
+                </div>
+                <button
+                  onClick={() => setIsSpeakerOn(!isSpeakerOn)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    !isSpeakerOn ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'
+                  }`}
+                >
+                  {isSpeakerOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  <span className="text-sm">{isSpeakerOn ? 'Audio On' : 'Audio Off'}</span>
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Start Call Mode Controls */}
+                <button
+                  onClick={() => setIsMuted(!isMuted)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    isMuted ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'
+                  }`}
+                >
+                  {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  <span className="text-sm">{isMuted ? 'Unmute' : 'Mute'}</span>
+                </button>
 
-            <button
-              onClick={() => setIsSpeakerOn(!isSpeakerOn)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                !isSpeakerOn ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'
-              }`}
-            >
-              {isSpeakerOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-              <span className="text-sm">{isSpeakerOn ? 'Speaker On' : 'Speaker Off'}</span>
-            </button>
+                <button
+                  onClick={() => setIsSpeakerOn(!isSpeakerOn)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    !isSpeakerOn ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'
+                  }`}
+                >
+                  {isSpeakerOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  <span className="text-sm">{isSpeakerOn ? 'Speaker On' : 'Speaker Off'}</span>
+                </button>
 
+                {callType === 'ai-voice-agent' && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-purple-100 border border-purple-200 rounded-lg">
+                    <Bot className="w-4 h-4 text-purple-600" />
+                    <span className="text-sm font-medium text-purple-700">AI Voice Agent Active</span>
+                  </div>
+                )}
+              </>
+            )}
             {/* Sentiment Indicator */}
             <div className="ml-auto flex items-center gap-3 px-4 py-2 bg-card border border-border rounded-lg">
               <Brain className={`w-5 h-5 ${sentimentColors.icon}`} />
@@ -256,13 +311,21 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall }) => {
           ))}
 
           {/* Live Listening Indicator */}
-          <div className="flex items-center justify-center gap-3 p-4 bg-emerald-100 border border-emerald-200 rounded-lg">
+          <div className={`flex items-center justify-center gap-3 p-4 ${
+            callMode === 'listen' ? 'bg-blue-100 border border-blue-200' : 'bg-emerald-100 border border-emerald-200'
+          } rounded-lg`}>
             <div className="flex gap-1">
-              <div className="w-1 h-4 bg-emerald-500 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
-              <div className="w-1 h-4 bg-emerald-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-              <div className="w-1 h-4 bg-emerald-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+              <div className={`w-1 h-4 ${callMode === 'listen' ? 'bg-blue-500' : 'bg-emerald-500'} rounded-full animate-pulse`} style={{ animationDelay: '0s' }} />
+              <div className={`w-1 h-4 ${callMode === 'listen' ? 'bg-blue-500' : 'bg-emerald-500'} rounded-full animate-pulse`} style={{ animationDelay: '0.2s' }} />
+              <div className={`w-1 h-4 ${callMode === 'listen' ? 'bg-blue-500' : 'bg-emerald-500'} rounded-full animate-pulse`} style={{ animationDelay: '0.4s' }} />
             </div>
-            <span className="text-sm text-emerald-700 font-medium">AI is listening and analyzing...</span>
+            <span className={`text-sm ${callMode === 'listen' ? 'text-blue-700' : 'text-emerald-700'} font-medium`}>
+              {callMode === 'listen' 
+                ? 'AI is listening to external call and analyzing...' 
+                : callType === 'ai-voice-agent'
+                  ? 'AI Voice Agent is handling the conversation...'
+                  : 'AI is listening and analyzing...'}
+            </span>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Phone,
   TrendingUp,
@@ -8,14 +8,19 @@ import {
   Award,
   BarChart3,
   Users,
-  Play
+  Play,
+  Headphones,
+  Bot,
+  Mic
 } from 'lucide-react';
+import type { CallMode, CallType } from '@/pages/MasterCloser';
 
 interface MCDashboardProps {
-  onStartCall: () => void;
+  onStartCall: (mode: CallMode, type: CallType) => void;
 }
 
 const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
+  const [selectedCallType, setSelectedCallType] = useState<CallType>('transcription-only');
   const stats = [
     {
       label: 'Total Calls',
@@ -102,22 +107,80 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
 
       {/* Quick Start Card */}
       <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center">
               <Zap className="w-8 h-8 text-white" />
             </div>
             <div>
               <h3 className="text-2xl font-bold mb-1 text-foreground">Ready To Crush Your Quota?</h3>
-              <p className="text-muted-foreground">Start a call and let AI guide you to the close</p>
+              <p className="text-muted-foreground">Choose your mode and let AI guide you to the close</p>
             </div>
           </div>
+        </div>
+
+        {/* Call Type Selector */}
+        <div className="mb-6">
+          <p className="text-sm font-medium text-muted-foreground mb-3">Call Type</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setSelectedCallType('transcription-only')}
+              className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                selectedCallType === 'transcription-only'
+                  ? 'border-emerald-500 bg-emerald-100'
+                  : 'border-border bg-card hover:border-emerald-300'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                selectedCallType === 'transcription-only' ? 'bg-emerald-500' : 'bg-muted'
+              }`}>
+                <Mic className={`w-5 h-5 ${selectedCallType === 'transcription-only' ? 'text-white' : 'text-muted-foreground'}`} />
+              </div>
+              <div className="text-left">
+                <div className={`font-semibold ${selectedCallType === 'transcription-only' ? 'text-emerald-700' : 'text-foreground'}`}>
+                  Transcription Only
+                </div>
+                <div className="text-xs text-muted-foreground">Real-time transcription + AI suggestions</div>
+              </div>
+            </button>
+            <button
+              onClick={() => setSelectedCallType('ai-voice-agent')}
+              className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                selectedCallType === 'ai-voice-agent'
+                  ? 'border-purple-500 bg-purple-100'
+                  : 'border-border bg-card hover:border-purple-300'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                selectedCallType === 'ai-voice-agent' ? 'bg-purple-500' : 'bg-muted'
+              }`}>
+                <Bot className={`w-5 h-5 ${selectedCallType === 'ai-voice-agent' ? 'text-white' : 'text-muted-foreground'}`} />
+              </div>
+              <div className="text-left">
+                <div className={`font-semibold ${selectedCallType === 'ai-voice-agent' ? 'text-purple-700' : 'text-foreground'}`}>
+                  AI Voice Agent
+                </div>
+                <div className="text-xs text-muted-foreground">AI handles the call with your voice</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3">
           <button
-            onClick={onStartCall}
-            className="flex items-center gap-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-bold text-lg text-white transition-all transform hover:scale-105"
+            onClick={() => onStartCall('start-call', selectedCallType)}
+            className="flex-1 flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-bold text-lg text-white transition-all transform hover:scale-105"
           >
             <Play className="w-6 h-6" />
-            Start New Call
+            Start Call
+          </button>
+          <button
+            onClick={() => onStartCall('listen', selectedCallType)}
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-500 hover:bg-blue-600 rounded-lg font-bold text-lg text-white transition-all transform hover:scale-105"
+          >
+            <Headphones className="w-6 h-6" />
+            Listen Mode
           </button>
         </div>
       </div>
