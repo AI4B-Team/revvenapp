@@ -751,7 +751,7 @@ const NewEbook = () => {
     // Mark outline step as complete when a title is selected
     if (!completedSteps.includes('outline')) {
       setCompletedSteps(prev => [...prev, 'outline']);
-      setCourseBuilderStep('lessons');
+      setCourseBuilderStep('chapters');
     }
   };
 
@@ -2127,17 +2127,17 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 {isGeneratingLessons && (
                   <GenerationProgressPanel
                     isGenerating={isGeneratingLessons}
-                    totalLessons={chapterSequence.length}
-                    currentLesson={currentLessonIndex}
-                    currentLessonTitle={chapterSequence[currentLessonIndex - 1]?.title || 'Introduction'}
+                    totalChapters={chapterSequence.length}
+                    currentChapter={currentLessonIndex}
+                    currentChapterTitle={chapterSequence[currentLessonIndex - 1]?.title || 'Introduction'}
                     onCancel={() => {
                       setIsGeneratingLessons(false);
                       setCurrentLessonIndex(1);
                     }}
                     onComplete={() => {
                       setIsGeneratingLessons(false);
-                      setCompletedSteps(prev => [...prev, 'lessons']);
-                      toast.success('All lessons generated successfully!');
+                      setCompletedSteps(prev => [...prev, 'chapters']);
+                      toast.success('All chapters generated successfully!');
                     }}
                   />
                 )}

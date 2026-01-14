@@ -1,22 +1,25 @@
 import React from 'react';
 import { Check, FileText, Settings, List, BookOpen } from 'lucide-react';
 
-export type CourseBuilderStep = 'source' | 'details' | 'outline' | 'lessons';
+export type EbookBuilderStep = 'source' | 'details' | 'outline' | 'chapters';
 
-interface CourseBuilderProgressProps {
-  currentStep: CourseBuilderStep;
-  onStepClick?: (step: CourseBuilderStep) => void;
-  completedSteps?: CourseBuilderStep[];
+// Keep old export for backwards compatibility
+export type CourseBuilderStep = EbookBuilderStep;
+
+interface EbookBuilderProgressProps {
+  currentStep: EbookBuilderStep;
+  onStepClick?: (step: EbookBuilderStep) => void;
+  completedSteps?: EbookBuilderStep[];
 }
 
-const STEPS: { id: CourseBuilderStep; label: string; icon: typeof FileText }[] = [
+const STEPS: { id: EbookBuilderStep; label: string; icon: typeof FileText }[] = [
   { id: 'source', label: 'Source Material', icon: FileText },
-  { id: 'details', label: 'Course Details', icon: Settings },
-  { id: 'outline', label: 'Course Outline', icon: List },
-  { id: 'lessons', label: 'Lesson Drafts', icon: BookOpen },
+  { id: 'details', label: 'Ebook Details', icon: Settings },
+  { id: 'outline', label: 'Chapter Outline', icon: List },
+  { id: 'chapters', label: 'Chapter Drafts', icon: BookOpen },
 ];
 
-const CourseBuilderProgress: React.FC<CourseBuilderProgressProps> = ({
+const EbookBuilderProgress: React.FC<EbookBuilderProgressProps> = ({
   currentStep,
   onStepClick,
   completedSteps = [],
@@ -83,4 +86,4 @@ const CourseBuilderProgress: React.FC<CourseBuilderProgressProps> = ({
   );
 };
 
-export default CourseBuilderProgress;
+export default EbookBuilderProgress;
