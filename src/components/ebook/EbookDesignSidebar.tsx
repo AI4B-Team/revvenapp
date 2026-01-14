@@ -1000,17 +1000,6 @@ const EbookDesignSidebar = ({
                           {chapter.pageNumber ?? (index + 1)}
                         </span>
 
-                        {/* Badge next to number for typed chapters */}
-                        {chapter.type && (
-                          <span className="px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap bg-gray-300 text-gray-700">
-                            {chapter.type === 'cover' ? 'Cover' :
-                             chapter.type === 'table of contents' ? 'Table Of Contents' :
-                             chapter.type === 'introduction' ? 'Introduction' :
-                             chapter.type === 'summary' ? 'Summary' :
-                             chapter.type}
-                          </span>
-                        )}
-                        
                         {editingChapterId === chapter.id ? (
                           <input
                             type="text"
@@ -1029,15 +1018,15 @@ const EbookDesignSidebar = ({
                             className="flex-1 text-sm font-medium bg-white border border-emerald-400 rounded px-2 py-1 focus:outline-none"
                           />
                         ) : (
-                          <>
-                            {/* Show title - aligned left after badge */}
-                            {!hasType && (
-                              <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate min-w-0">
-                                {chapter.title}
-                              </span>
-                            )}
-                            {hasType && <span className="flex-1" />}
-                          </>
+                          <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate min-w-0">
+                            {chapter.type 
+                              ? (chapter.type === 'cover' ? 'Cover' :
+                                 chapter.type === 'table of contents' ? 'Table Of Contents' :
+                                 chapter.type === 'introduction' ? 'Introduction' :
+                                 chapter.type === 'summary' ? 'Summary' :
+                                 chapter.title)
+                              : chapter.title}
+                          </span>
                         )}
 
                         {/* Right side: Action icons + Page # */}
