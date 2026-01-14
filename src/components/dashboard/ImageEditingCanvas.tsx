@@ -219,7 +219,7 @@ const getToolSettings = (tool: string) => {
       return {
         title: 'Text',
         settings: [
-          { type: 'dropdown', label: 'Font Family', options: ['Inter', 'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Roboto'] },
+          { type: 'dropdown', label: 'Font Family', key: 'fontFamily', options: ['Inter', 'Roboto', 'Montserrat', 'Open Sans', 'Lato', 'Poppins', 'Playfair Display', 'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Verdana', 'Courier New'] },
           { type: 'slider', label: 'Font Size', min: 8, max: 200, key: 'fontSize' },
           { type: 'buttons', label: 'Style', options: ['Bold', 'Italic', 'Underline'] },
           { type: 'buttons', label: 'Alignment', options: ['Left', 'Center', 'Right', 'Justify'] },
@@ -1379,16 +1379,17 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 <div className="relative">
                   <select 
                     className="w-full bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2.5 text-sm appearance-none cursor-pointer"
-                    value={toolSettings.fontFamily || 'Inter'}
+                    value={selectedTextId ? (textElements.find(t => t.id === selectedTextId)?.fontFamily || 'Inter') : (toolSettings.fontFamily || 'Inter')}
                     onChange={(e) => {
                       setToolSettings({ ...toolSettings, fontFamily: e.target.value });
                       if (activeTool === 'text' && selectedTextId) {
                         updateTextElement(selectedTextId, { fontFamily: e.target.value });
                       }
                     }}
+                    style={{ fontFamily: selectedTextId ? (textElements.find(t => t.id === selectedTextId)?.fontFamily || 'Inter') : (toolSettings.fontFamily || 'Inter') }}
                   >
                     {setting.options.map((opt: string) => (
-                      <option key={opt} value={opt}>{opt}</option>
+                      <option key={opt} value={opt} style={{ fontFamily: opt }}>{opt}</option>
                     ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
