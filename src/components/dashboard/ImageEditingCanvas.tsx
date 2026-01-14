@@ -598,9 +598,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     }
   };
 
-  // Brush drawing handlers
+  // Brush/Eraser drawing handlers
   const handleBrushStart = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (activeTool !== 'brush' || !drawingCanvasRef.current) return;
+    if ((activeTool !== 'brush' && activeTool !== 'eraser') || !drawingCanvasRef.current) return;
     
     const canvas = drawingCanvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -613,21 +613,31 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     // Draw initial point
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.globalAlpha = (toolSettings.opacity || 100) / 100;
-      ctx.fillStyle = toolSettings.brushColor || '#000000';
-      // Apply blend mode
-      const blendMode = toolSettings.blendmode || 'Normal';
-      ctx.globalCompositeOperation = blendMode === 'Multiply' ? 'multiply' : 
-                                      blendMode === 'Screen' ? 'screen' : 
-                                      blendMode === 'Overlay' ? 'overlay' : 'source-over';
+      const isEraser = activeTool === 'eraser';
+      const size = isEraser ? (toolSettings.eraserSize || 20) : (toolSettings.brushSize || 20);
+      const opacity = isEraser ? (toolSettings.eraserOpacity || 100) : (toolSettings.opacity || 100);
+      
+      ctx.globalAlpha = opacity / 100;
+      
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+      } else {
+        ctx.fillStyle = toolSettings.brushColor || '#000000';
+        const blendMode = toolSettings.blendmode || 'Normal';
+        ctx.globalCompositeOperation = blendMode === 'Multiply' ? 'multiply' : 
+                                        blendMode === 'Screen' ? 'screen' : 
+                                        blendMode === 'Overlay' ? 'overlay' : 'source-over';
+      }
+      
       ctx.beginPath();
-      ctx.arc(x, y, (toolSettings.brushSize || 20) / 2, 0, Math.PI * 2);
+      ctx.arc(x, y, size / 2, 0, Math.PI * 2);
       ctx.fill();
     }
   };
 
   const handleBrushMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || activeTool !== 'brush' || !drawingCanvasRef.current) return;
+    if (!isDrawing || (activeTool !== 'brush' && activeTool !== 'eraser') || !drawingCanvasRef.current) return;
     
     const canvas = drawingCanvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -640,16 +650,26 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     const ctx = canvas.getContext('2d');
     if (ctx && currentStroke.length > 0) {
       const lastPoint = currentStroke[currentStroke.length - 1];
-      ctx.globalAlpha = (toolSettings.opacity || 100) / 100;
-      ctx.strokeStyle = toolSettings.brushColor || '#000000';
-      ctx.lineWidth = toolSettings.brushSize || 20;
+      const isEraser = activeTool === 'eraser';
+      const size = isEraser ? (toolSettings.eraserSize || 20) : (toolSettings.brushSize || 20);
+      const opacity = isEraser ? (toolSettings.eraserOpacity || 100) : (toolSettings.opacity || 100);
+      
+      ctx.globalAlpha = opacity / 100;
+      ctx.lineWidth = size;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      // Apply blend mode
-      const blendMode = toolSettings.blendmode || 'Normal';
-      ctx.globalCompositeOperation = blendMode === 'Multiply' ? 'multiply' : 
-                                      blendMode === 'Screen' ? 'screen' : 
-                                      blendMode === 'Overlay' ? 'overlay' : 'source-over';
+      
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+      } else {
+        ctx.strokeStyle = toolSettings.brushColor || '#000000';
+        const blendMode = toolSettings.blendmode || 'Normal';
+        ctx.globalCompositeOperation = blendMode === 'Multiply' ? 'multiply' : 
+                                        blendMode === 'Screen' ? 'screen' : 
+                                        blendMode === 'Overlay' ? 'overlay' : 'source-over';
+      }
+      
       ctx.beginPath();
       ctx.moveTo(lastPoint.x, lastPoint.y);
       ctx.lineTo(x, y);
@@ -659,11 +679,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
   const handleBrushEnd = () => {
     if (isDrawing && currentStroke.length > 0) {
+      const isEraser = activeTool === 'eraser';
       setBrushStrokes(prev => [...prev, {
         points: currentStroke,
-        color: toolSettings.brushColor || '#000000',
-        size: toolSettings.brushSize || 20,
-        opacity: toolSettings.opacity || 100
+        color: isEraser ? 'eraser' : (toolSettings.brushColor || '#000000'),
+        size: isEraser ? (toolSettings.eraserSize || 20) : (toolSettings.brushSize || 20),
+        opacity: isEraser ? (toolSettings.eraserOpacity || 100) : (toolSettings.opacity || 100),
+        isEraser: isEraser
       }]);
       setCurrentStroke([]);
     }
@@ -685,16 +707,26 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     
     // Redraw all strokes
     brushStrokes.forEach(stroke => {
+      const isEraser = (stroke as any).isEraser;
+      
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = stroke.color;
+        ctx.strokeStyle = stroke.color;
+      }
+      
+      ctx.globalAlpha = stroke.opacity / 100;
+      
       if (stroke.points.length < 2) {
         // Single point - draw a circle
-        ctx.globalAlpha = stroke.opacity / 100;
-        ctx.fillStyle = stroke.color;
         ctx.beginPath();
         ctx.arc(stroke.points[0].x, stroke.points[0].y, stroke.size / 2, 0, Math.PI * 2);
         ctx.fill();
       } else {
-        ctx.globalAlpha = stroke.opacity / 100;
-        ctx.strokeStyle = stroke.color;
         ctx.lineWidth = stroke.size;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -1312,8 +1344,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           ref={drawingCanvasRef}
                           className="absolute inset-0 w-full h-full"
                           style={{
-                            cursor: activeTool === 'brush' ? 'crosshair' : 'inherit',
-                            pointerEvents: activeTool === 'brush' ? 'auto' : 'none',
+                            cursor: (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
+                            pointerEvents: (activeTool === 'brush' || activeTool === 'eraser') ? 'auto' : 'none',
                           }}
                           onMouseDown={handleBrushStart}
                           onMouseMove={handleBrushMove}
