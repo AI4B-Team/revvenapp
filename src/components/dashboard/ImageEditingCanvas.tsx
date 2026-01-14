@@ -451,11 +451,16 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
   // Composite image with text overlays
   const getCompositedImage = async (): Promise<string | null> => {
-    if (!selectedImage) return null;
+    if (!selectedImage || !imageRef.current) return null;
+    
+    // Get the displayed image dimensions
+    const displayedImg = imageRef.current;
+    const displayWidth = displayedImg.clientWidth;
+    const displayHeight = displayedImg.clientHeight;
     
     return new Promise((resolve) => {
       const img = document.createElement('img');
-      img.crossOrigin = 'anonymous';
+      
       img.onload = () => {
         const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
@@ -469,17 +474,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         // Draw the base image
         ctx.drawImage(img, 0, 0);
         
-        // Get the display dimensions from the image container
-        const imageContainer = document.querySelector('.bg-white.rounded-xl.shadow-xl.overflow-hidden');
-        if (!imageContainer) {
-          resolve(selectedImage);
+        // If no text elements, just return the image
+        if (textElements.length === 0) {
+          resolve(canvas.toDataURL('image/png'));
           return;
         }
-        const containerRect = imageContainer.getBoundingClientRect();
-        const displayWidth = containerRect.width;
-        const displayHeight = containerRect.height;
         
-        // Calculate scale factors
+        // Calculate scale factors based on displayed vs natural dimensions
         const scaleX = img.naturalWidth / displayWidth;
         const scaleY = img.naturalHeight / displayHeight;
         
@@ -493,7 +494,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           if (textEl.isItalic) fontStyle += 'italic ';
           if (textEl.isBold) fontStyle += 'bold ';
           
-          ctx.font = `${fontStyle}${scaledFontSize}px ${textEl.fontFamily}`;
+          ctx.font = `${fontStyle}${scaledFontSize}px "${textEl.fontFamily}"`;
           ctx.fillStyle = textEl.color;
           ctx.textAlign = textEl.alignment.toLowerCase() as CanvasTextAlign;
           ctx.textBaseline = 'middle';
@@ -519,10 +520,26 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           }
         });
         
-        resolve(canvas.toDataURL('image/png'));
+        try {
+          resolve(canvas.toDataURL('image/png'));
+        } catch (e) {
+          console.error('Canvas tainted, cannot export:', e);
+          resolve(selectedImage);
+        }
       };
-      img.onerror = () => resolve(selectedImage);
-      img.src = selectedImage;
+      
+      img.onerror = () => {
+        console.error('Failed to load image for compositing');
+        resolve(selectedImage);
+      };
+      
+      // For data URLs, load directly. For external URLs, try with CORS
+      if (selectedImage.startsWith('data:')) {
+        img.src = selectedImage;
+      } else {
+        img.crossOrigin = 'anonymous';
+        img.src = selectedImage;
+      }
     });
   };
 
