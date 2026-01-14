@@ -25,13 +25,13 @@ serve(async (req) => {
       throw new Error('KIE_AI_API_KEY is not configured');
     }
 
-    // Validate scale factor - must be 2 or 4 for fal/aura-sr
-    const validScales = [2, 4];
-    const upscaleFactor = validScales.includes(Number(scale_factor)) ? Number(scale_factor) : 2;
+    // Validate scale factor - topaz supports 2 and 4
+    const validScales = ['2', '4'];
+    const upscaleFactor = validScales.includes(scale_factor) ? scale_factor : '2';
 
     console.log('Creating upscale task for:', image_url, 'scale:', upscaleFactor);
 
-    // Create the task using fal/aura-sr model
+    // Create the task using topaz/image-upscale model
     const createResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
       method: 'POST',
       headers: {
@@ -39,27 +39,27 @@ serve(async (req) => {
         'Authorization': `Bearer ${KIE_AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'fal/aura-sr',
+        model: 'topaz/image-upscale',
         input: {
           image_url: image_url,
-          upscaling_factor: upscaleFactor,
+          upscale_factor: upscaleFactor,
         },
       }),
     });
 
     const createData = await createResponse.json();
-    console.log('Create task response:', createData);
+    console.log('Create task response:', JSON.stringify(createData));
 
     if (createData.code !== 200 || !createData.data?.taskId) {
-      throw new Error(createData.message || 'Failed to create upscale task');
+      throw new Error(createData.msg || createData.message || 'Failed to create upscale task');
     }
 
     const taskId = createData.data.taskId;
     console.log('Task created with ID:', taskId);
 
     // Poll for completion
-    const maxAttempts = 120;
-    const pollInterval = 3000;
+    const maxAttempts = 60;
+    const pollInterval = 2000;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       await new Promise(resolve => setTimeout(resolve, pollInterval));
@@ -78,38 +78,47 @@ serve(async (req) => {
       console.log(`Poll attempt ${attempt + 1}:`, statusData.data?.state);
 
       if (statusData.code !== 200) {
-        throw new Error(statusData.message || 'Failed to query task status');
+        throw new Error(statusData.msg || statusData.message || 'Failed to query task status');
       }
 
       const state = statusData.data?.state;
 
       if (state === 'success') {
         const resultJson = statusData.data?.resultJson;
+        console.log('Result JSON:', resultJson);
+        
         if (resultJson) {
-          const result = JSON.parse(resultJson);
-          const imageUrl = result.resultUrls?.[0] || result.image?.url;
-          
-          if (imageUrl) {
-            console.log('Upscale completed:', imageUrl);
-            return new Response(
-              JSON.stringify({ 
-                success: true, 
-                image_url: imageUrl,
-                taskId: taskId 
-              }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
+          try {
+            const result = typeof resultJson === 'string' ? JSON.parse(resultJson) : resultJson;
+            // KIE API returns resultUrls array
+            const imageUrl = result.resultUrls?.[0] || result.image?.url || result.url;
+            
+            if (imageUrl) {
+              console.log('Upscale completed:', imageUrl);
+              return new Response(
+                JSON.stringify({ 
+                  success: true, 
+                  image_url: imageUrl,
+                  taskId: taskId 
+                }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+          } catch (parseError) {
+            console.error('Failed to parse resultJson:', parseError);
           }
         }
         throw new Error('No image URL in result');
       }
 
-      if (state === 'fail') {
+      if (state === 'fail' || state === 'failed') {
         throw new Error(statusData.data?.failMsg || 'Upscale failed');
       }
+      
+      // Continue polling for pending/processing states
     }
 
-    throw new Error('Task timed out after 3 minutes');
+    throw new Error('Task timed out after 2 minutes');
 
   } catch (error: unknown) {
     console.error('Error in upscale-image:', error);
