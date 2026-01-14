@@ -96,7 +96,7 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
     <div className="p-8 max-w-screen-2xl mx-auto">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome back, Alex! 👋</h1>
+        <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome Back, Alex! 👋</h1>
         <p className="text-muted-foreground">Your AI co-pilot is ready to help you close more deals</p>
       </div>
 
@@ -108,7 +108,7 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
               <Zap className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold mb-1 text-foreground">Ready to crush your quota?</h3>
+              <h3 className="text-2xl font-bold mb-1 text-foreground">Ready To Crush Your Quota?</h3>
               <p className="text-muted-foreground">Start a call and let AI guide you to the close</p>
             </div>
           </div>
