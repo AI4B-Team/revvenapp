@@ -320,7 +320,7 @@ const NewEbook = () => {
   }
   
   // Canvas controls state
-  const [zoom, setZoom] = useState(75);
+  const [zoom, setZoom] = useState(100);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   
@@ -361,7 +361,7 @@ const NewEbook = () => {
   // Zoom handlers
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 25));
-  const handleZoomFit = () => setZoom(75);
+  const handleZoomFit = () => setZoom(100);
 
   // Undo/Redo handlers - delegate to canvas editor
   const handleUndo = () => {
