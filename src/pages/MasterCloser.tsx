@@ -9,7 +9,9 @@ import {
   Play,
   MessageSquare,
   Bot,
-  Headphones
+  Headphones,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -21,17 +23,17 @@ import MCAnalytics from '@/components/master-closer/MCAnalytics';
 import MCTeamManagement from '@/components/master-closer/MCTeamManagement';
 import MCSettings from '@/components/master-closer/MCSettings';
 import MCAutonomousMode from '@/components/master-closer/MCAutonomousMode';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'autonomous';
-export type CallMode = 'start-call' | 'listen';
-export type CallType = 'ai-voice-agent' | 'transcription-only';
+export type CallMode = 'start-call' | 'voice-agent' | 'listen';
 
 const MasterCloser = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [isCallActive, setIsCallActive] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isInnerSidebarCollapsed, setIsInnerSidebarCollapsed] = useState(false);
   const [callMode, setCallMode] = useState<CallMode>('start-call');
-  const [callType, setCallType] = useState<CallType>('transcription-only');
 
   const navigation = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3, view: 'dashboard' },
@@ -44,9 +46,8 @@ const MasterCloser = () => {
     { id: 'settings', name: 'Settings', icon: Settings, view: 'settings' }
   ];
 
-  const handleStartCall = (mode: CallMode = 'start-call', type: CallType = 'transcription-only') => {
+  const handleStartCall = (mode: CallMode) => {
     setCallMode(mode);
-    setCallType(type);
     setIsCallActive(true);
     setCurrentView('live-call');
   };
@@ -61,7 +62,6 @@ const MasterCloser = () => {
             isActive={isCallActive} 
             onEndCall={() => setIsCallActive(false)} 
             callMode={callMode}
-            callType={callType}
           />
         );
       case 'autonomous':
@@ -81,6 +81,14 @@ const MasterCloser = () => {
     }
   };
 
+  const getModeLabel = () => {
+    switch (callMode) {
+      case 'voice-agent': return 'Voice Agent Active';
+      case 'listen': return 'Listening...';
+      default: return 'Call Active';
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
@@ -91,88 +99,157 @@ const MasterCloser = () => {
         <Header />
         
         <div className="flex flex-1 overflow-hidden">
-          {/* Master Closer Inner Navigation */}
-          <aside className="w-56 border-r border-border min-h-full bg-card">
+          {/* Master Closer Inner Navigation - Collapsible */}
+          <aside className={`${isInnerSidebarCollapsed ? 'w-16' : 'w-56'} border-r border-border min-h-full bg-card transition-all duration-300 flex flex-col`}>
             {/* App Header */}
             <div className="p-4 border-b border-border">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+              <div className={`flex items-center ${isInnerSidebarCollapsed ? 'justify-center' : 'gap-3'}`}>
+                <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Zap className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <h1 className="text-lg font-bold text-foreground">Master Closer</h1>
-                  <p className="text-xs text-muted-foreground">AI Sales Co-Pilot</p>
-                </div>
+                {!isInnerSidebarCollapsed && (
+                  <div>
+                    <h1 className="text-lg font-bold text-foreground">Master Closer</h1>
+                    <p className="text-xs text-muted-foreground">AI Sales Co-Pilot</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Quick Start Call / Listen Buttons */}
-            <div className="p-4 border-b border-border space-y-2">
+            {/* 3-Button Action Area */}
+            <div className={`${isInnerSidebarCollapsed ? 'p-2' : 'p-4'} border-b border-border space-y-2`}>
               {isCallActive ? (
-                <button
-                  onClick={() => setCurrentView('live-call')}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all bg-red-500 hover:bg-red-600 text-white animate-pulse"
-                >
-                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                  <span>{callMode === 'listen' ? 'Listening...' : 'Call Active'}</span>
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setCurrentView('live-call')}
+                      className={`w-full flex items-center justify-center gap-2 ${isInnerSidebarCollapsed ? 'px-2 py-3' : 'px-4 py-3'} rounded-lg font-medium transition-all bg-red-500 hover:bg-red-600 text-white animate-pulse`}
+                    >
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      {!isInnerSidebarCollapsed && <span>{getModeLabel()}</span>}
+                    </button>
+                  </TooltipTrigger>
+                  {isInnerSidebarCollapsed && (
+                    <TooltipContent side="right">{getModeLabel()}</TooltipContent>
+                  )}
+                </Tooltip>
               ) : (
                 <>
-                  <button
-                    onClick={() => handleStartCall('start-call', callType)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all bg-emerald-500 hover:bg-emerald-600 text-white"
-                  >
-                    <Play className="w-4 h-4" />
-                    <span>Start Call</span>
-                  </button>
-                  <button
-                    onClick={() => handleStartCall('listen', callType)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    <Headphones className="w-4 h-4" />
-                    <span>Listen Mode</span>
-                  </button>
+                  {/* Start Call Button */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleStartCall('start-call')}
+                        className={`w-full flex items-center justify-center gap-2 ${isInnerSidebarCollapsed ? 'px-2 py-3' : 'px-4 py-3'} rounded-lg font-medium transition-all bg-emerald-500 hover:bg-emerald-600 text-white`}
+                      >
+                        <Play className="w-4 h-4" />
+                        {!isInnerSidebarCollapsed && <span>Start Call</span>}
+                      </button>
+                    </TooltipTrigger>
+                    {isInnerSidebarCollapsed && (
+                      <TooltipContent side="right">Start Call - Manual with AI assistance</TooltipContent>
+                    )}
+                  </Tooltip>
+
+                  {/* Voice Agent Button */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleStartCall('voice-agent')}
+                        className={`w-full flex items-center justify-center gap-2 ${isInnerSidebarCollapsed ? 'px-2 py-3' : 'px-4 py-3'} rounded-lg font-medium transition-all bg-purple-500 hover:bg-purple-600 text-white`}
+                      >
+                        <Bot className="w-4 h-4" />
+                        {!isInnerSidebarCollapsed && <span>Voice Agent</span>}
+                      </button>
+                    </TooltipTrigger>
+                    {isInnerSidebarCollapsed && (
+                      <TooltipContent side="right">Voice Agent - AI handles the call</TooltipContent>
+                    )}
+                  </Tooltip>
+
+                  {/* Listen Mode Button */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleStartCall('listen')}
+                        className={`w-full flex items-center justify-center gap-2 ${isInnerSidebarCollapsed ? 'px-2 py-3' : 'px-4 py-3'} rounded-lg font-medium transition-all bg-blue-500 hover:bg-blue-600 text-white`}
+                      >
+                        <Headphones className="w-4 h-4" />
+                        {!isInnerSidebarCollapsed && <span>Listen Mode</span>}
+                      </button>
+                    </TooltipTrigger>
+                    {isInnerSidebarCollapsed && (
+                      <TooltipContent side="right">Listen Mode - Capture external calls</TooltipContent>
+                    )}
+                  </Tooltip>
                 </>
               )}
             </div>
 
-            <nav className="p-3 space-y-1">
+            {/* Navigation */}
+            <nav className={`${isInnerSidebarCollapsed ? 'p-2' : 'p-3'} space-y-1 flex-1`}>
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentView === item.view;
                 return (
-                  <button
-                    key={item.id}
-                    onClick={() => setCurrentView(item.view as View)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ${
-                      isActive
-                        ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    } ${item.highlight && !isActive ? 'border border-emerald-200' : ''}`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="font-medium">{item.name}</span>
-                    {item.highlight && !isActive && (
-                      <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 text-xs rounded-full">
-                        Live
-                      </span>
+                  <Tooltip key={item.id}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setCurrentView(item.view as View)}
+                        className={`w-full flex items-center ${isInnerSidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2.5 rounded-lg transition-all text-sm ${
+                          isActive
+                            ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                        } ${item.highlight && !isActive ? 'border border-emerald-200' : ''}`}
+                      >
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        {!isInnerSidebarCollapsed && (
+                          <>
+                            <span className="font-medium">{item.name}</span>
+                            {item.highlight && !isActive && (
+                              <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 text-xs rounded-full">
+                                Live
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    {isInnerSidebarCollapsed && (
+                      <TooltipContent side="right">{item.name}</TooltipContent>
                     )}
-                  </button>
+                  </Tooltip>
                 );
               })}
             </nav>
 
-            {/* Upgrade Card */}
-            <div className="m-3 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-4 h-4 text-emerald-600" />
-                <h3 className="font-semibold text-sm text-foreground">Upgrade to Pro</h3>
+            {/* Upgrade Card - Hidden when collapsed */}
+            {!isInnerSidebarCollapsed && (
+              <div className="m-3 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-emerald-600" />
+                  <h3 className="font-semibold text-sm text-foreground">Upgrade to Pro</h3>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Unlock autonomous mode, unlimited calls, and advanced AI features.
+                </p>
+                <button className="w-full px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-all text-white">
+                  Upgrade Now
+                </button>
               </div>
-              <p className="text-xs text-muted-foreground mb-3">
-                Unlock autonomous mode, unlimited calls, and advanced AI features.
-              </p>
-              <button className="w-full px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-all text-white">
-                Upgrade Now
+            )}
+
+            {/* Collapse Toggle Button */}
+            <div className="p-2 border-t border-border">
+              <button
+                onClick={() => setIsInnerSidebarCollapsed(!isInnerSidebarCollapsed)}
+                className="w-full flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                {isInnerSidebarCollapsed ? (
+                  <ChevronRight className="w-4 h-4" />
+                ) : (
+                  <ChevronLeft className="w-4 h-4" />
+                )}
               </button>
             </div>
           </aside>
