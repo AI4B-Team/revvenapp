@@ -18,6 +18,9 @@ import EbookContentPreview from '@/components/ebook/EbookContentPreview';
 import EbookCanvasEditor from '@/components/ebook/EbookCanvasEditor';
 import EbookGenerationOverlay from '@/components/ebook/EbookGenerationOverlay';
 import ChapterSequenceEditor, { ChapterData } from '@/components/ebook/ChapterSequenceEditor';
+import CourseBuilderProgress, { CourseBuilderStep } from '@/components/ebook/CourseBuilderProgress';
+import LessonSettingsPanel, { GenerationMode } from '@/components/ebook/LessonSettingsPanel';
+import GenerationProgressPanel from '@/components/ebook/GenerationProgressPanel';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
@@ -342,6 +345,13 @@ const NewEbook = () => {
   const [chapterSequence, setChapterSequence] = useState<ChapterData[]>([]);
   const [bookDescription, setBookDescription] = useState('');
   const [showChapterEditor, setShowChapterEditor] = useState(false);
+  
+  // Course builder flow state
+  const [courseBuilderStep, setCourseBuilderStep] = useState<CourseBuilderStep>('source');
+  const [completedSteps, setCompletedSteps] = useState<CourseBuilderStep[]>([]);
+  const [generationMode, setGenerationMode] = useState<GenerationMode>('text-interactive');
+  const [isGeneratingLessons, setIsGeneratingLessons] = useState(false);
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(1);
 
   // Zoom handlers
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
@@ -723,6 +733,10 @@ const NewEbook = () => {
                 setBookDescription(`This comprehensive guide to ${topicTitleCase} will take you from beginner to expert. You'll learn the fundamentals, explore advanced strategies, and gain practical insights from real-world examples. By the end, you'll have the confidence and knowledge to succeed.`);
                 setShowChapterEditor(false);
                 
+                // Update course builder progress
+                setCompletedSteps(['source', 'details']);
+                setCourseBuilderStep('outline');
+                
                 setActiveTab('generate');
                 toast.success('Generating Title Ideas...');
                 return 100;
@@ -734,6 +748,11 @@ const NewEbook = () => {
 
   const handleTitleSelect = (title: string) => {
     setBookData(prev => ({ ...prev, selectedTitle: stripTrailingPunctuation(title) }));
+    // Mark outline step as complete when a title is selected
+    if (!completedSteps.includes('outline')) {
+      setCompletedSteps(prev => [...prev, 'outline']);
+      setCourseBuilderStep('lessons');
+    }
   };
 
   const handleGenerateBook = () => {
@@ -2093,8 +2112,38 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
             {/* GENERATE TAB - Title Selection */}
             {activeTab === 'generate' && (
               <div className="space-y-6">
+                {/* Course Builder Progress Steps */}
+                <CourseBuilderProgress
+                  currentStep={courseBuilderStep}
+                  completedSteps={completedSteps}
+                  onStepClick={(step) => {
+                    if (completedSteps.includes(step) || step === courseBuilderStep) {
+                      setCourseBuilderStep(step);
+                    }
+                  }}
+                />
+
+                {/* Lesson Generation Progress Panel */}
+                {isGeneratingLessons && (
+                  <GenerationProgressPanel
+                    isGenerating={isGeneratingLessons}
+                    totalLessons={chapterSequence.length}
+                    currentLesson={currentLessonIndex}
+                    currentLessonTitle={chapterSequence[currentLessonIndex - 1]?.title || 'Introduction'}
+                    onCancel={() => {
+                      setIsGeneratingLessons(false);
+                      setCurrentLessonIndex(1);
+                    }}
+                    onComplete={() => {
+                      setIsGeneratingLessons(false);
+                      setCompletedSteps(prev => [...prev, 'lessons']);
+                      toast.success('All lessons generated successfully!');
+                    }}
+                  />
+                )}
+
                 {/* Generation Status Banner */}
-                {isGeneratingBook && (
+                {isGeneratingBook && !isGeneratingLessons && (
                   <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
                     <div className="flex items-center gap-4">
                       <button 
@@ -2464,6 +2513,14 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                             onIncludeImagesChange={(include) => setBookData(prev => ({ ...prev, includeImages: include }))}
                           />
                         )}
+                        
+                        {/* Lesson Settings Panel */}
+                        <LessonSettingsPanel
+                          generationMode={generationMode}
+                          onGenerationModeChange={setGenerationMode}
+                          includeImages={bookData.includeImages}
+                          onIncludeImagesChange={(include) => setBookData(prev => ({ ...prev, includeImages: include }))}
+                        />
                       </div>
                     )}
 

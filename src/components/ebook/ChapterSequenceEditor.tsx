@@ -47,9 +47,13 @@ interface ChapterSequenceEditorProps {
 }
 
 const AI_EDIT_OPTIONS = [
-  { id: 'improve', label: 'Improve Writing', icon: Sparkles },
-  { id: 'shorter', label: 'Make Shorter', icon: FileText },
-  { id: 'longer', label: 'Make Longer', icon: FileText },
+  { id: 'improve-writing', label: 'Improve Writing', icon: Sparkles },
+  { id: 'fix-spelling', label: 'Fix Spelling & Grammar', icon: FileText },
+  { id: 'make-shorter', label: 'Make Shorter', icon: FileText },
+  { id: 'make-longer', label: 'Make Longer', icon: FileText },
+  { id: 'change-tone', label: 'Change Tone', icon: Sparkles },
+  { id: 'plain-language', label: 'Rewrite in Plain Language', icon: FileText },
+  { id: 'change-focus', label: 'Change Focus', icon: FileText },
   { id: 'simplify', label: 'Simplify Language', icon: FileText },
 ];
 
@@ -122,14 +126,37 @@ const ChapterSequenceEditor: React.FC<ChapterSequenceEditorProps> = ({
     
     let newValue = chapter[field];
     switch (editType) {
-      case 'improve':
-        newValue = `${chapter[field]} This section provides comprehensive insights and actionable strategies.`;
+      case 'improve-writing':
+        newValue = `${chapter[field]} This section provides comprehensive insights and actionable strategies that readers can immediately apply.`;
         break;
-      case 'shorter':
+      case 'fix-spelling':
+        // Simulate grammar/spelling fix
+        newValue = chapter[field].replace(/\s+/g, ' ').trim();
+        break;
+      case 'make-shorter':
         newValue = chapter[field].split('.').slice(0, 2).join('.') + '.';
         break;
-      case 'longer':
-        newValue = `${chapter[field]} Additionally, this chapter explores advanced concepts and real-world applications that will help readers understand the practical implications.`;
+      case 'make-longer':
+        newValue = `${chapter[field]} Additionally, this chapter explores advanced concepts and real-world applications that will help readers understand the practical implications and achieve better outcomes.`;
+        break;
+      case 'change-tone':
+        newValue = `${chapter[field]} The content is presented in an engaging and accessible manner to connect with readers.`;
+        break;
+      case 'plain-language':
+        newValue = chapter[field].replace(/comprehensive|implement|utilize|facilitate|methodology|paradigm/gi, match => {
+          const plain: Record<string, string> = {
+            comprehensive: 'complete',
+            implement: 'use',
+            utilize: 'use',
+            facilitate: 'help',
+            methodology: 'method',
+            paradigm: 'model'
+          };
+          return plain[match.toLowerCase()] || match;
+        });
+        break;
+      case 'change-focus':
+        newValue = `From a practical standpoint, ${chapter[field].toLowerCase()}`;
         break;
       case 'simplify':
         newValue = chapter[field].replace(/comprehensive|implement|utilize|facilitate/gi, match => {
@@ -149,7 +176,7 @@ const ChapterSequenceEditor: React.FC<ChapterSequenceEditorProps> = ({
     ));
     
     setIsGeneratingAI(null);
-    toast.success(`Chapter ${field} updated`);
+    toast.success(`Chapter ${field} updated with AI`);
   };
 
   const addTopic = (chapterId: string) => {
