@@ -355,6 +355,7 @@ const NewEbook = () => {
   const [isGeneratingLessons, setIsGeneratingLessons] = useState(false);
   const [currentLessonIndex, setCurrentLessonIndex] = useState(1);
   const [isEnhancingPrompt, setIsEnhancingPrompt] = useState(false);
+  const [showOutlineView, setShowOutlineView] = useState(false);
 
   // Zoom handlers
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));

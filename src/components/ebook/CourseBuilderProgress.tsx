@@ -14,8 +14,8 @@ interface EbookBuilderProgressProps {
 
 const STEPS: { id: EbookBuilderStep; label: string; icon: typeof FileText }[] = [
   { id: 'source', label: 'Source Material', icon: FileText },
-  { id: 'details', label: 'Ebook Details', icon: Settings },
-  { id: 'outline', label: 'Chapter Outline', icon: List },
+  { id: 'details', label: 'Book Title', icon: Settings },
+  { id: 'outline', label: 'Book Outline', icon: List },
   { id: 'chapters', label: 'Chapter Drafts', icon: BookOpen },
 ];
 
