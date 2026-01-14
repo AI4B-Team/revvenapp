@@ -272,8 +272,8 @@ const AIVAPromptBox = ({
       <IntentSelector selectedIntent={intent} onIntentChange={setIntent} />
       
       {/* Prompt Input Box */}
-      <div className="relative mx-auto w-[340px] sm:w-[520px] md:w-fit md:min-w-[800px] md:max-w-[95%]">
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-visible min-h-[180px] flex flex-col w-full relative">
+      <div className="relative mx-auto w-full max-w-[95%] md:max-w-[1400px]" style={{ minWidth: 'min(340px, 100%)' }}>
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-hidden min-h-[180px] flex flex-col w-fit min-w-[340px] sm:min-w-[520px] md:min-w-[800px] mx-auto relative">
           {/* Input area */}
           <div className="px-6 pt-5 pb-3 flex-1 flex gap-3 min-w-0">
             {/* Left side icons - only shown when an option is selected */}
@@ -310,9 +310,9 @@ const AIVAPromptBox = ({
           </div>
 
           {/* Bottom bar */}
-          <div className="flex items-center gap-4 flex-nowrap px-4 pb-4 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-4 flex-wrap px-4 pb-4">
             {/* Left side controls */}
-            <div className="flex items-center gap-2 flex-nowrap flex-shrink-0">
+            <div className="flex items-center gap-2 flex-wrap">
               {/* Auto dropdown - visible when intent is selected */}
               {intent && (
                 <AutoDropdown intent={intent} selectedOption={selectedOption} onSelect={handleOptionSelect} />
@@ -486,7 +486,7 @@ const AIVAPromptBox = ({
             </div>
 
             {/* Right side controls */}
-            <div className="ml-auto flex items-center gap-1.5 flex-shrink-0">
+            <div className="ml-auto flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
