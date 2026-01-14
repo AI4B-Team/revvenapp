@@ -774,11 +774,8 @@ const NewEbook = () => {
 
   const handleTitleSelect = (title: string) => {
     setBookData(prev => ({ ...prev, selectedTitle: stripTrailingPunctuation(title) }));
-    // Mark outline step as complete when a title is selected
-    if (!completedSteps.includes('outline')) {
-      setCompletedSteps(prev => [...prev, 'outline']);
-      setCourseBuilderStep('chapters');
-    }
+    // Just select the title - don't update progress steps here
+    // Progress updates happen only when clicking "Continue"
   };
 
   const handleGenerateBook = () => {
