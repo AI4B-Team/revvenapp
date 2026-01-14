@@ -334,8 +334,12 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [brushStrokes, setBrushStrokes] = useState<Array<{ points: Array<{x: number, y: number}>, color: string, size: number, opacity: number }>>([]);
+  const [currentStroke, setCurrentStroke] = useState<Array<{x: number, y: number}>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
   const recognitionRef = useRef<any>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -356,7 +360,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [toolSettings, setToolSettings] = useState<Record<string, any>>({
     fontSize: 24,
     brushSize: 20,
+    brushColor: '#000000',
+    hardness: 100,
     opacity: 100,
+    flow: 100,
     tolerance: 32,
     aiStrength: 75,
     guidance: 7,
@@ -578,6 +585,126 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    // Finish brush stroke
+    if (isDrawing && currentStroke.length > 0) {
+      setBrushStrokes(prev => [...prev, {
+        points: currentStroke,
+        color: toolSettings.brushColor || '#000000',
+        size: toolSettings.brushSize || 20,
+        opacity: toolSettings.opacity || 100
+      }]);
+      setCurrentStroke([]);
+      setIsDrawing(false);
+    }
+  };
+
+  // Brush drawing handlers
+  const handleBrushStart = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (activeTool !== 'brush' || !drawingCanvasRef.current) return;
+    
+    const canvas = drawingCanvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setIsDrawing(true);
+    setCurrentStroke([{ x, y }]);
+    
+    // Draw initial point
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.globalAlpha = (toolSettings.opacity || 100) / 100;
+      ctx.fillStyle = toolSettings.brushColor || '#000000';
+      ctx.beginPath();
+      ctx.arc(x, y, (toolSettings.brushSize || 20) / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  };
+
+  const handleBrushMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || activeTool !== 'brush' || !drawingCanvasRef.current) return;
+    
+    const canvas = drawingCanvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setCurrentStroke(prev => [...prev, { x, y }]);
+    
+    // Draw line from last point to current
+    const ctx = canvas.getContext('2d');
+    if (ctx && currentStroke.length > 0) {
+      const lastPoint = currentStroke[currentStroke.length - 1];
+      ctx.globalAlpha = (toolSettings.opacity || 100) / 100;
+      ctx.strokeStyle = toolSettings.brushColor || '#000000';
+      ctx.lineWidth = toolSettings.brushSize || 20;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(lastPoint.x, lastPoint.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+  };
+
+  const handleBrushEnd = () => {
+    if (isDrawing && currentStroke.length > 0) {
+      setBrushStrokes(prev => [...prev, {
+        points: currentStroke,
+        color: toolSettings.brushColor || '#000000',
+        size: toolSettings.brushSize || 20,
+        opacity: toolSettings.opacity || 100
+      }]);
+      setCurrentStroke([]);
+    }
+    setIsDrawing(false);
+  };
+
+  // Redraw all strokes when canvas size changes or strokes update
+  useEffect(() => {
+    if (!drawingCanvasRef.current || !imageRef.current) return;
+    
+    const canvas = drawingCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Clear and resize canvas to match image
+    const imgRect = imageRef.current.getBoundingClientRect();
+    canvas.width = imgRect.width;
+    canvas.height = imgRect.height;
+    
+    // Redraw all strokes
+    brushStrokes.forEach(stroke => {
+      if (stroke.points.length < 2) {
+        // Single point - draw a circle
+        ctx.globalAlpha = stroke.opacity / 100;
+        ctx.fillStyle = stroke.color;
+        ctx.beginPath();
+        ctx.arc(stroke.points[0].x, stroke.points[0].y, stroke.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.globalAlpha = stroke.opacity / 100;
+        ctx.strokeStyle = stroke.color;
+        ctx.lineWidth = stroke.size;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        stroke.points.forEach((point, i) => {
+          if (i > 0) ctx.lineTo(point.x, point.y);
+        });
+        ctx.stroke();
+      }
+    });
+  }, [brushStrokes, selectedImage]);
+
+  // Clear brush strokes function
+  const clearBrushStrokes = () => {
+    setBrushStrokes([]);
+    if (drawingCanvasRef.current) {
+      const ctx = drawingCanvasRef.current.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, drawingCanvasRef.current.width, drawingCanvasRef.current.height);
+    }
   };
 
   const canvasTools = [
@@ -1085,13 +1212,23 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               >
                 {/* Undo/Redo Buttons - Top Right of Canvas */}
                 <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-                  <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm">
+                  <button 
+                    onClick={() => {
+                      if (brushStrokes.length > 0) {
+                        setBrushStrokes(prev => prev.slice(0, -1));
+                      }
+                    }}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm"
+                  >
                     <RotateCcw className="w-4 h-4" />
                     <span className="text-sm font-medium">Undo</span>
                   </button>
-                  <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm">
+                  <button 
+                    onClick={clearBrushStrokes}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm"
+                  >
                     <RotateCw className="w-4 h-4" />
-                    <span className="text-sm font-medium">Redo</span>
+                    <span className="text-sm font-medium">Clear</span>
                   </button>
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center p-8 canvas-background">
@@ -1140,6 +1277,19 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           alt="Editing"
                           className="w-full h-auto"
                           draggable={false}
+                        />
+                        {/* Drawing canvas overlay for brush tool */}
+                        <canvas
+                          ref={drawingCanvasRef}
+                          className="absolute inset-0 w-full h-full"
+                          style={{
+                            cursor: activeTool === 'brush' ? 'crosshair' : 'inherit',
+                            pointerEvents: activeTool === 'brush' ? 'auto' : 'none',
+                          }}
+                          onMouseDown={handleBrushStart}
+                          onMouseMove={handleBrushMove}
+                          onMouseUp={handleBrushEnd}
+                          onMouseLeave={handleBrushEnd}
                         />
                         {/* Processing overlay */}
                         {isProcessing && (
