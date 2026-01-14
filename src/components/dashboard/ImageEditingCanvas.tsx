@@ -449,7 +449,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     loadCreations();
   }, [image]);
 
-  // Composite image with text overlays
+  // Composite image with brush strokes and text overlays
   const getCompositedImage = async (): Promise<string | null> => {
     if (!selectedImage || !imageRef.current) return null;
     
@@ -474,15 +474,20 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         // Draw the base image
         ctx.drawImage(img, 0, 0);
         
-        // If no text elements, just return the image
-        if (textElements.length === 0) {
-          resolve(canvas.toDataURL('image/png'));
-          return;
-        }
-        
         // Calculate scale factors based on displayed vs natural dimensions
         const scaleX = img.naturalWidth / displayWidth;
         const scaleY = img.naturalHeight / displayHeight;
+        
+        // Draw brush strokes from drawing canvas if it exists
+        if (drawingCanvasRef.current) {
+          const drawingCanvas = drawingCanvasRef.current;
+          // Scale and draw the drawing canvas onto the output canvas
+          ctx.drawImage(
+            drawingCanvas,
+            0, 0, drawingCanvas.width, drawingCanvas.height,
+            0, 0, canvas.width, canvas.height
+          );
+        }
         
         // Draw each text element
         textElements.forEach((textEl) => {
