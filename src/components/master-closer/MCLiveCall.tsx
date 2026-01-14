@@ -24,8 +24,10 @@ import {
   Hand,
   Play,
   Eye,
-  EyeOff
+  EyeOff,
+  ArrowRight
 } from 'lucide-react';
+import MCTransferModal from './MCTransferModal';
 import type { CallMode } from '@/pages/MasterCloser';
 
 interface MCLiveCallProps {
@@ -57,6 +59,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
   const [callDuration, setCallDuration] = useState(0);
   const [coachModeEnabled, setCoachModeEnabled] = useState(true);
   const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([
     {
@@ -158,8 +161,12 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
   };
 
   const handleHandOff = () => {
-    // In real implementation, this would hand off to voice agent
-    console.log('Handing off to voice agent');
+    setShowTransferModal(true);
+  };
+
+  const handleTransferComplete = (destination: any) => {
+    console.log('Transferred to:', destination.name);
+    // In real implementation, this would initiate the transfer
   };
 
   const getSentimentColorClasses = () => {
@@ -315,13 +322,13 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                   <span className="text-sm">{isSpeakerOn ? 'Speaker On' : 'Speaker Off'}</span>
                 </button>
 
-                {/* Hand Off to Agent Button */}
+                {/* Transfer Button */}
                 <button
                   onClick={handleHandOff}
                   className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
                 >
-                  <Bot className="w-4 h-4" />
-                  <span className="text-sm font-medium">Hand to Agent</span>
+                  <ArrowRight className="w-4 h-4" />
+                  <span className="text-sm font-medium">Transfer</span>
                 </button>
               </>
             )}
@@ -558,6 +565,13 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
           </div>
         </div>
       </div>
+
+      {/* Transfer Modal */}
+      <MCTransferModal 
+        open={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        onTransfer={handleTransferComplete}
+      />
     </div>
   );
 };
