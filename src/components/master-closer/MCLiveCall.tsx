@@ -20,7 +20,11 @@ import {
   Target,
   Headphones,
   Bot,
-  Radio
+  Radio,
+  Hand,
+  Play,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import type { CallMode } from '@/pages/MasterCloser';
 
@@ -32,7 +36,7 @@ interface MCLiveCallProps {
 
 interface TranscriptMessage {
   id: string;
-  speaker: 'you' | 'prospect' | 'ai';
+  speaker: 'you' | 'prospect' | 'ai' | 'agent';
   text: string;
   timestamp: string;
   confidence?: number;
@@ -40,7 +44,7 @@ interface TranscriptMessage {
 
 interface AISuggestion {
   id: string;
-  type: 'response' | 'objection' | 'question' | 'warning';
+  type: 'response' | 'objection' | 'question' | 'warning' | 'coach';
   text: string;
   confidence: number;
   reasoning?: string;
@@ -51,11 +55,13 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [sentiment, setSentiment] = useState(75);
   const [callDuration, setCallDuration] = useState(0);
+  const [coachModeEnabled, setCoachModeEnabled] = useState(true);
+  const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
   
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([
     {
       id: '1',
-      speaker: 'you',
+      speaker: callMode === 'voice-agent' ? 'agent' : 'you',
       text: 'Hi Sarah, thanks for taking the time to chat today!',
       timestamp: '00:00',
       confidence: 95
@@ -72,10 +78,12 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([
     {
       id: '1',
-      type: 'response',
-      text: "I completely understand Sarah. Many of our happiest clients said the same thing initially. What I've found is that even when things are working well, there's often 1-2 pain points lurking beneath the surface. Mind if I ask you just 2-3 quick questions to see if we're even a fit?",
+      type: callMode === 'listen' ? 'coach' : 'response',
+      text: callMode === 'listen' 
+        ? "💡 They mentioned 'happy with current solution' - this is a soft objection. Suggest probing for hidden pain points."
+        : "I completely understand Sarah. Many of our happiest clients said the same thing initially. What I've found is that even when things are working well, there's often 1-2 pain points lurking beneath the surface. Mind if I ask you just 2-3 quick questions to see if we're even a fit?",
       confidence: 94,
-      reasoning: 'Acknowledges objection, builds credibility, asks permission to continue'
+      reasoning: callMode === 'listen' ? 'Coaching tip for sales rep' : 'Acknowledges objection, builds credibility, asks permission to continue'
     },
     {
       id: '2',
@@ -117,6 +125,16 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
     }
   }, [isActive]);
 
+  // Simulate agent speaking for voice-agent mode
+  useEffect(() => {
+    if (callMode === 'voice-agent' && isActive) {
+      const speakingInterval = setInterval(() => {
+        setIsAgentSpeaking(prev => !prev);
+      }, 3000);
+      return () => clearInterval(speakingInterval);
+    }
+  }, [callMode, isActive]);
+
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -134,6 +152,16 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
     setTranscript([...transcript, newMessage]);
   };
 
+  const handleTakeOver = () => {
+    // In real implementation, this would switch from agent to user
+    console.log('Taking over from agent');
+  };
+
+  const handleHandOff = () => {
+    // In real implementation, this would hand off to voice agent
+    console.log('Handing off to voice agent');
+  };
+
   const getSentimentColorClasses = () => {
     switch (currentSentiment.color) {
       case 'emerald': return { icon: 'text-emerald-600', bar: 'bg-emerald-500' };
@@ -145,6 +173,16 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
 
   const sentimentColors = getSentimentColorClasses();
 
+  const getModeColors = () => {
+    switch (callMode) {
+      case 'listen': return { primary: 'blue', bg: 'bg-blue-500', light: 'bg-blue-100', border: 'border-blue-200', text: 'text-blue-700' };
+      case 'voice-agent': return { primary: 'purple', bg: 'bg-purple-500', light: 'bg-purple-100', border: 'border-purple-200', text: 'text-purple-700' };
+      default: return { primary: 'emerald', bg: 'bg-emerald-500', light: 'bg-emerald-100', border: 'border-emerald-200', text: 'text-emerald-700' };
+    }
+  };
+
+  const modeColors = getModeColors();
+
   return (
     <div className="h-[calc(100vh-73px)] flex">
       {/* Left Panel - Transcript */}
@@ -153,7 +191,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
         <div className="border-b border-border bg-muted/50 p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 ${callMode === 'listen' ? 'bg-blue-500' : callMode === 'voice-agent' ? 'bg-purple-500' : 'bg-emerald-500'} rounded-full flex items-center justify-center`}>
+              <div className={`w-12 h-12 ${modeColors.bg} rounded-full flex items-center justify-center`}>
                 {callMode === 'listen' ? (
                   <Headphones className="w-6 h-6 text-white" />
                 ) : callMode === 'voice-agent' ? (
@@ -165,19 +203,18 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="font-bold text-lg text-foreground">Sarah Johnson</h2>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    callMode === 'listen' 
-                      ? 'bg-blue-100 text-blue-700' 
-                      : callMode === 'voice-agent' 
-                        ? 'bg-purple-100 text-purple-700' 
-                        : 'bg-emerald-100 text-emerald-700'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${modeColors.light} ${modeColors.text}`}>
                     {callMode === 'listen' 
                       ? '🎧 Listen Mode' 
                       : callMode === 'voice-agent' 
                         ? '🤖 Voice Agent' 
                         : '🎙️ Live Call'}
                   </span>
+                  {callMode === 'voice-agent' && isAgentSpeaking && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-200 text-purple-800 animate-pulse">
+                      Agent Speaking...
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground">VP of Marketing • Acme Corp</p>
               </div>
@@ -201,7 +238,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
             </div>
           </div>
 
-          {/* Call Controls */}
+          {/* Call Controls - Mode Specific */}
           <div className="flex items-center gap-3">
             {callMode === 'listen' ? (
               <>
@@ -219,6 +256,16 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                   {isSpeakerOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                   <span className="text-sm">{isSpeakerOn ? 'Audio On' : 'Audio Off'}</span>
                 </button>
+                {/* Coach Mode Toggle */}
+                <button
+                  onClick={() => setCoachModeEnabled(!coachModeEnabled)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    coachModeEnabled ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'
+                  }`}
+                >
+                  {coachModeEnabled ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  <span className="text-sm">Coach Mode</span>
+                </button>
               </>
             ) : callMode === 'voice-agent' ? (
               <>
@@ -235,6 +282,14 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                 >
                   {isSpeakerOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                   <span className="text-sm">{isSpeakerOn ? 'Audio On' : 'Audio Off'}</span>
+                </button>
+                {/* Take Over Button */}
+                <button
+                  onClick={handleTakeOver}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                >
+                  <Hand className="w-4 h-4" />
+                  <span className="text-sm font-medium">Take Over</span>
                 </button>
               </>
             ) : (
@@ -259,8 +314,18 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                   {isSpeakerOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                   <span className="text-sm">{isSpeakerOn ? 'Speaker On' : 'Speaker Off'}</span>
                 </button>
+
+                {/* Hand Off to Agent Button */}
+                <button
+                  onClick={handleHandOff}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
+                >
+                  <Bot className="w-4 h-4" />
+                  <span className="text-sm font-medium">Hand to Agent</span>
+                </button>
               </>
             )}
+            
             {/* Sentiment Indicator */}
             <div className="ml-auto flex items-center gap-3 px-4 py-2 bg-card border border-border rounded-lg">
               <Brain className={`w-5 h-5 ${sentimentColors.icon}`} />
@@ -284,9 +349,9 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
           {transcript.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-3 ${message.speaker === 'you' ? 'justify-end' : ''}`}
+              className={`flex gap-3 ${message.speaker === 'you' || message.speaker === 'agent' ? 'justify-end' : ''}`}
             >
-              {message.speaker !== 'you' && (
+              {message.speaker !== 'you' && message.speaker !== 'agent' && (
                 <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-xs font-bold text-white">SP</span>
                 </div>
@@ -296,6 +361,8 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                 className={`max-w-2xl ${
                   message.speaker === 'you'
                     ? 'bg-emerald-100 border border-emerald-200'
+                    : message.speaker === 'agent'
+                    ? 'bg-purple-100 border border-purple-200'
                     : message.speaker === 'ai'
                     ? 'bg-emerald-100 border border-emerald-200'
                     : 'bg-card border border-border'
@@ -303,7 +370,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs font-medium text-muted-foreground">
-                    {message.speaker === 'you' ? 'You' : message.speaker === 'ai' ? 'AI Assistant' : 'Prospect'}
+                    {message.speaker === 'you' ? 'You' : message.speaker === 'agent' ? 'AI Agent' : message.speaker === 'ai' ? 'AI Assistant' : 'Prospect'}
                   </span>
                   <span className="text-xs text-muted-foreground">{message.timestamp}</span>
                   {message.confidence && (
@@ -313,24 +380,26 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                 <p className="text-sm leading-relaxed text-foreground">{message.text}</p>
               </div>
 
-              {message.speaker === 'you' && (
-                <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-xs font-bold text-white">YO</span>
+              {(message.speaker === 'you' || message.speaker === 'agent') && (
+                <div className={`w-8 h-8 ${message.speaker === 'agent' ? 'bg-purple-500' : 'bg-emerald-500'} rounded-full flex items-center justify-center flex-shrink-0`}>
+                  {message.speaker === 'agent' ? (
+                    <Bot className="w-4 h-4 text-white" />
+                  ) : (
+                    <span className="text-xs font-bold text-white">YO</span>
+                  )}
                 </div>
               )}
             </div>
           ))}
 
           {/* Live Listening Indicator */}
-          <div className={`flex items-center justify-center gap-3 p-4 ${
-            callMode === 'listen' ? 'bg-blue-100 border border-blue-200' : callMode === 'voice-agent' ? 'bg-purple-100 border border-purple-200' : 'bg-emerald-100 border border-emerald-200'
-          } rounded-lg`}>
+          <div className={`flex items-center justify-center gap-3 p-4 ${modeColors.light} ${modeColors.border} border rounded-lg`}>
             <div className="flex gap-1">
-              <div className={`w-1 h-4 ${callMode === 'listen' ? 'bg-blue-500' : callMode === 'voice-agent' ? 'bg-purple-500' : 'bg-emerald-500'} rounded-full animate-pulse`} style={{ animationDelay: '0s' }} />
-              <div className={`w-1 h-4 ${callMode === 'listen' ? 'bg-blue-500' : callMode === 'voice-agent' ? 'bg-purple-500' : 'bg-emerald-500'} rounded-full animate-pulse`} style={{ animationDelay: '0.2s' }} />
-              <div className={`w-1 h-4 ${callMode === 'listen' ? 'bg-blue-500' : callMode === 'voice-agent' ? 'bg-purple-500' : 'bg-emerald-500'} rounded-full animate-pulse`} style={{ animationDelay: '0.4s' }} />
+              <div className={`w-1 h-4 ${modeColors.bg} rounded-full animate-pulse`} style={{ animationDelay: '0s' }} />
+              <div className={`w-1 h-4 ${modeColors.bg} rounded-full animate-pulse`} style={{ animationDelay: '0.2s' }} />
+              <div className={`w-1 h-4 ${modeColors.bg} rounded-full animate-pulse`} style={{ animationDelay: '0.4s' }} />
             </div>
-            <span className={`text-sm ${callMode === 'listen' ? 'text-blue-700' : callMode === 'voice-agent' ? 'text-purple-700' : 'text-emerald-700'} font-medium`}>
+            <span className={`text-sm ${modeColors.text} font-medium`}>
               {callMode === 'listen' 
                 ? 'AI is listening to external call and analyzing...' 
                 : callMode === 'voice-agent'
@@ -344,12 +413,20 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
       {/* Right Panel - AI Assistant */}
       <div className="w-[450px] border-l border-border bg-card flex flex-col">
         {/* AI Header */}
-        <div className="border-b border-border p-4 bg-emerald-50">
+        <div className={`border-b border-border p-4 ${callMode === 'listen' ? 'bg-blue-50' : callMode === 'voice-agent' ? 'bg-purple-50' : 'bg-emerald-50'}`}>
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-emerald-600" />
-            <h3 className="font-bold text-lg text-foreground">AI Co-Pilot</h3>
+            <Sparkles className={`w-5 h-5 ${callMode === 'listen' ? 'text-blue-600' : callMode === 'voice-agent' ? 'text-purple-600' : 'text-emerald-600'}`} />
+            <h3 className="font-bold text-lg text-foreground">
+              {callMode === 'listen' ? 'AI Coach' : callMode === 'voice-agent' ? 'Agent Monitor' : 'AI Co-Pilot'}
+            </h3>
           </div>
-          <p className="text-xs text-muted-foreground">Real-time suggestions and guidance</p>
+          <p className="text-xs text-muted-foreground">
+            {callMode === 'listen' 
+              ? 'Silent coaching tips for your team' 
+              : callMode === 'voice-agent'
+                ? 'Monitor agent performance'
+                : 'Real-time suggestions and guidance'}
+          </p>
         </div>
 
         {/* Call Phase Tracker */}
@@ -364,7 +441,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                 key={phase.id}
                 className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
                   phase.status === 'active'
-                    ? 'bg-emerald-100 border border-emerald-200'
+                    ? `${modeColors.light} ${modeColors.border} border`
                     : phase.status === 'completed'
                     ? 'bg-emerald-100 border border-emerald-200'
                     : 'bg-muted border border-border'
@@ -374,7 +451,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                   {phase.status === 'completed' ? (
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
                   ) : phase.status === 'active' ? (
-                    <Clock className="w-4 h-4 text-emerald-600 animate-pulse" />
+                    <Clock className={`w-4 h-4 ${callMode === 'listen' ? 'text-blue-600' : callMode === 'voice-agent' ? 'text-purple-600' : 'text-emerald-600'} animate-pulse`} />
                   ) : (
                     <div className="w-4 h-4 rounded-full border-2 border-muted-foreground" />
                   )}
@@ -390,14 +467,16 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-foreground">
             <Zap className="w-4 h-4 text-yellow-500" />
-            Smart Suggestions
+            {callMode === 'listen' ? 'Coaching Tips' : 'Smart Suggestions'}
           </h4>
 
           {suggestions.map((suggestion) => (
             <div
               key={suggestion.id}
               className={`p-4 rounded-lg border ${
-                suggestion.type === 'response'
+                suggestion.type === 'coach'
+                  ? 'bg-blue-50 border-blue-200'
+                  : suggestion.type === 'response'
                   ? 'bg-emerald-50 border-emerald-200'
                   : suggestion.type === 'objection'
                   ? 'bg-yellow-50 border-yellow-200'
@@ -408,60 +487,74 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
+                  {suggestion.type === 'coach' && <Eye className="w-4 h-4 text-blue-600" />}
                   {suggestion.type === 'response' && <MessageSquare className="w-4 h-4 text-emerald-600" />}
                   {suggestion.type === 'objection' && <AlertCircle className="w-4 h-4 text-yellow-600" />}
-                  {suggestion.type === 'question' && <MessageSquare className="w-4 h-4 text-blue-600" />}
-                  {suggestion.type === 'warning' && <AlertCircle className="w-4 h-4 text-red-600" />}
-                  <span className="text-xs font-medium uppercase text-foreground">
-                    {suggestion.type}
+                  {suggestion.type === 'question' && <TrendingUp className="w-4 h-4 text-blue-600" />}
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    suggestion.type === 'coach'
+                      ? 'bg-blue-100 text-blue-700'
+                      : suggestion.type === 'response'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : suggestion.type === 'objection'
+                      ? 'bg-yellow-100 text-yellow-700'
+                      : suggestion.type === 'question'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-red-100 text-red-700'
+                  }`}>
+                    {suggestion.type === 'coach' ? 'Coach Tip' : suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)}
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3 text-emerald-600" />
-                  <span className="text-xs font-mono text-emerald-600">{suggestion.confidence}%</span>
-                </div>
+                <span className="text-xs text-muted-foreground">{suggestion.confidence}%</span>
               </div>
 
               <p className="text-sm mb-3 leading-relaxed text-foreground">{suggestion.text}</p>
 
               {suggestion.reasoning && (
-                <p className="text-xs text-muted-foreground mb-3 italic">💡 {suggestion.reasoning}</p>
+                <p className="text-xs text-muted-foreground mb-3 italic">
+                  💡 {suggestion.reasoning}
+                </p>
               )}
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleUseSuggestion(suggestion)}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-colors text-white"
-                >
-                  <Copy className="w-3 h-3" />
-                  Use This
-                </button>
-                <button className="p-2 bg-muted hover:bg-muted/80 rounded-lg transition-colors">
-                  <ThumbsUp className="w-4 h-4 text-muted-foreground" />
-                </button>
-                <button className="p-2 bg-muted hover:bg-muted/80 rounded-lg transition-colors">
-                  <ThumbsDown className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
+              {callMode !== 'listen' && suggestion.type === 'response' && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleUseSuggestion(suggestion)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 ${modeColors.bg} hover:opacity-90 rounded-lg text-sm font-medium transition-all text-white`}
+                  >
+                    <Play className="w-3 h-3" />
+                    Use This
+                  </button>
+                  <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                    <Copy className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                  <button className="p-2 hover:bg-emerald-100 rounded-lg transition-colors">
+                    <ThumbsUp className="w-4 h-4 text-emerald-600" />
+                  </button>
+                  <button className="p-2 hover:bg-red-100 rounded-lg transition-colors">
+                    <ThumbsDown className="w-4 h-4 text-red-500" />
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <div className="border-t border-border p-4 bg-muted/50">
-          <div className="grid grid-cols-2 gap-2">
-            <button className="px-3 py-2 bg-card border border-border hover:bg-muted rounded-lg text-sm font-medium transition-colors text-foreground">
-              🎯 Handle Objection
-            </button>
-            <button className="px-3 py-2 bg-card border border-border hover:bg-muted rounded-lg text-sm font-medium transition-colors text-foreground">
-              ❓ Ask Question
-            </button>
-            <button className="px-3 py-2 bg-card border border-border hover:bg-muted rounded-lg text-sm font-medium transition-colors text-foreground">
-              📝 Summarize
-            </button>
-            <button className="px-3 py-2 bg-card border border-border hover:bg-muted rounded-lg text-sm font-medium transition-colors text-foreground">
-              🚀 Next Step
-            </button>
+        {/* Quick Stats */}
+        <div className="border-t border-border p-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-lg font-bold text-foreground">3</div>
+              <div className="text-xs text-muted-foreground">Objections</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-emerald-600">85%</div>
+              <div className="text-xs text-muted-foreground">Talk Ratio</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-foreground">2</div>
+              <div className="text-xs text-muted-foreground">Next Steps</div>
+            </div>
           </div>
         </div>
       </div>
