@@ -52,44 +52,44 @@ const MCCallPlanner: React.FC = () => {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-gray-900">
-          <BookOpen className="w-8 h-8 text-purple-600" />
+        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-foreground">
+          <BookOpen className="w-8 h-8 text-emerald-600" />
           Call Planner
         </h1>
-        <p className="text-gray-500">Your proven framework for every sales conversation</p>
+        <p className="text-muted-foreground">Your proven framework for every sales conversation</p>
       </div>
 
       <div className="space-y-4">
         {callStructure.map((phase) => (
-          <div key={phase.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
+          <div key={phase.id} className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
             <button
               onClick={() => setExpandedPhase(expandedPhase === phase.id ? '' : phase.id)}
-              className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-center gap-4">
                 <CheckCircle className="w-6 h-6 text-emerald-500" />
                 <div className="text-left">
-                  <h3 className="text-lg font-bold text-gray-900">{phase.name}</h3>
-                  <p className="text-sm text-gray-500 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-foreground">{phase.name}</h3>
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Clock className="w-4 h-4" />
                     {phase.duration}
                   </p>
                 </div>
               </div>
               {expandedPhase === phase.id ? (
-                <ChevronUp className="w-5 h-5 text-gray-500" />
+                <ChevronUp className="w-5 h-5 text-muted-foreground" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-gray-500" />
+                <ChevronDown className="w-5 h-5 text-muted-foreground" />
               )}
             </button>
 
             {expandedPhase === phase.id && (
               <div className="p-6 pt-0 space-y-6">
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-500 uppercase mb-3">Objectives</h4>
+                  <h4 className="font-semibold text-sm text-muted-foreground uppercase mb-3">Objectives</h4>
                   <div className="flex flex-wrap gap-2">
                     {phase.objectives.map((obj, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                      <span key={idx} className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm">
                         {obj}
                       </span>
                     ))}
@@ -97,15 +97,15 @@ const MCCallPlanner: React.FC = () => {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-500 uppercase mb-3">Scripts & Questions</h4>
+                  <h4 className="font-semibold text-sm text-muted-foreground uppercase mb-3">Scripts & Questions</h4>
                   <div className="space-y-3">
                     {phase.scripts.map((script, idx) => (
-                      <div key={idx} className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                      <div key={idx} className="p-4 bg-muted/50 rounded-lg border border-border">
                         <div className="flex items-center justify-between mb-2">
-                          <h5 className="font-semibold text-sm text-gray-900">{script.title}</h5>
-                          <Edit3 className="w-4 h-4 text-gray-400 cursor-pointer hover:text-purple-500" />
+                          <h5 className="font-semibold text-sm text-foreground">{script.title}</h5>
+                          <Edit3 className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-emerald-500" />
                         </div>
-                        <p className="text-sm text-gray-700">{script.content}</p>
+                        <p className="text-sm text-foreground">{script.content}</p>
                       </div>
                     ))}
                   </div>

@@ -49,7 +49,7 @@ const MCAutonomousMode: React.FC = () => {
   ];
 
   const autonomousStats = [
-    { label: 'Autonomous Calls', value: '156', icon: Bot, color: 'purple' },
+    { label: 'Autonomous Calls', value: '156', icon: Bot, color: 'emerald' },
     { label: 'Success Rate', value: '84%', icon: Target, color: 'emerald' },
     { label: 'Avg Call Duration', value: '16:32', icon: Clock, color: 'blue' },
     { label: 'Revenue Generated', value: '$423K', icon: TrendingUp, color: 'orange' }
@@ -81,23 +81,22 @@ const MCAutonomousMode: React.FC = () => {
 
   const getStatColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string }> = {
-      purple: { bg: 'bg-purple-100', text: 'text-purple-600' },
       emerald: { bg: 'bg-emerald-100', text: 'text-emerald-600' },
       blue: { bg: 'bg-blue-100', text: 'text-blue-600' },
       orange: { bg: 'bg-orange-100', text: 'text-orange-600' }
     };
-    return colors[color] || colors.purple;
+    return colors[color] || colors.emerald;
   };
 
   return (
     <div className="p-8 max-w-screen-2xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-gray-900">
-          <Bot className="w-8 h-8 text-purple-600" />
+        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-foreground">
+          <Bot className="w-8 h-8 text-emerald-600" />
           Autonomous Mode
         </h1>
-        <p className="text-gray-500">
+        <p className="text-muted-foreground">
           Let AI handle calls end-to-end while you focus on closing high-value deals
         </p>
       </div>
@@ -110,27 +109,27 @@ const MCAutonomousMode: React.FC = () => {
           return (
             <div
               key={index}
-              className="bg-white border border-gray-200 rounded-xl p-6 hover:border-purple-300 hover:shadow-md transition-all"
+              className="bg-card border border-border rounded-xl p-6 hover:border-emerald-300 hover:shadow-md transition-all"
             >
               <div className={`w-12 h-12 ${colors.bg} rounded-lg flex items-center justify-center mb-4`}>
                 <Icon className={`w-6 h-6 ${colors.text}`} />
               </div>
-              <div className="text-3xl font-bold mb-1 text-gray-900">{stat.value}</div>
-              <div className="text-sm text-gray-500">{stat.label}</div>
+              <div className="text-3xl font-bold mb-1 text-foreground">{stat.value}</div>
+              <div className="text-sm text-muted-foreground">{stat.label}</div>
             </div>
           );
         })}
       </div>
 
       {/* Control Panel */}
-      <div className="mb-8 p-6 bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 rounded-xl">
+      <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold mb-2 flex items-center gap-2 text-gray-900">
-              <Zap className="w-6 h-6 text-purple-600" />
+            <h3 className="text-xl font-bold mb-2 flex items-center gap-2 text-foreground">
+              <Zap className="w-6 h-6 text-emerald-600" />
               Autonomous Call System
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p className="text-muted-foreground text-sm">
               {isAutonomousActive
                 ? 'AI is actively making calls and booking meetings for you'
                 : 'Enable autonomous mode to let AI handle your calls'}
@@ -138,7 +137,7 @@ const MCAutonomousMode: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors text-gray-700">
+            <button className="flex items-center gap-2 px-4 py-2 bg-card border border-border hover:bg-muted rounded-lg transition-colors text-foreground">
               <Settings className="w-4 h-4" />
               Configure
             </button>
@@ -147,7 +146,7 @@ const MCAutonomousMode: React.FC = () => {
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all text-white ${
                 isAutonomousActive
                   ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700'
+                  : 'bg-emerald-500 hover:bg-emerald-600'
               }`}
             >
               {isAutonomousActive ? (
@@ -168,8 +167,8 @@ const MCAutonomousMode: React.FC = () => {
 
       {/* Scheduled & Completed Calls */}
       <div className="mb-8">
-        <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">
-          <Calendar className="w-5 h-5 text-purple-600" />
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-foreground">
+          <Calendar className="w-5 h-5 text-emerald-600" />
           Scheduled Autonomous Calls
         </h3>
 
@@ -177,11 +176,11 @@ const MCAutonomousMode: React.FC = () => {
           {autonomousCalls.map((call) => (
             <div
               key={call.id}
-              className="bg-white border border-gray-200 rounded-xl p-6 hover:border-purple-300 hover:shadow-md transition-all"
+              className="bg-card border border-border rounded-xl p-6 hover:border-emerald-300 hover:shadow-md transition-all"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
                     {call.status === 'completed' ? (
                       <CheckCircle className="w-6 h-6 text-white" />
                     ) : (
@@ -190,25 +189,25 @@ const MCAutonomousMode: React.FC = () => {
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-lg text-gray-900">{call.prospect}</h4>
-                    <p className="text-sm text-gray-500">{call.company}</p>
+                    <h4 className="font-bold text-lg text-foreground">{call.prospect}</h4>
+                    <p className="text-sm text-muted-foreground">{call.company}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{call.scheduled}</div>
-                    <div className="text-xs text-gray-500">Scheduled Time</div>
+                    <div className="text-sm font-medium text-foreground">{call.scheduled}</div>
+                    <div className="text-xs text-muted-foreground">Scheduled Time</div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{call.goal}</div>
-                    <div className="text-xs text-gray-500">Call Objective</div>
+                    <div className="text-sm font-medium text-foreground">{call.goal}</div>
+                    <div className="text-xs text-muted-foreground">Call Objective</div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{call.aiPersonality}</div>
-                    <div className="text-xs text-gray-500">AI Personality</div>
+                    <div className="text-sm font-medium text-foreground">{call.aiPersonality}</div>
+                    <div className="text-xs text-muted-foreground">AI Personality</div>
                   </div>
 
                   {call.status === 'completed' ? (
@@ -216,7 +215,7 @@ const MCAutonomousMode: React.FC = () => {
                       <div className="font-semibold text-sm">{call.outcome}</div>
                     </div>
                   ) : (
-                    <button className="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-sm font-medium transition-colors text-white">
+                    <button className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-colors text-white">
                       View Details
                     </button>
                   )}
@@ -229,11 +228,11 @@ const MCAutonomousMode: React.FC = () => {
 
       {/* AI Personalities */}
       <div className="mb-8">
-        <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">
-          <Users className="w-5 h-5 text-purple-600" />
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-foreground">
+          <Users className="w-5 h-5 text-emerald-600" />
           AI Personalities
         </h3>
-        <p className="text-gray-500 text-sm mb-6">
+        <p className="text-muted-foreground text-sm mb-6">
           Choose the AI personality that matches your prospect's profile and your sales approach
         </p>
 
@@ -241,23 +240,23 @@ const MCAutonomousMode: React.FC = () => {
           {aiPersonalities.map((personality) => (
             <div
               key={personality.id}
-              className="bg-white border border-gray-200 rounded-xl p-6 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer"
+              className="bg-card border border-border rounded-xl p-6 hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer"
             >
-              <h4 className="font-bold text-lg mb-2 text-gray-900">{personality.name}</h4>
-              <p className="text-sm text-gray-500 mb-4">{personality.description}</p>
+              <h4 className="font-bold text-lg mb-2 text-foreground">{personality.name}</h4>
+              <p className="text-sm text-muted-foreground mb-4">{personality.description}</p>
 
               <div className="space-y-3 mb-4">
                 <div>
-                  <div className="text-xs text-gray-400 mb-1">Voice Tone</div>
-                  <div className="text-sm text-gray-700">{personality.voiceTone}</div>
+                  <div className="text-xs text-muted-foreground mb-1">Voice Tone</div>
+                  <div className="text-sm text-foreground">{personality.voiceTone}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-400 mb-1">Best For</div>
-                  <div className="text-sm text-purple-600">{personality.bestFor}</div>
+                  <div className="text-xs text-muted-foreground mb-1">Best For</div>
+                  <div className="text-sm text-emerald-600">{personality.bestFor}</div>
                 </div>
               </div>
 
-              <button className="w-full py-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-sm font-medium transition-colors text-white">
+              <button className="w-full py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-colors text-white">
                 Select This Personality
               </button>
             </div>
@@ -266,39 +265,39 @@ const MCAutonomousMode: React.FC = () => {
       </div>
 
       {/* How It Works */}
-      <div className="p-6 bg-purple-50 border border-purple-200 rounded-xl">
-        <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">
-          <Award className="w-6 h-6 text-purple-600" />
+      <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-foreground">
+          <Award className="w-6 h-6 text-emerald-600" />
           How Autonomous Mode Works
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-xl font-bold text-purple-700">1</span>
+            <div className="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-xl font-bold text-emerald-700">1</span>
             </div>
-            <h4 className="font-semibold mb-2 text-gray-900">Upload Leads</h4>
-            <p className="text-sm text-gray-600">
+            <h4 className="font-semibold mb-2 text-foreground">Upload Leads</h4>
+            <p className="text-sm text-muted-foreground">
               Import your prospect list with contact info and context
             </p>
           </div>
 
           <div className="text-center">
-            <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-xl font-bold text-purple-700">2</span>
+            <div className="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-xl font-bold text-emerald-700">2</span>
             </div>
-            <h4 className="font-semibold mb-2 text-gray-900">AI Makes Calls</h4>
-            <p className="text-sm text-gray-600">
+            <h4 className="font-semibold mb-2 text-foreground">AI Makes Calls</h4>
+            <p className="text-sm text-muted-foreground">
               AI calls prospects, handles objections, and qualifies leads
             </p>
           </div>
 
           <div className="text-center">
-            <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-xl font-bold text-purple-700">3</span>
+            <div className="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-xl font-bold text-emerald-700">3</span>
             </div>
-            <h4 className="font-semibold mb-2 text-gray-900">Gathers Info</h4>
-            <p className="text-sm text-gray-600">
+            <h4 className="font-semibold mb-2 text-foreground">Gathers Info</h4>
+            <p className="text-sm text-muted-foreground">
               Collects key information, pain points, and buying signals
             </p>
           </div>
@@ -307,8 +306,8 @@ const MCAutonomousMode: React.FC = () => {
             <div className="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center mx-auto mb-3">
               <CheckCircle className="w-6 h-6 text-emerald-600" />
             </div>
-            <h4 className="font-semibold mb-2 text-gray-900">Books Meetings</h4>
-            <p className="text-sm text-gray-600">
+            <h4 className="font-semibold mb-2 text-foreground">Books Meetings</h4>
+            <p className="text-sm text-muted-foreground">
               Schedules demos or closes deals directly based on readiness
             </p>
           </div>
