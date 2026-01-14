@@ -1599,27 +1599,50 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             )}
 
             {/* Selected layer opacity */}
-            {selectedLayerId && (
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-200">Opacity</span>
+            {selectedLayerId && (() => {
+              const selectedLayer = layers.find(l => l.id === selectedLayerId);
+              const currentOpacity = selectedLayer?.opacity ?? 100;
+              const percentage = currentOpacity;
+              
+              return (
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-200">Opacity</span>
+                    <span className="text-sm text-slate-300 tabular-nums">{currentOpacity}%</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 relative">
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={currentOpacity}
+                        onChange={(e) => {
+                          const newOpacity = Number(e.target.value);
+                          setLayers(prevLayers => 
+                            prevLayers.map(layer => 
+                              layer.id === selectedLayerId 
+                                ? { ...layer, opacity: newOpacity } 
+                                : layer
+                            )
+                          );
+                        }}
+                        className="w-full h-1.5 rounded-full appearance-none cursor-pointer
+                          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 
+                          [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white 
+                          [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer
+                          [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110
+                          [&::-webkit-slider-thumb]:relative [&::-webkit-slider-thumb]:z-10"
+                        style={{
+                          background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${percentage}%, #475569 ${percentage}%, #475569 100%)`,
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <Slider
-                  value={layers.find(l => l.id === selectedLayerId)?.opacity ?? 100}
-                  onChange={(value) => {
-                    if (selectedLayerId) {
-                      setLayers(prev => prev.map(l => 
-                        l.id === selectedLayerId ? { ...l, opacity: value } : l
-                      ));
-                    }
-                  }}
-                  min={0}
-                  max={100}
-                  step={1}
-                  suffix="%"
-                />
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
@@ -2017,129 +2040,142 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                         }}
                       >
                         {/* Base image layer */}
-                        {layers.find(l => l.id === 'base-image')?.visible && (
-                          <img
-                            ref={imageRef}
-                            src={selectedImage}
-                            alt="Editing"
-                            className="w-full h-auto"
-                            draggable={false}
-                            style={{
-                              opacity: (layers.find(l => l.id === 'base-image')?.opacity ?? 100) / 100,
-                            }}
-                          />
-                        )}
+                        {(() => {
+                          const baseLayer = layers.find(l => l.id === 'base-image');
+                          if (!baseLayer?.visible) return null;
+                          const opacityValue = (baseLayer.opacity ?? 100) / 100;
+                          return (
+                            <img
+                              ref={imageRef}
+                              src={selectedImage}
+                              alt="Editing"
+                              className="w-full h-auto"
+                              draggable={false}
+                              style={{ opacity: opacityValue }}
+                            />
+                          );
+                        })()}
                         {/* Drawing canvas overlay for brush/eraser/fill/text tools */}
-                        {layers.find(l => l.id === 'drawing-layer')?.visible && (
-                          <canvas
-                            ref={drawingCanvasRef}
-                            className="absolute inset-0 w-full h-full"
-                            style={{
-                              cursor: activeTool === 'fill' || activeTool === 'text' ? 'crosshair' : 
-                                     (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
-                              pointerEvents: (activeTool === 'brush' || activeTool === 'eraser' || activeTool === 'fill' || activeTool === 'text') ? 'auto' : 'none',
-                              opacity: (layers.find(l => l.id === 'drawing-layer')?.opacity ?? 100) / 100,
-                            }}
-                            onMouseDown={handleBrushStart}
-                            onMouseMove={handleBrushMove}
-                            onMouseUp={handleBrushEnd}
-                            onMouseLeave={handleBrushEnd}
-                            onClick={(e) => {
-                              if (activeTool === 'fill') handleFillClick(e);
-                              if (activeTool === 'text') handleTextClick(e);
-                            }}
-                          />
-                        )}
-                        {/* Text elements overlay */}
-                        {layers.find(l => l.id === 'text-layer')?.visible && (
-                          <div 
-                            className="absolute inset-0"
-                            style={{ 
-                              pointerEvents: 'none',
-                              opacity: (layers.find(l => l.id === 'text-layer')?.opacity ?? 100) / 100,
-                            }}
-                          >
-                          {textElements.map((textEl) => (
-                            <div
-                              key={textEl.id}
-                              className={`absolute ${selectedTextId === textEl.id ? 'ring-2 ring-blue-500 rounded' : ''} ${draggingTextId === textEl.id ? 'cursor-grabbing' : 'cursor-grab'}`}
+                        {(() => {
+                          const drawingLayer = layers.find(l => l.id === 'drawing-layer');
+                          if (!drawingLayer?.visible) return null;
+                          const opacityValue = (drawingLayer.opacity ?? 100) / 100;
+                          return (
+                            <canvas
+                              ref={drawingCanvasRef}
+                              className="absolute inset-0 w-full h-full"
                               style={{
-                                left: textEl.x,
-                                top: textEl.y,
-                                transform: 'translate(-50%, -50%)',
-                                zIndex: selectedTextId === textEl.id ? 10 : 1,
-                                pointerEvents: 'auto',
+                                cursor: activeTool === 'fill' || activeTool === 'text' ? 'crosshair' : 
+                                       (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
+                                pointerEvents: (activeTool === 'brush' || activeTool === 'eraser' || activeTool === 'fill' || activeTool === 'text') ? 'auto' : 'none',
+                                opacity: opacityValue,
                               }}
-                              onMouseDown={(e) => handleTextDragStart(e, textEl.id)}
+                              onMouseDown={handleBrushStart}
+                              onMouseMove={handleBrushMove}
+                              onMouseUp={handleBrushEnd}
+                              onMouseLeave={handleBrushEnd}
                               onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedTextId(textEl.id);
+                                if (activeTool === 'fill') handleFillClick(e);
+                                if (activeTool === 'text') handleTextClick(e);
                               }}
-                              onDoubleClick={(e) => {
-                                e.stopPropagation();
-                                setEditingTextId(textEl.id);
+                            />
+                          );
+                        })()}
+                        {/* Text elements overlay */}
+                        {(() => {
+                          const textLayer = layers.find(l => l.id === 'text-layer');
+                          if (!textLayer?.visible) return null;
+                          const opacityValue = (textLayer.opacity ?? 100) / 100;
+                          return (
+                            <div 
+                              className="absolute inset-0"
+                              style={{ 
+                                pointerEvents: 'none',
+                                opacity: opacityValue,
                               }}
                             >
-                            {editingTextId === textEl.id ? (
-                              <textarea
-                                value={textEl.text}
-                                onChange={(e) => updateTextElement(textEl.id, { text: e.target.value })}
-                                onBlur={() => setEditingTextId(null)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Escape') setEditingTextId(null);
-                                  if (e.key === 'Delete' || e.key === 'Backspace') {
-                                    if (textEl.text === '') deleteTextElement(textEl.id);
-                                  }
-                                }}
-                                autoFocus
-                                className="bg-transparent border-none outline-none resize-none overflow-hidden"
-                                style={{
-                                  fontSize: `${textEl.fontSize}px`,
-                                  fontFamily: textEl.fontFamily,
-                                  color: textEl.color,
-                                  fontWeight: textEl.isBold ? 'bold' : 'normal',
-                                  fontStyle: textEl.isItalic ? 'italic' : 'normal',
-                                  textDecoration: textEl.isUnderline ? 'underline' : 'none',
-                                  textAlign: textEl.alignment.toLowerCase() as any,
-                                  minWidth: '150px',
-                                  width: 'auto',
-                                }}
-                                rows={1}
-                              />
-                            ) : (
+                            {textElements.map((textEl) => (
                               <div
+                                key={textEl.id}
+                                className={`absolute ${selectedTextId === textEl.id ? 'ring-2 ring-blue-500 rounded' : ''} ${draggingTextId === textEl.id ? 'cursor-grabbing' : 'cursor-grab'}`}
                                 style={{
-                                  fontSize: `${textEl.fontSize}px`,
-                                  fontFamily: textEl.fontFamily,
-                                  color: textEl.color,
-                                  fontWeight: textEl.isBold ? 'bold' : 'normal',
-                                  fontStyle: textEl.isItalic ? 'italic' : 'normal',
-                                  textDecoration: textEl.isUnderline ? 'underline' : 'none',
-                                  textAlign: textEl.alignment.toLowerCase() as any,
-                                  minWidth: '150px',
-                                  whiteSpace: 'pre-wrap',
-                                  userSelect: 'none',
-                                  display: 'block',
+                                  left: textEl.x,
+                                  top: textEl.y,
+                                  transform: 'translate(-50%, -50%)',
+                                  zIndex: selectedTextId === textEl.id ? 10 : 1,
+                                  pointerEvents: 'auto',
                                 }}
-                              >
-                                {textEl.text}
-                              </div>
-                            )}
-                            {selectedTextId === textEl.id && !editingTextId && (
-                              <button
+                                onMouseDown={(e) => handleTextDragStart(e, textEl.id)}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  deleteTextElement(textEl.id);
+                                  setSelectedTextId(textEl.id);
                                 }}
-                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                                onDoubleClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingTextId(textEl.id);
+                                }}
                               >
-                                ×
-                              </button>
-                            )}
-                            </div>
-                          ))}
-                        </div>
-                        )}
+                              {editingTextId === textEl.id ? (
+                                <textarea
+                                  value={textEl.text}
+                                  onChange={(e) => updateTextElement(textEl.id, { text: e.target.value })}
+                                  onBlur={() => setEditingTextId(null)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Escape') setEditingTextId(null);
+                                    if (e.key === 'Delete' || e.key === 'Backspace') {
+                                      if (textEl.text === '') deleteTextElement(textEl.id);
+                                    }
+                                  }}
+                                  autoFocus
+                                  className="bg-transparent border-none outline-none resize-none overflow-hidden"
+                                  style={{
+                                    fontSize: `${textEl.fontSize}px`,
+                                    fontFamily: textEl.fontFamily,
+                                    color: textEl.color,
+                                    fontWeight: textEl.isBold ? 'bold' : 'normal',
+                                    fontStyle: textEl.isItalic ? 'italic' : 'normal',
+                                    textDecoration: textEl.isUnderline ? 'underline' : 'none',
+                                    textAlign: textEl.alignment.toLowerCase() as any,
+                                    minWidth: '150px',
+                                    width: 'auto',
+                                  }}
+                                  rows={1}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    fontSize: `${textEl.fontSize}px`,
+                                    fontFamily: textEl.fontFamily,
+                                    color: textEl.color,
+                                    fontWeight: textEl.isBold ? 'bold' : 'normal',
+                                    fontStyle: textEl.isItalic ? 'italic' : 'normal',
+                                    textDecoration: textEl.isUnderline ? 'underline' : 'none',
+                                    textAlign: textEl.alignment.toLowerCase() as any,
+                                    minWidth: '150px',
+                                    whiteSpace: 'pre-wrap',
+                                    userSelect: 'none',
+                                    display: 'block',
+                                  }}
+                                >
+                                  {textEl.text}
+                                </div>
+                              )}
+                              {selectedTextId === textEl.id && !editingTextId && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteTextElement(textEl.id);
+                                  }}
+                                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                                >
+                                  ×
+                                </button>
+                              )}
+                              </div>
+                            ))}
+                          </div>
+                          );
+                        })()}
                         {/* Processing overlay */}
                         {isProcessing && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
