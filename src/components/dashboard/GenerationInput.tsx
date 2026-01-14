@@ -3525,7 +3525,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   const totalPromptBoxHeight = promptHeight + 96;
 
     return (
-      <div className="w-full"><div className="mx-auto mb-12 transition-all duration-300 w-full max-w-[900px]">
+      <div className="w-full"><div className="mx-auto mb-12 transition-all duration-300 w-fit min-w-[340px] sm:min-w-[520px] md:min-w-[800px] max-w-[95%]">
         <div ref={promptBoxRef} className="relative bg-white dark:bg-card border-2 border-emerald-500 rounded-xl p-6 shadow-lg" style={{ minHeight: totalPromptBoxHeight }}>
           <div className="flex items-start gap-3">
             <div className="flex flex-col gap-2">
@@ -4287,8 +4287,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-4 w-full min-w-fit">
-          <div className="flex items-center gap-2 flex-nowrap shrink-0">
+        <div className="flex items-center justify-between gap-4 w-full flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {isVideoMode ? (
               <>
                 {/* Video Mode Controls */}
