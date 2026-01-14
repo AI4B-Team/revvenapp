@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Image, Sparkles, ToggleLeft, ToggleRight, Info } from 'lucide-react';
+import { FileText, Image, Sparkles, Info, BookOpen } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -7,19 +7,32 @@ import {
 } from '@/components/ui/tooltip';
 
 export type GenerationMode = 'text-interactive' | 'text-only';
+export type WordCountOption = 500 | 1000 | 1500 | 2000 | 3000;
 
 interface LessonSettingsPanelProps {
   generationMode: GenerationMode;
   onGenerationModeChange: (mode: GenerationMode) => void;
   includeImages: boolean;
   onIncludeImagesChange: (include: boolean) => void;
+  wordsPerChapter?: WordCountOption;
+  onWordsPerChapterChange?: (words: WordCountOption) => void;
 }
+
+const WORD_COUNT_OPTIONS: { value: WordCountOption; label: string; description: string }[] = [
+  { value: 500, label: '500', description: 'Quick read' },
+  { value: 1000, label: '1,000', description: 'Standard' },
+  { value: 1500, label: '1,500', description: 'Detailed' },
+  { value: 2000, label: '2,000', description: 'In-depth' },
+  { value: 3000, label: '3,000', description: 'Comprehensive' },
+];
 
 const LessonSettingsPanel: React.FC<LessonSettingsPanelProps> = ({
   generationMode,
   onGenerationModeChange,
   includeImages,
   onIncludeImagesChange,
+  wordsPerChapter = 1500,
+  onWordsPerChapterChange,
 }) => {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
@@ -107,6 +120,48 @@ const LessonSettingsPanel: React.FC<LessonSettingsPanelProps> = ({
                 </p>
               </div>
             </button>
+          </div>
+        </div>
+
+        {/* Words Per Chapter Selection */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Words Per Chapter</label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-4 h-4 text-gray-400 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-xs">
+                <p className="text-xs">
+                  Select the approximate number of words for each chapter. Longer chapters provide more detail but take longer to generate.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          
+          <div className="flex gap-2">
+            {WORD_COUNT_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => onWordsPerChapterChange?.(option.value)}
+                className={`flex-1 flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
+                  wordsPerChapter === option.value
+                    ? 'border-emerald-500 bg-emerald-50 shadow-sm'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <span className={`text-sm font-semibold ${
+                  wordsPerChapter === option.value ? 'text-emerald-700' : 'text-gray-700'
+                }`}>
+                  {option.label}
+                </span>
+                <span className={`text-xs ${
+                  wordsPerChapter === option.value ? 'text-emerald-600' : 'text-gray-400'
+                }`}>
+                  {option.description}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
