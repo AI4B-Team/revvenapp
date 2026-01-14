@@ -18,44 +18,44 @@ const GENERATION_STEPS: GenerationStep[] = [
   },
   { 
     id: 'details', 
-    label: 'Building Course Details', 
-    description: 'Creating course structure and learning objectives...',
+    label: 'Building Ebook Details', 
+    description: 'Creating ebook structure and key topics...',
     icon: Sparkles 
   },
   { 
     id: 'outline', 
-    label: 'Generating Course Outline', 
-    description: 'Organizing chapters and lesson flow...',
+    label: 'Generating Chapter Outline', 
+    description: 'Organizing chapters and content flow...',
     icon: BookOpen 
   },
   { 
     id: 'content', 
-    label: 'Writing Lesson Content', 
-    description: 'Crafting engaging content for each lesson...',
+    label: 'Writing Chapter Content', 
+    description: 'Crafting engaging content for each chapter...',
     icon: FileText 
   },
   { 
     id: 'images', 
     label: 'Generating Images', 
-    description: 'Creating AI illustrations for your lessons...',
+    description: 'Creating AI illustrations for your chapters...',
     icon: Image 
   },
 ];
 
 interface GenerationProgressPanelProps {
   isGenerating: boolean;
-  totalLessons?: number;
-  currentLesson?: number;
-  currentLessonTitle?: string;
+  totalChapters?: number;
+  currentChapter?: number;
+  currentChapterTitle?: string;
   onCancel?: () => void;
   onComplete?: () => void;
 }
 
 const GenerationProgressPanel: React.FC<GenerationProgressPanelProps> = ({
   isGenerating,
-  totalLessons = 5,
-  currentLesson = 1,
-  currentLessonTitle = 'Introduction',
+  totalChapters = 5,
+  currentChapter = 1,
+  currentChapterTitle = 'Introduction',
   onCancel,
   onComplete,
 }) => {
@@ -110,10 +110,10 @@ const GenerationProgressPanel: React.FC<GenerationProgressPanelProps> = ({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
-              Generating Lessons
+              Generating Chapters
             </h3>
             <p className="text-sm text-gray-500">
-              Lesson {currentLesson}/{totalLessons}: {currentLessonTitle}
+              Chapter {currentChapter}/{totalChapters}: {currentChapterTitle}
             </p>
           </div>
         </div>

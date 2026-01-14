@@ -29,8 +29,8 @@ const LessonSettingsPanel: React.FC<LessonSettingsPanelProps> = ({
             <Sparkles className="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Lesson Settings</h3>
-            <p className="text-sm text-gray-500">Configure how lessons are generated</p>
+            <h3 className="font-semibold text-gray-900">Chapter Settings</h3>
+            <p className="text-sm text-gray-500">Configure how chapters are generated</p>
           </div>
         </div>
       </div>
@@ -39,7 +39,7 @@ const LessonSettingsPanel: React.FC<LessonSettingsPanelProps> = ({
         {/* Generation Mode */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Generate Lesson As</label>
+            <label className="text-sm font-medium text-gray-700">Generate Chapter As</label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="w-4 h-4 text-gray-400 cursor-help" />
@@ -120,7 +120,7 @@ const LessonSettingsPanel: React.FC<LessonSettingsPanelProps> = ({
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">Include AI-Generated Images</p>
-              <p className="text-xs text-gray-500">Generate relevant images for each lesson</p>
+              <p className="text-xs text-gray-500">Generate relevant images for each chapter</p>
             </div>
           </div>
           <button
