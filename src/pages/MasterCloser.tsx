@@ -38,7 +38,7 @@ const MasterCloser = () => {
 
   const navigation = [
     { id: 'dashboard', name: 'Command', icon: BarChart3, view: 'dashboard' },
-    { id: 'live-call', name: 'Studio', icon: Mic, view: 'live-call', highlight: true },
+    { id: 'live-call', name: 'Calls', icon: Mic, view: 'live-call', highlight: true },
     { id: 'agent-settings', name: 'Agent', icon: Bot, view: 'agent-settings' },
     { id: 'objections', name: 'Objections', icon: MessageSquare, view: 'objections' },
     { id: 'planner', name: 'Prep', icon: BookOpen, view: 'planner' },
