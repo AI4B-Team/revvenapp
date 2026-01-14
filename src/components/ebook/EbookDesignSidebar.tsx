@@ -13,7 +13,7 @@ import {
   ThumbsUp, HelpCircle, Hexagon, Star, Pentagon, Diamond, ArrowRight, ArrowDown, ArrowUp,
   ArrowLeft, Move, Pointer, Navigation, Maximize2, Minimize2, RotateCcw, ZoomIn, MessageSquare,
   FileDown, Volume2, ExternalLink, FileQuestion, Shrink, LineChart, CircleDot, AreaChart,
-  Activity, Waves, CircleDashed, Boxes, Radar, Languages, Check, Users
+  Activity, Waves, CircleDashed, Boxes, Radar, Languages, Check, Users, X
 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -34,6 +34,16 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import FlashcardEditor, { FlashcardDeck } from './FlashcardEditor';
+import QuizEditor, { Quiz } from './QuizEditor';
+import CourseModuleEditor, { Course } from './CourseModuleEditor';
+import CertificateEditor, { Certificate } from './CertificateEditor';
 
 // Template images
 import minimalTemplate from '@/assets/templates/minimal.jpg';
@@ -369,6 +379,64 @@ const EbookDesignSidebar = ({
   const [languageSearchQuery, setLanguageSearchQuery] = useState('');
   const [showTranslated, setShowTranslated] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+  
+  // Learning Tools modals state
+  const [activeEditor, setActiveEditor] = useState<'flashcard' | 'quiz' | 'course' | 'certificate' | null>(null);
+  
+  // Learning Tools data
+  const [currentDeck, setCurrentDeck] = useState<FlashcardDeck>({
+    id: crypto.randomUUID(),
+    title: 'New Flashcard Deck',
+    description: '',
+    cards: [{ id: crypto.randomUUID(), front: '', back: '', difficulty: 'medium' }],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  });
+  
+  const [currentQuiz, setCurrentQuiz] = useState<Quiz>({
+    id: crypto.randomUUID(),
+    title: 'New Quiz',
+    description: '',
+    questions: [],
+    passingScore: 70,
+    shuffleQuestions: false,
+    showCorrectAnswers: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  });
+  
+  const [currentCourse, setCurrentCourse] = useState<Course>({
+    id: crypto.randomUUID(),
+    title: 'New Course',
+    description: '',
+    modules: [],
+    certificateEnabled: false,
+    passingScore: 70,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  });
+  
+  const [currentCertificate, setCurrentCertificate] = useState<Certificate>({
+    id: crypto.randomUUID(),
+    courseId: '',
+    title: 'Certificate of Completion',
+    recipientLabel: 'This is to certify that',
+    dateLabel: 'Completed on',
+    signatureLabel: 'Instructor',
+    signatureName: 'Course Instructor',
+    signatureTitle: 'Lead Instructor',
+    template: {
+      id: 'modern',
+      name: 'Modern',
+      backgroundColor: '#ffffff',
+      borderColor: '#10b981',
+      accentColor: '#059669',
+      fontFamily: 'Inter',
+      layout: 'modern'
+    },
+    createdAt: new Date(),
+    updatedAt: new Date()
+  });
   
   // Pexels API key moved to edge function for security
 
@@ -2113,7 +2181,7 @@ const EbookDesignSidebar = ({
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {/* Flashcards */}
                 <button
-                  onClick={() => toast.success('Flashcard deck added to page')}
+                  onClick={() => setActiveEditor('flashcard')}
                   className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 transition-all"
                 >
                   <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
@@ -2127,7 +2195,7 @@ const EbookDesignSidebar = ({
 
                 {/* Quizzes */}
                 <button
-                  onClick={() => toast.success('Quiz added to page')}
+                  onClick={() => setActiveEditor('quiz')}
                   className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50/50 transition-all"
                 >
                   <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
@@ -2141,7 +2209,7 @@ const EbookDesignSidebar = ({
 
                 {/* Courses */}
                 <button
-                  onClick={() => toast.success('Course module added to page')}
+                  onClick={() => setActiveEditor('course')}
                   className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all"
                 >
                   <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
@@ -2155,7 +2223,7 @@ const EbookDesignSidebar = ({
 
                 {/* Certificates */}
                 <button
-                  onClick={() => toast.success('Certificate template added to page')}
+                  onClick={() => setActiveEditor('certificate')}
                   className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/50 transition-all"
                 >
                   <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
@@ -2246,6 +2314,99 @@ const EbookDesignSidebar = ({
           )}
         </div>
       </div>
+
+      {/* Learning Tools Modals */}
+      {/* Flashcard Editor Modal */}
+      <Dialog open={activeEditor === 'flashcard'} onOpenChange={(open) => !open && setActiveEditor(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-4 border-b bg-amber-50">
+            <DialogTitle className="flex items-center gap-2 text-amber-800">
+              <Brain className="w-5 h-5" />
+              Flashcard Editor
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-0">
+            <FlashcardEditor
+              deck={currentDeck}
+              onDeckUpdate={(updatedDeck) => {
+                setCurrentDeck(updatedDeck);
+              }}
+              onClose={() => {
+                setActiveEditor(null);
+                toast.success('Flashcard deck added to page');
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Quiz Editor Modal */}
+      <Dialog open={activeEditor === 'quiz'} onOpenChange={(open) => !open && setActiveEditor(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-4 border-b bg-purple-50">
+            <DialogTitle className="flex items-center gap-2 text-purple-800">
+              <CheckSquare className="w-5 h-5" />
+              Quiz Editor
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-0">
+            <QuizEditor
+              quiz={currentQuiz}
+              onQuizUpdate={(updatedQuiz) => {
+                setCurrentQuiz(updatedQuiz);
+              }}
+              onClose={() => {
+                setActiveEditor(null);
+                toast.success('Quiz added to page');
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Course Editor Modal */}
+      <Dialog open={activeEditor === 'course'} onOpenChange={(open) => !open && setActiveEditor(null)}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-4 border-b bg-blue-50">
+            <DialogTitle className="flex items-center gap-2 text-blue-800">
+              <BookOpen className="w-5 h-5" />
+              Course Builder
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-0">
+            <CourseModuleEditor
+              course={currentCourse}
+              onCourseUpdate={(updatedCourse) => {
+                setCurrentCourse(updatedCourse);
+              }}
+              onClose={() => {
+                setActiveEditor(null);
+                toast.success('Course added to page');
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Certificate Editor Modal */}
+      <Dialog open={activeEditor === 'certificate'} onOpenChange={(open) => !open && setActiveEditor(null)}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-4 border-b bg-emerald-50">
+            <DialogTitle className="flex items-center gap-2 text-emerald-800">
+              <Award className="w-5 h-5" />
+              Certificate Designer
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-0">
+            <CertificateEditor
+              certificate={currentCertificate}
+              onCertificateUpdate={(updatedCertificate) => {
+                setCurrentCertificate(updatedCertificate);
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   );
 };
