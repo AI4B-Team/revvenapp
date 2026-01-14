@@ -541,9 +541,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     }
   };
 
-  // Handle image dragging - allow drag anywhere on canvas when image exists
+  // Handle image dragging - only start drag when select tool is active and image is selected
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    if (selectedImage && !e.defaultPrevented) {
+    // Only allow dragging when the select tool is active and image is selected
+    if (selectedImage && !e.defaultPrevented && activeTool === 'select' && isImageSelected) {
       e.preventDefault();
       setIsDragging(true);
       setDragStart({ x: e.clientX - imagePosition.x, y: e.clientY - imagePosition.y });
@@ -1100,7 +1101,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                       style={{
                         transform: `scale(${zoomLevel / 100}) translate(${imagePosition.x / (zoomLevel / 100)}px, ${imagePosition.y / (zoomLevel / 100)}px)`,
                         transformOrigin: 'center center',
-                        cursor: activeTool === 'select' && isImageSelected ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
+                        cursor: activeTool === 'select' && isImageSelected ? (isDragging ? 'grabbing' : 'move') : 'pointer',
+                      }}
+                      onMouseDown={(e) => {
+                        if (activeTool === 'select' && isImageSelected) {
+                          e.stopPropagation();
+                          setIsDragging(true);
+                          setDragStart({ x: e.clientX - imagePosition.x, y: e.clientY - imagePosition.y });
+                        }
                       }}
                     >
                       {isImageSelected && (
