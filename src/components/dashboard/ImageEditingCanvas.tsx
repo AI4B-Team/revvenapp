@@ -191,7 +191,7 @@ const getToolSettings = (tool: string) => {
           { type: 'slider', label: 'Opacity', min: 0, max: 100, key: 'opacity' },
           { type: 'slider', label: 'Flow', min: 0, max: 100, key: 'flow' },
           { type: 'color', label: 'Brush Color', key: 'brushColor' },
-          { type: 'buttons', label: 'Blend Mode', options: ['Normal', 'Multiply', 'Screen', 'Overlay'] },
+          { type: 'buttons', label: 'Blend Mode', key: 'blendmode', options: ['Normal', 'Multiply', 'Screen', 'Overlay'] },
         ],
       };
     case 'eraser':
@@ -615,6 +615,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     if (ctx) {
       ctx.globalAlpha = (toolSettings.opacity || 100) / 100;
       ctx.fillStyle = toolSettings.brushColor || '#000000';
+      // Apply blend mode
+      const blendMode = toolSettings.blendmode || 'Normal';
+      ctx.globalCompositeOperation = blendMode === 'Multiply' ? 'multiply' : 
+                                      blendMode === 'Screen' ? 'screen' : 
+                                      blendMode === 'Overlay' ? 'overlay' : 'source-over';
       ctx.beginPath();
       ctx.arc(x, y, (toolSettings.brushSize || 20) / 2, 0, Math.PI * 2);
       ctx.fill();
@@ -640,6 +645,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       ctx.lineWidth = toolSettings.brushSize || 20;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
+      // Apply blend mode
+      const blendMode = toolSettings.blendmode || 'Normal';
+      ctx.globalCompositeOperation = blendMode === 'Multiply' ? 'multiply' : 
+                                      blendMode === 'Screen' ? 'screen' : 
+                                      blendMode === 'Overlay' ? 'overlay' : 'source-over';
       ctx.beginPath();
       ctx.moveTo(lastPoint.x, lastPoint.y);
       ctx.lineTo(x, y);
@@ -1011,14 +1021,23 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               <>
                 <span className="text-sm text-slate-200">{setting.label}</span>
                 <div className="grid grid-cols-2 gap-2">
-                  {setting.options.map((opt: string) => (
-                    <button
-                      key={opt}
-                      className="px-3 py-2.5 rounded-lg text-xs font-medium bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white transition-all"
-                    >
-                      {opt}
-                    </button>
-                  ))}
+                  {setting.options.map((opt: string) => {
+                    const settingKey = setting.key || setting.label.toLowerCase().replace(/\s+/g, '');
+                    const isSelected = toolSettings[settingKey] === opt || (!toolSettings[settingKey] && opt === setting.options[0]);
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => setToolSettings({ ...toolSettings, [settingKey]: opt })}
+                        className={`px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                          isSelected 
+                            ? 'bg-indigo-500 text-white' 
+                            : 'bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white'
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
                 </div>
               </>
             )}
@@ -1048,12 +1067,22 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               <>
                 <span className="text-sm text-slate-200">{setting.label}</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-600 cursor-pointer" />
+                  <input
+                    type="color"
+                    value={toolSettings[setting.key] || '#000000'}
+                    onChange={(e) => setToolSettings({ ...toolSettings, [setting.key]: e.target.value })}
+                    className="w-8 h-8 rounded-lg border border-slate-600 cursor-pointer bg-transparent p-0 overflow-hidden"
+                  />
                   <input 
                     type="text" 
-                    value="#FFFFFF" 
+                    value={toolSettings[setting.key] || '#000000'} 
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                        setToolSettings({ ...toolSettings, [setting.key]: value });
+                      }
+                    }}
                     className="flex-1 bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2 text-sm"
-                    readOnly
                   />
                 </div>
               </>
