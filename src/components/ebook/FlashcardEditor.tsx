@@ -1,0 +1,370 @@
+import { useState } from 'react';
+import { Plus, Trash2, GripVertical, Sparkles, RotateCcw, Eye, Pencil, Copy, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
+
+export interface Flashcard {
+  id: string;
+  front: string;
+  back: string;
+  hint?: string;
+  tags?: string[];
+  difficulty?: 'easy' | 'medium' | 'hard';
+}
+
+export interface FlashcardDeck {
+  id: string;
+  title: string;
+  description?: string;
+  cards: Flashcard[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface FlashcardEditorProps {
+  deck: FlashcardDeck;
+  onDeckUpdate: (deck: FlashcardDeck) => void;
+  onClose?: () => void;
+}
+
+const FlashcardEditor = ({ deck, onDeckUpdate, onClose }: FlashcardEditorProps) => {
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(
+    deck.cards.length > 0 ? deck.cards[0].id : null
+  );
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [previewCardIndex, setPreviewCardIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const selectedCard = deck.cards.find(c => c.id === selectedCardId);
+
+  const handleAddCard = () => {
+    const newCard: Flashcard = {
+      id: crypto.randomUUID(),
+      front: '',
+      back: '',
+      difficulty: 'medium'
+    };
+    const updatedDeck = {
+      ...deck,
+      cards: [...deck.cards, newCard],
+      updatedAt: new Date()
+    };
+    onDeckUpdate(updatedDeck);
+    setSelectedCardId(newCard.id);
+    toast.success('New card added');
+  };
+
+  const handleDeleteCard = (cardId: string) => {
+    const updatedCards = deck.cards.filter(c => c.id !== cardId);
+    const updatedDeck = {
+      ...deck,
+      cards: updatedCards,
+      updatedAt: new Date()
+    };
+    onDeckUpdate(updatedDeck);
+    if (selectedCardId === cardId) {
+      setSelectedCardId(updatedCards.length > 0 ? updatedCards[0].id : null);
+    }
+    toast.success('Card deleted');
+  };
+
+  const handleDuplicateCard = (cardId: string) => {
+    const cardToDuplicate = deck.cards.find(c => c.id === cardId);
+    if (!cardToDuplicate) return;
+    
+    const newCard: Flashcard = {
+      ...cardToDuplicate,
+      id: crypto.randomUUID()
+    };
+    const cardIndex = deck.cards.findIndex(c => c.id === cardId);
+    const updatedCards = [...deck.cards];
+    updatedCards.splice(cardIndex + 1, 0, newCard);
+    
+    onDeckUpdate({
+      ...deck,
+      cards: updatedCards,
+      updatedAt: new Date()
+    });
+    setSelectedCardId(newCard.id);
+    toast.success('Card duplicated');
+  };
+
+  const handleCardUpdate = (cardId: string, field: keyof Flashcard, value: string) => {
+    const updatedCards = deck.cards.map(card =>
+      card.id === cardId ? { ...card, [field]: value } : card
+    );
+    onDeckUpdate({
+      ...deck,
+      cards: updatedCards,
+      updatedAt: new Date()
+    });
+  };
+
+  const handleGenerateWithAI = async () => {
+    toast.info('Generating flashcards with AI...');
+    // AI generation would be implemented here
+    setTimeout(() => {
+      const newCards: Flashcard[] = [
+        { id: crypto.randomUUID(), front: 'What is the main concept?', back: 'The main concept is...', difficulty: 'easy' },
+        { id: crypto.randomUUID(), front: 'Define the key term', back: 'The key term means...', difficulty: 'medium' },
+        { id: crypto.randomUUID(), front: 'What are the benefits?', back: 'The benefits include...', difficulty: 'medium' },
+      ];
+      onDeckUpdate({
+        ...deck,
+        cards: [...deck.cards, ...newCards],
+        updatedAt: new Date()
+      });
+      toast.success('3 flashcards generated!');
+    }, 1500);
+  };
+
+  const nextPreviewCard = () => {
+    setIsFlipped(false);
+    setPreviewCardIndex((prev) => (prev + 1) % deck.cards.length);
+  };
+
+  const prevPreviewCard = () => {
+    setIsFlipped(false);
+    setPreviewCardIndex((prev) => (prev - 1 + deck.cards.length) % deck.cards.length);
+  };
+
+  if (isPreviewMode && deck.cards.length > 0) {
+    const currentCard = deck.cards[previewCardIndex];
+    return (
+      <div className="h-full flex flex-col bg-gradient-to-br from-emerald-50 to-blue-50 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-800">Study Mode</h3>
+          <Button variant="outline" size="sm" onClick={() => setIsPreviewMode(false)}>
+            <Pencil className="w-4 h-4 mr-2" />
+            Edit Cards
+          </Button>
+        </div>
+
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-full max-w-md">
+            {/* Card Counter */}
+            <div className="text-center mb-4 text-sm text-gray-500">
+              Card {previewCardIndex + 1} of {deck.cards.length}
+            </div>
+
+            {/* Flashcard */}
+            <motion.div
+              className="relative w-full aspect-[3/2] cursor-pointer perspective-1000"
+              onClick={() => setIsFlipped(!isFlipped)}
+            >
+              <motion.div
+                className="w-full h-full"
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* Front */}
+                <div 
+                  className="absolute inset-0 bg-white rounded-2xl shadow-xl p-6 flex items-center justify-center backface-hidden border-2 border-emerald-200"
+                  style={{ backfaceVisibility: 'hidden' }}
+                >
+                  <p className="text-xl font-medium text-gray-800 text-center">{currentCard.front || 'Front of card'}</p>
+                </div>
+                
+                {/* Back */}
+                <div 
+                  className="absolute inset-0 bg-emerald-500 rounded-2xl shadow-xl p-6 flex items-center justify-center backface-hidden"
+                  style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                >
+                  <p className="text-xl font-medium text-white text-center">{currentCard.back || 'Back of card'}</p>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            <p className="text-center text-sm text-gray-400 mt-4">Click card to flip</p>
+
+            {/* Navigation */}
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <Button variant="outline" size="icon" onClick={prevPreviewCard} disabled={deck.cards.length <= 1}>
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={() => setIsFlipped(false)}>
+                <RotateCcw className="w-5 h-5" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={nextPreviewCard} disabled={deck.cards.length <= 1}>
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full flex flex-col bg-white">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between mb-3">
+          <Input
+            value={deck.title}
+            onChange={(e) => onDeckUpdate({ ...deck, title: e.target.value, updatedAt: new Date() })}
+            className="text-lg font-semibold border-none p-0 h-auto focus-visible:ring-0"
+            placeholder="Deck Title"
+          />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPreviewMode(true)}
+              disabled={deck.cards.length === 0}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Study
+            </Button>
+          </div>
+        </div>
+        <Textarea
+          value={deck.description || ''}
+          onChange={(e) => onDeckUpdate({ ...deck, description: e.target.value, updatedAt: new Date() })}
+          className="text-sm text-gray-500 border-none p-0 resize-none focus-visible:ring-0 min-h-0"
+          placeholder="Add a description..."
+          rows={1}
+        />
+      </div>
+
+      {/* Cards List & Editor */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Cards List */}
+        <div className="w-64 border-r border-gray-200 overflow-y-auto p-3">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-600">{deck.cards.length} Cards</span>
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleGenerateWithAI}>
+                <Sparkles className="w-4 h-4 text-amber-500" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleAddCard}>
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {deck.cards.map((card, index) => (
+              <div
+                key={card.id}
+                onClick={() => setSelectedCardId(card.id)}
+                className={`group p-3 rounded-lg border cursor-pointer transition-all ${
+                  selectedCardId === card.id
+                    ? 'border-emerald-400 bg-emerald-50'
+                    : 'border-gray-200 hover:border-emerald-300'
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <GripVertical className="w-4 h-4 text-gray-300 mt-0.5 cursor-grab" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-gray-400 mb-1">Card {index + 1}</p>
+                    <p className="text-sm font-medium text-gray-800 truncate">
+                      {card.front || 'Untitled card'}
+                    </p>
+                  </div>
+                  <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDuplicateCard(card.id); }}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-gray-400" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteCard(card.id); }}
+                      className="p-1 hover:bg-red-100 rounded"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {deck.cards.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                <p className="text-sm mb-2">No cards yet</p>
+                <Button variant="outline" size="sm" onClick={handleAddCard}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add First Card
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Card Editor */}
+        <div className="flex-1 p-6 overflow-y-auto">
+          {selectedCard ? (
+            <div className="max-w-2xl mx-auto space-y-6">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Front (Question)</label>
+                <Textarea
+                  value={selectedCard.front}
+                  onChange={(e) => handleCardUpdate(selectedCard.id, 'front', e.target.value)}
+                  placeholder="Enter the question or term..."
+                  className="min-h-[120px] text-lg"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Back (Answer)</label>
+                <Textarea
+                  value={selectedCard.back}
+                  onChange={(e) => handleCardUpdate(selectedCard.id, 'back', e.target.value)}
+                  placeholder="Enter the answer or definition..."
+                  className="min-h-[120px] text-lg"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Hint (Optional)</label>
+                <Input
+                  value={selectedCard.hint || ''}
+                  onChange={(e) => handleCardUpdate(selectedCard.id, 'hint', e.target.value)}
+                  placeholder="Add a hint to help recall..."
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Difficulty</label>
+                <div className="flex gap-2">
+                  {(['easy', 'medium', 'hard'] as const).map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => handleCardUpdate(selectedCard.id, 'difficulty', level)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        selectedCard.difficulty === level
+                          ? level === 'easy' ? 'bg-green-100 text-green-700 border-2 border-green-400'
+                          : level === 'medium' ? 'bg-amber-100 text-amber-700 border-2 border-amber-400'
+                          : 'bg-red-100 text-red-700 border-2 border-red-400'
+                          : 'bg-gray-100 text-gray-600 border-2 border-transparent hover:border-gray-300'
+                      }`}
+                    >
+                      {level.charAt(0).toUpperCase() + level.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <p className="mb-2">Select a card to edit</p>
+                <Button variant="outline" size="sm" onClick={handleAddCard}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Card
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FlashcardEditor;
