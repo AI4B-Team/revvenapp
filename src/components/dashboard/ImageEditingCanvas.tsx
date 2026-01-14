@@ -242,12 +242,8 @@ const getToolSettings = (tool: string) => {
     case 'layers':
       return {
         title: 'Layers',
-        settings: [
-          { type: 'slider', label: 'Layer Opacity', min: 0, max: 100, key: 'layerOpacity' },
-          { type: 'buttons', label: 'Blend Mode', options: ['Normal', 'Multiply', 'Screen', 'Overlay', 'Soft Light'] },
-          { type: 'toggle', label: 'Lock Layer', key: 'lockLayer' },
-          { type: 'toggle', label: 'Visible', key: 'layerVisible' },
-        ],
+        settings: [],
+        customPanel: true,
       };
     case 'upscale':
       return {
@@ -357,6 +353,23 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [draggingTextId, setDraggingTextId] = useState<string | null>(null);
   const [textDragOffset, setTextDragOffset] = useState({ x: 0, y: 0 });
+  
+  // Layers state
+  interface Layer {
+    id: string;
+    name: string;
+    type: 'image' | 'drawing' | 'text';
+    visible: boolean;
+    locked: boolean;
+    opacity: number;
+  }
+  const [layers, setLayers] = useState<Layer[]>([
+    { id: 'base-image', name: 'Background', type: 'image', visible: true, locked: false, opacity: 100 },
+    { id: 'drawing-layer', name: 'Drawing', type: 'drawing', visible: true, locked: false, opacity: 100 },
+    { id: 'text-layer', name: 'Text', type: 'text', visible: true, locked: false, opacity: 100 },
+  ]);
+  const [selectedLayerId, setSelectedLayerId] = useState<string>('base-image');
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -1017,6 +1030,33 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     if (editingTextId === id) setEditingTextId(null);
   };
 
+  // Layer management functions
+  const updateLayer = (id: string, updates: Partial<Layer>) => {
+    setLayers(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
+  };
+
+  const toggleLayerVisibility = (id: string) => {
+    setLayers(prev => prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l));
+  };
+
+  const toggleLayerLock = (id: string) => {
+    setLayers(prev => prev.map(l => l.id === id ? { ...l, locked: !l.locked } : l));
+  };
+
+  const moveLayer = (id: string, direction: 'up' | 'down') => {
+    setLayers(prev => {
+      const index = prev.findIndex(l => l.id === id);
+      if (index === -1) return prev;
+      if (direction === 'up' && index === 0) return prev;
+      if (direction === 'down' && index === prev.length - 1) return prev;
+      
+      const newLayers = [...prev];
+      const swapIndex = direction === 'up' ? index - 1 : index + 1;
+      [newLayers[index], newLayers[swapIndex]] = [newLayers[swapIndex], newLayers[index]];
+      return newLayers;
+    });
+  };
+
   // Text element dragging handlers
   const handleTextDragStart = (e: React.MouseEvent, textId: string) => {
     if (editingTextId === textId) return; // Don't drag while editing
@@ -1402,6 +1442,116 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           </div>
         )}
 
+        {/* Layers panel */}
+        {activeTool === 'layers' && (
+          <div className="space-y-3">
+            {/* Layer list */}
+            <div className="space-y-2">
+              {layers.map((layer, index) => (
+                <div
+                  key={layer.id}
+                  className={`flex items-center gap-2 p-2.5 rounded-lg cursor-pointer transition-all ${
+                    selectedLayerId === layer.id 
+                      ? 'bg-indigo-500/30 ring-1 ring-indigo-500' 
+                      : 'bg-slate-700/40 hover:bg-slate-700/60'
+                  }`}
+                  onClick={() => setSelectedLayerId(layer.id)}
+                >
+                  {/* Visibility toggle */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleLayerVisibility(layer.id);
+                    }}
+                    className={`p-1 rounded transition-colors ${layer.visible ? 'text-white' : 'text-slate-500'}`}
+                  >
+                    {layer.visible ? (
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Layer type icon */}
+                  <div className="w-8 h-8 bg-slate-600 rounded flex items-center justify-center">
+                    {layer.type === 'image' && <Image className="w-4 h-4 text-slate-300" />}
+                    {layer.type === 'drawing' && <Paintbrush className="w-4 h-4 text-slate-300" />}
+                    {layer.type === 'text' && <Type className="w-4 h-4 text-slate-300" />}
+                  </div>
+
+                  {/* Layer name */}
+                  <span className="flex-1 text-sm text-white truncate">{layer.name}</span>
+
+                  {/* Lock toggle */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleLayerLock(layer.id);
+                    }}
+                    className={`p-1 rounded transition-colors ${layer.locked ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    {layer.locked ? (
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Layer controls */}
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-700">
+              <button
+                onClick={() => moveLayer(selectedLayerId, 'up')}
+                className="flex-1 px-3 py-2 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-medium hover:bg-slate-600 transition-colors flex items-center justify-center gap-1"
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+                Up
+              </button>
+              <button
+                onClick={() => moveLayer(selectedLayerId, 'down')}
+                className="flex-1 px-3 py-2 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-medium hover:bg-slate-600 transition-colors flex items-center justify-center gap-1"
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                Down
+              </button>
+            </div>
+
+            {/* Selected layer opacity */}
+            {selectedLayerId && (
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-200">Opacity</span>
+                  <span className="text-xs text-slate-400">
+                    {layers.find(l => l.id === selectedLayerId)?.opacity}%
+                  </span>
+                </div>
+                <Slider
+                  value={layers.find(l => l.id === selectedLayerId)?.opacity || 100}
+                  onChange={(value) => updateLayer(selectedLayerId, { opacity: value })}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
         {currentToolSettings.settings.map((setting: any, index: number) => (
           <div key={index} className="space-y-2">
             {setting.type === 'slider' && (
@@ -1749,36 +1899,49 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           setIsImageSelected(true);
                         }}
                       >
-                        <img
-                          ref={imageRef}
-                          src={selectedImage}
-                          alt="Editing"
-                          className="w-full h-auto"
-                          draggable={false}
-                        />
+                        {/* Base image layer */}
+                        {layers.find(l => l.id === 'base-image')?.visible && (
+                          <img
+                            ref={imageRef}
+                            src={selectedImage}
+                            alt="Editing"
+                            className="w-full h-auto"
+                            draggable={false}
+                            style={{
+                              opacity: (layers.find(l => l.id === 'base-image')?.opacity || 100) / 100,
+                            }}
+                          />
+                        )}
                         {/* Drawing canvas overlay for brush/eraser/fill/text tools */}
-                        <canvas
-                          ref={drawingCanvasRef}
-                          className="absolute inset-0 w-full h-full"
-                          style={{
-                            cursor: activeTool === 'fill' || activeTool === 'text' ? 'crosshair' : 
-                                   (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
-                            pointerEvents: (activeTool === 'brush' || activeTool === 'eraser' || activeTool === 'fill' || activeTool === 'text') ? 'auto' : 'none',
-                          }}
-                          onMouseDown={handleBrushStart}
-                          onMouseMove={handleBrushMove}
-                          onMouseUp={handleBrushEnd}
-                          onMouseLeave={handleBrushEnd}
-                          onClick={(e) => {
-                            if (activeTool === 'fill') handleFillClick(e);
-                            if (activeTool === 'text') handleTextClick(e);
-                          }}
-                        />
+                        {layers.find(l => l.id === 'drawing-layer')?.visible && (
+                          <canvas
+                            ref={drawingCanvasRef}
+                            className="absolute inset-0 w-full h-full"
+                            style={{
+                              cursor: activeTool === 'fill' || activeTool === 'text' ? 'crosshair' : 
+                                     (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
+                              pointerEvents: (activeTool === 'brush' || activeTool === 'eraser' || activeTool === 'fill' || activeTool === 'text') ? 'auto' : 'none',
+                              opacity: (layers.find(l => l.id === 'drawing-layer')?.opacity || 100) / 100,
+                            }}
+                            onMouseDown={handleBrushStart}
+                            onMouseMove={handleBrushMove}
+                            onMouseUp={handleBrushEnd}
+                            onMouseLeave={handleBrushEnd}
+                            onClick={(e) => {
+                              if (activeTool === 'fill') handleFillClick(e);
+                              if (activeTool === 'text') handleTextClick(e);
+                            }}
+                          />
+                        )}
                         {/* Text elements overlay */}
-                        <div 
-                          className="absolute inset-0"
-                          style={{ pointerEvents: 'none' }}
-                        >
+                        {layers.find(l => l.id === 'text-layer')?.visible && (
+                          <div 
+                            className="absolute inset-0"
+                            style={{ 
+                              pointerEvents: 'none',
+                              opacity: (layers.find(l => l.id === 'text-layer')?.opacity || 100) / 100,
+                            }}
+                          >
                           {textElements.map((textEl) => (
                             <div
                               key={textEl.id}
@@ -1859,6 +2022,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                             </div>
                           ))}
                         </div>
+                        )}
                         {/* Processing overlay */}
                         {isProcessing && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
