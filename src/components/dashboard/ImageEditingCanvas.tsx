@@ -2025,7 +2025,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                             className="w-full h-auto"
                             draggable={false}
                             style={{
-                              opacity: (layers.find(l => l.id === 'base-image')?.opacity || 100) / 100,
+                              opacity: (layers.find(l => l.id === 'base-image')?.opacity ?? 100) / 100,
                             }}
                           />
                         )}
@@ -2038,7 +2038,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                               cursor: activeTool === 'fill' || activeTool === 'text' ? 'crosshair' : 
                                      (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
                               pointerEvents: (activeTool === 'brush' || activeTool === 'eraser' || activeTool === 'fill' || activeTool === 'text') ? 'auto' : 'none',
-                              opacity: (layers.find(l => l.id === 'drawing-layer')?.opacity || 100) / 100,
+                              opacity: (layers.find(l => l.id === 'drawing-layer')?.opacity ?? 100) / 100,
                             }}
                             onMouseDown={handleBrushStart}
                             onMouseMove={handleBrushMove}
@@ -2056,7 +2056,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                             className="absolute inset-0"
                             style={{ 
                               pointerEvents: 'none',
-                              opacity: (layers.find(l => l.id === 'text-layer')?.opacity || 100) / 100,
+                              opacity: (layers.find(l => l.id === 'text-layer')?.opacity ?? 100) / 100,
                             }}
                           >
                           {textElements.map((textEl) => (
