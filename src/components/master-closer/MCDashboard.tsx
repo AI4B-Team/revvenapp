@@ -22,7 +22,7 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
       value: '247',
       change: '+23% vs last week',
       icon: Phone,
-      color: 'purple'
+      color: 'emerald'
     },
     {
       label: 'Close Rate',
@@ -85,37 +85,36 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
 
   const getStatColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string }> = {
-      purple: { bg: 'bg-purple-500/10', text: 'text-purple-600' },
       emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-600' },
       blue: { bg: 'bg-blue-500/10', text: 'text-blue-600' },
       orange: { bg: 'bg-orange-500/10', text: 'text-orange-600' }
     };
-    return colors[color] || colors.purple;
+    return colors[color] || colors.emerald;
   };
 
   return (
     <div className="p-8 max-w-screen-2xl mx-auto">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Welcome back, Alex! 👋</h1>
-        <p className="text-gray-500">Your AI co-pilot is ready to help you close more deals</p>
+        <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome back, Alex! 👋</h1>
+        <p className="text-muted-foreground">Your AI co-pilot is ready to help you close more deals</p>
       </div>
 
       {/* Quick Start Card */}
-      <div className="mb-8 p-6 bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 rounded-xl">
+      <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center">
               <Zap className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold mb-1 text-gray-900">Ready to crush your quota?</h3>
-              <p className="text-gray-600">Start a call and let AI guide you to the close</p>
+              <h3 className="text-2xl font-bold mb-1 text-foreground">Ready to crush your quota?</h3>
+              <p className="text-muted-foreground">Start a call and let AI guide you to the close</p>
             </div>
           </div>
           <button
             onClick={onStartCall}
-            className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 rounded-lg font-bold text-lg text-white transition-all transform hover:scale-105"
+            className="flex items-center gap-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-bold text-lg text-white transition-all transform hover:scale-105"
           >
             <Play className="w-6 h-6" />
             Start New Call
@@ -131,7 +130,7 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
           return (
             <div
               key={index}
-              className="bg-white border border-gray-200 rounded-xl p-6 hover:border-purple-300 hover:shadow-md transition-all"
+              className="bg-card border border-border rounded-xl p-6 hover:border-emerald-300 hover:shadow-md transition-all"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 ${colors.bg} rounded-lg flex items-center justify-center`}>
@@ -139,8 +138,8 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
                 </div>
                 <span className="text-xs text-emerald-600 font-medium">{stat.change}</span>
               </div>
-              <div className="text-3xl font-bold mb-1 text-gray-900">{stat.value}</div>
-              <div className="text-sm text-gray-500">{stat.label}</div>
+              <div className="text-3xl font-bold mb-1 text-foreground">{stat.value}</div>
+              <div className="text-sm text-muted-foreground">{stat.label}</div>
             </div>
           );
         })}
@@ -149,36 +148,36 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
       {/* Recent Calls & Top Performers */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Recent Calls */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-6">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900">
-            <Phone className="w-5 h-5 text-purple-600" />
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
+          <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
+            <Phone className="w-5 h-5 text-emerald-600" />
             Recent Calls
           </h3>
           <div className="space-y-3">
             {recentCalls.map((call) => (
               <div
                 key={call.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
                     <span className="text-sm font-bold text-white">{call.prospect[0]}</span>
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">{call.prospect}</div>
-                    <div className="text-sm text-gray-500">{call.company} • {call.date}</div>
+                    <div className="font-semibold text-foreground">{call.prospect}</div>
+                    <div className="text-sm text-muted-foreground">{call.company} • {call.date}</div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{call.duration}</div>
-                    <div className="text-xs text-gray-500">Duration</div>
+                    <div className="text-sm font-medium text-foreground">{call.duration}</div>
+                    <div className="text-xs text-muted-foreground">Duration</div>
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{call.sentiment}%</div>
-                    <div className="text-xs text-gray-500">Sentiment</div>
+                    <div className="text-sm font-medium text-foreground">{call.sentiment}%</div>
+                    <div className="text-xs text-muted-foreground">Sentiment</div>
                   </div>
 
                   <span
@@ -197,8 +196,8 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
         </div>
 
         {/* Top Performers */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900">
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
             <Award className="w-5 h-5 text-yellow-500" />
             Top Performers
           </h3>
@@ -206,7 +205,7 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
             {topPerformers.map((performer, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
               >
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   index === 0
@@ -218,8 +217,8 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
                   <span className="font-bold text-sm">#{index + 1}</span>
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-sm text-gray-900">{performer.name}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="font-medium text-sm text-foreground">{performer.name}</div>
+                  <div className="text-xs text-muted-foreground">
                     {performer.calls} calls • {performer.closeRate}% close rate
                   </div>
                 </div>
@@ -232,22 +231,22 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
 
       {/* AI Insights */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-6 bg-purple-50 border border-purple-200 rounded-xl">
+        <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
           <div className="flex items-center gap-3 mb-4">
-            <BarChart3 className="w-6 h-6 text-purple-600" />
-            <h3 className="font-bold text-lg text-gray-900">AI Performance Boost</h3>
+            <BarChart3 className="w-6 h-6 text-emerald-600" />
+            <h3 className="font-bold text-lg text-foreground">AI Performance Boost</h3>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Objection Handling</span>
+              <span className="text-sm text-muted-foreground">Objection Handling</span>
               <span className="text-emerald-600 font-semibold">+89%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Rapport Building</span>
+              <span className="text-sm text-muted-foreground">Rapport Building</span>
               <span className="text-emerald-600 font-semibold">+67%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Close Success Rate</span>
+              <span className="text-sm text-muted-foreground">Close Success Rate</span>
               <span className="text-emerald-600 font-semibold">+45%</span>
             </div>
           </div>
@@ -256,19 +255,19 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
         <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
           <div className="flex items-center gap-3 mb-4">
             <Users className="w-6 h-6 text-emerald-600" />
-            <h3 className="font-bold text-lg text-gray-900">Team Impact</h3>
+            <h3 className="font-bold text-lg text-foreground">Team Impact</h3>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">New Rep Ramp Time</span>
+              <span className="text-sm text-muted-foreground">New Rep Ramp Time</span>
               <span className="text-emerald-600 font-semibold">-67%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Average Deal Size</span>
+              <span className="text-sm text-muted-foreground">Average Deal Size</span>
               <span className="text-emerald-600 font-semibold">+$12K</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Team Quota Attainment</span>
+              <span className="text-sm text-muted-foreground">Team Quota Attainment</span>
               <span className="text-emerald-600 font-semibold">142%</span>
             </div>
           </div>

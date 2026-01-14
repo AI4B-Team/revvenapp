@@ -113,8 +113,8 @@ const MCObjectionLibrary: React.FC = () => {
     <div className="p-8 max-w-screen-2xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Objection Library</h1>
-        <p className="text-gray-500">
+        <h1 className="text-3xl font-bold mb-2 text-foreground">Objection Library</h1>
+        <p className="text-muted-foreground">
           10,000+ battle-tested responses to every objection you'll encounter
         </p>
       </div>
@@ -122,13 +122,13 @@ const MCObjectionLibrary: React.FC = () => {
       {/* Search */}
       <div className="mb-6">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search objections... (e.g., 'too expensive', 'not interested', 'need to think')"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-colors text-lg text-gray-900 placeholder:text-gray-400"
+            className="w-full pl-12 pr-4 py-4 bg-card border border-border rounded-xl focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-colors text-lg text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
@@ -144,15 +144,15 @@ const MCObjectionLibrary: React.FC = () => {
               onClick={() => setSelectedCategory(category.id)}
               className={`p-4 rounded-xl transition-all ${
                 isActive
-                  ? 'bg-purple-100 border-2 border-purple-400'
-                  : 'bg-white border border-gray-200 hover:border-purple-300'
+                  ? 'bg-emerald-100 border-2 border-emerald-400'
+                  : 'bg-card border border-border hover:border-emerald-300'
               }`}
             >
-              <Icon className={`w-6 h-6 mx-auto mb-2 ${isActive ? 'text-purple-600' : 'text-gray-400'}`} />
-              <div className={`text-sm font-medium mb-1 ${isActive ? 'text-purple-700' : 'text-gray-700'}`}>
+              <Icon className={`w-6 h-6 mx-auto mb-2 ${isActive ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+              <div className={`text-sm font-medium mb-1 ${isActive ? 'text-emerald-700' : 'text-foreground'}`}>
                 {category.name}
               </div>
-              <div className="text-xs text-gray-500">{category.count.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground">{category.count.toLocaleString()}</div>
             </button>
           );
         })}
@@ -163,15 +163,15 @@ const MCObjectionLibrary: React.FC = () => {
         {filteredObjections.map((objection) => (
           <div
             key={objection.id}
-            className="bg-white border border-gray-200 rounded-xl p-6 hover:border-purple-300 hover:shadow-md transition-all"
+            className="bg-card border border-border rounded-xl p-6 hover:border-emerald-300 hover:shadow-md transition-all"
           >
             {/* Objection Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-xl font-bold mb-2 text-purple-600">
+                <h3 className="text-xl font-bold mb-2 text-emerald-600">
                   "{objection.objection}"
                 </h3>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-4 h-4" />
                     {objection.variations} variations
@@ -186,34 +186,34 @@ const MCObjectionLibrary: React.FC = () => {
 
             {/* Responses */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-sm text-gray-500 uppercase">
+              <h4 className="font-semibold text-sm text-muted-foreground uppercase">
                 Battle-Tested Responses
               </h4>
               {objection.responses.map((response) => (
                 <div
                   key={response.id}
-                  className="p-4 bg-gray-50 rounded-lg border border-gray-100"
+                  className="p-4 bg-muted/50 rounded-lg border border-border"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        <span className="text-sm font-semibold text-gray-700">{response.rating}</span>
+                        <span className="text-sm font-semibold text-foreground">{response.rating}</span>
                       </div>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         Used {response.usedCount.toLocaleString()} times
                       </span>
                     </div>
                     <button 
                       onClick={() => handleCopy(response.text)}
-                      className="flex items-center gap-1 px-3 py-1 bg-purple-500 hover:bg-purple-600 rounded-lg text-xs font-medium transition-colors text-white"
+                      className="flex items-center gap-1 px-3 py-1 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-xs font-medium transition-colors text-white"
                     >
                       <Copy className="w-3 h-3" />
                       Copy
                     </button>
                   </div>
 
-                  <p className="text-sm leading-relaxed mb-3 text-gray-800">{response.text}</p>
+                  <p className="text-sm leading-relaxed mb-3 text-foreground">{response.text}</p>
 
                   <div className="flex items-center gap-2 text-xs">
                     <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">
@@ -225,7 +225,7 @@ const MCObjectionLibrary: React.FC = () => {
             </div>
 
             {/* View More */}
-            <button className="mt-4 w-full py-3 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg text-sm font-medium transition-colors text-gray-700">
+            <button className="mt-4 w-full py-3 bg-muted hover:bg-muted/80 border border-border rounded-lg text-sm font-medium transition-colors text-foreground">
               View All {objection.variations} Variations →
             </button>
           </div>
@@ -234,17 +234,17 @@ const MCObjectionLibrary: React.FC = () => {
 
       {/* Stats Footer */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 bg-purple-50 border border-purple-200 rounded-xl">
-          <div className="text-3xl font-bold mb-1 text-gray-900">10,247</div>
-          <div className="text-sm text-gray-600">Total Objections Covered</div>
+        <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
+          <div className="text-3xl font-bold mb-1 text-foreground">10,247</div>
+          <div className="text-sm text-muted-foreground">Total Objections Covered</div>
         </div>
         <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
           <div className="text-3xl font-bold mb-1 text-emerald-600">+89%</div>
-          <div className="text-sm text-gray-600">Objection Handling Improvement</div>
+          <div className="text-sm text-muted-foreground">Objection Handling Improvement</div>
         </div>
         <div className="p-6 bg-blue-50 border border-blue-200 rounded-xl">
-          <div className="text-3xl font-bold mb-1 text-gray-900">2.1M+</div>
-          <div className="text-sm text-gray-600">Successful Implementations</div>
+          <div className="text-3xl font-bold mb-1 text-foreground">2.1M+</div>
+          <div className="text-sm text-muted-foreground">Successful Implementations</div>
         </div>
       </div>
     </div>
