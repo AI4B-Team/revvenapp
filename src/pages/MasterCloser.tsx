@@ -8,7 +8,8 @@ import {
   Zap,
   Play,
   MessageSquare,
-  Bot
+  Bot,
+  Headphones
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -22,11 +23,15 @@ import MCSettings from '@/components/master-closer/MCSettings';
 import MCAutonomousMode from '@/components/master-closer/MCAutonomousMode';
 
 type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'autonomous';
+export type CallMode = 'start-call' | 'listen';
+export type CallType = 'ai-voice-agent' | 'transcription-only';
 
 const MasterCloser = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [isCallActive, setIsCallActive] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [callMode, setCallMode] = useState<CallMode>('start-call');
+  const [callType, setCallType] = useState<CallType>('transcription-only');
 
   const navigation = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3, view: 'dashboard' },
@@ -39,7 +44,9 @@ const MasterCloser = () => {
     { id: 'settings', name: 'Settings', icon: Settings, view: 'settings' }
   ];
 
-  const handleStartCall = () => {
+  const handleStartCall = (mode: CallMode = 'start-call', type: CallType = 'transcription-only') => {
+    setCallMode(mode);
+    setCallType(type);
     setIsCallActive(true);
     setCurrentView('live-call');
   };
@@ -49,7 +56,14 @@ const MasterCloser = () => {
       case 'dashboard':
         return <MCDashboard onStartCall={handleStartCall} />;
       case 'live-call':
-        return <MCLiveCall isActive={isCallActive} onEndCall={() => setIsCallActive(false)} />;
+        return (
+          <MCLiveCall 
+            isActive={isCallActive} 
+            onEndCall={() => setIsCallActive(false)} 
+            callMode={callMode}
+            callType={callType}
+          />
+        );
       case 'autonomous':
         return <MCAutonomousMode />;
       case 'objections':
@@ -92,28 +106,34 @@ const MasterCloser = () => {
               </div>
             </div>
 
-            {/* Quick Start Call */}
-            <div className="p-4 border-b border-border">
-              <button
-                onClick={handleStartCall}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
-                  isCallActive
-                    ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                    : 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                }`}
-              >
-                {isCallActive ? (
-                  <>
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                    <span>Call Active</span>
-                  </>
-                ) : (
-                  <>
+            {/* Quick Start Call / Listen Buttons */}
+            <div className="p-4 border-b border-border space-y-2">
+              {isCallActive ? (
+                <button
+                  onClick={() => setCurrentView('live-call')}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all bg-red-500 hover:bg-red-600 text-white animate-pulse"
+                >
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <span>{callMode === 'listen' ? 'Listening...' : 'Call Active'}</span>
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => handleStartCall('start-call', callType)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all bg-emerald-500 hover:bg-emerald-600 text-white"
+                  >
                     <Play className="w-4 h-4" />
                     <span>Start Call</span>
-                  </>
-                )}
-              </button>
+                  </button>
+                  <button
+                    onClick={() => handleStartCall('listen', callType)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    <Headphones className="w-4 h-4" />
+                    <span>Listen Mode</span>
+                  </button>
+                </>
+              )}
             </div>
 
             <nav className="p-3 space-y-1">
