@@ -692,6 +692,105 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     setIsDrawing(false);
   };
 
+  // Flood fill algorithm for the fill tool
+  const handleFillClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (activeTool !== 'fill' || !drawingCanvasRef.current || !imageRef.current) return;
+    
+    const canvas = drawingCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor(e.clientX - rect.left);
+    const y = Math.floor(e.clientY - rect.top);
+    
+    const fillColor = toolSettings.brushColor || '#000000';
+    const tolerance = toolSettings.tolerance || 32;
+    
+    // Convert hex color to RGBA
+    const hexToRgba = (hex: string): [number, number, number, number] => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if (result) {
+        return [
+          parseInt(result[1], 16),
+          parseInt(result[2], 16),
+          parseInt(result[3], 16),
+          255
+        ];
+      }
+      return [0, 0, 0, 255];
+    };
+    
+    const fillRgba = hexToRgba(fillColor);
+    
+    // Get image data
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    
+    // Get the color at the clicked position
+    const getPixelColor = (px: number, py: number): [number, number, number, number] => {
+      const idx = (py * canvas.width + px) * 4;
+      return [data[idx], data[idx + 1], data[idx + 2], data[idx + 3]];
+    };
+    
+    const setPixelColor = (px: number, py: number, color: [number, number, number, number]) => {
+      const idx = (py * canvas.width + px) * 4;
+      data[idx] = color[0];
+      data[idx + 1] = color[1];
+      data[idx + 2] = color[2];
+      data[idx + 3] = color[3];
+    };
+    
+    const colorMatch = (c1: [number, number, number, number], c2: [number, number, number, number]): boolean => {
+      return Math.abs(c1[0] - c2[0]) <= tolerance &&
+             Math.abs(c1[1] - c2[1]) <= tolerance &&
+             Math.abs(c1[2] - c2[2]) <= tolerance &&
+             Math.abs(c1[3] - c2[3]) <= tolerance;
+    };
+    
+    const targetColor = getPixelColor(x, y);
+    
+    // Don't fill if clicking on the same color
+    if (colorMatch(targetColor, fillRgba)) return;
+    
+    // Flood fill using a queue
+    const pixelStack: [number, number][] = [[x, y]];
+    const visited = new Set<string>();
+    
+    while (pixelStack.length > 0) {
+      const [cx, cy] = pixelStack.pop()!;
+      const key = `${cx},${cy}`;
+      
+      if (visited.has(key)) continue;
+      if (cx < 0 || cx >= canvas.width || cy < 0 || cy >= canvas.height) continue;
+      
+      const currentColor = getPixelColor(cx, cy);
+      if (!colorMatch(currentColor, targetColor)) continue;
+      
+      visited.add(key);
+      setPixelColor(cx, cy, fillRgba);
+      
+      pixelStack.push([cx + 1, cy]);
+      pixelStack.push([cx - 1, cy]);
+      pixelStack.push([cx, cy + 1]);
+      pixelStack.push([cx, cy - 1]);
+    }
+    
+    ctx.putImageData(imageData, 0, 0);
+    
+    // Save fill as a stroke (simplified - just record that a fill happened)
+    setBrushStrokes(prev => [...prev, {
+      points: [{ x, y }],
+      color: fillColor,
+      size: 1,
+      opacity: 100,
+      isFill: true,
+      fillX: x,
+      fillY: y,
+      tolerance
+    } as any]);
+  };
+
   // Redraw all strokes when canvas size changes or strokes update
   useEffect(() => {
     if (!drawingCanvasRef.current || !imageRef.current) return;
@@ -1343,18 +1442,20 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           className="w-full h-auto"
                           draggable={false}
                         />
-                        {/* Drawing canvas overlay for brush tool */}
+                        {/* Drawing canvas overlay for brush/eraser/fill tools */}
                         <canvas
                           ref={drawingCanvasRef}
                           className="absolute inset-0 w-full h-full"
                           style={{
-                            cursor: (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
-                            pointerEvents: (activeTool === 'brush' || activeTool === 'eraser') ? 'auto' : 'none',
+                            cursor: activeTool === 'fill' ? 'crosshair' : 
+                                   (activeTool === 'brush' || activeTool === 'eraser') ? 'crosshair' : 'inherit',
+                            pointerEvents: (activeTool === 'brush' || activeTool === 'eraser' || activeTool === 'fill') ? 'auto' : 'none',
                           }}
                           onMouseDown={handleBrushStart}
                           onMouseMove={handleBrushMove}
                           onMouseUp={handleBrushEnd}
                           onMouseLeave={handleBrushEnd}
+                          onClick={handleFillClick}
                         />
                         {/* Processing overlay */}
                         {isProcessing && (
