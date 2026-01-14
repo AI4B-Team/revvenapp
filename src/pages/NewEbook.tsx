@@ -328,6 +328,7 @@ const NewEbook = () => {
   const undoRef = useRef<(() => void) | null>(null);
   const redoRef = useRef<(() => void) | null>(null);
   const openImageSectionRef = useRef<(() => void) | null>(null);
+  const titleCardsRef = useRef<HTMLDivElement>(null);
   
   // Find and Replace state
   const [findReplaceOpen, setFindReplaceOpen] = useState(false);
@@ -612,6 +613,23 @@ const NewEbook = () => {
   const removeFile = (id: string) => {
     setUploadedFiles(prev => prev.filter(f => f.id !== id));
   };
+
+  // Click outside to deselect title
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        activeTab === 'generate' &&
+        bookData.selectedTitle &&
+        titleCardsRef.current &&
+        !titleCardsRef.current.contains(event.target as Node)
+      ) {
+        setBookData(prev => ({ ...prev, selectedTitle: '' }));
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeTab, bookData.selectedTitle]);
 
   const stripTrailingPunctuation = (value: string) =>
     value.trim().replace(/[\p{P}\s]+$/gu, '');
@@ -2242,7 +2260,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
               {titleSuggestions.length > 0 ? (
                   <>
-                    <div className="space-y-3">
+                    <div ref={titleCardsRef} className="space-y-3">
                       {titleSuggestions.map((title, index) => {
                         // Determine tone category based on title keywords
                         const getToneInfo = (t: string): { label: string; icon: typeof Heart; color: string; helper: string; isAuthority?: boolean } => {
