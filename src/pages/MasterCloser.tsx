@@ -37,14 +37,14 @@ const MasterCloser = () => {
   const [callMode, setCallMode] = useState<CallMode>('start-call');
 
   const navigation = [
-    { id: 'dashboard', name: 'Command Center', icon: BarChart3, view: 'dashboard' },
-    { id: 'live-call', name: 'Call Studio', icon: Mic, view: 'live-call', highlight: true },
-    { id: 'agent-settings', name: 'Voice Agent', icon: Bot, view: 'agent-settings' },
-    { id: 'objections', name: 'Objection Vault', icon: MessageSquare, view: 'objections' },
-    { id: 'planner', name: 'Call Prep', icon: BookOpen, view: 'planner' },
+    { id: 'dashboard', name: 'Command', icon: BarChart3, view: 'dashboard' },
+    { id: 'live-call', name: 'Studio', icon: Mic, view: 'live-call', highlight: true },
+    { id: 'agent-settings', name: 'Agent', icon: Bot, view: 'agent-settings' },
+    { id: 'objections', name: 'Objections', icon: MessageSquare, view: 'objections' },
+    { id: 'planner', name: 'Prep', icon: BookOpen, view: 'planner' },
     { id: 'analytics', name: 'Performance', icon: BarChart3, view: 'analytics' },
     { id: 'team', name: 'Team', icon: Users, view: 'team' },
-    { id: 'settings', name: 'Preferences', icon: Settings, view: 'settings' }
+    { id: 'settings', name: 'Settings', icon: Settings, view: 'settings' }
   ];
 
   const handleStartCall = (mode: CallMode) => {
@@ -123,16 +123,19 @@ const MasterCloser = () => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
-                      onClick={() => setCurrentView('live-call')}
-                      className={`w-full flex items-center justify-center gap-2 ${isInnerSidebarCollapsed ? 'px-2 py-3' : 'px-4 py-3'} rounded-lg font-medium transition-all bg-red-500 hover:bg-red-600 text-white animate-pulse`}
+                      onClick={() => {
+                        setIsCallActive(false);
+                        setCurrentView('dashboard');
+                      }}
+                      className={`w-full flex items-center justify-center gap-2 ${isInnerSidebarCollapsed ? 'px-2 py-3' : 'px-4 py-3'} rounded-lg font-medium transition-all bg-red-500 hover:bg-red-600 text-white animate-pulse cursor-pointer`}
                     >
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                       {!isInnerSidebarCollapsed && <span>{getModeLabel()}</span>}
                     </button>
                   </TooltipTrigger>
-                  {isInnerSidebarCollapsed && (
-                    <TooltipContent side="right">{getModeLabel()}</TooltipContent>
-                  )}
+                  <TooltipContent side="right">
+                    {isInnerSidebarCollapsed ? getModeLabel() : 'Click to end call'}
+                  </TooltipContent>
                 </Tooltip>
               ) : (
                 <>
