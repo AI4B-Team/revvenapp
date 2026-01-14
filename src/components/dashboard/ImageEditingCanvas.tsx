@@ -449,6 +449,83 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     loadCreations();
   }, [image]);
 
+  // Composite image with text overlays
+  const getCompositedImage = async (): Promise<string | null> => {
+    if (!selectedImage) return null;
+    
+    return new Promise((resolve) => {
+      const img = document.createElement('img');
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(selectedImage);
+          return;
+        }
+        
+        // Draw the base image
+        ctx.drawImage(img, 0, 0);
+        
+        // Get the display dimensions from the image container
+        const imageContainer = document.querySelector('.bg-white.rounded-xl.shadow-xl.overflow-hidden');
+        if (!imageContainer) {
+          resolve(selectedImage);
+          return;
+        }
+        const containerRect = imageContainer.getBoundingClientRect();
+        const displayWidth = containerRect.width;
+        const displayHeight = containerRect.height;
+        
+        // Calculate scale factors
+        const scaleX = img.naturalWidth / displayWidth;
+        const scaleY = img.naturalHeight / displayHeight;
+        
+        // Draw each text element
+        textElements.forEach((textEl) => {
+          const scaledX = textEl.x * scaleX;
+          const scaledY = textEl.y * scaleY;
+          const scaledFontSize = textEl.fontSize * Math.min(scaleX, scaleY);
+          
+          let fontStyle = '';
+          if (textEl.isItalic) fontStyle += 'italic ';
+          if (textEl.isBold) fontStyle += 'bold ';
+          
+          ctx.font = `${fontStyle}${scaledFontSize}px ${textEl.fontFamily}`;
+          ctx.fillStyle = textEl.color;
+          ctx.textAlign = textEl.alignment.toLowerCase() as CanvasTextAlign;
+          ctx.textBaseline = 'middle';
+          
+          // Draw text
+          ctx.fillText(textEl.text, scaledX, scaledY);
+          
+          // Draw underline if needed
+          if (textEl.isUnderline) {
+            const textMetrics = ctx.measureText(textEl.text);
+            let underlineX = scaledX;
+            if (textEl.alignment === 'Center') {
+              underlineX = scaledX - textMetrics.width / 2;
+            } else if (textEl.alignment === 'Right') {
+              underlineX = scaledX - textMetrics.width;
+            }
+            ctx.beginPath();
+            ctx.moveTo(underlineX, scaledY + scaledFontSize / 2 + 2);
+            ctx.lineTo(underlineX + textMetrics.width, scaledY + scaledFontSize / 2 + 2);
+            ctx.strokeStyle = textEl.color;
+            ctx.lineWidth = Math.max(1, scaledFontSize / 15);
+            ctx.stroke();
+          }
+        });
+        
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = () => resolve(selectedImage);
+      img.src = selectedImage;
+    });
+  };
+
   // Save image to database
   const saveImageToDatabase = async (imageUrl: string, category: 'creation' | 'edited' | 'upscaled', prompt?: string) => {
     try {
@@ -1095,16 +1172,19 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         description: 'The image has been removed from the canvas',
       });
     } else if (toolId === 'save' && selectedImage) {
-      // Save current image to creations
+      // Save current image with text overlays to creations
       toast({
         title: 'Saving...',
-        description: 'Saving image to your creations',
+        description: 'Compositing and saving image to your creations',
       });
-      await saveImageToDatabase(selectedImage, 'edited', 'Edited image');
-      toast({
-        title: 'Saved!',
-        description: 'Image saved to your creations',
-      });
+      const compositedImage = await getCompositedImage();
+      if (compositedImage) {
+        await saveImageToDatabase(compositedImage, 'edited', 'Edited image');
+        toast({
+          title: 'Saved!',
+          description: 'Image with text saved to your creations',
+        });
+      }
     } else if (toolId === 'upscale' && selectedImage) {
       // For now, save as upscaled (actual upscaling would require an API call)
       toast({
@@ -1117,22 +1197,25 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         description: 'Image upscaled and saved to creations',
       });
     } else if (toolId === 'download' && selectedImage) {
-      // Download the current image
+      // Download the current image with text overlays
       try {
-        const response = await fetch(selectedImage);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `edited-image-${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
         toast({
-          title: 'Downloaded!',
-          description: 'Image downloaded successfully',
+          title: 'Preparing download...',
+          description: 'Compositing image with text',
         });
+        const compositedImage = await getCompositedImage();
+        if (compositedImage) {
+          const link = document.createElement('a');
+          link.href = compositedImage;
+          link.download = `edited-image-${Date.now()}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast({
+            title: 'Downloaded!',
+            description: 'Image with text downloaded successfully',
+          });
+        }
       } catch (error) {
         toast({
           title: 'Download Failed',
