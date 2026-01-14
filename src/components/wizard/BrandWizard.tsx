@@ -6,6 +6,7 @@ import IntelligencePage from './IntelligencePage';
 import CharactersPage from './CharactersPage';
 import ReviewPage from './ReviewPage';
 import CompletionPage from './CompletionPage';
+import BrandWizardProgress from './BrandWizardProgress';
 
 interface BrandWizardData {
   // Identity
@@ -165,7 +166,13 @@ const BrandWizard: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-gray-50">
+    <div className="w-full min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-6 pt-6">
+        <BrandWizardProgress 
+          currentStep={currentStep} 
+          onStepClick={(stepIndex) => setCurrentStep(stepIndex)} 
+        />
+      </div>
       {renderStep()}
     </div>
   );
