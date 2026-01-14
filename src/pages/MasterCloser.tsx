@@ -11,7 +11,8 @@ import {
   Bot,
   Headphones,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Sliders
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -22,10 +23,10 @@ import MCCallPlanner from '@/components/master-closer/MCCallPlanner';
 import MCAnalytics from '@/components/master-closer/MCAnalytics';
 import MCTeamManagement from '@/components/master-closer/MCTeamManagement';
 import MCSettings from '@/components/master-closer/MCSettings';
-import MCAutonomousMode from '@/components/master-closer/MCAutonomousMode';
+import MCAgentSettings from '@/components/master-closer/MCAgentSettings';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'autonomous';
+type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'agent-settings';
 export type CallMode = 'start-call' | 'voice-agent' | 'listen';
 
 const MasterCloser = () => {
@@ -38,7 +39,7 @@ const MasterCloser = () => {
   const navigation = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3, view: 'dashboard' },
     { id: 'live-call', name: 'Live Call', icon: Mic, view: 'live-call', highlight: true },
-    { id: 'autonomous', name: 'Autonomous', icon: Bot, view: 'autonomous' },
+    { id: 'agent-settings', name: 'Agent Settings', icon: Sliders, view: 'agent-settings' },
     { id: 'objections', name: 'Objections', icon: MessageSquare, view: 'objections' },
     { id: 'planner', name: 'Call Planner', icon: BookOpen, view: 'planner' },
     { id: 'analytics', name: 'Analytics', icon: BarChart3, view: 'analytics' },
@@ -64,8 +65,8 @@ const MasterCloser = () => {
             callMode={callMode}
           />
         );
-      case 'autonomous':
-        return <MCAutonomousMode />;
+      case 'agent-settings':
+        return <MCAgentSettings />;
       case 'objections':
         return <MCObjectionLibrary />;
       case 'planner':
@@ -198,7 +199,9 @@ const MasterCloser = () => {
                         onClick={() => setCurrentView(item.view as View)}
                         className={`w-full flex items-center ${isInnerSidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2.5 rounded-lg transition-all text-sm ${
                           isActive
-                            ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                            ? item.id === 'agent-settings' 
+                              ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                              : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
                             : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                         } ${item.highlight && !isActive ? 'border border-emerald-200' : ''}`}
                       >
@@ -231,7 +234,7 @@ const MasterCloser = () => {
                   <h3 className="font-semibold text-sm text-foreground">Upgrade to Pro</h3>
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Unlock autonomous mode, unlimited calls, and advanced AI features.
+                  Unlock Voice Agent, unlimited calls, and advanced AI features.
                 </p>
                 <button className="w-full px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-all text-white">
                   Upgrade Now
