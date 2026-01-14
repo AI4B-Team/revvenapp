@@ -335,7 +335,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [isProcessing, setIsProcessing] = useState(false);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
-  const [brushStrokes, setBrushStrokes] = useState<Array<{ points: Array<{x: number, y: number}>, color: string, size: number, opacity: number }>>([]);
+  const [brushStrokes, setBrushStrokes] = useState<Array<{ points: Array<{x: number, y: number}>, color: string, size: number, opacity: number, isEraser?: boolean }>>([]);
   const [currentStroke, setCurrentStroke] = useState<Array<{x: number, y: number}>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -707,7 +707,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     
     // Redraw all strokes
     brushStrokes.forEach(stroke => {
-      const isEraser = (stroke as any).isEraser;
+      const isEraser = stroke.isEraser === true;
       
       if (isEraser) {
         ctx.globalCompositeOperation = 'destination-out';
