@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SlidersHorizontal, Search, Eye } from 'lucide-react';
+import { SlidersHorizontal, Search, Eye, Plus, Sparkles } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface TemplateSelectorProps {
   pageType?: 'websites' | 'funnels' | 'store' | 'products';
@@ -135,9 +136,21 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
         <div className="mb-8">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">
-                {pageConfig[pageType].title}
-              </h1>
+              <div className="flex items-center gap-4 mb-2">
+                <h1 className="text-4xl font-bold text-foreground">
+                  {pageConfig[pageType].title}
+                </h1>
+                {pageType === 'websites' && (
+                  <Button
+                    onClick={() => navigate('/websites/edit/new')}
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white gap-2 shadow-lg"
+                    size="lg"
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    Create with AI
+                  </Button>
+                )}
+              </div>
               <p className="text-muted-foreground text-lg">
                 {pageConfig[pageType].subtitle}
               </p>
