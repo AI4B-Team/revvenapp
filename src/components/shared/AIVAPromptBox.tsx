@@ -33,6 +33,7 @@ interface ControlIcon {
 // Control icons for Image types - uses Brush icon for style
 const imageControlIcons: ControlIcon[] = [
   { id: 'style', icon: Brush, tooltip: 'Style' },
+  { id: 'reference', icon: Layers, tooltip: 'Reference' },
   { id: 'character', icon: User, tooltip: 'Character' },
   { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
   { id: 'number', icon: Hash, tooltip: 'Number' },
@@ -40,6 +41,7 @@ const imageControlIcons: ControlIcon[] = [
 
 // Control icons for Video types - reference uses custom icon component
 const videoControlIcons: ControlIcon[] = [
+  { id: 'reference', icon: Layers, tooltip: 'Reference' },
   { id: 'character', icon: User, tooltip: 'Character' },
   { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
   { id: 'duration', icon: Clock, tooltip: 'Duration' },
@@ -321,8 +323,9 @@ interface AIVAPromptBoxProps {
   selectedIntent?: Intent | null;
   onIntentChange?: (intent: Intent | null) => void;
   onSubTypeChange?: (subType: SubOptionType | null) => void;
-  // Control callbacks for opening modals (style and character need external modals)
+  // Control callbacks for opening modals (style, reference, and character need external modals)
   onStyleClick?: () => void;
+  onReferenceClick?: () => void;
   onCharacterClick?: () => void;
 }
 
@@ -337,6 +340,7 @@ const AIVAPromptBox = ({
   onIntentChange,
   onSubTypeChange,
   onStyleClick,
+  onReferenceClick,
   onCharacterClick,
 }: AIVAPromptBoxProps) => {
   const [internalPrompt, setInternalPrompt] = useState('');
@@ -729,6 +733,7 @@ const AIVAPromptBox = ({
                           const getControlClickHandler = () => {
                             switch (control.id) {
                               case 'style': return () => { closeAllDropdowns(); onStyleClick?.(); };
+                              case 'reference': return () => { closeAllDropdowns(); onReferenceClick?.(); };
                               case 'character': return () => { closeAllDropdowns(); onCharacterClick?.(); };
                               case 'ratio': return () => toggleDropdown('ratio');
                               case 'number': return () => toggleDropdown('number');
