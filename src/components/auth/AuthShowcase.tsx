@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Pause, Play } from 'lucide-react';
 import RevvenLogo from '@/components/RevvenLogo';
 
@@ -220,11 +221,11 @@ export default function AuthShowcase() {
 
   return (
     <div className={`hidden lg:flex flex-1 h-full min-h-0 ${currentSlideData.bgColor} p-12 flex-col relative overflow-hidden transition-colors duration-700`}>
-      {/* Logo at top left */}
-      <div className="flex items-center gap-2.5 mb-8">
+      {/* Logo at top left - clickable to go back to landing */}
+      <Link to="/" className="flex items-center gap-2.5 mb-8 hover:opacity-80 transition-opacity cursor-pointer">
         <RevvenLogo size={40} />
         <span className="text-2xl font-bold text-gray-900 tracking-tight">REVVEN</span>
-      </div>
+      </Link>
 
       {/* Slide Content - Fixed height container to prevent layout shifts */}
       <div className="max-w-xl relative z-10 h-[400px] flex flex-col justify-center flex-1">
