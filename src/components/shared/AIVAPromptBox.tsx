@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, type LucideIcon } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, Calendar, Palette, type LucideIcon } from 'lucide-react';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
 import IntentSelector, { type Intent } from '@/components/IntentSelector';
@@ -418,6 +418,11 @@ interface AIVAPromptBoxProps {
   onStyleClick?: () => void;
   onReferenceClick?: () => void;
   onCharacterClick?: () => void;
+  // External control for mode/subType/model selection
+  externalMode?: string | null;
+  externalSubType?: string | null;
+  externalModel?: string | null;
+  onModeChange?: (mode: string | null) => void;
 }
 
 const AIVAPromptBox = ({ 
@@ -433,6 +438,10 @@ const AIVAPromptBox = ({
   onStyleClick,
   onReferenceClick,
   onCharacterClick,
+  externalMode,
+  externalSubType,
+  externalModel,
+  onModeChange,
 }: AIVAPromptBoxProps) => {
   const [internalPrompt, setInternalPrompt] = useState('');
   const [internalIntent, setInternalIntent] = useState<Intent | null>(null);
@@ -509,6 +518,57 @@ const AIVAPromptBox = ({
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [activeDropdown]);
+
+  // Handle external mode/subType/model changes from suggestion clicks
+  useEffect(() => {
+    if (externalMode) {
+      // Map mode string to AutoOption
+      const modeToOption: Record<string, AutoOption> = {
+        'video': { id: 'video', label: 'Video', icon: Video, color: 'text-red-500' },
+        'image': { id: 'image', label: 'Image', icon: Image, color: 'text-blue-500' },
+        'audio': { id: 'audio', label: 'Audio', icon: Music, color: 'text-green-500' },
+        'design': { id: 'design', label: 'Design', icon: Palette, color: 'text-orange-500' },
+        'content': { id: 'content', label: 'Content', icon: Calendar, color: 'text-purple-500' },
+        'document': { id: 'document', label: 'Document', icon: FileText, color: 'text-blue-500' },
+      };
+      
+      const option = modeToOption[externalMode];
+      if (option) {
+        setSelectedOption(option);
+        // Set intent to Create if not already set
+        if (!intent) {
+          setIntent('Create');
+        }
+      }
+    }
+  }, [externalMode, intent, setIntent]);
+
+  // Handle external subType changes
+  useEffect(() => {
+    if (externalSubType && selectedOption) {
+      // Get the appropriate subType options based on selected option
+      let subTypeOptions: SubOption[] = [];
+      if (selectedOption.id === 'video') subTypeOptions = videoTypes;
+      else if (selectedOption.id === 'image') subTypeOptions = imageTypes;
+      else if (selectedOption.id === 'audio') subTypeOptions = audioTypes;
+      else if (selectedOption.id === 'design') subTypeOptions = designTypes;
+      else if (selectedOption.id === 'content') subTypeOptions = contentTypes;
+      else if (selectedOption.id === 'document') subTypeOptions = documentTypes;
+      
+      const subType = subTypeOptions.find(st => st.id === externalSubType);
+      if (subType) {
+        setSelectedSubType(subType);
+        onSubTypeChange?.(subType);
+      }
+    }
+  }, [externalSubType, selectedOption, onSubTypeChange]);
+
+  // Handle external model changes
+  useEffect(() => {
+    if (externalModel) {
+      setSelectedModel(externalModel);
+    }
+  }, [externalModel]);
 
   // Speech recognition hook
   const handleTranscriptResult = useCallback((transcript: string) => {

@@ -26,6 +26,12 @@ const LandingNew = () => {
   const [stylesModalOpen, setStylesModalOpen] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<any>(null);
   const [selectedReferences, setSelectedReferences] = useState<any[]>([]);
+  
+  // State for external control of mode/subType/model
+  const [externalMode, setExternalMode] = useState<string | null>(null);
+  const [externalSubType, setExternalSubType] = useState<string | null>(null);
+  const [externalModel, setExternalModel] = useState<string | null>(null);
+  
   const navigate = useNavigate();
 
   // Check auth state but DON'T auto-redirect - let users view landing page
@@ -67,7 +73,26 @@ const LandingNew = () => {
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
+    // Set prompt
     setPrompt(suggestion.prompt);
+    
+    // Set intent to Create (since all creation suggestions are under Create)
+    setSelectedIntent('Create');
+    
+    // Set mode (video, image, audio, etc.)
+    if (suggestion.mode) {
+      setExternalMode(suggestion.mode);
+    }
+    
+    // Set subType (story, generate, music, etc.)
+    if (suggestion.subType) {
+      setExternalSubType(suggestion.subType);
+    }
+    
+    // Set model if specified
+    if (suggestion.model) {
+      setExternalModel(suggestion.model);
+    }
   };
 
   const handlePresentationPromptSelect = (promptText: string) => {
@@ -140,6 +165,9 @@ const LandingNew = () => {
             onStyleClick={() => setStylesModalOpen(true)}
             onReferenceClick={() => setReferencesModalOpen(true)}
             onCharacterClick={() => setCharactersModalOpen(true)}
+            externalMode={externalMode}
+            externalSubType={externalSubType}
+            externalModel={externalModel}
           />
         </div>
 
