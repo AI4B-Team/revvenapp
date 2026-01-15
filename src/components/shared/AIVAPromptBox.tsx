@@ -12,6 +12,7 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { cn } from '@/lib/utils';
 import AudioSelectModal from '@/components/dashboard/AudioSelectModal';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 // Model logo imports
 import autoLogo from '@/assets/model-logos/auto.png';
 import fluxLogo from '@/assets/model-logos/flux.png';
@@ -499,6 +500,8 @@ const AIVAPromptBox = ({
   const [contentTime, setContentTime] = useState('Auto');
   const [contentStyle, setContentStyle] = useState('AI Generated');
   const [brandDistillsEnabled, setBrandDistillsEnabled] = useState(true);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [aiPopoverOpen, setAiPopoverOpen] = useState(false);
   
   const { toast } = useToast();
   
@@ -690,6 +693,57 @@ const AIVAPromptBox = ({
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Handle AI enhance prompt
+  const handleEnhancePrompt = async (fast: boolean) => {
+    if (!prompt.trim()) {
+      toast({
+        title: "Text required",
+        description: "Please enter text to enhance",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsEnhancing(true);
+    setAiPopoverOpen(false);
+    
+    try {
+      console.log("Enhancing prompt...", fast ? "Fast mode" : "Deep mode");
+      
+      // Determine mode based on selected option
+      const mode = selectedOption?.id === 'audio' && selectedSubType?.id === 'music' ? 'music' : 'image';
+      
+      const { data, error } = await supabase.functions.invoke('enhance-prompt', {
+        body: { 
+          prompt: prompt.trim(),
+          fast: fast,
+          mode: mode
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.enhancedPrompt) {
+        setPrompt(data.enhancedPrompt);
+        toast({
+          title: fast ? "Prompt enhanced!" : "Deep enhancement complete",
+          description: "Your prompt has been improved with AI",
+        });
+        console.log("Enhanced prompt:", data.enhancedPrompt);
+      }
+      
+    } catch (error: any) {
+      console.error("Enhancement error:", error);
+      toast({
+        title: "Enhancement failed",
+        description: error.message || "Failed to enhance prompt",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   // Reset chips when intent changes
@@ -2055,21 +2109,61 @@ const AIVAPromptBox = ({
 
             {/* Right side controls */}
             <div className="ml-auto flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium transition-colors",
-                      !prompt.trim() && "opacity-0 pointer-events-none"
-                    )}
-                  >
-                    <Sparkles size={16} className="text-violet-500" />
-                    <span>AI</span>
-                    <ChevronDown size={14} className="text-slate-400" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>Enhance Prompt</TooltipContent>
-              </Tooltip>
+              <Popover open={aiPopoverOpen} onOpenChange={setAiPopoverOpen}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <button
+                        disabled={isEnhancing}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium transition-colors",
+                          !prompt.trim() && "opacity-0 pointer-events-none",
+                          isEnhancing && "opacity-50 cursor-not-allowed"
+                        )}
+                      >
+                        {isEnhancing ? (
+                          <RefreshCw size={16} className="text-violet-500 animate-spin" />
+                        ) : (
+                          <Sparkles size={16} className="text-violet-500" />
+                        )}
+                        <span>AI</span>
+                        <ChevronDown size={14} className="text-slate-400" />
+                      </button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Enhance Prompt</TooltipContent>
+                </Tooltip>
+                <PopoverContent className="w-56 bg-white border border-slate-200 shadow-lg z-50 p-2">
+                  <div className="space-y-1">
+                    <button 
+                      onClick={() => handleEnhancePrompt(true)}
+                      disabled={isEnhancing || !prompt.trim()}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-slate-50 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Zap size={14} className="text-yellow-500" />
+                        <div>
+                          <div className="font-medium text-slate-700">Fast Enhance</div>
+                          <div className="text-xs text-slate-400">Quick improvement</div>
+                        </div>
+                      </div>
+                    </button>
+                    <button 
+                      onClick={() => handleEnhancePrompt(false)}
+                      disabled={isEnhancing || !prompt.trim()}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-slate-50 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={14} className="text-purple-500" />
+                        <div>
+                          <div className="font-medium text-slate-700">Deep Enhance</div>
+                          <div className="text-xs text-slate-400">Detailed refinement</div>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
               {isSupported && (
                 isListening ? (
                   <div className="flex items-center gap-2">
