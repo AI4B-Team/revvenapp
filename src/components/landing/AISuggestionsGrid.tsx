@@ -27,15 +27,15 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'image', icon: Image, iconColor: 'text-violet-500', title: 'AI Images', description: 'Visuals that captivate.', prompt: 'Create a photorealistic product image with professional studio lighting and modern aesthetic', mode: 'image', subType: 'generate', model: 'flux' },
       { id: 'music', icon: Music, iconColor: 'text-pink-500', title: 'Custom Music', description: 'Sounds that move souls.', prompt: 'Compose an uplifting background track for a brand video, 60 seconds, modern and inspiring', mode: 'audio', subType: 'music', model: 'suno' },
       { id: 'voice', icon: Mic, iconColor: 'text-emerald-500', title: 'Voice Clone', description: 'Your voice, everywhere.', prompt: 'Clone my voice for creating professional voiceovers for my content', mode: 'audio', subType: 'clone', model: 'elevenlabs' },
-      { id: 'blog', icon: FileText, iconColor: 'text-indigo-500', title: 'Blog Article', description: 'Words that convert.', prompt: 'Write a 1500-word SEO-optimized blog post about sustainable living tips', mode: 'document', subType: 'ebook' },
+      { id: 'photoshoot', icon: Image, iconColor: 'text-indigo-500', title: 'Photoshoot', description: 'Professional studio quality.', prompt: 'Create a professional photoshoot with studio lighting and modern aesthetic', mode: 'image', subType: 'photoshoot', model: 'flux' },
     ],
     [
-      { id: 'shorts', icon: Zap, iconColor: 'text-orange-500', title: 'Viral Shorts', description: 'Hook them in 3 seconds.', prompt: 'Create a viral TikTok-style short video with trending transitions and effects', mode: 'video', subType: 'story', model: 'kling' },
+      { id: 'avatar', icon: Users, iconColor: 'text-orange-500', title: 'Avatar', description: 'Your digital twin.', prompt: 'Create a realistic AI avatar for video content and presentations', mode: 'video', subType: 'avatar', model: 'kling' },
       { id: 'podcast', icon: Mic, iconColor: 'text-purple-500', title: 'Podcast Episode', description: 'Stories worth sharing.', prompt: 'Write a podcast episode script about building a personal brand', mode: 'video', subType: 'podcast' },
       { id: 'thumbnail', icon: Image, iconColor: 'text-red-500', title: 'Thumbnails', description: 'Clicks start here.', prompt: 'Design click-worthy YouTube thumbnails for my video content', mode: 'design', subType: 'thumbnail' },
       { id: 'jingle', icon: Music, iconColor: 'text-teal-500', title: 'Brand Jingle', description: 'Sounds they remember.', prompt: 'Create a catchy 5-second audio logo for my brand', mode: 'audio', subType: 'music', model: 'suno' },
       { id: 'newsletter', icon: Mail, iconColor: 'text-blue-600', title: 'Newsletter', description: 'Inbox gold.', prompt: 'Write an engaging weekly newsletter for my audience', mode: 'content', subType: 'newsletter' },
-      { id: 'script', icon: FileText, iconColor: 'text-slate-600', title: 'Video Script', description: 'Words that sell.', prompt: 'Write a compelling video script for a product launch', mode: 'document', subType: 'ebook' },
+      { id: 'ugc', icon: Video, iconColor: 'text-slate-600', title: 'UGC Video', description: 'Authentic creator content.', prompt: 'Create authentic user-generated style video content for social media marketing', mode: 'video', subType: 'ugc', model: 'kling' },
     ],
     [
       { id: 'carousel', icon: Image, iconColor: 'text-cyan-500', title: 'Carousel Posts', description: 'Swipe-worthy stories.', prompt: 'Create a 10-slide Instagram carousel about productivity tips with engaging visuals', mode: 'image', subType: 'batch', model: 'flux' },
