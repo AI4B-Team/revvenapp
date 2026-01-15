@@ -114,9 +114,9 @@ const LandingNew = () => {
     setReferencesModalOpen(false);
   };
 
-  // Check if Presentation or Calendar is selected
+  // Check if Presentation or Social is selected
   const isPresentationSelected = selectedSubType?.id === 'presentation';
-  const isCalendarSelected = selectedSubType?.id === 'calendar';
+  const isSocialSelected = selectedSubType?.id === 'social';
 
   return (
     <div className="h-screen bg-gradient-to-b from-slate-50 to-white flex flex-col overflow-hidden">
@@ -184,7 +184,7 @@ const LandingNew = () => {
           >
             <PresentationTemplates onPromptSelect={handlePresentationPromptSelect} />
           </Suspense>
-        ) : isCalendarSelected ? (
+        ) : isSocialSelected ? (
           <Suspense
             fallback={
               <div className="w-full mx-auto max-w-[850px] mt-6">

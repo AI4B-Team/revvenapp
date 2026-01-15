@@ -357,7 +357,6 @@ const designTypes: SubOption[] = [
 
 // Content type options
 const contentTypes: SubOption[] = [
-  { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'text-emerald-500' },
   { id: 'social', label: 'Social', icon: LayoutTemplate, color: 'text-blue-500' },
   { id: 'newsletter', label: 'Newsletter', icon: Mail, color: 'text-purple-500' },
   { id: 'blog', label: 'Blog', icon: FileText, color: 'text-amber-500' },

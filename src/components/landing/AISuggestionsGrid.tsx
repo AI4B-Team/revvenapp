@@ -23,7 +23,7 @@ const suggestionsByIntent: IntentSuggestions = {
   Create: [
     [
       { id: 'video', icon: Video, iconColor: 'text-blue-500', title: 'AI Video', description: 'Stunning visuals in seconds.', prompt: 'Create a cinematic 30-second video showcasing a luxury product with dramatic lighting and smooth camera movements', mode: 'video', subType: 'story', model: 'kling' },
-      { id: 'calendar', icon: Calendar, iconColor: 'text-emerald-500', title: 'Content Calendar', description: '30 days of content, planned.', prompt: 'Generate a 30-day content calendar for my brand with daily posts across all platforms', mode: 'content', subType: 'calendar' },
+      { id: 'social', icon: Sparkles, iconColor: 'text-amber-500', title: 'Social Content', description: 'Posts that stop the scroll.', prompt: 'Generate a week of engaging Instagram posts for a wellness brand with captions and hashtags', mode: 'content', subType: 'social' },
       { id: 'image', icon: Image, iconColor: 'text-violet-500', title: 'AI Images', description: 'Visuals that captivate.', prompt: 'Create a photorealistic product image with professional studio lighting and modern aesthetic', mode: 'image', subType: 'generate', model: 'flux' },
       { id: 'music', icon: Music, iconColor: 'text-pink-500', title: 'Custom Music', description: 'Sounds that move souls.', prompt: 'Compose an uplifting background track for a brand video, 60 seconds, modern and inspiring', mode: 'audio', subType: 'music', model: 'suno' },
       { id: 'voice', icon: Mic, iconColor: 'text-emerald-500', title: 'Voice Clone', description: 'Your voice, everywhere.', prompt: 'Clone my voice for creating professional voiceovers for my content', mode: 'audio', subType: 'clone', model: 'elevenlabs' },
