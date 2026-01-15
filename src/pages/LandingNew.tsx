@@ -12,6 +12,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 import type { Intent } from '@/components/IntentSelector';
 import { isStorageAccessible } from '@/utils/isStorageAccessible';
+import { socialPlatforms } from '@/components/dashboard/SocialIcons';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Check } from 'lucide-react';
 
 const PresentationTemplates = lazy(() => import('@/components/shared/PresentationTemplates'));
 const SocialContentCalendar = lazy(() => import('@/components/dashboard/SocialContentCalendar'));
@@ -32,6 +35,9 @@ const LandingNew = () => {
   const [externalMode, setExternalMode] = useState<string | null>(null);
   const [externalSubType, setExternalSubType] = useState<string | null>(null);
   const [externalModel, setExternalModel] = useState<string | null>(null);
+  
+  // State for social platform selection
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   
   const navigate = useNavigate();
 
@@ -188,11 +194,82 @@ const LandingNew = () => {
           <Suspense
             fallback={
               <div className="w-full mx-auto max-w-[850px] mt-6">
-                <p className="text-sm text-muted-foreground">Loading calendar…</p>
+                <p className="text-sm text-muted-foreground">Loading...</p>
               </div>
             }
           >
-            <div className="w-full mt-4">
+            <div className="w-full mt-4 space-y-6">
+              {/* Platform Selection */}
+              <div className="flex justify-center">
+                <div className="p-6 bg-card rounded-xl border-2 border-border shadow-sm">
+                  <p className="text-foreground font-semibold mb-6 text-center text-xl">
+                    Choose Your Platforms To Generate Content For Each One
+                  </p>
+                  
+                  <div className="flex items-center justify-center gap-3 flex-wrap pb-2 px-2 pt-3">
+                    <button
+                      onClick={() => {
+                        if (selectedPlatforms.length === socialPlatforms.length) {
+                          setSelectedPlatforms([]);
+                        } else {
+                          setSelectedPlatforms(socialPlatforms.map(p => p.id));
+                        }
+                      }}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap inline-flex items-center flex-shrink-0 ${
+                        selectedPlatforms.length === socialPlatforms.length
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
+                    >
+                      {selectedPlatforms.length === socialPlatforms.length ? 'Deselect All' : 'Select All'}
+                    </button>
+
+                    {socialPlatforms.map(platform => {
+                      const isSelected = selectedPlatforms.includes(platform.id);
+                      const IconComponent = platform.Icon;
+
+                      return (
+                        <Tooltip key={platform.id}>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => {
+                                setSelectedPlatforms(prev =>
+                                  prev.includes(platform.id)
+                                    ? prev.filter(id => id !== platform.id)
+                                    : [...prev, platform.id]
+                                );
+                              }}
+                              className={`relative p-3 rounded-2xl transition-all border-2 flex-shrink-0 ${
+                                isSelected
+                                  ? 'bg-card shadow-lg border-emerald-500'
+                                  : 'bg-muted/50 hover:bg-muted border-transparent hover:border-emerald-500'
+                              }`}
+                            >
+                              <IconComponent className="w-9 h-9" />
+                              {isSelected && (
+                                <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                                  <Check className="w-4 h-4 text-white" />
+                                </div>
+                              )}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{platform.name}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                  
+                  {selectedPlatforms.length > 0 && (
+                    <p className="text-base text-muted-foreground mt-4 text-center">
+                      {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected • {selectedPlatforms.length * 30} posts will be generated
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Content Calendar */}
               <SocialContentCalendar 
                 generatedContent={[]}
                 isGenerating={false}
