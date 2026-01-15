@@ -248,9 +248,8 @@ const videoPodcastModelOptions: ModelOption[] = [
 // Audio model options by subtype
 const audioVoiceoverModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'elevenlabs', label: 'ElevenLabs', description: 'Premium voices', logo: elevenlabsLogo },
-  { id: 'openai-tts', label: 'OpenAI TTS', description: 'Natural voices', logo: openaiLogo },
-  { id: 'google-tts', label: 'Google TTS', description: 'Multi-language', logo: googleLogo },
+  { id: 'eleven-turbo-v2.5', label: 'Eleven Turbo v2.5', description: 'Fast & natural', logo: elevenlabsLogo },
+  { id: 'eleven-multilingual-v2', label: 'Eleven Multilingual v2', description: '29 languages', logo: elevenlabsLogo },
 ];
 
 const audioCloneModelOptions: ModelOption[] = [
@@ -276,9 +275,11 @@ const audioSoundEffectsModelOptions: ModelOption[] = [
 
 const audioMusicModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'suno', label: 'Suno', description: 'Full songs', logo: sunoLogo },
-  { id: 'udio', label: 'Udio', description: 'High quality music', logo: udioLogo },
-  { id: 'musicgen', label: 'MusicGen', description: 'Instrumental', logo: autoLogo },
+  { id: 'v5-best', label: 'V5 (Best)', description: 'Highest quality', logo: sunoLogo },
+  { id: 'v4.5-rich', label: 'V4.5+ (Rich)', description: 'Rich sound', logo: sunoLogo },
+  { id: 'v4.5-all', label: 'V4.5 All', description: 'Balanced', logo: sunoLogo },
+  { id: 'v4.5-fast', label: 'V4.5 (Fast)', description: 'Quick generation', logo: sunoLogo },
+  { id: 'v4-basic', label: 'V4 (Basic)', description: 'Basic quality', logo: sunoLogo },
 ];
 
 const audioAudiobookModelOptions: ModelOption[] = [
