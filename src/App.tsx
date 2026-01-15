@@ -36,6 +36,7 @@ const Apps = lazy(() => import("./pages/Apps"));
 const Assets = lazy(() => import("./pages/Assets"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Websites = lazy(() => import("./pages/Websites"));
+const WebsiteEditor = lazy(() => import("./components/monetize/WebsiteEditor"));
 const Funnels = lazy(() => import("./pages/Funnels"));
 const Store = lazy(() => import("./pages/Store"));
 const Products = lazy(() => import("./pages/Products"));
@@ -134,6 +135,7 @@ const App = () => (
                 <Route path="/assistant" element={<Assistant />} />
                 <Route path="/monetize" element={<Monetize />} />
                 <Route path="/websites" element={<Websites />} />
+                <Route path="/websites/edit/:templateId" element={<WebsiteEditor />} />
                 <Route path="/funnels" element={<Funnels />} />
                 <Route path="/store" element={<Store />} />
                 <Route path="/products" element={<Products />} />
