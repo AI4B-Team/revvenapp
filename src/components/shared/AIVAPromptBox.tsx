@@ -49,43 +49,180 @@ const videoControlIcons: ControlIcon[] = [
 // Control icons for Document types - minimal controls
 const documentControlIcons: ControlIcon[] = [];
 
-// Model options based on content type
-const imageModelOptions = [
+// Model options based on content type and subtype
+
+// Image model options by subtype
+const imageGenerateModelOptions = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
   { id: 'flux-pro', label: 'Flux Pro', description: 'High quality images' },
   { id: 'flux-max', label: 'Flux Max', description: 'Maximum quality' },
   { id: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI image model' },
   { id: 'seedream-4', label: 'Seedream 4', description: 'Creative styles' },
   { id: 'seedream-4.5', label: 'Seedream 4.5', description: 'Enhanced creative' },
-  { id: 'ideogram-character', label: 'Ideogram', description: 'Character consistency' },
+  { id: 'ideogram-3', label: 'Ideogram 3', description: 'Text in images' },
 ];
 
-const videoModelOptions = [
+const imageBatchModelOptions = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick generation' },
-  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality' },
-  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard mode' },
-  { id: 'sora-2-i2v', label: 'Sora 2', description: 'Image-to-video' },
-  { id: 'kling-2.1', label: 'Kling 2.1', description: 'Supports people' },
-  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Text/image-to-video' },
-  { id: 'kling-2.6', label: 'Kling 2.6', description: 'With sound' },
-  { id: 'wan-2.5', label: 'Wan 2.5', description: 'Image-to-video' },
-  { id: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'High quality' },
+  { id: 'flux-pro', label: 'Flux Pro', description: 'High quality batch' },
+  { id: 'flux-schnell', label: 'Flux Schnell', description: 'Fast batch generation' },
+  { id: 'seedream-4', label: 'Seedream 4', description: 'Consistent styles' },
 ];
 
-const audioModelOptions = [
+const imageDrawModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'flux-canny', label: 'Flux Canny', description: 'Edge detection' },
+  { id: 'flux-depth', label: 'Flux Depth', description: 'Depth-aware' },
+  { id: 'controlnet', label: 'ControlNet', description: 'Precise control' },
+];
+
+const imageSwapModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'faceswap-pro', label: 'FaceSwap Pro', description: 'High quality swap' },
+  { id: 'roop', label: 'Roop', description: 'Fast face swap' },
+  { id: 'insightface', label: 'InsightFace', description: 'Natural results' },
+];
+
+const imagePhotoshootModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'ideogram-character', label: 'Ideogram', description: 'Character consistency' },
+  { id: 'flux-pulid', label: 'Flux PuLID', description: 'Identity preservation' },
+  { id: 'photomaker', label: 'PhotoMaker', description: 'Realistic photos' },
+];
+
+// Video model options by subtype
+const videoStoryModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality' },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick generation' },
+  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard mode' },
+  { id: 'kling-2.6', label: 'Kling 2.6', description: 'With sound' },
+];
+
+const videoPresentationModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick slides' },
+  { id: 'heygen', label: 'HeyGen', description: 'Avatar presenter' },
+  { id: 'synthesia', label: 'Synthesia', description: 'AI presenter' },
+];
+
+const videoVSLModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Sales videos' },
+  { id: 'heygen', label: 'HeyGen', description: 'Avatar sales' },
+  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Premium VSL' },
+];
+
+const videoAvatarModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'heygen', label: 'HeyGen', description: 'Realistic avatars' },
+  { id: 'synthesia', label: 'Synthesia', description: 'Professional avatars' },
+  { id: 'd-id', label: 'D-ID', description: 'Talking photos' },
+  { id: 'hedra', label: 'Hedra', description: 'Character avatars' },
+];
+
+const videoUGCModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'heygen', label: 'HeyGen', description: 'UGC creators' },
+  { id: 'arcads', label: 'Arcads', description: 'Ad-style UGC' },
+  { id: 'creatify', label: 'Creatify', description: 'Social UGC' },
+];
+
+const videoRecastModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Video-to-video' },
+  { id: 'pika-2', label: 'Pika 2', description: 'Style transfer' },
+  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Video recast' },
+];
+
+const videoAnimateModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Image-to-video' },
+  { id: 'wan-2.5', label: 'Wan 2.5', description: 'Animation' },
+  { id: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Smooth animation' },
+  { id: 'sora-2-i2v', label: 'Sora 2', description: 'Premium animation' },
+];
+
+const videoDrawModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'pika-2', label: 'Pika 2', description: 'Sketch animation' },
+  { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Draw-to-video' },
+  { id: 'kling-2.1', label: 'Kling 2.1', description: 'Drawing animation' },
+];
+
+const videoLipSyncModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'sync-1.9.1', label: 'Sync 1.9.1', description: 'Precise lip sync' },
+  { id: 'wav2lip', label: 'Wav2Lip', description: 'Fast lip sync' },
+  { id: 'hedra', label: 'Hedra', description: 'Natural sync' },
+];
+
+const videoMotionSyncModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'kling-motion', label: 'Kling Motion', description: 'Motion transfer' },
+  { id: 'animate-anyone', label: 'Animate Anyone', description: 'Pose transfer' },
+  { id: 'move-ai', label: 'Move AI', description: 'Body tracking' },
+];
+
+const videoPodcastModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'notebook-lm', label: 'NotebookLM', description: 'AI podcast hosts' },
+  { id: 'heygen', label: 'HeyGen', description: 'Avatar podcast' },
+  { id: 'synthesia', label: 'Synthesia', description: 'Professional podcast' },
+];
+
+// Audio model options by subtype
+const audioVoiceoverModelOptions = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
   { id: 'elevenlabs', label: 'ElevenLabs', description: 'Premium voices' },
-  { id: 'kie-ai', label: 'KIE.AI', description: 'Fast generation' },
   { id: 'openai-tts', label: 'OpenAI TTS', description: 'Natural voices' },
+  { id: 'google-tts', label: 'Google TTS', description: 'Multi-language' },
 ];
 
+const audioCloneModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'elevenlabs-clone', label: 'ElevenLabs Clone', description: 'Premium cloning' },
+  { id: 'resemble-ai', label: 'Resemble AI', description: 'Fast cloning' },
+  { id: 'coqui', label: 'Coqui', description: 'Open source' },
+];
+
+const audioRevoiceModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'kie-ai', label: 'KIE.AI', description: 'Voice conversion' },
+  { id: 'rvc', label: 'RVC', description: 'Real-time voice' },
+  { id: 'so-vits', label: 'So-VITS', description: 'High quality' },
+];
+
+const audioSoundEffectsModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'elevenlabs-sfx', label: 'ElevenLabs SFX', description: 'Premium effects' },
+  { id: 'audiogen', label: 'AudioGen', description: 'Diverse sounds' },
+  { id: 'make-an-audio', label: 'Make-An-Audio', description: 'Creative SFX' },
+];
+
+const audioMusicModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'suno', label: 'Suno', description: 'Full songs' },
+  { id: 'udio', label: 'Udio', description: 'High quality music' },
+  { id: 'musicgen', label: 'MusicGen', description: 'Instrumental' },
+];
+
+const audioAudiobookModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'elevenlabs', label: 'ElevenLabs', description: 'Premium narration' },
+  { id: 'openai-tts-hd', label: 'OpenAI TTS HD', description: 'Natural reading' },
+  { id: 'amazon-polly', label: 'Amazon Polly', description: 'Reliable narration' },
+];
+
+// Design model options
 const designModelOptions = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
   { id: 'gemini-pro', label: 'Gemini Pro', description: 'Google AI' },
   { id: 'gpt-4o', label: 'GPT-4o', description: 'OpenAI model' },
+  { id: 'claude-3.5', label: 'Claude 3.5', description: 'Anthropic model' },
 ];
 
+// Document model options
 const documentModelOptions = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
   { id: 'gemini-pro', label: 'Gemini Pro', description: 'Google AI' },
@@ -302,14 +439,52 @@ const AIVAPromptBox = ({
     return imageControlIcons;
   };
 
-  // Get model options based on selected option type
+  // Get model options based on selected option type and subtype
   const getModelOptions = () => {
-    if (selectedOption?.id === 'video') return videoModelOptions;
-    if (selectedOption?.id === 'image') return imageModelOptions;
-    if (selectedOption?.id === 'audio') return audioModelOptions;
+    // Video subtypes
+    if (selectedOption?.id === 'video') {
+      switch (selectedSubType?.id) {
+        case 'story': return videoStoryModelOptions;
+        case 'presentation': return videoPresentationModelOptions;
+        case 'vsl': return videoVSLModelOptions;
+        case 'avatar': return videoAvatarModelOptions;
+        case 'ugc': return videoUGCModelOptions;
+        case 'recast': return videoRecastModelOptions;
+        case 'animate': return videoAnimateModelOptions;
+        case 'draw': return videoDrawModelOptions;
+        case 'lip-sync': return videoLipSyncModelOptions;
+        case 'motion-sync': return videoMotionSyncModelOptions;
+        case 'podcast': return videoPodcastModelOptions;
+        default: return videoStoryModelOptions;
+      }
+    }
+    // Image subtypes
+    if (selectedOption?.id === 'image') {
+      switch (selectedSubType?.id) {
+        case 'generate': return imageGenerateModelOptions;
+        case 'batch': return imageBatchModelOptions;
+        case 'draw': return imageDrawModelOptions;
+        case 'swap': return imageSwapModelOptions;
+        case 'photoshoot': return imagePhotoshootModelOptions;
+        default: return imageGenerateModelOptions;
+      }
+    }
+    // Audio subtypes
+    if (selectedOption?.id === 'audio') {
+      switch (selectedSubType?.id) {
+        case 'voiceover': return audioVoiceoverModelOptions;
+        case 'clone': return audioCloneModelOptions;
+        case 'revoice': return audioRevoiceModelOptions;
+        case 'sound-effects': return audioSoundEffectsModelOptions;
+        case 'music': return audioMusicModelOptions;
+        case 'audiobook': return audioAudiobookModelOptions;
+        default: return audioVoiceoverModelOptions;
+      }
+    }
+    // Design and Document use the same models for all subtypes
     if (selectedOption?.id === 'design') return designModelOptions;
     if (selectedOption?.id === 'document') return documentModelOptions;
-    return imageModelOptions; // default
+    return imageGenerateModelOptions; // default
   };
 
   const currentModelOptions = getModelOptions();
