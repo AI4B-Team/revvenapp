@@ -37,6 +37,7 @@ import hailuoLogo from '@/assets/model-logos/hailuo.png';
 import elevenlabsLogo from '@/assets/model-logos/elevenlabs.png';
 import sunoLogo from '@/assets/model-logos/suno.png';
 import udioLogo from '@/assets/model-logos/udio.png';
+import bytedanceLogo from '@/assets/model-logos/bytedance.png';
 
 const placeholdersByIntent: Record<Intent | 'default', string> = {
   default: 'Ask anything...',
@@ -169,18 +170,14 @@ const videoVSLModelOptions: ModelOption[] = [
 ];
 
 const videoAvatarModelOptions: ModelOption[] = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'heygen', label: 'HeyGen', description: 'Realistic avatars', logo: heygenLogo },
-  { id: 'synthesia', label: 'Synthesia', description: 'Professional avatars', logo: synthesiaLogo },
-  { id: 'd-id', label: 'D-ID', description: 'Talking photos', logo: didLogo },
-  { id: 'hedra', label: 'Hedra', description: 'Character avatars', logo: hedraLogo },
+  { id: 'wan-avatar', label: 'Wan Avatar', description: 'Speech-to-video with lip sync (max 15s)', logo: wanLogo },
+  { id: 'kling-avatar', label: 'Kling Avatar', description: 'Pro avatar with audio sync (max 15s)', logo: klingLogo },
 ];
 
 const videoUGCModelOptions: ModelOption[] = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'heygen', label: 'HeyGen', description: 'UGC creators', logo: heygenLogo },
-  { id: 'arcads', label: 'Arcads', description: 'Ad-style UGC', logo: arcadsLogo },
-  { id: 'creatify', label: 'Creatify', description: 'Social UGC', logo: creatifyLogo },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation', logo: veoLogo },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output', logo: veoLogo },
+  { id: 'kling-2.6', label: 'Kling 2.6', description: 'Image-to-video with sound', logo: klingLogo },
 ];
 
 const videoRecastModelOptions: ModelOption[] = [
@@ -192,31 +189,43 @@ const videoRecastModelOptions: ModelOption[] = [
 
 const videoAnimateModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Image-to-video', logo: klingLogo },
-  { id: 'wan-2.5', label: 'Wan 2.5', description: 'Animation', logo: wanLogo },
-  { id: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Smooth animation', logo: hailuoLogo },
-  { id: 'sora-2-i2v', label: 'Sora 2', description: 'Premium animation', logo: soraLogo },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation', logo: veoLogo },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output', logo: veoLogo },
+  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard (no people photos)', logo: soraLogo },
+  { id: 'sora-2', label: 'Sora 2', description: 'Image-to-video, 10-15s duration', logo: soraLogo },
+  { id: 'kling-2.1', label: 'Kling 2.1', description: 'Image-to-video, supports people', logo: klingLogo },
+  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Text or image-to-video, turbo', logo: klingLogo },
+  { id: 'kling-2.6', label: 'Kling 2.6', description: 'Image-to-video with sound', logo: klingLogo },
+  { id: 'wan-2.5', label: 'Wan 2.5', description: 'Image-to-video (800 char limit)', logo: wanLogo },
+  { id: 'wan-2.2', label: 'Wan 2.2', description: 'Text or image-to-video, turbo', logo: wanLogo },
+  { id: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Image-to-video, high quality', logo: hailuoLogo },
+  { id: 'bytedance-v1', label: 'Bytedance V1', description: 'Image-to-video, fast', logo: bytedanceLogo },
 ];
 
 const videoDrawModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'pika-2', label: 'Pika 2', description: 'Sketch animation', logo: pikaLogo },
-  { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Draw-to-video', logo: runwayLogo },
-  { id: 'kling-2.1', label: 'Kling 2.1', description: 'Drawing animation', logo: klingLogo },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation', logo: veoLogo },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output', logo: veoLogo },
 ];
 
 const videoLipSyncModelOptions: ModelOption[] = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'sync-1.9.1', label: 'Sync 1.9.1', description: 'Precise lip sync', logo: heygenLogo },
-  { id: 'wav2lip', label: 'Wav2Lip', description: 'Fast lip sync', logo: autoLogo },
-  { id: 'hedra', label: 'Hedra', description: 'Natural sync', logo: hedraLogo },
+  { id: 'wan-avatar', label: 'Wan Avatar', description: 'Speech-to-video with lip sync (max 15s)', logo: wanLogo },
+  { id: 'kling-avatar', label: 'Kling Avatar', description: 'Pro avatar with audio sync (max 15s)', logo: klingLogo },
 ];
 
 const videoMotionSyncModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'kling-motion', label: 'Kling Motion', description: 'Motion transfer', logo: klingLogo },
-  { id: 'animate-anyone', label: 'Animate Anyone', description: 'Pose transfer', logo: autoLogo },
-  { id: 'move-ai', label: 'Move AI', description: 'Body tracking', logo: autoLogo },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation', logo: veoLogo },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output', logo: veoLogo },
+  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard (no people photos)', logo: soraLogo },
+  { id: 'sora-2', label: 'Sora 2', description: 'Image-to-video, 10-15s duration', logo: soraLogo },
+  { id: 'kling-2.1', label: 'Kling 2.1', description: 'Image-to-video, supports people', logo: klingLogo },
+  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Text or image-to-video, turbo', logo: klingLogo },
+  { id: 'kling-2.6', label: 'Kling 2.6', description: 'Image-to-video with sound', logo: klingLogo },
+  { id: 'wan-2.5', label: 'Wan 2.5', description: 'Image-to-video (800 char limit)', logo: wanLogo },
+  { id: 'wan-2.2', label: 'Wan 2.2', description: 'Text or image-to-video, turbo', logo: wanLogo },
+  { id: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Image-to-video, high quality', logo: hailuoLogo },
+  { id: 'bytedance-v1', label: 'Bytedance V1', description: 'Image-to-video, fast', logo: bytedanceLogo },
 ];
 
 const videoPodcastModelOptions: ModelOption[] = [
