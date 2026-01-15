@@ -4,6 +4,9 @@ import RevvenLogo from '@/components/RevvenLogo';
 import AIVAPromptBox, { type SubOptionType } from '@/components/shared/AIVAPromptBox';
 import AISuggestionsGrid, { type Suggestion } from '@/components/landing/AISuggestionsGrid';
 import AuthModal from '@/components/AuthModal';
+import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import ReferencesModal from '@/components/dashboard/ReferencesModal';
+import StylesModal from '@/components/dashboard/StylesModal';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -18,6 +21,11 @@ const LandingNew = () => {
   const [prompt, setPrompt] = useState('');
   const [user, setUser] = useState<User | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOptionType | null>(null);
+  const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [referencesModalOpen, setReferencesModalOpen] = useState(false);
+  const [stylesModalOpen, setStylesModalOpen] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<any>(null);
+  const [selectedReferences, setSelectedReferences] = useState<any[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,7 +70,6 @@ const LandingNew = () => {
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
-    // Set the prompt to the suggestion's prompt
     setPrompt(suggestion.prompt);
   };
 
@@ -72,6 +79,16 @@ const LandingNew = () => {
 
   const handleSubTypeChange = (subType: SubOptionType | null) => {
     setSelectedSubType(subType);
+  };
+
+  const handleStyleSelect = (style: any) => {
+    setSelectedStyle(style);
+    setStylesModalOpen(false);
+  };
+
+  const handleReferencesSelect = (references: any[]) => {
+    setSelectedReferences(references);
+    setReferencesModalOpen(false);
   };
 
   // Check if Presentation is selected
@@ -123,6 +140,9 @@ const LandingNew = () => {
             selectedIntent={selectedIntent}
             onIntentChange={setSelectedIntent}
             onSubTypeChange={handleSubTypeChange}
+            onStyleClick={() => setStylesModalOpen(true)}
+            onReferenceClick={() => setReferencesModalOpen(true)}
+            onCharacterClick={() => setCharactersModalOpen(true)}
           />
         </div>
 
@@ -149,6 +169,28 @@ const LandingNew = () => {
 
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      
+      {/* Character Modal */}
+      <DigitalCharactersModal 
+        isOpen={charactersModalOpen} 
+        onClose={() => setCharactersModalOpen(false)}
+      />
+      
+      {/* References Modal */}
+      <ReferencesModal 
+        isOpen={referencesModalOpen} 
+        onClose={() => setReferencesModalOpen(false)}
+        onImagesSelect={handleReferencesSelect}
+        initialSelectedImages={selectedReferences}
+      />
+      
+      {/* Styles Modal */}
+      <StylesModal
+        isOpen={stylesModalOpen}
+        onClose={() => setStylesModalOpen(false)}
+        onSelectStyle={handleStyleSelect}
+        selectedStyle={selectedStyle}
+      />
     </div>
   );
 };
