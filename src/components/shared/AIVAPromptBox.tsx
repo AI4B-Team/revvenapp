@@ -187,6 +187,41 @@ const AIVAPromptBox = ({
   const [selectedNumber, setSelectedNumber] = useState(1);
   const [selectedDuration, setSelectedDuration] = useState('5s');
   const [selectedQuality, setSelectedQuality] = useState('standard');
+  
+  // Close all dropdowns helper
+  const closeAllDropdowns = useCallback(() => {
+    setShowModelDropdown(false);
+    setShowRatioDropdown(false);
+    setShowNumberDropdown(false);
+    setShowDurationDropdown(false);
+    setShowQualityDropdown(false);
+    setShowTypeDropdown(false);
+  }, []);
+  
+  // Toggle a specific dropdown (closes others first)
+  const toggleDropdown = useCallback((dropdown: 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'type') => {
+    closeAllDropdowns();
+    switch (dropdown) {
+      case 'model':
+        setShowModelDropdown(prev => !prev);
+        break;
+      case 'ratio':
+        setShowRatioDropdown(prev => !prev);
+        break;
+      case 'number':
+        setShowNumberDropdown(prev => !prev);
+        break;
+      case 'duration':
+        setShowDurationDropdown(prev => !prev);
+        break;
+      case 'quality':
+        setShowQualityDropdown(prev => !prev);
+        break;
+      case 'type':
+        setShowTypeDropdown(prev => !prev);
+        break;
+    }
+  }, [closeAllDropdowns]);
 
   // Speech recognition hook
   const handleTranscriptResult = useCallback((transcript: string) => {
@@ -347,7 +382,7 @@ const AIVAPromptBox = ({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div 
-                      onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                      onClick={() => toggleDropdown('type')}
                       className={cn(
                         "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border cursor-pointer",
                         selectedSubType 
@@ -398,7 +433,7 @@ const AIVAPromptBox = ({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div 
-                        onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                        onClick={() => toggleDropdown('type')}
                         className={cn(
                           "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border cursor-pointer",
                           selectedSubType 
@@ -452,7 +487,7 @@ const AIVAPromptBox = ({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div 
-                          onClick={() => setShowModelDropdown(!showModelDropdown)}
+                          onClick={() => toggleDropdown('model')}
                           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors cursor-pointer"
                         >
                           <Box size={16} className="text-slate-500" />
@@ -496,12 +531,12 @@ const AIVAPromptBox = ({
                           // Map control id to callback - use internal handlers for dropdowns
                           const getControlClickHandler = () => {
                             switch (control.id) {
-                              case 'style': return onStyleClick;
-                              case 'character': return onCharacterClick;
-                              case 'ratio': return () => setShowRatioDropdown(!showRatioDropdown);
-                              case 'number': return () => setShowNumberDropdown(!showNumberDropdown);
-                              case 'duration': return () => setShowDurationDropdown(!showDurationDropdown);
-                              case 'quality': return () => setShowQualityDropdown(!showQualityDropdown);
+                              case 'style': return () => { closeAllDropdowns(); onStyleClick?.(); };
+                              case 'character': return () => { closeAllDropdowns(); onCharacterClick?.(); };
+                              case 'ratio': return () => toggleDropdown('ratio');
+                              case 'number': return () => toggleDropdown('number');
+                              case 'duration': return () => toggleDropdown('duration');
+                              case 'quality': return () => toggleDropdown('quality');
                               default: return undefined;
                             }
                           };
