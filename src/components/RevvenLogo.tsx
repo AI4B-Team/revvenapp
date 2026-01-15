@@ -1,46 +1,31 @@
 interface RevvenLogoProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: number;
   className?: string;
 }
 
-const sizeConfig = {
-  sm: { fontSize: '1.25rem', letterSpacing: '0.15em', underlineHeight: '3px', gap: '2px' },
-  md: { fontSize: '1.75rem', letterSpacing: '0.18em', underlineHeight: '4px', gap: '3px' },
-  lg: { fontSize: '2.5rem', letterSpacing: '0.2em', underlineHeight: '5px', gap: '4px' },
-  xl: { fontSize: '3.5rem', letterSpacing: '0.22em', underlineHeight: '6px', gap: '5px' },
-};
-
-const RevvenLogo = ({ size = 'md', className = '' }: RevvenLogoProps) => {
-  const config = sizeConfig[size];
-  
+const RevvenLogo = ({ size = 32, className = '' }: RevvenLogoProps) => {
+  const scale = size / 40;
   return (
-    <div className={`flex flex-col items-center ${className}`} style={{ gap: config.gap }}>
-      {/* REVVEN text with metallic blue-silver gradient */}
-      <span 
-        style={{
-          fontSize: config.fontSize,
-          fontWeight: 700,
-          letterSpacing: config.letterSpacing,
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          background: 'linear-gradient(180deg, #B8C5D6 0%, #8FA4BC 25%, #7B92AD 50%, #6A829E 75%, #5A7290 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}
-      >
-        REVVEN
-      </span>
-      
-      {/* Multi-color gradient underline - pink, purple, blue, cyan */}
-      <div 
-        style={{
-          width: '100%',
-          height: config.underlineHeight,
-          borderRadius: '2px',
-          background: 'linear-gradient(90deg, #E91E8C 0%, #9C27B0 30%, #3F51B5 55%, #00BCD4 85%, #00BCD4 100%)',
-        }}
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" className={className}>
+      <defs>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="hsl(160, 81%, 40%)" />
+          <stop offset="100%" stopColor="hsl(160, 81%, 32%)" />
+        </linearGradient>
+      </defs>
+      <rect width="40" height="40" rx="10" fill="url(#logoGradient)" />
+      <path 
+        d="M12 14L20 10L28 14V20L20 30L12 20V14Z" 
+        fill="white" 
+        fillOpacity="0.95"
       />
-    </div>
+      <path 
+        d="M20 10V30M12 14L28 14M12 20L28 20" 
+        stroke="white" 
+        strokeWidth="1.5" 
+        strokeOpacity="0.4"
+      />
+    </svg>
   );
 };
 

@@ -189,10 +189,12 @@ export default function RevvenLandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <motion.div 
+              className="flex items-center gap-2.5"
               whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 400 }}
             >
-              <RevvenLogo size="md" />
+              <RevvenLogo size={32} />
+              <span className="text-xl font-bold tracking-tight">REVVEN</span>
             </motion.div>
 
             <nav className="hidden md:flex items-center gap-6">
@@ -1334,10 +1336,11 @@ export default function RevvenLandingPage() {
           <div className="grid md:grid-cols-5 gap-8 mb-8">
             <div className="md:col-span-2">
               <motion.div 
-                className="mb-4"
+                className="flex items-center gap-2.5 mb-4"
                 whileHover={{ scale: 1.05 }}
               >
-                <RevvenLogo size="md" />
+                <RevvenLogo size={32} />
+                <span className="text-xl font-bold tracking-tight">REVVEN</span>
               </motion.div>
               <p className="text-gray-400 text-sm mb-4">
                 Your 24/7 AI Engine For Content, Connection & Growth
