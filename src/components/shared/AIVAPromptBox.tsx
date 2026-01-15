@@ -59,6 +59,18 @@ interface ControlIcon {
   tooltip: string;
 }
 
+interface ModelOption {
+  id: string;
+  label: string;
+  description: string;
+  logo?: string;
+  badge?: 'SUGGESTED' | 'PREMIUM' | 'NEW' | 'ULTRA';
+  supportsImg2Img?: boolean;
+  supportsDraw?: boolean;
+  supportsSwap?: boolean;
+  supportsPhoto?: boolean;
+}
+
 // Control icons for Image types - uses Brush icon for style
 const imageControlIcons: ControlIcon[] = [
   { id: 'style', icon: Brush, tooltip: 'Style' },
@@ -83,7 +95,7 @@ const documentControlIcons: ControlIcon[] = [];
 // Model options based on content type and subtype
 
 // Image model options by subtype
-const imageGenerateModelOptions = [
+const imageGenerateModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', badge: 'SUGGESTED', supportsImg2Img: true, logo: autoLogo },
   { id: 'flux-pro', label: 'Flux Pro', description: 'Balanced performance and quality', supportsImg2Img: true, logo: fluxLogo },
   { id: 'flux-max', label: 'Flux Max', description: 'Enhanced quality for complex scenes', badge: 'PREMIUM', supportsImg2Img: true, logo: fluxLogo },
@@ -100,7 +112,7 @@ const imageGenerateModelOptions = [
   { id: 'z-image', label: 'Z-Image', description: 'Hyper-realistic text-to-image generation', badge: 'NEW', logo: zImageLogo },
 ];
 
-const imageBatchModelOptions = [
+const imageBatchModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', badge: 'SUGGESTED', supportsImg2Img: true, logo: autoLogo },
   { id: 'flux-pro', label: 'Flux Pro', description: 'Balanced performance and quality', supportsImg2Img: true, logo: fluxLogo },
   { id: 'flux-max', label: 'Flux Max', description: 'Enhanced quality for complex scenes', badge: 'PREMIUM', supportsImg2Img: true, logo: fluxLogo },
@@ -117,24 +129,24 @@ const imageBatchModelOptions = [
   { id: 'z-image', label: 'Z-Image', description: 'Hyper-realistic text-to-image generation', badge: 'NEW', logo: zImageLogo },
 ];
 
-const imageDrawModelOptions = [
+const imageDrawModelOptions: ModelOption[] = [
   { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true, logo: seedreamLogo },
   { id: 'seedream-4.5', label: 'Seedream 4.5', description: 'ByteDance\'s 4K edit model (up to 12 refs)', badge: 'NEW', supportsImg2Img: true, logo: seedreamLogo },
   { id: 'nano-banana', label: 'Nano Banana', description: 'Gemini 2.5 Flash Image Preview', supportsImg2Img: true, logo: nanoBananaLogo },
   { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsDraw: true, logo: nanoBananaLogo },
 ];
 
-const imageSwapModelOptions = [
+const imageSwapModelOptions: ModelOption[] = [
   { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true, supportsSwap: true, logo: seedreamLogo },
   { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsSwap: true, logo: nanoBananaLogo },
 ];
 
-const imagePhotoshootModelOptions = [
+const imagePhotoshootModelOptions: ModelOption[] = [
   { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsPhoto: true, logo: nanoBananaLogo },
 ];
 
 // Video model options by subtype
-const videoStoryModelOptions = [
+const videoStoryModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality', logo: veoLogo },
   { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick generation', logo: veoLogo },
@@ -142,21 +154,21 @@ const videoStoryModelOptions = [
   { id: 'kling-2.6', label: 'Kling 2.6', description: 'With sound', logo: klingLogo },
 ];
 
-const videoPresentationModelOptions = [
+const videoPresentationModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick slides', logo: veoLogo },
   { id: 'heygen', label: 'HeyGen', description: 'Avatar presenter', logo: heygenLogo },
   { id: 'synthesia', label: 'Synthesia', description: 'AI presenter', logo: synthesiaLogo },
 ];
 
-const videoVSLModelOptions = [
+const videoVSLModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Sales videos', logo: veoLogo },
   { id: 'heygen', label: 'HeyGen', description: 'Avatar sales', logo: heygenLogo },
   { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Premium VSL', logo: soraLogo },
 ];
 
-const videoAvatarModelOptions = [
+const videoAvatarModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'heygen', label: 'HeyGen', description: 'Realistic avatars', logo: heygenLogo },
   { id: 'synthesia', label: 'Synthesia', description: 'Professional avatars', logo: synthesiaLogo },
@@ -164,21 +176,21 @@ const videoAvatarModelOptions = [
   { id: 'hedra', label: 'Hedra', description: 'Character avatars', logo: hedraLogo },
 ];
 
-const videoUGCModelOptions = [
+const videoUGCModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'heygen', label: 'HeyGen', description: 'UGC creators', logo: heygenLogo },
   { id: 'arcads', label: 'Arcads', description: 'Ad-style UGC', logo: arcadsLogo },
   { id: 'creatify', label: 'Creatify', description: 'Social UGC', logo: creatifyLogo },
 ];
 
-const videoRecastModelOptions = [
+const videoRecastModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Video-to-video', logo: runwayLogo },
   { id: 'pika-2', label: 'Pika 2', description: 'Style transfer', logo: pikaLogo },
   { id: 'kling-2.5', label: 'Kling 2.5', description: 'Video recast', logo: klingLogo },
 ];
 
-const videoAnimateModelOptions = [
+const videoAnimateModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'kling-2.5', label: 'Kling 2.5', description: 'Image-to-video', logo: klingLogo },
   { id: 'wan-2.5', label: 'Wan 2.5', description: 'Animation', logo: wanLogo },
@@ -186,28 +198,28 @@ const videoAnimateModelOptions = [
   { id: 'sora-2-i2v', label: 'Sora 2', description: 'Premium animation', logo: soraLogo },
 ];
 
-const videoDrawModelOptions = [
+const videoDrawModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'pika-2', label: 'Pika 2', description: 'Sketch animation', logo: pikaLogo },
   { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Draw-to-video', logo: runwayLogo },
   { id: 'kling-2.1', label: 'Kling 2.1', description: 'Drawing animation', logo: klingLogo },
 ];
 
-const videoLipSyncModelOptions = [
+const videoLipSyncModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'sync-1.9.1', label: 'Sync 1.9.1', description: 'Precise lip sync', logo: heygenLogo },
   { id: 'wav2lip', label: 'Wav2Lip', description: 'Fast lip sync', logo: autoLogo },
   { id: 'hedra', label: 'Hedra', description: 'Natural sync', logo: hedraLogo },
 ];
 
-const videoMotionSyncModelOptions = [
+const videoMotionSyncModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'kling-motion', label: 'Kling Motion', description: 'Motion transfer', logo: klingLogo },
   { id: 'animate-anyone', label: 'Animate Anyone', description: 'Pose transfer', logo: autoLogo },
   { id: 'move-ai', label: 'Move AI', description: 'Body tracking', logo: autoLogo },
 ];
 
-const videoPodcastModelOptions = [
+const videoPodcastModelOptions: ModelOption[] = [
   { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
   { id: 'notebook-lm', label: 'NotebookLM', description: 'AI podcast hosts', logo: googleLogo },
   { id: 'heygen', label: 'HeyGen', description: 'Avatar podcast', logo: heygenLogo },
@@ -215,62 +227,62 @@ const videoPodcastModelOptions = [
 ];
 
 // Audio model options by subtype
-const audioVoiceoverModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'elevenlabs', label: 'ElevenLabs', description: 'Premium voices' },
-  { id: 'openai-tts', label: 'OpenAI TTS', description: 'Natural voices' },
-  { id: 'google-tts', label: 'Google TTS', description: 'Multi-language' },
+const audioVoiceoverModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'elevenlabs', label: 'ElevenLabs', description: 'Premium voices', logo: elevenlabsLogo },
+  { id: 'openai-tts', label: 'OpenAI TTS', description: 'Natural voices', logo: openaiLogo },
+  { id: 'google-tts', label: 'Google TTS', description: 'Multi-language', logo: googleLogo },
 ];
 
-const audioCloneModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'elevenlabs-clone', label: 'ElevenLabs Clone', description: 'Premium cloning' },
-  { id: 'resemble-ai', label: 'Resemble AI', description: 'Fast cloning' },
-  { id: 'coqui', label: 'Coqui', description: 'Open source' },
+const audioCloneModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'elevenlabs-clone', label: 'ElevenLabs Clone', description: 'Premium cloning', logo: elevenlabsLogo },
+  { id: 'resemble-ai', label: 'Resemble AI', description: 'Fast cloning', logo: autoLogo },
+  { id: 'coqui', label: 'Coqui', description: 'Open source', logo: autoLogo },
 ];
 
-const audioRevoiceModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'kie-ai', label: 'KIE.AI', description: 'Voice conversion' },
-  { id: 'rvc', label: 'RVC', description: 'Real-time voice' },
-  { id: 'so-vits', label: 'So-VITS', description: 'High quality' },
+const audioRevoiceModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'kie-ai', label: 'KIE.AI', description: 'Voice conversion', logo: autoLogo },
+  { id: 'rvc', label: 'RVC', description: 'Real-time voice', logo: autoLogo },
+  { id: 'so-vits', label: 'So-VITS', description: 'High quality', logo: autoLogo },
 ];
 
-const audioSoundEffectsModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'elevenlabs-sfx', label: 'ElevenLabs SFX', description: 'Premium effects' },
-  { id: 'audiogen', label: 'AudioGen', description: 'Diverse sounds' },
-  { id: 'make-an-audio', label: 'Make-An-Audio', description: 'Creative SFX' },
+const audioSoundEffectsModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'elevenlabs-sfx', label: 'ElevenLabs SFX', description: 'Premium effects', logo: elevenlabsLogo },
+  { id: 'audiogen', label: 'AudioGen', description: 'Diverse sounds', logo: autoLogo },
+  { id: 'make-an-audio', label: 'Make-An-Audio', description: 'Creative SFX', logo: autoLogo },
 ];
 
-const audioMusicModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'suno', label: 'Suno', description: 'Full songs' },
-  { id: 'udio', label: 'Udio', description: 'High quality music' },
-  { id: 'musicgen', label: 'MusicGen', description: 'Instrumental' },
+const audioMusicModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'suno', label: 'Suno', description: 'Full songs', logo: sunoLogo },
+  { id: 'udio', label: 'Udio', description: 'High quality music', logo: udioLogo },
+  { id: 'musicgen', label: 'MusicGen', description: 'Instrumental', logo: autoLogo },
 ];
 
-const audioAudiobookModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'elevenlabs', label: 'ElevenLabs', description: 'Premium narration' },
-  { id: 'openai-tts-hd', label: 'OpenAI TTS HD', description: 'Natural reading' },
-  { id: 'amazon-polly', label: 'Amazon Polly', description: 'Reliable narration' },
+const audioAudiobookModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'elevenlabs', label: 'ElevenLabs', description: 'Premium narration', logo: elevenlabsLogo },
+  { id: 'openai-tts-hd', label: 'OpenAI TTS HD', description: 'Natural reading', logo: openaiLogo },
+  { id: 'amazon-polly', label: 'Amazon Polly', description: 'Reliable narration', logo: autoLogo },
 ];
 
 // Design model options
-const designModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'gemini-pro', label: 'Gemini Pro', description: 'Google AI' },
-  { id: 'gpt-4o', label: 'GPT-4o', description: 'OpenAI model' },
-  { id: 'claude-3.5', label: 'Claude 3.5', description: 'Anthropic model' },
+const designModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'gemini-pro', label: 'Gemini Pro', description: 'Google AI', logo: googleLogo },
+  { id: 'gpt-4o', label: 'GPT-4o', description: 'OpenAI model', logo: openaiLogo },
+  { id: 'claude-3.5', label: 'Claude 3.5', description: 'Anthropic model', logo: autoLogo },
 ];
 
 // Document model options
-const documentModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'gemini-pro', label: 'Gemini Pro', description: 'Google AI' },
-  { id: 'gpt-4o', label: 'GPT-4o', description: 'OpenAI model' },
-  { id: 'claude-3.5', label: 'Claude 3.5', description: 'Anthropic model' },
+const documentModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'gemini-pro', label: 'Gemini Pro', description: 'Google AI', logo: googleLogo },
+  { id: 'gpt-4o', label: 'GPT-4o', description: 'OpenAI model', logo: openaiLogo },
+  { id: 'claude-3.5', label: 'Claude 3.5', description: 'Anthropic model', logo: autoLogo },
 ];
 
 // Video type options
@@ -485,7 +497,7 @@ const AIVAPromptBox = ({
   };
 
   // Get model options based on selected option type and subtype
-  const getModelOptions = () => {
+  const getModelOptions = (): ModelOption[] => {
     // Video subtypes
     if (selectedOption?.id === 'video') {
       switch (selectedSubType?.id) {
@@ -741,7 +753,7 @@ const AIVAPromptBox = ({
                     
                     {/* Model Dropdown */}
                     {activeDropdown === 'model' && (
-                      <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px] max-h-[300px] overflow-y-auto">
+                      <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[280px] max-h-[400px] overflow-y-auto">
                         {currentModelOptions.map((model) => (
                           <button
                             key={model.id}
@@ -750,14 +762,43 @@ const AIVAPromptBox = ({
                               setActiveDropdown(null);
                             }}
                             className={cn(
-                              "flex flex-col w-full px-3 py-2 rounded-lg text-sm transition-colors text-left",
+                              "flex items-start gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left",
                               selectedModel === model.id 
                                 ? "bg-emerald-50 text-emerald-700" 
                                 : "hover:bg-slate-50 text-slate-600"
                             )}
                           >
-                            <span className="font-medium">{model.label}</span>
-                            <span className="text-xs text-slate-400">{model.description}</span>
+                            {/* Model Logo */}
+                            {model.logo && (
+                              <img 
+                                src={model.logo} 
+                                alt={model.label} 
+                                className="w-8 h-8 rounded-lg object-cover flex-shrink-0 mt-0.5"
+                              />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium">{model.label}</span>
+                                {/* Badges */}
+                                {model.badge && (
+                                  <span className={cn(
+                                    "px-1.5 py-0.5 text-[10px] font-semibold rounded",
+                                    model.badge === 'SUGGESTED' && "bg-emerald-100 text-emerald-700",
+                                    model.badge === 'PREMIUM' && "bg-amber-100 text-amber-700",
+                                    model.badge === 'NEW' && "bg-blue-100 text-blue-700",
+                                    model.badge === 'ULTRA' && "bg-purple-100 text-purple-700"
+                                  )}>
+                                    {model.badge}
+                                  </span>
+                                )}
+                                {model.supportsImg2Img && (
+                                  <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-slate-100 text-slate-600">
+                                    IMG2IMG
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-xs text-slate-400 block mt-0.5">{model.description}</span>
+                            </div>
                           </button>
                         ))}
                       </div>
