@@ -49,10 +49,48 @@ const videoControlIcons: ControlIcon[] = [
 // Control icons for Document types - minimal controls
 const documentControlIcons: ControlIcon[] = [];
 
-// Model options for dropdown
-const modelOptions = [
-  { id: 'auto', label: 'Auto' },
-  { id: 'gemini-pro', label: 'Gemini Pro' },
+// Model options based on content type
+const imageModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'flux-pro', label: 'Flux Pro', description: 'High quality images' },
+  { id: 'flux-max', label: 'Flux Max', description: 'Maximum quality' },
+  { id: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI image model' },
+  { id: 'seedream-4', label: 'Seedream 4', description: 'Creative styles' },
+  { id: 'seedream-4.5', label: 'Seedream 4.5', description: 'Enhanced creative' },
+  { id: 'ideogram-character', label: 'Ideogram', description: 'Character consistency' },
+];
+
+const videoModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick generation' },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality' },
+  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard mode' },
+  { id: 'sora-2-i2v', label: 'Sora 2', description: 'Image-to-video' },
+  { id: 'kling-2.1', label: 'Kling 2.1', description: 'Supports people' },
+  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Text/image-to-video' },
+  { id: 'kling-2.6', label: 'Kling 2.6', description: 'With sound' },
+  { id: 'wan-2.5', label: 'Wan 2.5', description: 'Image-to-video' },
+  { id: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'High quality' },
+];
+
+const audioModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'elevenlabs', label: 'ElevenLabs', description: 'Premium voices' },
+  { id: 'kie-ai', label: 'KIE.AI', description: 'Fast generation' },
+  { id: 'openai-tts', label: 'OpenAI TTS', description: 'Natural voices' },
+];
+
+const designModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'gemini-pro', label: 'Gemini Pro', description: 'Google AI' },
+  { id: 'gpt-4o', label: 'GPT-4o', description: 'OpenAI model' },
+];
+
+const documentModelOptions = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
+  { id: 'gemini-pro', label: 'Gemini Pro', description: 'Google AI' },
+  { id: 'gpt-4o', label: 'GPT-4o', description: 'OpenAI model' },
+  { id: 'claude-3.5', label: 'Claude 3.5', description: 'Anthropic model' },
 ];
 
 // Video type options
@@ -264,6 +302,18 @@ const AIVAPromptBox = ({
     return imageControlIcons;
   };
 
+  // Get model options based on selected option type
+  const getModelOptions = () => {
+    if (selectedOption?.id === 'video') return videoModelOptions;
+    if (selectedOption?.id === 'image') return imageModelOptions;
+    if (selectedOption?.id === 'audio') return audioModelOptions;
+    if (selectedOption?.id === 'design') return designModelOptions;
+    if (selectedOption?.id === 'document') return documentModelOptions;
+    return imageModelOptions; // default
+  };
+
+  const currentModelOptions = getModelOptions();
+
   // Check if document type is selected (show only Type button initially)
   const isDocumentType = selectedOption?.id === 'document';
 
@@ -462,7 +512,7 @@ const AIVAPromptBox = ({
                           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors cursor-pointer"
                         >
                           <Box size={16} className="text-slate-500" />
-                          <span>{modelOptions.find(m => m.id === selectedModel)?.label || 'Auto'}</span>
+                          <span>{currentModelOptions.find(m => m.id === selectedModel)?.label || 'Auto'}</span>
                           <ChevronDown size={14} className="text-slate-400" />
                         </div>
                       </TooltipTrigger>
@@ -471,8 +521,8 @@ const AIVAPromptBox = ({
                     
                     {/* Model Dropdown */}
                     {activeDropdown === 'model' && (
-                      <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[140px]">
-                        {modelOptions.map((model) => (
+                      <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px] max-h-[300px] overflow-y-auto">
+                        {currentModelOptions.map((model) => (
                           <button
                             key={model.id}
                             onClick={() => {
@@ -480,13 +530,14 @@ const AIVAPromptBox = ({
                               setActiveDropdown(null);
                             }}
                             className={cn(
-                              "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                              "flex flex-col w-full px-3 py-2 rounded-lg text-sm transition-colors text-left",
                               selectedModel === model.id 
-                                ? "bg-slate-100 text-slate-700" 
+                                ? "bg-emerald-50 text-emerald-700" 
                                 : "hover:bg-slate-50 text-slate-600"
                             )}
                           >
-                            {model.label}
+                            <span className="font-medium">{model.label}</span>
+                            <span className="text-xs text-slate-400">{model.description}</span>
                           </button>
                         ))}
                       </div>
