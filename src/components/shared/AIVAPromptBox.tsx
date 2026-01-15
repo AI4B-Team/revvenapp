@@ -174,73 +174,25 @@ const AIVAPromptBox = ({
   const setIntent = onIntentChange || setInternalIntent;
   const [selectedOption, setSelectedOption] = useState<AutoOption | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOption | null>(null);
-  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [selectedModel, setSelectedModel] = useState('auto');
-  const [showModelDropdown, setShowModelDropdown] = useState(false);
-  
-  // Control dropdown states - managed internally
-  const [showRatioDropdown, setShowRatioDropdown] = useState(false);
-  const [showNumberDropdown, setShowNumberDropdown] = useState(false);
-  const [showDurationDropdown, setShowDurationDropdown] = useState(false);
-  const [showQualityDropdown, setShowQualityDropdown] = useState(false);
   const [selectedRatio, setSelectedRatio] = useState('1:1');
   const [selectedNumber, setSelectedNumber] = useState(1);
   const [selectedDuration, setSelectedDuration] = useState('5s');
   const [selectedQuality, setSelectedQuality] = useState('standard');
   
-  // Close all dropdowns helper
-  const closeAllDropdowns = useCallback(() => {
-    setShowModelDropdown(false);
-    setShowRatioDropdown(false);
-    setShowNumberDropdown(false);
-    setShowDurationDropdown(false);
-    setShowQualityDropdown(false);
-    setShowTypeDropdown(false);
+  // Single state for tracking which dropdown is open (only one at a time)
+  type DropdownType = 'type' | 'model' | 'ratio' | 'number' | 'duration' | 'quality' | null;
+  const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
+  
+  // Toggle dropdown - if clicking same one, close it; otherwise open new one
+  const toggleDropdown = useCallback((dropdown: DropdownType) => {
+    setActiveDropdown(prev => prev === dropdown ? null : dropdown);
   }, []);
   
-  // Toggle a specific dropdown (closes others first)
-  const toggleDropdown = useCallback((dropdown: 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'type') => {
-    // Check if this dropdown is currently open
-    const isCurrentlyOpen = 
-      (dropdown === 'model' && showModelDropdown) ||
-      (dropdown === 'ratio' && showRatioDropdown) ||
-      (dropdown === 'number' && showNumberDropdown) ||
-      (dropdown === 'duration' && showDurationDropdown) ||
-      (dropdown === 'quality' && showQualityDropdown) ||
-      (dropdown === 'type' && showTypeDropdown);
-    
-    // Close all dropdowns first
-    setShowModelDropdown(false);
-    setShowRatioDropdown(false);
-    setShowNumberDropdown(false);
-    setShowDurationDropdown(false);
-    setShowQualityDropdown(false);
-    setShowTypeDropdown(false);
-    
-    // If this dropdown wasn't open, open it
-    if (!isCurrentlyOpen) {
-      switch (dropdown) {
-        case 'model':
-          setShowModelDropdown(true);
-          break;
-        case 'ratio':
-          setShowRatioDropdown(true);
-          break;
-        case 'number':
-          setShowNumberDropdown(true);
-          break;
-        case 'duration':
-          setShowDurationDropdown(true);
-          break;
-        case 'quality':
-          setShowQualityDropdown(true);
-          break;
-        case 'type':
-          setShowTypeDropdown(true);
-          break;
-      }
-    }
-  }, [showModelDropdown, showRatioDropdown, showNumberDropdown, showDurationDropdown, showQualityDropdown, showTypeDropdown]);
+  // Close all dropdowns
+  const closeAllDropdowns = useCallback(() => {
+    setActiveDropdown(null);
+  }, []);
 
   // Speech recognition hook
   const handleTranscriptResult = useCallback((transcript: string) => {
@@ -263,7 +215,7 @@ const AIVAPromptBox = ({
   useEffect(() => {
     setSelectedOption(null);
     setSelectedSubType(null);
-    setShowTypeDropdown(false);
+    setActiveDropdown(null);
     onSubTypeChange?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intent]);
@@ -277,13 +229,13 @@ const AIVAPromptBox = ({
   const handleOptionSelect = (option: AutoOption | null) => {
     setSelectedOption(option);
     setSelectedSubType(null);
-    setShowTypeDropdown(false);
+    setActiveDropdown(null);
   };
 
   const handleRemoveOption = () => {
     setSelectedOption(null);
     setSelectedSubType(null);
-    setShowTypeDropdown(false);
+    setActiveDropdown(null);
   };
 
   const handleRemoveSubType = () => {
@@ -292,7 +244,7 @@ const AIVAPromptBox = ({
 
   const handleSubTypeSelect = (subType: SubOption) => {
     setSelectedSubType(subType);
-    setShowTypeDropdown(false);
+    setActiveDropdown(null);
   };
 
   const getSubTypeOptions = (): SubOption[] => {
@@ -518,14 +470,14 @@ const AIVAPromptBox = ({
                     </Tooltip>
                     
                     {/* Model Dropdown */}
-                    {showModelDropdown && (
+                    {activeDropdown === 'model' && (
                       <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[140px]">
                         {modelOptions.map((model) => (
                           <button
                             key={model.id}
                             onClick={() => {
                               setSelectedModel(model.id);
-                              setShowModelDropdown(false);
+                              setActiveDropdown(null);
                             }}
                             className={cn(
                               "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
@@ -562,11 +514,7 @@ const AIVAPromptBox = ({
                           const clickHandler = getControlClickHandler();
                           
                           // Check if this control's dropdown is open
-                          const isActive = 
-                            (control.id === 'ratio' && showRatioDropdown) ||
-                            (control.id === 'number' && showNumberDropdown) ||
-                            (control.id === 'duration' && showDurationDropdown) ||
-                            (control.id === 'quality' && showQualityDropdown);
+                          const isActive = activeDropdown === control.id;
                           
                           return (
                             <Tooltip key={control.id}>
@@ -589,85 +537,85 @@ const AIVAPromptBox = ({
                         })}
                         
                         {/* Dropdowns - rendered inside the relative container */}
-                      {showRatioDropdown && (
-                        <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[100px]">
-                          {ratioOptions.map((ratio) => (
-                            <button
-                              key={ratio}
-                              onClick={() => {
-                                setSelectedRatio(ratio);
-                                setShowRatioDropdown(false);
-                              }}
-                              className={cn(
-                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                selectedRatio === ratio ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
-                              )}
-                            >
-                              {ratio}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {showNumberDropdown && (
-                        <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[80px]">
-                          {numberOptions.map((num) => (
-                            <button
-                              key={num}
-                              onClick={() => {
-                                setSelectedNumber(num);
-                                setShowNumberDropdown(false);
-                              }}
-                              className={cn(
-                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                selectedNumber === num ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
-                              )}
-                            >
-                              {num}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {showDurationDropdown && (
-                        <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[80px]">
-                          {durationOptions.map((dur) => (
-                            <button
-                              key={dur}
-                              onClick={() => {
-                                setSelectedDuration(dur);
-                                setShowDurationDropdown(false);
-                              }}
-                              className={cn(
-                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                selectedDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
-                              )}
-                            >
-                              {dur}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {showQualityDropdown && (
-                        <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[100px]">
-                          {qualityOptions.map((quality) => (
-                            <button
-                              key={quality}
-                              onClick={() => {
-                                setSelectedQuality(quality);
-                                setShowQualityDropdown(false);
-                              }}
-                              className={cn(
-                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left capitalize",
-                                selectedQuality === quality ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
-                              )}
-                            >
-                              {quality}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                        {activeDropdown === 'ratio' && (
+                          <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[100px]">
+                            {ratioOptions.map((ratio) => (
+                              <button
+                                key={ratio}
+                                onClick={() => {
+                                  setSelectedRatio(ratio);
+                                  setActiveDropdown(null);
+                                }}
+                                className={cn(
+                                  "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                  selectedRatio === ratio ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                )}
+                              >
+                                {ratio}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {activeDropdown === 'number' && (
+                          <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[80px]">
+                            {numberOptions.map((num) => (
+                              <button
+                                key={num}
+                                onClick={() => {
+                                  setSelectedNumber(num);
+                                  setActiveDropdown(null);
+                                }}
+                                className={cn(
+                                  "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                  selectedNumber === num ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                )}
+                              >
+                                {num}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {activeDropdown === 'duration' && (
+                          <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[80px]">
+                            {durationOptions.map((dur) => (
+                              <button
+                                key={dur}
+                                onClick={() => {
+                                  setSelectedDuration(dur);
+                                  setActiveDropdown(null);
+                                }}
+                                className={cn(
+                                  "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                  selectedDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                )}
+                              >
+                                {dur}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {activeDropdown === 'quality' && (
+                          <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[100px]">
+                            {qualityOptions.map((quality) => (
+                              <button
+                                key={quality}
+                                onClick={() => {
+                                  setSelectedQuality(quality);
+                                  setActiveDropdown(null);
+                                }}
+                                className={cn(
+                                  "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left capitalize",
+                                  selectedQuality === quality ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                )}
+                              >
+                                {quality}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -765,7 +713,7 @@ const AIVAPromptBox = ({
         </div>
 
         {/* Type Dropdown Panel */}
-        {showTypeDropdown && showSubTypeSelector && (
+        {activeDropdown === 'type' && showSubTypeSelector && (
           <div className="absolute left-0 right-0 top-full mt-3 bg-white border border-slate-200 rounded-2xl shadow-lg p-5 z-50">
             <div className="grid grid-cols-4 gap-x-6 gap-y-3">
               {getSubTypeOptions().map((option) => (
