@@ -137,6 +137,13 @@ interface AIVAPromptBoxProps {
   selectedIntent?: Intent | null;
   onIntentChange?: (intent: Intent | null) => void;
   onSubTypeChange?: (subType: SubOptionType | null) => void;
+  // Control callbacks for opening modals/dropdowns
+  onStyleClick?: () => void;
+  onCharacterClick?: () => void;
+  onRatioClick?: () => void;
+  onNumberClick?: () => void;
+  onDurationClick?: () => void;
+  onQualityClick?: () => void;
 }
 
 const AIVAPromptBox = ({ 
@@ -149,6 +156,12 @@ const AIVAPromptBox = ({
   selectedIntent: externalIntent,
   onIntentChange,
   onSubTypeChange,
+  onStyleClick,
+  onCharacterClick,
+  onRatioClick,
+  onNumberClick,
+  onDurationClick,
+  onQualityClick,
 }: AIVAPromptBoxProps) => {
   const [internalPrompt, setInternalPrompt] = useState('');
   const [internalIntent, setInternalIntent] = useState<Intent | null>(null);
@@ -468,16 +481,35 @@ const AIVAPromptBox = ({
                     <>
                       <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                       <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {getControlIcons().map((control) => (
-                          <Tooltip key={control.id}>
-                            <TooltipTrigger asChild>
-                              <button className="p-2 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors border border-slate-200">
-                                <control.icon size={18} />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>{control.tooltip}</TooltipContent>
-                          </Tooltip>
-                        ))}
+                        {getControlIcons().map((control) => {
+                          // Map control id to callback
+                          const getControlClickHandler = () => {
+                            switch (control.id) {
+                              case 'style': return onStyleClick;
+                              case 'character': return onCharacterClick;
+                              case 'ratio': return onRatioClick;
+                              case 'number': return onNumberClick;
+                              case 'duration': return onDurationClick;
+                              case 'quality': return onQualityClick;
+                              default: return undefined;
+                            }
+                          };
+                          const clickHandler = getControlClickHandler();
+                          
+                          return (
+                            <Tooltip key={control.id}>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={clickHandler}
+                                  className="p-2 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors border border-slate-200"
+                                >
+                                  <control.icon size={18} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>{control.tooltip}</TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
                       </div>
                     </>
                   )}
