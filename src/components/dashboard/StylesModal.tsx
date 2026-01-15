@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Search, Plus } from 'lucide-react';
+import { X, Search, Plus, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Import real style preview images
 import realisticImg from '@/assets/style-icons/realistic.jpg';
@@ -78,6 +79,7 @@ const StylesModal: React.FC<StylesModalProps> = ({
 }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [hoveredStyle, setHoveredStyle] = useState<number | null>(null);
 
   if (!isOpen) return null;
 
@@ -111,124 +113,276 @@ const StylesModal: React.FC<StylesModalProps> = ({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      onClick={handleBackdropClick}
-      onKeyDown={handleKeyDown}
-      tabIndex={-1}
-    >
-      {/* Close Button - Outside Modal */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 p-2 bg-background/80 hover:bg-background rounded-lg transition-colors border border-border z-[10000]"
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+        onClick={handleBackdropClick}
+        onKeyDown={handleKeyDown}
+        tabIndex={-1}
       >
-        <X className="w-5 h-5 text-foreground" />
-      </button>
+        {/* Animated Background Orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{
+              x: [0, 100, 0],
+              y: [0, -50, 0],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-40 -left-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              x: [0, -100, 0],
+              y: [0, 50, 0],
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"
+          />
+        </div>
 
-      <div className="bg-[#1a1f2e] rounded-2xl shadow-2xl w-[95vw] max-w-[1400px] max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold text-white mb-1">Styles</h2>
-            <p className="text-sm text-gray-400">Choose A Style</p>
+        {/* Close Button - Outside Modal */}
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          whileHover={{ scale: 1.1, rotate: 90 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={onClose}
+          className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors border border-white/20 z-[10000] backdrop-blur-sm"
+        >
+          <X className="w-5 h-5 text-white" />
+        </motion.button>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="relative bg-gradient-to-br from-[#1a1f2e]/95 via-[#1e2538]/95 to-[#1a1f2e]/95 rounded-3xl shadow-2xl w-[95vw] max-w-[1400px] max-h-[90vh] flex flex-col border border-white/10 backdrop-blur-xl overflow-hidden"
+        >
+          {/* Shimmer Effect on Border */}
+          <div className="absolute inset-0 rounded-3xl pointer-events-none">
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
           </div>
 
-          {/* Right Side: Search & New Style Button */}
-          <div className="flex items-center gap-3">
-            {/* Search */}
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search Styles"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
-              />
+          {/* Header */}
+          <div className="relative px-8 py-6 border-b border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <motion.div 
+                initial={{ rotate: 0 }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-white/10"
+              >
+                <Sparkles className="w-6 h-6 text-purple-400" />
+              </motion.div>
+              <div>
+                <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                  Style Gallery
+                </h2>
+                <p className="text-sm text-gray-400 mt-0.5">Transform your vision with AI-powered styles</p>
+              </div>
             </div>
 
-            {/* New Style Button */}
-            <button className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-100 text-black rounded-lg transition-colors">
-              <Plus className="w-4 h-4" />
-              <span className="font-medium">New Style</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Category Links */}
-        <div className="px-6 py-4 border-b border-gray-800">
-          <div className="flex items-center gap-1">
-            {styleCategories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`
-                  flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors
-                  ${activeCategory === category
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-white'
-                  }
-                `}
+            {/* Right Side: Search & New Style Button */}
+            <div className="flex items-center gap-4">
+              {/* Search */}
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="relative w-72"
               >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search styles..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300"
+                />
+              </motion.div>
 
-        {/* Styles Grid */}
-        <div className="flex-1 overflow-y-auto p-6 bg-[#1a1f2e]">
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-            {filteredStyles.map((style) => (
-              <button
-                key={style.id}
-                onClick={() => handleStyleClick(style)}
-                className={`
-                  group relative flex flex-col rounded-xl overflow-hidden transition-all
-                  hover:scale-105 hover:shadow-xl bg-gray-800 border-2
-                  ${selectedStyle?.id === style.id
-                    ? 'border-primary ring-2 ring-primary'
-                    : 'border-gray-700 hover:border-gray-600'
-                  }
-                `}
+              {/* New Style Button */}
+              <motion.button 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/25 font-medium"
               >
-                {/* Style Image */}
-                <div className="aspect-square w-full">
-                  <img
-                    src={style.image}
-                    alt={style.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <Plus className="w-4 h-4" />
+                <span>New Style</span>
+              </motion.button>
+            </div>
+          </div>
 
-                {/* Style Name */}
-                <div className="p-3 bg-gray-800">
-                  <p className="text-white font-medium text-sm truncate">
-                    {style.name}
-                  </p>
-                </div>
+          {/* Category Links */}
+          <div className="px-8 py-4 border-b border-white/5">
+            <div className="flex items-center gap-2">
+              {styleCategories.map((category, index) => (
+                <motion.button
+                  key={category}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05 }}
+                  onClick={() => setActiveCategory(category)}
+                  className={`
+                    relative flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-300
+                    ${activeCategory === category
+                      ? 'text-white bg-white/10'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }
+                  `}
+                >
+                  {activeCategory === category && (
+                    <motion.div
+                      layoutId="activeCategory"
+                      className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl border border-purple-500/30"
+                      transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    />
+                  )}
+                  <span className="relative z-10">{category}</span>
+                </motion.button>
+              ))}
+            </div>
+          </div>
 
-                {/* Selected Indicator */}
-                {selectedStyle?.id === style.id && (
-                  <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                    ✓
+          {/* Styles Grid */}
+          <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: 0.03
+                  }
+                }
+              }}
+              className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4"
+            >
+              {filteredStyles.map((style) => (
+                <motion.button
+                  key={style.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 20, scale: 0.9 },
+                    visible: { opacity: 1, y: 0, scale: 1 }
+                  }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleStyleClick(style)}
+                  onMouseEnter={() => setHoveredStyle(style.id)}
+                  onMouseLeave={() => setHoveredStyle(null)}
+                  className={`
+                    group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-300
+                    ${selectedStyle?.id === style.id
+                      ? 'ring-2 ring-purple-500 ring-offset-2 ring-offset-[#1a1f2e]'
+                      : ''
+                    }
+                  `}
+                >
+                  {/* Glow Effect on Hover */}
+                  <AnimatePresence>
+                    {hoveredStyle === style.id && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute -inset-1 bg-gradient-to-r from-purple-500/50 via-blue-500/50 to-purple-500/50 rounded-2xl blur-lg z-0"
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  {/* Card Content */}
+                  <div className="relative z-10 bg-[#1e2538] rounded-2xl overflow-hidden border border-white/10 group-hover:border-white/20 transition-colors">
+                    {/* Style Image */}
+                    <div className="aspect-square w-full overflow-hidden">
+                      <motion.img
+                        src={style.image}
+                        alt={style.name}
+                        className="w-full h-full object-cover"
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.4 }}
+                      />
+                      
+                      {/* Overlay on Hover */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-4"
+                      >
+                        <span className="text-white text-xs font-medium px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm">
+                          Apply Style
+                        </span>
+                      </motion.div>
+                    </div>
+
+                    {/* Style Name */}
+                    <div className="p-3 bg-gradient-to-b from-[#1e2538] to-[#1a1f2e]">
+                      <p className="text-white font-medium text-sm truncate text-center">
+                        {style.name}
+                      </p>
+                    </div>
+
+                    {/* Selected Indicator */}
+                    <AnimatePresence>
+                      {selectedStyle?.id === style.id && (
+                        <motion.div 
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          className="absolute top-3 right-3 w-7 h-7 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg"
+                        >
+                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                )}
-              </button>
-            ))}
+                </motion.button>
+              ))}
+            </motion.div>
+
+            {/* Empty State */}
+            {filteredStyles.length === 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-20 text-gray-400"
+              >
+                <div className="p-4 rounded-full bg-white/5 mb-4">
+                  <Search className="w-10 h-10 opacity-50" />
+                </div>
+                <p className="text-lg font-medium text-white">No styles found</p>
+                <p className="text-sm mt-1 text-gray-500">Try a different search or category</p>
+              </motion.div>
+            )}
           </div>
 
-          {/* Empty State */}
-          {filteredStyles.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-              <Search className="w-12 h-12 mb-4 opacity-50" />
-              <p className="text-lg font-medium">No styles found</p>
-              <p className="text-sm mt-1">Try a different search or category</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+          {/* Footer with Stats */}
+          <div className="px-8 py-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-500">
+            <span>{filteredStyles.length} styles available</span>
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              AI-powered style engine
+            </span>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
