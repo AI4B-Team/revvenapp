@@ -200,28 +200,47 @@ const AIVAPromptBox = ({
   
   // Toggle a specific dropdown (closes others first)
   const toggleDropdown = useCallback((dropdown: 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'type') => {
-    closeAllDropdowns();
-    switch (dropdown) {
-      case 'model':
-        setShowModelDropdown(prev => !prev);
-        break;
-      case 'ratio':
-        setShowRatioDropdown(prev => !prev);
-        break;
-      case 'number':
-        setShowNumberDropdown(prev => !prev);
-        break;
-      case 'duration':
-        setShowDurationDropdown(prev => !prev);
-        break;
-      case 'quality':
-        setShowQualityDropdown(prev => !prev);
-        break;
-      case 'type':
-        setShowTypeDropdown(prev => !prev);
-        break;
+    // Check if this dropdown is currently open
+    const isCurrentlyOpen = 
+      (dropdown === 'model' && showModelDropdown) ||
+      (dropdown === 'ratio' && showRatioDropdown) ||
+      (dropdown === 'number' && showNumberDropdown) ||
+      (dropdown === 'duration' && showDurationDropdown) ||
+      (dropdown === 'quality' && showQualityDropdown) ||
+      (dropdown === 'type' && showTypeDropdown);
+    
+    // Close all dropdowns first
+    setShowModelDropdown(false);
+    setShowRatioDropdown(false);
+    setShowNumberDropdown(false);
+    setShowDurationDropdown(false);
+    setShowQualityDropdown(false);
+    setShowTypeDropdown(false);
+    
+    // If this dropdown wasn't open, open it
+    if (!isCurrentlyOpen) {
+      switch (dropdown) {
+        case 'model':
+          setShowModelDropdown(true);
+          break;
+        case 'ratio':
+          setShowRatioDropdown(true);
+          break;
+        case 'number':
+          setShowNumberDropdown(true);
+          break;
+        case 'duration':
+          setShowDurationDropdown(true);
+          break;
+        case 'quality':
+          setShowQualityDropdown(true);
+          break;
+        case 'type':
+          setShowTypeDropdown(true);
+          break;
+      }
     }
-  }, [closeAllDropdowns]);
+  }, [showModelDropdown, showRatioDropdown, showNumberDropdown, showDurationDropdown, showQualityDropdown, showTypeDropdown]);
 
   // Speech recognition hook
   const handleTranscriptResult = useCallback((transcript: string) => {
