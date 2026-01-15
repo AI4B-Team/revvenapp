@@ -538,7 +538,7 @@ const AIVAPromptBox = ({
                         
                         {/* Dropdowns - rendered inside the relative container */}
                         {activeDropdown === 'ratio' && (
-                          <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[100px]">
+                          <div className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
                             {ratioOptions.map((ratio) => (
                               <button
                                 key={ratio}
@@ -558,7 +558,7 @@ const AIVAPromptBox = ({
                         )}
                         
                         {activeDropdown === 'number' && (
-                          <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[80px]">
+                          <div className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[80px]">
                             {numberOptions.map((num) => (
                               <button
                                 key={num}
@@ -578,7 +578,7 @@ const AIVAPromptBox = ({
                         )}
                         
                         {activeDropdown === 'duration' && (
-                          <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[80px]">
+                          <div className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[80px]">
                             {durationOptions.map((dur) => (
                               <button
                                 key={dur}
@@ -598,7 +598,7 @@ const AIVAPromptBox = ({
                         )}
                         
                         {activeDropdown === 'quality' && (
-                          <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[100px]">
+                          <div className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
                             {qualityOptions.map((quality) => (
                               <button
                                 key={quality}
