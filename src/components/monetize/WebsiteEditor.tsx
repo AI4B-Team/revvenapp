@@ -21,12 +21,24 @@ import {
   Redo,
   Code,
   ExternalLink,
-  Check
+  Sparkles,
+  Wand2,
+  Loader2,
+  Send,
+  Mail,
+  Phone,
+  MapPin,
+  Users,
+  HelpCircle,
+  Briefcase,
+  TrendingUp,
+  Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -36,7 +48,7 @@ import {
 
 interface Section {
   id: string;
-  type: 'hero' | 'features' | 'testimonials' | 'cta' | 'footer' | 'about' | 'pricing' | 'gallery';
+  type: 'hero' | 'features' | 'testimonials' | 'cta' | 'footer' | 'about' | 'pricing' | 'gallery' | 'contact' | 'team' | 'faq' | 'services' | 'stats' | 'newsletter';
   content: Record<string, string>;
 }
 
@@ -124,6 +136,80 @@ const defaultSections: Record<string, Section> = {
     content: {
       title: 'Our Work',
       description: 'Check out some of our amazing projects'
+    }
+  },
+  contact: {
+    id: 'contact-1',
+    type: 'contact',
+    content: {
+      title: 'Contact Us',
+      description: 'Get in touch with our team',
+      email: 'hello@company.com',
+      phone: '+1 (555) 123-4567',
+      address: '123 Business St, City, Country'
+    }
+  },
+  team: {
+    id: 'team-1',
+    type: 'team',
+    content: {
+      title: 'Meet Our Team',
+      member1Name: 'John Smith',
+      member1Role: 'CEO & Founder',
+      member2Name: 'Sarah Johnson',
+      member2Role: 'CTO',
+      member3Name: 'Mike Williams',
+      member3Role: 'Lead Designer'
+    }
+  },
+  faq: {
+    id: 'faq-1',
+    type: 'faq',
+    content: {
+      title: 'Frequently Asked Questions',
+      q1: 'How does it work?',
+      a1: 'Our platform is designed to be intuitive and easy to use.',
+      q2: 'What is the pricing?',
+      a2: 'We offer flexible pricing plans to suit every budget.',
+      q3: 'Do you offer support?',
+      a3: 'Yes, we provide 24/7 customer support.'
+    }
+  },
+  services: {
+    id: 'services-1',
+    type: 'services',
+    content: {
+      title: 'Our Services',
+      service1Title: 'Web Development',
+      service1Desc: 'Custom websites tailored to your needs',
+      service2Title: 'Mobile Apps',
+      service2Desc: 'Native and cross-platform mobile solutions',
+      service3Title: 'Consulting',
+      service3Desc: 'Expert guidance for your digital journey'
+    }
+  },
+  stats: {
+    id: 'stats-1',
+    type: 'stats',
+    content: {
+      title: 'Our Impact',
+      stat1Value: '10K+',
+      stat1Label: 'Happy Customers',
+      stat2Value: '500+',
+      stat2Label: 'Projects Completed',
+      stat3Value: '99%',
+      stat3Label: 'Satisfaction Rate',
+      stat4Value: '24/7',
+      stat4Label: 'Support Available'
+    }
+  },
+  newsletter: {
+    id: 'newsletter-1',
+    type: 'newsletter',
+    content: {
+      title: 'Stay Updated',
+      description: 'Subscribe to our newsletter for the latest updates',
+      buttonText: 'Subscribe'
     }
   },
   footer: {
@@ -243,6 +329,12 @@ const sectionTypes = [
   { type: 'testimonials', label: 'Testimonials', icon: Type },
   { type: 'pricing', label: 'Pricing', icon: Layout },
   { type: 'gallery', label: 'Gallery', icon: Image },
+  { type: 'contact', label: 'Contact', icon: Mail },
+  { type: 'team', label: 'Team', icon: Users },
+  { type: 'faq', label: 'FAQ', icon: HelpCircle },
+  { type: 'services', label: 'Services', icon: Briefcase },
+  { type: 'stats', label: 'Stats', icon: TrendingUp },
+  { type: 'newsletter', label: 'Newsletter', icon: Bell },
   { type: 'cta', label: 'Call to Action', icon: Layout },
   { type: 'footer', label: 'Footer', icon: Layout },
 ];
@@ -251,70 +343,111 @@ const WebsiteEditor = () => {
   const navigate = useNavigate();
   const { templateId } = useParams();
   
-  const initialData = templateConfigs[templateId || 'nova'] || templateConfigs.nova;
+  const initialData = templateId && templateId !== 'new' ? (templateConfigs[templateId] || templateConfigs.nova) : null;
   
-  const [websiteData, setWebsiteData] = useState<WebsiteData>({
-    ...initialData,
-    sections: initialData.sections.map(s => ({ ...s, id: `${s.type}-${Date.now()}-${Math.random()}` }))
-  });
+  const [websiteData, setWebsiteData] = useState<WebsiteData | null>(
+    initialData ? {
+      ...initialData,
+      sections: initialData.sections.map(s => ({ ...s, id: `${s.type}-${Date.now()}-${Math.random()}` }))
+    } : null
+  );
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [activePanel, setActivePanel] = useState<'sections' | 'style' | 'settings'>('sections');
   const [showAddSection, setShowAddSection] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // AI Generation state
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const generateWebsiteFromPrompt = async () => {
+    if (!prompt.trim()) {
+      toast.error('Please enter a description for your website');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-website', {
+        body: { prompt: prompt.trim() }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.website) {
+        setWebsiteData(data.website);
+        toast.success('Website generated successfully!');
+      } else {
+        throw new Error('No website data received');
+      }
+    } catch (error: any) {
+      console.error('Error generating website:', error);
+      toast.error(error.message || 'Failed to generate website. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const updateSectionContent = (sectionId: string, field: string, value: string) => {
-    setWebsiteData(prev => ({
+    if (!websiteData) return;
+    setWebsiteData(prev => prev ? ({
       ...prev,
       sections: prev.sections.map(s => 
         s.id === sectionId 
           ? { ...s, content: { ...s.content, [field]: value } }
           : s
       )
-    }));
+    }) : null);
   };
 
   const addSection = (type: Section['type']) => {
+    if (!websiteData) return;
     const newSection: Section = {
       ...defaultSections[type],
       id: `${type}-${Date.now()}`
     };
-    setWebsiteData(prev => ({
+    setWebsiteData(prev => prev ? ({
       ...prev,
       sections: [...prev.sections.slice(0, -1), newSection, prev.sections[prev.sections.length - 1]]
-    }));
+    }) : null);
     setShowAddSection(false);
     toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} section added`);
   };
 
   const removeSection = (sectionId: string) => {
-    setWebsiteData(prev => ({
+    if (!websiteData) return;
+    setWebsiteData(prev => prev ? ({
       ...prev,
       sections: prev.sections.filter(s => s.id !== sectionId)
-    }));
+    }) : null);
     setSelectedSection(null);
     toast.success('Section removed');
   };
 
   const duplicateSection = (sectionId: string) => {
+    if (!websiteData) return;
     const section = websiteData.sections.find(s => s.id === sectionId);
     if (section) {
       const newSection = { ...section, id: `${section.type}-${Date.now()}` };
       const index = websiteData.sections.findIndex(s => s.id === sectionId);
-      setWebsiteData(prev => ({
+      setWebsiteData(prev => prev ? ({
         ...prev,
         sections: [
           ...prev.sections.slice(0, index + 1),
           newSection,
           ...prev.sections.slice(index + 1)
         ]
-      }));
+      }) : null);
       toast.success('Section duplicated');
     }
   };
 
   const moveSection = (sectionId: string, direction: 'up' | 'down') => {
+    if (!websiteData) return;
     const index = websiteData.sections.findIndex(s => s.id === sectionId);
     if (
       (direction === 'up' && index === 0) || 
@@ -324,7 +457,7 @@ const WebsiteEditor = () => {
     const newSections = [...websiteData.sections];
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
-    setWebsiteData(prev => ({ ...prev, sections: newSections }));
+    setWebsiteData(prev => prev ? ({ ...prev, sections: newSections }) : null);
   };
 
   const handleSave = async () => {
@@ -335,6 +468,7 @@ const WebsiteEditor = () => {
   };
 
   const generateHTML = () => {
+    if (!websiteData) return '';
     const { name, primaryColor, secondaryColor, fontFamily, sections } = websiteData;
     
     const sectionsHTML = sections.map(section => {
@@ -430,6 +564,122 @@ const WebsiteEditor = () => {
         <div style="background: linear-gradient(135deg, ${primaryColor}20, ${secondaryColor}20); height: 200px; border-radius: 12px;"></div>
       </div>
     </section>`;
+        case 'contact':
+          return `
+    <section class="contact" style="padding: 80px 20px; background: #f8fafc;">
+      <h2 style="text-align: center; font-size: 2rem; margin-bottom: 20px;">${section.content.title}</h2>
+      <p style="text-align: center; color: #64748b; margin-bottom: 40px;">${section.content.description}</p>
+      <div style="max-width: 600px; margin: 0 auto; display: grid; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 15px; background: white; padding: 20px; border-radius: 12px;">
+          <span style="color: ${primaryColor};">📧</span>
+          <span>${section.content.email}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px; background: white; padding: 20px; border-radius: 12px;">
+          <span style="color: ${primaryColor};">📞</span>
+          <span>${section.content.phone}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px; background: white; padding: 20px; border-radius: 12px;">
+          <span style="color: ${primaryColor};">📍</span>
+          <span>${section.content.address}</span>
+        </div>
+      </div>
+    </section>`;
+        case 'team':
+          return `
+    <section class="team" style="padding: 80px 20px; background: white;">
+      <h2 style="text-align: center; font-size: 2rem; margin-bottom: 50px;">${section.content.title}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto;">
+        <div style="text-align: center;">
+          <div style="width: 100px; height: 100px; background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}); border-radius: 50%; margin: 0 auto 15px;"></div>
+          <h3 style="color: ${primaryColor};">${section.content.member1Name}</h3>
+          <p style="color: #64748b;">${section.content.member1Role}</p>
+        </div>
+        <div style="text-align: center;">
+          <div style="width: 100px; height: 100px; background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}); border-radius: 50%; margin: 0 auto 15px;"></div>
+          <h3 style="color: ${primaryColor};">${section.content.member2Name}</h3>
+          <p style="color: #64748b;">${section.content.member2Role}</p>
+        </div>
+        <div style="text-align: center;">
+          <div style="width: 100px; height: 100px; background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}); border-radius: 50%; margin: 0 auto 15px;"></div>
+          <h3 style="color: ${primaryColor};">${section.content.member3Name}</h3>
+          <p style="color: #64748b;">${section.content.member3Role}</p>
+        </div>
+      </div>
+    </section>`;
+        case 'faq':
+          return `
+    <section class="faq" style="padding: 80px 20px; background: #f8fafc;">
+      <h2 style="text-align: center; font-size: 2rem; margin-bottom: 50px;">${section.content.title}</h2>
+      <div style="max-width: 800px; margin: 0 auto; display: grid; gap: 20px;">
+        <div style="background: white; padding: 25px; border-radius: 12px; border-left: 4px solid ${primaryColor};">
+          <h4 style="color: ${primaryColor}; margin-bottom: 10px;">${section.content.q1}</h4>
+          <p style="color: #64748b;">${section.content.a1}</p>
+        </div>
+        <div style="background: white; padding: 25px; border-radius: 12px; border-left: 4px solid ${primaryColor};">
+          <h4 style="color: ${primaryColor}; margin-bottom: 10px;">${section.content.q2}</h4>
+          <p style="color: #64748b;">${section.content.a2}</p>
+        </div>
+        <div style="background: white; padding: 25px; border-radius: 12px; border-left: 4px solid ${primaryColor};">
+          <h4 style="color: ${primaryColor}; margin-bottom: 10px;">${section.content.q3}</h4>
+          <p style="color: #64748b;">${section.content.a3}</p>
+        </div>
+      </div>
+    </section>`;
+        case 'services':
+          return `
+    <section class="services" style="padding: 80px 20px; background: white;">
+      <h2 style="text-align: center; font-size: 2rem; margin-bottom: 50px;">${section.content.title}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto;">
+        <div style="background: #f8fafc; padding: 30px; border-radius: 12px; text-align: center;">
+          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}); border-radius: 12px; margin: 0 auto 20px;"></div>
+          <h3 style="color: ${primaryColor}; margin-bottom: 10px;">${section.content.service1Title}</h3>
+          <p style="color: #64748b;">${section.content.service1Desc}</p>
+        </div>
+        <div style="background: #f8fafc; padding: 30px; border-radius: 12px; text-align: center;">
+          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}); border-radius: 12px; margin: 0 auto 20px;"></div>
+          <h3 style="color: ${primaryColor}; margin-bottom: 10px;">${section.content.service2Title}</h3>
+          <p style="color: #64748b;">${section.content.service2Desc}</p>
+        </div>
+        <div style="background: #f8fafc; padding: 30px; border-radius: 12px; text-align: center;">
+          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}); border-radius: 12px; margin: 0 auto 20px;"></div>
+          <h3 style="color: ${primaryColor}; margin-bottom: 10px;">${section.content.service3Title}</h3>
+          <p style="color: #64748b;">${section.content.service3Desc}</p>
+        </div>
+      </div>
+    </section>`;
+        case 'stats':
+          return `
+    <section class="stats" style="padding: 80px 20px; background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}); color: white;">
+      <h2 style="text-align: center; font-size: 2rem; margin-bottom: 50px;">${section.content.title}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto; text-align: center;">
+        <div>
+          <p style="font-size: 3rem; font-weight: bold;">${section.content.stat1Value}</p>
+          <p style="opacity: 0.9;">${section.content.stat1Label}</p>
+        </div>
+        <div>
+          <p style="font-size: 3rem; font-weight: bold;">${section.content.stat2Value}</p>
+          <p style="opacity: 0.9;">${section.content.stat2Label}</p>
+        </div>
+        <div>
+          <p style="font-size: 3rem; font-weight: bold;">${section.content.stat3Value}</p>
+          <p style="opacity: 0.9;">${section.content.stat3Label}</p>
+        </div>
+        <div>
+          <p style="font-size: 3rem; font-weight: bold;">${section.content.stat4Value}</p>
+          <p style="opacity: 0.9;">${section.content.stat4Label}</p>
+        </div>
+      </div>
+    </section>`;
+        case 'newsletter':
+          return `
+    <section class="newsletter" style="padding: 80px 20px; background: #f8fafc; text-align: center;">
+      <h2 style="font-size: 2rem; margin-bottom: 20px;">${section.content.title}</h2>
+      <p style="color: #64748b; margin-bottom: 30px;">${section.content.description}</p>
+      <div style="max-width: 500px; margin: 0 auto; display: flex; gap: 10px;">
+        <input type="email" placeholder="Enter your email" style="flex: 1; padding: 15px 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+        <button style="background: ${primaryColor}; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">${section.content.buttonText}</button>
+      </div>
+    </section>`;
         case 'footer':
           return `
     <footer style="background: #1e293b; color: white; padding: 60px 20px; text-align: center;">
@@ -463,6 +713,7 @@ ${sectionsHTML}
   };
 
   const handleDownload = () => {
+    if (!websiteData) return;
     const html = generateHTML();
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -492,7 +743,91 @@ ${sectionsHTML}
     }
   };
 
-  const selectedSectionData = websiteData.sections.find(s => s.id === selectedSection);
+  const selectedSectionData = websiteData?.sections.find(s => s.id === selectedSection);
+
+  // Show AI prompt interface if no website data
+  if (!websiteData) {
+    return (
+      <div className="flex h-screen bg-background">
+        <div className="flex-1 flex flex-col items-center justify-center p-8">
+          <div className="max-w-2xl w-full space-y-8">
+            {/* Header */}
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+                <Sparkles className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-4xl font-bold">AI Website Builder</h1>
+              <p className="text-xl text-muted-foreground">
+                Describe your website and let AI create it for you in seconds
+              </p>
+            </div>
+
+            {/* Prompt Input */}
+            <div className="space-y-4">
+              <div className="relative">
+                <Textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Example: A modern SaaS landing page for a project management tool with pricing, features, testimonials, and a newsletter signup..."
+                  className="min-h-[150px] pr-4 text-lg resize-none"
+                  disabled={isGenerating}
+                />
+              </div>
+              
+              <Button 
+                onClick={generateWebsiteFromPrompt}
+                disabled={isGenerating || !prompt.trim()}
+                className="w-full h-14 text-lg gap-3"
+                size="lg"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Generating your website...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="w-5 h-5" />
+                    Generate Website
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Example Prompts */}
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground text-center">Try these examples:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {[
+                  "A fitness gym website with class schedules, trainers, and membership pricing",
+                  "A restaurant website with menu, about us, and reservation info",
+                  "A tech startup landing page with product features and team section",
+                  "A photography portfolio with gallery, about, and contact form"
+                ].map((example, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setPrompt(example)}
+                    className="p-3 text-sm text-left border rounded-lg hover:bg-muted transition-colors"
+                    disabled={isGenerating}
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Or use template */}
+            <div className="text-center">
+              <Button variant="outline" onClick={() => navigate('/websites')}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Or choose a template
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-background">
@@ -506,6 +841,18 @@ ${sectionsHTML}
           </Button>
           <h2 className="font-semibold text-lg">{websiteData.name}</h2>
           <p className="text-sm text-muted-foreground">{websiteData.description}</p>
+        </div>
+
+        {/* Regenerate with AI */}
+        <div className="p-4 border-b border-border">
+          <Button 
+            variant="outline" 
+            className="w-full gap-2"
+            onClick={() => setWebsiteData(null)}
+          >
+            <Sparkles size={16} />
+            Generate New with AI
+          </Button>
         </div>
 
         {/* Panel Tabs */}
@@ -588,12 +935,12 @@ ${sectionsHTML}
                   <input
                     type="color"
                     value={websiteData.primaryColor}
-                    onChange={(e) => setWebsiteData(prev => ({ ...prev, primaryColor: e.target.value }))}
+                    onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, primaryColor: e.target.value }) : null)}
                     className="w-10 h-10 rounded border cursor-pointer"
                   />
                   <Input
                     value={websiteData.primaryColor}
-                    onChange={(e) => setWebsiteData(prev => ({ ...prev, primaryColor: e.target.value }))}
+                    onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, primaryColor: e.target.value }) : null)}
                     className="flex-1"
                   />
                 </div>
@@ -604,12 +951,12 @@ ${sectionsHTML}
                   <input
                     type="color"
                     value={websiteData.secondaryColor}
-                    onChange={(e) => setWebsiteData(prev => ({ ...prev, secondaryColor: e.target.value }))}
+                    onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, secondaryColor: e.target.value }) : null)}
                     className="w-10 h-10 rounded border cursor-pointer"
                   />
                   <Input
                     value={websiteData.secondaryColor}
-                    onChange={(e) => setWebsiteData(prev => ({ ...prev, secondaryColor: e.target.value }))}
+                    onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, secondaryColor: e.target.value }) : null)}
                     className="flex-1"
                   />
                 </div>
@@ -618,7 +965,7 @@ ${sectionsHTML}
                 <label className="text-sm font-medium mb-2 block">Font Family</label>
                 <select
                   value={websiteData.fontFamily}
-                  onChange={(e) => setWebsiteData(prev => ({ ...prev, fontFamily: e.target.value }))}
+                  onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, fontFamily: e.target.value }) : null)}
                   className="w-full p-2 border rounded-lg bg-background"
                 >
                   <option value="Inter">Inter</option>
@@ -629,6 +976,8 @@ ${sectionsHTML}
                   <option value="Lato">Lato</option>
                   <option value="Nunito">Nunito</option>
                   <option value="Lora">Lora</option>
+                  <option value="Open Sans">Open Sans</option>
+                  <option value="Raleway">Raleway</option>
                 </select>
               </div>
             </div>
@@ -640,14 +989,14 @@ ${sectionsHTML}
                 <label className="text-sm font-medium mb-2 block">Website Name</label>
                 <Input
                   value={websiteData.name}
-                  onChange={(e) => setWebsiteData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, name: e.target.value }) : null)}
                 />
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Description</label>
                 <Textarea
                   value={websiteData.description}
-                  onChange={(e) => setWebsiteData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, description: e.target.value }) : null)}
                   rows={3}
                 />
               </div>
@@ -827,6 +1176,120 @@ ${sectionsHTML}
                   </div>
                 )}
 
+                {section.type === 'contact' && (
+                  <div className="p-12 bg-slate-50">
+                    <h2 className="text-2xl font-bold text-center mb-4">{section.content.title}</h2>
+                    <p className="text-center text-slate-600 mb-8">{section.content.description}</p>
+                    <div className="max-w-md mx-auto space-y-4">
+                      <div className="flex items-center gap-3 bg-white p-4 rounded-xl">
+                        <Mail size={20} style={{ color: websiteData.primaryColor }} />
+                        <span>{section.content.email}</span>
+                      </div>
+                      <div className="flex items-center gap-3 bg-white p-4 rounded-xl">
+                        <Phone size={20} style={{ color: websiteData.primaryColor }} />
+                        <span>{section.content.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-3 bg-white p-4 rounded-xl">
+                        <MapPin size={20} style={{ color: websiteData.primaryColor }} />
+                        <span>{section.content.address}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {section.type === 'team' && (
+                  <div className="p-12 bg-white">
+                    <h2 className="text-2xl font-bold text-center mb-8">{section.content.title}</h2>
+                    <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto">
+                      {['member1', 'member2', 'member3'].map((member, i) => (
+                        <div key={i} className="text-center">
+                          <div 
+                            className="w-24 h-24 rounded-full mx-auto mb-4"
+                            style={{ background: `linear-gradient(135deg, ${websiteData.primaryColor}, ${websiteData.secondaryColor})` }}
+                          />
+                          <h3 className="font-semibold" style={{ color: websiteData.primaryColor }}>
+                            {section.content[`${member}Name`]}
+                          </h3>
+                          <p className="text-sm text-slate-600">{section.content[`${member}Role`]}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {section.type === 'faq' && (
+                  <div className="p-12 bg-slate-50">
+                    <h2 className="text-2xl font-bold text-center mb-8">{section.content.title}</h2>
+                    <div className="max-w-2xl mx-auto space-y-4">
+                      {['1', '2', '3'].map(num => (
+                        <div key={num} className="bg-white p-6 rounded-xl" style={{ borderLeft: `4px solid ${websiteData.primaryColor}` }}>
+                          <h4 className="font-semibold mb-2" style={{ color: websiteData.primaryColor }}>
+                            {section.content[`q${num}`]}
+                          </h4>
+                          <p className="text-slate-600">{section.content[`a${num}`]}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {section.type === 'services' && (
+                  <div className="p-12 bg-white">
+                    <h2 className="text-2xl font-bold text-center mb-8">{section.content.title}</h2>
+                    <div className="grid grid-cols-3 gap-6 max-w-4xl mx-auto">
+                      {['1', '2', '3'].map(num => (
+                        <div key={num} className="bg-slate-50 p-6 rounded-xl text-center">
+                          <div 
+                            className="w-14 h-14 rounded-xl mx-auto mb-4"
+                            style={{ background: `linear-gradient(135deg, ${websiteData.primaryColor}, ${websiteData.secondaryColor})` }}
+                          />
+                          <h3 className="font-semibold mb-2" style={{ color: websiteData.primaryColor }}>
+                            {section.content[`service${num}Title`]}
+                          </h3>
+                          <p className="text-sm text-slate-600">{section.content[`service${num}Desc`]}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {section.type === 'stats' && (
+                  <div 
+                    className="p-12 text-center text-white"
+                    style={{ background: `linear-gradient(135deg, ${websiteData.primaryColor}, ${websiteData.secondaryColor})` }}
+                  >
+                    <h2 className="text-2xl font-bold mb-8">{section.content.title}</h2>
+                    <div className="grid grid-cols-4 gap-6 max-w-3xl mx-auto">
+                      {['1', '2', '3', '4'].map(num => (
+                        <div key={num}>
+                          <p className="text-4xl font-bold">{section.content[`stat${num}Value`]}</p>
+                          <p className="text-sm opacity-90">{section.content[`stat${num}Label`]}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {section.type === 'newsletter' && (
+                  <div className="p-12 bg-slate-50 text-center">
+                    <h2 className="text-2xl font-bold mb-4">{section.content.title}</h2>
+                    <p className="text-slate-600 mb-6">{section.content.description}</p>
+                    <div className="flex gap-2 max-w-md mx-auto">
+                      <input 
+                        type="email" 
+                        placeholder="Enter your email"
+                        className="flex-1 px-4 py-3 border rounded-lg"
+                      />
+                      <button 
+                        className="px-6 py-3 rounded-lg font-semibold text-white"
+                        style={{ background: websiteData.primaryColor }}
+                      >
+                        {section.content.buttonText}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {section.type === 'footer' && (
                   <div className="p-12 bg-slate-800 text-white text-center">
                     <h3 className="text-xl font-semibold mb-2">{section.content.companyName}</h3>
@@ -859,7 +1322,7 @@ ${sectionsHTML}
             {Object.entries(selectedSectionData.content).map(([key, value]) => (
               <div key={key}>
                 <label className="text-sm font-medium mb-2 block capitalize">
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                  {key.replace(/([A-Z])/g, ' $1').replace(/(\d+)/g, ' $1').trim()}
                 </label>
                 {value.length > 50 ? (
                   <Textarea
@@ -881,11 +1344,11 @@ ${sectionsHTML}
 
       {/* Add Section Modal */}
       <Dialog open={showAddSection} onOpenChange={setShowAddSection}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add Section</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="grid grid-cols-3 gap-3 mt-4">
             {sectionTypes.map(({ type, label, icon: Icon }) => (
               <button
                 key={type}
