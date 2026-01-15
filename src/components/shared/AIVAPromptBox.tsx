@@ -79,24 +79,19 @@ const imageBatchModelOptions = [
 ];
 
 const imageDrawModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'flux-canny', label: 'Flux Canny', description: 'Edge detection' },
-  { id: 'flux-depth', label: 'Flux Depth', description: 'Depth-aware' },
-  { id: 'controlnet', label: 'ControlNet', description: 'Precise control' },
+  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true },
+  { id: 'seedream-4.5', label: 'Seedream 4.5', description: 'ByteDance\'s 4K edit model (up to 12 refs)', badge: 'NEW', supportsImg2Img: true },
+  { id: 'nano-banana', label: 'Nano Banana', description: 'Gemini 2.5 Flash Image Preview', supportsImg2Img: true },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsDraw: true },
 ];
 
 const imageSwapModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'faceswap-pro', label: 'FaceSwap Pro', description: 'High quality swap' },
-  { id: 'roop', label: 'Roop', description: 'Fast face swap' },
-  { id: 'insightface', label: 'InsightFace', description: 'Natural results' },
+  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true, supportsSwap: true },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsSwap: true },
 ];
 
 const imagePhotoshootModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'ideogram-character', label: 'Ideogram', description: 'Character consistency' },
-  { id: 'flux-pulid', label: 'Flux PuLID', description: 'Identity preservation' },
-  { id: 'photomaker', label: 'PhotoMaker', description: 'Realistic photos' },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsPhoto: true },
 ];
 
 // Video model options by subtype
