@@ -545,7 +545,7 @@ const AIVAPromptBox = ({
                   {selectedOption?.id !== 'document' && getControlIcons().length > 0 && (
                     <>
                       <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <div className="relative flex items-center gap-1.5 flex-shrink-0">
                         {getControlIcons().map((control) => {
                           // Map control id to callback - use internal handlers for dropdowns
                           const getControlClickHandler = () => {
@@ -569,110 +569,105 @@ const AIVAPromptBox = ({
                             (control.id === 'quality' && showQualityDropdown);
                           
                           return (
-                            <div key={control.id} className="relative">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <button 
-                                    onClick={clickHandler}
-                                    className={cn(
-                                      "p-2 rounded-xl transition-colors border",
-                                      isActive 
-                                        ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                        : "bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 border-slate-200"
-                                    )}
-                                  >
-                                    <control.icon size={18} />
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent>{control.tooltip}</TooltipContent>
-                              </Tooltip>
-                              
-                              {/* Ratio Dropdown */}
-                              {control.id === 'ratio' && showRatioDropdown && (
-                                <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[100px]">
-                                  {ratioOptions.map((ratio) => (
-                                    <button
-                                      key={ratio}
-                                      onClick={() => {
-                                        setSelectedRatio(ratio);
-                                        setShowRatioDropdown(false);
-                                      }}
-                                      className={cn(
-                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                        selectedRatio === ratio ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
-                                      )}
-                                    >
-                                      {ratio}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                              
-                              {/* Number Dropdown */}
-                              {control.id === 'number' && showNumberDropdown && (
-                                <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[80px]">
-                                  {numberOptions.map((num) => (
-                                    <button
-                                      key={num}
-                                      onClick={() => {
-                                        setSelectedNumber(num);
-                                        setShowNumberDropdown(false);
-                                      }}
-                                      className={cn(
-                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                        selectedNumber === num ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
-                                      )}
-                                    >
-                                      {num}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                              
-                              {/* Duration Dropdown */}
-                              {control.id === 'duration' && showDurationDropdown && (
-                                <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[80px]">
-                                  {durationOptions.map((dur) => (
-                                    <button
-                                      key={dur}
-                                      onClick={() => {
-                                        setSelectedDuration(dur);
-                                        setShowDurationDropdown(false);
-                                      }}
-                                      className={cn(
-                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                        selectedDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
-                                      )}
-                                    >
-                                      {dur}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                              
-                              {/* Quality Dropdown */}
-                              {control.id === 'quality' && showQualityDropdown && (
-                                <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[100px]">
-                                  {qualityOptions.map((quality) => (
-                                    <button
-                                      key={quality}
-                                      onClick={() => {
-                                        setSelectedQuality(quality);
-                                        setShowQualityDropdown(false);
-                                      }}
-                                      className={cn(
-                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left capitalize",
-                                        selectedQuality === quality ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
-                                      )}
-                                    >
-                                      {quality}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                            <Tooltip key={control.id}>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={clickHandler}
+                                  className={cn(
+                                    "p-2 rounded-xl transition-colors border",
+                                    isActive 
+                                      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                      : "bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 border-slate-200"
+                                  )}
+                                >
+                                  <control.icon size={18} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>{control.tooltip}</TooltipContent>
+                            </Tooltip>
                           );
                         })}
+                        
+                        {/* Dropdowns - rendered inside the relative container */}
+                      {showRatioDropdown && (
+                        <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[100px]">
+                          {ratioOptions.map((ratio) => (
+                            <button
+                              key={ratio}
+                              onClick={() => {
+                                setSelectedRatio(ratio);
+                                setShowRatioDropdown(false);
+                              }}
+                              className={cn(
+                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                selectedRatio === ratio ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                              )}
+                            >
+                              {ratio}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {showNumberDropdown && (
+                        <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[80px]">
+                          {numberOptions.map((num) => (
+                            <button
+                              key={num}
+                              onClick={() => {
+                                setSelectedNumber(num);
+                                setShowNumberDropdown(false);
+                              }}
+                              className={cn(
+                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                selectedNumber === num ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                              )}
+                            >
+                              {num}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {showDurationDropdown && (
+                        <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[80px]">
+                          {durationOptions.map((dur) => (
+                            <button
+                              key={dur}
+                              onClick={() => {
+                                setSelectedDuration(dur);
+                                setShowDurationDropdown(false);
+                              }}
+                              className={cn(
+                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                selectedDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                              )}
+                            >
+                              {dur}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {showQualityDropdown && (
+                        <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100] min-w-[100px]">
+                          {qualityOptions.map((quality) => (
+                            <button
+                              key={quality}
+                              onClick={() => {
+                                setSelectedQuality(quality);
+                                setShowQualityDropdown(false);
+                              }}
+                              className={cn(
+                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left capitalize",
+                                selectedQuality === quality ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                              )}
+                            >
+                              {quality}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       </div>
                     </>
                   )}
