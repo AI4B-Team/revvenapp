@@ -307,7 +307,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                   onClick={() => isCollapsed && setIsCollapsed(false)}
                   className={`flex-shrink-0 ${isCollapsed ? 'mx-auto cursor-pointer hover:opacity-80' : ''} transition`}
                 >
-                  <RevvenLogo size="lg" showUnderline={!isCollapsed} />
+                  <RevvenLogo size="lg" />
                 </button>
               </TooltipTrigger>
               {isCollapsed && (
