@@ -6,6 +6,7 @@ import IntentSelector, { type Intent } from '@/components/IntentSelector';
 import AutoDropdown, { type AutoOption } from '@/components/AutoDropdown';
 import ControlChip from '@/components/ControlChip';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { cn } from '@/lib/utils';
 import AudioSelectModal from '@/components/dashboard/AudioSelectModal';
@@ -459,6 +460,7 @@ const AIVAPromptBox = ({
   const [musicVocal, setMusicVocal] = useState('Instrumental');
   const [musicGender, setMusicGender] = useState<string | null>(null);
   const [showLyrics, setShowLyrics] = useState(false);
+  const [musicLyrics, setMusicLyrics] = useState('');
   const [customMode, setCustomMode] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<number>(0);
   const [clonedVoices, setClonedVoices] = useState<number>(0);
@@ -1485,19 +1487,47 @@ const AIVAPromptBox = ({
                                 👨
                                 <span>Male</span>
                               </button>
-                              <button 
-                                onClick={() => setShowLyrics(!showLyrics)}
-                                className={cn(
-                                  "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
-                                  showLyrics
-                                    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
-                                )}
-                              >
-                                <FileText size={16} />
-                                <span>Add Lyrics</span>
-                                <ChevronDown size={14} />
-                              </button>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button 
+                                    className={cn(
+                                      "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                      musicLyrics
+                                        ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                        : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                    )}
+                                  >
+                                    <FileText size={16} />
+                                    <span>{musicLyrics ? 'Lyrics ✓' : 'Add Lyrics'}</span>
+                                    <ChevronDown size={14} />
+                                  </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-96 bg-white border-slate-200 z-[9999] p-3" data-dropdown>
+                                  <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                      <p className="text-xs text-slate-500">Enter your song lyrics (max 5000 characters)</p>
+                                    </div>
+                                    <textarea
+                                      value={musicLyrics}
+                                      onChange={(e) => setMusicLyrics(e.target.value)}
+                                      placeholder="Write your lyrics here..."
+                                      className="w-full px-3 py-2 text-sm bg-slate-50 rounded-lg border border-slate-200 outline-none resize-none min-h-[200px] focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300"
+                                      maxLength={5000}
+                                    />
+                                    <div className="flex justify-between items-center">
+                                      <p className="text-xs text-slate-400">{musicLyrics.length}/5000</p>
+                                      {musicLyrics && (
+                                        <button
+                                          onClick={() => setMusicLyrics('')}
+                                          className="text-xs text-red-400 hover:text-red-500"
+                                        >
+                                          Clear
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                             </>
                           )}
                           <button 
