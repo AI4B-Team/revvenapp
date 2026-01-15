@@ -556,9 +556,12 @@ const AIVAPromptBox = ({
     }
   }, [externalMode, intent, setIntent]);
 
-  // Handle external subType changes
+  // Track if we've applied the initial external subType
+  const appliedExternalSubTypeRef = useRef<string | null>(null);
+
+  // Handle external subType changes - only apply once on initial set
   useEffect(() => {
-    if (externalSubType && selectedOption) {
+    if (externalSubType && selectedOption && appliedExternalSubTypeRef.current !== externalSubType) {
       // Get the appropriate subType options based on selected option
       let subTypeOptions: SubOption[] = [];
       if (selectedOption.id === 'video') subTypeOptions = videoTypes;
@@ -572,9 +575,15 @@ const AIVAPromptBox = ({
       if (subType) {
         setSelectedSubType(subType);
         onSubTypeChange?.(subType);
+        appliedExternalSubTypeRef.current = externalSubType;
       }
     }
   }, [externalSubType, selectedOption, onSubTypeChange]);
+
+  // Reset applied ref when mode changes
+  useEffect(() => {
+    appliedExternalSubTypeRef.current = null;
+  }, [externalMode]);
 
   // Handle external model changes
   useEffect(() => {
