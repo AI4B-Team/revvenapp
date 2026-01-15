@@ -361,6 +361,7 @@ const contentTypes: SubOption[] = [
   { id: 'social', label: 'Social', icon: LayoutTemplate, color: 'text-blue-500' },
   { id: 'newsletter', label: 'Newsletter', icon: Mail, color: 'text-purple-500' },
   { id: 'blog', label: 'Blog', icon: FileText, color: 'text-amber-500' },
+  { id: 'thread', label: 'Thread', icon: Hash, color: 'text-sky-500' },
 ];
 
 // Document type options
