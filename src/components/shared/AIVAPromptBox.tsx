@@ -516,19 +516,36 @@ const AIVAPromptBox = ({
                           // Check if this control's dropdown is open
                           const isActive = activeDropdown === control.id;
                           
+                          // Get selected value label for display
+                          const getSelectedLabel = () => {
+                            switch (control.id) {
+                              case 'ratio': return selectedRatio;
+                              case 'number': return selectedNumber.toString();
+                              case 'duration': return selectedDuration;
+                              case 'quality': return selectedQuality.charAt(0).toUpperCase() + selectedQuality.slice(1);
+                              default: return null;
+                            }
+                          };
+                          const selectedLabel = getSelectedLabel();
+                          const hasSelection = selectedLabel && ['ratio', 'number', 'duration', 'quality'].includes(control.id);
+                          
                           return (
                             <Tooltip key={control.id}>
                               <TooltipTrigger asChild>
                                 <button 
                                   onClick={clickHandler}
                                   className={cn(
-                                    "p-2 rounded-xl transition-colors border",
+                                    "flex items-center gap-1.5 rounded-xl transition-colors border",
+                                    hasSelection ? "px-3 py-2" : "p-2",
                                     isActive 
                                       ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                      : "bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 border-slate-200"
+                                      : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-600 border-slate-200"
                                   )}
                                 >
                                   <control.icon size={18} />
+                                  {hasSelection && (
+                                    <span className="text-sm font-medium">{selectedLabel}</span>
+                                  )}
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>{control.tooltip}</TooltipContent>
