@@ -54,18 +54,60 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
   ];
 
   const templates = [
-    { id: 'nova', name: 'Nova', category: 'Business', description: 'Catchy Headline About Your Services', type: 'software', color: '#3B82F6' },
-    { id: 'cascade', name: 'Cascade', category: 'Education', description: 'Headline Of Your Academy', type: 'product', color: '#10B981' },
-    { id: 'minerva', name: 'Minerva', category: 'Services', description: 'Catchy Headline About Your Services', type: 'software', color: '#8B5CF6' },
-    { id: 'aurora', name: 'Aurora', category: 'Fashion', description: 'Elevate Your Style Brand', type: 'product', color: '#EC4899' },
-    { id: 'zenith', name: 'Zenith', category: 'Photography', description: 'Showcase Your Portfolio', type: 'software', color: '#F59E0B' },
-    { id: 'harmony', name: 'Harmony', category: 'Personal', description: 'Tell Your Story', type: 'product', color: '#06B6D4' },
-    { id: 'summit', name: 'Summit', category: 'Real Estate', description: 'Find Your Dream Property', type: 'software', color: '#14B8A6' },
-    { id: 'palette', name: 'Palette', category: 'Art', description: 'Display Your Creative Work', type: 'product', color: '#F43F5E' },
-    { id: 'velvet', name: 'Velvet', category: 'Membership', description: 'Exclusive Member Benefits', type: 'software', color: '#A855F7' },
-    { id: 'savory', name: 'Savory', category: 'Restaurant', description: 'Delicious Dining Experience', type: 'product', color: '#EF4444' },
-    { id: 'bloom', name: 'Bloom', category: 'Services', description: 'Professional Service Solutions', type: 'software', color: '#22C55E' },
-    { id: 'echo', name: 'Echo', category: 'Business', description: 'Transform Your Business', type: 'product', color: '#6366F1' }
+    // Business
+    { id: 'nova', name: 'Nova', category: 'Business', description: 'Catchy Headline About Your Services', type: 'software', color: '#3B82F6', gradient: 'from-blue-500 to-indigo-600' },
+    { id: 'echo', name: 'Echo', category: 'Business', description: 'Transform Your Business', type: 'product', color: '#6366F1', gradient: 'from-indigo-500 to-purple-600' },
+    { id: 'vertex', name: 'Vertex', category: 'Business', description: 'Scale Your Enterprise', type: 'software', color: '#0EA5E9', gradient: 'from-sky-500 to-blue-600' },
+    { id: 'nexus', name: 'Nexus', category: 'Business', description: 'Connect & Collaborate', type: 'product', color: '#1D4ED8', gradient: 'from-blue-700 to-indigo-800' },
+    
+    // Education
+    { id: 'cascade', name: 'Cascade', category: 'Education', description: 'Headline Of Your Academy', type: 'product', color: '#10B981', gradient: 'from-emerald-500 to-teal-600' },
+    { id: 'scholar', name: 'Scholar', category: 'Education', description: 'Learn Without Limits', type: 'software', color: '#059669', gradient: 'from-emerald-600 to-green-700' },
+    { id: 'wisdom', name: 'Wisdom', category: 'Education', description: 'Knowledge Hub Platform', type: 'product', color: '#0D9488', gradient: 'from-teal-500 to-cyan-600' },
+    
+    // Fashion
+    { id: 'aurora', name: 'Aurora', category: 'Fashion', description: 'Elevate Your Style Brand', type: 'product', color: '#EC4899', gradient: 'from-pink-500 to-rose-600' },
+    { id: 'vogue', name: 'Vogue', category: 'Fashion', description: 'Haute Couture Collection', type: 'software', color: '#DB2777', gradient: 'from-pink-600 to-fuchsia-700' },
+    { id: 'luxe', name: 'Luxe', category: 'Fashion', description: 'Premium Fashion House', type: 'product', color: '#C026D3', gradient: 'from-fuchsia-600 to-purple-700' },
+    { id: 'chic', name: 'Chic', category: 'Fashion', description: 'Modern Style Boutique', type: 'software', color: '#E11D48', gradient: 'from-rose-600 to-pink-700' },
+    
+    // Photography
+    { id: 'zenith', name: 'Zenith', category: 'Photography', description: 'Showcase Your Portfolio', type: 'software', color: '#F59E0B', gradient: 'from-amber-500 to-orange-600' },
+    { id: 'lens', name: 'Lens', category: 'Photography', description: 'Capture Every Moment', type: 'product', color: '#D97706', gradient: 'from-amber-600 to-yellow-700' },
+    { id: 'shutter', name: 'Shutter', category: 'Photography', description: 'Visual Storytelling', type: 'software', color: '#EA580C', gradient: 'from-orange-600 to-red-700' },
+    
+    // Personal
+    { id: 'harmony', name: 'Harmony', category: 'Personal', description: 'Tell Your Story', type: 'product', color: '#06B6D4', gradient: 'from-cyan-500 to-blue-600' },
+    { id: 'persona', name: 'Persona', category: 'Personal', description: 'Your Digital Identity', type: 'software', color: '#0891B2', gradient: 'from-cyan-600 to-teal-700' },
+    { id: 'memoir', name: 'Memoir', category: 'Personal', description: 'Share Your Journey', type: 'product', color: '#7C3AED', gradient: 'from-violet-600 to-purple-700' },
+    
+    // Real Estate
+    { id: 'summit', name: 'Summit', category: 'Real Estate', description: 'Find Your Dream Property', type: 'software', color: '#14B8A6', gradient: 'from-teal-500 to-emerald-600' },
+    { id: 'manor', name: 'Manor', category: 'Real Estate', description: 'Luxury Living Spaces', type: 'product', color: '#047857', gradient: 'from-emerald-700 to-green-800' },
+    { id: 'estate', name: 'Estate', category: 'Real Estate', description: 'Premium Property Listings', type: 'software', color: '#166534', gradient: 'from-green-700 to-emerald-800' },
+    
+    // Art
+    { id: 'palette', name: 'Palette', category: 'Art', description: 'Display Your Creative Work', type: 'product', color: '#F43F5E', gradient: 'from-rose-500 to-pink-600' },
+    { id: 'canvas', name: 'Canvas', category: 'Art', description: 'Digital Art Gallery', type: 'software', color: '#DC2626', gradient: 'from-red-600 to-rose-700' },
+    { id: 'gallery', name: 'Gallery', category: 'Art', description: 'Curated Art Collections', type: 'product', color: '#9333EA', gradient: 'from-purple-600 to-violet-700' },
+    { id: 'atelier', name: 'Atelier', category: 'Art', description: 'Artist Studio Space', type: 'software', color: '#7E22CE', gradient: 'from-purple-700 to-fuchsia-800' },
+    
+    // Membership
+    { id: 'velvet', name: 'Velvet', category: 'Membership', description: 'Exclusive Member Benefits', type: 'software', color: '#A855F7', gradient: 'from-purple-500 to-violet-600' },
+    { id: 'elite', name: 'Elite', category: 'Membership', description: 'Premium Access Club', type: 'product', color: '#7C3AED', gradient: 'from-violet-600 to-indigo-700' },
+    { id: 'vip', name: 'VIP', category: 'Membership', description: 'Exclusive Members Only', type: 'software', color: '#4F46E5', gradient: 'from-indigo-600 to-blue-700' },
+    
+    // Restaurant
+    { id: 'savory', name: 'Savory', category: 'Restaurant', description: 'Delicious Dining Experience', type: 'product', color: '#EF4444', gradient: 'from-red-500 to-orange-600' },
+    { id: 'bistro', name: 'Bistro', category: 'Restaurant', description: 'Fine Dining Excellence', type: 'software', color: '#B91C1C', gradient: 'from-red-700 to-rose-800' },
+    { id: 'cuisine', name: 'Cuisine', category: 'Restaurant', description: 'Gourmet Food Journey', type: 'product', color: '#C2410C', gradient: 'from-orange-700 to-red-800' },
+    { id: 'tavern', name: 'Tavern', category: 'Restaurant', description: 'Cozy Dining Atmosphere', type: 'software', color: '#92400E', gradient: 'from-amber-800 to-orange-900' },
+    
+    // Services
+    { id: 'minerva', name: 'Minerva', category: 'Services', description: 'Catchy Headline About Your Services', type: 'software', color: '#8B5CF6', gradient: 'from-violet-500 to-purple-600' },
+    { id: 'bloom', name: 'Bloom', category: 'Services', description: 'Professional Service Solutions', type: 'software', color: '#22C55E', gradient: 'from-green-500 to-emerald-600' },
+    { id: 'spark', name: 'Spark', category: 'Services', description: 'Ignite Your Potential', type: 'product', color: '#F97316', gradient: 'from-orange-500 to-amber-600' },
+    { id: 'prime', name: 'Prime', category: 'Services', description: 'Premium Service Solutions', type: 'software', color: '#2563EB', gradient: 'from-blue-600 to-indigo-700' },
   ];
 
   const handleSelect = (templateId: string) => {
