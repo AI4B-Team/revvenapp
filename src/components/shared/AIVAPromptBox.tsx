@@ -127,6 +127,15 @@ export interface SubOptionType {
   color?: string;
 }
 
+// Ratio options
+const ratioOptions = ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9'];
+// Number options
+const numberOptions = [1, 2, 4, 8];
+// Duration options
+const durationOptions = ['5s', '10s', '15s', '30s', '60s'];
+// Quality options
+const qualityOptions = ['standard', 'high', 'ultra'];
+
 interface AIVAPromptBoxProps {
   onGenerate?: () => void;
   showGreeting?: boolean;
@@ -137,13 +146,9 @@ interface AIVAPromptBoxProps {
   selectedIntent?: Intent | null;
   onIntentChange?: (intent: Intent | null) => void;
   onSubTypeChange?: (subType: SubOptionType | null) => void;
-  // Control callbacks for opening modals/dropdowns
+  // Control callbacks for opening modals (style and character need external modals)
   onStyleClick?: () => void;
   onCharacterClick?: () => void;
-  onRatioClick?: () => void;
-  onNumberClick?: () => void;
-  onDurationClick?: () => void;
-  onQualityClick?: () => void;
 }
 
 const AIVAPromptBox = ({ 
@@ -158,10 +163,6 @@ const AIVAPromptBox = ({
   onSubTypeChange,
   onStyleClick,
   onCharacterClick,
-  onRatioClick,
-  onNumberClick,
-  onDurationClick,
-  onQualityClick,
 }: AIVAPromptBoxProps) => {
   const [internalPrompt, setInternalPrompt] = useState('');
   const [internalIntent, setInternalIntent] = useState<Intent | null>(null);
@@ -176,6 +177,16 @@ const AIVAPromptBox = ({
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [selectedModel, setSelectedModel] = useState('auto');
   const [showModelDropdown, setShowModelDropdown] = useState(false);
+  
+  // Control dropdown states - managed internally
+  const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  const [showNumberDropdown, setShowNumberDropdown] = useState(false);
+  const [showDurationDropdown, setShowDurationDropdown] = useState(false);
+  const [showQualityDropdown, setShowQualityDropdown] = useState(false);
+  const [selectedRatio, setSelectedRatio] = useState('1:1');
+  const [selectedNumber, setSelectedNumber] = useState(1);
+  const [selectedDuration, setSelectedDuration] = useState('5s');
+  const [selectedQuality, setSelectedQuality] = useState('standard');
 
   // Speech recognition hook
   const handleTranscriptResult = useCallback((transcript: string) => {
@@ -482,32 +493,130 @@ const AIVAPromptBox = ({
                       <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         {getControlIcons().map((control) => {
-                          // Map control id to callback
+                          // Map control id to callback - use internal handlers for dropdowns
                           const getControlClickHandler = () => {
                             switch (control.id) {
                               case 'style': return onStyleClick;
                               case 'character': return onCharacterClick;
-                              case 'ratio': return onRatioClick;
-                              case 'number': return onNumberClick;
-                              case 'duration': return onDurationClick;
-                              case 'quality': return onQualityClick;
+                              case 'ratio': return () => setShowRatioDropdown(!showRatioDropdown);
+                              case 'number': return () => setShowNumberDropdown(!showNumberDropdown);
+                              case 'duration': return () => setShowDurationDropdown(!showDurationDropdown);
+                              case 'quality': return () => setShowQualityDropdown(!showQualityDropdown);
                               default: return undefined;
                             }
                           };
                           const clickHandler = getControlClickHandler();
                           
+                          // Check if this control's dropdown is open
+                          const isActive = 
+                            (control.id === 'ratio' && showRatioDropdown) ||
+                            (control.id === 'number' && showNumberDropdown) ||
+                            (control.id === 'duration' && showDurationDropdown) ||
+                            (control.id === 'quality' && showQualityDropdown);
+                          
                           return (
-                            <Tooltip key={control.id}>
-                              <TooltipTrigger asChild>
-                                <button 
-                                  onClick={clickHandler}
-                                  className="p-2 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors border border-slate-200"
-                                >
-                                  <control.icon size={18} />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>{control.tooltip}</TooltipContent>
-                            </Tooltip>
+                            <div key={control.id} className="relative">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button 
+                                    onClick={clickHandler}
+                                    className={cn(
+                                      "p-2 rounded-xl transition-colors border",
+                                      isActive 
+                                        ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                        : "bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 border-slate-200"
+                                    )}
+                                  >
+                                    <control.icon size={18} />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>{control.tooltip}</TooltipContent>
+                              </Tooltip>
+                              
+                              {/* Ratio Dropdown */}
+                              {control.id === 'ratio' && showRatioDropdown && (
+                                <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[100px]">
+                                  {ratioOptions.map((ratio) => (
+                                    <button
+                                      key={ratio}
+                                      onClick={() => {
+                                        setSelectedRatio(ratio);
+                                        setShowRatioDropdown(false);
+                                      }}
+                                      className={cn(
+                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                        selectedRatio === ratio ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                      )}
+                                    >
+                                      {ratio}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {/* Number Dropdown */}
+                              {control.id === 'number' && showNumberDropdown && (
+                                <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[80px]">
+                                  {numberOptions.map((num) => (
+                                    <button
+                                      key={num}
+                                      onClick={() => {
+                                        setSelectedNumber(num);
+                                        setShowNumberDropdown(false);
+                                      }}
+                                      className={cn(
+                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                        selectedNumber === num ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                      )}
+                                    >
+                                      {num}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {/* Duration Dropdown */}
+                              {control.id === 'duration' && showDurationDropdown && (
+                                <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[80px]">
+                                  {durationOptions.map((dur) => (
+                                    <button
+                                      key={dur}
+                                      onClick={() => {
+                                        setSelectedDuration(dur);
+                                        setShowDurationDropdown(false);
+                                      }}
+                                      className={cn(
+                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                        selectedDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                      )}
+                                    >
+                                      {dur}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {/* Quality Dropdown */}
+                              {control.id === 'quality' && showQualityDropdown && (
+                                <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[100px]">
+                                  {qualityOptions.map((quality) => (
+                                    <button
+                                      key={quality}
+                                      onClick={() => {
+                                        setSelectedQuality(quality);
+                                        setShowQualityDropdown(false);
+                                      }}
+                                      className={cn(
+                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left capitalize",
+                                        selectedQuality === quality ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                      )}
+                                    >
+                                      {quality}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
