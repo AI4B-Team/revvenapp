@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, Calendar, Palette, type LucideIcon } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, Calendar, Palette, Flag, BadgeCheck, GalleryHorizontal, UserCircle, Wand2, type LucideIcon } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
 import IntentSelector, { type Intent } from '@/components/IntentSelector';
@@ -490,10 +491,19 @@ const AIVAPromptBox = ({
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Social content mode state
+  const [contentPostType, setContentPostType] = useState('Single Image');
+  const [contentGoal, setContentGoal] = useState('Engagement');
+  const [contentLanguage, setContentLanguage] = useState('English');
+  const [contentDays, setContentDays] = useState(30);
+  const [contentTime, setContentTime] = useState('Auto');
+  const [contentStyle, setContentStyle] = useState('AI Generated');
+  const [brandDistillsEnabled, setBrandDistillsEnabled] = useState(true);
+  
   const { toast } = useToast();
   
   // Single state for tracking which dropdown is open (only one at a time)
-  type DropdownType = 'type' | 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'sfx-speed' | 'sfx-influence' | 'sfx-format' | 'from-language' | 'to-language' | 'music-vocal' | 'music-gender' | null;
+  type DropdownType = 'type' | 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'sfx-speed' | 'sfx-influence' | 'sfx-format' | 'from-language' | 'to-language' | 'music-vocal' | 'music-gender' | 'content-post-type' | 'content-goal' | 'content-language' | 'content-days' | 'content-time' | 'content-style' | null;
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   
   // Toggle dropdown - if clicking same one, close it; otherwise open new one
@@ -1611,8 +1621,283 @@ const AIVAPromptBox = ({
                     </>
                   )}
 
-                  {/* Additional control icons (if any) - only for non-document and non-audio types */}
-                  {selectedOption?.id !== 'document' && selectedOption?.id !== 'audio' && getControlIcons().length > 0 && (
+                  {/* Content mode - Social controls */}
+                  {selectedOption?.id === 'content' && selectedSubType?.id === 'social' && (
+                    <>
+                      <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                      
+                      {/* Post Type */}
+                      <div className="relative" data-dropdown>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => toggleDropdown('content-post-type')}
+                              className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+                            >
+                              {contentPostType === 'Single Image' && <ImageIcon size={16} className="text-emerald-500" />}
+                              {contentPostType === 'Carousel' && <GalleryHorizontal size={16} className="text-blue-500" />}
+                              {contentPostType === 'Videos' && <Video size={16} className="text-purple-500" />}
+                              {contentPostType === 'Voiceover Videos' && <Mic size={16} className="text-rose-500" />}
+                              {contentPostType === 'Avatar Videos' && <UserCircle size={16} className="text-violet-500" />}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Post Type</TooltipContent>
+                        </Tooltip>
+                        {activeDropdown === 'content-post-type' && (
+                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px]">
+                            {[
+                              { value: 'Single Image', icon: ImageIcon, color: 'text-emerald-500' },
+                              { value: 'Carousel', icon: GalleryHorizontal, color: 'text-blue-500' },
+                              { value: 'Videos', icon: Video, color: 'text-purple-500' },
+                              { value: 'Voiceover Videos', icon: Mic, color: 'text-rose-500' },
+                              { value: 'Avatar Videos', icon: UserCircle, color: 'text-violet-500' },
+                            ].map((type) => (
+                              <button 
+                                key={type.value}
+                                onClick={() => { setContentPostType(type.value); setActiveDropdown(null); }}
+                                className={cn(
+                                  "w-full px-3 py-2 text-sm text-left hover:bg-slate-50 rounded-md transition flex items-center gap-2",
+                                  contentPostType === type.value && "bg-emerald-50 text-emerald-700"
+                                )}
+                              >
+                                <type.icon size={16} className={type.color} />
+                                {type.value}
+                                {contentPostType === type.value && <Check size={14} className="ml-auto text-emerald-500" />}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Goal */}
+                      <div className="relative" data-dropdown>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => toggleDropdown('content-goal')}
+                              className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+                            >
+                              <Flag size={16} className="text-orange-500" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Goal</TooltipContent>
+                        </Tooltip>
+                        {activeDropdown === 'content-goal' && (
+                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                            {['Engagement', 'Awareness', 'Traffic', 'Followers', 'Community', 'Education', 'Entertainment', 'Authority', 'Leads', 'Sales'].map((goal) => (
+                              <button 
+                                key={goal}
+                                onClick={() => { setContentGoal(goal); setActiveDropdown(null); }}
+                                className={cn(
+                                  "w-full px-3 py-2 text-sm text-left hover:bg-slate-50 rounded-md transition flex items-center justify-between",
+                                  contentGoal === goal && "bg-emerald-50 text-emerald-700"
+                                )}
+                              >
+                                {goal}
+                                {contentGoal === goal && <Check size={14} className="text-emerald-500" />}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Language */}
+                      <div className="relative" data-dropdown>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => toggleDropdown('content-language')}
+                              className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+                            >
+                              <Languages size={16} className="text-blue-500" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Language</TooltipContent>
+                        </Tooltip>
+                        {activeDropdown === 'content-language' && (
+                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[160px] max-h-[280px] overflow-y-auto">
+                            {[
+                              { name: 'English', flag: '🇺🇸' },
+                              { name: 'Spanish', flag: '🇪🇸' },
+                              { name: 'French', flag: '🇫🇷' },
+                              { name: 'German', flag: '🇩🇪' },
+                              { name: 'Portuguese', flag: '🇵🇹' },
+                              { name: 'Italian', flag: '🇮🇹' },
+                              { name: 'Chinese', flag: '🇨🇳' },
+                              { name: 'Japanese', flag: '🇯🇵' },
+                              { name: 'Korean', flag: '🇰🇷' },
+                              { name: 'Arabic', flag: '🇸🇦' },
+                              { name: 'Hindi', flag: '🇮🇳' },
+                            ].map((lang) => (
+                              <button 
+                                key={lang.name}
+                                onClick={() => { setContentLanguage(lang.name); setActiveDropdown(null); }}
+                                className={cn(
+                                  "w-full px-3 py-2 text-sm text-left hover:bg-slate-50 rounded-md transition flex items-center gap-2",
+                                  contentLanguage === lang.name && "bg-emerald-50 text-emerald-700"
+                                )}
+                              >
+                                <span>{lang.flag}</span>
+                                {lang.name}
+                                {contentLanguage === lang.name && <Check size={14} className="ml-auto text-emerald-500" />}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Frequency/Calendar */}
+                      <div className="relative" data-dropdown>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => toggleDropdown('content-days')}
+                              className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+                            >
+                              <Calendar size={16} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Frequency</TooltipContent>
+                        </Tooltip>
+                        {activeDropdown === 'content-days' && (
+                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-4 z-[9999] min-w-[240px]">
+                            <p className="text-sm font-medium text-slate-800 mb-3">Content Frequency</p>
+                            <div className="grid grid-cols-3 gap-2">
+                              {[7, 14, 21, 30, 60, 90].map((days) => (
+                                <button
+                                  key={days}
+                                  onClick={() => { setContentDays(days); setActiveDropdown(null); }}
+                                  className={cn(
+                                    "px-3 py-2 rounded-lg text-sm font-medium transition",
+                                    contentDays === days 
+                                      ? "bg-emerald-500 text-white" 
+                                      : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                                  )}
+                                >
+                                  {days} Days
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Time */}
+                      <div className="relative" data-dropdown>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => toggleDropdown('content-time')}
+                              className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+                            >
+                              <Clock size={16} className="text-amber-500" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Time</TooltipContent>
+                        </Tooltip>
+                        {activeDropdown === 'content-time' && (
+                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px]">
+                            <button 
+                              onClick={() => { setContentTime('Auto'); setActiveDropdown(null); }}
+                              className={cn(
+                                "w-full px-3 py-2.5 text-sm text-left hover:bg-slate-50 rounded-md transition flex items-center gap-2",
+                                contentTime === 'Auto' && "bg-emerald-50 text-emerald-700"
+                              )}
+                            >
+                              <Wand2 size={16} className="text-emerald-500" />
+                              <div className="flex-1">
+                                <span className="font-medium">Auto</span>
+                                <p className="text-xs text-slate-400">AI picks best times</p>
+                              </div>
+                              {contentTime === 'Auto' && <Check size={14} className="text-emerald-500" />}
+                            </button>
+                            <div className="border-t border-slate-100 pt-2 mt-2">
+                              {['9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '8:00 PM'].map((time) => (
+                                <button 
+                                  key={time}
+                                  onClick={() => { setContentTime(time); setActiveDropdown(null); }}
+                                  className={cn(
+                                    "w-full px-3 py-2 text-sm text-left hover:bg-slate-50 rounded-md transition flex items-center justify-between",
+                                    contentTime === time && "bg-emerald-50 text-emerald-700"
+                                  )}
+                                >
+                                  <span className="flex items-center gap-2">
+                                    <Clock size={14} className="text-slate-400" />
+                                    {time}
+                                  </span>
+                                  {contentTime === time && <Check size={14} className="text-emerald-500" />}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Style */}
+                      <div className="relative" data-dropdown>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => toggleDropdown('content-style')}
+                              className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+                            >
+                              <Brush size={16} className="text-purple-500" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Style</TooltipContent>
+                        </Tooltip>
+                        {activeDropdown === 'content-style' && (
+                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[160px]">
+                            <button 
+                              onClick={() => { setContentStyle('AI Generated'); setActiveDropdown(null); }}
+                              className={cn(
+                                "w-full px-3 py-2 text-sm text-left hover:bg-slate-50 rounded-md transition flex items-center gap-2",
+                                contentStyle === 'AI Generated' && "bg-emerald-50 text-emerald-700"
+                              )}
+                            >
+                              <Sparkles size={16} className="text-violet-500" />
+                              AI Generated
+                              {contentStyle === 'AI Generated' && <Check size={14} className="ml-auto text-emerald-500" />}
+                            </button>
+                            <button 
+                              onClick={() => { setContentStyle('Stock'); setActiveDropdown(null); }}
+                              className={cn(
+                                "w-full px-3 py-2 text-sm text-left hover:bg-slate-50 rounded-md transition flex items-center gap-2",
+                                contentStyle === 'Stock' && "bg-emerald-50 text-emerald-700"
+                              )}
+                            >
+                              <ImageIcon size={16} className="text-blue-500" />
+                              Stock
+                              {contentStyle === 'Stock' && <Check size={14} className="ml-auto text-emerald-500" />}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Brand Toggle */}
+                      <div className="flex items-center gap-2 ml-1 pl-2 border-l border-slate-200">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2">
+                              <BadgeCheck size={16} className="text-amber-500" />
+                              <span className="text-xs text-slate-500 whitespace-nowrap">Brand</span>
+                              <Switch 
+                                checked={brandDistillsEnabled} 
+                                onCheckedChange={setBrandDistillsEnabled}
+                                className="data-[state=checked]:bg-emerald-500"
+                              />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[200px]">
+                            <p>Your brand distills will be applied to the posts</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Additional control icons (if any) - only for non-document and non-audio and non-content types */}
+                  {selectedOption?.id !== 'document' && selectedOption?.id !== 'audio' && selectedOption?.id !== 'content' && getControlIcons().length > 0 && (
                     <>
                       <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                       <div className="relative flex items-center gap-1.5 flex-shrink-0">
