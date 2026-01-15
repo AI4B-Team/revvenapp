@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, type LucideIcon } from 'lucide-react';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
@@ -8,7 +8,8 @@ import ControlChip from '@/components/ControlChip';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { cn } from '@/lib/utils';
-
+import AudioSelectModal from '@/components/dashboard/AudioSelectModal';
+import { useToast } from '@/hooks/use-toast';
 // Model logo imports
 import autoLogo from '@/assets/model-logos/auto.png';
 import fluxLogo from '@/assets/model-logos/flux.png';
@@ -462,6 +463,21 @@ const AIVAPromptBox = ({
   const [uploadedFiles, setUploadedFiles] = useState<number>(0);
   const [clonedVoices, setClonedVoices] = useState<number>(0);
   
+  // Audio modal and selection state
+  const [audioModalOpen, setAudioModalOpen] = useState(false);
+  const [audioModalMode, setAudioModalMode] = useState<'voiceover' | 'clone' | 'revoice' | 'transcribe' | null>(null);
+  const [selectedAudioFile, setSelectedAudioFile] = useState<{ name: string; duration: number; url: string } | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  
+  // Recording state for transcribe
+  const [isRecording, setIsRecordingAudio] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const { toast } = useToast();
+  
   // Single state for tracking which dropdown is open (only one at a time)
   type DropdownType = 'type' | 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'sfx-duration' | 'sfx-influence' | 'sfx-format' | 'from-language' | 'to-language' | 'music-vocal' | 'music-gender' | null;
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
@@ -491,6 +507,89 @@ const AIVAPromptBox = ({
     } else {
       startListening(prompt);
     }
+  };
+
+  // Audio modal handlers
+  const handleOpenAudioModal = (mode: 'voiceover' | 'clone' | 'revoice' | 'transcribe') => {
+    setAudioModalMode(mode);
+    setAudioModalOpen(true);
+  };
+
+  const handleAudioSelect = (audio: { name: string; duration: number; url: string }) => {
+    setSelectedAudioFile(audio);
+    setUploadedFiles(1);
+    setAudioModalOpen(false);
+    toast({
+      title: "Audio selected",
+      description: audio.name,
+    });
+  };
+
+  // Recording functions for transcribe mode
+  const startRecordingAudio = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const preferredMimeType =
+        MediaRecorder.isTypeSupported('audio/mp4')
+          ? 'audio/mp4'
+          : MediaRecorder.isTypeSupported('audio/ogg')
+            ? 'audio/ogg'
+            : 'audio/webm';
+
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: preferredMimeType });
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const mimeType = mediaRecorder.mimeType || preferredMimeType;
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setSelectedAudioFile({
+          name: `Recording_${Date.now()}.webm`,
+          duration: recordingTime,
+          url: audioUrl,
+        });
+        setUploadedFiles(1);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecordingAudio(true);
+      setRecordingTime(0);
+
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      toast({
+        title: "Microphone access denied",
+        description: "Please allow microphone access to record audio",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopRecordingAudio = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setIsRecordingAudio(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    }
+  };
+
+  const formatRecordingTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Reset chips when intent changes
@@ -873,31 +972,97 @@ const AIVAPromptBox = ({
                           <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
-                                <Mic size={16} />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>Voice</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
                               <button 
-                                onClick={() => toggleDropdown('from-language')}
-                                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                                onClick={() => handleOpenAudioModal('voiceover')}
+                                className={cn(
+                                  "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                  selectedVoice 
+                                    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                )}
                               >
-                                <Globe size={16} />
+                                <Mic size={16} />
+                                {selectedVoice && <span className="text-xs">{selectedVoice}</span>}
                               </button>
                             </TooltipTrigger>
-                            <TooltipContent>Language</TooltipContent>
+                            <TooltipContent>Select Voice</TooltipContent>
                           </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
-                                <Clock size={16} />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>Duration</TooltipContent>
-                          </Tooltip>
+                          <div className="relative">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={() => toggleDropdown('from-language')}
+                                  className={cn(
+                                    "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                    fromLanguage !== 'Auto'
+                                      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                      : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                  )}
+                                >
+                                  <Globe size={16} />
+                                  {fromLanguage !== 'Auto' && <span className="text-xs">{fromLanguage}</span>}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>Language</TooltipContent>
+                            </Tooltip>
+                            {activeDropdown === 'from-language' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                                {languageOptions.map((lang) => (
+                                  <button
+                                    key={lang}
+                                    onClick={() => {
+                                      setFromLanguage(lang);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      fromLanguage === lang ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {lang}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={() => toggleDropdown('duration')}
+                                  className={cn(
+                                    "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                    selectedDuration !== '5s'
+                                      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                      : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                  )}
+                                >
+                                  <Clock size={16} />
+                                  {selectedDuration !== '5s' && <span className="text-xs">{selectedDuration}</span>}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>Duration</TooltipContent>
+                            </Tooltip>
+                            {activeDropdown === 'duration' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[80px]">
+                                {durationOptions.map((dur) => (
+                                  <button
+                                    key={dur}
+                                    onClick={() => {
+                                      setSelectedDuration(dur);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      selectedDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {dur}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
@@ -913,13 +1078,21 @@ const AIVAPromptBox = ({
                       {selectedSubType?.id === 'clone' && (
                         <>
                           <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
-                          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium transition-colors">
+                          <button 
+                            onClick={() => handleOpenAudioModal('clone')}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium transition-colors"
+                          >
                             <Mic size={16} />
                             <span>Clone Voice</span>
                           </button>
                           <button 
-                            onClick={() => toggleDropdown('from-language')}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                            onClick={() => handleOpenAudioModal('clone')}
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                              clonedVoices > 0
+                                ? "bg-violet-50 text-violet-600 border-violet-200"
+                                : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                            )}
                           >
                             <Copy size={16} />
                             <span>Select Voice</span>
@@ -935,9 +1108,17 @@ const AIVAPromptBox = ({
                       {selectedSubType?.id === 'revoice' && (
                         <>
                           <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
-                          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
+                          <button 
+                            onClick={() => handleOpenAudioModal('revoice')}
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                              selectedAudioFile
+                                ? "bg-cyan-50 text-cyan-600 border-cyan-200"
+                                : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                            )}
+                          >
                             <Upload size={16} />
-                            <span>Audio</span>
+                            <span>{selectedAudioFile ? selectedAudioFile.name.slice(0, 15) + '...' : 'Audio'}</span>
                             {uploadedFiles > 0 && (
                               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-cyan-500 text-white text-xs font-semibold">{uploadedFiles}</span>
                             )}
@@ -946,7 +1127,12 @@ const AIVAPromptBox = ({
                           <div className="relative">
                             <button 
                               onClick={() => toggleDropdown('from-language')}
-                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                              className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                fromLanguage !== 'Auto'
+                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                  : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                              )}
                             >
                               <span>From: {fromLanguage}</span>
                               <ChevronDown size={14} className="text-slate-400" />
@@ -974,7 +1160,12 @@ const AIVAPromptBox = ({
                           <div className="relative">
                             <button 
                               onClick={() => toggleDropdown('to-language')}
-                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                              className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                toLanguage !== 'Spanish'
+                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                  : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                              )}
                             >
                               <Languages size={16} />
                               <span>To: {toLanguage}</span>
@@ -1003,26 +1194,86 @@ const AIVAPromptBox = ({
                         </>
                       )}
 
-                      {/* Transcribe controls: Model + Upload */}
+                      {/* Transcribe controls: Model + Language + Upload/Record */}
                       {selectedSubType?.id === 'transcribe' && (
                         <>
                           <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                          <div className="relative">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={() => toggleDropdown('from-language')}
+                                  className={cn(
+                                    "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                    fromLanguage !== 'Auto'
+                                      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                      : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                  )}
+                                >
+                                  <Globe size={16} />
+                                  {fromLanguage !== 'Auto' && <span className="text-xs">{fromLanguage}</span>}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>Language</TooltipContent>
+                            </Tooltip>
+                            {activeDropdown === 'from-language' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                                {languageOptions.map((lang) => (
+                                  <button
+                                    key={lang}
+                                    onClick={() => {
+                                      setFromLanguage(lang);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      fromLanguage === lang ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {lang}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
-                                <Globe size={16} />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>Language</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
+                              <button 
+                                onClick={() => handleOpenAudioModal('transcribe')}
+                                className={cn(
+                                  "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                  selectedAudioFile
+                                    ? "bg-rose-50 text-rose-600 border-rose-200"
+                                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                )}
+                              >
                                 <Upload size={16} />
+                                {selectedAudioFile && <span className="text-xs">{selectedAudioFile.name.slice(0, 10)}...</span>}
                               </button>
                             </TooltipTrigger>
                             <TooltipContent>Upload Audio</TooltipContent>
                           </Tooltip>
+                          {isRecording ? (
+                            <button 
+                              onClick={stopRecordingAudio}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors animate-pulse"
+                            >
+                              <div className="w-2 h-2 rounded-full bg-white" />
+                              <span>{formatRecordingTime(recordingTime)}</span>
+                            </button>
+                          ) : (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={startRecordingAudio}
+                                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                                >
+                                  <Mic size={16} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>Record Audio</TooltipContent>
+                            </Tooltip>
+                          )}
                         </>
                       )}
 
@@ -1033,9 +1284,15 @@ const AIVAPromptBox = ({
                           <div className="relative">
                             <button 
                               onClick={() => toggleDropdown('sfx-duration')}
-                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                              className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                sfxDuration !== '5s'
+                                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                                  : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                              )}
                             >
-                              <span>Duration</span>
+                              <Clock size={16} />
+                              <span>{sfxDuration}</span>
                               <ChevronDown size={14} className="text-slate-400" />
                             </button>
                             {activeDropdown === 'sfx-duration' && (
@@ -1073,9 +1330,15 @@ const AIVAPromptBox = ({
                           <div className="relative">
                             <button 
                               onClick={() => toggleDropdown('sfx-influence')}
-                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                              className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                sfxInfluence !== '30%'
+                                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                                  : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                              )}
                             >
-                              <span>Influence: {sfxInfluence}</span>
+                              <SlidersHorizontal size={16} />
+                              <span>{sfxInfluence}</span>
                               <ChevronDown size={14} className="text-slate-400" />
                             </button>
                             {activeDropdown === 'sfx-influence' && (
@@ -1101,7 +1364,12 @@ const AIVAPromptBox = ({
                           <div className="relative">
                             <button 
                               onClick={() => toggleDropdown('sfx-format')}
-                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                              className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                sfxFormat !== 'MP3'
+                                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                                  : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                              )}
                             >
                               <span>{sfxFormat}</span>
                               <ChevronDown size={14} className="text-slate-400" />
@@ -1486,6 +1754,13 @@ const AIVAPromptBox = ({
           </div>
         )}
       </div>
+
+      {/* Audio Select Modal */}
+      <AudioSelectModal
+        isOpen={audioModalOpen}
+        onClose={() => setAudioModalOpen(false)}
+        onSelectAudio={handleAudioSelect}
+      />
     </div>
   );
 };
