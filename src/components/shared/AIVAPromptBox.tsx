@@ -303,7 +303,7 @@ const AIVAPromptBox = ({
       
       {/* Prompt Input Box */}
       <div className="relative mx-auto w-full max-w-[95%] md:max-w-[1400px]" style={{ minWidth: 'min(340px, 100%)' }}>
-        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm overflow-hidden min-h-[180px] flex flex-col w-fit min-w-[340px] sm:min-w-[520px] md:min-w-[800px] mx-auto relative">
+        <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm min-h-[180px] flex flex-col w-fit min-w-[340px] sm:min-w-[520px] md:min-w-[800px] mx-auto relative">
           {/* Input area */}
           <div className="px-6 pt-5 pb-3 flex-1 flex gap-3 min-w-0">
             {/* Left side icons - only shown when an option is selected */}
