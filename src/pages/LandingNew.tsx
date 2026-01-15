@@ -28,16 +28,7 @@ const LandingNew = () => {
   const [selectedReferences, setSelectedReferences] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  // Instant redirect if user is already logged in (check localStorage first for speed)
-  useEffect(() => {
-    // Quick check - if there's a session in localStorage, redirect immediately
-    const storedSession = localStorage.getItem('sb-ghhafcmjhmwwfhldmxzc-auth-token');
-    if (storedSession) {
-      navigate('/dashboard', { replace: true });
-      return;
-    }
-  }, [navigate]);
-
+  // Check auth state but DON'T auto-redirect - let users view landing page
   useEffect(() => {
     if (!isStorageAccessible()) {
       setUser(null);
@@ -51,19 +42,12 @@ const LandingNew = () => {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((event, session) => {
         setUser(session?.user ?? null);
-        if (event === 'SIGNED_IN' && session?.user) {
-          navigate('/dashboard', { replace: true });
-        }
       });
 
       unsubscribe = () => subscription.unsubscribe();
 
       supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          navigate('/dashboard', { replace: true });
-        } else {
-          setUser(null);
-        }
+        setUser(session?.user ?? null);
       }).catch(() => setUser(null));
     } catch {
       setUser(null);
@@ -72,7 +56,7 @@ const LandingNew = () => {
     return () => {
       unsubscribe?.();
     };
-  }, [navigate]);
+  }, []);
 
   const handleGenerate = () => {
     if (user) {
