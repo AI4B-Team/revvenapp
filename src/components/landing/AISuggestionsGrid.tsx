@@ -34,7 +34,7 @@ const suggestionsByIntent: IntentSuggestions = {
       { id: 'podcast', icon: Mic, iconColor: 'text-purple-500', title: 'Podcast Episode', description: 'Stories worth sharing.', prompt: 'Write a podcast episode script about building a personal brand', mode: 'video', subType: 'podcast' },
       { id: 'thumbnail', icon: Image, iconColor: 'text-red-500', title: 'Thumbnails', description: 'Clicks start here.', prompt: 'Design click-worthy YouTube thumbnails for my video content', mode: 'design', subType: 'thumbnail' },
       { id: 'jingle', icon: Music, iconColor: 'text-teal-500', title: 'Brand Jingle', description: 'Sounds they remember.', prompt: 'Create a catchy 5-second audio logo for my brand', mode: 'audio', subType: 'music', model: 'suno' },
-      { id: 'newsletter', icon: Mail, iconColor: 'text-blue-600', title: 'Newsletter', description: 'Inbox gold.', prompt: 'Write an engaging weekly newsletter for my audience', mode: 'document', subType: 'ebook' },
+      { id: 'newsletter', icon: Mail, iconColor: 'text-blue-600', title: 'Newsletter', description: 'Inbox gold.', prompt: 'Write an engaging weekly newsletter for my audience', mode: 'content', subType: 'newsletter' },
       { id: 'script', icon: FileText, iconColor: 'text-slate-600', title: 'Video Script', description: 'Words that sell.', prompt: 'Write a compelling video script for a product launch', mode: 'document', subType: 'ebook' },
     ],
     [
@@ -163,7 +163,7 @@ const suggestionsByIntent: IntentSuggestions = {
     ],
     [
       { id: 'trip-japan', icon: Plane, iconColor: 'text-blue-500', title: 'Dream Trip to Japan', description: 'Flights, hotels, everything.', prompt: 'Plan my dream trip to Japan with complete itinerary including flights, hotels, restaurants, activities, and daily schedules' },
-      { id: 'newsletter-2k', icon: Mail, iconColor: 'text-emerald-500', title: 'Newsletter to 2K', description: 'Grow and manage it for me.', prompt: 'Build a newsletter to 2,000 subscribers and manage it for me with content strategy, growth tactics, and automation' },
+      { id: 'newsletter-2k', icon: Mail, iconColor: 'text-emerald-500', title: 'Newsletter to 2K', description: 'Grow and manage it for me.', prompt: 'Build a newsletter to 2,000 subscribers and manage it for me with content strategy, growth tactics, and automation', mode: 'content', subType: 'newsletter' },
       { id: 'funnel', icon: Target, iconColor: 'text-red-500', title: 'Sales Funnel', description: 'Guide to conversion.', prompt: 'Design a complete sales funnel from awareness to purchase' },
       { id: 'collab', icon: Users, iconColor: 'text-teal-500', title: 'Collab Strategy', description: 'Grow together.', prompt: 'Plan a strategic collaboration campaign with complementary brands' },
       { id: 'ads', icon: BarChart3, iconColor: 'text-blue-600', title: 'Ad Campaign', description: 'Spend smart.', prompt: 'Create a paid advertising strategy with budget allocation' },
