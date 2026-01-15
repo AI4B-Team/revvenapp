@@ -51,10 +51,15 @@ const LandingNew = () => {
 
       unsubscribe = () => subscription.unsubscribe();
 
+      // Check for existing session - if logged in, redirect to dashboard
       supabase.auth
         .getSession()
         .then(({ data: { session } }) => {
-          setUser(session?.user ?? null);
+          if (session?.user) {
+            navigate('/create');
+          } else {
+            setUser(null);
+          }
         })
         .catch(() => setUser(null));
     } catch {
