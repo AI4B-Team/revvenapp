@@ -33,7 +33,7 @@ const LandingNew = () => {
     // Quick check - if there's a session in localStorage, redirect immediately
     const storedSession = localStorage.getItem('sb-ghhafcmjhmwwfhldmxzc-auth-token');
     if (storedSession) {
-      navigate('/create', { replace: true });
+      navigate('/dashboard', { replace: true });
       return;
     }
   }, [navigate]);
@@ -52,7 +52,7 @@ const LandingNew = () => {
       } = supabase.auth.onAuthStateChange((event, session) => {
         setUser(session?.user ?? null);
         if (event === 'SIGNED_IN' && session?.user) {
-          navigate('/create', { replace: true });
+          navigate('/dashboard', { replace: true });
         }
       });
 
@@ -60,7 +60,7 @@ const LandingNew = () => {
 
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user) {
-          navigate('/create', { replace: true });
+          navigate('/dashboard', { replace: true });
         } else {
           setUser(null);
         }
@@ -76,7 +76,7 @@ const LandingNew = () => {
 
   const handleGenerate = () => {
     if (user) {
-      navigate('/create');
+      navigate('/dashboard');
     } else {
       setShowAuthModal(true);
     }
@@ -119,7 +119,7 @@ const LandingNew = () => {
         {/* Right side buttons */}
         <div className="flex items-center gap-3">
           {user ? (
-            <Link to="/create">
+            <Link to="/dashboard">
               <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-4">
                 Dashboard
               </Button>
