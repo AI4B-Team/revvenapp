@@ -9,6 +9,35 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { cn } from '@/lib/utils';
 
+// Model logo imports
+import autoLogo from '@/assets/model-logos/auto.png';
+import fluxLogo from '@/assets/model-logos/flux.png';
+import openaiLogo from '@/assets/model-logos/openai.png';
+import seedreamLogo from '@/assets/model-logos/seedream.png';
+import qwenLogo from '@/assets/model-logos/qwen.png';
+import nanoBananaLogo from '@/assets/model-logos/nano-banana.png';
+import ideogramLogo from '@/assets/model-logos/ideogram.png';
+import grokLogo from '@/assets/model-logos/grok.png';
+import imagenLogo from '@/assets/model-logos/imagen.png';
+import zImageLogo from '@/assets/model-logos/z-image.png';
+import googleLogo from '@/assets/model-logos/google.svg';
+import soraLogo from '@/assets/model-logos/sora.png';
+import klingLogo from '@/assets/model-logos/kling.png';
+import veoLogo from '@/assets/model-logos/veo.png';
+import heygenLogo from '@/assets/model-logos/heygen.png';
+import synthesiaLogo from '@/assets/model-logos/synthesia.png';
+import didLogo from '@/assets/model-logos/d-id.png';
+import hedraLogo from '@/assets/model-logos/hedra.png';
+import arcadsLogo from '@/assets/model-logos/arcads.png';
+import creatifyLogo from '@/assets/model-logos/creatify.png';
+import runwayLogo from '@/assets/model-logos/runway.png';
+import pikaLogo from '@/assets/model-logos/pika.png';
+import wanLogo from '@/assets/model-logos/wan.png';
+import hailuoLogo from '@/assets/model-logos/hailuo.png';
+import elevenlabsLogo from '@/assets/model-logos/elevenlabs.png';
+import sunoLogo from '@/assets/model-logos/suno.png';
+import udioLogo from '@/assets/model-logos/udio.png';
+
 const placeholdersByIntent: Record<Intent | 'default', string> = {
   default: 'Ask anything...',
   Create: 'Describe what you want to create…',
@@ -55,124 +84,124 @@ const documentControlIcons: ControlIcon[] = [];
 
 // Image model options by subtype
 const imageGenerateModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', badge: 'SUGGESTED', supportsImg2Img: true },
-  { id: 'flux-pro', label: 'Flux Pro', description: 'Balanced performance and quality', supportsImg2Img: true },
-  { id: 'flux-max', label: 'Flux Max', description: 'Enhanced quality for complex scenes', badge: 'PREMIUM', supportsImg2Img: true },
-  { id: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI\'s advanced image model', badge: 'NEW', supportsImg2Img: true },
-  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true },
-  { id: 'seedream-3', label: 'Seedream 3.0', description: 'ByteDance\'s reliable SD model' },
-  { id: 'qwen-image', label: 'Qwen Image', description: 'Alibaba\'s multilingual model' },
-  { id: 'nano-banana', label: 'Nano Banana', description: 'Gemini 2.5 Flash Image Preview', supportsImg2Img: true },
-  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true },
-  { id: 'ideogram-v3-edit', label: 'Ideogram V3 Edit', description: 'Inpainting with mask editing' },
-  { id: 'ideogram-character', label: 'Ideogram Character', description: 'Character-consistent generation', supportsImg2Img: true },
-  { id: 'grok-imagine', label: 'Grok Imagine', description: 'X.AI\'s powerful text-to-image model' },
-  { id: 'imagen-4-ultra', label: 'Imagen 4 Ultra', description: 'Google\'s most advanced image model', badge: 'ULTRA', supportsImg2Img: true },
-  { id: 'z-image', label: 'Z-Image', description: 'Hyper-realistic text-to-image generation', badge: 'NEW' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', badge: 'SUGGESTED', supportsImg2Img: true, logo: autoLogo },
+  { id: 'flux-pro', label: 'Flux Pro', description: 'Balanced performance and quality', supportsImg2Img: true, logo: fluxLogo },
+  { id: 'flux-max', label: 'Flux Max', description: 'Enhanced quality for complex scenes', badge: 'PREMIUM', supportsImg2Img: true, logo: fluxLogo },
+  { id: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI\'s advanced image model', badge: 'NEW', supportsImg2Img: true, logo: openaiLogo },
+  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true, logo: seedreamLogo },
+  { id: 'seedream-3', label: 'Seedream 3.0', description: 'ByteDance\'s reliable SD model', logo: seedreamLogo },
+  { id: 'qwen-image', label: 'Qwen Image', description: 'Alibaba\'s multilingual model', logo: qwenLogo },
+  { id: 'nano-banana', label: 'Nano Banana', description: 'Gemini 2.5 Flash Image Preview', supportsImg2Img: true, logo: nanoBananaLogo },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, logo: nanoBananaLogo },
+  { id: 'ideogram-v3-edit', label: 'Ideogram V3 Edit', description: 'Inpainting with mask editing', logo: ideogramLogo },
+  { id: 'ideogram-character', label: 'Ideogram Character', description: 'Character-consistent generation', supportsImg2Img: true, logo: ideogramLogo },
+  { id: 'grok-imagine', label: 'Grok Imagine', description: 'X.AI\'s powerful text-to-image model', logo: grokLogo },
+  { id: 'imagen-4-ultra', label: 'Imagen 4 Ultra', description: 'Google\'s most advanced image model', badge: 'ULTRA', supportsImg2Img: true, logo: imagenLogo },
+  { id: 'z-image', label: 'Z-Image', description: 'Hyper-realistic text-to-image generation', badge: 'NEW', logo: zImageLogo },
 ];
 
 const imageBatchModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'flux-pro', label: 'Flux Pro', description: 'High quality batch' },
-  { id: 'flux-schnell', label: 'Flux Schnell', description: 'Fast batch generation' },
-  { id: 'seedream-4', label: 'Seedream 4', description: 'Consistent styles' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'flux-pro', label: 'Flux Pro', description: 'High quality batch', logo: fluxLogo },
+  { id: 'flux-schnell', label: 'Flux Schnell', description: 'Fast batch generation', logo: fluxLogo },
+  { id: 'seedream-4', label: 'Seedream 4', description: 'Consistent styles', logo: seedreamLogo },
 ];
 
 const imageDrawModelOptions = [
-  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true },
-  { id: 'seedream-4.5', label: 'Seedream 4.5', description: 'ByteDance\'s 4K edit model (up to 12 refs)', badge: 'NEW', supportsImg2Img: true },
-  { id: 'nano-banana', label: 'Nano Banana', description: 'Gemini 2.5 Flash Image Preview', supportsImg2Img: true },
-  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsDraw: true },
+  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true, logo: seedreamLogo },
+  { id: 'seedream-4.5', label: 'Seedream 4.5', description: 'ByteDance\'s 4K edit model (up to 12 refs)', badge: 'NEW', supportsImg2Img: true, logo: seedreamLogo },
+  { id: 'nano-banana', label: 'Nano Banana', description: 'Gemini 2.5 Flash Image Preview', supportsImg2Img: true, logo: nanoBananaLogo },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsDraw: true, logo: nanoBananaLogo },
 ];
 
 const imageSwapModelOptions = [
-  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true, supportsSwap: true },
-  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsSwap: true },
+  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true, supportsSwap: true, logo: seedreamLogo },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsSwap: true, logo: nanoBananaLogo },
 ];
 
 const imagePhotoshootModelOptions = [
-  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsPhoto: true },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, supportsPhoto: true, logo: nanoBananaLogo },
 ];
 
 // Video model options by subtype
 const videoStoryModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality' },
-  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick generation' },
-  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard mode' },
-  { id: 'kling-2.6', label: 'Kling 2.6', description: 'With sound' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality', logo: veoLogo },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick generation', logo: veoLogo },
+  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard mode', logo: soraLogo },
+  { id: 'kling-2.6', label: 'Kling 2.6', description: 'With sound', logo: klingLogo },
 ];
 
 const videoPresentationModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick slides' },
-  { id: 'heygen', label: 'HeyGen', description: 'Avatar presenter' },
-  { id: 'synthesia', label: 'Synthesia', description: 'AI presenter' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick slides', logo: veoLogo },
+  { id: 'heygen', label: 'HeyGen', description: 'Avatar presenter', logo: heygenLogo },
+  { id: 'synthesia', label: 'Synthesia', description: 'AI presenter', logo: synthesiaLogo },
 ];
 
 const videoVSLModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Sales videos' },
-  { id: 'heygen', label: 'HeyGen', description: 'Avatar sales' },
-  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Premium VSL' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'veo3', label: 'Veo 3.1 Quality', description: 'Sales videos', logo: veoLogo },
+  { id: 'heygen', label: 'HeyGen', description: 'Avatar sales', logo: heygenLogo },
+  { id: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Premium VSL', logo: soraLogo },
 ];
 
 const videoAvatarModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'heygen', label: 'HeyGen', description: 'Realistic avatars' },
-  { id: 'synthesia', label: 'Synthesia', description: 'Professional avatars' },
-  { id: 'd-id', label: 'D-ID', description: 'Talking photos' },
-  { id: 'hedra', label: 'Hedra', description: 'Character avatars' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'heygen', label: 'HeyGen', description: 'Realistic avatars', logo: heygenLogo },
+  { id: 'synthesia', label: 'Synthesia', description: 'Professional avatars', logo: synthesiaLogo },
+  { id: 'd-id', label: 'D-ID', description: 'Talking photos', logo: didLogo },
+  { id: 'hedra', label: 'Hedra', description: 'Character avatars', logo: hedraLogo },
 ];
 
 const videoUGCModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'heygen', label: 'HeyGen', description: 'UGC creators' },
-  { id: 'arcads', label: 'Arcads', description: 'Ad-style UGC' },
-  { id: 'creatify', label: 'Creatify', description: 'Social UGC' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'heygen', label: 'HeyGen', description: 'UGC creators', logo: heygenLogo },
+  { id: 'arcads', label: 'Arcads', description: 'Ad-style UGC', logo: arcadsLogo },
+  { id: 'creatify', label: 'Creatify', description: 'Social UGC', logo: creatifyLogo },
 ];
 
 const videoRecastModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Video-to-video' },
-  { id: 'pika-2', label: 'Pika 2', description: 'Style transfer' },
-  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Video recast' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Video-to-video', logo: runwayLogo },
+  { id: 'pika-2', label: 'Pika 2', description: 'Style transfer', logo: pikaLogo },
+  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Video recast', logo: klingLogo },
 ];
 
 const videoAnimateModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Image-to-video' },
-  { id: 'wan-2.5', label: 'Wan 2.5', description: 'Animation' },
-  { id: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Smooth animation' },
-  { id: 'sora-2-i2v', label: 'Sora 2', description: 'Premium animation' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'kling-2.5', label: 'Kling 2.5', description: 'Image-to-video', logo: klingLogo },
+  { id: 'wan-2.5', label: 'Wan 2.5', description: 'Animation', logo: wanLogo },
+  { id: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Smooth animation', logo: hailuoLogo },
+  { id: 'sora-2-i2v', label: 'Sora 2', description: 'Premium animation', logo: soraLogo },
 ];
 
 const videoDrawModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'pika-2', label: 'Pika 2', description: 'Sketch animation' },
-  { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Draw-to-video' },
-  { id: 'kling-2.1', label: 'Kling 2.1', description: 'Drawing animation' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'pika-2', label: 'Pika 2', description: 'Sketch animation', logo: pikaLogo },
+  { id: 'runway-gen3', label: 'Runway Gen-3', description: 'Draw-to-video', logo: runwayLogo },
+  { id: 'kling-2.1', label: 'Kling 2.1', description: 'Drawing animation', logo: klingLogo },
 ];
 
 const videoLipSyncModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'sync-1.9.1', label: 'Sync 1.9.1', description: 'Precise lip sync' },
-  { id: 'wav2lip', label: 'Wav2Lip', description: 'Fast lip sync' },
-  { id: 'hedra', label: 'Hedra', description: 'Natural sync' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'sync-1.9.1', label: 'Sync 1.9.1', description: 'Precise lip sync', logo: heygenLogo },
+  { id: 'wav2lip', label: 'Wav2Lip', description: 'Fast lip sync', logo: autoLogo },
+  { id: 'hedra', label: 'Hedra', description: 'Natural sync', logo: hedraLogo },
 ];
 
 const videoMotionSyncModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'kling-motion', label: 'Kling Motion', description: 'Motion transfer' },
-  { id: 'animate-anyone', label: 'Animate Anyone', description: 'Pose transfer' },
-  { id: 'move-ai', label: 'Move AI', description: 'Body tracking' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'kling-motion', label: 'Kling Motion', description: 'Motion transfer', logo: klingLogo },
+  { id: 'animate-anyone', label: 'Animate Anyone', description: 'Pose transfer', logo: autoLogo },
+  { id: 'move-ai', label: 'Move AI', description: 'Body tracking', logo: autoLogo },
 ];
 
 const videoPodcastModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-  { id: 'notebook-lm', label: 'NotebookLM', description: 'AI podcast hosts' },
-  { id: 'heygen', label: 'HeyGen', description: 'Avatar podcast' },
-  { id: 'synthesia', label: 'Synthesia', description: 'Professional podcast' },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'notebook-lm', label: 'NotebookLM', description: 'AI podcast hosts', logo: googleLogo },
+  { id: 'heygen', label: 'HeyGen', description: 'Avatar podcast', logo: heygenLogo },
+  { id: 'synthesia', label: 'Synthesia', description: 'Professional podcast', logo: synthesiaLogo },
 ];
 
 // Audio model options by subtype
