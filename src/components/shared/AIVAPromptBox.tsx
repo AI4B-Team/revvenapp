@@ -389,7 +389,7 @@ const durationOptions = ['5s', '10s', '15s', '30s', '60s'];
 const qualityOptions = ['standard', 'high', 'ultra'];
 
 // Audio-specific options
-const sfxDurationOptions = ['1s', '2s', '5s', '10s', '22s'];
+const sfxSpeedOptions = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
 const sfxInfluenceOptions = ['10%', '20%', '30%', '50%', '70%', '100%'];
 const sfxFormatOptions = ['MP3', 'WAV', 'OGG', 'FLAC'];
 const languageOptions = ['Auto', 'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'];
@@ -450,7 +450,7 @@ const AIVAPromptBox = ({
   const [selectedQuality, setSelectedQuality] = useState('standard');
   
   // Audio-specific state
-  const [sfxDuration, setSfxDuration] = useState('5s');
+  const [sfxSpeed, setSfxSpeed] = useState('Normal');
   const [sfxLoop, setSfxLoop] = useState(false);
   const [sfxInfluence, setSfxInfluence] = useState('30%');
   const [sfxFormat, setSfxFormat] = useState('MP3');
@@ -479,7 +479,7 @@ const AIVAPromptBox = ({
   const { toast } = useToast();
   
   // Single state for tracking which dropdown is open (only one at a time)
-  type DropdownType = 'type' | 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'sfx-duration' | 'sfx-influence' | 'sfx-format' | 'from-language' | 'to-language' | 'music-vocal' | 'music-gender' | null;
+  type DropdownType = 'type' | 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'sfx-speed' | 'sfx-influence' | 'sfx-format' | 'from-language' | 'to-language' | 'music-vocal' | 'music-gender' | null;
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   
   // Toggle dropdown - if clicking same one, close it; otherwise open new one
@@ -1283,33 +1283,33 @@ const AIVAPromptBox = ({
                           <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                           <div className="relative">
                             <button 
-                              onClick={() => toggleDropdown('sfx-duration')}
+                              onClick={() => toggleDropdown('sfx-speed')}
                               className={cn(
                                 "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
-                                sfxDuration !== '5s'
+                                sfxSpeed !== 'Normal'
                                   ? "bg-amber-50 text-amber-600 border-amber-200"
                                   : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
                               )}
                             >
                               <Clock size={16} />
-                              <span>{sfxDuration}</span>
+                              <span>{sfxSpeed}</span>
                               <ChevronDown size={14} className="text-slate-400" />
                             </button>
-                            {activeDropdown === 'sfx-duration' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
-                                {sfxDurationOptions.map((dur) => (
+                            {activeDropdown === 'sfx-speed' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[120px]">
+                                {sfxSpeedOptions.map((speed) => (
                                   <button
-                                    key={dur}
+                                    key={speed}
                                     onClick={() => {
-                                      setSfxDuration(dur);
+                                      setSfxSpeed(speed);
                                       setActiveDropdown(null);
                                     }}
                                     className={cn(
                                       "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                      sfxDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                      sfxSpeed === speed ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
                                     )}
                                   >
-                                    {dur}
+                                    {speed}
                                   </button>
                                 ))}
                               </div>
