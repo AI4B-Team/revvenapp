@@ -3,28 +3,26 @@ interface RevvenLogoProps {
   className?: string;
 }
 
-const sizeClasses = {
-  sm: 'text-lg',
-  md: 'text-2xl',
-  lg: 'text-3xl',
-  xl: 'text-4xl',
-};
-
-const underlineHeights = {
-  sm: 'h-0.5',
-  md: 'h-1',
-  lg: 'h-1.5',
-  xl: 'h-2',
+const sizeConfig = {
+  sm: { fontSize: '1.25rem', letterSpacing: '0.15em', underlineHeight: '3px', gap: '2px' },
+  md: { fontSize: '1.75rem', letterSpacing: '0.18em', underlineHeight: '4px', gap: '3px' },
+  lg: { fontSize: '2.5rem', letterSpacing: '0.2em', underlineHeight: '5px', gap: '4px' },
+  xl: { fontSize: '3.5rem', letterSpacing: '0.22em', underlineHeight: '6px', gap: '5px' },
 };
 
 const RevvenLogo = ({ size = 'md', className = '' }: RevvenLogoProps) => {
+  const config = sizeConfig[size];
+  
   return (
-    <div className={`flex flex-col items-center ${className}`}>
-      {/* REVVEN text with metallic silver gradient */}
+    <div className={`flex flex-col items-center ${className}`} style={{ gap: config.gap }}>
+      {/* REVVEN text with metallic blue-silver gradient */}
       <span 
-        className={`${sizeClasses[size]} font-bold tracking-[0.2em]`}
         style={{
-          background: 'linear-gradient(180deg, #D4D8E0 0%, #A8B0C0 30%, #8892A8 50%, #6B7590 70%, #505870 100%)',
+          fontSize: config.fontSize,
+          fontWeight: 700,
+          letterSpacing: config.letterSpacing,
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          background: 'linear-gradient(180deg, #B8C5D6 0%, #8FA4BC 25%, #7B92AD 50%, #6A829E 75%, #5A7290 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
@@ -33,11 +31,13 @@ const RevvenLogo = ({ size = 'md', className = '' }: RevvenLogoProps) => {
         REVVEN
       </span>
       
-      {/* Rainbow gradient underline */}
+      {/* Multi-color gradient underline - pink, purple, blue, cyan */}
       <div 
-        className={`w-full ${underlineHeights[size]} rounded-full mt-0.5`}
         style={{
-          background: 'linear-gradient(90deg, #EC4899 0%, #A855F7 20%, #6366F1 40%, #3B82F6 60%, #06B6D4 80%, #10B981 100%)',
+          width: '100%',
+          height: config.underlineHeight,
+          borderRadius: '2px',
+          background: 'linear-gradient(90deg, #E91E8C 0%, #9C27B0 30%, #3F51B5 55%, #00BCD4 85%, #00BCD4 100%)',
         }}
       />
     </div>
