@@ -72,7 +72,7 @@ export default function LoginPage() {
     };
 
     const getLastVisitedRoute = (): string => {
-      return localStorage.getItem('last_visited_route') || '/dashboard';
+      return localStorage.getItem('last_visited_route') || '/create';
     };
 
     const handleAuthRedirect = async (session: Session) => {

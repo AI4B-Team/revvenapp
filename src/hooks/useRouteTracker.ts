@@ -8,6 +8,7 @@ const EXCLUDED_ROUTES = [
   '/invite-verification',
   '/onboarding',
   '/signup-flow',
+  '/',
 ];
 
 export const useRouteTracker = () => {
