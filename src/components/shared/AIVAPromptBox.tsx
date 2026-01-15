@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, type LucideIcon } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, type LucideIcon } from 'lucide-react';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
 import IntentSelector, { type Intent } from '@/components/IntentSelector';
@@ -334,6 +334,7 @@ const audioTypes: SubOption[] = [
   { id: 'voiceover', label: 'Voiceover', icon: Mic, color: 'text-emerald-500' },
   { id: 'clone', label: 'Clone', icon: User, color: 'text-violet-500' },
   { id: 'revoice', label: 'Revoice', icon: RefreshCw, color: 'text-cyan-500' },
+  { id: 'transcribe', label: 'Transcribe', icon: FileText, color: 'text-rose-500' },
   { id: 'sound-effects', label: 'Sound Effects', icon: AudioLines, color: 'text-amber-500' },
   { id: 'music', label: 'Music', icon: Music, color: 'text-blue-500' },
   { id: 'audiobook', label: 'AudioBook', icon: Headphones, color: 'text-indigo-500' },
@@ -386,6 +387,21 @@ const durationOptions = ['5s', '10s', '15s', '30s', '60s'];
 // Quality options
 const qualityOptions = ['standard', 'high', 'ultra'];
 
+// Audio-specific options
+const sfxDurationOptions = ['1s', '2s', '5s', '10s', '22s'];
+const sfxInfluenceOptions = ['10%', '20%', '30%', '50%', '70%', '100%'];
+const sfxFormatOptions = ['MP3', 'WAV', 'OGG', 'FLAC'];
+const languageOptions = ['Auto', 'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'];
+const musicVocalOptions = ['Instrumental', 'With Vocals'];
+const musicGenderOptions = ['Female', 'Male'];
+
+// Transcribe model options
+const audioTranscribeModelOptions: ModelOption[] = [
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+  { id: 'whisper-large', label: 'Whisper Large', description: 'Most accurate', logo: openaiLogo },
+  { id: 'whisper-turbo', label: 'Whisper Turbo', description: 'Fast & accurate', logo: openaiLogo },
+];
+
 interface AIVAPromptBoxProps {
   onGenerate?: () => void;
   showGreeting?: boolean;
@@ -432,8 +448,22 @@ const AIVAPromptBox = ({
   const [selectedDuration, setSelectedDuration] = useState('5s');
   const [selectedQuality, setSelectedQuality] = useState('standard');
   
+  // Audio-specific state
+  const [sfxDuration, setSfxDuration] = useState('5s');
+  const [sfxLoop, setSfxLoop] = useState(false);
+  const [sfxInfluence, setSfxInfluence] = useState('30%');
+  const [sfxFormat, setSfxFormat] = useState('MP3');
+  const [fromLanguage, setFromLanguage] = useState('Auto');
+  const [toLanguage, setToLanguage] = useState('Spanish');
+  const [musicVocal, setMusicVocal] = useState('Instrumental');
+  const [musicGender, setMusicGender] = useState<string | null>(null);
+  const [showLyrics, setShowLyrics] = useState(false);
+  const [customMode, setCustomMode] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<number>(0);
+  const [clonedVoices, setClonedVoices] = useState<number>(0);
+  
   // Single state for tracking which dropdown is open (only one at a time)
-  type DropdownType = 'type' | 'model' | 'ratio' | 'number' | 'duration' | 'quality' | null;
+  type DropdownType = 'type' | 'model' | 'ratio' | 'number' | 'duration' | 'quality' | 'sfx-duration' | 'sfx-influence' | 'sfx-format' | 'from-language' | 'to-language' | 'music-vocal' | 'music-gender' | null;
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   
   // Toggle dropdown - if clicking same one, close it; otherwise open new one
@@ -552,6 +582,7 @@ const AIVAPromptBox = ({
         case 'voiceover': return audioVoiceoverModelOptions;
         case 'clone': return audioCloneModelOptions;
         case 'revoice': return audioRevoiceModelOptions;
+        case 'transcribe': return audioTranscribeModelOptions;
         case 'sound-effects': return audioSoundEffectsModelOptions;
         case 'music': return audioMusicModelOptions;
         case 'audiobook': return audioAudiobookModelOptions;
@@ -633,7 +664,15 @@ const AIVAPromptBox = ({
             )}
 
             <textarea
-              placeholder={isListening ? 'Listening...' : placeholdersByIntent[intent || 'default']}
+              placeholder={
+                isListening 
+                  ? 'Listening...' 
+                  : selectedSubType?.id === 'transcribe' 
+                    ? 'Upload or record audio to transcribe'
+                    : selectedOption?.id === 'audio'
+                      ? 'Describe your sound, music, or voiceover...'
+                      : placeholdersByIntent[intent || 'default']
+              }
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               rows={3}
@@ -825,8 +864,375 @@ const AIVAPromptBox = ({
                     )}
                   </div>
 
-                  {/* Additional control icons (if any) - only for non-document types */}
-                  {selectedOption?.id !== 'document' && getControlIcons().length > 0 && (
+                  {/* Audio-specific controls */}
+                  {selectedOption?.id === 'audio' && (
+                    <>
+                      {/* Voiceover controls: Model + Voice + Language + Settings */}
+                      {selectedSubType?.id === 'voiceover' && (
+                        <>
+                          <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
+                                <Mic size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>Voice</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => toggleDropdown('from-language')}
+                                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                              >
+                                <Globe size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>Language</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
+                                <Clock size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>Duration</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
+                                <SlidersHorizontal size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>Settings</TooltipContent>
+                          </Tooltip>
+                        </>
+                      )}
+
+                      {/* Clone controls: Clone Voice button + Select Voice dropdown */}
+                      {selectedSubType?.id === 'clone' && (
+                        <>
+                          <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium transition-colors">
+                            <Mic size={16} />
+                            <span>Clone Voice</span>
+                          </button>
+                          <button 
+                            onClick={() => toggleDropdown('from-language')}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                          >
+                            <Copy size={16} />
+                            <span>Select Voice</span>
+                            {clonedVoices > 0 && (
+                              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-violet-500 text-white text-xs font-semibold">{clonedVoices}</span>
+                            )}
+                            <ChevronDown size={14} className="text-slate-400" />
+                          </button>
+                        </>
+                      )}
+
+                      {/* Revoice controls: Upload Audio + From Language + To Language */}
+                      {selectedSubType?.id === 'revoice' && (
+                        <>
+                          <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
+                            <Upload size={16} />
+                            <span>Audio</span>
+                            {uploadedFiles > 0 && (
+                              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-cyan-500 text-white text-xs font-semibold">{uploadedFiles}</span>
+                            )}
+                            <ChevronDown size={14} className="text-slate-400" />
+                          </button>
+                          <div className="relative">
+                            <button 
+                              onClick={() => toggleDropdown('from-language')}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                            >
+                              <span>From: {fromLanguage}</span>
+                              <ChevronDown size={14} className="text-slate-400" />
+                            </button>
+                            {activeDropdown === 'from-language' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                                {languageOptions.map((lang) => (
+                                  <button
+                                    key={lang}
+                                    onClick={() => {
+                                      setFromLanguage(lang);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      fromLanguage === lang ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {lang}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <button 
+                              onClick={() => toggleDropdown('to-language')}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                            >
+                              <Languages size={16} />
+                              <span>To: {toLanguage}</span>
+                              <ChevronDown size={14} className="text-slate-400" />
+                            </button>
+                            {activeDropdown === 'to-language' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                                {languageOptions.filter(l => l !== 'Auto').map((lang) => (
+                                  <button
+                                    key={lang}
+                                    onClick={() => {
+                                      setToLanguage(lang);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      toLanguage === lang ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {lang}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
+
+                      {/* Transcribe controls: Model + Upload */}
+                      {selectedSubType?.id === 'transcribe' && (
+                        <>
+                          <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
+                                <Globe size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>Language</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors">
+                                <Upload size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>Upload Audio</TooltipContent>
+                          </Tooltip>
+                        </>
+                      )}
+
+                      {/* Sound Effects controls: Duration + Loop + Influence + Format */}
+                      {selectedSubType?.id === 'sound-effects' && (
+                        <>
+                          <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                          <div className="relative">
+                            <button 
+                              onClick={() => toggleDropdown('sfx-duration')}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                            >
+                              <span>Duration</span>
+                              <ChevronDown size={14} className="text-slate-400" />
+                            </button>
+                            {activeDropdown === 'sfx-duration' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
+                                {sfxDurationOptions.map((dur) => (
+                                  <button
+                                    key={dur}
+                                    onClick={() => {
+                                      setSfxDuration(dur);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      sfxDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {dur}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <button 
+                            onClick={() => setSfxLoop(!sfxLoop)}
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                              sfxLoop 
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-200" 
+                                : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                            )}
+                          >
+                            <Repeat size={16} />
+                            <span>Loop</span>
+                          </button>
+                          <div className="relative">
+                            <button 
+                              onClick={() => toggleDropdown('sfx-influence')}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                            >
+                              <span>Influence: {sfxInfluence}</span>
+                              <ChevronDown size={14} className="text-slate-400" />
+                            </button>
+                            {activeDropdown === 'sfx-influence' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
+                                {sfxInfluenceOptions.map((inf) => (
+                                  <button
+                                    key={inf}
+                                    onClick={() => {
+                                      setSfxInfluence(inf);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      sfxInfluence === inf ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {inf}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <button 
+                              onClick={() => toggleDropdown('sfx-format')}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 text-sm font-medium transition-colors"
+                            >
+                              <span>{sfxFormat}</span>
+                              <ChevronDown size={14} className="text-slate-400" />
+                            </button>
+                            {activeDropdown === 'sfx-format' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
+                                {sfxFormatOptions.map((fmt) => (
+                                  <button
+                                    key={fmt}
+                                    onClick={() => {
+                                      setSfxFormat(fmt);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      sfxFormat === fmt ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {fmt}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
+
+                      {/* Music controls: Model Version + Instrumental/Vocals + Gender + Lyrics + Custom */}
+                      {selectedSubType?.id === 'music' && (
+                        <>
+                          <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
+                          <div className="relative">
+                            <button 
+                              onClick={() => toggleDropdown('music-vocal')}
+                              className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                musicVocal === 'Instrumental'
+                                  ? "bg-violet-50 text-violet-600 border-violet-200"
+                                  : "bg-rose-50 text-rose-600 border-rose-200"
+                              )}
+                            >
+                              {musicVocal === 'Instrumental' ? (
+                                <Music size={16} />
+                              ) : (
+                                <Volume2 size={16} />
+                              )}
+                              <span>{musicVocal}</span>
+                            </button>
+                            {activeDropdown === 'music-vocal' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px]">
+                                {musicVocalOptions.map((opt) => (
+                                  <button
+                                    key={opt}
+                                    onClick={() => {
+                                      setMusicVocal(opt);
+                                      if (opt === 'Instrumental') setMusicGender(null);
+                                      setActiveDropdown(null);
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                                      musicVocal === opt ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                    )}
+                                  >
+                                    {opt === 'Instrumental' ? <Music size={16} /> : <Volume2 size={16} />}
+                                    {opt}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          {musicVocal === 'With Vocals' && (
+                            <>
+                              <button 
+                                onClick={() => setMusicGender(musicGender === 'Female' ? null : 'Female')}
+                                className={cn(
+                                  "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                  musicGender === 'Female'
+                                    ? "bg-pink-50 text-pink-600 border-pink-200"
+                                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                )}
+                              >
+                                👩
+                                <span>Female</span>
+                              </button>
+                              <button 
+                                onClick={() => setMusicGender(musicGender === 'Male' ? null : 'Male')}
+                                className={cn(
+                                  "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                  musicGender === 'Male'
+                                    ? "bg-blue-50 text-blue-600 border-blue-200"
+                                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                )}
+                              >
+                                👨
+                                <span>Male</span>
+                              </button>
+                              <button 
+                                onClick={() => setShowLyrics(!showLyrics)}
+                                className={cn(
+                                  "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                                  showLyrics
+                                    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                                )}
+                              >
+                                <FileText size={16} />
+                                <span>Add Lyrics</span>
+                                <ChevronDown size={14} />
+                              </button>
+                            </>
+                          )}
+                          <button 
+                            onClick={() => setCustomMode(!customMode)}
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border",
+                              customMode
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
+                            )}
+                          >
+                            <span>Custom</span>
+                          </button>
+                        </>
+                      )}
+
+                      {/* Audiobook controls: Just model selector (already shown) */}
+                    </>
+                  )}
+
+                  {/* Additional control icons (if any) - only for non-document and non-audio types */}
+                  {selectedOption?.id !== 'document' && selectedOption?.id !== 'audio' && getControlIcons().length > 0 && (
                     <>
                       <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                       <div className="relative flex items-center gap-1.5 flex-shrink-0">
@@ -1048,15 +1454,15 @@ const AIVAPromptBox = ({
               )}
               <button 
                 onClick={onGenerate}
-                disabled={!prompt.trim()}
+                disabled={selectedSubType?.id === 'transcribe' ? false : !prompt.trim()}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                  prompt.trim() 
+                  (selectedSubType?.id === 'transcribe' || prompt.trim())
                     ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
                     : 'bg-emerald-500/40 text-white/70 cursor-not-allowed'
                 }`}
               >
                 <Send size={16} />
-                <span>Generate For Free!</span>
+                <span>{selectedSubType?.id === 'transcribe' ? 'Transcribe' : 'Generate For Free!'}</span>
               </button>
             </div>
           </div>
