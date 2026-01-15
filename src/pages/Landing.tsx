@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Check, Play, ArrowRight, Zap, Users, TrendingUp, Clock, Sparkles, Brain, Calendar, BarChart3, MessageSquare, Camera, FileText, Video, Image as ImageIcon } from 'lucide-react';
+import AIVAPromptBox, { type SubOptionType } from '@/components/shared/AIVAPromptBox';
+import type { Intent } from '@/components/IntentSelector';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import vickiRed from '@/assets/vicki-red.png';
 import xalinaVoss from '@/assets/xalina-voss.png';
 import xalinaProfile from '@/assets/xalina-profile.png';
@@ -45,6 +48,20 @@ export default function RevvenLandingPage() {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeValueProp, setActiveValueProp] = useState(0);
+  const [prompt, setPrompt] = useState('');
+  const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
+  const [selectedSubType, setSelectedSubType] = useState<SubOptionType | null>(null);
+
+  const handleGenerate = () => {
+    // Navigate to create page with the prompt and settings
+    navigate('/create', { 
+      state: { 
+        prompt, 
+        intent: selectedIntent,
+        subType: selectedSubType 
+      } 
+    });
+  };
 
   const valuePros = [
     { text: "Business", color: "text-purple-400" },
@@ -107,14 +124,6 @@ export default function RevvenLandingPage() {
     }
   ];
 
-  const contentTypes = [
-    { name: "Talking Reels", icon: Video, description: "AI avatars that speak, emote, and move naturally" },
-    { name: "Carousels", icon: ImageIcon, description: "Engaging multi-slide posts for all platforms" },
-    { name: "Landing Pages", icon: FileText, description: "High-converting pages built in minutes" },
-    { name: "Image Posts", icon: Camera, description: "Stunning visuals with your branding" },
-    { name: "Loop Reels", icon: Video, description: "Attention-grabbing short videos" },
-    { name: "Lead Magnets", icon: FileText, description: "eBooks, guides, and resources" }
-  ];
 
   const aiTeam = [
     {
@@ -254,52 +263,22 @@ export default function RevvenLandingPage() {
             The One AI Revenue Engine That Fully Automates Your Content, Marketing & Sales 24/7
           </motion.p>
 
+          {/* AIVAPromptBox - Same functionality as Create page */}
           <motion.div 
             variants={itemVariants}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+            className="max-w-4xl mx-auto mb-12"
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg group">
-                Start Automating Now
-                <motion.span
-                  className="inline-block ml-2"
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                >
-                  <ArrowRight className="w-5 h-5" />
-                </motion.span>
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="outline" className="border-green-600 text-black bg-white hover:bg-gray-100 px-8 py-6 text-lg">
-                Watch Demo
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          {/* Content Type Preview Carousel */}
-          <motion.div 
-            variants={containerVariants}
-            className="grid grid-cols-2 md:grid-cols-6 gap-4 max-w-5xl mx-auto"
-          >
-            {contentTypes.map((type, index) => (
-              <motion.div 
-                key={index} 
-                variants={scaleIn}
-                custom={index}
-                whileHover={{ scale: 1.08, y: -5 }}
-                className="group"
-              >
-                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 hover:border-green-500 transition-all duration-300">
-                  <FloatingElement delay={index * 0.2} duration={3 + index * 0.5} yOffset={10}>
-                    <div className="w-full aspect-[9/16] bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-lg mb-3 flex items-center justify-center">
-                      <type.icon className="w-8 h-8 text-green-500" />
-                    </div>
-                  </FloatingElement>
-                  <h3 className="text-sm font-semibold text-center">{type.name}</h3>
-                </div>
-              </motion.div>
-            ))}
+            <TooltipProvider>
+              <AIVAPromptBox
+                showTagline={false}
+                prompt={prompt}
+                onPromptChange={setPrompt}
+                selectedIntent={selectedIntent}
+                onIntentChange={setSelectedIntent}
+                onSubTypeChange={setSelectedSubType}
+                onGenerate={handleGenerate}
+              />
+            </TooltipProvider>
           </motion.div>
         </motion.div>
         
