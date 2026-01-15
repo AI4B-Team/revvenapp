@@ -492,6 +492,22 @@ const AIVAPromptBox = ({
     setActiveDropdown(null);
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Check if the click is outside any dropdown
+      if (!target.closest('[data-dropdown]')) {
+        setActiveDropdown(null);
+      }
+    };
+
+    if (activeDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [activeDropdown]);
+
   // Speech recognition hook
   const handleTranscriptResult = useCallback((transcript: string) => {
     setPrompt(transcript);
@@ -894,7 +910,7 @@ const AIVAPromptBox = ({
                   <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
 
                   {/* Model Button with dropdown */}
-                  <div className="relative">
+                  <div className="relative" data-dropdown>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div 
@@ -987,7 +1003,7 @@ const AIVAPromptBox = ({
                             </TooltipTrigger>
                             <TooltipContent>Select Voice</TooltipContent>
                           </Tooltip>
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button 
@@ -1025,7 +1041,7 @@ const AIVAPromptBox = ({
                               </div>
                             )}
                           </div>
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button 
@@ -1124,7 +1140,7 @@ const AIVAPromptBox = ({
                             )}
                             <ChevronDown size={14} className="text-slate-400" />
                           </button>
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <button 
                               onClick={() => toggleDropdown('from-language')}
                               className={cn(
@@ -1157,7 +1173,7 @@ const AIVAPromptBox = ({
                               </div>
                             )}
                           </div>
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <button 
                               onClick={() => toggleDropdown('to-language')}
                               className={cn(
@@ -1198,7 +1214,7 @@ const AIVAPromptBox = ({
                       {selectedSubType?.id === 'transcribe' && (
                         <>
                           <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button 
@@ -1281,7 +1297,7 @@ const AIVAPromptBox = ({
                       {selectedSubType?.id === 'sound-effects' && (
                         <>
                           <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <button 
                               onClick={() => toggleDropdown('sfx-speed')}
                               className={cn(
@@ -1327,7 +1343,7 @@ const AIVAPromptBox = ({
                             <Repeat size={16} />
                             <span>Loop</span>
                           </button>
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <button 
                               onClick={() => toggleDropdown('sfx-influence')}
                               className={cn(
@@ -1361,7 +1377,7 @@ const AIVAPromptBox = ({
                               </div>
                             )}
                           </div>
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <button 
                               onClick={() => toggleDropdown('sfx-format')}
                               className={cn(
@@ -1401,7 +1417,7 @@ const AIVAPromptBox = ({
                       {selectedSubType?.id === 'music' && (
                         <>
                           <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
-                          <div className="relative">
+                          <div className="relative" data-dropdown>
                             <button 
                               onClick={() => toggleDropdown('music-vocal')}
                               className={cn(
