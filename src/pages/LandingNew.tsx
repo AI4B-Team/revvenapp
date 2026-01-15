@@ -206,7 +206,7 @@ const LandingNew = () => {
                     Choose Your Platforms To Generate Content For Each One
                   </p>
                   
-                  <div className="flex items-center justify-center gap-3 flex-wrap pb-2 px-2 pt-3">
+                  <div className="flex items-center justify-center gap-3 flex-nowrap overflow-visible pb-2 px-2 pt-3">
                     <button
                       onClick={() => {
                         if (selectedPlatforms.length === socialPlatforms.length) {
@@ -215,7 +215,7 @@ const LandingNew = () => {
                           setSelectedPlatforms(socialPlatforms.map(p => p.id));
                         }
                       }}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap inline-flex items-center flex-shrink-0 ${
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all !whitespace-nowrap inline-flex items-center flex-shrink-0 ${
                         selectedPlatforms.length === socialPlatforms.length
                           ? 'bg-emerald-500 text-white'
                           : 'bg-muted text-muted-foreground hover:bg-muted/80'
