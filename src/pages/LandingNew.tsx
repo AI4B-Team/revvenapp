@@ -40,8 +40,13 @@ const LandingNew = () => {
     try {
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
+      } = supabase.auth.onAuthStateChange((event, session) => {
         setUser(session?.user ?? null);
+        
+        // Redirect to dashboard on sign in
+        if (event === 'SIGNED_IN' && session?.user) {
+          navigate('/create');
+        }
       });
 
       unsubscribe = () => subscription.unsubscribe();
@@ -59,7 +64,7 @@ const LandingNew = () => {
     return () => {
       unsubscribe?.();
     };
-  }, []);
+  }, [navigate]);
 
   const handleGenerate = () => {
     if (user) {
