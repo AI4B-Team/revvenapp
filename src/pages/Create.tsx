@@ -560,13 +560,15 @@ const Create = () => {
       name: 'Website Builder', 
       description: 'Build custom websites',
       bgColor: 'bg-tool-blue',
-      emoji: '🌐'
+      emoji: '🌐',
+      onClick: () => navigate('/websites')
     },
     { 
       name: 'Landing Page', 
       description: 'Create landing pages',
       bgColor: 'bg-tool-yellow',
-      emoji: '📄'
+      emoji: '📄',
+      onClick: () => navigate('/websites')
     },
     { 
       name: 'Form Builder', 
