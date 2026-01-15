@@ -14,6 +14,7 @@ import type { Intent } from '@/components/IntentSelector';
 import { isStorageAccessible } from '@/utils/isStorageAccessible';
 
 const PresentationTemplates = lazy(() => import('@/components/shared/PresentationTemplates'));
+const SocialContentCalendar = lazy(() => import('@/components/dashboard/SocialContentCalendar'));
 
 const LandingNew = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -113,8 +114,9 @@ const LandingNew = () => {
     setReferencesModalOpen(false);
   };
 
-  // Check if Presentation is selected
+  // Check if Presentation or Calendar is selected
   const isPresentationSelected = selectedSubType?.id === 'presentation';
+  const isCalendarSelected = selectedSubType?.id === 'calendar';
 
   return (
     <div className="h-screen bg-gradient-to-b from-slate-50 to-white flex flex-col overflow-hidden">
@@ -171,7 +173,7 @@ const LandingNew = () => {
           />
         </div>
 
-        {/* Conditionally show Presentation Templates or AI Suggestions */}
+        {/* Conditionally show Presentation Templates, Calendar, or AI Suggestions */}
         {isPresentationSelected ? (
           <Suspense
             fallback={
@@ -181,6 +183,21 @@ const LandingNew = () => {
             }
           >
             <PresentationTemplates onPromptSelect={handlePresentationPromptSelect} />
+          </Suspense>
+        ) : isCalendarSelected ? (
+          <Suspense
+            fallback={
+              <div className="w-full mx-auto max-w-[850px] mt-6">
+                <p className="text-sm text-muted-foreground">Loading calendar…</p>
+              </div>
+            }
+          >
+            <div className="w-full mt-4">
+              <SocialContentCalendar 
+                generatedContent={[]}
+                isGenerating={false}
+              />
+            </div>
           </Suspense>
         ) : (
           <div className="w-full mx-auto max-w-[800px]">
