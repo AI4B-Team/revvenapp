@@ -10,15 +10,9 @@ import {
   Monitor, 
   Type, 
   Image, 
-  Palette, 
   Layout, 
-  Settings,
-  Plus,
   Trash2,
-  Move,
   Copy,
-  Undo,
-  Redo,
   Code,
   ExternalLink,
   Sparkles,
@@ -361,17 +355,28 @@ const WebsiteEditor = () => {
   // AI Generation state
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
 
-  const generateWebsiteFromPrompt = async () => {
-    if (!prompt.trim()) {
+  const generateWebsiteFromPrompt = async (userPrompt?: string) => {
+    const promptText = userPrompt || prompt;
+    if (!promptText.trim()) {
       toast.error('Please enter a description for your website');
       return;
     }
 
+    // Add user message to chat history
+    setChatHistory(prev => [...prev, { role: 'user', content: promptText.trim() }]);
+    setPrompt('');
     setIsGenerating(true);
+    
     try {
+      // Build context from existing website if editing
+      const contextPrompt = websiteData 
+        ? `Current website: ${websiteData.name} - ${websiteData.description}. Current sections: ${websiteData.sections.map(s => s.type).join(', ')}. User request: ${promptText.trim()}`
+        : promptText.trim();
+
       const { data, error } = await supabase.functions.invoke('generate-website', {
-        body: { prompt: prompt.trim() }
+        body: { prompt: contextPrompt }
       });
 
       if (error) {
@@ -380,12 +385,14 @@ const WebsiteEditor = () => {
 
       if (data?.website) {
         setWebsiteData(data.website);
-        toast.success('Website generated successfully!');
+        setChatHistory(prev => [...prev, { role: 'assistant', content: `I've ${websiteData ? 'updated' : 'created'} your website with: ${data.website.sections.map((s: Section) => s.type).join(', ')} sections.` }]);
+        toast.success(websiteData ? 'Website updated!' : 'Website generated!');
       } else {
         throw new Error('No website data received');
       }
     } catch (error: any) {
       console.error('Error generating website:', error);
+      setChatHistory(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
       toast.error(error.message || 'Failed to generate website. Please try again.');
     } finally {
       setIsGenerating(false);
@@ -745,277 +752,179 @@ ${sectionsHTML}
 
   const selectedSectionData = websiteData?.sections.find(s => s.id === selectedSection);
 
-  // Show AI prompt interface if no website data
+  // Render the chat/prompt sidebar
+  const renderPromptSidebar = () => (
+    <div className="w-96 border-r border-border bg-card flex flex-col h-full">
+      {/* Header */}
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/websites')}>
+            <ArrowLeft size={18} />
+          </Button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-semibold">AI Website Builder</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Chat History */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {chatHistory.length === 0 && !websiteData && (
+          <div className="text-center py-8 space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+              <Wand2 className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg">Describe your website</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Tell me what kind of website you want to build
+              </p>
+            </div>
+            
+            {/* Example Prompts */}
+            <div className="space-y-2 mt-6">
+              <p className="text-xs text-muted-foreground">Try these examples:</p>
+              {[
+                "A modern SaaS landing page for a project management tool",
+                "A restaurant website with menu and reservations",
+                "A fitness gym with class schedules and pricing",
+                "A photography portfolio with gallery"
+              ].map((example, index) => (
+                <button
+                  key={index}
+                  onClick={() => generateWebsiteFromPrompt(example)}
+                  className="w-full p-3 text-sm text-left border rounded-lg hover:bg-muted hover:border-primary/50 transition-colors"
+                  disabled={isGenerating}
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {chatHistory.map((message, index) => (
+          <div
+            key={index}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[85%] p-3 rounded-2xl ${
+                message.role === 'user'
+                  ? 'bg-primary text-primary-foreground rounded-br-md'
+                  : 'bg-muted rounded-bl-md'
+              }`}
+            >
+              <p className="text-sm">{message.content}</p>
+            </div>
+          </div>
+        ))}
+
+        {isGenerating && (
+          <div className="flex justify-start">
+            <div className="bg-muted p-3 rounded-2xl rounded-bl-md">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Generating...</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {websiteData && chatHistory.length > 0 && (
+          <div className="border-t border-border pt-4 mt-4">
+            <p className="text-xs text-muted-foreground mb-2">Current website</p>
+            <div className="bg-muted/50 p-3 rounded-lg">
+              <p className="font-medium text-sm">{websiteData.name}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {websiteData.sections.length} sections • {websiteData.fontFamily}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input Area */}
+      <div className="p-4 border-t border-border">
+        <div className="flex gap-2">
+          <Textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                generateWebsiteFromPrompt();
+              }
+            }}
+            placeholder={websiteData ? "Edit your website... e.g. 'Add a team section'" : "Describe your website..."}
+            className="min-h-[60px] max-h-[120px] resize-none text-sm"
+            disabled={isGenerating}
+          />
+          <Button 
+            onClick={() => generateWebsiteFromPrompt()}
+            disabled={isGenerating || !prompt.trim()}
+            size="icon"
+            className="h-auto aspect-square self-end"
+          >
+            {isGenerating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+        {websiteData && (
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Press Enter to send • Shift+Enter for new line
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
+  // Render empty preview placeholder
+  const renderEmptyPreview = () => (
+    <div className="flex-1 flex items-center justify-center bg-muted/30">
+      <div className="text-center space-y-4 max-w-md">
+        <div className="w-24 h-24 mx-auto rounded-2xl bg-muted flex items-center justify-center">
+          <Monitor className="w-12 h-12 text-muted-foreground/50" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-lg text-muted-foreground">Preview Area</h3>
+          <p className="text-sm text-muted-foreground/70 mt-1">
+            Your website will appear here once generated
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // If no website data, show side-by-side with empty preview
   if (!websiteData) {
     return (
       <div className="flex h-screen bg-background">
-        <div className="flex-1 flex flex-col items-center justify-center p-8">
-          <div className="max-w-2xl w-full space-y-8">
-            {/* Header */}
-            <div className="text-center space-y-4">
-              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-                <Sparkles className="w-10 h-10 text-white" />
-              </div>
-              <h1 className="text-4xl font-bold">AI Website Builder</h1>
-              <p className="text-xl text-muted-foreground">
-                Describe your website and let AI create it for you in seconds
-              </p>
-            </div>
-
-            {/* Prompt Input */}
-            <div className="space-y-4">
-              <div className="relative">
-                <Textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Example: A modern SaaS landing page for a project management tool with pricing, features, testimonials, and a newsletter signup..."
-                  className="min-h-[150px] pr-4 text-lg resize-none"
-                  disabled={isGenerating}
-                />
-              </div>
-              
-              <Button 
-                onClick={generateWebsiteFromPrompt}
-                disabled={isGenerating || !prompt.trim()}
-                className="w-full h-14 text-lg gap-3"
-                size="lg"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Generating your website...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="w-5 h-5" />
-                    Generate Website
-                  </>
-                )}
-              </Button>
-            </div>
-
-            {/* Example Prompts */}
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground text-center">Try these examples:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {[
-                  "A fitness gym website with class schedules, trainers, and membership pricing",
-                  "A restaurant website with menu, about us, and reservation info",
-                  "A tech startup landing page with product features and team section",
-                  "A photography portfolio with gallery, about, and contact form"
-                ].map((example, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setPrompt(example)}
-                    className="p-3 text-sm text-left border rounded-lg hover:bg-muted transition-colors"
-                    disabled={isGenerating}
-                  >
-                    {example}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Or use template */}
-            <div className="text-center">
-              <Button variant="outline" onClick={() => navigate('/websites')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Or choose a template
-              </Button>
-            </div>
-          </div>
-        </div>
+        {renderPromptSidebar()}
+        {renderEmptyPreview()}
       </div>
     );
   }
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Left Sidebar */}
-      <div className="w-72 border-r border-border bg-card flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b border-border">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/websites')} className="mb-3">
-            <ArrowLeft size={16} className="mr-2" />
-            Back to Templates
-          </Button>
-          <h2 className="font-semibold text-lg">{websiteData.name}</h2>
-          <p className="text-sm text-muted-foreground">{websiteData.description}</p>
-        </div>
-
-        {/* Regenerate with AI */}
-        <div className="p-4 border-b border-border">
-          <Button 
-            variant="outline" 
-            className="w-full gap-2"
-            onClick={() => setWebsiteData(null)}
-          >
-            <Sparkles size={16} />
-            Generate New with AI
-          </Button>
-        </div>
-
-        {/* Panel Tabs */}
-        <div className="flex border-b border-border">
-          <button
-            onClick={() => setActivePanel('sections')}
-            className={`flex-1 py-3 text-sm font-medium transition-colors ${activePanel === 'sections' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <Layout size={16} className="inline mr-1" />
-            Sections
-          </button>
-          <button
-            onClick={() => setActivePanel('style')}
-            className={`flex-1 py-3 text-sm font-medium transition-colors ${activePanel === 'style' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <Palette size={16} className="inline mr-1" />
-            Style
-          </button>
-          <button
-            onClick={() => setActivePanel('settings')}
-            className={`flex-1 py-3 text-sm font-medium transition-colors ${activePanel === 'settings' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <Settings size={16} className="inline mr-1" />
-            Settings
-          </button>
-        </div>
-
-        {/* Panel Content */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {activePanel === 'sections' && (
-            <div className="space-y-2">
-              {websiteData.sections.map((section, index) => (
-                <div
-                  key={section.id}
-                  onClick={() => setSelectedSection(section.id)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                    selectedSection === section.id 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium capitalize">{section.type}</span>
-                    <div className="flex gap-1">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'up'); }}
-                        className="p-1 hover:bg-muted rounded"
-                        disabled={index === 0}
-                      >
-                        <Move size={12} className="rotate-180" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'down'); }}
-                        className="p-1 hover:bg-muted rounded"
-                        disabled={index === websiteData.sections.length - 1}
-                      >
-                        <Move size={12} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              <Button 
-                variant="outline" 
-                className="w-full mt-4"
-                onClick={() => setShowAddSection(true)}
-              >
-                <Plus size={16} className="mr-2" />
-                Add Section
-              </Button>
-            </div>
-          )}
-
-          {activePanel === 'style' && (
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Primary Color</label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={websiteData.primaryColor}
-                    onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, primaryColor: e.target.value }) : null)}
-                    className="w-10 h-10 rounded border cursor-pointer"
-                  />
-                  <Input
-                    value={websiteData.primaryColor}
-                    onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, primaryColor: e.target.value }) : null)}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Secondary Color</label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={websiteData.secondaryColor}
-                    onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, secondaryColor: e.target.value }) : null)}
-                    className="w-10 h-10 rounded border cursor-pointer"
-                  />
-                  <Input
-                    value={websiteData.secondaryColor}
-                    onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, secondaryColor: e.target.value }) : null)}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Font Family</label>
-                <select
-                  value={websiteData.fontFamily}
-                  onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, fontFamily: e.target.value }) : null)}
-                  className="w-full p-2 border rounded-lg bg-background"
-                >
-                  <option value="Inter">Inter</option>
-                  <option value="Poppins">Poppins</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="Playfair Display">Playfair Display</option>
-                  <option value="Lato">Lato</option>
-                  <option value="Nunito">Nunito</option>
-                  <option value="Lora">Lora</option>
-                  <option value="Open Sans">Open Sans</option>
-                  <option value="Raleway">Raleway</option>
-                </select>
-              </div>
-            </div>
-          )}
-
-          {activePanel === 'settings' && (
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Website Name</label>
-                <Input
-                  value={websiteData.name}
-                  onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, name: e.target.value }) : null)}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Description</label>
-                <Textarea
-                  value={websiteData.description}
-                  onChange={(e) => setWebsiteData(prev => prev ? ({ ...prev, description: e.target.value }) : null)}
-                  rows={3}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Left Prompt Sidebar */}
+      {renderPromptSidebar()}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Toolbar */}
-        <div className="h-14 border-b border-border flex items-center justify-between px-4 bg-card">
+        <div className="h-14 border-b border-border flex items-center justify-between px-4 bg-card shrink-0">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">
-              <Undo size={16} />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Redo size={16} />
-            </Button>
+            <div className="text-sm font-medium truncate max-w-[200px]">
+              {websiteData.name}
+            </div>
           </div>
 
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
