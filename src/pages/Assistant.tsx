@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import ReferencesModal from '@/components/dashboard/ReferencesModal';
+import StylesModal from '@/components/dashboard/StylesModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import AIVAPromptBox, { type SubOptionType } from '@/components/shared/AIVAPromptBox';
 import AISuggestionsGrid, { type Suggestion } from '@/components/landing/AISuggestionsGrid';
@@ -11,12 +13,16 @@ import type { Intent } from '@/components/IntentSelector';
 
 const Assistant = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [referencesModalOpen, setReferencesModalOpen] = useState(false);
+  const [stylesModalOpen, setStylesModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [userName, setUserName] = useState('');
   const [prompt, setPrompt] = useState('');
   const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOptionType | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState<any>(null);
+  const [selectedReferences, setSelectedReferences] = useState<any[]>([]);
 
   // Get user profile
   useEffect(() => {
@@ -59,6 +65,16 @@ const Assistant = () => {
     setSelectedSubType(subType);
   };
 
+  const handleStyleSelect = (style: any) => {
+    setSelectedStyle(style);
+    setStylesModalOpen(false);
+  };
+
+  const handleReferencesSelect = (references: any[]) => {
+    setSelectedReferences(references);
+    setReferencesModalOpen(false);
+  };
+
   // Check if Presentation is selected
   const isPresentationSelected = selectedSubType?.id === 'presentation';
 
@@ -86,6 +102,9 @@ const Assistant = () => {
                 selectedIntent={selectedIntent}
                 onIntentChange={setSelectedIntent}
                 onSubTypeChange={handleSubTypeChange}
+                onStyleClick={() => setStylesModalOpen(true)}
+                onReferenceClick={() => setReferencesModalOpen(true)}
+                onCharacterClick={() => setCharactersModalOpen(true)}
               />
             </div>
             
@@ -110,6 +129,21 @@ const Assistant = () => {
         isOpen={charactersModalOpen} 
         onClose={() => setCharactersModalOpen(false)}
       />
+      
+      <ReferencesModal 
+        isOpen={referencesModalOpen} 
+        onClose={() => setReferencesModalOpen(false)}
+        onImagesSelect={handleReferencesSelect}
+        initialSelectedImages={selectedReferences}
+      />
+      
+      <StylesModal
+        isOpen={stylesModalOpen}
+        onClose={() => setStylesModalOpen(false)}
+        onSelectStyle={handleStyleSelect}
+        selectedStyle={selectedStyle}
+      />
+      
       <AIPersonaSidebar 
         isOpen={identitySidebarOpen} 
         onClose={() => setIdentitySidebarOpen(false)}
