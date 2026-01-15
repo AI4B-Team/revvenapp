@@ -239,11 +239,8 @@ export default function InviteVerificationPage() {
       <div className="flex-1 flex items-center justify-center bg-white p-8">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2.5 justify-center">
-              <RevvenLogo size={40} />
-              <span className="text-2xl font-bold text-gray-900 tracking-tight">REVVEN</span>
-            </div>
+          <div className="mb-8 flex justify-center">
+            <RevvenLogo size="lg" />
           </div>
 
           {/* Welcome Text */}
