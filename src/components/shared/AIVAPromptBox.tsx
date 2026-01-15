@@ -101,10 +101,20 @@ const imageGenerateModelOptions = [
 ];
 
 const imageBatchModelOptions = [
-  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
-  { id: 'flux-pro', label: 'Flux Pro', description: 'High quality batch', logo: fluxLogo },
-  { id: 'flux-schnell', label: 'Flux Schnell', description: 'Fast batch generation', logo: fluxLogo },
-  { id: 'seedream-4', label: 'Seedream 4', description: 'Consistent styles', logo: seedreamLogo },
+  { id: 'auto', label: 'Auto', description: 'AI picks what\'s best', badge: 'SUGGESTED', supportsImg2Img: true, logo: autoLogo },
+  { id: 'flux-pro', label: 'Flux Pro', description: 'Balanced performance and quality', supportsImg2Img: true, logo: fluxLogo },
+  { id: 'flux-max', label: 'Flux Max', description: 'Enhanced quality for complex scenes', badge: 'PREMIUM', supportsImg2Img: true, logo: fluxLogo },
+  { id: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI\'s advanced image model', badge: 'NEW', supportsImg2Img: true, logo: openaiLogo },
+  { id: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen 2K model', badge: 'NEW', supportsImg2Img: true, logo: seedreamLogo },
+  { id: 'seedream-3', label: 'Seedream 3.0', description: 'ByteDance\'s reliable SD model', logo: seedreamLogo },
+  { id: 'qwen-image', label: 'Qwen Image', description: 'Alibaba\'s multilingual model', logo: qwenLogo },
+  { id: 'nano-banana', label: 'Nano Banana', description: 'Gemini 2.5 Flash Image Preview', supportsImg2Img: true, logo: nanoBananaLogo },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini 2.5 Image Model', supportsImg2Img: true, logo: nanoBananaLogo },
+  { id: 'ideogram-v3-edit', label: 'Ideogram V3 Edit', description: 'Inpainting with mask editing', logo: ideogramLogo },
+  { id: 'ideogram-character', label: 'Ideogram Character', description: 'Character-consistent generation', supportsImg2Img: true, logo: ideogramLogo },
+  { id: 'grok-imagine', label: 'Grok Imagine', description: 'X.AI\'s powerful text-to-image model', logo: grokLogo },
+  { id: 'imagen-4-ultra', label: 'Imagen 4 Ultra', description: 'Google\'s most advanced image model', badge: 'ULTRA', supportsImg2Img: true, logo: imagenLogo },
+  { id: 'z-image', label: 'Z-Image', description: 'Hyper-realistic text-to-image generation', badge: 'NEW', logo: zImageLogo },
 ];
 
 const imageDrawModelOptions = [
