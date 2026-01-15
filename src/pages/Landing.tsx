@@ -6,6 +6,8 @@ import { ChevronDown, Check, Play, ArrowRight, Zap, Users, TrendingUp, Clock, Sp
 import AIVAPromptBox, { type SubOptionType } from '@/components/shared/AIVAPromptBox';
 import type { Intent } from '@/components/IntentSelector';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import StylesModal from '@/components/dashboard/StylesModal';
 import vickiRed from '@/assets/vicki-red.png';
 import xalinaVoss from '@/assets/xalina-voss.png';
 import xalinaProfile from '@/assets/xalina-profile.png';
@@ -14,6 +16,7 @@ import AnimatedCounter from '@/components/landing/AnimatedCounter';
 import GlowingCard from '@/components/landing/GlowingCard';
 import FloatingElement from '@/components/landing/FloatingElement';
 import RevvenLogo from '@/components/RevvenLogo';
+import { toast } from 'sonner';
 
 // Lazy load Three.js for better performance
 const ThreeBackground = lazy(() => import('@/components/landing/ThreeBackground'));
@@ -51,6 +54,18 @@ export default function RevvenLandingPage() {
   const [prompt, setPrompt] = useState('');
   const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
   const [selectedSubType, setSelectedSubType] = useState<SubOptionType | null>(null);
+  
+  // Modal states for prompt box controls
+  const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [stylesModalOpen, setStylesModalOpen] = useState(false);
+  const [selectedRatio, setSelectedRatio] = useState('1:1');
+  const [selectedNumber, setSelectedNumber] = useState(1);
+  const [selectedDuration, setSelectedDuration] = useState('5s');
+  const [selectedQuality, setSelectedQuality] = useState('standard');
+  const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  const [showNumberDropdown, setShowNumberDropdown] = useState(false);
+  const [showDurationDropdown, setShowDurationDropdown] = useState(false);
+  const [showQualityDropdown, setShowQualityDropdown] = useState(false);
 
   const handleGenerate = () => {
     // Navigate to create page with the prompt and settings
@@ -266,7 +281,7 @@ export default function RevvenLandingPage() {
           {/* AIVAPromptBox - Same functionality as Create page */}
           <motion.div 
             variants={itemVariants}
-            className="max-w-4xl mx-auto mb-12"
+            className="max-w-4xl mx-auto mb-12 relative"
           >
             <TooltipProvider>
               <AIVAPromptBox
@@ -277,8 +292,98 @@ export default function RevvenLandingPage() {
                 onIntentChange={setSelectedIntent}
                 onSubTypeChange={setSelectedSubType}
                 onGenerate={handleGenerate}
+                onStyleClick={() => setStylesModalOpen(true)}
+                onCharacterClick={() => setCharactersModalOpen(true)}
+                onRatioClick={() => setShowRatioDropdown(!showRatioDropdown)}
+                onNumberClick={() => setShowNumberDropdown(!showNumberDropdown)}
+                onDurationClick={() => setShowDurationDropdown(!showDurationDropdown)}
+                onQualityClick={() => setShowQualityDropdown(!showQualityDropdown)}
               />
             </TooltipProvider>
+            
+            {/* Ratio Dropdown */}
+            {showRatioDropdown && (
+              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[140px]">
+                {['1:1', '16:9', '9:16', '4:3', '3:4', '21:9'].map((ratio) => (
+                  <button
+                    key={ratio}
+                    onClick={() => {
+                      setSelectedRatio(ratio);
+                      setShowRatioDropdown(false);
+                      toast.success(`Ratio set to ${ratio}`);
+                    }}
+                    className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left ${
+                      selectedRatio === ratio ? 'bg-slate-100 text-slate-700' : 'hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    {ratio}
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {/* Number Dropdown */}
+            {showNumberDropdown && (
+              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[100px]">
+                {[1, 2, 4, 8].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => {
+                      setSelectedNumber(num);
+                      setShowNumberDropdown(false);
+                      toast.success(`Number of outputs set to ${num}`);
+                    }}
+                    className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left ${
+                      selectedNumber === num ? 'bg-slate-100 text-slate-700' : 'hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {/* Duration Dropdown */}
+            {showDurationDropdown && (
+              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[100px]">
+                {['5s', '10s', '15s', '30s', '60s'].map((dur) => (
+                  <button
+                    key={dur}
+                    onClick={() => {
+                      setSelectedDuration(dur);
+                      setShowDurationDropdown(false);
+                      toast.success(`Duration set to ${dur}`);
+                    }}
+                    className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left ${
+                      selectedDuration === dur ? 'bg-slate-100 text-slate-700' : 'hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    {dur}
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {/* Quality Dropdown */}
+            {showQualityDropdown && (
+              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 min-w-[140px]">
+                {['standard', 'high', 'ultra'].map((quality) => (
+                  <button
+                    key={quality}
+                    onClick={() => {
+                      setSelectedQuality(quality);
+                      setShowQualityDropdown(false);
+                      toast.success(`Quality set to ${quality}`);
+                    }}
+                    className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left capitalize ${
+                      selectedQuality === quality ? 'bg-slate-100 text-slate-700' : 'hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    {quality}
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
         </motion.div>
         
@@ -1421,6 +1526,20 @@ export default function RevvenLandingPage() {
           </div>
         </div>
       </footer>
+      
+      {/* Modals */}
+      <DigitalCharactersModal 
+        isOpen={charactersModalOpen} 
+        onClose={() => setCharactersModalOpen(false)}
+      />
+      <StylesModal
+        isOpen={stylesModalOpen}
+        onClose={() => setStylesModalOpen(false)}
+        onSelectStyle={(style) => {
+          toast.success(`Style set to ${style.name}`);
+          setStylesModalOpen(false);
+        }}
+      />
     </div>
   );
 }
