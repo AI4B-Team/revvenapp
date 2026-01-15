@@ -1,37 +1,66 @@
 import React, { useState } from 'react';
 import { X, Search, Plus } from 'lucide-react';
 
+// Import style icons
+import realisticIcon from '@/assets/style-icons/realistic.png';
+import radianceIcon from '@/assets/style-icons/radiance.png';
+import debonairIcon from '@/assets/style-icons/debonair.png';
+import mystiqueIcon from '@/assets/style-icons/mystique.png';
+import poiseIcon from '@/assets/style-icons/poise.png';
+import strikingIcon from '@/assets/style-icons/striking.png';
+import cinematicIcon from '@/assets/style-icons/cinematic.png';
+import editorialIcon from '@/assets/style-icons/editorial.png';
+import naturalIcon from '@/assets/style-icons/natural.png';
+import vibrantIcon from '@/assets/style-icons/vibrant.png';
+import fashionIcon from '@/assets/style-icons/fashion.png';
+import illustrationIcon from '@/assets/style-icons/illustration.png';
+import cartoonIcon from '@/assets/style-icons/cartoon.png';
+import oilPaintingIcon from '@/assets/style-icons/oil-painting.png';
+import watercolorIcon from '@/assets/style-icons/watercolor.png';
+import popArtIcon from '@/assets/style-icons/pop-art.png';
+import minimalistIcon from '@/assets/style-icons/minimalist.png';
+import vintageIcon from '@/assets/style-icons/vintage.png';
+import filmNoirIcon from '@/assets/style-icons/film-noir.png';
+import retroIcon from '@/assets/style-icons/retro.png';
+import pixelArtIcon from '@/assets/style-icons/pixel-art.png';
+import abstractIcon from '@/assets/style-icons/abstract.png';
+import geometricIcon from '@/assets/style-icons/geometric.png';
+import dramaticIcon from '@/assets/style-icons/dramatic.png';
+import softFocusIcon from '@/assets/style-icons/soft-focus.png';
+import highContrastIcon from '@/assets/style-icons/high-contrast.png';
+import moodyIcon from '@/assets/style-icons/moody.png';
+
 // Style categories and items
 const styleCategories = ['All', 'My Styles'];
 
 const styles = [
-  { id: 3, name: 'Realistic', image: null, icon: '📷', category: 'all' },
-  { id: 4, name: 'Radiance', image: null, icon: '✨', category: 'all' },
-  { id: 5, name: 'Debonair', image: null, icon: '🎩', category: 'all' },
-  { id: 6, name: 'Mystique', image: null, icon: '🌙', category: 'all' },
-  { id: 7, name: 'Poise', image: null, icon: '💼', category: 'all' },
-  { id: 8, name: 'Striking', image: null, icon: '⚡', category: 'all' },
-  { id: 9, name: 'Cinematic', image: null, icon: '🎬', category: 'all' },
-  { id: 10, name: 'Editorial', image: null, icon: '📸', category: 'all' },
-  { id: 11, name: 'Natural', image: null, icon: '🌿', category: 'all' },
-  { id: 12, name: 'Vibrant', image: null, icon: '🎨', category: 'all' },
-  { id: 13, name: 'Fashion', image: null, icon: '👗', category: 'all' },
-  { id: 14, name: 'Illustration', image: null, icon: '✏️', category: 'all' },
-  { id: 15, name: 'Cartoon', image: null, icon: '🎭', category: 'all' },
-  { id: 16, name: 'Oil Painting', image: null, icon: '🖌️', category: 'all' },
-  { id: 17, name: 'Watercolor', image: null, icon: '💧', category: 'all' },
-  { id: 18, name: 'Pop Art', image: null, icon: '💥', category: 'all' },
-  { id: 19, name: 'Minimalist', image: null, icon: '⚪', category: 'all' },
-  { id: 20, name: 'Vintage', image: null, icon: '📷', category: 'all' },
-  { id: 21, name: 'Film Noir', image: null, icon: '🎞️', category: 'all' },
-  { id: 22, name: 'Retro', image: null, icon: '🕹️', category: 'all' },
-  { id: 23, name: 'Pixel Art', image: null, icon: '🎮', category: 'all' },
-  { id: 24, name: 'Abstract', image: null, icon: '🌀', category: 'all' },
-  { id: 25, name: 'Geometric', image: null, icon: '🔷', category: 'all' },
-  { id: 26, name: 'Dramatic', image: null, icon: '🎭', category: 'all' },
-  { id: 27, name: 'Soft Focus', image: null, icon: '💫', category: 'all' },
-  { id: 28, name: 'High Contrast', image: null, icon: '⚫', category: 'all' },
-  { id: 29, name: 'Moody', image: null, icon: '🌑', category: 'all' },
+  { id: 3, name: 'Realistic', image: null, iconImg: realisticIcon, category: 'all' },
+  { id: 4, name: 'Radiance', image: null, iconImg: radianceIcon, category: 'all' },
+  { id: 5, name: 'Debonair', image: null, iconImg: debonairIcon, category: 'all' },
+  { id: 6, name: 'Mystique', image: null, iconImg: mystiqueIcon, category: 'all' },
+  { id: 7, name: 'Poise', image: null, iconImg: poiseIcon, category: 'all' },
+  { id: 8, name: 'Striking', image: null, iconImg: strikingIcon, category: 'all' },
+  { id: 9, name: 'Cinematic', image: null, iconImg: cinematicIcon, category: 'all' },
+  { id: 10, name: 'Editorial', image: null, iconImg: editorialIcon, category: 'all' },
+  { id: 11, name: 'Natural', image: null, iconImg: naturalIcon, category: 'all' },
+  { id: 12, name: 'Vibrant', image: null, iconImg: vibrantIcon, category: 'all' },
+  { id: 13, name: 'Fashion', image: null, iconImg: fashionIcon, category: 'all' },
+  { id: 14, name: 'Illustration', image: null, iconImg: illustrationIcon, category: 'all' },
+  { id: 15, name: 'Cartoon', image: null, iconImg: cartoonIcon, category: 'all' },
+  { id: 16, name: 'Oil Painting', image: null, iconImg: oilPaintingIcon, category: 'all' },
+  { id: 17, name: 'Watercolor', image: null, iconImg: watercolorIcon, category: 'all' },
+  { id: 18, name: 'Pop Art', image: null, iconImg: popArtIcon, category: 'all' },
+  { id: 19, name: 'Minimalist', image: null, iconImg: minimalistIcon, category: 'all' },
+  { id: 20, name: 'Vintage', image: null, iconImg: vintageIcon, category: 'all' },
+  { id: 21, name: 'Film Noir', image: null, iconImg: filmNoirIcon, category: 'all' },
+  { id: 22, name: 'Retro', image: null, iconImg: retroIcon, category: 'all' },
+  { id: 23, name: 'Pixel Art', image: null, iconImg: pixelArtIcon, category: 'all' },
+  { id: 24, name: 'Abstract', image: null, iconImg: abstractIcon, category: 'all' },
+  { id: 25, name: 'Geometric', image: null, iconImg: geometricIcon, category: 'all' },
+  { id: 26, name: 'Dramatic', image: null, iconImg: dramaticIcon, category: 'all' },
+  { id: 27, name: 'Soft Focus', image: null, iconImg: softFocusIcon, category: 'all' },
+  { id: 28, name: 'High Contrast', image: null, iconImg: highContrastIcon, category: 'all' },
+  { id: 29, name: 'Moody', image: null, iconImg: moodyIcon, category: 'all' },
 ];
 
 interface StylesModalProps {
@@ -172,8 +201,12 @@ const StylesModal: React.FC<StylesModalProps> = ({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                      <span className="text-4xl">{style.icon}</span>
+                    <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center p-4">
+                      <img 
+                        src={style.iconImg} 
+                        alt={style.name}
+                        className="w-12 h-12 object-contain"
+                      />
                     </div>
                   )}
                 </div>
