@@ -1029,35 +1029,35 @@ const AIVAPromptBox = ({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button 
-                                  onClick={() => toggleDropdown('duration')}
+                                  onClick={() => toggleDropdown('sfx-speed')}
                                   className={cn(
                                     "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors border",
-                                    selectedDuration !== '5s'
+                                    sfxSpeed !== 'Normal'
                                       ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                                       : "bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200"
                                   )}
                                 >
                                   <Clock size={16} />
-                                  {selectedDuration !== '5s' && <span className="text-xs">{selectedDuration}</span>}
+                                  {sfxSpeed !== 'Normal' && <span className="text-xs">{sfxSpeed}</span>}
                                 </button>
                               </TooltipTrigger>
-                              <TooltipContent>Duration</TooltipContent>
+                              <TooltipContent>Speed</TooltipContent>
                             </Tooltip>
-                            {activeDropdown === 'duration' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[80px]">
-                                {durationOptions.map((dur) => (
+                            {activeDropdown === 'sfx-speed' && (
+                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[120px]">
+                                {sfxSpeedOptions.map((speed) => (
                                   <button
-                                    key={dur}
+                                    key={speed}
                                     onClick={() => {
-                                      setSelectedDuration(dur);
+                                      setSfxSpeed(speed);
                                       setActiveDropdown(null);
                                     }}
                                     className={cn(
                                       "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                                      selectedDuration === dur ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
+                                      sfxSpeed === speed ? "bg-emerald-50 text-emerald-700" : "hover:bg-slate-50 text-slate-600"
                                     )}
                                   >
-                                    {dur}
+                                    {speed}
                                   </button>
                                 ))}
                               </div>
