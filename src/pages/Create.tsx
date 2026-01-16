@@ -91,8 +91,35 @@ const Create = () => {
   const [editingImage, setEditingImage] = useState<string | null>(null);
 
   // Check for image to edit from navigation state or URL params
+  // State for landing page data
+  const [landingPrompt, setLandingPrompt] = useState<string | null>(null);
+  const [landingIntent, setLandingIntent] = useState<string | null>(null);
+  const [landingSubType, setLandingSubType] = useState<any>(null);
+  const [landingStyle, setLandingStyle] = useState<any>(null);
+  const [landingReferences, setLandingReferences] = useState<any[]>([]);
+  const [landingMode, setLandingMode] = useState<string | null>(null);
+  const [landingModel, setLandingModel] = useState<string | null>(null);
+  const [landingPlatforms, setLandingPlatforms] = useState<string[]>([]);
+
   useEffect(() => {
-    const state = location.state as { editImage?: string; animateImage?: string; transcriptText?: string; targetMode?: string; targetAnimateMode?: string; newProject?: boolean } | null;
+    const state = location.state as { 
+      editImage?: string; 
+      animateImage?: string; 
+      transcriptText?: string; 
+      targetMode?: string; 
+      targetAnimateMode?: string; 
+      newProject?: boolean;
+      // Landing page state
+      fromLanding?: boolean;
+      prompt?: string;
+      intent?: string;
+      subType?: any;
+      style?: any;
+      references?: any[];
+      mode?: string;
+      model?: string;
+      platforms?: string[];
+    } | null;
     const params = new URLSearchParams(location.search);
     const imageUrl = state?.editImage || params.get('editImage');
     const animateUrl = state?.animateImage || params.get('animateImage');
@@ -105,6 +132,92 @@ const Create = () => {
     
     let hasState = false;
     
+    // Handle landing page state - apply all settings from prompt box
+    if (state?.fromLanding) {
+      console.log('Applying landing page state:', state);
+      
+      // Set prompt
+      if (state.prompt) {
+        setLandingPrompt(state.prompt);
+        setExternalPromptText(state.prompt);
+      }
+      
+      // Set intent
+      if (state.intent) {
+        setLandingIntent(state.intent);
+      }
+      
+      // Set subType and derive the content type from it
+      if (state.subType) {
+        setLandingSubType(state.subType);
+        // Map subType id to content type
+        const subTypeId = state.subType?.id;
+        if (['story', 'generate', 'animate', 'avatar', 'ad', 'music-video', 'edit'].includes(subTypeId)) {
+          setSelectedType('Video');
+          setActiveTab('Video');
+        } else if (['generate', 'edit', 'reference', 'remove-bg', 'product', 'portrait', 'product-shot'].includes(subTypeId)) {
+          setSelectedType('Image');
+          setActiveTab('Image');
+        } else if (['music', 'sound-effects', 'voiceover', 'tts', 'podcast', 'audiobook'].includes(subTypeId)) {
+          setSelectedType('Audio');
+          setActiveTab('Audio');
+        }
+      }
+      
+      // Set mode (video, image, audio, etc.)
+      if (state.mode) {
+        setLandingMode(state.mode);
+        const modeMap: Record<string, string> = {
+          'video': 'Video',
+          'image': 'Image',
+          'audio': 'Audio',
+          'design': 'Design',
+          'content': 'Content',
+          'document': 'Document'
+        };
+        if (modeMap[state.mode]) {
+          setSelectedType(modeMap[state.mode]);
+          setActiveTab(modeMap[state.mode]);
+        }
+      }
+      
+      // Set style
+      if (state.style) {
+        setLandingStyle(state.style);
+      }
+      
+      // Set references
+      if (state.references && state.references.length > 0) {
+        setLandingReferences(state.references);
+        // Apply to current refs - convert to the format expected by addImages
+        const refsToAdd = state.references
+          .filter((ref: any) => ref.image_url || ref.id)
+          .map((ref: any) => ({ 
+            id: ref.id || `landing-ref-${Date.now()}-${Math.random()}`,
+            preview: ref.image_url || ref.preview, 
+            name: ref.original_filename || ref.name || 'reference',
+            image_url: ref.image_url
+          }));
+        if (refsToAdd.length > 0) {
+          imageRefs.addImages(refsToAdd);
+        }
+      }
+      
+      // Set model
+      if (state.model) {
+        setLandingModel(state.model);
+      }
+      
+      // Set platforms for social content
+      if (state.platforms && state.platforms.length > 0) {
+        setLandingPlatforms(state.platforms);
+      }
+      
+      setActiveView('creations');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      hasState = true;
+    }
+    
     // Handle new project - reset to fresh state
     if (isNewProject) {
       setSelectedType('Image');
@@ -115,6 +228,15 @@ const Create = () => {
       setExternalPromptText(null);
       setExternalAnimateMode(null);
       setExternalStartingFrame(null);
+      // Clear landing state
+      setLandingPrompt(null);
+      setLandingIntent(null);
+      setLandingSubType(null);
+      setLandingStyle(null);
+      setLandingReferences([]);
+      setLandingMode(null);
+      setLandingModel(null);
+      setLandingPlatforms([]);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       hasState = true;
     }
