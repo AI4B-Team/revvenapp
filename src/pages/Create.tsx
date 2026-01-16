@@ -385,6 +385,7 @@ const Create = () => {
       transcriptText?: string;
       targetMode?: string;
       targetAnimateMode?: string;
+      fromLanding?: boolean;
     } | null;
 
     const hasNavigationState = !!(
@@ -392,7 +393,8 @@ const Create = () => {
       state?.animateImage ||
       state?.transcriptText ||
       state?.targetMode ||
-      state?.targetAnimateMode
+      state?.targetAnimateMode ||
+      state?.fromLanding
     );
 
     if (!hasInitialized && location.pathname === '/create' && !location.search && !hasNavigationState) {
