@@ -236,6 +236,12 @@ const LandingNew = () => {
             externalModel={externalModel}
             onModeChange={handleModeChange}
             onModelChange={setExternalModel}
+            selectedCharacter={selectedCharacter}
+            selectedReferences={selectedReferences}
+            selectedStyle={selectedStyle}
+            onRemoveCharacter={() => setSelectedCharacter(null)}
+            onRemoveReference={(index) => setSelectedReferences(prev => prev.filter((_, i) => i !== index))}
+            onRemoveStyle={() => setSelectedStyle(null)}
           />
         </div>
 
