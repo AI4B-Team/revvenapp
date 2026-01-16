@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, MessageSquare, Clock, SlidersHorizontal, Maximize2, Minimize2, Mic, Plus, Send, Sparkles, Loader2, Trash2 } from 'lucide-react';
+import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, Plus, Send, Sparkles, Loader2, Trash2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 interface Message {
   id: string;
@@ -119,20 +122,33 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
     setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
 
     try {
-      const response = await supabase.functions.invoke('aiva-chat', {
-        body: {
+      // Get auth token for the request
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Use direct fetch for streaming support
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/aiva-chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': session?.access_token ? `Bearer ${session.access_token}` : `Bearer ${SUPABASE_KEY}`
+        },
+        body: JSON.stringify({
           messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
           context: currentPath,
           stream: true
-        }
+        })
       });
 
-      if (response.error) {
-        throw new Error(response.error.message);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Request failed');
       }
 
       // Handle streaming response
-      const reader = response.data.getReader();
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+      
       const decoder = new TextDecoder();
       let fullContent = '';
 
