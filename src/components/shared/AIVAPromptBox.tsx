@@ -1083,83 +1083,6 @@ const AIVAPromptBox = ({
       {/* Prompt Input Box */}
       <div className="relative mx-auto w-full max-w-[95%] md:max-w-[1400px]" style={{ minWidth: 'min(340px, 100%)' }}>
         <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-sm min-h-[180px] flex flex-col w-fit min-w-[340px] sm:min-w-[520px] md:min-w-[800px] mx-auto relative">
-          {/* Selected Character & References Display */}
-          {(selectedCharacter || selectedReferences.length > 0 || selectedStyle) && (
-            <div className="px-6 pt-4 pb-2 flex items-center gap-3 flex-wrap">
-              {/* Style Image */}
-              {selectedStyle && selectedStyle.preview && (
-                <div className="relative group">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-purple-400 shadow-sm">
-                    <img 
-                      src={selectedStyle.preview} 
-                      alt={selectedStyle.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  {onRemoveStyle && (
-                    <button
-                      onClick={onRemoveStyle}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
-                  <p className="text-xs text-center mt-1 text-slate-500 truncate max-w-[64px]">
-                    {selectedStyle.name}
-                  </p>
-                </div>
-              )}
-              
-              {/* Character Image */}
-              {selectedCharacter && (
-                <div className="relative group">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-emerald-400 shadow-sm">
-                    <img 
-                      src={selectedCharacter.image_url || selectedCharacter.image} 
-                      alt={selectedCharacter.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  {onRemoveCharacter && (
-                    <button
-                      onClick={onRemoveCharacter}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
-                  <p className="text-xs text-center mt-1 text-slate-500 truncate max-w-[64px]">
-                    {selectedCharacter.name}
-                  </p>
-                </div>
-              )}
-              
-              {/* Reference Images */}
-              {selectedReferences.map((ref, index) => (
-                <div key={ref.id || index} className="relative group">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-blue-400 shadow-sm">
-                    <img 
-                      src={ref.image_url || ref.preview} 
-                      alt={ref.name || 'Reference'}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  {onRemoveReference && (
-                    <button
-                      onClick={() => onRemoveReference(index)}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
-                  <p className="text-xs text-center mt-1 text-slate-500 truncate max-w-[64px]">
-                    {ref.name || 'Ref'}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-          
           {/* Input area */}
           <div className="px-6 pt-5 pb-3 flex-1 flex gap-3 min-w-0">
             {/* Left side icons - only shown when an option is selected */}
@@ -1202,6 +1125,74 @@ const AIVAPromptBox = ({
               className="flex-1 min-w-0 border-none text-base text-slate-700 bg-transparent focus:outline-none placeholder:text-slate-400 resize-none"
             />
           </div>
+
+          {/* Selected Character, References & Style Display - at bottom */}
+          {(selectedCharacter || selectedReferences.length > 0 || selectedStyle) && (
+            <div className="px-6 pb-3 flex items-center gap-3 flex-wrap">
+              {/* Style Image */}
+              {selectedStyle && selectedStyle.preview && (
+                <div className="relative group">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-purple-400 shadow-sm">
+                    <img 
+                      src={selectedStyle.preview} 
+                      alt={selectedStyle.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {onRemoveStyle && (
+                    <button
+                      onClick={onRemoveStyle}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+              )}
+              
+              {/* Character Image */}
+              {selectedCharacter && (
+                <div className="relative group">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-emerald-400 shadow-sm">
+                    <img 
+                      src={selectedCharacter.image_url || selectedCharacter.image} 
+                      alt={selectedCharacter.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {onRemoveCharacter && (
+                    <button
+                      onClick={onRemoveCharacter}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+              )}
+              
+              {/* Reference Images */}
+              {selectedReferences.map((ref, index) => (
+                <div key={ref.id || index} className="relative group">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-blue-400 shadow-sm">
+                    <img 
+                      src={ref.image_url || ref.preview} 
+                      alt={ref.name || 'Reference'}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {onRemoveReference && (
+                    <button
+                      onClick={() => onRemoveReference(index)}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Bottom bar */}
           <div className="flex items-center gap-4 flex-wrap px-4 pb-4">
