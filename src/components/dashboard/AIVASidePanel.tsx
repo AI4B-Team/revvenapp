@@ -102,6 +102,9 @@ interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  imageUrl?: string;
+  isGenerating?: boolean;
+  generationType?: 'image' | 'video' | 'audio';
 }
 
 export type ToolType = 'image' | 'video' | 'audio' | 'design' | 'content' | 'document';
@@ -381,28 +384,169 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     inputRef.current?.focus();
   };
 
-  // Execute tool with prompt
-  const executeToolAction = (prompt: string) => {
-    if (!selectedTool || !onToolAction) return;
+  // Execute tool with prompt - generate inline
+  const executeToolAction = async (prompt: string) => {
+    if (!selectedTool) return;
     
     const tool = AIVA_TOOLS.find(t => t.id === selectedTool);
-    
-    onToolAction({
-      type: selectedTool,
-      prompt: prompt,
-      model: tool?.model
-    });
-    
-    // Add confirmation message with model info
     const toolName = tool?.label || selectedTool;
     const modelName = tool?.description || '';
-    setMessages(prev => [...prev, {
-      id: crypto.randomUUID(),
-      role: 'assistant',
-      content: `🎨 Starting ${toolName} with ${modelName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
-    }]);
+    
+    // Create placeholder message with loading state
+    const messageId = crypto.randomUUID();
+    
+    if (selectedTool === 'image' || selectedTool === 'design') {
+      // Add loading message for image generation
+      setMessages(prev => [...prev, {
+        id: messageId,
+        role: 'assistant',
+        content: `🎨 Creating image with ${modelName}...\n\nPrompt: "${prompt}"`,
+        isGenerating: true,
+        generationType: 'image'
+      }]);
+      
+      try {
+        // Get auth token
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('Not authenticated');
+        }
+        
+        // Call the generate-image edge function
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-image`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            prompt: prompt,
+            model: 'nano-banana-pro',
+            aspectRatio: '1:1',
+            numberOfImages: 1
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Image generation failed');
+        }
+        
+        const data = await response.json();
+        
+        // Update message to show it's processing (webhook will update the image)
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { 
+                ...m, 
+                content: `🖼️ Image is being generated...\n\nPrompt: "${prompt}"\n\n⏳ Processing with Nano Banana Pro...`,
+                isGenerating: true
+              }
+            : m
+        ));
+        
+        // Poll for the image result
+        if (data.images && data.images[0]?.id) {
+          pollForImageResult(messageId, data.images[0].id, prompt);
+        }
+        
+      } catch (error) {
+        console.error('Image generation error:', error);
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { 
+                ...m, 
+                content: `❌ Failed to generate image.\n\nPrompt: "${prompt}"\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                isGenerating: false
+              }
+            : m
+        ));
+      }
+    } else if (onToolAction) {
+      // For other tools, use the external action handler
+      onToolAction({
+        type: selectedTool,
+        prompt: prompt,
+        model: tool?.model
+      });
+      
+      setMessages(prev => [...prev, {
+        id: messageId,
+        role: 'assistant',
+        content: `🎨 Starting ${toolName} with ${modelName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
+      }]);
+    }
     
     setSelectedTool(null);
+  };
+  
+  // Poll for image generation result
+  const pollForImageResult = async (messageId: string, imageRecordId: string, prompt: string) => {
+    const maxAttempts = 60; // 2 minutes max
+    let attempts = 0;
+    
+    const checkStatus = async () => {
+      attempts++;
+      
+      try {
+        const { data: imageRecord, error } = await supabase
+          .from('generated_images')
+          .select('status, image_url, error_message')
+          .eq('id', imageRecordId)
+          .single();
+        
+        if (error) throw error;
+        
+        if (imageRecord?.status === 'completed' && imageRecord.image_url) {
+          // Image is ready - update the message
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `✅ Image generated!\n\nPrompt: "${prompt}"`,
+                  imageUrl: imageRecord.image_url,
+                  isGenerating: false
+                }
+              : m
+          ));
+          return;
+        } else if (imageRecord?.status === 'error') {
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `❌ Image generation failed.\n\nPrompt: "${prompt}"\n\nError: ${imageRecord.error_message || 'Unknown error'}`,
+                  isGenerating: false
+                }
+              : m
+          ));
+          return;
+        }
+        
+        // Still processing, continue polling
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 2000); // Check every 2 seconds
+        } else {
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `⏰ Image generation is taking longer than expected.\n\nPrompt: "${prompt}"\n\nCheck your creations gallery for the result.`,
+                  isGenerating: false
+                }
+              : m
+          ));
+        }
+      } catch (error) {
+        console.error('Error checking image status:', error);
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 2000);
+        }
+      }
+    };
+    
+    // Start polling after a short delay
+    setTimeout(checkStatus, 3000);
   };
 
   // Modified send to handle tool actions
@@ -571,6 +715,26 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                           <div className="flex items-center gap-2">
                             <Loader2 size={14} className="animate-spin" />
                             <span className="text-sm opacity-70">Thinking...</span>
+                          </div>
+                        )}
+                        
+                        {/* Show generating spinner for image/video/audio */}
+                        {msg.isGenerating && (
+                          <div className="mt-3 flex items-center gap-2 text-sm opacity-70">
+                            <Loader2 size={16} className="animate-spin text-brand-green" />
+                            <span>Generating...</span>
+                          </div>
+                        )}
+                        
+                        {/* Show generated image */}
+                        {msg.imageUrl && (
+                          <div className="mt-3">
+                            <img 
+                              src={msg.imageUrl} 
+                              alt="Generated image"
+                              className="rounded-lg max-w-full h-auto shadow-md cursor-pointer hover:opacity-90 transition"
+                              onClick={() => window.open(msg.imageUrl, '_blank')}
+                            />
                           </div>
                         )}
                       </div>
