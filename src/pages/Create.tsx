@@ -158,15 +158,18 @@ const Create = () => {
         setLandingSubType(state.subType);
         // Map subType id to content type
         const subTypeId = state.subType?.id;
-        if (['story', 'generate', 'animate', 'avatar', 'ad', 'music-video', 'edit'].includes(subTypeId)) {
+        if (['story', 'generate', 'animate', 'avatar', 'ad', 'music-video', 'edit', 'presentation', 'vsl', 'ugc', 'recast', 'draw', 'lip-sync', 'motion-sync', 'podcast'].includes(subTypeId)) {
           setSelectedType('Video');
           setActiveTab('Video');
-        } else if (['generate', 'edit', 'reference', 'remove-bg', 'product', 'portrait', 'product-shot'].includes(subTypeId)) {
+        } else if (['generate', 'edit', 'reference', 'remove-bg', 'product', 'portrait', 'product-shot', 'batch', 'swap', 'photoshoot'].includes(subTypeId)) {
           setSelectedType('Image');
           setActiveTab('Image');
-        } else if (['music', 'sound-effects', 'voiceover', 'tts', 'podcast', 'audiobook'].includes(subTypeId)) {
+        } else if (['music', 'sound-effects', 'voiceover', 'tts', 'podcast', 'audiobook', 'clone', 'revoice', 'transcribe'].includes(subTypeId)) {
           setSelectedType('Audio');
           setActiveTab('Audio');
+        } else if (['ebook', 'blog', 'seo', 'newsletter', 'script', 'course'].includes(subTypeId)) {
+          setSelectedType('Document');
+          setActiveTab('Document');
         }
       }
       

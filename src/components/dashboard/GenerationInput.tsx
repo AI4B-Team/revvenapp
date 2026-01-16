@@ -1163,53 +1163,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [isVideoMode, selectedAnimateMode, storyScenes, videoModeState.characters, storyReferenceImage]);
 
-  // Track if we've applied an external animate mode this session
-  const hasAppliedExternalAnimateMode = useRef(false);
-
-  // Clear animate mode when entering video mode so only "Type" is visible by default
-  useEffect(() => {
-    if (isVideoMode && !externalAnimateMode && !hasAppliedExternalAnimateMode.current) {
-      setSelectedAnimateMode('');
-      setIsAnimateModeDropdownOpen(false);
-    }
-  }, [isVideoMode, externalAnimateMode]);
-
-  // Clear content type when entering content mode so only "Type" is visible by default
-  useEffect(() => {
-    if (isContentMode) {
-      setContentType('');
-    }
-  }, [isContentMode]);
-
-  // Clear document type when entering document mode so only "Type" is visible by default
-  useEffect(() => {
-    if (isDocumentMode) {
-      setDocumentType('');
-      setDocumentModel('auto');
-    }
-  }, [isDocumentMode]);
-
   // Handle external animate mode
   useEffect(() => {
     if (externalAnimateMode && isVideoMode) {
       console.log('Setting external animate mode:', externalAnimateMode);
       setSelectedAnimateMode(externalAnimateMode);
-      hasAppliedExternalAnimateMode.current = true;
       onExternalAnimateModeUsed?.();
     }
-  }, [externalAnimateMode, isVideoMode, onExternalAnimateModeUsed]);
-
-  // Reset the ref when leaving video mode
-  useEffect(() => {
-    if (!isVideoMode) {
-      hasAppliedExternalAnimateMode.current = false;
-    }
-  }, [isVideoMode]);
+  }, [externalAnimateMode, isVideoMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external subType from landing page
-  const hasAppliedExternalSubType = useRef(false);
   useEffect(() => {
-    if (externalSubType && !hasAppliedExternalSubType.current) {
+    if (externalSubType) {
       const subTypeId = externalSubType.id;
       console.log('Applying external subType:', subTypeId, 'for type:', selectedType);
       
@@ -1262,12 +1227,25 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           console.log('Setting selectedAudioMode to:', audioSubTypeMap[subTypeId]);
           setSelectedAudioMode(audioSubTypeMap[subTypeId]);
         }
+      } else if (selectedType === 'Document') {
+        // Document types
+        const documentSubTypeMap: Record<string, string> = {
+          'ebook': 'Ebook',
+          'blog': 'Blog',
+          'seo': 'SEO',
+          'newsletter': 'Newsletter',
+          'script': 'Script',
+          'course': 'Course',
+        };
+        if (documentSubTypeMap[subTypeId]) {
+          console.log('Setting documentType to:', documentSubTypeMap[subTypeId]);
+          setDocumentType(documentSubTypeMap[subTypeId]);
+        }
       }
       
-      hasAppliedExternalSubType.current = true;
       onExternalSubTypeUsed?.();
     }
-  }, [externalSubType, selectedType, onExternalSubTypeUsed]);
+  }, [externalSubType, selectedType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external model from landing page
   useEffect(() => {
@@ -1297,20 +1275,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   }, [externalNumber]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external style from landing page
-  const hasAppliedExternalStyle = useRef(false);
   useEffect(() => {
-    if (externalStyle && !hasAppliedExternalStyle.current) {
+    if (externalStyle) {
       console.log('Applying external style:', externalStyle);
       setSelectedStyle(externalStyle);
-      hasAppliedExternalStyle.current = true;
       onExternalStyleUsed?.();
     }
-  }, [externalStyle, onExternalStyleUsed]);
+  }, [externalStyle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external character from landing page
-  const hasAppliedExternalCharacter = useRef(false);
   useEffect(() => {
-    if (externalCharacter && !hasAppliedExternalCharacter.current) {
+    if (externalCharacter) {
       console.log('Applying external character:', externalCharacter);
       // Add to selectedCharacters if not already there
       if (onCharactersSelect) {
@@ -1319,15 +1294,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           onCharactersSelect([...selectedCharacters, externalCharacter]);
         }
       }
-      hasAppliedExternalCharacter.current = true;
       onExternalCharacterUsed?.();
     }
-  }, [externalCharacter, selectedCharacters, onCharactersSelect, onExternalCharacterUsed]);
+  }, [externalCharacter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external references from landing page
-  const hasAppliedExternalReferences = useRef(false);
   useEffect(() => {
-    if (externalReferences && externalReferences.length > 0 && !hasAppliedExternalReferences.current) {
+    if (externalReferences && externalReferences.length > 0) {
       console.log('Applying external references:', externalReferences);
       if (onReferencesSelect) {
         // Merge with existing references, avoiding duplicates
@@ -1337,10 +1310,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           onReferencesSelect([...selectedReferences, ...newRefs]);
         }
       }
-      hasAppliedExternalReferences.current = true;
       onExternalReferencesUsed?.();
     }
-  }, [externalReferences, selectedReferences, onReferencesSelect, onExternalReferencesUsed]);
+  }, [externalReferences]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Clear transcribed text highlight when switching away from Transcribe mode
   // Also clear prompt when entering Transcribe mode
