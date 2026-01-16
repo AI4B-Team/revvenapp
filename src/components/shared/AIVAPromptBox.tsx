@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, Calendar, Palette, Flag, BadgeCheck, GalleryHorizontal, UserCircle, Wand2, type LucideIcon } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, Calendar, Palette, Flag, BadgeCheck, GalleryHorizontal, UserCircle, Wand2, Workflow, type LucideIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
@@ -378,6 +378,142 @@ const documentTypes: SubOption[] = [
   { id: 'presentation', label: 'Presentation', icon: Monitor, color: 'text-orange-500' },
 ];
 
+// Research - Explain type options
+const explainTypes: SubOption[] = [
+  { id: 'concept', label: 'Concept', icon: BookOpen, color: 'text-blue-500' },
+  { id: 'process', label: 'Process', icon: Workflow, color: 'text-violet-500' },
+  { id: 'term', label: 'Term', icon: FileText, color: 'text-emerald-500' },
+  { id: 'theory', label: 'Theory', icon: Sparkles, color: 'text-amber-500' },
+];
+
+// Research - Compare type options
+const compareTypes: SubOption[] = [
+  { id: 'products', label: 'Products', icon: Box, color: 'text-purple-500' },
+  { id: 'services', label: 'Services', icon: Layers, color: 'text-blue-500' },
+  { id: 'strategies', label: 'Strategies', icon: BarChart, color: 'text-orange-500' },
+  { id: 'tools', label: 'Tools', icon: SlidersHorizontal, color: 'text-emerald-500' },
+];
+
+// Research - Summarize type options
+const summarizeTypes: SubOption[] = [
+  { id: 'article', label: 'Article', icon: FileText, color: 'text-green-500' },
+  { id: 'report', label: 'Report', icon: TableCellsMerge, color: 'text-blue-500' },
+  { id: 'video', label: 'Video', icon: Video, color: 'text-red-500' },
+  { id: 'book', label: 'Book', icon: BookOpen, color: 'text-amber-500' },
+];
+
+// Research - Analyze type options
+const analyzeTypes: SubOption[] = [
+  { id: 'market', label: 'Market', icon: BarChart, color: 'text-orange-500' },
+  { id: 'competitor', label: 'Competitor', icon: Users, color: 'text-violet-500' },
+  { id: 'data', label: 'Data', icon: TableCellsMerge, color: 'text-blue-500' },
+  { id: 'trends', label: 'Trends', icon: RefreshCw, color: 'text-emerald-500' },
+];
+
+// Research - Deep Dive type options
+const deepDiveTypes: SubOption[] = [
+  { id: 'industry', label: 'Industry', icon: Globe, color: 'text-blue-500' },
+  { id: 'topic', label: 'Topic', icon: Search, color: 'text-purple-500' },
+  { id: 'technology', label: 'Technology', icon: Zap, color: 'text-amber-500' },
+  { id: 'case-study', label: 'Case Study', icon: FileText, color: 'text-teal-500' },
+];
+
+// Plan - Checklist type options
+const checklistTypes: SubOption[] = [
+  { id: 'project', label: 'Project', icon: Kanban, color: 'text-green-500' },
+  { id: 'launch', label: 'Launch', icon: Zap, color: 'text-amber-500' },
+  { id: 'onboarding', label: 'Onboarding', icon: UserCircle, color: 'text-blue-500' },
+  { id: 'audit', label: 'Audit', icon: Search, color: 'text-purple-500' },
+];
+
+// Plan - Roadmap type options
+const roadmapTypes: SubOption[] = [
+  { id: 'product', label: 'Product', icon: Box, color: 'text-blue-500' },
+  { id: 'marketing', label: 'Marketing', icon: BarChart, color: 'text-purple-500' },
+  { id: 'growth', label: 'Growth', icon: RefreshCw, color: 'text-emerald-500' },
+  { id: 'career', label: 'Career', icon: UserCircle, color: 'text-orange-500' },
+];
+
+// Plan - SOP type options
+const sopTypes: SubOption[] = [
+  { id: 'operations', label: 'Operations', icon: SlidersHorizontal, color: 'text-purple-500' },
+  { id: 'sales', label: 'Sales', icon: BarChart, color: 'text-green-500' },
+  { id: 'support', label: 'Support', icon: Headphones, color: 'text-blue-500' },
+  { id: 'hr', label: 'HR', icon: Users, color: 'text-amber-500' },
+];
+
+// Plan - Timeline type options
+const timelineTypes: SubOption[] = [
+  { id: 'event', label: 'Event', icon: Calendar, color: 'text-orange-500' },
+  { id: 'project', label: 'Project', icon: Kanban, color: 'text-blue-500' },
+  { id: 'campaign', label: 'Campaign', icon: Flag, color: 'text-purple-500' },
+  { id: 'release', label: 'Release', icon: Zap, color: 'text-emerald-500' },
+];
+
+// Plan - Workflow type options
+const workflowTypes: SubOption[] = [
+  { id: 'approval', label: 'Approval', icon: BadgeCheck, color: 'text-purple-500' },
+  { id: 'content', label: 'Content', icon: FileText, color: 'text-blue-500' },
+  { id: 'sales', label: 'Sales', icon: BarChart, color: 'text-green-500' },
+  { id: 'onboarding', label: 'Onboarding', icon: UserCircle, color: 'text-amber-500' },
+];
+
+// Plan - Funnel type options
+const funnelTypes: SubOption[] = [
+  { id: 'sales', label: 'Sales', icon: BarChart, color: 'text-green-500' },
+  { id: 'marketing', label: 'Marketing', icon: LayoutTemplate, color: 'text-purple-500' },
+  { id: 'lead', label: 'Lead Gen', icon: Users, color: 'text-blue-500' },
+  { id: 'webinar', label: 'Webinar', icon: Video, color: 'text-red-500' },
+];
+
+// Automate - Workflow type options
+const automateWorkflowTypes: SubOption[] = [
+  { id: 'email', label: 'Email', icon: Mail, color: 'text-red-500' },
+  { id: 'social', label: 'Social', icon: GalleryHorizontal, color: 'text-blue-500' },
+  { id: 'crm', label: 'CRM', icon: Users, color: 'text-purple-500' },
+  { id: 'notification', label: 'Notification', icon: Zap, color: 'text-amber-500' },
+];
+
+// Automate - SOP type options (for automation)
+const automateSopTypes: SubOption[] = [
+  { id: 'document', label: 'Document', icon: FileText, color: 'text-green-500' },
+  { id: 'training', label: 'Training', icon: BookOpen, color: 'text-blue-500' },
+  { id: 'compliance', label: 'Compliance', icon: BadgeCheck, color: 'text-purple-500' },
+  { id: 'process', label: 'Process', icon: SlidersHorizontal, color: 'text-orange-500' },
+];
+
+// Automate - Agent type options
+const agentTypes: SubOption[] = [
+  { id: 'research', label: 'Research', icon: Search, color: 'text-blue-500' },
+  { id: 'writing', label: 'Writing', icon: PenTool, color: 'text-purple-500' },
+  { id: 'data', label: 'Data', icon: TableCellsMerge, color: 'text-emerald-500' },
+  { id: 'assistant', label: 'Assistant', icon: Sparkles, color: 'text-amber-500' },
+];
+
+// Automate - Zapier type options
+const zapierTypes: SubOption[] = [
+  { id: 'trigger', label: 'Trigger', icon: Zap, color: 'text-orange-500' },
+  { id: 'action', label: 'Action', icon: Move, color: 'text-blue-500' },
+  { id: 'multi-step', label: 'Multi-Step', icon: Layers, color: 'text-purple-500' },
+  { id: 'schedule', label: 'Schedule', icon: Clock, color: 'text-green-500' },
+];
+
+// Automate - Make type options
+const makeTypes: SubOption[] = [
+  { id: 'scenario', label: 'Scenario', icon: Layers, color: 'text-purple-500' },
+  { id: 'webhook', label: 'Webhook', icon: Globe, color: 'text-blue-500' },
+  { id: 'integration', label: 'Integration', icon: Shuffle, color: 'text-emerald-500' },
+  { id: 'automation', label: 'Automation', icon: Zap, color: 'text-amber-500' },
+];
+
+// Automate - API/Script type options
+const apiScriptTypes: SubOption[] = [
+  { id: 'rest-api', label: 'REST API', icon: Globe, color: 'text-teal-500' },
+  { id: 'webhook', label: 'Webhook', icon: Zap, color: 'text-orange-500' },
+  { id: 'script', label: 'Script', icon: FileText, color: 'text-blue-500' },
+  { id: 'integration', label: 'Integration', icon: Shuffle, color: 'text-purple-500' },
+];
+
 export interface SubOptionType {
   id: string;
   label: string;
@@ -567,12 +703,31 @@ const AIVAPromptBox = ({
     if (externalSubType && selectedOption && appliedExternalSubTypeRef.current !== externalSubType) {
       // Get the appropriate subType options based on selected option
       let subTypeOptions: SubOption[] = [];
+      // Create intent types
       if (selectedOption.id === 'video') subTypeOptions = videoTypes;
       else if (selectedOption.id === 'image') subTypeOptions = imageTypes;
       else if (selectedOption.id === 'audio') subTypeOptions = audioTypes;
       else if (selectedOption.id === 'design') subTypeOptions = designTypes;
       else if (selectedOption.id === 'content') subTypeOptions = contentTypes;
       else if (selectedOption.id === 'document') subTypeOptions = documentTypes;
+      // Research intent types
+      else if (selectedOption.id === 'explain') subTypeOptions = explainTypes;
+      else if (selectedOption.id === 'compare') subTypeOptions = compareTypes;
+      else if (selectedOption.id === 'summarize') subTypeOptions = summarizeTypes;
+      else if (selectedOption.id === 'analyze') subTypeOptions = analyzeTypes;
+      else if (selectedOption.id === 'deep-dive') subTypeOptions = deepDiveTypes;
+      // Plan intent types
+      else if (selectedOption.id === 'checklist') subTypeOptions = checklistTypes;
+      else if (selectedOption.id === 'roadmap') subTypeOptions = roadmapTypes;
+      else if (selectedOption.id === 'sop') subTypeOptions = sopTypes;
+      else if (selectedOption.id === 'timeline') subTypeOptions = timelineTypes;
+      else if (selectedOption.id === 'workflow') subTypeOptions = workflowTypes;
+      else if (selectedOption.id === 'funnel') subTypeOptions = funnelTypes;
+      // Automate intent types
+      else if (selectedOption.id === 'agent') subTypeOptions = agentTypes;
+      else if (selectedOption.id === 'zapier') subTypeOptions = zapierTypes;
+      else if (selectedOption.id === 'make') subTypeOptions = makeTypes;
+      else if (selectedOption.id === 'api-script') subTypeOptions = apiScriptTypes;
       
       const subType = subTypeOptions.find(st => st.id === externalSubType);
       if (subType) {
@@ -783,12 +938,33 @@ const AIVAPromptBox = ({
   };
 
   const getSubTypeOptions = (): SubOption[] => {
+    // Create intent types
     if (selectedOption?.id === 'video') return videoTypes;
     if (selectedOption?.id === 'image') return imageTypes;
     if (selectedOption?.id === 'audio') return audioTypes;
     if (selectedOption?.id === 'design') return designTypes;
     if (selectedOption?.id === 'content') return contentTypes;
     if (selectedOption?.id === 'document') return documentTypes;
+    // Research intent types
+    if (selectedOption?.id === 'explain') return explainTypes;
+    if (selectedOption?.id === 'compare') return compareTypes;
+    if (selectedOption?.id === 'summarize') return summarizeTypes;
+    if (selectedOption?.id === 'analyze') return analyzeTypes;
+    if (selectedOption?.id === 'deep-dive') return deepDiveTypes;
+    // Plan intent types
+    if (selectedOption?.id === 'checklist') return checklistTypes;
+    if (selectedOption?.id === 'roadmap') return roadmapTypes;
+    if (selectedOption?.id === 'sop') return sopTypes;
+    if (selectedOption?.id === 'timeline') return timelineTypes;
+    if (selectedOption?.id === 'workflow') return workflowTypes;
+    if (selectedOption?.id === 'funnel') return funnelTypes;
+    // Automate intent types
+    if (intent === 'Automate' && selectedOption?.id === 'workflow') return automateWorkflowTypes;
+    if (intent === 'Automate' && selectedOption?.id === 'sop') return automateSopTypes;
+    if (selectedOption?.id === 'agent') return agentTypes;
+    if (selectedOption?.id === 'zapier') return zapierTypes;
+    if (selectedOption?.id === 'make') return makeTypes;
+    if (selectedOption?.id === 'api-script') return apiScriptTypes;
     return [];
   };
 
