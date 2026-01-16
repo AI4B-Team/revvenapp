@@ -73,7 +73,20 @@ const LandingNew = () => {
 
   const handleGenerate = () => {
     if (user) {
-      navigate('/dashboard');
+      // Navigate to create page with all prompt box state
+      navigate('/create', {
+        state: {
+          fromLanding: true,
+          prompt,
+          intent: selectedIntent,
+          subType: selectedSubType,
+          style: selectedStyle,
+          references: selectedReferences,
+          mode: externalMode,
+          model: externalModel,
+          platforms: selectedPlatforms,
+        }
+      });
     } else {
       setShowAuthModal(true);
     }
