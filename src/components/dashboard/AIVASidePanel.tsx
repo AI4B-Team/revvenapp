@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen } from 'lucide-react';
+import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen, ChevronDown, Volume2 } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,14 +11,39 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// Voice options for audio generation
+const VOICE_OPTIONS = [
+  { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', gender: 'Female' },
+  { id: '9BWtsMINqrJLrRacOk9x', name: 'Aria', gender: 'Female' },
+  { id: 'CwhRBWXzGAHq8TQ4Fs17', name: 'Roger', gender: 'Male' },
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', gender: 'Female' },
+  { id: 'FGY2WhTYpPnrIDTdsKH5', name: 'Laura', gender: 'Female' },
+  { id: 'IKne3meq5aSn9XLyUdCD', name: 'Charlie', gender: 'Male' },
+  { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', gender: 'Male' },
+  { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Callum', gender: 'Male' },
+  { id: 'SAz9YHcvj6GT2YYXdXww', name: 'River', gender: 'Neutral' },
+  { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam', gender: 'Male' },
+  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', gender: 'Female' },
+  { id: 'Xb7hH8MSUJpSbSDYk0k2', name: 'Alice', gender: 'Female' },
+  { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilda', gender: 'Female' },
+  { id: 'bIHbv24MWmeRgasZH58o', name: 'Will', gender: 'Male' },
+  { id: 'cgSgspJ2msm6clMCkdW9', name: 'Jessica', gender: 'Female' },
+  { id: 'cjVigY5qzO86Huf0OWal', name: 'Eric', gender: 'Male' },
+  { id: 'iP95p4xoKVk53GoZ742B', name: 'Chris', gender: 'Male' },
+  { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian', gender: 'Male' },
+  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', gender: 'Male' },
+  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', gender: 'Female' },
+  { id: 'pqHfZKP75CvOlQylNhV4', name: 'Bill', gender: 'Male' },
+];
+
 // Tool definitions for AIVA with specific models
 const AIVA_TOOLS = [
-  { id: 'image', label: 'Generate Image', icon: Image, color: 'text-blue-500', description: 'Nano Banana Pro', model: 'nano-banana-pro' },
-  { id: 'video', label: 'Generate Video', icon: Video, color: 'text-purple-500', description: 'Veo 3.1', model: 'veo3' },
-  { id: 'audio', label: 'Generate Audio', icon: Music, color: 'text-orange-500', description: 'ElevenLabs TTS', model: 'elevenlabs' },
-  { id: 'design', label: 'Create Design', icon: Palette, color: 'text-pink-500', description: 'Nano Banana Pro', model: 'nano-banana-pro' },
-  { id: 'content', label: 'Write Content', icon: FileText, color: 'text-green-500', description: 'Claude Sonnet 4.5', model: 'claude-sonnet-4.5' },
-  { id: 'document', label: 'Create Document', icon: BookOpen, color: 'text-cyan-500', description: 'Claude Sonnet 4.5', model: 'claude-sonnet-4.5' },
+  { id: 'image', label: 'Generate Image', icon: Image, color: 'text-blue-500', description: 'AI Image Generator', model: 'nano-banana-pro' },
+  { id: 'video', label: 'Generate Video', icon: Video, color: 'text-purple-500', description: 'AI Video Generator', model: 'veo3' },
+  { id: 'audio', label: 'Generate Audio', icon: Music, color: 'text-orange-500', description: 'Text to Speech', model: 'elevenlabs' },
+  { id: 'design', label: 'Create Design', icon: Palette, color: 'text-pink-500', description: 'AI Design Generator', model: 'nano-banana-pro' },
+  { id: 'content', label: 'Write Content', icon: FileText, color: 'text-green-500', description: 'AI Content Writer', model: 'claude-sonnet-4.5' },
+  { id: 'document', label: 'Create Document', icon: BookOpen, color: 'text-cyan-500', description: 'AI Document Writer', model: 'claude-sonnet-4.5' },
 ] as const;
 
 // Simple markdown renderer for chat messages
@@ -105,6 +131,7 @@ interface Message {
   content: string;
   imageUrl?: string;
   videoUrl?: string;
+  audioUrl?: string;
   isGenerating?: boolean;
   generationType?: 'image' | 'video' | 'audio';
 }
@@ -190,6 +217,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
   const [isExpanded, setIsExpanded] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState(VOICE_OPTIONS[0]);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -556,6 +584,78 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
             : m
         ));
       }
+    } else if (selectedTool === 'audio') {
+      // Add loading message for audio generation
+      setMessages(prev => [...prev, {
+        id: messageId,
+        role: 'assistant',
+        content: `🎵 Creating your audio...\n\nVoice: ${selectedVoice.name}\n\nText: "${prompt}"`,
+        isGenerating: true,
+        generationType: 'audio'
+      }]);
+      
+      try {
+        // Get auth token
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('Not authenticated');
+        }
+        
+        // Call the generate-voiceover edge function
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-voiceover`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            text: prompt,
+            voice: selectedVoice.id,
+            voiceName: selectedVoice.name,
+            stability: 0.5,
+            similarity_boost: 0.75,
+            speed: 1.0
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Audio generation failed');
+        }
+        
+        const data = await response.json();
+        
+        // Update message to show it's processing
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { 
+                ...m, 
+                content: `🎵 Audio is being generated...\n\nVoice: ${selectedVoice.name}\n\nText: "${prompt}"\n\n⏳ Processing...`,
+                isGenerating: true
+              }
+            : m
+        ));
+        
+        // Poll for the audio result
+        if (data.id) {
+          pollForAudioResult(messageId, data.id, prompt, selectedVoice.name);
+        } else {
+          console.error('No id in response:', data);
+          throw new Error('No audio ID returned from API');
+        }
+        
+      } catch (error) {
+        console.error('Audio generation error:', error);
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { 
+                ...m, 
+                content: `❌ Failed to generate audio.\n\nText: "${prompt}"\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                isGenerating: false
+              }
+            : m
+        ));
+      }
     } else if (onToolAction) {
       // For other tools, use the external action handler
       onToolAction({
@@ -567,7 +667,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
       setMessages(prev => [...prev, {
         id: messageId,
         role: 'assistant',
-        content: `🎨 Starting ${toolName} with ${modelName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
+        content: `🎨 Starting ${toolName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
       }]);
     }
     
@@ -712,7 +812,75 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     setTimeout(checkStatus, 5000);
   };
 
-  // Modified send to handle tool actions
+  // Poll for audio generation result
+  const pollForAudioResult = async (messageId: string, audioRecordId: string, text: string, voiceName: string) => {
+    const maxAttempts = 60; // 2 minutes max
+    let attempts = 0;
+    
+    const checkStatus = async () => {
+      attempts++;
+      
+      try {
+        const { data: audioRecord, error } = await supabase
+          .from('user_voices')
+          .select('status, url')
+          .eq('id', audioRecordId)
+          .single();
+        
+        if (error) throw error;
+        
+        if (audioRecord?.status === 'completed' && audioRecord.url) {
+          // Audio is ready - update the message
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `✅ Audio generated!\n\nVoice: ${voiceName}\n\nText: "${text}"`,
+                  audioUrl: audioRecord.url,
+                  isGenerating: false
+                }
+              : m
+          ));
+          return;
+        } else if (audioRecord?.status === 'error') {
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `❌ Audio generation failed.\n\nText: "${text}"\n\nPlease try again.`,
+                  isGenerating: false
+                }
+              : m
+          ));
+          return;
+        }
+        
+        // Still processing, continue polling
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 2000); // Check every 2 seconds
+        } else {
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `⏰ Audio generation is taking longer than expected.\n\nText: "${text}"\n\nCheck your voiceovers for the result.`,
+                  isGenerating: false
+                }
+              : m
+          ));
+        }
+      } catch (error) {
+        console.error('Error checking audio status:', error);
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 2000);
+        }
+      }
+    };
+    
+    // Start polling after a short delay
+    setTimeout(checkStatus, 2000);
+  };
+
   const handleSendWithTool = async () => {
     if (!message.trim() || isLoading) return;
     
@@ -912,6 +1080,17 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                             />
                           </div>
                         )}
+                        
+                        {/* Show generated audio */}
+                        {msg.audioUrl && (
+                          <div className="mt-3">
+                            <audio 
+                              src={msg.audioUrl} 
+                              controls
+                              className="w-full rounded-lg"
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -924,7 +1103,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
           <div className="p-4 border-t border-border">
             {/* Selected Tool Badge */}
             {selectedTool && (
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className="text-xs bg-brand-green/20 text-brand-green px-2 py-1 rounded-full flex items-center gap-1">
                   {(() => {
                     const tool = AIVA_TOOLS.find(t => t.id === selectedTool);
@@ -943,6 +1122,29 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                     <X size={12} />
                   </button>
                 </span>
+                
+                {/* Voice selector for audio tool */}
+                {selectedTool === 'audio' && (
+                  <Select 
+                    value={selectedVoice.id} 
+                    onValueChange={(value) => {
+                      const voice = VOICE_OPTIONS.find(v => v.id === value);
+                      if (voice) setSelectedVoice(voice);
+                    }}
+                  >
+                    <SelectTrigger className="h-7 w-auto min-w-[120px] text-xs border-border bg-muted/50">
+                      <Volume2 size={12} className="mr-1 text-orange-500" />
+                      <SelectValue placeholder="Select voice" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                      {VOICE_OPTIONS.map((voice) => (
+                        <SelectItem key={voice.id} value={voice.id} className="text-xs">
+                          {voice.name} ({voice.gender})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             )}
             
@@ -958,9 +1160,11 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                     handleSendWithTool();
                   }
                 }}
-                placeholder={selectedTool 
-                  ? `Describe what you want to ${AIVA_TOOLS.find(t => t.id === selectedTool)?.label.toLowerCase()}...`
-                  : "Ask AIVA Anything"
+                placeholder={selectedTool === 'audio'
+                  ? "Enter the text you want to convert to speech..."
+                  : selectedTool 
+                    ? `Describe what you want to ${AIVA_TOOLS.find(t => t.id === selectedTool)?.label.toLowerCase()}...`
+                    : "Ask AIVA Anything"
                 }
                 disabled={isLoading}
                 className="w-full bg-transparent outline-none text-foreground placeholder:text-muted-foreground mb-3 disabled:opacity-50"
