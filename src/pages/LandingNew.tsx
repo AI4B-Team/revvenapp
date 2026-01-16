@@ -72,11 +72,25 @@ const LandingNew = () => {
   }, []);
 
   const handleGenerate = () => {
+    // Serialize subType without the icon (React component can't be cloned)
+    const serializableSubType = selectedSubType ? {
+      id: selectedSubType.id,
+      label: selectedSubType.label,
+      color: selectedSubType.color,
+    } : null;
+    
+    // Serialize style without any non-cloneable properties
+    const serializableStyle = selectedStyle ? {
+      id: selectedStyle.id,
+      name: selectedStyle.name,
+      preview: selectedStyle.preview,
+    } : null;
+    
     console.log('handleGenerate called with state:', {
       prompt,
       selectedIntent,
-      selectedSubType,
-      selectedStyle,
+      selectedSubType: serializableSubType,
+      selectedStyle: serializableStyle,
       selectedReferences,
       externalMode,
       externalModel,
@@ -90,8 +104,8 @@ const LandingNew = () => {
           fromLanding: true,
           prompt,
           intent: selectedIntent,
-          subType: selectedSubType,
-          style: selectedStyle,
+          subType: serializableSubType,
+          style: serializableStyle,
           references: selectedReferences,
           mode: externalMode,
           model: externalModel,
