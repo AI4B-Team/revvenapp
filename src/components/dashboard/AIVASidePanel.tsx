@@ -401,7 +401,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
       setMessages(prev => [...prev, {
         id: messageId,
         role: 'assistant',
-        content: `🎨 Creating image with ${modelName}...\n\nPrompt: "${prompt}"`,
+        content: `🎨 Creating your image...\n\nPrompt: "${prompt}"`,
         isGenerating: true,
         generationType: 'image'
       }]);
@@ -440,7 +440,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
           m.id === messageId 
             ? { 
                 ...m, 
-                content: `🖼️ Image is being generated...\n\nPrompt: "${prompt}"\n\n⏳ Processing with Nano Banana Pro...`,
+                content: `🖼️ Image is being generated...\n\nPrompt: "${prompt}"\n\n⏳ Processing...`,
                 isGenerating: true
               }
             : m
@@ -468,7 +468,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
       setMessages(prev => [...prev, {
         id: messageId,
         role: 'assistant',
-        content: `🎬 Creating video with ${modelName}...\n\nPrompt: "${prompt}"`,
+        content: `🎬 Creating your video...\n\nPrompt: "${prompt}"`,
         isGenerating: true,
         generationType: 'video'
       }]);
@@ -511,7 +511,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
           m.id === messageId 
             ? { 
                 ...m, 
-                content: `🎬 Video is being generated...\n\nPrompt: "${prompt}"\n\n⏳ Processing with Veo 3.1...\n\nThis may take a few minutes.`,
+                content: `🎬 Video is being generated...\n\nPrompt: "${prompt}"\n\n⏳ Processing...\n\nThis may take a few minutes.`,
                 isGenerating: true
               }
             : m
