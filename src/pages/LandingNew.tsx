@@ -72,6 +72,17 @@ const LandingNew = () => {
   }, []);
 
   const handleGenerate = () => {
+    console.log('handleGenerate called with state:', {
+      prompt,
+      selectedIntent,
+      selectedSubType,
+      selectedStyle,
+      selectedReferences,
+      externalMode,
+      externalModel,
+      selectedPlatforms,
+    });
+    
     if (user) {
       // Navigate to create page with all prompt box state
       navigate('/create', {
@@ -121,6 +132,15 @@ const LandingNew = () => {
 
   const handleSubTypeChange = (subType: SubOptionType | null) => {
     setSelectedSubType(subType);
+  };
+
+  // Handle mode changes and set intent accordingly
+  const handleModeChange = (mode: string | null) => {
+    setExternalMode(mode);
+    // Set intent to Create for create-type modes
+    if (mode && ['video', 'image', 'audio', 'design', 'content', 'document'].includes(mode)) {
+      setSelectedIntent('Create');
+    }
   };
 
   const handleStyleSelect = (style: any) => {
@@ -189,6 +209,8 @@ const LandingNew = () => {
             externalMode={externalMode}
             externalSubType={externalSubType}
             externalModel={externalModel}
+            onModeChange={handleModeChange}
+            onModelChange={setExternalModel}
           />
         </div>
 
