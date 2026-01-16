@@ -2488,12 +2488,12 @@ const EbookCanvasEditor = ({
 
         {currentElement.type === 'text' && (
           <>
-            {/* GhostInk AI Writer - First button */}
+            {/* GhostInk AI - First button */}
             <Popover>
               <PopoverTrigger asChild>
                 <button className="px-3 py-1.5 text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 rounded-lg flex items-center gap-2 shadow-sm transition-all hover:shadow-md">
                   <Sparkles className="w-4 h-4" />
-                  Writer
+                  AI
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-4 bg-white border border-gray-200 shadow-xl" align="start">
