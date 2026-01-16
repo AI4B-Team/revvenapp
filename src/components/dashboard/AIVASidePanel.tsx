@@ -405,6 +405,31 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     }
   };
 
+  // Delete a chat session
+  const deleteSession = async (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent loading the session when clicking delete
+    if (!userId) return;
+    
+    try {
+      await supabase
+        .from('aiva_chat_messages')
+        .delete()
+        .eq('user_id', userId)
+        .eq('session_id', sessionId);
+      
+      // Remove from local state
+      setChatHistory(prev => prev.filter(s => s.sessionId !== sessionId));
+      
+      // If we deleted the current session, clear messages
+      if (currentSessionId === sessionId) {
+        setMessages([]);
+        setCurrentSessionId(crypto.randomUUID());
+      }
+    } catch (error) {
+      console.error('Failed to delete session:', error);
+    }
+  };
+
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
@@ -1194,18 +1219,26 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                   <ScrollArea className="flex-1">
                     <div className="space-y-2">
                       {chatHistory.map((session) => (
-                        <button
+                        <div
                           key={session.id}
+                          className="group relative w-full text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-brand-green/30 transition cursor-pointer"
                           onClick={() => loadSessionMessages(session.sessionId)}
-                          className="w-full text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-brand-green/30 transition"
                         >
-                          <div className="flex items-center gap-2 mb-1">
-                            <Clock size={12} className="text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">{session.date}</span>
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <Clock size={12} className="text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">{session.date}</span>
+                            </div>
+                            <button
+                              onClick={(e) => deleteSession(session.sessionId, e)}
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-destructive/20 transition"
+                            >
+                              <Trash2 size={14} className="text-destructive" />
+                            </button>
                           </div>
-                          <p className="text-sm text-foreground truncate">{session.preview}...</p>
+                          <p className="text-sm text-foreground truncate pr-6">{session.preview}...</p>
                           <p className="text-xs text-muted-foreground mt-1">{session.messageCount} messages</p>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   </ScrollArea>
