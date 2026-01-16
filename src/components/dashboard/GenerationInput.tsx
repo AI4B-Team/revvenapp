@@ -58,6 +58,8 @@ interface GenerationInputProps {
   onExternalSubTypeUsed?: () => void;
   externalModel?: string | null;
   onExternalModelUsed?: () => void;
+  // External characters for video mode (from landing page)
+  externalVideoCharacters?: any[];
 }
 
 // Color themes data
@@ -93,7 +95,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed, externalSubType, onExternalSubTypeUsed, externalModel, onExternalModelUsed }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed, externalSubType, onExternalSubTypeUsed, externalModel, onExternalModelUsed, externalVideoCharacters = [] }: GenerationInputProps) => {
   const navigate = useNavigate();
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -589,6 +591,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       });
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
+
+  // Sync external video characters from landing page to video mode state
+  useEffect(() => {
+    if (isVideoMode && externalVideoCharacters && externalVideoCharacters.length > 0) {
+      console.log('Syncing externalVideoCharacters to videoModeState:', externalVideoCharacters);
+      setVideoModeState(prev => ({
+        ...prev,
+        characters: externalVideoCharacters
+      }));
+    }
+  }, [isVideoMode, externalVideoCharacters]);
 
   // Fetch saved products on mount
   useEffect(() => {
@@ -1339,13 +1352,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   useEffect(() => {
     if (!isVideoMode) return;
     if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync' || selectedAnimateMode === 'Recast') {
+      // Use externalVideoCharacters for video mode (from landing page or parent)
+      const videoChars = externalVideoCharacters.length > 0 ? externalVideoCharacters : selectedCharacters;
       setVideoModeState(prev => ({
         ...prev,
-        characters: selectedCharacters,
+        characters: videoChars,
         references: selectedReferences
       }));
     }
-  }, [isVideoMode, selectedAnimateMode, selectedCharacters, selectedReferences]);
+  }, [isVideoMode, selectedAnimateMode, selectedCharacters, selectedReferences, externalVideoCharacters]);
 
   useEffect(() => {
     if (!isVideoMode) return;
@@ -1355,7 +1370,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       return;
     }
     
-    const totalImages = selectedCharacters.length + selectedReferences.length;
+    // Use externalVideoCharacters for video mode (from landing page or parent)
+    const videoChars = externalVideoCharacters.length > 0 ? externalVideoCharacters : selectedCharacters;
+    const totalImages = videoChars.length + selectedReferences.length;
     
     setVideoModeState(prev => {
       // If all images removed, clear everything UNLESS there's an external frame
@@ -1382,20 +1399,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       if (!prev.startingFrame && !prev.endingFrame) {
         // Initial population - both frames empty
         if (totalImages === 1) {
-          const firstImage = selectedCharacters[0] || selectedReferences[0];
+          const firstImage = videoChars[0] || selectedReferences[0];
           const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
           const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
           
           framePopulateIntentRef.current = null;
           return {
-            characters: selectedCharacters,
+            characters: videoChars,
             references: selectedReferences,
             startingFrame: { preview: imageUrl, name: imageName },
             endingFrame: null
           };
         } else {
-          const firstImage = selectedCharacters[0] || selectedReferences[0];
-          const secondImage = selectedCharacters[1] || (selectedCharacters.length === 1 ? selectedReferences[0] : selectedReferences[1]);
+          const firstImage = videoChars[0] || selectedReferences[0];
+          const secondImage = videoChars[1] || (videoChars.length === 1 ? selectedReferences[0] : selectedReferences[1]);
           
           const firstUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
           const firstName = firstImage.name || firstImage.original_filename || 'image.jpg';
@@ -1404,7 +1421,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           
           framePopulateIntentRef.current = null;
           return {
-            characters: selectedCharacters,
+            characters: videoChars,
             references: selectedReferences,
             startingFrame: { preview: firstUrl, name: firstName },
             endingFrame: secondUrl ? { preview: secondUrl, name: secondName } : null
@@ -1414,7 +1431,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       
       // Populate specific frame based on intent
       if (framePopulateIntentRef.current === 'end' && !prev.endingFrame && totalImages > 0) {
-        const allImages = [...selectedCharacters, ...selectedReferences];
+        const allImages = [...videoChars, ...selectedReferences];
         // Find an image that's not already used in the start frame
         let imageToUse = allImages[allImages.length - 1]; // Default to latest
         
@@ -1433,14 +1450,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         framePopulateIntentRef.current = null;
         return {
           ...prev,
-          characters: selectedCharacters,
+          characters: videoChars,
           references: selectedReferences,
           endingFrame: { preview: imageUrl, name: imageName }
         };
       }
       
       if (framePopulateIntentRef.current === 'start' && !prev.startingFrame && totalImages > 0) {
-        const allImages = [...selectedCharacters, ...selectedReferences];
+        const allImages = [...videoChars, ...selectedReferences];
         // Find an image that's not already used in the end frame
         let imageToUse = allImages[allImages.length - 1]; // Default to latest
         
@@ -1459,7 +1476,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         framePopulateIntentRef.current = null;
         return {
           ...prev,
-          characters: selectedCharacters,
+          characters: videoChars,
           references: selectedReferences,
           startingFrame: { preview: imageUrl, name: imageName }
         };
@@ -1468,11 +1485,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       // Just update arrays without touching frames
       return {
         ...prev,
-        characters: selectedCharacters,
+        characters: videoChars,
         references: selectedReferences
       };
     });
-  }, [isVideoMode, selectedCharacters, selectedReferences, selectedAnimateMode]);
+  }, [isVideoMode, selectedCharacters, selectedReferences, selectedAnimateMode, externalVideoCharacters]);
   
   // Voice preview function for Audio Voiceover mode
   const playVoiceoverPreview = async (voiceId: string) => {

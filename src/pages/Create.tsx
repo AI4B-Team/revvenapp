@@ -836,6 +836,7 @@ const Create = () => {
                 selectedType === 'Audio' ? audioCharacters :
                 selectedType === 'Design' ? designCharacters : imageCharacters
               }
+              externalVideoCharacters={videoCharacters}
               onReferencesClick={() => currentRefs.openModal()}
               isReferencesModalOpen={currentRefs.isModalOpen}
               onReferencesSelect={(references) => {
