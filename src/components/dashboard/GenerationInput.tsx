@@ -151,6 +151,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     name: string;
     content: string;
     type: string;
+    isParsing?: boolean;
   } | null>(null);
   const [isUploadingSocialDoc, setIsUploadingSocialDoc] = useState(false);
   const socialDocInputRef = useRef<HTMLInputElement>(null);
@@ -1682,6 +1683,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           toast({
             title: "Platforms required",
             description: "Please select at least one social platform below",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Block generation if document is still being parsed
+        if (socialReferenceDoc?.isParsing) {
+          toast({
+            title: "Document still processing",
+            description: "Please wait for the document to finish processing before generating.",
             variant: "destructive",
           });
           return;
@@ -3903,10 +3914,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         const file = e.target.files?.[0];
                         if (!file) return;
                         
+                        const fileType = file.name.split('.').pop()?.toLowerCase() || '';
+                        
+                        // Immediately show file in prompt box with processing state
+                        setSocialReferenceDoc({
+                          name: file.name,
+                          content: '',
+                          type: fileType,
+                          isParsing: true
+                        });
+                        
                         setIsUploadingSocialDoc(true);
                         try {
                           let content = '';
-                          const fileType = file.name.split('.').pop()?.toLowerCase() || '';
                           
                           if (fileType === 'txt') {
                             // Read text file directly
@@ -3934,10 +3954,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             setSocialReferenceDoc({
                               name: file.name,
                               content: content.slice(0, 50000), // Limit to 50k chars
-                              type: fileType
+                              type: fileType,
+                              isParsing: false
                             });
                             toast({
-                              title: "Reference uploaded",
+                              title: "Reference ready",
                               description: `${file.name} will be used to generate your social posts.`,
                             });
                           } else {
@@ -3945,6 +3966,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           }
                         } catch (err: any) {
                           console.error('Error parsing document:', err);
+                          setSocialReferenceDoc(null); // Clear the file on error
                           toast({
                             title: "Upload failed",
                             description: err.message || "Could not read the document. Please try a different file.",
@@ -4229,17 +4251,31 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 
                 {/* Social Reference Document Badge */}
                 {isContentMode && contentType === 'Social' && socialReferenceDoc && (
-                  <div className="absolute bottom-2 left-2 flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg border border-blue-300 dark:border-blue-700">
-                    <FileText size={16} className="text-blue-600 dark:text-blue-400" />
-                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300 max-w-[200px] truncate">
-                      {socialReferenceDoc.name}
+                  <div className={`absolute bottom-2 left-2 flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
+                    socialReferenceDoc.isParsing 
+                      ? 'bg-amber-100 dark:bg-amber-900/40 border-amber-300 dark:border-amber-700'
+                      : 'bg-blue-100 dark:bg-blue-900/40 border-blue-300 dark:border-blue-700'
+                  }`}>
+                    {socialReferenceDoc.isParsing ? (
+                      <Loader2 size={16} className="text-amber-600 dark:text-amber-400 animate-spin" />
+                    ) : (
+                      <FileText size={16} className="text-blue-600 dark:text-blue-400" />
+                    )}
+                    <span className={`text-sm font-medium max-w-[200px] truncate ${
+                      socialReferenceDoc.isParsing 
+                        ? 'text-amber-700 dark:text-amber-300'
+                        : 'text-blue-700 dark:text-blue-300'
+                    }`}>
+                      {socialReferenceDoc.isParsing ? `Processing ${socialReferenceDoc.name}...` : socialReferenceDoc.name}
                     </span>
-                    <button
-                      onClick={() => setSocialReferenceDoc(null)}
-                      className="p-0.5 hover:bg-blue-200 dark:hover:bg-blue-800 rounded transition"
-                    >
-                      <X size={14} className="text-blue-600 dark:text-blue-400" />
-                    </button>
+                    {!socialReferenceDoc.isParsing && (
+                      <button
+                        onClick={() => setSocialReferenceDoc(null)}
+                        className="p-0.5 hover:bg-blue-200 dark:hover:bg-blue-800 rounded transition"
+                      >
+                        <X size={14} className="text-blue-600 dark:text-blue-400" />
+                      </button>
+                    )}
                   </div>
                 )}
                 
