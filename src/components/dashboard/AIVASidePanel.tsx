@@ -227,6 +227,14 @@ interface AIVASettings {
   soundEffects: boolean;
 }
 
+// Design mode options for design tool
+const DESIGN_MODE_OPTIONS = [
+  { id: 'logo', name: 'Logo', description: 'Generate a professional logo' },
+  { id: 'cover', name: 'Cover', description: 'Generate a cover image' },
+] as const;
+
+type DesignMode = typeof DESIGN_MODE_OPTIONS[number]['id'];
+
 const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction }: AIVASidePanelProps) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -235,6 +243,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
   const [selectedVoice, setSelectedVoice] = useState(VOICE_OPTIONS[0]);
+  const [selectedDesignMode, setSelectedDesignMode] = useState<DesignMode>('logo');
   
   // Session tracking - each new chat gets a unique session ID
   const [currentSessionId, setCurrentSessionId] = useState<string>(() => crypto.randomUUID());
@@ -613,11 +622,27 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     const messageId = crypto.randomUUID();
     
     if (selectedTool === 'image' || selectedTool === 'design') {
+      // Determine if this is a design tool with specific mode
+      const isDesign = selectedTool === 'design';
+      const designLabel = isDesign 
+        ? (selectedDesignMode === 'logo' ? '🎨 Creating your logo...' : '🖼️ Creating your cover...')
+        : '🎨 Creating your image...';
+      
+      // Build enhanced prompt for design modes
+      let enhancedPrompt = prompt;
+      if (isDesign) {
+        if (selectedDesignMode === 'logo') {
+          enhancedPrompt = `Professional logo design: ${prompt}. Clean, scalable, minimalist, modern brand logo with transparent background, vector style`;
+        } else {
+          enhancedPrompt = `Professional cover design: ${prompt}. High quality, visually appealing cover image, modern design, suitable for social media or marketing`;
+        }
+      }
+      
       // Add loading message for image generation
       setMessages(prev => [...prev, {
         id: messageId,
         role: 'assistant',
-        content: `🎨 Creating your image...\n\nPrompt: "${prompt}"`,
+        content: `${designLabel}\n\nPrompt: "${prompt}"`,
         isGenerating: true,
         generationType: 'image'
       }]);
@@ -629,6 +654,9 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
           throw new Error('Not authenticated');
         }
         
+        // Use different aspect ratios for logo vs cover
+        const aspectRatio = isDesign && selectedDesignMode === 'cover' ? '16:9' : '1:1';
+        
         // Call the generate-image edge function
         const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-image`, {
           method: 'POST',
@@ -638,9 +666,9 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
             'Authorization': `Bearer ${session.access_token}`
           },
           body: JSON.stringify({
-            prompt: prompt,
+            prompt: enhancedPrompt,
             model: 'nano-banana-pro',
-            aspectRatio: '1:1',
+            aspectRatio: aspectRatio,
             numberOfImages: 1
           })
         });
@@ -1600,6 +1628,26 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                     </SelectContent>
                   </Select>
                 )}
+                
+                {/* Design mode selector for design tool */}
+                {selectedTool === 'design' && (
+                  <Select 
+                    value={selectedDesignMode} 
+                    onValueChange={(value) => setSelectedDesignMode(value as DesignMode)}
+                  >
+                    <SelectTrigger className="h-7 w-auto min-w-[100px] text-xs border-border bg-muted/50">
+                      <Palette size={12} className="mr-1 text-pink-500" />
+                      <SelectValue placeholder="Select mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DESIGN_MODE_OPTIONS.map((mode) => (
+                        <SelectItem key={mode.id} value={mode.id} className="text-xs">
+                          {mode.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             )}
             
@@ -1617,9 +1665,13 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                 }}
                 placeholder={selectedTool === 'audio'
                   ? "Enter the text you want to convert to speech..."
-                  : selectedTool 
-                    ? `Describe what you want to ${AIVA_TOOLS.find(t => t.id === selectedTool)?.label.toLowerCase()}...`
-                    : "Ask AIVA Anything"
+                  : selectedTool === 'design'
+                    ? selectedDesignMode === 'logo'
+                      ? "Describe your logo (e.g., brand name, style, colors)..."
+                      : "Describe your cover (e.g., theme, style, purpose)..."
+                    : selectedTool 
+                      ? `Describe what you want to ${AIVA_TOOLS.find(t => t.id === selectedTool)?.label.toLowerCase()}...`
+                      : "Ask AIVA Anything"
                 }
                 disabled={isLoading}
                 className="w-full bg-transparent outline-none text-foreground placeholder:text-muted-foreground mb-3 disabled:opacity-50"
