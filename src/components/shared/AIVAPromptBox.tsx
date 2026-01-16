@@ -565,6 +565,9 @@ interface AIVAPromptBoxProps {
   externalModel?: string | null;
   onModeChange?: (mode: string | null) => void;
   onModelChange?: (model: string | null) => void;
+  // Callbacks for ratio and number changes
+  onRatioChange?: (ratio: string) => void;
+  onNumberChange?: (number: number) => void;
   // Selected character, references, and style from parent (to display in prompt box)
   selectedCharacter?: { id: string; name: string; image?: string; image_url?: string } | null;
   selectedReferences?: { id: string; name?: string; image_url?: string; preview?: string }[];
@@ -592,6 +595,8 @@ const AIVAPromptBox = ({
   externalModel,
   onModeChange,
   onModelChange,
+  onRatioChange,
+  onNumberChange,
   selectedCharacter,
   selectedReferences = [],
   selectedStyle,
@@ -2304,6 +2309,7 @@ const AIVAPromptBox = ({
                                 key={ratio}
                                 onClick={() => {
                                   setSelectedRatio(ratio);
+                                  onRatioChange?.(ratio);
                                   setActiveDropdown(null);
                                 }}
                                 className={cn(
@@ -2324,6 +2330,7 @@ const AIVAPromptBox = ({
                                 key={num}
                                 onClick={() => {
                                   setSelectedNumber(num);
+                                  onNumberChange?.(num);
                                   setActiveDropdown(null);
                                 }}
                                 className={cn(

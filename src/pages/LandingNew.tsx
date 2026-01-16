@@ -36,6 +36,8 @@ const LandingNew = () => {
   const [externalMode, setExternalMode] = useState<string | null>(null);
   const [externalSubType, setExternalSubType] = useState<string | null>(null);
   const [externalModel, setExternalModel] = useState<string | null>(null);
+  const [selectedRatio, setSelectedRatio] = useState<string>('1:1');
+  const [selectedNumber, setSelectedNumber] = useState<number>(1);
   
   // State for social platform selection
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -104,6 +106,8 @@ const LandingNew = () => {
       selectedCharacter: serializableCharacter,
       externalMode,
       externalModel,
+      selectedRatio,
+      selectedNumber,
       selectedPlatforms,
     });
     
@@ -120,6 +124,8 @@ const LandingNew = () => {
           character: serializableCharacter,
           mode: externalMode,
           model: externalModel,
+          ratio: selectedRatio,
+          number: selectedNumber,
           platforms: selectedPlatforms,
         }
       });
@@ -236,6 +242,8 @@ const LandingNew = () => {
             externalModel={externalModel}
             onModeChange={handleModeChange}
             onModelChange={setExternalModel}
+            onRatioChange={setSelectedRatio}
+            onNumberChange={setSelectedNumber}
             selectedCharacter={selectedCharacter}
             selectedReferences={selectedReferences}
             selectedStyle={selectedStyle}
