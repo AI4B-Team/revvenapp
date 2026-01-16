@@ -520,9 +520,27 @@ export interface SubOptionType {
   icon: LucideIcon;
   color?: string;
 }
+// Model-specific aspect ratio support
+const modelAspectRatios: Record<string, string[]> = {
+  'auto': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'flux-pro': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'flux-max': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'gpt-4o-image': ['1:1', '3:2', '2:3'], // Native support only
+  'qwen-image': ['1:1', '16:9', '9:16', '4:3', '3:4'],
+  'seedream-4': ['1:1', '16:9', '9:16', '4:3', '3:2', '21:9'],
+  'seedream-4.5': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'seedream-3': ['1:1', '16:9', '9:16', '4:3', '3:4'],
+  'grok-imagine': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'nano-banana': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'nano-banana-pro': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'imagen-4-ultra': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'ideogram-v3-edit': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+  'ideogram-character': ['1:1', '16:9', '9:16', '4:3'],
+  'z-image': ['1:1', '4:3', '3:4', '16:9', '9:16'],
+};
 
-// Ratio options
-const ratioOptions = ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9'];
+// Default ratio options (fallback)
+const defaultRatioOptions = ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9'];
 // Number options
 const numberOptions = [1, 2, 4, 8];
 // Duration options
@@ -1319,6 +1337,13 @@ const AIVAPromptBox = ({
                           <button
                             key={model.id}
                             onClick={() => {
+                              const newModelRatios = modelAspectRatios[model.id] || defaultRatioOptions;
+                              // Auto-adjust ratio if current ratio is not supported by new model
+                              if (!newModelRatios.includes(selectedRatio)) {
+                                const newRatio = newModelRatios[0] || '1:1';
+                                setSelectedRatio(newRatio);
+                                onRatioChange?.(newRatio);
+                              }
                               setSelectedModel(model.id);
                               setActiveDropdown(null);
                               onModelChange?.(model.id);
@@ -2305,7 +2330,7 @@ const AIVAPromptBox = ({
                         {/* Dropdowns - rendered inside the relative container */}
                         {activeDropdown === 'ratio' && (
                           <div data-dropdown className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
-                            {ratioOptions.map((ratio) => (
+                            {(modelAspectRatios[selectedModel] || defaultRatioOptions).map((ratio) => (
                               <button
                                 key={ratio}
                                 onClick={() => {
