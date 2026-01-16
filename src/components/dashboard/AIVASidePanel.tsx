@@ -1194,8 +1194,8 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* History View */}
             {activeView === 'history' && (
-              <div className="flex-1 flex flex-col p-4">
-                <div className="flex items-center gap-2 mb-4">
+              <div className="flex-1 flex flex-col p-4 overflow-hidden">
+                <div className="flex items-center gap-2 mb-4 shrink-0">
                   <button 
                     onClick={() => setActiveView('chat')}
                     className="p-1.5 rounded-lg hover:bg-muted transition"
@@ -1216,7 +1216,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                     <p className="text-muted-foreground/70 text-xs mt-1">Your conversations will appear here</p>
                   </div>
                 ) : (
-                  <ScrollArea className="flex-1">
+                  <ScrollArea className="flex-1 h-0 min-h-0">
                     <div className="space-y-2">
                       {chatHistory.map((session) => (
                         <div
