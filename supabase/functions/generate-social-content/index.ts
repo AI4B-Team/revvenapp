@@ -90,6 +90,9 @@ async function generateContentInBackground(
     console.log(`Starting background generation for job ${jobId}`);
     console.log(`Parameters: days=${days}, platforms=${platforms.join(',')}, goal=${goal}, language=${language}`);
     console.log(`Reference content provided: ${referenceContent ? 'YES (' + referenceContent.length + ' chars)' : 'NO'}`);
+    if (referenceContent) {
+      console.log(`Reference content preview: ${referenceContent.slice(0, 500)}...`);
+    }
     
     // Update job status to processing
     await supabaseAdmin
