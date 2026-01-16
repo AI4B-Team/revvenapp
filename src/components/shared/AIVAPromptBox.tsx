@@ -568,7 +568,7 @@ interface AIVAPromptBoxProps {
   // Selected character, references, and style from parent (to display in prompt box)
   selectedCharacter?: { id: string; name: string; image?: string; image_url?: string } | null;
   selectedReferences?: { id: string; name?: string; image_url?: string; preview?: string }[];
-  selectedStyle?: { id: string; name: string; preview?: string } | null;
+  selectedStyle?: { id: string; name: string; preview?: string; image?: string } | null;
   onRemoveCharacter?: () => void;
   onRemoveReference?: (index: number) => void;
   onRemoveStyle?: () => void;
@@ -1130,11 +1130,11 @@ const AIVAPromptBox = ({
           {(selectedCharacter || selectedReferences.length > 0 || selectedStyle) && (
             <div className="px-6 pb-3 flex items-center gap-3 flex-wrap">
               {/* Style Image */}
-              {selectedStyle && selectedStyle.preview && (
+              {selectedStyle && (selectedStyle.preview || selectedStyle.image) && (
                 <div className="relative group">
                   <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-purple-400 shadow-sm">
                     <img 
-                      src={selectedStyle.preview} 
+                      src={selectedStyle.preview || selectedStyle.image} 
                       alt={selectedStyle.name}
                       className="w-full h-full object-cover"
                     />
@@ -2259,7 +2259,7 @@ const AIVAPromptBox = ({
                           const hasSelection = selectedLabel && ['ratio', 'number', 'duration', 'quality'].includes(control.id);
                           
                           // Special rendering for style button with selected style image
-                          if (control.id === 'style' && selectedStyle?.preview) {
+                          if (control.id === 'style' && (selectedStyle?.preview || selectedStyle?.image)) {
                             return (
                               <Tooltip key={control.id}>
                                 <TooltipTrigger asChild>
@@ -2268,7 +2268,7 @@ const AIVAPromptBox = ({
                                     className="relative w-9 h-9 rounded-xl overflow-hidden border-2 border-purple-400 hover:border-purple-500 transition-colors"
                                   >
                                     <img 
-                                      src={selectedStyle.preview} 
+                                      src={selectedStyle.preview || selectedStyle.image} 
                                       alt={selectedStyle.name}
                                       className="w-full h-full object-cover"
                                     />
