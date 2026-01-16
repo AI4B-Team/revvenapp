@@ -13,6 +13,7 @@ interface ContentRequest {
   goal?: string;
   language?: string;
   jobId?: string;
+  referenceContent?: string | null;
 }
 
 // Fetch related stock photos from Pexels
@@ -80,7 +81,8 @@ async function generateContentInBackground(
   platforms: string[],
   days: number,
   goal: string = 'Engagement',
-  language: string = 'English'
+  language: string = 'English',
+  referenceContent: string | null = null
 ) {
   const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
   
@@ -201,11 +203,25 @@ CRITICAL: For ALL "reel" type posts, you MUST include a "videoScript" field with
 
 Return ONLY a valid JSON array. VERIFY you have exactly ${postsNeeded} posts covering all ${batchDays} days and all ${platformCount} platforms.`;
 
-      const userPrompt = `Create EXACTLY ${postsNeeded} posts for days ${startDay + 1} to ${endDay}.
+      // Build user prompt with optional reference content
+      let userPrompt = `Create EXACTLY ${postsNeeded} posts for days ${startDay + 1} to ${endDay}.
 Platforms: ${platformNames}
 Theme/Topic: ${prompt}
 Goal: ${goal} (optimize content for this goal)
-Language: ${language} (write ALL content in this language)
+Language: ${language} (write ALL content in this language)`;
+
+      if (referenceContent) {
+        userPrompt += `
+
+REFERENCE DOCUMENT CONTENT (use this information to create relevant, accurate posts):
+---
+${referenceContent.slice(0, 15000)}
+---
+
+IMPORTANT: Base your posts on the key information, insights, and topics from the reference document above. Extract the most engaging points and transform them into social media content.`;
+      }
+
+      userPrompt += `
 
 IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day or platform. Write everything in ${language}.`;
 
@@ -432,7 +448,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, platforms, days = 30, goal = 'Engagement', language = 'English', jobId }: ContentRequest = await req.json();
+    const { prompt, platforms, days = 30, goal = 'Engagement', language = 'English', jobId, referenceContent }: ContentRequest = await req.json();
     
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     if (!OPENROUTER_API_KEY) {
@@ -485,7 +501,7 @@ serve(async (req) => {
     // Start background processing using EdgeRuntime.waitUntil
     // @ts-ignore - EdgeRuntime is available in Supabase Edge Functions
     EdgeRuntime.waitUntil(
-      generateContentInBackground(supabaseAdmin, user.id, job.id, prompt, platforms, days, goal, language)
+      generateContentInBackground(supabaseAdmin, user.id, job.id, prompt, platforms, days, goal, language, referenceContent || null)
     );
 
     // Return immediately with job ID

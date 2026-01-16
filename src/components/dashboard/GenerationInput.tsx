@@ -145,6 +145,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [contentPostType, setContentPostType] = useState('Single Image');
   const [contentTime, setContentTime] = useState('Auto');
   const [contentStyle, setContentStyle] = useState('AI Generated');
+  
+  // Social content reference document state
+  const [socialReferenceDoc, setSocialReferenceDoc] = useState<{
+    name: string;
+    content: string;
+    type: string;
+  } | null>(null);
+  const [isUploadingSocialDoc, setIsUploadingSocialDoc] = useState(false);
+  const socialDocInputRef = useRef<HTMLInputElement>(null);
   const [brandDistillsEnabled, setBrandDistillsEnabled] = useState(true);
 
   // Document mode state
@@ -1707,6 +1716,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             days: contentDays,
             goal: contentGoal,
             language: contentLanguage,
+            referenceContent: socialReferenceDoc?.content || null,
           }
         });
 
@@ -3861,6 +3871,89 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <p>Content</p>
                       </TooltipContent>
                     </Tooltip>
+                    {/* Reference Document Upload - for Social content */}
+                    {contentType === 'Social' && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => socialDocInputRef.current?.click()}
+                            disabled={isUploadingSocialDoc}
+                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50"
+                          >
+                            {isUploadingSocialDoc ? (
+                              <Loader2 size={20} strokeWidth={2.5} className="text-blue-500 animate-spin" />
+                            ) : (
+                              <Upload size={20} strokeWidth={2.5} className="text-blue-500" />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black text-white">
+                          <p>Upload Reference (PDF, TXT, DOCX)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                    <input
+                      ref={socialDocInputRef}
+                      type="file"
+                      accept=".pdf,.txt,.docx,.doc"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        
+                        setIsUploadingSocialDoc(true);
+                        try {
+                          let content = '';
+                          const fileType = file.name.split('.').pop()?.toLowerCase() || '';
+                          
+                          if (fileType === 'txt') {
+                            // Read text file directly
+                            content = await file.text();
+                          } else if (fileType === 'pdf' || fileType === 'docx' || fileType === 'doc') {
+                            // Convert to base64 and send to edge function for parsing
+                            const arrayBuffer = await file.arrayBuffer();
+                            const base64 = btoa(
+                              new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+                            );
+                            
+                            const { data, error } = await supabase.functions.invoke('parse-document', {
+                              body: { 
+                                file: base64, 
+                                filename: file.name,
+                                mimeType: file.type 
+                              }
+                            });
+                            
+                            if (error) throw error;
+                            content = data?.content || '';
+                          }
+                          
+                          if (content.trim()) {
+                            setSocialReferenceDoc({
+                              name: file.name,
+                              content: content.slice(0, 50000), // Limit to 50k chars
+                              type: fileType
+                            });
+                            toast({
+                              title: "Reference uploaded",
+                              description: `${file.name} will be used to generate your social posts.`,
+                            });
+                          } else {
+                            throw new Error('Could not extract content from file');
+                          }
+                        } catch (err: any) {
+                          console.error('Error parsing document:', err);
+                          toast({
+                            title: "Upload failed",
+                            description: err.message || "Could not read the document. Please try a different file.",
+                            variant: "destructive",
+                          });
+                        } finally {
+                          setIsUploadingSocialDoc(false);
+                          e.target.value = '';
+                        }
+                      }}
+                    />
                     {/* Auto Prompt - Always Second */}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -4129,6 +4222,22 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   }`}>
                     {ugcScriptText.length}/180
                     {ugcScriptText.length > 180 && <span className="ml-1">⚠️ Limit exceeded</span>}
+                  </div>
+                )}
+                
+                {/* Social Reference Document Badge */}
+                {isContentMode && contentType === 'Social' && socialReferenceDoc && (
+                  <div className="absolute bottom-2 left-2 flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg border border-blue-300 dark:border-blue-700">
+                    <FileText size={16} className="text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300 max-w-[200px] truncate">
+                      {socialReferenceDoc.name}
+                    </span>
+                    <button
+                      onClick={() => setSocialReferenceDoc(null)}
+                      className="p-0.5 hover:bg-blue-200 dark:hover:bg-blue-800 rounded transition"
+                    >
+                      <X size={14} className="text-blue-600 dark:text-blue-400" />
+                    </button>
                   </div>
                 )}
                 
