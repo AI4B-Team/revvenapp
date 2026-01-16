@@ -301,68 +301,55 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     loadUserAndHistory();
   }, []);
 
-  // Load chat history sessions
+  // Load chat history sessions grouped by session_id
   const loadChatHistory = async () => {
     if (!userId) return;
     setLoadingHistory(true);
     try {
-      // Get all messages ordered by time
+      // Get all messages with session_id
       const { data: allMessages } = await supabase
         .from('aiva_chat_messages')
-        .select('id, role, content, created_at')
+        .select('id, role, content, created_at, session_id')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .limit(200);
+        .limit(500);
       
       if (allMessages && allMessages.length > 0) {
-        // Group messages into sessions based on time gaps (30 min gap = new session)
-        const sessions: { sessionId: string; messages: typeof allMessages; startTime: Date }[] = [];
-        let currentSession: typeof allMessages = [];
-        let lastMessageTime: Date | null = null;
+        // Group messages by session_id
+        const sessionsMap: Record<string, { messages: typeof allMessages; startTime: Date }> = {};
         
-        // Sort ascending for processing
-        const sortedMessages = [...allMessages].reverse();
-        
-        sortedMessages.forEach(msg => {
-          const msgTime = new Date(msg.created_at);
-          
-          // If gap is more than 30 minutes, start a new session
-          if (lastMessageTime && (msgTime.getTime() - lastMessageTime.getTime()) > 30 * 60 * 1000) {
-            if (currentSession.length > 0) {
-              sessions.push({
-                sessionId: currentSession[0].id,
-                messages: [...currentSession],
-                startTime: new Date(currentSession[0].created_at)
-              });
-            }
-            currentSession = [];
+        allMessages.forEach(msg => {
+          const sessionId = msg.session_id || msg.id; // Fallback for old messages without session_id
+          if (!sessionsMap[sessionId]) {
+            sessionsMap[sessionId] = { messages: [], startTime: new Date(msg.created_at) };
           }
-          
-          currentSession.push(msg);
-          lastMessageTime = msgTime;
+          sessionsMap[sessionId].messages.push(msg);
+          // Update startTime to earliest message
+          const msgTime = new Date(msg.created_at);
+          if (msgTime < sessionsMap[sessionId].startTime) {
+            sessionsMap[sessionId].startTime = msgTime;
+          }
         });
-        
-        // Don't forget the last session
-        if (currentSession.length > 0) {
-          sessions.push({
-            sessionId: currentSession[0].id,
-            messages: currentSession,
-            startTime: new Date(currentSession[0].created_at)
-          });
-        }
         
         // Convert to chat sessions (most recent first)
-        const historyItems: ChatSession[] = sessions.reverse().map((session) => {
-          const firstUserMsg = session.messages.find(m => m.role === 'user');
-          const sessionDate = session.startTime;
-          return {
-            id: session.sessionId,
-            sessionId: session.sessionId,
-            date: sessionDate.toLocaleDateString() + ' ' + sessionDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            preview: firstUserMsg?.content.substring(0, 50) || 'Chat session',
-            messageCount: session.messages.length
-          };
-        });
+        const historyItems: ChatSession[] = Object.entries(sessionsMap)
+          .map(([sessionId, data]) => {
+            // Sort messages by created_at ascending to get first user message
+            const sortedMsgs = [...data.messages].sort((a, b) => 
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            );
+            const firstUserMsg = sortedMsgs.find(m => m.role === 'user');
+            return {
+              id: sessionId,
+              sessionId: sessionId,
+              date: data.startTime.toLocaleDateString() + ' ' + data.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              preview: firstUserMsg?.content.substring(0, 50) || 'Chat session',
+              messageCount: data.messages.length,
+              startTime: data.startTime
+            };
+          })
+          .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
+          .map(({ startTime, ...rest }) => rest); // Remove startTime from final object
         
         setChatHistory(historyItems);
       }
@@ -373,54 +360,42 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     }
   };
 
-  // Load session messages by session ID (first message ID of that session)
+  // Load session messages by session_id
   const loadSessionMessages = async (sessionId: string) => {
     if (!userId) return;
     setLoadingHistory(true);
     try {
-      // Get the session's first message to find its timestamp
-      const { data: firstMsg } = await supabase
-        .from('aiva_chat_messages')
-        .select('created_at')
-        .eq('id', sessionId)
-        .single();
-      
-      if (!firstMsg) {
-        setLoadingHistory(false);
-        return;
-      }
-      
-      const sessionStart = new Date(firstMsg.created_at);
-      const sessionEnd = new Date(sessionStart.getTime() + 30 * 60 * 1000); // 30 min window
-      
+      // Get all messages for this session_id
       const { data: sessionMessages } = await supabase
         .from('aiva_chat_messages')
-        .select('id, role, content, created_at')
+        .select('id, role, content, created_at, session_id')
         .eq('user_id', userId)
-        .gte('created_at', sessionStart.toISOString())
-        .lte('created_at', sessionEnd.toISOString())
+        .eq('session_id', sessionId)
         .order('created_at', { ascending: true });
       
-      if (sessionMessages) {
-        // Filter to only messages that are part of this continuous session
-        const filteredMessages: typeof sessionMessages = [];
-        let lastTime = sessionStart;
-        
-        for (const msg of sessionMessages) {
-          const msgTime = new Date(msg.created_at);
-          if (msgTime.getTime() - lastTime.getTime() > 30 * 60 * 1000) {
-            break; // Gap detected, stop
-          }
-          filteredMessages.push(msg);
-          lastTime = msgTime;
-        }
-        
-        setMessages(filteredMessages.map(m => ({
+      if (sessionMessages && sessionMessages.length > 0) {
+        setMessages(sessionMessages.map(m => ({
           id: m.id,
           role: m.role as 'user' | 'assistant',
           content: m.content
         })));
         setCurrentSessionId(sessionId); // Set the loaded session as current
+      } else {
+        // Fallback for old messages without session_id - load by message id as session
+        const { data: singleMsg } = await supabase
+          .from('aiva_chat_messages')
+          .select('id, role, content, created_at')
+          .eq('id', sessionId)
+          .single();
+        
+        if (singleMsg) {
+          setMessages([{
+            id: singleMsg.id,
+            role: singleMsg.role as 'user' | 'assistant',
+            content: singleMsg.content
+          }]);
+          setCurrentSessionId(sessionId);
+        }
       }
       setActiveView('chat');
     } catch (error) {
@@ -443,7 +418,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     }
   }, [messages]);
 
-  // Save message to database
+  // Save message to database with session_id
   const saveMessage = async (role: 'user' | 'assistant', content: string) => {
     if (!userId) return;
     try {
@@ -451,7 +426,8 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
         user_id: userId,
         role,
         content,
-        context: currentPath
+        context: currentPath,
+        session_id: currentSessionId
       });
     } catch (error) {
       console.error('Failed to save message:', error);

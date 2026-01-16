@@ -188,6 +188,7 @@ export type Database = {
           created_at: string
           id: string
           role: string
+          session_id: string | null
           user_id: string
         }
         Insert: {
@@ -196,6 +197,7 @@ export type Database = {
           created_at?: string
           id?: string
           role: string
+          session_id?: string | null
           user_id: string
         }
         Update: {
@@ -204,6 +206,7 @@ export type Database = {
           created_at?: string
           id?: string
           role?: string
+          session_id?: string | null
           user_id?: string
         }
         Relationships: []
