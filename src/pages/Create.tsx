@@ -823,6 +823,10 @@ const Create = () => {
               onExternalPromptUsed={() => setExternalPromptText(null)}
               externalAnimateMode={externalAnimateMode}
               onExternalAnimateModeUsed={() => setExternalAnimateMode(null)}
+              externalSubType={landingSubType}
+              onExternalSubTypeUsed={() => setLandingSubType(null)}
+              externalModel={landingModel}
+              onExternalModelUsed={() => setLandingModel(null)}
             />
             
             {/* Hide ActionButtons and galleries when Content type is selected */}
