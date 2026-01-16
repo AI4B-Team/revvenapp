@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen, ChevronDown, Volume2, Download } from 'lucide-react';
+import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen, ChevronDown, Volume2, Download, History, Clock, ArrowLeft, Check } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -210,6 +210,22 @@ const appSuggestions: Record<string, { title: string; suggestions: string[] }> =
   },
 };
 
+// Chat history session interface
+interface ChatSession {
+  id: string;
+  date: string;
+  preview: string;
+  messageCount: number;
+}
+
+// Settings interface
+interface AIVASettings {
+  autoSave: boolean;
+  showTimestamps: boolean;
+  streamResponses: boolean;
+  soundEffects: boolean;
+}
+
 const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction }: AIVASidePanelProps) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -218,6 +234,17 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
   const [selectedVoice, setSelectedVoice] = useState(VOICE_OPTIONS[0]);
+  
+  // New states for history and settings
+  const [activeView, setActiveView] = useState<'chat' | 'history' | 'settings'>('chat');
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [settings, setSettings] = useState<AIVASettings>({
+    autoSave: true,
+    showTimestamps: false,
+    streamResponses: true,
+    soundEffects: false,
+  });
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -269,6 +296,84 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     };
     loadUserAndHistory();
   }, []);
+
+  // Load chat history sessions
+  const loadChatHistory = async () => {
+    if (!userId) return;
+    setLoadingHistory(true);
+    try {
+      // Get all messages grouped by date
+      const { data: allMessages } = await supabase
+        .from('aiva_chat_messages')
+        .select('id, role, content, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(200);
+      
+      if (allMessages && allMessages.length > 0) {
+        // Group messages by date
+        const sessions: Record<string, { messages: typeof allMessages }> = {};
+        
+        allMessages.forEach(msg => {
+          const date = new Date(msg.created_at).toLocaleDateString();
+          if (!sessions[date]) {
+            sessions[date] = { messages: [] };
+          }
+          sessions[date].messages.push(msg);
+        });
+        
+        // Convert to chat sessions
+        const historyItems: ChatSession[] = Object.entries(sessions).map(([date, data]) => {
+          const firstUserMsg = data.messages.find(m => m.role === 'user');
+          return {
+            id: date,
+            date,
+            preview: firstUserMsg?.content.substring(0, 50) || 'Chat session',
+            messageCount: data.messages.length
+          };
+        });
+        
+        setChatHistory(historyItems);
+      }
+    } catch (error) {
+      console.error('Failed to load chat history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  // Load session messages
+  const loadSessionMessages = async (sessionDate: string) => {
+    if (!userId) return;
+    setLoadingHistory(true);
+    try {
+      const startDate = new Date(sessionDate);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(sessionDate);
+      endDate.setHours(23, 59, 59, 999);
+      
+      const { data: sessionMessages } = await supabase
+        .from('aiva_chat_messages')
+        .select('id, role, content, created_at')
+        .eq('user_id', userId)
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString())
+        .order('created_at', { ascending: true });
+      
+      if (sessionMessages) {
+        setMessages(sessionMessages.map(m => ({
+          id: m.id,
+          role: m.role as 'user' | 'assistant',
+          content: m.content
+        })));
+      }
+      setActiveView('chat');
+    } catch (error) {
+      console.error('Failed to load session:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -922,8 +1027,11 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button className="p-2 rounded-lg hover:bg-muted transition border border-border bg-muted/50">
-                      <MessageSquare size={18} className="text-foreground" />
+                    <button 
+                      onClick={() => setActiveView('chat')}
+                      className={`p-2 rounded-lg transition ${activeView === 'chat' ? 'border border-border bg-muted/50' : 'hover:bg-muted'}`}
+                    >
+                      <MessageSquare size={18} className={activeView === 'chat' ? 'text-foreground' : 'text-muted-foreground'} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -947,8 +1055,28 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button className="p-2 rounded-lg hover:bg-muted transition">
-                      <SlidersHorizontal size={18} className="text-muted-foreground" />
+                    <button 
+                      onClick={() => {
+                        setActiveView('history');
+                        loadChatHistory();
+                      }}
+                      className={`p-2 rounded-lg transition ${activeView === 'history' ? 'border border-border bg-muted/50' : 'hover:bg-muted'}`}
+                    >
+                      <History size={18} className={activeView === 'history' ? 'text-foreground' : 'text-muted-foreground'} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Chat History</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => setActiveView('settings')}
+                      className={`p-2 rounded-lg transition ${activeView === 'settings' ? 'border border-border bg-muted/50' : 'hover:bg-muted'}`}
+                    >
+                      <SlidersHorizontal size={18} className={activeView === 'settings' ? 'text-foreground' : 'text-muted-foreground'} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -990,7 +1118,150 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
           
           {/* Content Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {messages.length === 0 ? (
+            {/* History View */}
+            {activeView === 'history' && (
+              <div className="flex-1 flex flex-col p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <button 
+                    onClick={() => setActiveView('chat')}
+                    className="p-1.5 rounded-lg hover:bg-muted transition"
+                  >
+                    <ArrowLeft size={16} className="text-muted-foreground" />
+                  </button>
+                  <h3 className="text-lg font-semibold text-foreground">Chat History</h3>
+                </div>
+                
+                {loadingHistory ? (
+                  <div className="flex-1 flex items-center justify-center">
+                    <Loader2 className="animate-spin text-brand-green" size={24} />
+                  </div>
+                ) : chatHistory.length === 0 ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center">
+                    <History size={40} className="text-muted-foreground/50 mb-3" />
+                    <p className="text-muted-foreground text-sm">No chat history yet</p>
+                    <p className="text-muted-foreground/70 text-xs mt-1">Your conversations will appear here</p>
+                  </div>
+                ) : (
+                  <ScrollArea className="flex-1">
+                    <div className="space-y-2">
+                      {chatHistory.map((session) => (
+                        <button
+                          key={session.id}
+                          onClick={() => loadSessionMessages(session.date)}
+                          className="w-full text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-brand-green/30 transition"
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <Clock size={12} className="text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">{session.date}</span>
+                          </div>
+                          <p className="text-sm text-foreground truncate">{session.preview}...</p>
+                          <p className="text-xs text-muted-foreground mt-1">{session.messageCount} messages</p>
+                        </button>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
+              </div>
+            )}
+            
+            {/* Settings View */}
+            {activeView === 'settings' && (
+              <div className="flex-1 flex flex-col p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <button 
+                    onClick={() => setActiveView('chat')}
+                    className="p-1.5 rounded-lg hover:bg-muted transition"
+                  >
+                    <ArrowLeft size={16} className="text-muted-foreground" />
+                  </button>
+                  <h3 className="text-lg font-semibold text-foreground">Settings</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  {/* Auto-save toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Auto-save Conversations</p>
+                      <p className="text-xs text-muted-foreground">Automatically save chat history</p>
+                    </div>
+                    <button
+                      onClick={() => setSettings(prev => ({ ...prev, autoSave: !prev.autoSave }))}
+                      className={`w-11 h-6 rounded-full transition-colors ${settings.autoSave ? 'bg-brand-green' : 'bg-muted'}`}
+                    >
+                      <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${settings.autoSave ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                  
+                  {/* Show timestamps toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Show Timestamps</p>
+                      <p className="text-xs text-muted-foreground">Display time on messages</p>
+                    </div>
+                    <button
+                      onClick={() => setSettings(prev => ({ ...prev, showTimestamps: !prev.showTimestamps }))}
+                      className={`w-11 h-6 rounded-full transition-colors ${settings.showTimestamps ? 'bg-brand-green' : 'bg-muted'}`}
+                    >
+                      <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${settings.showTimestamps ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                  
+                  {/* Stream responses toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Stream Responses</p>
+                      <p className="text-xs text-muted-foreground">Show responses as they generate</p>
+                    </div>
+                    <button
+                      onClick={() => setSettings(prev => ({ ...prev, streamResponses: !prev.streamResponses }))}
+                      className={`w-11 h-6 rounded-full transition-colors ${settings.streamResponses ? 'bg-brand-green' : 'bg-muted'}`}
+                    >
+                      <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${settings.streamResponses ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                  
+                  {/* Sound effects toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Sound Effects</p>
+                      <p className="text-xs text-muted-foreground">Play sounds for notifications</p>
+                    </div>
+                    <button
+                      onClick={() => setSettings(prev => ({ ...prev, soundEffects: !prev.soundEffects }))}
+                      className={`w-11 h-6 rounded-full transition-colors ${settings.soundEffects ? 'bg-brand-green' : 'bg-muted'}`}
+                    >
+                      <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${settings.soundEffects ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                  
+                  {/* Default Voice Selection */}
+                  <div className="p-3 rounded-xl border border-border bg-muted/30">
+                    <p className="text-sm font-medium text-foreground mb-2">Default Voice</p>
+                    <Select 
+                      value={selectedVoice.id} 
+                      onValueChange={(id) => {
+                        const voice = VOICE_OPTIONS.find(v => v.id === id);
+                        if (voice) setSelectedVoice(voice);
+                      }}
+                    >
+                      <SelectTrigger className="w-full bg-background">
+                        <SelectValue placeholder="Select voice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VOICE_OPTIONS.map((voice) => (
+                          <SelectItem key={voice.id} value={voice.id}>
+                            {voice.name} ({voice.gender})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Chat View */}
+            {activeView === 'chat' && messages.length === 0 && (
               /* Empty State */
               <div className="flex-1 flex flex-col items-center justify-center p-6">
                 <div className="flex flex-col items-center text-center max-w-sm">
@@ -1022,7 +1293,9 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                   </div>
                 </div>
               </div>
-            ) : (
+            )}
+            
+            {activeView === 'chat' && messages.length > 0 && (
               /* Chat Messages */
               <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                 <div className="space-y-4">
@@ -1165,7 +1438,8 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
             )}
           </div>
           
-          {/* Input Area */}
+          {/* Input Area - Only show in chat view */}
+          {activeView === 'chat' && (
           <div className="p-4 border-t border-border">
             {/* Selected Tool Badge */}
             {selectedTool && (
@@ -1305,6 +1579,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
               </div>
             </div>
           </div>
+          )}
         </>
       )}
     </div>
