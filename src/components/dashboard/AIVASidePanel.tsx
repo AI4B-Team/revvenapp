@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, Plus, Send, Sparkles, Loader2, Trash2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useLocation } from 'react-router-dom';
@@ -7,6 +7,85 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// Simple markdown renderer for chat messages
+const renderMarkdown = (text: string): React.ReactNode => {
+  if (!text) return null;
+  
+  // Split by lines to handle lists and paragraphs
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  
+  lines.forEach((line, lineIndex) => {
+    // Process inline formatting
+    const processInline = (str: string): React.ReactNode[] => {
+      const parts: React.ReactNode[] = [];
+      let remaining = str;
+      let keyIndex = 0;
+      
+      while (remaining.length > 0) {
+        // Bold: **text**
+        const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+        if (boldMatch && boldMatch.index !== undefined) {
+          if (boldMatch.index > 0) {
+            parts.push(remaining.substring(0, boldMatch.index));
+          }
+          parts.push(<strong key={`bold-${keyIndex++}`}>{boldMatch[1]}</strong>);
+          remaining = remaining.substring(boldMatch.index + boldMatch[0].length);
+          continue;
+        }
+        
+        // Italic: *text* (but not **)
+        const italicMatch = remaining.match(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/);
+        if (italicMatch && italicMatch.index !== undefined) {
+          if (italicMatch.index > 0) {
+            parts.push(remaining.substring(0, italicMatch.index));
+          }
+          parts.push(<em key={`italic-${keyIndex++}`}>{italicMatch[1]}</em>);
+          remaining = remaining.substring(italicMatch.index + italicMatch[0].length);
+          continue;
+        }
+        
+        // No more matches, add remaining text
+        parts.push(remaining);
+        break;
+      }
+      
+      return parts;
+    };
+    
+    // Check for list items
+    if (line.match(/^\d+\.\s/)) {
+      // Numbered list
+      const content = line.replace(/^\d+\.\s/, '');
+      elements.push(
+        <div key={lineIndex} className="flex gap-2 ml-2">
+          <span className="text-muted-foreground">{line.match(/^\d+/)?.[0]}.</span>
+          <span>{processInline(content)}</span>
+        </div>
+      );
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      // Bullet list
+      const content = line.substring(2);
+      elements.push(
+        <div key={lineIndex} className="flex gap-2 ml-2">
+          <span className="text-muted-foreground">•</span>
+          <span>{processInline(content)}</span>
+        </div>
+      );
+    } else if (line.trim() === '') {
+      // Empty line = paragraph break
+      elements.push(<div key={lineIndex} className="h-2" />);
+    } else {
+      // Regular line
+      elements.push(
+        <div key={lineIndex}>{processInline(line)}</div>
+      );
+    }
+  });
+  
+  return <div className="space-y-1 text-sm whitespace-pre-wrap">{elements}</div>;
+};
 
 interface Message {
   id: string;
@@ -345,7 +424,11 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
                             : 'bg-muted text-foreground rounded-bl-md'
                         }`}
                       >
-                        {msg.content || (
+                        {msg.content ? (
+                          msg.role === 'assistant' 
+                            ? renderMarkdown(msg.content)
+                            : <span className="text-sm">{msg.content}</span>
+                        ) : (
                           <div className="flex items-center gap-2">
                             <Loader2 size={14} className="animate-spin" />
                             <span className="text-sm opacity-70">Thinking...</span>
