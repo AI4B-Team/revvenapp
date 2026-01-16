@@ -1280,6 +1280,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         setVideoModel(externalModel);
       } else if (selectedType === 'Audio') {
         setSelectedAudioModel(externalModel);
+      } else if (selectedType === 'Document') {
+        // Document uses selectedModel for AI model selection
+        setSelectedModel(externalModel);
       } else {
         setSelectedModel(externalModel);
       }
