@@ -1274,20 +1274,31 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Apply external model from landing page
   useEffect(() => {
     if (externalModel) {
-      console.log('Applying external model:', externalModel);
-      setSelectedModel(externalModel);
+      console.log('Applying external model:', externalModel, 'for type:', selectedType);
+      // Set appropriate model based on content type
+      if (selectedType === 'Video') {
+        setVideoModel(externalModel);
+      } else if (selectedType === 'Audio') {
+        setSelectedAudioModel(externalModel);
+      } else {
+        setSelectedModel(externalModel);
+      }
       onExternalModelUsed?.();
     }
-  }, [externalModel]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [externalModel, selectedType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external ratio from landing page
   useEffect(() => {
     if (externalRatio) {
-      console.log('Applying external ratio:', externalRatio);
-      setSelectedAspectRatio(externalRatio);
+      console.log('Applying external ratio:', externalRatio, 'for type:', selectedType);
+      if (selectedType === 'Video') {
+        setVideoAspectRatio(externalRatio);
+      } else {
+        setSelectedAspectRatio(externalRatio);
+      }
       onExternalRatioUsed?.();
     }
-  }, [externalRatio]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [externalRatio, selectedType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external number (count) from landing page
   useEffect(() => {
