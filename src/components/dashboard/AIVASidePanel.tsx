@@ -1,12 +1,23 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, Plus, Send, Sparkles, Loader2, Trash2 } from 'lucide-react';
+import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// Tool definitions for AIVA
+const AIVA_TOOLS = [
+  { id: 'image', label: 'Generate Image', icon: Image, color: 'text-blue-500', description: 'Create AI-generated images' },
+  { id: 'video', label: 'Generate Video', icon: Video, color: 'text-purple-500', description: 'Create AI-generated videos' },
+  { id: 'audio', label: 'Generate Audio', icon: Music, color: 'text-orange-500', description: 'Create music or voiceovers' },
+  { id: 'design', label: 'Create Design', icon: Palette, color: 'text-pink-500', description: 'Create logos and graphics' },
+  { id: 'content', label: 'Write Content', icon: FileText, color: 'text-green-500', description: 'Generate text content' },
+  { id: 'document', label: 'Create Document', icon: BookOpen, color: 'text-cyan-500', description: 'Create ebooks or articles' },
+] as const;
 
 // Simple markdown renderer for chat messages
 const renderMarkdown = (text: string): React.ReactNode => {
@@ -93,10 +104,19 @@ interface Message {
   content: string;
 }
 
+export type ToolType = 'image' | 'video' | 'audio' | 'design' | 'content' | 'document';
+
+export interface ToolAction {
+  type: ToolType;
+  prompt: string;
+  subType?: string;
+}
+
 interface AIVASidePanelProps {
   isOpen: boolean;
   onClose: () => void;
   sidebarCollapsed?: boolean;
+  onToolAction?: (action: ToolAction) => void;
 }
 
 // App-specific suggestions
@@ -157,12 +177,14 @@ const appSuggestions: Record<string, { title: string; suggestions: string[] }> =
   },
 };
 
-const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePanelProps) => {
+const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction }: AIVASidePanelProps) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -351,6 +373,56 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
     }
   };
 
+  // Handle tool selection
+  const handleToolSelect = (toolId: ToolType) => {
+    setSelectedTool(toolId);
+    setShowToolsMenu(false);
+    inputRef.current?.focus();
+  };
+
+  // Execute tool with prompt
+  const executeToolAction = (prompt: string) => {
+    if (!selectedTool || !onToolAction) return;
+    
+    onToolAction({
+      type: selectedTool,
+      prompt: prompt
+    });
+    
+    // Add confirmation message
+    const toolName = AIVA_TOOLS.find(t => t.id === selectedTool)?.label || selectedTool;
+    setMessages(prev => [...prev, {
+      id: crypto.randomUUID(),
+      role: 'assistant',
+      content: `🎨 Starting ${toolName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
+    }]);
+    
+    setSelectedTool(null);
+  };
+
+  // Modified send to handle tool actions
+  const handleSendWithTool = async () => {
+    if (!message.trim() || isLoading) return;
+    
+    if (selectedTool && onToolAction) {
+      // Execute tool action
+      const userMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: `[${AIVA_TOOLS.find(t => t.id === selectedTool)?.label}] ${message.trim()}`
+      };
+      setMessages(prev => [...prev, userMessage]);
+      await saveMessage('user', userMessage.content);
+      
+      executeToolAction(message.trim());
+      setMessage('');
+      return;
+    }
+    
+    // Regular chat
+    await handleSend();
+  };
+
   // Calculate left position based on sidebar state
   const leftPosition = sidebarCollapsed ? 'left-16' : 'left-64';
 
@@ -506,27 +578,81 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
           
           {/* Input Area */}
           <div className="p-4 border-t border-border">
-            <div className="border-2 border-brand-green rounded-xl p-3">
+            {/* Selected Tool Badge */}
+            {selectedTool && (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs bg-brand-green/20 text-brand-green px-2 py-1 rounded-full flex items-center gap-1">
+                  {(() => {
+                    const tool = AIVA_TOOLS.find(t => t.id === selectedTool);
+                    const Icon = tool?.icon || Image;
+                    return (
+                      <>
+                        <Icon size={12} />
+                        {tool?.label}
+                      </>
+                    );
+                  })()}
+                  <button 
+                    onClick={() => setSelectedTool(null)}
+                    className="ml-1 hover:text-white"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              </div>
+            )}
+            
+            <div className={`border-2 ${selectedTool ? 'border-brand-green' : 'border-border'} rounded-xl p-3`}>
               <input
                 ref={inputRef}
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask AIVA Anything"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendWithTool();
+                  }
+                }}
+                placeholder={selectedTool 
+                  ? `Describe what you want to ${AIVA_TOOLS.find(t => t.id === selectedTool)?.label.toLowerCase()}...`
+                  : "Ask AIVA Anything"
+                }
                 disabled={isLoading}
                 className="w-full bg-transparent outline-none text-foreground placeholder:text-muted-foreground mb-3 disabled:opacity-50"
               />
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button className="p-1.5 rounded-lg border border-border hover:bg-muted transition">
-                    <Plus size={16} className="text-muted-foreground" />
-                  </button>
-                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-muted transition text-sm text-muted-foreground">
-                    <SlidersHorizontal size={14} />
-                    Tools
-                  </button>
+                  <Popover open={showToolsMenu} onOpenChange={setShowToolsMenu}>
+                    <PopoverTrigger asChild>
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-muted hover:border-brand-green/50 transition text-sm text-muted-foreground">
+                        <SlidersHorizontal size={14} />
+                        Tools
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-2" align="start" side="top">
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground px-2 py-1 font-medium">Generation Tools</p>
+                        {AIVA_TOOLS.map((tool) => {
+                          const Icon = tool.icon;
+                          return (
+                            <button
+                              key={tool.id}
+                              onClick={() => handleToolSelect(tool.id as ToolType)}
+                              className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted transition text-left"
+                            >
+                              <Icon size={18} className={tool.color} />
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{tool.label}</p>
+                                <p className="text-xs text-muted-foreground">{tool.description}</p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -534,14 +660,18 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
                     <Mic size={18} className="text-muted-foreground" />
                   </button>
                   <button 
-                    onClick={handleSend}
+                    onClick={handleSendWithTool}
                     disabled={!message.trim() || isLoading}
-                    className="p-2 rounded-full bg-brand-green/20 hover:bg-brand-green/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`p-2 rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                      selectedTool 
+                        ? 'bg-brand-green text-white hover:bg-brand-green/90' 
+                        : 'bg-brand-green/20 hover:bg-brand-green/30'
+                    }`}
                   >
                     {isLoading ? (
-                      <Loader2 size={18} className="text-brand-green animate-spin" />
+                      <Loader2 size={18} className={selectedTool ? 'text-white animate-spin' : 'text-brand-green animate-spin'} />
                     ) : (
-                      <Send size={18} className="text-brand-green" />
+                      <Send size={18} className={selectedTool ? 'text-white' : 'text-brand-green'} />
                     )}
                   </button>
                 </div>

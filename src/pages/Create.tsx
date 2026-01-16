@@ -19,7 +19,7 @@ import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
 import CollectionsView from '@/components/dashboard/CollectionsView';
-import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
+import AIVASidePanel, { ToolAction } from '@/components/dashboard/AIVASidePanel';
 
 import SocialContentCalendar from '@/components/dashboard/SocialContentCalendar';
 import { socialPlatforms } from '@/components/dashboard/SocialIcons';
@@ -802,6 +802,29 @@ const Create = () => {
         isOpen={isAIVAPanelOpen}
         onClose={() => setIsAIVAPanelOpen(false)}
         sidebarCollapsed={isSidebarCollapsed}
+        onToolAction={(action: ToolAction) => {
+          // Map tool type to content type
+          const typeMap: Record<string, string> = {
+            'image': 'Image',
+            'video': 'Video',
+            'audio': 'Audio',
+            'design': 'Design',
+            'content': 'Content',
+            'document': 'Document'
+          };
+          
+          const contentType = typeMap[action.type] || 'Image';
+          
+          // Set the content type
+          setSelectedType(contentType);
+          setActiveTab(contentType);
+          
+          // Set the external prompt to trigger generation
+          setExternalPromptText(action.prompt);
+          
+          // Switch to creations view
+          setActiveView('creations');
+        }}
       />
 
       <AIPersonaSidebar 
