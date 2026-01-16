@@ -30,6 +30,7 @@ const LandingNew = () => {
   const [stylesModalOpen, setStylesModalOpen] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<any>(null);
   const [selectedReferences, setSelectedReferences] = useState<any[]>([]);
+  const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
   
   // State for external control of mode/subType/model
   const [externalMode, setExternalMode] = useState<string | null>(null);
@@ -86,12 +87,21 @@ const LandingNew = () => {
       preview: selectedStyle.preview,
     } : null;
     
+    // Serialize character without any non-cloneable properties
+    const serializableCharacter = selectedCharacter ? {
+      id: selectedCharacter.id,
+      name: selectedCharacter.name,
+      image: selectedCharacter.image || selectedCharacter.image_url,
+      bio: selectedCharacter.bio,
+    } : null;
+    
     console.log('handleGenerate called with state:', {
       prompt,
       selectedIntent,
       selectedSubType: serializableSubType,
       selectedStyle: serializableStyle,
       selectedReferences,
+      selectedCharacter: serializableCharacter,
       externalMode,
       externalModel,
       selectedPlatforms,
@@ -107,6 +117,7 @@ const LandingNew = () => {
           subType: serializableSubType,
           style: serializableStyle,
           references: selectedReferences,
+          character: serializableCharacter,
           mode: externalMode,
           model: externalModel,
           platforms: selectedPlatforms,
@@ -342,6 +353,7 @@ const LandingNew = () => {
       <DigitalCharactersModal 
         isOpen={charactersModalOpen} 
         onClose={() => setCharactersModalOpen(false)}
+        onSelectCharacter={(character) => setSelectedCharacter(character)}
       />
       
       {/* References Modal */}

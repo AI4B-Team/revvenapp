@@ -100,6 +100,7 @@ const Create = () => {
   const [landingMode, setLandingMode] = useState<string | null>(null);
   const [landingModel, setLandingModel] = useState<string | null>(null);
   const [landingPlatforms, setLandingPlatforms] = useState<string[]>([]);
+  const [landingCharacter, setLandingCharacter] = useState<any>(null);
 
   useEffect(() => {
     const state = location.state as { 
@@ -116,6 +117,7 @@ const Create = () => {
       subType?: any;
       style?: any;
       references?: any[];
+      character?: any;
       mode?: string;
       model?: string;
       platforms?: string[];
@@ -213,6 +215,31 @@ const Create = () => {
         setLandingPlatforms(state.platforms);
       }
       
+      // Set character
+      if (state.character) {
+        setLandingCharacter(state.character);
+        // Apply character to appropriate array based on content type
+        const effectiveType = state.mode ? 
+          { 'video': 'Video', 'image': 'Image', 'audio': 'Audio', 'design': 'Design' }[state.mode] || 'Image' 
+          : 'Image';
+        const characterToAdd = {
+          id: state.character.id,
+          name: state.character.name,
+          image: state.character.image,
+          image_url: state.character.image,
+          bio: state.character.bio,
+        };
+        if (effectiveType === 'Video') {
+          setVideoCharacters([characterToAdd]);
+        } else if (effectiveType === 'Audio') {
+          setAudioCharacters([characterToAdd]);
+        } else if (effectiveType === 'Design') {
+          setDesignCharacters([characterToAdd]);
+        } else {
+          setImageCharacters([characterToAdd]);
+        }
+      }
+      
       setActiveView('creations');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       hasState = true;
@@ -237,6 +264,7 @@ const Create = () => {
       setLandingMode(null);
       setLandingModel(null);
       setLandingPlatforms([]);
+      setLandingCharacter(null);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       hasState = true;
     }
