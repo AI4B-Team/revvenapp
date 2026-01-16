@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen, ChevronDown, Volume2 } from 'lucide-react';
+import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen, ChevronDown, Volume2, Download } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -1059,36 +1059,102 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                         
                         {/* Show generated image */}
                         {msg.imageUrl && (
-                          <div className="mt-3">
+                          <div className="mt-3 space-y-2">
                             <img 
                               src={msg.imageUrl} 
                               alt="Generated image"
                               className="rounded-lg max-w-full h-auto shadow-md cursor-pointer hover:opacity-90 transition"
                               onClick={() => window.open(msg.imageUrl, '_blank')}
                             />
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(msg.imageUrl!);
+                                  const blob = await response.blob();
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `image-${Date.now()}.png`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                } catch (error) {
+                                  console.error('Download failed:', error);
+                                }
+                              }}
+                              className="flex items-center gap-1.5 text-xs bg-background/80 hover:bg-background text-foreground px-2.5 py-1.5 rounded-lg transition"
+                            >
+                              <Download size={12} />
+                              Download
+                            </button>
                           </div>
                         )}
                         
                         {/* Show generated video */}
                         {msg.videoUrl && (
-                          <div className="mt-3">
+                          <div className="mt-3 space-y-2">
                             <video 
                               src={msg.videoUrl} 
                               controls
                               className="rounded-lg max-w-full h-auto shadow-md"
                               style={{ maxHeight: '300px' }}
                             />
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(msg.videoUrl!);
+                                  const blob = await response.blob();
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `video-${Date.now()}.mp4`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                } catch (error) {
+                                  console.error('Download failed:', error);
+                                }
+                              }}
+                              className="flex items-center gap-1.5 text-xs bg-background/80 hover:bg-background text-foreground px-2.5 py-1.5 rounded-lg transition"
+                            >
+                              <Download size={12} />
+                              Download
+                            </button>
                           </div>
                         )}
                         
                         {/* Show generated audio */}
                         {msg.audioUrl && (
-                          <div className="mt-3">
+                          <div className="mt-3 space-y-2">
                             <audio 
                               src={msg.audioUrl} 
                               controls
                               className="w-full rounded-lg"
                             />
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(msg.audioUrl!);
+                                  const blob = await response.blob();
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `audio-${Date.now()}.mp3`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                } catch (error) {
+                                  console.error('Download failed:', error);
+                                }
+                              }}
+                              className="flex items-center gap-1.5 text-xs bg-background/80 hover:bg-background text-foreground px-2.5 py-1.5 rounded-lg transition"
+                            >
+                              <Download size={12} />
+                              Download
+                            </button>
                           </div>
                         )}
                       </div>
