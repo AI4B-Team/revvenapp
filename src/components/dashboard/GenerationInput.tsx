@@ -1176,7 +1176,31 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   useEffect(() => {
     if (externalSubType) {
       const subTypeId = externalSubType.id;
-      console.log('Applying external subType:', subTypeId, 'for type:', selectedType);
+      
+      // Determine the target content type from the subType id
+      const videoSubTypes = ['story', 'presentation', 'vsl', 'avatar', 'ugc', 'recast', 'animate', 'draw', 'lip-sync', 'motion-sync', 'podcast'];
+      const imageSubTypes = ['generate', 'batch', 'swap', 'photoshoot'];
+      const audioSubTypes = ['voiceover', 'clone', 'revoice', 'transcribe', 'sound-effects', 'music', 'audiobook'];
+      const documentSubTypes = ['ebook', 'blog', 'seo', 'newsletter', 'script', 'course'];
+      
+      let targetType = selectedType;
+      if (videoSubTypes.includes(subTypeId)) {
+        targetType = 'Video';
+      } else if (imageSubTypes.includes(subTypeId)) {
+        targetType = 'Image';
+      } else if (audioSubTypes.includes(subTypeId)) {
+        targetType = 'Audio';
+      } else if (documentSubTypes.includes(subTypeId)) {
+        targetType = 'Document';
+      }
+      
+      console.log('Applying external subType:', subTypeId, 'target type:', targetType, 'current selectedType:', selectedType);
+      
+      // Only apply if we're on the correct content type
+      if (selectedType !== targetType) {
+        console.log('Waiting for selectedType to change to:', targetType);
+        return; // Wait for selectedType to be updated
+      }
       
       // Map subType id to the correct mode for each content type
       // AIVAPromptBox subtypes -> GenerationInput modes
