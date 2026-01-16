@@ -1741,10 +1741,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
             if (!job) return;
 
-            // Fetch all posts for the user
+            // Fetch all posts for the current user only
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
             const { data: posts } = await supabase
               .from('social_posts')
               .select('*')
+              .eq('user_id', currentUser?.id)
               .order('scheduled_date', { ascending: true });
 
             if (posts) {
