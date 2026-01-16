@@ -1270,37 +1270,31 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   }, [externalSubType, selectedType, onExternalSubTypeUsed]);
 
   // Apply external model from landing page
-  const hasAppliedExternalModel = useRef(false);
   useEffect(() => {
-    if (externalModel && !hasAppliedExternalModel.current) {
+    if (externalModel) {
       console.log('Applying external model:', externalModel);
       setSelectedModel(externalModel);
-      hasAppliedExternalModel.current = true;
       onExternalModelUsed?.();
     }
-  }, [externalModel, onExternalModelUsed]);
+  }, [externalModel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external ratio from landing page
-  const hasAppliedExternalRatio = useRef(false);
   useEffect(() => {
-    if (externalRatio && !hasAppliedExternalRatio.current) {
+    if (externalRatio) {
       console.log('Applying external ratio:', externalRatio);
       setSelectedAspectRatio(externalRatio);
-      hasAppliedExternalRatio.current = true;
       onExternalRatioUsed?.();
     }
-  }, [externalRatio, onExternalRatioUsed]);
+  }, [externalRatio]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external number (count) from landing page
-  const hasAppliedExternalNumber = useRef(false);
   useEffect(() => {
-    if (externalNumber && !hasAppliedExternalNumber.current) {
+    if (externalNumber) {
       console.log('Applying external number:', externalNumber);
       setNumberOfImages(externalNumber);
-      hasAppliedExternalNumber.current = true;
       onExternalNumberUsed?.();
     }
-  }, [externalNumber, onExternalNumberUsed]);
+  }, [externalNumber]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Apply external style from landing page
   const hasAppliedExternalStyle = useRef(false);
