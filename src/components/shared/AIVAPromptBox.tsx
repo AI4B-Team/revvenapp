@@ -520,8 +520,8 @@ export interface SubOptionType {
   icon: LucideIcon;
   color?: string;
 }
-// Model-specific aspect ratio support
-const modelAspectRatios: Record<string, string[]> = {
+// Model-specific aspect ratio support for Images
+const imageModelAspectRatios: Record<string, string[]> = {
   'auto': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
   'flux-pro': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
   'flux-max': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
@@ -539,8 +539,46 @@ const modelAspectRatios: Record<string, string[]> = {
   'z-image': ['1:1', '4:3', '3:4', '16:9', '9:16'],
 };
 
+// Model-specific aspect ratio support for Videos
+const videoModelAspectRatios: Record<string, string[]> = {
+  'auto': ['16:9', '9:16', '1:1', '4:3', '3:4'],
+  // Veo models
+  'veo3_fast': ['16:9', '9:16', '1:1'],
+  'veo3': ['16:9', '9:16', '1:1'],
+  // Sora models
+  'sora-storyboard': ['16:9', '9:16', '1:1'],
+  'sora-2-pro': ['16:9', '9:16', '1:1'],
+  'sora-2': ['16:9', '9:16', '1:1'],
+  // Kling models
+  'kling-2.1': ['16:9', '9:16', '1:1'],
+  'kling-2.5': ['16:9', '9:16', '1:1'],
+  'kling-2.6': ['16:9', '9:16', '1:1'],
+  'kling-avatar': ['9:16', '1:1'], // Portrait focused
+  // Wan models
+  'wan-2.5': ['16:9', '9:16', '1:1'],
+  'wan-2.2': ['16:9', '9:16', '1:1'],
+  'wan-avatar': ['9:16', '1:1'], // Portrait focused
+  // Hailuo
+  'hailuo-2.3': ['16:9', '9:16', '1:1'],
+  // Bytedance
+  'bytedance-v1': ['16:9', '9:16', '1:1'],
+  // Animate/Recast
+  'animate-move': ['16:9', '9:16', '1:1'],
+  'animate-replace': ['16:9', '9:16', '1:1'],
+  // Runway/Pika
+  'runway-gen3': ['16:9', '9:16', '1:1'],
+  'pika-2': ['16:9', '9:16', '1:1'],
+};
+
+// Combined model aspect ratios (for lookup)
+const modelAspectRatios: Record<string, string[]> = {
+  ...imageModelAspectRatios,
+  ...videoModelAspectRatios,
+};
+
 // Default ratio options (fallback)
 const defaultRatioOptions = ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9'];
+const defaultVideoRatioOptions = ['16:9', '9:16', '1:1'];
 // Number options
 const numberOptions = [1, 2, 4, 8];
 // Duration options
@@ -1337,10 +1375,12 @@ const AIVAPromptBox = ({
                           <button
                             key={model.id}
                             onClick={() => {
-                              const newModelRatios = modelAspectRatios[model.id] || defaultRatioOptions;
+                              const isVideoMode = selectedOption?.id === 'video';
+                              const fallbackRatios = isVideoMode ? defaultVideoRatioOptions : defaultRatioOptions;
+                              const newModelRatios = modelAspectRatios[model.id] || fallbackRatios;
                               // Auto-adjust ratio if current ratio is not supported by new model
                               if (!newModelRatios.includes(selectedRatio)) {
-                                const newRatio = newModelRatios[0] || '1:1';
+                                const newRatio = newModelRatios[0] || (isVideoMode ? '16:9' : '1:1');
                                 setSelectedRatio(newRatio);
                                 onRatioChange?.(newRatio);
                               }
@@ -2330,7 +2370,7 @@ const AIVAPromptBox = ({
                         {/* Dropdowns - rendered inside the relative container */}
                         {activeDropdown === 'ratio' && (
                           <div data-dropdown className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
-                            {(modelAspectRatios[selectedModel] || defaultRatioOptions).map((ratio) => (
+                            {(modelAspectRatios[selectedModel] || (selectedOption?.id === 'video' ? defaultVideoRatioOptions : defaultRatioOptions)).map((ratio) => (
                               <button
                                 key={ratio}
                                 onClick={() => {
