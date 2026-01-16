@@ -2241,21 +2241,34 @@ const AIVAPromptBox = ({
                           // Special rendering for style button with selected style image
                           if (control.id === 'style' && (selectedStyle?.preview || selectedStyle?.image)) {
                             return (
-                              <Tooltip key={control.id}>
-                                <TooltipTrigger asChild>
-                                  <button 
-                                    onClick={clickHandler}
-                                    className="relative w-9 h-9 rounded-xl overflow-hidden border-2 border-purple-400 hover:border-purple-500 transition-colors"
+                              <div key={control.id} className="relative group">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button 
+                                      onClick={clickHandler}
+                                      className="relative w-9 h-9 rounded-xl overflow-hidden border-2 border-purple-400 hover:border-purple-500 transition-colors"
+                                    >
+                                      <img 
+                                        src={selectedStyle.preview || selectedStyle.image} 
+                                        alt={selectedStyle.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{selectedStyle.name}</TooltipContent>
+                                </Tooltip>
+                                {onRemoveStyle && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onRemoveStyle();
+                                    }}
+                                    className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600 z-10"
                                   >
-                                    <img 
-                                      src={selectedStyle.preview || selectedStyle.image} 
-                                      alt={selectedStyle.name}
-                                      className="w-full h-full object-cover"
-                                    />
+                                    <X size={10} />
                                   </button>
-                                </TooltipTrigger>
-                                <TooltipContent>{selectedStyle.name}</TooltipContent>
-                              </Tooltip>
+                                )}
+                              </div>
                             );
                           }
                           
