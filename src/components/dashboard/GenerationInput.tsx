@@ -9805,8 +9805,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       )}
     </div>
 
-    {/* Content Calendar */}
-      {isContentMode && (
+    {/* Content Calendar - Only visible when Social is selected in Content mode */}
+      {isContentMode && contentType === 'Social' && (
         <div className="w-full max-w-full overflow-visible">
           <SocialContentCalendar 
             generatedContent={generatedContent}
