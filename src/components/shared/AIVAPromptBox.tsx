@@ -1126,29 +1126,9 @@ const AIVAPromptBox = ({
             />
           </div>
 
-          {/* Selected Character, References & Style Display - at bottom */}
-          {(selectedCharacter || selectedReferences.length > 0 || selectedStyle) && (
+          {/* Selected Character & References Display - at bottom (style shows on button only) */}
+          {(selectedCharacter || selectedReferences.length > 0) && (
             <div className="px-6 pb-3 flex items-center gap-3 flex-wrap">
-              {/* Style Image */}
-              {selectedStyle && (selectedStyle.preview || selectedStyle.image) && (
-                <div className="relative group">
-                  <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-purple-400 shadow-sm">
-                    <img 
-                      src={selectedStyle.preview || selectedStyle.image} 
-                      alt={selectedStyle.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  {onRemoveStyle && (
-                    <button
-                      onClick={onRemoveStyle}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
-                </div>
-              )}
               
               {/* Character Image */}
               {selectedCharacter && (
