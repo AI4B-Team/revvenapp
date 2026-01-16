@@ -42,8 +42,8 @@ const AIVA_TOOLS = [
   { id: 'video', label: 'Generate Video', icon: Video, color: 'text-purple-500', description: 'AI Video Generator', model: 'veo3' },
   { id: 'audio', label: 'Generate Audio', icon: Music, color: 'text-orange-500', description: 'Text to Speech', model: 'elevenlabs' },
   { id: 'design', label: 'Create Design', icon: Palette, color: 'text-pink-500', description: 'AI Design Generator', model: 'nano-banana-pro' },
-  { id: 'content', label: 'Write Content', icon: FileText, color: 'text-green-500', description: 'AI Content Writer', model: 'claude-sonnet-4.5' },
-  { id: 'document', label: 'Create Document', icon: BookOpen, color: 'text-cyan-500', description: 'AI Document Writer', model: 'claude-sonnet-4.5' },
+  { id: 'content', label: 'Write Content', icon: FileText, color: 'text-green-500', description: 'AI Content Writer', model: 'claude-sonnet-4' },
+  { id: 'document', label: 'Create Document', icon: BookOpen, color: 'text-cyan-500', description: 'AI Document Writer', model: 'claude-sonnet-4' },
 ] as const;
 
 // Simple markdown renderer for chat messages
