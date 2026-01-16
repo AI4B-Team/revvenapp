@@ -819,6 +819,11 @@ const Create = () => {
           setSelectedType(contentType);
           setActiveTab(contentType);
           
+          // Set the model from the tool action
+          if (action.model) {
+            setLandingModel(action.model);
+          }
+          
           // Set the external prompt to trigger generation
           setExternalPromptText(action.prompt);
           
