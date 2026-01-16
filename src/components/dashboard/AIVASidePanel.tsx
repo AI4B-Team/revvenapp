@@ -9,14 +9,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-// Tool definitions for AIVA
+// Tool definitions for AIVA with specific models
 const AIVA_TOOLS = [
-  { id: 'image', label: 'Generate Image', icon: Image, color: 'text-blue-500', description: 'Create AI-generated images' },
-  { id: 'video', label: 'Generate Video', icon: Video, color: 'text-purple-500', description: 'Create AI-generated videos' },
-  { id: 'audio', label: 'Generate Audio', icon: Music, color: 'text-orange-500', description: 'Create music or voiceovers' },
-  { id: 'design', label: 'Create Design', icon: Palette, color: 'text-pink-500', description: 'Create logos and graphics' },
-  { id: 'content', label: 'Write Content', icon: FileText, color: 'text-green-500', description: 'Generate text content' },
-  { id: 'document', label: 'Create Document', icon: BookOpen, color: 'text-cyan-500', description: 'Create ebooks or articles' },
+  { id: 'image', label: 'Generate Image', icon: Image, color: 'text-blue-500', description: 'Nano Banana Pro', model: 'nano-banana-pro' },
+  { id: 'video', label: 'Generate Video', icon: Video, color: 'text-purple-500', description: 'Veo 3.1', model: 'veo3' },
+  { id: 'audio', label: 'Generate Audio', icon: Music, color: 'text-orange-500', description: 'ElevenLabs TTS', model: 'elevenlabs' },
+  { id: 'design', label: 'Create Design', icon: Palette, color: 'text-pink-500', description: 'Nano Banana Pro', model: 'nano-banana-pro' },
+  { id: 'content', label: 'Write Content', icon: FileText, color: 'text-green-500', description: 'Claude Sonnet 4.5', model: 'claude-sonnet-4.5' },
+  { id: 'document', label: 'Create Document', icon: BookOpen, color: 'text-cyan-500', description: 'Claude Sonnet 4.5', model: 'claude-sonnet-4.5' },
 ] as const;
 
 // Simple markdown renderer for chat messages
@@ -110,6 +110,7 @@ export interface ToolAction {
   type: ToolType;
   prompt: string;
   subType?: string;
+  model?: string;
 }
 
 interface AIVASidePanelProps {
@@ -384,17 +385,21 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
   const executeToolAction = (prompt: string) => {
     if (!selectedTool || !onToolAction) return;
     
+    const tool = AIVA_TOOLS.find(t => t.id === selectedTool);
+    
     onToolAction({
       type: selectedTool,
-      prompt: prompt
+      prompt: prompt,
+      model: tool?.model
     });
     
-    // Add confirmation message
-    const toolName = AIVA_TOOLS.find(t => t.id === selectedTool)?.label || selectedTool;
+    // Add confirmation message with model info
+    const toolName = tool?.label || selectedTool;
+    const modelName = tool?.description || '';
     setMessages(prev => [...prev, {
       id: crypto.randomUUID(),
       role: 'assistant',
-      content: `🎨 Starting ${toolName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
+      content: `🎨 Starting ${toolName} with ${modelName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
     }]);
     
     setSelectedTool(null);
