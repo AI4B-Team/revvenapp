@@ -1,22 +1,18 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, ChevronRight } from 'lucide-react';
+import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import dolmarImage from '@/assets/agents/dolmar.png';
-import keishaImage from '@/assets/agents/keisha.png';
-import francisImage from '@/assets/agents/francis.png';
-import richImage from '@/assets/agents/rich.png';
-import brianImage from '@/assets/agents/brian.png';
-import damoiImage from '@/assets/agents/damoi.png';
+import { toast } from 'sonner';
 
 // Progress sidebar component
 const SignupProgress = ({ currentStep }: { currentStep: number }) => {
   const steps = [
     { id: 1, label: 'Create Account', completed: true },
-    { id: 2, label: 'Name Workspace', completed: currentStep > 3 },
+    { id: 2, label: 'Workspace', completed: currentStep > 2 },
     { id: 3, label: 'Your Profile', completed: currentStep > 3 },
-    { id: 4, label: 'Agent Match', completed: currentStep > 10 },
+    { id: 4, label: 'Platform Tour', completed: currentStep > 7 },
+    { id: 5, label: 'Get Started', completed: currentStep > 8 },
   ];
 
   return (
@@ -41,14 +37,14 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
                 <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0">
                   <Check className="w-3 h-3 text-white" />
                 </div>
-              ) : step.id === currentStep || (step.id === 4 && currentStep >= 4) ? (
+              ) : step.id === Math.min(currentStep, 5) || (currentStep >= 4 && currentStep <= 7 && step.id === 4) || (currentStep >= 8 && step.id === 5) ? (
                 <ChevronRight className="w-5 h-5 text-green-600 flex-shrink-0" />
               ) : (
                 <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0" />
               )}
               <span
                 className={`text-sm ${
-                  step.id === currentStep || (step.id === 4 && currentStep >= 4)
+                  step.id === Math.min(currentStep, 5) || (currentStep >= 4 && currentStep <= 7 && step.id === 4) || (currentStep >= 8 && step.id === 5)
                     ? 'text-green-600 font-medium'
                     : step.completed
                     ? 'text-gray-700'
@@ -65,16 +61,30 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
   );
 };
 
+// Toolkit item component
+const ToolkitItem = ({ icon: Icon, label, description }: { icon: React.ElementType; label: string; description: string }) => (
+  <div className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50/50 transition-all">
+    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center flex-shrink-0">
+      <Icon className="w-6 h-6 text-green-600" />
+    </div>
+    <div>
+      <h4 className="font-semibold text-gray-900">{label}</h4>
+      <p className="text-sm text-gray-500">{description}</p>
+    </div>
+  </div>
+);
+
 // Main signup flow component
 export default function SignupFlow() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(2); // Start at step 2 (workspace)
   const [workspaceName, setWorkspaceName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('');
   const [industry, setIndustry] = useState('');
-  const [qa1Answer, setQa1Answer] = useState('');
-  const [qa2Answer, setQa2Answer] = useState('');
-  const [qa3Answer, setQa3Answer] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [agreeToSms, setAgreeToSms] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   const handleWorkspaceSetup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,12 +96,34 @@ export default function SignupFlow() {
     setCurrentStep(4);
   };
 
-  const handleAgentReveal = () => {
-    setCurrentStep(currentStep + 1);
+  const handlePhoneSave = () => {
+    if (phoneNumber.trim()) {
+      toast.success('Phone number saved!');
+    }
+    setCurrentStep(7);
   };
 
-  const handleSkip = () => {
-    setCurrentStep(currentStep + 1);
+  const handleEnableNotifications = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        setNotificationsEnabled(true);
+        toast.success('Notifications enabled!');
+      }
+    } catch (error) {
+      console.error('Notification permission error:', error);
+    }
+    setCurrentStep(8);
+  };
+
+  const handleSkipNotifications = () => {
+    setCurrentStep(8);
+  };
+
+  const handleGoBack = () => {
+    if (currentStep > 2) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
   return (
@@ -101,8 +133,7 @@ export default function SignupFlow() {
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center bg-white p-8">
-        <div className="w-full max-w-6xl"
->
+        <div className="w-full max-w-2xl">
           {/* Step 2: Workspace Setup */}
           {currentStep === 2 && (
             <div>
@@ -116,9 +147,9 @@ export default function SignupFlow() {
 
               <form onSubmit={handleWorkspaceSetup} className="space-y-6">
                 <div>
-                <label className="block text-lg font-bold text-gray-900 mb-2">
-                  Workspace Name
-                </label>
+                  <label className="block text-lg font-bold text-gray-900 mb-2">
+                    Workspace Name
+                  </label>
                   <Input
                     type="text"
                     placeholder="My Business"
@@ -145,6 +176,20 @@ export default function SignupFlow() {
               <h1 className="text-3xl font-bold text-gray-900 mb-8">Tell Us About You</h1>
 
               <form onSubmit={handleAboutYou} className="space-y-6">
+                <div>
+                  <label className="block text-lg font-bold text-gray-900 mb-2">
+                    Your Full Name
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Jane Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="h-12"
+                    required
+                  />
+                </div>
+
                 <div>
                   <label className="block text-lg font-bold text-gray-900 mb-2">
                     What Best Describes Your Role?
@@ -205,7 +250,7 @@ export default function SignupFlow() {
 
                 <Button
                   type="submit"
-                  disabled={!role || !industry}
+                  disabled={!role || !industry || !fullName.trim()}
                   className="bg-green-600 hover:bg-green-700 h-12 px-8 disabled:opacity-50"
                 >
                   Continue
@@ -214,318 +259,248 @@ export default function SignupFlow() {
             </div>
           )}
 
-          {/* Step 4: Q&A 1 - Content Creation */}
+          {/* Step 4: Your Toolkit Overview */}
           {currentStep === 4 && (
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-8">
-                What's your biggest content creation struggle?
-              </h1>
-
-              <div className="space-y-4">
-                {[
-                  'I never know what to post or say',
-                  'Creating content takes me 3-4 hours per post',
-                  "My content doesn't match my brand or convert",
-                  'I post inconsistently—whenever I remember',
-                ].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      setQa1Answer(option);
-                      setCurrentStep(5);
-                    }}
-                    className="w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-green-600 hover:bg-green-50 transition-colors"
-                  >
-                    <span className="text-gray-900">{option}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 5: Meet Dolmar & Keisha */}
-          {currentStep === 5 && (
-            <div className="flex gap-8 items-start max-w-5xl">
-              {/* Agent Images */}
-              <div className="flex-shrink-0 w-[400px] h-[500px] bg-gradient-to-br from-blue-100 to-yellow-100 rounded-2xl overflow-hidden flex items-end justify-center p-6">
-                <div className="flex gap-4">
-                  <img src={keishaImage} alt="Keisha" className="w-48 h-auto object-contain" />
-                  <img src={dolmarImage} alt="Dolmar" className="w-48 h-auto object-contain" />
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="flex-1">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  Meet Dolmar & Keisha
-                </h1>
-                <h2 className="text-xl text-gray-600 mb-8">
-                  Your Content Creation Engine
-                </h2>
-
-                <div className="space-y-6 mb-8">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">What They Solve:</h3>
-                    <ul className="space-y-4">
-                      <li className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          <strong>Dolmar</strong> creates your visual identity — Generates branded graphics, videos, and your AI Avatar that posts in your voice
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          <strong>Keisha</strong> writes everything — Converts your ideas into viral posts, sales pages, emails, and digital products in minutes
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded">
-                    <p className="text-gray-900 font-semibold mb-2">
-                      Their Promise:
-                    </p>
-                    <p className="text-gray-700 italic">
-                      "We'll turn your scattered ideas into 30 days of branded content before you finish your coffee."
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={() => setCurrentStep(6)}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white h-14 text-lg font-semibold"
-                >
-                  That Sounds Perfect! Continue
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 6: Q&A 2 - Revenue */}
-          {currentStep === 6 && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-8 whitespace-nowrap">
-                Where are you losing the most money right now?
-              </h1>
-
-              <div className="space-y-4">
-                {[
-                  'I get views but no one buys',
-                  'My launches flop—no momentum or urgency',
-                  "I have leads but can't close them",
-                  'I\'m invisible—no one finds me online',
-                ].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      setQa2Answer(option);
-                      setCurrentStep(7);
-                    }}
-                    className="w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-green-600 hover:bg-green-50 transition-colors"
-                  >
-                    <span className="text-gray-900">{option}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 7: Meet Francis & Rich */}
-          {currentStep === 7 && (
-            <div className="flex gap-8 items-start max-w-5xl">
-              {/* Agent Images */}
-              <div className="flex-shrink-0 w-[400px] h-[500px] bg-gradient-to-br from-blue-100 to-gray-200 rounded-2xl overflow-hidden flex items-end justify-center p-6">
-                <div className="flex gap-4">
-                  <img src={francisImage} alt="Francis" className="w-48 h-auto object-contain" />
-                  <img src={richImage} alt="Rich" className="w-48 h-auto object-contain" />
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="flex-1">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  Meet Francis & Rich
-                </h1>
-                <h2 className="text-xl text-gray-600 mb-8">
-                  Your Revenue Growth Team
-                </h2>
-
-                <div className="space-y-6 mb-8">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">What They Solve:</h3>
-                    <ul className="space-y-4">
-                      <li className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          <strong>Francis</strong> builds your marketing engine — Crafts offers, builds funnels, and launches marketing campaigns that brings qualified buyers to you
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          <strong>Rich</strong> turns interest into income — Automates follow-ups, writes conversion-focused sales scripts, and closes deals 24/7
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded">
-                    <p className="text-gray-900 font-semibold mb-2">
-                      Their Promise:
-                    </p>
-                    <p className="text-gray-700 italic">
-                      "We'll fill your calendar with ready-to-buy leads and convert them while you sleep."
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={() => setCurrentStep(8)}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white h-14 text-lg font-semibold"
-                >
-                  YES, I Need This! Continue
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 8: Q&A 3 - Time & Energy */}
-          {currentStep === 8 && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-8">
-                What's draining your time and energy the most?
-              </h1>
-
-              <div className="space-y-4">
-                {[
-                  'I\'m switching between 10 tools all day',
-                  'Everything is manual—posting, emailing, scheduling',
-                  'I\'m handling tasks I hate instead of growing the business',
-                  'There\'s no system—it\'s all chaos and firefighting',
-                ].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      setQa3Answer(option);
-                      setCurrentStep(9);
-                    }}
-                    className="w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-green-600 hover:bg-green-50 transition-colors"
-                  >
-                    <span className="text-gray-900">{option}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 9: Meet Brian & Damoi */}
-          {currentStep === 9 && (
-            <div className="flex gap-8 items-start max-w-5xl">
-              {/* Agent Images */}
-              <div className="flex-shrink-0 w-[400px] h-[500px] bg-gradient-to-br from-slate-800 to-blue-900 rounded-2xl overflow-hidden flex items-end justify-center p-6">
-                <div className="flex gap-4">
-                  <img src={brianImage} alt="Brian" className="w-48 h-auto object-contain" />
-                  <img src={damoiImage} alt="Damoi" className="w-48 h-auto object-contain" />
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="flex-1">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  Meet Brian & Damoi
-                </h1>
-                <h2 className="text-xl text-gray-600 mb-8">
-                  Your Business Automation Team
-                </h2>
-
-                <div className="space-y-6 mb-8">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">What They Solve:</h3>
-                    <ul className="space-y-4">
-                      <li className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          <strong>Brian</strong> builds your automated systems — Connects your tools, creates automated workflows, and makes everything run on autopilot
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          <strong>Damoi</strong> organizes and executes — Manages projects, keeps everything on track, and scales operations without the overwhelm
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded">
-                    <p className="text-gray-900 font-semibold mb-2">
-                      Their Promise:
-                    </p>
-                    <p className="text-gray-700 italic">
-                      "We'll eliminate 80% of your busywork and give you back 20+ hours per week."
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={() => setCurrentStep(10)}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white h-14 text-lg font-semibold"
-                >
-                  Sign Me Up! Continue
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 10: Complete Analysis */}
-          {currentStep === 10 && (
-            <div className="text-center">
-              <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check className="w-10 h-10 text-white" />
-              </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">Complete Analysis</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Your AI Toolkit</h1>
               <p className="text-gray-600 mb-8">
-                We've analyzed your needs and matched you with the perfect AI team
+                REVVEN has powerful tools to get real work done for you
               </p>
 
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-8 mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Your AI Team is Ready</h2>
-                <p className="text-gray-700 mb-6">
-                  Based on your responses, we've assembled the ideal combination of AI agents to help you succeed.
-                </p>
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                <ToolkitItem icon={Mail} label="Email" description="Send and manage emails" />
+                <ToolkitItem icon={Phone} label="Phone" description="Make calls with AI voice" />
+                <ToolkitItem icon={Globe} label="Browser" description="Deep web research" />
+                <ToolkitItem icon={Code} label="Code" description="Build apps and automations" />
+                <ToolkitItem icon={Image} label="Images" description="Generate visual content" />
+                <ToolkitItem icon={FileText} label="Documents" description="Create and edit files" />
+              </div>
 
-                <div className="space-y-3 text-left">
-                  <div className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                    <div>
-                      <span className="font-semibold text-gray-900">Dolmar & Keisha</span>
-                      <span className="text-gray-600"> — Content Creation Engine</span>
-                    </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleGoBack}
+                  className="h-12 px-6"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setCurrentStep(5)}
+                  className="bg-green-600 hover:bg-green-700 h-12 px-8"
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: How It Works - Self Reflection */}
+          {currentStep === 5 && (
+            <div>
+              <div className="mb-8">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mb-6">
+                  <Clock className="w-8 h-8 text-green-600" />
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Smart Pacing</h1>
+                <p className="text-gray-600 text-lg">
+                  Your AI can pause and restart itself when it needs to wait for things to unfold. 
+                  Waiting for an email reply? Waiting for a website to update? 
+                  Your AI will pause, then pick back up when the time is right.
+                </p>
+                <p className="text-green-600 font-medium mt-4">No worries about it overworking.</p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleGoBack}
+                  className="h-12 px-6"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setCurrentStep(6)}
+                  className="bg-green-600 hover:bg-green-700 h-12 px-8"
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 6: Add Your Phone */}
+          {currentStep === 6 && (
+            <div>
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mb-6">
+                <Phone className="w-8 h-8 text-green-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Add Your Phone</h1>
+              <p className="text-gray-600 mb-8">
+                Want updates via text? Add your phone number below. This is optional.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number (optional)
+                  </label>
+                  <Input
+                    type="tel"
+                    placeholder="+1 (555) 123-4567"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+
+                {phoneNumber.trim() && (
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreeToSms}
+                      onChange={(e) => setAgreeToSms(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                    />
+                    <span className="text-sm text-gray-600">
+                      I agree to receive SMS from REVVEN. Message/data rates may apply. Reply STOP to cancel.
+                    </span>
+                  </label>
+                )}
+
+                <p className="text-sm text-gray-500">
+                  You can skip this and add it later in Settings.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleGoBack}
+                  className="h-12 px-6"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  onClick={handlePhoneSave}
+                  className="bg-green-600 hover:bg-green-700 h-12 px-8"
+                >
+                  {phoneNumber.trim() ? 'Save & Continue' : 'Skip for Now'}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 7: Enable Notifications */}
+          {currentStep === 7 && (
+            <div>
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mb-6">
+                <Bell className="w-8 h-8 text-green-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Enable Notifications</h1>
+              <p className="text-gray-600 mb-8">
+                Get notified when your tasks complete, even when you're in another tab.
+              </p>
+
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <Zap className="w-5 h-5 text-green-600" />
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                    <div>
-                      <span className="font-semibold text-gray-900">Francis & Rich</span>
-                      <span className="text-gray-600"> — Revenue Growth Team</span>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                    <div>
-                      <span className="font-semibold text-gray-900">Brian & Damoi</span>
-                      <span className="text-gray-600"> — Business Automation Team</span>
-                    </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Stay in the loop</h3>
+                    <p className="text-sm text-gray-600">
+                      We'll only send important updates about your projects and AI activity.
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <Button
-                onClick={() => navigate('/onboarding')}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-12 px-8"
-              >
-                Start Working With Your Team →
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleGoBack}
+                  className="h-12 px-6"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleSkipNotifications}
+                  className="h-12 px-6"
+                >
+                  Not now
+                </Button>
+                <Button
+                  onClick={handleEnableNotifications}
+                  className="bg-green-600 hover:bg-green-700 h-12 px-8"
+                >
+                  Enable
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 8: Ready to Start */}
+          {currentStep === 8 && (
+            <div>
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mb-6">
+                <Target className="w-8 h-8 text-green-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Think Projects, Not Tasks</h1>
+              <p className="text-gray-600 mb-8">
+                REVVEN works best on big, ambitious goals. Give it something meaningful to work on.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-center gap-3 text-gray-500">
+                  <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <span className="text-xs">✕</span>
+                  </div>
+                  <span className="line-through">"Send an email to John"</span>
+                </div>
+                <div className="flex items-center gap-3 text-green-600">
+                  <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                    <Check className="w-4 h-4" />
+                  </div>
+                  <span className="font-medium">"Launch a newsletter and get 100 subscribers"</span>
+                </div>
+              </div>
+
+              <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-8">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-5 h-5 text-green-600" />
+                  <span className="font-semibold text-green-800">Pro tip</span>
+                </div>
+                <p className="text-green-700">
+                  Give REVVEN the thing that is most stressing you out right now. 
+                  Let it handle the complexity while you focus on what matters.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleGoBack}
+                  className="h-12 px-6"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  onClick={() => navigate('/dashboard')}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 h-12 px-8"
+                >
+                  Let's Get Started!
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             </div>
           )}
         </div>
