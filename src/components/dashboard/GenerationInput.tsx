@@ -58,6 +58,11 @@ interface GenerationInputProps {
   onExternalSubTypeUsed?: () => void;
   externalModel?: string | null;
   onExternalModelUsed?: () => void;
+  // External ratio and number from landing page
+  externalRatio?: string | null;
+  onExternalRatioUsed?: () => void;
+  externalNumber?: number | null;
+  onExternalNumberUsed?: () => void;
   // External characters for video mode (from landing page)
   externalVideoCharacters?: any[];
   // External style from landing page
@@ -104,7 +109,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed, externalSubType, onExternalSubTypeUsed, externalModel, onExternalModelUsed, externalVideoCharacters = [], externalStyle, onExternalStyleUsed, externalCharacter, onExternalCharacterUsed, externalReferences, onExternalReferencesUsed }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed, externalSubType, onExternalSubTypeUsed, externalModel, onExternalModelUsed, externalRatio, onExternalRatioUsed, externalNumber, onExternalNumberUsed, externalVideoCharacters = [], externalStyle, onExternalStyleUsed, externalCharacter, onExternalCharacterUsed, externalReferences, onExternalReferencesUsed }: GenerationInputProps) => {
   const navigate = useNavigate();
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -1274,6 +1279,28 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       onExternalModelUsed?.();
     }
   }, [externalModel, onExternalModelUsed]);
+
+  // Apply external ratio from landing page
+  const hasAppliedExternalRatio = useRef(false);
+  useEffect(() => {
+    if (externalRatio && !hasAppliedExternalRatio.current) {
+      console.log('Applying external ratio:', externalRatio);
+      setSelectedAspectRatio(externalRatio);
+      hasAppliedExternalRatio.current = true;
+      onExternalRatioUsed?.();
+    }
+  }, [externalRatio, onExternalRatioUsed]);
+
+  // Apply external number (count) from landing page
+  const hasAppliedExternalNumber = useRef(false);
+  useEffect(() => {
+    if (externalNumber && !hasAppliedExternalNumber.current) {
+      console.log('Applying external number:', externalNumber);
+      setNumberOfImages(externalNumber);
+      hasAppliedExternalNumber.current = true;
+      onExternalNumberUsed?.();
+    }
+  }, [externalNumber, onExternalNumberUsed]);
 
   // Apply external style from landing page
   const hasAppliedExternalStyle = useRef(false);

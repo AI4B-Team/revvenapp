@@ -99,6 +99,8 @@ const Create = () => {
   const [landingReferences, setLandingReferences] = useState<any[]>([]);
   const [landingMode, setLandingMode] = useState<string | null>(null);
   const [landingModel, setLandingModel] = useState<string | null>(null);
+  const [landingRatio, setLandingRatio] = useState<string | null>(null);
+  const [landingNumber, setLandingNumber] = useState<number | null>(null);
   const [landingPlatforms, setLandingPlatforms] = useState<string[]>([]);
   const [landingCharacter, setLandingCharacter] = useState<any>(null);
 
@@ -120,6 +122,8 @@ const Create = () => {
       character?: any;
       mode?: string;
       model?: string;
+      ratio?: string;
+      number?: number;
       platforms?: string[];
     } | null;
     const params = new URLSearchParams(location.search);
@@ -208,6 +212,16 @@ const Create = () => {
       // Set model
       if (state.model) {
         setLandingModel(state.model);
+      }
+      
+      // Set ratio
+      if (state.ratio) {
+        setLandingRatio(state.ratio);
+      }
+      
+      // Set number (count)
+      if (state.number) {
+        setLandingNumber(state.number);
       }
       
       // Set platforms for social content
@@ -856,6 +870,10 @@ const Create = () => {
               onExternalSubTypeUsed={() => setLandingSubType(null)}
               externalModel={landingModel}
               onExternalModelUsed={() => setLandingModel(null)}
+              externalRatio={landingRatio}
+              onExternalRatioUsed={() => setLandingRatio(null)}
+              externalNumber={landingNumber}
+              onExternalNumberUsed={() => setLandingNumber(null)}
               externalStyle={landingStyle}
               onExternalStyleUsed={() => setLandingStyle(null)}
               externalCharacter={landingCharacter}
