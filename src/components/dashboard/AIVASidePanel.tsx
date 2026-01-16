@@ -103,6 +103,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   imageUrl?: string;
+  videoUrl?: string;
   isGenerating?: boolean;
   generationType?: 'image' | 'video' | 'audio';
 }
@@ -462,6 +463,77 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
             : m
         ));
       }
+    } else if (selectedTool === 'video') {
+      // Add loading message for video generation
+      setMessages(prev => [...prev, {
+        id: messageId,
+        role: 'assistant',
+        content: `🎬 Creating video with ${modelName}...\n\nPrompt: "${prompt}"`,
+        isGenerating: true,
+        generationType: 'video'
+      }]);
+      
+      try {
+        // Get auth token
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('Not authenticated');
+        }
+        
+        // Call the generate-veo-video edge function
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-veo-video`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            prompt: prompt,
+            model: 'veo3',
+            userId: session.user.id,
+            characterName: 'AIVA Generated',
+            characterBio: 'Generated from AIVA chat',
+            characterImageUrl: '',
+            videoTopic: prompt,
+            videoStyle: 'cinematic'
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Video generation failed');
+        }
+        
+        const data = await response.json();
+        
+        // Update message to show it's processing
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { 
+                ...m, 
+                content: `🎬 Video is being generated...\n\nPrompt: "${prompt}"\n\n⏳ Processing with Veo 3.1...\n\nThis may take a few minutes.`,
+                isGenerating: true
+              }
+            : m
+        ));
+        
+        // Poll for the video result
+        if (data.videoId) {
+          pollForVideoResult(messageId, data.videoId, prompt);
+        }
+        
+      } catch (error) {
+        console.error('Video generation error:', error);
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { 
+                ...m, 
+                content: `❌ Failed to generate video.\n\nPrompt: "${prompt}"\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                isGenerating: false
+              }
+            : m
+        ));
+      }
     } else if (onToolAction) {
       // For other tools, use the external action handler
       onToolAction({
@@ -547,6 +619,75 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     
     // Start polling after a short delay
     setTimeout(checkStatus, 3000);
+  };
+  
+  // Poll for video generation result
+  const pollForVideoResult = async (messageId: string, videoRecordId: string, prompt: string) => {
+    const maxAttempts = 120; // 4 minutes max (videos take longer)
+    let attempts = 0;
+    
+    const checkStatus = async () => {
+      attempts++;
+      
+      try {
+        const { data: videoRecord, error } = await supabase
+          .from('ai_videos')
+          .select('status, video_url, error_message')
+          .eq('id', videoRecordId)
+          .single();
+        
+        if (error) throw error;
+        
+        if (videoRecord?.status === 'completed' && videoRecord.video_url) {
+          // Video is ready - update the message
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `✅ Video generated!\n\nPrompt: "${prompt}"`,
+                  videoUrl: videoRecord.video_url,
+                  isGenerating: false
+                }
+              : m
+          ));
+          return;
+        } else if (videoRecord?.status === 'error' || videoRecord?.status === 'failed') {
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `❌ Video generation failed.\n\nPrompt: "${prompt}"\n\nError: ${videoRecord.error_message || 'Unknown error'}`,
+                  isGenerating: false
+                }
+              : m
+          ));
+          return;
+        }
+        
+        // Still processing, continue polling
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 2000); // Check every 2 seconds
+        } else {
+          setMessages(prev => prev.map(m => 
+            m.id === messageId 
+              ? { 
+                  ...m, 
+                  content: `⏰ Video generation is taking longer than expected.\n\nPrompt: "${prompt}"\n\nCheck your creations gallery for the result.`,
+                  isGenerating: false
+                }
+              : m
+          ));
+        }
+      } catch (error) {
+        console.error('Error checking video status:', error);
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 2000);
+        }
+      }
+    };
+    
+    // Start polling after a short delay (videos take longer to start)
+    setTimeout(checkStatus, 5000);
   };
 
   // Modified send to handle tool actions
@@ -734,6 +875,18 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                               alt="Generated image"
                               className="rounded-lg max-w-full h-auto shadow-md cursor-pointer hover:opacity-90 transition"
                               onClick={() => window.open(msg.imageUrl, '_blank')}
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Show generated video */}
+                        {msg.videoUrl && (
+                          <div className="mt-3">
+                            <video 
+                              src={msg.videoUrl} 
+                              controls
+                              className="rounded-lg max-w-full h-auto shadow-md"
+                              style={{ maxHeight: '300px' }}
                             />
                           </div>
                         )}
