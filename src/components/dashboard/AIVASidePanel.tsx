@@ -854,19 +854,129 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
             : m
         ));
       }
-    } else if (onToolAction) {
-      // For other tools, use the external action handler
-      onToolAction({
-        type: selectedTool,
-        prompt: prompt,
-        model: tool?.model
-      });
+    } else if (selectedTool === 'content' || selectedTool === 'document') {
+      // Handle content/document generation with Claude Sonnet 4
+      const contentType = selectedTool === 'document' ? 'document' : 'content';
       
+      // Add initial message
       setMessages(prev => [...prev, {
         id: messageId,
         role: 'assistant',
-        content: `🎨 Starting ${toolName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
+        content: `📝 Writing your ${contentType}...\n\nPrompt: "${prompt}"\n\n⏳ Generating with Claude Sonnet 4...`,
+        isGenerating: true
       }]);
+      
+      try {
+        // Get auth token
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('Not authenticated');
+        }
+        
+        // Call the generate-content edge function with streaming
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-content`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            prompt: prompt,
+            type: contentType,
+            stream: true
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Content generation failed');
+        }
+        
+        // Handle streaming response
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error('No response body');
+        
+        const decoder = new TextDecoder();
+        let fullContent = '';
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+              
+              try {
+                const parsed = JSON.parse(data);
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) {
+                  fullContent += delta;
+                  // Update message with streaming content
+                  setMessages(prev => prev.map(m => 
+                    m.id === messageId 
+                      ? { 
+                          ...m, 
+                          content: `📝 **Generated Content:**\n\n${fullContent}`,
+                          isGenerating: true
+                        }
+                      : m
+                  ));
+                }
+              } catch {
+                // Skip invalid JSON
+              }
+            }
+          }
+        }
+        
+        // Final update - content complete
+        const finalContent = `✅ **${contentType === 'document' ? 'Document' : 'Content'} Generated!**\n\n${fullContent}`;
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { 
+                ...m, 
+                content: finalContent,
+                isGenerating: false
+              }
+            : m
+        ));
+        
+        // Save to database
+        await saveMessage('assistant', finalContent);
+        
+      } catch (error) {
+        console.error('Content generation error:', error);
+        setMessages(prev => prev.map(m => 
+          m.id === messageId 
+            ? { 
+                ...m, 
+                content: `❌ Failed to generate ${contentType}.\n\nPrompt: "${prompt}"\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                isGenerating: false
+              }
+            : m
+        ));
+      }
+    } else if (selectedTool === 'design') {
+      // For design tool, use external action handler
+      if (onToolAction) {
+        onToolAction({
+          type: selectedTool,
+          prompt: prompt,
+          subType: selectedDesignMode,
+          model: tool?.model
+        });
+        
+        setMessages(prev => [...prev, {
+          id: messageId,
+          role: 'assistant',
+          content: `🎨 Starting ${toolName}...\n\nPrompt: "${prompt}"\n\nI've sent this to the generator. Check the main area for your creation!`
+        }]);
+      }
     }
     
     setSelectedTool(null);
