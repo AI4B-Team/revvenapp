@@ -88,6 +88,8 @@ async function generateContentInBackground(
   
   try {
     console.log(`Starting background generation for job ${jobId}`);
+    console.log(`Parameters: days=${days}, platforms=${platforms.join(',')}, goal=${goal}, language=${language}`);
+    console.log(`Reference content provided: ${referenceContent ? 'YES (' + referenceContent.length + ' chars)' : 'NO'}`);
     
     // Update job status to processing
     await supabaseAdmin
@@ -121,6 +123,9 @@ async function generateContentInBackground(
       console.log('No custom posting schedule found, using default times');
     }
 
+    // Normalize platforms to lowercase for consistency
+    const normalizedPlatforms = platforms.map(p => p.toLowerCase());
+    
     const batchSize = 2; // Reduced from 5 to ensure responses fit within token limits
     let postIndex = 0;
     let totalPostsGenerated = 0;
@@ -131,8 +136,8 @@ async function generateContentInBackground(
     for (let startDay = 0; startDay < days; startDay += batchSize) {
       const endDay = Math.min(startDay + batchSize, days);
       const batchDays = endDay - startDay;
-      const platformNames = platforms.join(', ');
-      const platformCount = platforms.length;
+      const platformNames = normalizedPlatforms.join(', ');
+      const platformCount = normalizedPlatforms.length;
       
       // Calculate exact posts needed for this batch
       const postsNeeded = batchDays * platformCount;
@@ -142,9 +147,24 @@ async function generateContentInBackground(
       for (let d = startDay + 1; d <= endDay; d++) {
         dayRequirements.push(`Day ${d}: 1 post for EACH of these platforms: ${platformNames}`);
       }
+
+      // Build reference content section if available
+      const referenceSection = referenceContent ? `
+
+REFERENCE DOCUMENT CONTENT - YOU MUST USE THIS:
+The user has provided a reference document. You MUST base your posts on this content.
+Extract key points, insights, facts, and topics from this document and transform them into engaging social media posts.
+DO NOT ignore this document - it contains the primary content the user wants to share.
+
+---DOCUMENT START---
+${referenceContent.slice(0, 20000)}
+---DOCUMENT END---
+
+IMPORTANT: Every post MUST be directly related to the content in the reference document above.
+` : '';
       
       const systemPrompt = `You are a social media content strategist. Generate a content calendar for days ${startDay + 1} to ${endDay}.
-
+${referenceSection}
 CONTENT GOAL: ${goal}
 - If goal is "Engagement": Focus on questions, polls, interactive content, conversation starters, and content that encourages likes/comments/shares
 - If goal is "Awareness": Focus on brand storytelling, reaching new audiences, and highly shareable content that builds recognition
@@ -169,13 +189,17 @@ ${language === 'Japanese' ? '- For Japanese, use appropriate mix of hiragana, ka
 MANDATORY REQUIREMENTS:
 - You MUST generate EXACTLY ${postsNeeded} posts total
 - You MUST generate EXACTLY 1 post per platform per day
+- ONLY use these platforms: ${platformNames} - DO NOT use any other platforms
 - Every single day from ${startDay + 1} to ${endDay} MUST have posts for ALL platforms
 - ALL text content MUST be in ${language}
+${referenceContent ? '- ALL posts MUST be based on the reference document content provided above' : ''}
 
 Required posts breakdown:
 ${dayRequirements.join('\n')}
 
 For each post, provide:
+- "day": the day number (${startDay + 1} to ${endDay})
+- "platform": MUST be one of [${normalizedPlatforms.map(p => `"${p}"`).join(', ')}] - use EXACTLY these values
 - A catchy title in ${language} (max 60 chars)
 - An engaging caption with emojis in ${language} (150-280 chars) - optimize for ${goal}
 - 4-6 relevant hashtags (can mix ${language} and English hashtags)
@@ -201,29 +225,34 @@ CRITICAL: For ALL "reel" type posts, you MUST include a "videoScript" field with
   }
 }
 
-Return ONLY a valid JSON array. VERIFY you have exactly ${postsNeeded} posts covering all ${batchDays} days and all ${platformCount} platforms.`;
+Return ONLY a valid JSON array with the exact structure. VERIFY you have exactly ${postsNeeded} posts covering all ${batchDays} days and all ${platformCount} platforms.`;
 
-      // Build user prompt with optional reference content
+      // Build user prompt - reference content is already in system prompt, so just focus on the request
       let userPrompt = `Create EXACTLY ${postsNeeded} posts for days ${startDay + 1} to ${endDay}.
-Platforms: ${platformNames}
-Theme/Topic: ${prompt}
-Goal: ${goal} (optimize content for this goal)
-Language: ${language} (write ALL content in this language)`;
 
-      if (referenceContent) {
-        userPrompt += `
+PLATFORMS TO USE (use ONLY these, exactly as written):
+${normalizedPlatforms.map(p => `- "${p}"`).join('\n')}
 
-REFERENCE DOCUMENT CONTENT (use this information to create relevant, accurate posts):
----
-${referenceContent.slice(0, 15000)}
----
+Topic/Theme: ${prompt}
+Goal: ${goal}
+Language: ${language}
 
-IMPORTANT: Base your posts on the key information, insights, and topics from the reference document above. Extract the most engaging points and transform them into social media content.`;
-      }
+${referenceContent ? `REMINDER: You MUST base all posts on the reference document provided in the system message. Extract key insights and facts from it.` : ''}
 
-      userPrompt += `
+OUTPUT FORMAT: Return a JSON array where each post has:
+- "day": number (${startDay + 1} to ${endDay})
+- "platform": string (MUST be exactly one of: ${normalizedPlatforms.map(p => `"${p}"`).join(', ')})
+- "title": string (in ${language})
+- "caption": string (in ${language}, with emojis)
+- "hashtags": array of strings
+- "type": "post" | "carousel" | "reel" | "story"
+- "videoScript": object (required for "reel" type)
 
-IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day or platform. Write everything in ${language}.`;
+CRITICAL RULES:
+1. Generate EXACTLY ${postsNeeded} posts total
+2. Each day (${startDay + 1} to ${endDay}) MUST have exactly 1 post per platform
+3. ONLY use platforms from the list above - do not add any other platforms
+4. Write ALL content in ${language}`;
 
       console.log(`Generating batch: days ${startDay + 1} to ${endDay}, expecting ${postsNeeded} posts for job ${jobId}...`);
       
@@ -318,23 +347,32 @@ IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day o
       console.log(`Batch has ${posts.length} posts after filling gaps (${missingPosts.length} fallbacks added)`);
 
       // Transform and save each post
-      // Use a fixed "today" reference based on midnight to ensure consistent date calculation
+      // IMPORTANT: Always schedule from TODAY onwards (never in the past)
+      // Use UTC to avoid timezone issues, then add hours to ensure future dates
       const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      // Set to start of today in UTC
+      const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
       
       for (const post of posts) {
+        // Validate and normalize platform to ensure it matches selected platforms
+        const normalizedPostPlatform = post.platform?.toLowerCase()?.trim();
+        if (!normalizedPlatforms.includes(normalizedPostPlatform)) {
+          console.log(`Skipping post with invalid platform: ${post.platform}, expected one of: ${normalizedPlatforms.join(', ')}`);
+          continue;
+        }
+        
         // Track this day as having posts
         postsPerDay[post.day] = true;
         
         // Day 1 = today, Day 2 = tomorrow, etc.
-        // Create a new date object and set the correct date
-        const postDate = new Date(today.getTime());
-        postDate.setDate(today.getDate() + (post.day - 1));
+        // Calculate the date by adding days to today
+        const daysToAdd = post.day - 1;
+        const postDate = new Date(todayUTC.getTime() + (daysToAdd * 24 * 60 * 60 * 1000));
         
         // Get the day of week for this post date
         const dayOfWeek = getDayOfWeek(postDate);
         const daySchedule = scheduleByDay[dayOfWeek] || [];
-        const dateKey = postDate.toDateString();
+        const dateKey = postDate.toISOString().split('T')[0]; // Use ISO date string for consistency
         
         // Initialize counter for this date if not exists
         if (!usedTimesPerDay[dateKey]) {
@@ -355,12 +393,22 @@ IMPORTANT: Generate 1 post for EACH platform for EACH day. Do not skip any day o
           usedTimesPerDay[dateKey]++;
           console.log(`Using scheduled time ${scheduledTime.time} for ${dayOfWeek}`);
         } else {
-          // Fallback to random time if no schedule
-          hour = 8 + Math.floor(Math.random() * 12);
-          minute = Math.floor(Math.random() * 4) * 15;
+          // Fallback to fixed times during the day (9am, 12pm, 3pm, 6pm based on post index)
+          const timeSlots = [9, 12, 15, 18];
+          hour = timeSlots[usedTimesPerDay[dateKey] % timeSlots.length];
+          minute = 0;
+          usedTimesPerDay[dateKey]++;
         }
         
-        postDate.setHours(hour, minute, 0, 0);
+        // Set hours in UTC
+        postDate.setUTCHours(hour, minute, 0, 0);
+        
+        // Ensure the date is not in the past (safety check)
+        if (postDate < now) {
+          // If somehow in the past, set to tomorrow same time
+          postDate.setTime(postDate.getTime() + 24 * 60 * 60 * 1000);
+          console.log(`Adjusted past date to future: ${postDate.toISOString()}`);
+        }
 
         // Fetch related photos from Pexels - use caption for more relevant results
         const photoCount = post.type === 'carousel' ? 4 : 1;
