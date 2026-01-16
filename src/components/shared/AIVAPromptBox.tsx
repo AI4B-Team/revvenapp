@@ -2258,6 +2258,27 @@ const AIVAPromptBox = ({
                           const selectedLabel = getSelectedLabel();
                           const hasSelection = selectedLabel && ['ratio', 'number', 'duration', 'quality'].includes(control.id);
                           
+                          // Special rendering for style button with selected style image
+                          if (control.id === 'style' && selectedStyle?.preview) {
+                            return (
+                              <Tooltip key={control.id}>
+                                <TooltipTrigger asChild>
+                                  <button 
+                                    onClick={clickHandler}
+                                    className="relative w-9 h-9 rounded-xl overflow-hidden border-2 border-purple-400 hover:border-purple-500 transition-colors"
+                                  >
+                                    <img 
+                                      src={selectedStyle.preview} 
+                                      alt={selectedStyle.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>{selectedStyle.name}</TooltipContent>
+                              </Tooltip>
+                            );
+                          }
+                          
                           return (
                             <Tooltip key={control.id}>
                               <TooltipTrigger asChild>
