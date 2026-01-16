@@ -954,9 +954,9 @@ const AIVAPromptBox = ({
     // Plan intent types
     if (selectedOption?.id === 'checklist') return checklistTypes;
     if (selectedOption?.id === 'roadmap') return roadmapTypes;
-    if (selectedOption?.id === 'sop') return sopTypes;
+    if (intent === 'Plan' && selectedOption?.id === 'sop') return sopTypes;
     if (selectedOption?.id === 'timeline') return timelineTypes;
-    if (selectedOption?.id === 'workflow') return workflowTypes;
+    if (intent === 'Plan' && selectedOption?.id === 'workflow') return workflowTypes;
     if (selectedOption?.id === 'funnel') return funnelTypes;
     // Automate intent types
     if (intent === 'Automate' && selectedOption?.id === 'workflow') return automateWorkflowTypes;
@@ -1166,8 +1166,8 @@ const AIVAPromptBox = ({
                 </Tooltip>
               )}
               
-              {/* Type button - shows after Auto option is selected (for non-document types) */}
-              {selectedOption && selectedOption.id !== 'document' && (
+              {/* Type button - shows after Auto option is selected when there are sub-type options */}
+              {selectedOption && selectedOption.id !== 'document' && getSubTypeOptions().length > 0 && (
                 <>
                   {/* Vertical separator between Auto and Type */}
                   <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
@@ -1219,8 +1219,8 @@ const AIVAPromptBox = ({
                 </>
               )}
 
-              {/* Model and Control icons - visible after Type is selected */}
-              {selectedSubType && (
+              {/* Model and Control icons - visible after Type is selected (Create intent only) */}
+              {selectedSubType && intent === 'Create' && (
                 <>
                   {/* Vertical separator */}
                   <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
