@@ -53,6 +53,11 @@ interface GenerationInputProps {
   onExternalPromptUsed?: () => void;
   externalAnimateMode?: string | null;
   onExternalAnimateModeUsed?: () => void;
+  // Landing page state - for mode/subType selection
+  externalSubType?: { id: string; label: string; color?: string } | null;
+  onExternalSubTypeUsed?: () => void;
+  externalModel?: string | null;
+  onExternalModelUsed?: () => void;
 }
 
 // Color themes data
@@ -88,7 +93,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed, externalSubType, onExternalSubTypeUsed, externalModel, onExternalModelUsed }: GenerationInputProps) => {
   const navigate = useNavigate();
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -1173,6 +1178,74 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       hasAppliedExternalAnimateMode.current = false;
     }
   }, [isVideoMode]);
+
+  // Apply external subType from landing page
+  const hasAppliedExternalSubType = useRef(false);
+  useEffect(() => {
+    if (externalSubType && !hasAppliedExternalSubType.current) {
+      const subTypeId = externalSubType.id;
+      console.log('Applying external subType:', subTypeId, 'for type:', selectedType);
+      
+      // Map subType id to the correct mode for each content type
+      if (selectedType === 'Image') {
+        // Image subtypes: generate, edit, reference, remove-bg, product, portrait, product-shot, draw
+        const imageSubTypeMap: Record<string, string> = {
+          'generate': 'Create',
+          'edit': 'Edit',
+          'reference': 'Reference',
+          'remove-bg': 'Remove BG',
+          'product': 'Photoshoot',
+          'portrait': 'Swap',
+          'product-shot': 'Photoshoot',
+          'draw': 'Draw',
+        };
+        if (imageSubTypeMap[subTypeId]) {
+          setSelectedCreateMode(imageSubTypeMap[subTypeId]);
+        }
+      } else if (selectedType === 'Video') {
+        // Video subtypes: story, generate, animate, avatar, ad, music-video, edit
+        const videoSubTypeMap: Record<string, string> = {
+          'story': 'Story',
+          'generate': 'Generate',
+          'animate': 'Animate',
+          'avatar': 'Avatar',
+          'ad': 'Ad',
+          'music-video': 'Music Video',
+          'edit': 'Edit',
+        };
+        if (videoSubTypeMap[subTypeId]) {
+          setSelectedAnimateMode(videoSubTypeMap[subTypeId]);
+        }
+      } else if (selectedType === 'Audio') {
+        // Audio subtypes: music, sound-effects, voiceover, tts, podcast, audiobook
+        const audioSubTypeMap: Record<string, string> = {
+          'music': 'Music',
+          'sound-effects': 'Sound Effects',
+          'voiceover': 'Voiceover',
+          'tts': 'Text to Speech',
+          'podcast': 'Podcast',
+          'audiobook': 'Audiobook',
+        };
+        if (audioSubTypeMap[subTypeId]) {
+          setSelectedAudioMode(audioSubTypeMap[subTypeId]);
+        }
+      }
+      
+      hasAppliedExternalSubType.current = true;
+      onExternalSubTypeUsed?.();
+    }
+  }, [externalSubType, selectedType, onExternalSubTypeUsed]);
+
+  // Apply external model from landing page
+  const hasAppliedExternalModel = useRef(false);
+  useEffect(() => {
+    if (externalModel && !hasAppliedExternalModel.current) {
+      console.log('Applying external model:', externalModel);
+      setSelectedModel(externalModel);
+      hasAppliedExternalModel.current = true;
+      onExternalModelUsed?.();
+    }
+  }, [externalModel, onExternalModelUsed]);
 
   // Clear transcribed text highlight when switching away from Transcribe mode
   // Also clear prompt when entering Transcribe mode
