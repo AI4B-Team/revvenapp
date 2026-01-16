@@ -92,8 +92,28 @@ const renderMarkdown = (text: string): React.ReactNode => {
       return parts;
     };
     
-    // Check for list items
-    if (line.match(/^\d+\.\s/)) {
+    // Check for headings first
+    if (line.startsWith('#### ')) {
+      const content = line.substring(5);
+      elements.push(
+        <h4 key={lineIndex} className="font-semibold text-sm mt-3 mb-1">{processInline(content)}</h4>
+      );
+    } else if (line.startsWith('### ')) {
+      const content = line.substring(4);
+      elements.push(
+        <h3 key={lineIndex} className="font-semibold text-base mt-4 mb-1">{processInline(content)}</h3>
+      );
+    } else if (line.startsWith('## ')) {
+      const content = line.substring(3);
+      elements.push(
+        <h2 key={lineIndex} className="font-bold text-lg mt-4 mb-2">{processInline(content)}</h2>
+      );
+    } else if (line.startsWith('# ')) {
+      const content = line.substring(2);
+      elements.push(
+        <h1 key={lineIndex} className="font-bold text-xl mt-4 mb-2">{processInline(content)}</h1>
+      );
+    } else if (line.match(/^\d+\.\s/)) {
       // Numbered list
       const content = line.replace(/^\d+\.\s/, '');
       elements.push(
