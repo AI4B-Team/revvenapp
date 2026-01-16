@@ -856,6 +856,12 @@ const Create = () => {
               onExternalSubTypeUsed={() => setLandingSubType(null)}
               externalModel={landingModel}
               onExternalModelUsed={() => setLandingModel(null)}
+              externalStyle={landingStyle}
+              onExternalStyleUsed={() => setLandingStyle(null)}
+              externalCharacter={landingCharacter}
+              onExternalCharacterUsed={() => setLandingCharacter(null)}
+              externalReferences={landingReferences}
+              onExternalReferencesUsed={() => setLandingReferences([])}
             />
             
             {/* Hide ActionButtons and galleries when Content type is selected */}
