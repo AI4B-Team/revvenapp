@@ -60,6 +60,15 @@ interface GenerationInputProps {
   onExternalModelUsed?: () => void;
   // External characters for video mode (from landing page)
   externalVideoCharacters?: any[];
+  // External style from landing page
+  externalStyle?: { id: string; name: string; preview?: string; image?: string } | null;
+  onExternalStyleUsed?: () => void;
+  // External character from landing page (single character)
+  externalCharacter?: { id: string; name: string; image?: string; image_url?: string } | null;
+  onExternalCharacterUsed?: () => void;
+  // External references from landing page
+  externalReferences?: { id: string; image_url?: string; preview?: string; name?: string }[];
+  onExternalReferencesUsed?: () => void;
 }
 
 // Color themes data
@@ -95,7 +104,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed, externalSubType, onExternalSubTypeUsed, externalModel, onExternalModelUsed, externalVideoCharacters = [] }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], isCharactersModalOpen = false, onReferencesClick, onReferencesSelect, selectedReferences = [], isReferencesModalOpen = false, isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed, externalSubType, onExternalSubTypeUsed, externalModel, onExternalModelUsed, externalVideoCharacters = [], externalStyle, onExternalStyleUsed, externalCharacter, onExternalCharacterUsed, externalReferences, onExternalReferencesUsed }: GenerationInputProps) => {
   const navigate = useNavigate();
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -1265,6 +1274,52 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       onExternalModelUsed?.();
     }
   }, [externalModel, onExternalModelUsed]);
+
+  // Apply external style from landing page
+  const hasAppliedExternalStyle = useRef(false);
+  useEffect(() => {
+    if (externalStyle && !hasAppliedExternalStyle.current) {
+      console.log('Applying external style:', externalStyle);
+      setSelectedStyle(externalStyle);
+      hasAppliedExternalStyle.current = true;
+      onExternalStyleUsed?.();
+    }
+  }, [externalStyle, onExternalStyleUsed]);
+
+  // Apply external character from landing page
+  const hasAppliedExternalCharacter = useRef(false);
+  useEffect(() => {
+    if (externalCharacter && !hasAppliedExternalCharacter.current) {
+      console.log('Applying external character:', externalCharacter);
+      // Add to selectedCharacters if not already there
+      if (onCharactersSelect) {
+        const existingIds = selectedCharacters.map((c: any) => c.id);
+        if (!existingIds.includes(externalCharacter.id)) {
+          onCharactersSelect([...selectedCharacters, externalCharacter]);
+        }
+      }
+      hasAppliedExternalCharacter.current = true;
+      onExternalCharacterUsed?.();
+    }
+  }, [externalCharacter, selectedCharacters, onCharactersSelect, onExternalCharacterUsed]);
+
+  // Apply external references from landing page
+  const hasAppliedExternalReferences = useRef(false);
+  useEffect(() => {
+    if (externalReferences && externalReferences.length > 0 && !hasAppliedExternalReferences.current) {
+      console.log('Applying external references:', externalReferences);
+      if (onReferencesSelect) {
+        // Merge with existing references, avoiding duplicates
+        const existingIds = selectedReferences.map((r: any) => r.id);
+        const newRefs = externalReferences.filter(r => !existingIds.includes(r.id));
+        if (newRefs.length > 0) {
+          onReferencesSelect([...selectedReferences, ...newRefs]);
+        }
+      }
+      hasAppliedExternalReferences.current = true;
+      onExternalReferencesUsed?.();
+    }
+  }, [externalReferences, selectedReferences, onReferencesSelect, onExternalReferencesUsed]);
 
   // Clear transcribed text highlight when switching away from Transcribe mode
   // Also clear prompt when entering Transcribe mode
