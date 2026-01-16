@@ -162,6 +162,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -169,6 +170,32 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
   // Get suggestions based on current app
   const currentPath = location.pathname;
   const appConfig = appSuggestions[currentPath] || appSuggestions.default;
+
+  // Load user and chat history on mount
+  useEffect(() => {
+    const loadUserAndHistory = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        // Load recent messages (last 50)
+        const { data: savedMessages } = await supabase
+          .from('aiva_chat_messages')
+          .select('id, role, content, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true })
+          .limit(50);
+        
+        if (savedMessages && savedMessages.length > 0) {
+          setMessages(savedMessages.map(m => ({
+            id: m.id,
+            role: m.role as 'user' | 'assistant',
+            content: m.content
+          })));
+        }
+      }
+    };
+    loadUserAndHistory();
+  }, []);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -183,6 +210,21 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
     }
   }, [messages]);
 
+  // Save message to database
+  const saveMessage = async (role: 'user' | 'assistant', content: string) => {
+    if (!userId) return;
+    try {
+      await supabase.from('aiva_chat_messages').insert({
+        user_id: userId,
+        role,
+        content,
+        context: currentPath
+      });
+    } catch (error) {
+      console.error('Failed to save message:', error);
+    }
+  };
+
   const handleSend = async () => {
     if (!message.trim() || isLoading) return;
 
@@ -195,6 +237,9 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
     setMessages(prev => [...prev, userMessage]);
     setMessage('');
     setIsLoading(true);
+
+    // Save user message to database
+    await saveMessage('user', userMessage.content);
 
     // Create placeholder for assistant message
     const assistantId = crypto.randomUUID();
@@ -259,12 +304,18 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
           }
         }
       }
+
+      // Save assistant response to database
+      if (fullContent) {
+        await saveMessage('assistant', fullContent);
+      }
     } catch (error) {
       console.error('AIVA chat error:', error);
+      const errorMsg = 'Sorry, I encountered an error. Please try again.';
       setMessages(prev => 
         prev.map(m => 
           m.id === assistantId 
-            ? { ...m, content: 'Sorry, I encountered an error. Please try again.' }
+            ? { ...m, content: errorMsg }
             : m
         )
       );
@@ -285,8 +336,19 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false }: AIVASidePa
     inputRef.current?.focus();
   };
 
-  const handleClearChat = () => {
+  const handleClearChat = async () => {
     setMessages([]);
+    // Delete all messages from database
+    if (userId) {
+      try {
+        await supabase
+          .from('aiva_chat_messages')
+          .delete()
+          .eq('user_id', userId);
+      } catch (error) {
+        console.error('Failed to clear chat history:', error);
+      }
+    }
   };
 
   // Calculate left position based on sidebar state

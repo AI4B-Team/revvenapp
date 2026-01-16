@@ -181,6 +181,33 @@ export type Database = {
           },
         ]
       }
+      aiva_chat_messages: {
+        Row: {
+          content: string
+          context: string | null
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          context?: string | null
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          context?: string | null
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audio_app_usage: {
         Row: {
           app_name: string
