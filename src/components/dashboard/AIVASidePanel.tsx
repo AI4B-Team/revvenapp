@@ -365,10 +365,10 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     if (!userId) return;
     setLoadingHistory(true);
     try {
-      // Get all messages for this session_id
+      // Get all messages for this session_id including media URLs
       const { data: sessionMessages } = await supabase
         .from('aiva_chat_messages')
-        .select('id, role, content, created_at, session_id')
+        .select('id, role, content, created_at, session_id, image_url, video_url, audio_url')
         .eq('user_id', userId)
         .eq('session_id', sessionId)
         .order('created_at', { ascending: true });
@@ -377,14 +377,17 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
         setMessages(sessionMessages.map(m => ({
           id: m.id,
           role: m.role as 'user' | 'assistant',
-          content: m.content
+          content: m.content,
+          imageUrl: m.image_url || undefined,
+          videoUrl: m.video_url || undefined,
+          audioUrl: m.audio_url || undefined
         })));
         setCurrentSessionId(sessionId); // Set the loaded session as current
       } else {
         // Fallback for old messages without session_id - load by message id as session
         const { data: singleMsg } = await supabase
           .from('aiva_chat_messages')
-          .select('id, role, content, created_at')
+          .select('id, role, content, created_at, image_url, video_url, audio_url')
           .eq('id', sessionId)
           .single();
         
@@ -392,7 +395,10 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
           setMessages([{
             id: singleMsg.id,
             role: singleMsg.role as 'user' | 'assistant',
-            content: singleMsg.content
+            content: singleMsg.content,
+            imageUrl: singleMsg.image_url || undefined,
+            videoUrl: singleMsg.video_url || undefined,
+            audioUrl: singleMsg.audio_url || undefined
           }]);
           setCurrentSessionId(sessionId);
         }
@@ -443,8 +449,8 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     }
   }, [messages]);
 
-  // Save message to database with session_id
-  const saveMessage = async (role: 'user' | 'assistant', content: string) => {
+  // Save message to database with session_id and media URLs
+  const saveMessage = async (role: 'user' | 'assistant', content: string, mediaUrls?: { imageUrl?: string; videoUrl?: string; audioUrl?: string }) => {
     if (!userId) return;
     try {
       await supabase.from('aiva_chat_messages').insert({
@@ -452,7 +458,10 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
         role,
         content,
         context: currentPath,
-        session_id: currentSessionId
+        session_id: currentSessionId,
+        image_url: mediaUrls?.imageUrl || null,
+        video_url: mediaUrls?.videoUrl || null,
+        audio_url: mediaUrls?.audioUrl || null
       });
     } catch (error) {
       console.error('Failed to save message:', error);
@@ -853,17 +862,25 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
         if (error) throw error;
         
         if (imageRecord?.status === 'completed' && imageRecord.image_url) {
-          // Image is ready - update the message
+          // Image is ready - update the message and save to database
+          const content = `✅ Image generated!\n\nPrompt: "${prompt}"`;
           setMessages(prev => prev.map(m => 
             m.id === messageId 
               ? { 
                   ...m, 
-                  content: `✅ Image generated!\n\nPrompt: "${prompt}"`,
+                  content,
                   imageUrl: imageRecord.image_url,
                   isGenerating: false
                 }
               : m
           ));
+          // Save media URL to database
+          await supabase.from('aiva_chat_messages')
+            .update({ image_url: imageRecord.image_url, content })
+            .eq('user_id', userId)
+            .eq('session_id', currentSessionId)
+            .order('created_at', { ascending: false })
+            .limit(1);
           return;
         } else if (imageRecord?.status === 'error') {
           setMessages(prev => prev.map(m => 
@@ -922,17 +939,25 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
         if (error) throw error;
         
         if (videoRecord?.status === 'completed' && videoRecord.video_url) {
-          // Video is ready - update the message
+          // Video is ready - update the message and save to database
+          const content = `✅ Video generated!\n\nPrompt: "${prompt}"`;
           setMessages(prev => prev.map(m => 
             m.id === messageId 
               ? { 
                   ...m, 
-                  content: `✅ Video generated!\n\nPrompt: "${prompt}"`,
+                  content,
                   videoUrl: videoRecord.video_url,
                   isGenerating: false
                 }
               : m
           ));
+          // Save media URL to database
+          await supabase.from('aiva_chat_messages')
+            .update({ video_url: videoRecord.video_url, content })
+            .eq('user_id', userId)
+            .eq('session_id', currentSessionId)
+            .order('created_at', { ascending: false })
+            .limit(1);
           return;
         } else if (videoRecord?.status === 'error' || videoRecord?.status === 'failed') {
           setMessages(prev => prev.map(m => 
@@ -991,17 +1016,25 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
         if (error) throw error;
         
         if (audioRecord?.status === 'completed' && audioRecord.url) {
-          // Audio is ready - update the message
+          // Audio is ready - update the message and save to database
+          const content = `✅ Audio generated!\n\nVoice: ${voiceName}\n\nText: "${text}"`;
           setMessages(prev => prev.map(m => 
             m.id === messageId 
               ? { 
                   ...m, 
-                  content: `✅ Audio generated!\n\nVoice: ${voiceName}\n\nText: "${text}"`,
+                  content,
                   audioUrl: audioRecord.url,
                   isGenerating: false
                 }
               : m
           ));
+          // Save media URL to database
+          await supabase.from('aiva_chat_messages')
+            .update({ audio_url: audioRecord.url, content })
+            .eq('user_id', userId)
+            .eq('session_id', currentSessionId)
+            .order('created_at', { ascending: false })
+            .limit(1);
           return;
         } else if (audioRecord?.status === 'error') {
           setMessages(prev => prev.map(m => 

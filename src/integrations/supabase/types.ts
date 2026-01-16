@@ -183,31 +183,40 @@ export type Database = {
       }
       aiva_chat_messages: {
         Row: {
+          audio_url: string | null
           content: string
           context: string | null
           created_at: string
           id: string
+          image_url: string | null
           role: string
           session_id: string | null
           user_id: string
+          video_url: string | null
         }
         Insert: {
+          audio_url?: string | null
           content: string
           context?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           role: string
           session_id?: string | null
           user_id: string
+          video_url?: string | null
         }
         Update: {
+          audio_url?: string | null
           content?: string
           context?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           role?: string
           session_id?: string | null
           user_id?: string
+          video_url?: string | null
         }
         Relationships: []
       }
