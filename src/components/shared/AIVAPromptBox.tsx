@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, Calendar, Palette, Flag, BadgeCheck, GalleryHorizontal, UserCircle, Wand2, Workflow, type LucideIcon } from 'lucide-react';
+import { Mic, Send, Sparkles, Video, Pencil, User, Users, RefreshCw, BarChart, BookOpen, Headphones, Image, Layers, Camera, ArrowRightLeft, AudioLines, Music, FileText, CreditCard, ImageIcon, LayoutTemplate, TableCellsMerge, Mail, FolderOpen, Shuffle, LayoutGrid, Box, Copy, Hash, X, ChevronDown, Monitor, Clock, SlidersHorizontal, Move, PenTool, Check, Search, Kanban, Zap, Brush, Upload, Globe, Languages, Repeat, Volume2, Calendar, Palette, Flag, BadgeCheck, GalleryHorizontal, UserCircle, Wand2, GitBranch, type LucideIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
@@ -381,7 +381,7 @@ const documentTypes: SubOption[] = [
 // Research - Explain type options
 const explainTypes: SubOption[] = [
   { id: 'concept', label: 'Concept', icon: BookOpen, color: 'text-blue-500' },
-  { id: 'process', label: 'Process', icon: Workflow, color: 'text-violet-500' },
+  { id: 'process', label: 'Process', icon: GitBranch, color: 'text-violet-500' },
   { id: 'term', label: 'Term', icon: FileText, color: 'text-emerald-500' },
   { id: 'theory', label: 'Theory', icon: Sparkles, color: 'text-amber-500' },
 ];
@@ -564,6 +564,7 @@ interface AIVAPromptBoxProps {
   externalSubType?: string | null;
   externalModel?: string | null;
   onModeChange?: (mode: string | null) => void;
+  onModelChange?: (model: string | null) => void;
 }
 
 const AIVAPromptBox = ({ 
@@ -583,6 +584,7 @@ const AIVAPromptBox = ({
   externalSubType,
   externalModel,
   onModeChange,
+  onModelChange,
 }: AIVAPromptBoxProps) => {
   const [internalPrompt, setInternalPrompt] = useState('');
   const [internalIntent, setInternalIntent] = useState<Intent | null>(null);
@@ -920,6 +922,8 @@ const AIVAPromptBox = ({
     setSelectedOption(option);
     setSelectedSubType(null);
     setActiveDropdown(null);
+    // Notify parent of mode change
+    onModeChange?.(option?.id || null);
   };
 
   const handleRemoveOption = () => {
@@ -1251,6 +1255,7 @@ const AIVAPromptBox = ({
                             onClick={() => {
                               setSelectedModel(model.id);
                               setActiveDropdown(null);
+                              onModelChange?.(model.id);
                             }}
                             className={cn(
                               "flex items-start gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left",
