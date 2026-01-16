@@ -84,7 +84,7 @@ async function generateContentInBackground(
   language: string = 'English',
   referenceContent: string | null = null
 ) {
-  const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   
   try {
     console.log(`Starting background generation for job ${jobId}`);
@@ -259,12 +259,11 @@ CRITICAL RULES:
 
       console.log(`Generating batch: days ${startDay + 1} to ${endDay}, expecting ${postsNeeded} posts for job ${jobId}...`);
       
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://lovable.dev',
         },
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
@@ -273,13 +272,13 @@ CRITICAL RULES:
             { role: 'user', content: userPrompt }
           ],
           temperature: 0.8,
-          max_tokens: 8000, // Increased to handle video scripts
+          max_tokens: 8000,
         }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('OpenRouter error:', response.status, errorText);
+        console.error('Lovable AI error:', response.status, errorText);
         continue;
       }
 
