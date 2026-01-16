@@ -216,6 +216,7 @@ interface ChatSession {
   date: string;
   preview: string;
   messageCount: number;
+  sessionId: string;
 }
 
 // Settings interface
@@ -234,6 +235,9 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
   const [selectedVoice, setSelectedVoice] = useState(VOICE_OPTIONS[0]);
+  
+  // Session tracking - each new chat gets a unique session ID
+  const [currentSessionId, setCurrentSessionId] = useState<string>(() => crypto.randomUUID());
   
   // New states for history and settings
   const [activeView, setActiveView] = useState<'chat' | 'history' | 'settings'>('chat');
@@ -302,7 +306,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     if (!userId) return;
     setLoadingHistory(true);
     try {
-      // Get all messages grouped by date
+      // Get all messages ordered by time
       const { data: allMessages } = await supabase
         .from('aiva_chat_messages')
         .select('id, role, content, created_at')
@@ -311,25 +315,52 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
         .limit(200);
       
       if (allMessages && allMessages.length > 0) {
-        // Group messages by date
-        const sessions: Record<string, { messages: typeof allMessages }> = {};
+        // Group messages into sessions based on time gaps (30 min gap = new session)
+        const sessions: { sessionId: string; messages: typeof allMessages; startTime: Date }[] = [];
+        let currentSession: typeof allMessages = [];
+        let lastMessageTime: Date | null = null;
         
-        allMessages.forEach(msg => {
-          const date = new Date(msg.created_at).toLocaleDateString();
-          if (!sessions[date]) {
-            sessions[date] = { messages: [] };
+        // Sort ascending for processing
+        const sortedMessages = [...allMessages].reverse();
+        
+        sortedMessages.forEach(msg => {
+          const msgTime = new Date(msg.created_at);
+          
+          // If gap is more than 30 minutes, start a new session
+          if (lastMessageTime && (msgTime.getTime() - lastMessageTime.getTime()) > 30 * 60 * 1000) {
+            if (currentSession.length > 0) {
+              sessions.push({
+                sessionId: currentSession[0].id,
+                messages: [...currentSession],
+                startTime: new Date(currentSession[0].created_at)
+              });
+            }
+            currentSession = [];
           }
-          sessions[date].messages.push(msg);
+          
+          currentSession.push(msg);
+          lastMessageTime = msgTime;
         });
         
-        // Convert to chat sessions
-        const historyItems: ChatSession[] = Object.entries(sessions).map(([date, data]) => {
-          const firstUserMsg = data.messages.find(m => m.role === 'user');
+        // Don't forget the last session
+        if (currentSession.length > 0) {
+          sessions.push({
+            sessionId: currentSession[0].id,
+            messages: currentSession,
+            startTime: new Date(currentSession[0].created_at)
+          });
+        }
+        
+        // Convert to chat sessions (most recent first)
+        const historyItems: ChatSession[] = sessions.reverse().map((session) => {
+          const firstUserMsg = session.messages.find(m => m.role === 'user');
+          const sessionDate = session.startTime;
           return {
-            id: date,
-            date,
+            id: session.sessionId,
+            sessionId: session.sessionId,
+            date: sessionDate.toLocaleDateString() + ' ' + sessionDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             preview: firstUserMsg?.content.substring(0, 50) || 'Chat session',
-            messageCount: data.messages.length
+            messageCount: session.messages.length
           };
         });
         
@@ -342,30 +373,54 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
     }
   };
 
-  // Load session messages
-  const loadSessionMessages = async (sessionDate: string) => {
+  // Load session messages by session ID (first message ID of that session)
+  const loadSessionMessages = async (sessionId: string) => {
     if (!userId) return;
     setLoadingHistory(true);
     try {
-      const startDate = new Date(sessionDate);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(sessionDate);
-      endDate.setHours(23, 59, 59, 999);
+      // Get the session's first message to find its timestamp
+      const { data: firstMsg } = await supabase
+        .from('aiva_chat_messages')
+        .select('created_at')
+        .eq('id', sessionId)
+        .single();
+      
+      if (!firstMsg) {
+        setLoadingHistory(false);
+        return;
+      }
+      
+      const sessionStart = new Date(firstMsg.created_at);
+      const sessionEnd = new Date(sessionStart.getTime() + 30 * 60 * 1000); // 30 min window
       
       const { data: sessionMessages } = await supabase
         .from('aiva_chat_messages')
         .select('id, role, content, created_at')
         .eq('user_id', userId)
-        .gte('created_at', startDate.toISOString())
-        .lte('created_at', endDate.toISOString())
+        .gte('created_at', sessionStart.toISOString())
+        .lte('created_at', sessionEnd.toISOString())
         .order('created_at', { ascending: true });
       
       if (sessionMessages) {
-        setMessages(sessionMessages.map(m => ({
+        // Filter to only messages that are part of this continuous session
+        const filteredMessages: typeof sessionMessages = [];
+        let lastTime = sessionStart;
+        
+        for (const msg of sessionMessages) {
+          const msgTime = new Date(msg.created_at);
+          if (msgTime.getTime() - lastTime.getTime() > 30 * 60 * 1000) {
+            break; // Gap detected, stop
+          }
+          filteredMessages.push(msg);
+          lastTime = msgTime;
+        }
+        
+        setMessages(filteredMessages.map(m => ({
           id: m.id,
           role: m.role as 'user' | 'assistant',
           content: m.content
         })));
+        setCurrentSessionId(sessionId); // Set the loaded session as current
       }
       setActiveView('chat');
     } catch (error) {
@@ -1044,6 +1099,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                     <button 
                       onClick={() => {
                         setMessages([]);
+                        setCurrentSessionId(crypto.randomUUID()); // Start fresh session
                         setActiveView('chat');
                       }}
                       className="p-2 rounded-lg hover:bg-muted transition"
@@ -1164,7 +1220,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                       {chatHistory.map((session) => (
                         <button
                           key={session.id}
-                          onClick={() => loadSessionMessages(session.date)}
+                          onClick={() => loadSessionMessages(session.sessionId)}
                           className="w-full text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-brand-green/30 transition"
                         >
                           <div className="flex items-center gap-2 mb-1">
