@@ -1187,46 +1187,52 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       console.log('Applying external subType:', subTypeId, 'for type:', selectedType);
       
       // Map subType id to the correct mode for each content type
+      // AIVAPromptBox subtypes -> GenerationInput modes
       if (selectedType === 'Image') {
-        // Image subtypes: generate, edit, reference, remove-bg, product, portrait, product-shot, draw
+        // Image createModes: Create, Batch, Draw, Swap, Photoshoot
         const imageSubTypeMap: Record<string, string> = {
           'generate': 'Create',
-          'edit': 'Edit',
-          'reference': 'Reference',
-          'remove-bg': 'Remove BG',
-          'product': 'Photoshoot',
-          'portrait': 'Swap',
-          'product-shot': 'Photoshoot',
+          'batch': 'Batch',
           'draw': 'Draw',
+          'swap': 'Swap',
+          'photoshoot': 'Photoshoot',
         };
         if (imageSubTypeMap[subTypeId]) {
+          console.log('Setting selectedCreateMode to:', imageSubTypeMap[subTypeId]);
           setSelectedCreateMode(imageSubTypeMap[subTypeId]);
         }
       } else if (selectedType === 'Video') {
-        // Video subtypes: story, generate, animate, avatar, ad, music-video, edit
+        // Video animateModes: Animate, Draw, Lip-Sync, Motion-Sync, Avatar Video, UGC, Recast, VSL, Story, Podcast, Presentation
         const videoSubTypeMap: Record<string, string> = {
           'story': 'Story',
-          'generate': 'Generate',
+          'presentation': 'Presentation',
+          'vsl': 'VSL',
+          'avatar': 'Avatar Video',
+          'ugc': 'UGC',
+          'recast': 'Recast',
           'animate': 'Animate',
-          'avatar': 'Avatar',
-          'ad': 'Ad',
-          'music-video': 'Music Video',
-          'edit': 'Edit',
+          'draw': 'Draw',
+          'lip-sync': 'Lip-Sync',
+          'motion-sync': 'Motion-Sync',
+          'podcast': 'Podcast',
         };
         if (videoSubTypeMap[subTypeId]) {
+          console.log('Setting selectedAnimateMode to:', videoSubTypeMap[subTypeId]);
           setSelectedAnimateMode(videoSubTypeMap[subTypeId]);
         }
       } else if (selectedType === 'Audio') {
-        // Audio subtypes: music, sound-effects, voiceover, tts, podcast, audiobook
+        // Audio audioModes: Voiceover, Clone, Revoice, Transcribe, Sound Effects, Music, AudioBook
         const audioSubTypeMap: Record<string, string> = {
-          'music': 'Music',
-          'sound-effects': 'Sound Effects',
           'voiceover': 'Voiceover',
-          'tts': 'Text to Speech',
-          'podcast': 'Podcast',
-          'audiobook': 'Audiobook',
+          'clone': 'Clone',
+          'revoice': 'Revoice',
+          'transcribe': 'Transcribe',
+          'sound-effects': 'Sound Effects',
+          'music': 'Music',
+          'audiobook': 'AudioBook',
         };
         if (audioSubTypeMap[subTypeId]) {
+          console.log('Setting selectedAudioMode to:', audioSubTypeMap[subTypeId]);
           setSelectedAudioMode(audioSubTypeMap[subTypeId]);
         }
       }
