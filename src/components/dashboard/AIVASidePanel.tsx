@@ -517,9 +517,13 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
             : m
         ));
         
-        // Poll for the video result
-        if (data.videoId) {
-          pollForVideoResult(messageId, data.videoId, prompt);
+        // Poll for the video result - edge function returns video_id (with underscore)
+        const videoId = data.video_id || data.videoId;
+        if (videoId) {
+          pollForVideoResult(messageId, videoId, prompt);
+        } else {
+          console.error('No video_id in response:', data);
+          throw new Error('No video ID returned from API');
         }
         
       } catch (error) {
