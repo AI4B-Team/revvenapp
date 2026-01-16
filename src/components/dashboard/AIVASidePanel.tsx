@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
-import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen } from 'lucide-react';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocation } from 'react-router-dom';
@@ -193,6 +194,23 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+
+  // Speech recognition for voice input
+  const handleSpeechResult = useCallback((transcript: string) => {
+    setMessage(transcript);
+  }, []);
+
+  const { isListening, isSupported, startListening, stopListening } = useSpeechRecognition({
+    onResult: handleSpeechResult,
+  });
+
+  const handleMicClick = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening(message);
+    }
+  }, [isListening, startListening, stopListening, message]);
 
   // Get suggestions based on current app
   const currentPath = location.pathname;
@@ -982,9 +1000,22 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-muted transition">
-                    <Mic size={18} className="text-muted-foreground" />
-                  </button>
+                  {isSupported && (
+                    <button 
+                      onClick={handleMicClick}
+                      className={`p-2 rounded-lg transition ${
+                        isListening 
+                          ? 'bg-red-100 hover:bg-red-200' 
+                          : 'hover:bg-muted'
+                      }`}
+                    >
+                      {isListening ? (
+                        <MicOff size={18} className="text-red-500 animate-pulse" />
+                      ) : (
+                        <Mic size={18} className="text-muted-foreground" />
+                      )}
+                    </button>
+                  )}
                   <button 
                     onClick={handleSendWithTool}
                     disabled={!message.trim() || isLoading}
