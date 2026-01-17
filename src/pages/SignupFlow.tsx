@@ -632,7 +632,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                         <Zap className="w-5 h-5 text-amber-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-slate-900 mb-1">Instant Updates</h3>
+                        <h3 className="font-semibold text-slate-900 mb-1">Real-Time Updates</h3>
                         <p className="text-sm text-slate-600">
                           Your AI Agent will text you about meaningful progress — completed tasks, important milestones, questions, and items needing review.
                         </p>
