@@ -572,9 +572,12 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">
                       Phone Number <span className="text-slate-400 font-normal">(optional)</span>
                     </label>
+                    <p className="text-sm text-slate-500 mb-3">
+                      Your AI Agent will text you when they need you, have questions, or to update you.
+                    </p>
                     <div className="flex gap-2">
                       <select
                         value={countryCode}
@@ -592,22 +595,66 @@ const [phoneNumber, setPhoneNumber] = useState('');
                         <option value="+52">🇲🇽 +52</option>
                         <option value="+55">🇧🇷 +55</option>
                       </select>
-                      <Input
-                        type="tel"
-                        placeholder="(555) 000-0000"
-                        value={phoneNumber}
-                        onChange={(e) => {
-                          setPhoneNumber(e.target.value);
-                          setPhoneSaved(false);
-                        }}
-                        className="h-12 flex-1 border-slate-200 focus:border-green-500 focus:ring-green-500"
-                      />
-                      <div className="w-10 h-12 flex items-center justify-center text-slate-400">
-                        <MessageSquare className="w-5 h-5" />
+                      <div className="relative flex-1">
+                        <Input
+                          type="tel"
+                          placeholder="(555) 000-0000"
+                          value={phoneNumber}
+                          onChange={(e) => {
+                            // Format phone number as (XXX) XXX-XXXX
+                            const value = e.target.value.replace(/\D/g, '');
+                            let formatted = '';
+                            if (value.length > 0) {
+                              formatted = '(' + value.substring(0, 3);
+                              if (value.length > 3) {
+                                formatted += ') ' + value.substring(3, 6);
+                              }
+                              if (value.length > 6) {
+                                formatted += '-' + value.substring(6, 10);
+                              }
+                            }
+                            setPhoneNumber(formatted);
+                            setPhoneSaved(false);
+                          }}
+                          className={`h-12 w-full border-slate-200 focus:border-green-500 focus:ring-green-500 pr-10 ${
+                            phoneNumber.replace(/\D/g, '').length === 10 ? 'border-green-500' : ''
+                          }`}
+                        />
+                        {phoneNumber.replace(/\D/g, '').length === 10 && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <Check className="w-5 h-5 text-green-500" />
+                          </div>
+                        )}
                       </div>
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Your Timezone
+                    </label>
+                    <select
+                      value={timezone}
+                      onChange={(e) => setTimezone(e.target.value)}
+                      className="w-full h-12 px-3 border border-slate-200 rounded-lg bg-white text-slate-700 focus:border-green-500 focus:ring-green-500 focus:outline-none"
+                    >
+                      <option value="America/New_York">Eastern Time (ET)</option>
+                      <option value="America/Chicago">Central Time (CT)</option>
+                      <option value="America/Denver">Mountain Time (MT)</option>
+                      <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                      <option value="America/Anchorage">Alaska Time (AKT)</option>
+                      <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
+                      <option value="Europe/London">London (GMT)</option>
+                      <option value="Europe/Paris">Central European (CET)</option>
+                      <option value="Europe/Berlin">Berlin (CET)</option>
+                      <option value="Asia/Tokyo">Tokyo (JST)</option>
+                      <option value="Asia/Shanghai">China (CST)</option>
+                      <option value="Asia/Kolkata">India (IST)</option>
+                      <option value="Australia/Sydney">Sydney (AEST)</option>
+                      <option value="UTC">UTC</option>
+                    </select>
                     <p className="text-sm text-slate-500 mt-2">
-                      Your AI Agent will text you when they need you, have questions, or to update you.
+                      We detected your timezone automatically. Change it if needed.
                     </p>
                   </div>
 
@@ -631,11 +678,11 @@ const [phoneNumber, setPhoneNumber] = useState('');
                           setPhoneSaved(true);
                           toast.success('Phone number saved!');
                         }}
-                        disabled={!phoneNumber.trim() || phoneNumber.length < 7 || !agreeToSms || phoneSaved}
+                        disabled={phoneNumber.replace(/\D/g, '').length !== 10 || !agreeToSms || phoneSaved}
                         className={`w-full h-12 font-medium transition-all ${
                           phoneSaved 
                             ? 'bg-green-600 hover:bg-green-700 text-white' 
-                            : !phoneNumber.trim() || phoneNumber.length < 7 || !agreeToSms
+                            : phoneNumber.replace(/\D/g, '').length !== 10 || !agreeToSms
                               ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
                               : 'bg-green-600 hover:bg-green-700 text-white'
                         }`}
