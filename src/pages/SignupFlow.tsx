@@ -30,7 +30,7 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
     { id: 1, label: 'Account', completed: currentStep > 1 },
     { id: 2, label: 'Space', completed: currentStep > 2 },
     { id: 3, label: 'Agent', completed: currentStep > 3 },
-    { id: 4, label: 'Profile', completed: currentStep > 4 },
+    { id: 4, label: 'Identity', completed: currentStep > 4 },
     { id: 5, label: 'Capabilities', completed: currentStep > 7 },
     { id: 6, label: 'Launch', completed: currentStep > 10 },
   ];
@@ -540,22 +540,8 @@ export default function SignupFlow() {
 
                 <form onSubmit={handleAboutYou} className="space-y-6">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Your Full Name
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="Jane Smith"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-3">
-                      What describes you best?
+                      Choose The One That Best Fits <span className="text-slate-400 font-normal">(you can change this later)</span>
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       {[
@@ -595,7 +581,7 @@ export default function SignupFlow() {
                       className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
                     />
                     <p className="text-sm text-slate-500 mt-2">
-                      Get text alerts when critical tasks complete.
+                      Your AI Agent will text you when they need you, have questions, or to update you.
                     </p>
                   </div>
 
@@ -626,7 +612,7 @@ export default function SignupFlow() {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={!role || !fullName.trim()}
+                      disabled={!role}
                       className="bg-green-600 hover:bg-green-700 h-12 px-8 disabled:opacity-50"
                     >
                       Continue
