@@ -244,8 +244,9 @@ export default function SignupFlow() {
     <div className="flex min-h-screen bg-white">
       <SignupProgress currentStep={currentStep} />
 
-      <div className="flex-1 flex items-center justify-center p-8 lg:p-12">
-        <div className="w-full max-w-2xl">
+      <div className="flex-1 flex flex-col min-h-screen">
+        <div className="flex-1 flex items-center justify-center p-8 lg:p-12">
+          <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
             {/* Step 2: Workspace Setup */}
             {currentStep === 2 && (
@@ -902,12 +903,13 @@ export default function SignupFlow() {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Enterprise Ready - Bottom of main panel */}
-          <div className="mt-12 flex items-center justify-center gap-2 text-slate-400">
-            <Shield className="w-4 h-4" />
-            <span className="text-sm">Enterprise Ready — Your data is encrypted and secure at every step.</span>
           </div>
+        </div>
+
+        {/* Enterprise Ready - Fixed at bottom */}
+        <div className="py-6 flex items-center justify-center gap-2 text-slate-400">
+          <Shield className="w-4 h-4" />
+          <span className="text-sm">Enterprise Ready — Your Data Is Encrypted And Secure At Every Step.</span>
         </div>
       </div>
     </div>
