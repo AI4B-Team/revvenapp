@@ -270,11 +270,11 @@ export default function SignupFlow() {
                 <div className="mb-8">
                   <span className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full mb-4">
                     <Layers className="w-3 h-3" />
-                    WORKSPACE SETUP
+                    SPACE SETUP
                   </span>
                   <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Name Your Command Center</h1>
                   <p className="text-lg text-slate-600">
-                    This is where all your AI-powered projects will live. Choose a name that represents your brand or mission.
+                    This is your main Space where all AI-powered projects live. Choose a name that represents your brand or mission.
                   </p>
                 </div>
 
