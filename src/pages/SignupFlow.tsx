@@ -27,11 +27,11 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
   };
 
   const steps = [
-    { id: 1, label: 'Create Account', completed: currentStep > 1 },
-    { id: 2, label: 'Workspace', completed: currentStep > 2 },
-    { id: 3, label: 'Your Profile', completed: currentStep > 3 },
+    { id: 1, label: 'Account', completed: currentStep > 1 },
+    { id: 2, label: 'Space', completed: currentStep > 2 },
+    { id: 3, label: 'Profile', completed: currentStep > 3 },
     { id: 4, label: 'Capabilities', completed: currentStep > 6 },
-    { id: 5, label: 'Stay Connected', completed: currentStep > 8 },
+    { id: 5, label: 'Connect', completed: currentStep > 8 },
     { id: 6, label: 'Launch', completed: currentStep > 10 },
   ];
 
@@ -101,16 +101,6 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
         </div>
       </div>
 
-      {/* Decorative element */}
-      <div className="mt-auto pt-16">
-        <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
-          <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-4 h-4 text-green-600" />
-            <span className="text-xs font-semibold text-green-700">Enterprise Ready</span>
-          </div>
-          <p className="text-xs text-green-600/80">Your data is encrypted and secure at every step.</p>
-        </div>
-      </div>
     </div>
   );
 };
@@ -912,6 +902,12 @@ export default function SignupFlow() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Enterprise Ready - Bottom of main panel */}
+          <div className="mt-12 flex items-center justify-center gap-2 text-slate-400">
+            <Shield className="w-4 h-4" />
+            <span className="text-sm">Enterprise Ready — Your data is encrypted and secure at every step.</span>
+          </div>
         </div>
       </div>
     </div>
