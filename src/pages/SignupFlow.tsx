@@ -433,13 +433,13 @@ export default function SignupFlow() {
                         setAgentEmail('');
                       }
                     }}
-                    className={`text-sm font-medium px-4 py-2 rounded-lg border transition-all ${
+                    className={`text-sm font-medium px-4 py-2 rounded-lg border transition-all flex items-center gap-1.5 ${
                       showCustomAgentName 
                         ? 'text-green-600 bg-green-50 border-green-200' 
                         : 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-800'
                     }`}
                   >
-                    {showCustomAgentName ? <><Check className="w-4 h-4 mr-1.5" /> Name My Own Agent</> : <><PenLine className="w-4 h-4 mr-1.5" /> Name My Own Agent</>}
+                    {showCustomAgentName ? <><Check className="w-4 h-4" /> Name My Own Agent</> : <><PenLine className="w-4 h-4" /> Name My Own Agent</>}
                   </button>
 
                   {showCustomAgentName && (
