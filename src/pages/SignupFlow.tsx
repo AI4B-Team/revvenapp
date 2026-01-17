@@ -346,7 +346,7 @@ export default function SignupFlow() {
                 <form onSubmit={handleWorkspaceSetup} className="space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Workspace Name
+                      Space Name
                     </label>
                     <Input
                       type="text"
