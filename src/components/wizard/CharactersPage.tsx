@@ -314,7 +314,7 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
           <button
             onClick={handleNext}
             disabled={!selectedCharacter || !selectedVoice}
-            className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-8 py-3 bg-brand-green text-white font-semibold rounded-lg hover:bg-brand-green/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-brand-green/20"
           >
             <Check size={18} />
             Review

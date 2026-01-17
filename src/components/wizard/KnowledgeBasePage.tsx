@@ -392,7 +392,7 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
         
         <button
           onClick={onNext}
-          className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+          className="px-8 py-3 bg-brand-green text-white font-semibold rounded-lg hover:bg-brand-green/90 transition-colors flex items-center gap-2 shadow-lg shadow-brand-green/20"
         >
           Continue
           <Check size={18} />
