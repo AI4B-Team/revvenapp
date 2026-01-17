@@ -110,19 +110,19 @@ const CapabilityCard = ({
   icon: Icon, 
   title, 
   description, 
-  gradient 
+  color 
 }: { 
   icon: React.ElementType; 
   title: string; 
   description: string;
-  gradient: string;
+  color: string;
 }) => (
   <motion.div 
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     className={`relative overflow-hidden p-5 rounded-2xl border border-slate-200 bg-white hover:border-green-300 hover:shadow-lg hover:shadow-green-100/50 transition-all duration-300 group cursor-default`}
   >
-    <div className={`w-11 h-11 rounded-xl ${gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
+    <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
       <Icon className="w-5 h-5 text-white" />
     </div>
     <h4 className="font-semibold text-slate-900 mb-1">{title}</h4>
@@ -516,40 +516,40 @@ export default function SignupFlow() {
 
                 <div className="grid grid-cols-2 gap-4 mb-8">
                   <CapabilityCard 
-                    icon={Mail} 
-                    title="Email Intelligence" 
-                    description="Draft, send, and manage emails automatically"
-                    gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+                    icon={Brain} 
+                    title="Autonomous Agents" 
+                    description="AI workers that execute multi-step tasks 24/7 without supervision"
+                    color="bg-indigo-600"
                   />
                   <CapabilityCard 
                     icon={Phone} 
-                    title="Voice AI" 
-                    description="AI-powered calls and voice synthesis"
-                    gradient="bg-gradient-to-br from-purple-500 to-purple-600"
+                    title="Voice AI & Cloning" 
+                    description="Realistic AI voices, voice cloning, and automated phone calls"
+                    color="bg-purple-600"
+                  />
+                  <CapabilityCard 
+                    icon={Video} 
+                    title="AI Video Generation" 
+                    description="Create viral shorts, explainers, and talking avatars automatically"
+                    color="bg-rose-600"
+                  />
+                  <CapabilityCard 
+                    icon={Target} 
+                    title="Predictive Analytics" 
+                    description="Forecast trends, optimize campaigns, and predict outcomes"
+                    color="bg-emerald-600"
                   />
                   <CapabilityCard 
                     icon={Globe} 
-                    title="Web Research" 
-                    description="Deep internet research and data extraction"
-                    gradient="bg-gradient-to-br from-green-500 to-green-600"
+                    title="Deep Web Intelligence" 
+                    description="Real-time scraping, competitor analysis, and market research"
+                    color="bg-cyan-600"
                   />
                   <CapabilityCard 
-                    icon={Code} 
-                    title="Code & Apps" 
-                    description="Build automations and integrations"
-                    gradient="bg-gradient-to-br from-orange-500 to-orange-600"
-                  />
-                  <CapabilityCard 
-                    icon={Image} 
-                    title="Visual Creation" 
-                    description="Generate images, videos, and graphics"
-                    gradient="bg-gradient-to-br from-pink-500 to-pink-600"
-                  />
-                  <CapabilityCard 
-                    icon={FileText} 
-                    title="Document AI" 
-                    description="Create, edit, and analyze documents"
-                    gradient="bg-gradient-to-br from-slate-500 to-slate-600"
+                    icon={Layers} 
+                    title="Multi-Modal Reasoning" 
+                    description="Process text, images, documents, and data in unified workflows"
+                    color="bg-amber-600"
                   />
                 </div>
 
