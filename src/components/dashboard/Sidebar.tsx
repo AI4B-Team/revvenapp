@@ -410,16 +410,25 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       {/* Brands Dropdown */}
       {!isCollapsed && (
         <div className="px-4 mb-4 relative flex-shrink-0">
-          <button 
-            onClick={() => setIsBrandsDropdownOpen(!isBrandsDropdownOpen)}
-            className="w-full flex items-center gap-3 px-3 py-2 border-2 border-brand-green rounded-lg hover:bg-sidebar-hover transition"
-          >
-            <div className="w-8 h-8 bg-brand-pink rounded flex items-center justify-center text-sm font-bold text-white">
-              X
-            </div>
-            <span className="flex-1 text-left text-sm font-medium">Digital Influencer</span>
-            <ChevronDown size={16} className={`transition-transform text-sidebar-muted ${isBrandsDropdownOpen ? 'rotate-180' : ''}`} />
-          </button>
+          <div className="w-full flex items-center gap-3 px-3 py-2 border-2 border-brand-green rounded-lg hover:bg-sidebar-hover transition">
+            {/* Brand name/icon - navigates to brand profile */}
+            <button 
+              onClick={() => navigate('/brand')}
+              className="flex items-center gap-3 flex-1 text-left"
+            >
+              <div className="w-8 h-8 bg-brand-pink rounded flex items-center justify-center text-sm font-bold text-white">
+                X
+              </div>
+              <span className="text-sm font-medium hover:text-brand-green transition">Digital Influencer</span>
+            </button>
+            {/* Caret - toggles dropdown */}
+            <button
+              onClick={() => setIsBrandsDropdownOpen(!isBrandsDropdownOpen)}
+              className="p-1.5 hover:bg-sidebar-active rounded-md transition"
+            >
+              <ChevronDown size={16} className={`transition-transform text-sidebar-muted ${isBrandsDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
         
           {isBrandsDropdownOpen && (
             <div className="absolute top-full left-4 right-4 mt-2 bg-sidebar border border-border rounded-lg shadow-lg z-50 py-2">
