@@ -629,34 +629,6 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Your Timezone
-                    </label>
-                    <select
-                      value={timezone}
-                      onChange={(e) => setTimezone(e.target.value)}
-                      className="w-full h-12 px-3 border border-slate-200 rounded-lg bg-white text-slate-700 focus:border-green-500 focus:ring-green-500 focus:outline-none"
-                    >
-                      <option value="America/New_York">Eastern Time (ET)</option>
-                      <option value="America/Chicago">Central Time (CT)</option>
-                      <option value="America/Denver">Mountain Time (MT)</option>
-                      <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                      <option value="America/Anchorage">Alaska Time (AKT)</option>
-                      <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
-                      <option value="Europe/London">London (GMT)</option>
-                      <option value="Europe/Paris">Central European (CET)</option>
-                      <option value="Europe/Berlin">Berlin (CET)</option>
-                      <option value="Asia/Tokyo">Tokyo (JST)</option>
-                      <option value="Asia/Shanghai">China (CST)</option>
-                      <option value="Asia/Kolkata">India (IST)</option>
-                      <option value="Australia/Sydney">Sydney (AEST)</option>
-                      <option value="UTC">UTC</option>
-                    </select>
-                    <p className="text-sm text-slate-500 mt-2">
-                      We detected your timezone automatically. Change it if needed.
-                    </p>
-                  </div>
 
                   {phoneNumber.trim() && (
                     <>
