@@ -50,7 +50,7 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
     <div className="w-80 bg-gradient-to-b from-slate-50 to-white p-8 min-h-screen border-r border-slate-200">
       <div className="mb-10">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-gradient-to-br from-green-600 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-green-600/20">
+          <div className="w-9 h-9 bg-gradient-to-br from-brand-green to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-brand-green/20">
             <span className="text-white font-bold text-sm">R</span>
           </div>
           <span className="text-xl font-bold text-slate-900 tracking-tight">REVVEN</span>
@@ -68,13 +68,13 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
 
             return (
               <div key={step.id} className="relative">
-                <div className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${isActive ? 'bg-green-50' : ''}`}>
+                <div className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${isActive ? 'bg-brand-green/10' : ''}`}>
                   {isCompleted && !isActive ? (
-                    <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <div className="w-6 h-6 rounded-full bg-brand-green flex items-center justify-center flex-shrink-0 shadow-sm">
                       <Check className="w-3.5 h-3.5 text-white" />
                     </div>
                   ) : isActive ? (
-                    <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0 shadow-sm ring-4 ring-green-100">
+                    <div className="w-6 h-6 rounded-full bg-brand-green flex items-center justify-center flex-shrink-0 shadow-sm ring-4 ring-brand-green/20">
                       <div className="w-2 h-2 rounded-full bg-white" />
                     </div>
                   ) : (
@@ -83,7 +83,7 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
                   <span
                     className={`text-sm transition-all ${
                       isActive
-                        ? 'text-green-700 font-semibold'
+                        ? 'text-brand-green font-semibold'
                         : isCompleted
                         ? 'text-slate-600 font-medium'
                         : 'text-slate-400'
@@ -93,7 +93,7 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
                   </span>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`absolute left-[19px] top-[38px] w-0.5 h-3 ${isCompleted ? 'bg-green-600' : 'bg-slate-200'}`} />
+                  <div className={`absolute left-[19px] top-[38px] w-0.5 h-3 ${isCompleted ? 'bg-brand-green' : 'bg-slate-200'}`} />
                 )}
               </div>
             );
@@ -120,7 +120,7 @@ const CapabilityCard = ({
   <motion.div 
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    className={`relative overflow-hidden p-5 rounded-2xl border border-slate-200 bg-white hover:border-green-300 hover:shadow-lg hover:shadow-green-100/50 transition-all duration-300 group cursor-default`}
+    className={`relative overflow-hidden p-5 rounded-2xl border border-slate-200 bg-white hover:border-brand-green/50 hover:shadow-lg hover:shadow-brand-green/10 transition-all duration-300 group cursor-default`}
   >
     <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
       <Icon className="w-5 h-5 text-white" />
@@ -149,12 +149,12 @@ const GoalOption = ({
     onClick={onClick}
     className={`w-full p-4 border-2 rounded-xl text-left transition-all duration-200 ${
       selected
-        ? 'border-green-600 bg-green-50 shadow-lg shadow-green-100'
+        ? 'border-brand-green bg-brand-green/10 shadow-lg shadow-brand-green/20'
         : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
     }`}
   >
     <div className="flex items-start gap-3">
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${selected ? 'bg-green-600' : 'bg-slate-100'}`}>
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${selected ? 'bg-brand-green' : 'bg-slate-100'}`}>
         <Icon className={`w-5 h-5 ${selected ? 'text-white' : 'text-slate-500'}`} />
       </div>
       <div>
@@ -366,7 +366,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   <Button 
                     type="submit" 
                     disabled={!workspaceName.trim()}
-                    className="bg-green-600 hover:bg-green-700 h-12 px-8 text-base font-medium disabled:opacity-50"
+                    className="bg-brand-green hover:bg-brand-green/90 h-12 px-8 text-base font-medium disabled:opacity-50"
                   >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -510,7 +510,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   <Button
                     onClick={handleAgentSetup}
                     disabled={!agentName.trim()}
-                    className="bg-green-600 hover:bg-green-700 h-12 px-8 disabled:opacity-50"
+                    className="bg-brand-green hover:bg-brand-green/90 h-12 px-8 disabled:opacity-50"
                   >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -560,7 +560,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                           onClick={() => setRole(roleOption.value)}
                           className={`p-4 border-2 rounded-xl text-left transition-all duration-200 ${
                             role === roleOption.value
-                              ? 'border-green-600 bg-green-50 shadow-md'
+                              ? 'border-brand-green bg-brand-green/10 shadow-md'
                               : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                           }`}
                         >
@@ -664,10 +664,10 @@ const [phoneNumber, setPhoneNumber] = useState('');
                         disabled={phoneNumber.replace(/\D/g, '').length !== 10 || !agreeToSms || phoneSaved}
                         className={`w-full h-12 font-medium transition-all ${
                           phoneSaved 
-                            ? 'bg-green-600 hover:bg-green-700 text-white' 
+                            ? 'bg-brand-green hover:bg-brand-green/90 text-white' 
                             : phoneNumber.replace(/\D/g, '').length !== 10 || !agreeToSms
                               ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                              : 'bg-green-600 hover:bg-green-700 text-white'
+                              : 'bg-brand-green hover:bg-brand-green/90 text-white'
                         }`}
                       >
                         {phoneSaved ? (
@@ -695,7 +695,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     <Button
                       type="submit"
                       disabled={!role}
-                      className="bg-green-600 hover:bg-green-700 h-12 px-8 disabled:opacity-50"
+                      className="bg-brand-green hover:bg-brand-green/90 h-12 px-8 disabled:opacity-50"
                     >
                       Continue
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -769,7 +769,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   <Button
                     onClick={() => setCurrentStep(6)}
                     disabled={!primaryGoal}
-                    className="bg-green-600 hover:bg-green-700 h-12 px-8 disabled:opacity-50"
+                    className="bg-brand-green hover:bg-brand-green/90 h-12 px-8 disabled:opacity-50"
                   >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -849,7 +849,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   </Button>
                   <Button
                     onClick={() => setCurrentStep(7)}
-                    className="bg-green-600 hover:bg-green-700 h-12 px-8"
+                    className="bg-brand-green hover:bg-brand-green/90 h-12 px-8"
                   >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -903,7 +903,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   </Button>
                   <Button
                     onClick={() => setCurrentStep(9)}
-                    className="bg-green-600 hover:bg-green-700 h-12 px-8"
+                    className="bg-brand-green hover:bg-brand-green/90 h-12 px-8"
                   >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -924,7 +924,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center mb-10">
-                  <div className="w-24 h-24 rounded-3xl bg-green-600 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-200">
+                  <div className="w-24 h-24 rounded-3xl bg-brand-green flex items-center justify-center mx-auto mb-6 shadow-xl shadow-brand-green/30">
                     <Rocket className="w-12 h-12 text-white" />
                   </div>
                   <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">You're Ready To Launch</h1>
@@ -966,7 +966,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   </Button>
                   <Button
                     onClick={() => navigate('/dashboard')}
-                    className="flex-1 bg-green-600 hover:bg-green-700 h-14 text-lg font-semibold shadow-lg shadow-green-200"
+                    className="flex-1 bg-brand-green hover:bg-brand-green/90 h-14 text-lg font-semibold shadow-lg shadow-brand-green/30"
                   >
                     Enter REVVEN
                     <ArrowRight className="w-5 h-5 ml-2" />
