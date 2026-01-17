@@ -584,7 +584,7 @@ export default function SignupFlow() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="mb-8">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 shadow-xl shadow-indigo-200">
+                  <div className="w-20 h-20 rounded-3xl bg-indigo-500 flex items-center justify-center mb-6 shadow-xl shadow-indigo-200">
                     <Clock className="w-10 h-10 text-white" />
                   </div>
                   <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Intelligent Pacing</h1>
@@ -593,13 +593,13 @@ export default function SignupFlow() {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100 mb-8">
+                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 mb-8">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
                       <Zap className="w-6 h-6 text-indigo-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900 mb-1">Set it and forget it</h3>
+                      <h3 className="font-semibold text-slate-900 mb-1">Set It & Forget It</h3>
                       <p className="text-slate-600">
                         You don't need to babysit your AI. It works in the background, respecting rate limits and optimal timing while you focus on what matters.
                       </p>
