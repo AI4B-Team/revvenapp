@@ -576,7 +576,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                       Phone Number <span className="text-slate-400 font-normal">(optional)</span>
                     </label>
                     <p className="text-sm text-slate-500 mb-3">
-                      Your AI Agent will text you when they need you, have questions, or to update you.
+                      Your AI Agent will text you to notify you about meaningful progress — completed tasks, important milestones, questions, and items needing review.
                     </p>
                     <div className="flex gap-2">
                       <select
@@ -625,6 +625,20 @@ const [phoneNumber, setPhoneNumber] = useState('');
                             <Check className="w-5 h-5 text-green-500" />
                           </div>
                         )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 rounded-2xl p-5 border border-amber-100">
+                    <div className="flex items-start gap-4">
+                      <div className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
+                        <Zap className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-900 mb-1">Instant updates</h3>
+                        <p className="text-sm text-slate-600">
+                          We'll only notify you about meaningful progress — completed tasks, important milestones, and items needing review.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -891,7 +905,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     Back
                   </Button>
                   <Button
-                    onClick={() => setCurrentStep(8)}
+                    onClick={() => setCurrentStep(9)}
                     className="bg-green-600 hover:bg-green-700 h-12 px-8"
                   >
                     Continue
@@ -901,69 +915,6 @@ const [phoneNumber, setPhoneNumber] = useState('');
               </motion.div>
             )}
 
-            {/* Step 8: Browser Notifications */}
-            {currentStep === 8 && (
-              <motion.div
-                key="notifications"
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.3 }}
-              >
-                <div className="mb-8">
-                  <div className="w-20 h-20 rounded-3xl bg-amber-500 flex items-center justify-center mb-6 shadow-xl shadow-amber-200">
-                    <Bell className="w-10 h-10 text-white" />
-                  </div>
-                  <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Never Miss a Moment</h1>
-                  <p className="text-lg text-slate-600">
-                    Get real-time browser notifications when your AI completes important work.
-                  </p>
-                </div>
-
-                <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 mb-8">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
-                      <Zap className="w-6 h-6 text-amber-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-900 mb-1">Instant updates</h3>
-                      <p className="text-slate-600">
-                        We'll only notify you about meaningful progress — completed tasks, important milestones, and items needing review.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                  <Button
-                    onClick={handleEnableNotifications}
-                    className="bg-green-600 hover:bg-green-700 h-14 text-base font-medium"
-                  >
-                    Enable Notifications
-                    <Bell className="w-4 h-4 ml-2" />
-                  </Button>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={handleGoBack}
-                      className="h-12 px-6 flex-1"
-                    >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => setCurrentStep(9)}
-                      className="h-12 px-6 text-slate-500 hover:text-slate-700 flex-1"
-                    >
-                      Continue
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
 
             {/* Step 9: Ready to Launch */}
             {currentStep === 9 && (
