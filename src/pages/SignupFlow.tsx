@@ -753,7 +753,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     onClick={() => setPrimaryGoal('explore')}
                     icon={Rocket}
                     title="Explore Everything"
-                    description="I want to see all that REVVEN can do"
+                    description="I want to see all my AI Agent can do"
                   />
                 </div>
 
@@ -795,7 +795,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   </span>
                   <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Your AI Arsenal</h1>
                   <p className="text-lg text-slate-600">
-                    REVVEN gives you access to powerful capabilities that work together seamlessly.
+                    Your AI Agent has access to powerful capabilities that work together seamlessly.
                   </p>
                 </div>
 
@@ -803,7 +803,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   <CapabilityCard 
                     icon={Brain} 
                     title="Your AI Agent" 
-                    description="One intelligent agent that runs your entire REVVEN system 24/7"
+                    description="One intelligent agent that runs your entire system 24/7"
                     color="bg-indigo-600"
                   />
                   <CapabilityCard 
@@ -874,7 +874,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   </div>
                   <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Intelligent Pacing</h1>
                   <p className="text-lg text-slate-600 leading-relaxed">
-                    REVVEN knows when to wait. Whether it's waiting for an email reply, a website update, or the perfect moment to act — your AI pauses intelligently and picks back up automatically.
+                    Your AI Agent knows when to wait. Whether it's waiting for an email reply, a website update, or the perfect moment to act — it pauses intelligently and picks back up automatically.
                   </p>
                 </div>
 
@@ -929,7 +929,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   </div>
                   <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">You're Ready to Launch</h1>
                   <p className="text-lg text-slate-600 max-w-md mx-auto">
-                    Your workspace is set up and your AI is ready to work. Think big — REVVEN handles the complexity.
+                    Your workspace is set up and your AI is ready to work. Think big — your AI Agent handles the complexity.
                   </p>
                 </div>
 
@@ -939,7 +939,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     <span className="font-semibold text-amber-400">Pro Tip</span>
                   </div>
                   <p className="text-slate-300 leading-relaxed mb-4">
-                    Don't start with small tasks. Give REVVEN something ambitious:
+                    Don't start with small tasks. Give your AI Agent something ambitious:
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-slate-400">
@@ -968,7 +968,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     onClick={() => navigate('/dashboard')}
                     className="flex-1 bg-green-600 hover:bg-green-700 h-14 text-lg font-semibold shadow-lg shadow-green-200"
                   >
-                    Enter REVVEN
+                    Launch Your AI Agent
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </div>
