@@ -420,33 +420,40 @@ export default function SignupFlow() {
                       className="mt-4 space-y-4"
                     >
                       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Or Enter Your Own</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1.5">First name</label>
-                          <Input
-                            type="text"
-                            placeholder="Christina"
-                            value={customFirstName}
-                            onChange={(e) => setCustomFirstName(e.target.value)}
-                            className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
-                          />
+                      <div className={`p-4 rounded-xl border-2 transition-colors ${
+                        customFirstName && customLastName 
+                          ? 'border-green-500 bg-green-50/50' 
+                          : 'border-slate-200 bg-white'
+                      }`}>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">First name</label>
+                            <Input
+                              type="text"
+                              placeholder="Christina"
+                              value={customFirstName}
+                              onChange={(e) => setCustomFirstName(e.target.value)}
+                              className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Last name</label>
+                            <Input
+                              type="text"
+                              placeholder="Martinez"
+                              value={customLastName}
+                              onChange={(e) => setCustomLastName(e.target.value)}
+                              className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1.5">Last name</label>
-                          <Input
-                            type="text"
-                            placeholder="Martinez"
-                            value={customLastName}
-                            onChange={(e) => setCustomLastName(e.target.value)}
-                            className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
-                          />
-                        </div>
+                        {customFirstName && customLastName && (
+                          <p className="text-sm text-green-600 mt-3 flex items-center gap-1.5">
+                            <Check className="w-4 h-4" />
+                            Agent Email: <span className="font-medium">{customFirstName.toLowerCase()}.{customLastName.toLowerCase()}@revven.ai</span>
+                          </p>
+                        )}
                       </div>
-                      {customFirstName && customLastName && (
-                        <p className="text-sm text-slate-500">
-                          Agent email: <span className="font-medium text-slate-700">{customFirstName.toLowerCase()}.{customLastName.toLowerCase()}@revven.ai</span>
-                        </p>
-                      )}
                     </motion.div>
                   )}
                 </div>
