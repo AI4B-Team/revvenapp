@@ -393,7 +393,7 @@ export default function SignupFlow() {
                   className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700 font-medium mb-6 transition-colors"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  Give Me New Names
+                  Generate More Names
                 </button>
 
                 <div className="border-t border-slate-200 pt-6 mb-6">
@@ -410,7 +410,7 @@ export default function SignupFlow() {
                       showCustomAgentName ? 'text-green-600' : 'text-slate-600 hover:text-slate-800'
                     }`}
                   >
-                    {showCustomAgentName ? '✓ Enter your own name' : 'I want to write my own name'}
+                    {showCustomAgentName ? '✓ Name My Own Agent' : 'Name My Own Agent'}
                   </button>
 
                   {showCustomAgentName && (
