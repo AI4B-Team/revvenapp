@@ -435,7 +435,7 @@ export default function SignupFlow() {
                     <Target className="w-3 h-3" />
                     YOUR FOCUS
                   </span>
-                  <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">What brings you here?</h1>
+                  <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">What Brings You Here?</h1>
                   <p className="text-lg text-slate-600">
                     Select your primary goal and we'll prioritize the right tools for you.
                   </p>
