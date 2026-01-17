@@ -179,8 +179,10 @@ export default function SignupFlow() {
   const [isEmailAvailable, setIsEmailAvailable] = useState(false);
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('+1');
   const [agreeToSms, setAgreeToSms] = useState(false);
+  const [phoneSaved, setPhoneSaved] = useState(false);
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [timezone, setTimezone] = useState('');
   const [emailUpdates, setEmailUpdates] = useState(true);
@@ -573,31 +575,81 @@ export default function SignupFlow() {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
                       Phone Number <span className="text-slate-400 font-normal">(optional)</span>
                     </label>
-                    <Input
-                      type="tel"
-                      placeholder="+1 (555) 123-4567"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
-                    />
+                    <div className="flex gap-2">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="h-12 px-3 border border-slate-200 rounded-lg bg-white text-slate-700 focus:border-green-500 focus:ring-green-500 focus:outline-none"
+                      >
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+61">🇦🇺 +61</option>
+                        <option value="+33">🇫🇷 +33</option>
+                        <option value="+49">🇩🇪 +49</option>
+                        <option value="+81">🇯🇵 +81</option>
+                        <option value="+86">🇨🇳 +86</option>
+                        <option value="+91">🇮🇳 +91</option>
+                        <option value="+52">🇲🇽 +52</option>
+                        <option value="+55">🇧🇷 +55</option>
+                      </select>
+                      <Input
+                        type="tel"
+                        placeholder="(555) 000-0000"
+                        value={phoneNumber}
+                        onChange={(e) => {
+                          setPhoneNumber(e.target.value);
+                          setPhoneSaved(false);
+                        }}
+                        className="h-12 flex-1 border-slate-200 focus:border-green-500 focus:ring-green-500"
+                      />
+                      <div className="w-10 h-12 flex items-center justify-center text-slate-400">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                    </div>
                     <p className="text-sm text-slate-500 mt-2">
                       Your AI Agent will text you when they need you, have questions, or to update you.
                     </p>
                   </div>
 
                   {phoneNumber.trim() && (
-                    <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 hover:border-green-300 hover:bg-green-50/30 transition-all">
-                      <input
-                        type="checkbox"
-                        checked={agreeToSms}
-                        onChange={(e) => setAgreeToSms(e.target.checked)}
-                        className="mt-0.5 h-5 w-5 rounded border-slate-300 text-green-600 focus:ring-green-500"
-                      />
-                      <div>
-                        <span className="font-medium text-slate-900 block">I agree to receive SMS updates</span>
-                        <span className="text-sm text-slate-500">Message & data rates may apply.</span>
-                      </div>
-                    </label>
+                    <>
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={agreeToSms}
+                          onChange={(e) => setAgreeToSms(e.target.checked)}
+                          className="mt-0.5 h-5 w-5 rounded border-slate-300 text-green-600 focus:ring-green-500"
+                        />
+                        <span className="text-sm text-slate-600">
+                          I agree to receive SMS from Revven. Message/data rates may apply. Reply STOP to cancel.
+                        </span>
+                      </label>
+
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setPhoneSaved(true);
+                          toast.success('Phone number saved!');
+                        }}
+                        disabled={!phoneNumber.trim() || phoneNumber.length < 7 || !agreeToSms || phoneSaved}
+                        className={`w-full h-12 font-medium transition-all ${
+                          phoneSaved 
+                            ? 'bg-green-600 hover:bg-green-700 text-white' 
+                            : !phoneNumber.trim() || phoneNumber.length < 7 || !agreeToSms
+                              ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                              : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
+                      >
+                        {phoneSaved ? (
+                          <>
+                            <Check className="w-4 h-4 mr-2" />
+                            Phone Number Saved
+                          </>
+                        ) : (
+                          'Save Phone Number'
+                        )}
+                      </Button>
+                    </>
                   )}
 
                   <div className="flex gap-3 pt-2">
