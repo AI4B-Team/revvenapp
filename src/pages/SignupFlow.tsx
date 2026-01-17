@@ -927,7 +927,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   <div className="w-24 h-24 rounded-3xl bg-green-600 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-200">
                     <Rocket className="w-12 h-12 text-white" />
                   </div>
-                  <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">You're Ready to Launch</h1>
+                  <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">You're Ready To Launch</h1>
                   <p className="text-lg text-slate-600 max-w-md mx-auto">
                     Your workspace is set up and your AI is ready to work. Think big — your AI Agent handles the complexity.
                   </p>
