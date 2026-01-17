@@ -572,12 +572,9 @@ const [phoneNumber, setPhoneNumber] = useState('');
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">
+                    <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Phone Number <span className="text-slate-400 font-normal">(optional)</span>
                     </label>
-                    <p className="text-sm text-slate-500 mb-3">
-                      Your AI Agent will text you to notify you about meaningful progress — completed tasks, important milestones, questions, and items needing review.
-                    </p>
                     <div className="flex gap-2">
                       <select
                         value={countryCode}
@@ -635,9 +632,9 @@ const [phoneNumber, setPhoneNumber] = useState('');
                         <Zap className="w-5 h-5 text-amber-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-slate-900 mb-1">Instant updates</h3>
+                        <h3 className="font-semibold text-slate-900 mb-1">Instant Updates</h3>
                         <p className="text-sm text-slate-600">
-                          We'll only notify you about meaningful progress — completed tasks, important milestones, and items needing review.
+                          Your AI Agent will text you about meaningful progress — completed tasks, important milestones, questions, and items needing review.
                         </p>
                       </div>
                     </div>
