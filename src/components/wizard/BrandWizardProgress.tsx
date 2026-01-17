@@ -25,7 +25,7 @@ const BrandWizardProgress: React.FC<BrandWizardProgressProps> = ({
   if (currentStep >= 6) return null;
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+    <div className="w-full p-6 mb-6">
       <div className="flex items-center justify-between">
         {STEPS.map((step, index) => {
           const isCompleted = index < currentStep;
