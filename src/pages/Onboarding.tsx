@@ -221,7 +221,7 @@ const Onboarding = () => {
     {
       id: 'automate',
       title: '4. Automate',
-      subtitle: 'Let Your AI Take Over',
+      subtitle: 'Let Your AI Agent Take Over',
       icon: <Zap size={24} />,
       color: 'text-purple-500',
       credits: 300,
@@ -229,17 +229,17 @@ const Onboarding = () => {
         {
           id: 'automate-task-1',
           icon: <Bot size={20} />,
-          title: 'Deploy Content AI Agent',
-          description: 'Automate content creation and manage your content calendar for all social platforms',
-          actionLabel: 'Deploy Agent',
+          title: 'Activate Content Automation',
+          description: 'Let your AI Agent automate content creation and manage your content calendar for all social platforms',
+          actionLabel: 'Activate',
           actionColor: 'indigo'
         },
         {
           id: 'automate-task-2',
           icon: <MessageSquare size={20} />,
-          title: 'Deploy Social AI Agent',
-          description: 'Automate posting and handle replies to comments, DMs, and stories',
-          actionLabel: 'Deploy Agent',
+          title: 'Activate Social Automation',
+          description: 'Let your AI Agent automate posting and handle replies to comments, DMs, and stories',
+          actionLabel: 'Activate',
           actionColor: 'indigo'
         }
       ]
@@ -294,7 +294,7 @@ const Onboarding = () => {
                 </h1>
               </div>
 
-              {/* AI Team Banner */}
+              {/* AI Agent Banner */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800 rounded-2xl p-6 mb-4">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-brand-green rounded-xl flex items-center justify-center flex-shrink-0">
@@ -302,10 +302,10 @@ const Onboarding = () => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
-                      Your AI Team Is Ready To Work — But They Need To Learn Your Brand First
+                      Your AI Agent Is Ready To Work — But It Needs To Learn Your Brand First
                     </h2>
                     <p className="text-gray-700 dark:text-muted-foreground leading-relaxed">
-                      Complete your brand profile to activate Dolmar, Keisha, Francis, Rich, Brian, and Damoi. Once they know your voice, colors, and style, they'll start creating content, building campaigns, and automating your business 24/7.
+                      Complete your brand profile to activate your AI Agent. Once it knows your voice, colors, and style, it will start creating content, building campaigns, and automating your business 24/7.
                     </p>
                   </div>
                 </div>
