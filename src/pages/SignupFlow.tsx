@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers } from 'lucide-react';
+import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers, RefreshCw, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,9 +29,9 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
   const steps = [
     { id: 1, label: 'Account', completed: currentStep > 1 },
     { id: 2, label: 'Space', completed: currentStep > 2 },
-    { id: 3, label: 'Profile', completed: currentStep > 3 },
-    { id: 4, label: 'Capabilities', completed: currentStep > 6 },
-    { id: 5, label: 'Connect', completed: currentStep > 8 },
+    { id: 3, label: 'Agent', completed: currentStep > 3 },
+    { id: 4, label: 'Profile', completed: currentStep > 4 },
+    { id: 5, label: 'Capabilities', completed: currentStep > 7 },
     { id: 6, label: 'Launch', completed: currentStep > 10 },
   ];
 
@@ -39,8 +39,8 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
     if (currentStep <= 1) return 1;
     if (currentStep <= 2) return 2;
     if (currentStep <= 3) return 3;
-    if (currentStep <= 6) return 4;
-    if (currentStep <= 8) return 5;
+    if (currentStep <= 4) return 4;
+    if (currentStep <= 7) return 5;
     return 6;
   };
 
@@ -170,15 +170,49 @@ export default function SignupFlow() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(2);
   const [workspaceName, setWorkspaceName] = useState('');
+  const [agentName, setAgentName] = useState('');
+  const [agentEmail, setAgentEmail] = useState('');
+  const [showCustomAgentName, setShowCustomAgentName] = useState(false);
+  const [customFirstName, setCustomFirstName] = useState('');
+  const [customLastName, setCustomLastName] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [agreeToSms, setAgreeToSms] = useState(false);
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [timezone, setTimezone] = useState('');
   const [emailUpdates, setEmailUpdates] = useState(true);
+  
+  // Generate random agent names
+  const [suggestedAgents, setSuggestedAgents] = useState<Array<{ name: string; email: string }>>([]);
+  
+  const firstNames = ['David', 'Michael', 'James', 'Sarah', 'Emily', 'Daniel', 'Christopher', 'Andrew', 'Jessica', 'Amanda', 'Matthew', 'Jennifer', 'William', 'Elizabeth', 'Robert', 'Ashley', 'Thomas', 'Sophia', 'Charles', 'Olivia'];
+  const lastNames = ['Thompson', 'Johnson', 'Carter', 'Williams', 'Anderson', 'Harrington', 'Sullivan', 'McAllister', 'Bennett', 'Mitchell', 'Reynolds', 'Crawford', 'Morrison', 'Patterson', 'Henderson', 'Richardson', 'Montgomery', 'Wellington'];
+  
+  const generateAgentNames = () => {
+    const agents: Array<{ name: string; email: string }> = [];
+    const usedCombos = new Set<string>();
+    
+    while (agents.length < 3) {
+      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+      const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+      const combo = `${firstName} ${lastName}`;
+      
+      if (!usedCombos.has(combo)) {
+        usedCombos.add(combo);
+        agents.push({
+          name: combo,
+          email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@revven.ai`
+        });
+      }
+    }
+    
+    setSuggestedAgents(agents);
+  };
+  
+  useEffect(() => {
+    generateAgentNames();
+  }, []);
 
   // Detect timezone on mount
   useEffect(() => {
@@ -196,30 +230,43 @@ export default function SignupFlow() {
       setCurrentStep(3);
     }
   };
+  
+  const handleAgentSetup = () => {
+    if (agentName.trim()) {
+      setCurrentStep(4);
+    }
+  };
+  
+  const selectAgentName = (agent: { name: string; email: string }) => {
+    setAgentName(agent.name);
+    setAgentEmail(agent.email);
+    setShowCustomAgentName(false);
+  };
+  
+  const handleCustomAgentName = () => {
+    if (customFirstName.trim() && customLastName.trim()) {
+      const name = `${customFirstName} ${customLastName}`;
+      const email = `${customFirstName.toLowerCase()}.${customLastName.toLowerCase()}@revven.ai`;
+      setAgentName(name);
+      setAgentEmail(email);
+    }
+  };
+  
+  useEffect(() => {
+    if (showCustomAgentName && customFirstName.trim() && customLastName.trim()) {
+      handleCustomAgentName();
+    }
+  }, [customFirstName, customLastName, showCustomAgentName]);
 
   const handleAboutYou = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentStep(4);
+    setCurrentStep(5);
   };
 
   const handleGoBack = () => {
     if (currentStep > 2) {
       setCurrentStep(currentStep - 1);
     }
-  };
-
-  const handleEmailSave = () => {
-    if (email.trim()) {
-      toast.success('Email preferences saved!');
-    }
-    setCurrentStep(8);
-  };
-
-  const handlePhoneSave = () => {
-    if (phoneNumber.trim() && agreeToSms) {
-      toast.success('Phone number saved!');
-    }
-    setCurrentStep(9);
   };
 
   const handleEnableNotifications = async () => {
@@ -231,7 +278,7 @@ export default function SignupFlow() {
     } catch (error) {
       console.error('Notification permission error:', error);
     }
-    setCurrentStep(10);
+    setCurrentStep(9);
   };
 
   const pageVariants = {
@@ -299,8 +346,134 @@ export default function SignupFlow() {
               </motion.div>
             )}
 
-            {/* Step 3: Your Profile */}
+            {/* Step 3: Name Your Agent */}
             {currentStep === 3 && (
+              <motion.div
+                key="agent"
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+              >
+                <div className="mb-8">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full mb-4">
+                    <User className="w-3 h-3" />
+                    YOUR AI EMPLOYEE
+                  </span>
+                  <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Name Your Agent</h1>
+                  <p className="text-lg text-slate-600">
+                    Your agent will use this name when contacting people on your behalf, as if it were your employee.
+                  </p>
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  {suggestedAgents.map((agent, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => selectAgentName(agent)}
+                      className={`w-full p-4 border-2 rounded-xl text-left transition-all duration-200 ${
+                        agentName === agent.name && !showCustomAgentName
+                          ? 'border-green-600 bg-green-50 shadow-md'
+                          : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-slate-900">{agent.name}</span>
+                        <span className="text-sm text-slate-500">{agent.email}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => generateAgentNames()}
+                  className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700 font-medium mb-6 transition-colors"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Give me new names
+                </button>
+
+                <div className="border-t border-slate-200 pt-6 mb-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCustomAgentName(!showCustomAgentName);
+                      if (!showCustomAgentName) {
+                        setAgentName('');
+                        setAgentEmail('');
+                      }
+                    }}
+                    className={`text-sm font-medium transition-colors ${
+                      showCustomAgentName ? 'text-green-600' : 'text-slate-600 hover:text-slate-800'
+                    }`}
+                  >
+                    {showCustomAgentName ? '✓ Enter your own name' : 'I want to write my own name'}
+                  </button>
+
+                  {showCustomAgentName && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="mt-4 space-y-4"
+                    >
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Or Enter Your Own</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1.5">First name</label>
+                          <Input
+                            type="text"
+                            placeholder="Christina"
+                            value={customFirstName}
+                            onChange={(e) => setCustomFirstName(e.target.value)}
+                            className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-1.5">Last name</label>
+                          <Input
+                            type="text"
+                            placeholder="Martinez"
+                            value={customLastName}
+                            onChange={(e) => setCustomLastName(e.target.value)}
+                            className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
+                          />
+                        </div>
+                      </div>
+                      {customFirstName && customLastName && (
+                        <p className="text-sm text-slate-500">
+                          Agent email: <span className="font-medium text-slate-700">{customFirstName.toLowerCase()}.{customLastName.toLowerCase()}@revven.ai</span>
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={handleGoBack}
+                    className="h-12 px-6"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleAgentSetup}
+                    disabled={!agentName.trim()}
+                    className="bg-green-600 hover:bg-green-700 h-12 px-8 disabled:opacity-50"
+                  >
+                    Continue
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 4: Your Profile */}
+            {currentStep === 4 && (
               <motion.div
                 key="profile"
                 variants={pageVariants}
@@ -316,7 +489,7 @@ export default function SignupFlow() {
                   </span>
                   <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Tell Us About Yourself</h1>
                   <p className="text-lg text-slate-600">
-                    We'll customize your experience based on your role and industry.
+                    We'll customize your experience based on who you are.
                   </p>
                 </div>
 
@@ -366,36 +539,35 @@ export default function SignupFlow() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-3">
-                      Your Industry
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Phone Number <span className="text-slate-400 font-normal">(optional)</span>
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        'E-commerce',
-                        'Consulting',
-                        'Real Estate',
-                        'SaaS / Tech',
-                        'Health',
-                        'Education',
-                        'Finance',
-                        'Creative',
-                        'Other',
-                      ].map((industryOption) => (
-                        <button
-                          key={industryOption}
-                          type="button"
-                          onClick={() => setIndustry(industryOption)}
-                          className={`p-3 border-2 rounded-lg text-center transition-all duration-200 ${
-                            industry === industryOption
-                              ? 'border-green-600 bg-green-50'
-                              : 'border-slate-200 hover:border-slate-300'
-                          }`}
-                        >
-                          <span className="text-sm font-medium text-slate-900">{industryOption}</span>
-                        </button>
-                      ))}
-                    </div>
+                    <Input
+                      type="tel"
+                      placeholder="+1 (555) 123-4567"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="h-12 border-slate-200 focus:border-green-500 focus:ring-green-500"
+                    />
+                    <p className="text-sm text-slate-500 mt-2">
+                      Get text alerts when critical tasks complete.
+                    </p>
                   </div>
+
+                  {phoneNumber.trim() && (
+                    <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 hover:border-green-300 hover:bg-green-50/30 transition-all">
+                      <input
+                        type="checkbox"
+                        checked={agreeToSms}
+                        onChange={(e) => setAgreeToSms(e.target.checked)}
+                        className="mt-0.5 h-5 w-5 rounded border-slate-300 text-green-600 focus:ring-green-500"
+                      />
+                      <div>
+                        <span className="font-medium text-slate-900 block">I agree to receive SMS updates</span>
+                        <span className="text-sm text-slate-500">Message & data rates may apply.</span>
+                      </div>
+                    </label>
+                  )}
 
                   <div className="flex gap-3 pt-2">
                     <Button
@@ -409,7 +581,7 @@ export default function SignupFlow() {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={!role || !industry || !fullName.trim()}
+                      disabled={!role || !fullName.trim()}
                       className="bg-green-600 hover:bg-green-700 h-12 px-8 disabled:opacity-50"
                     >
                       Continue
@@ -420,8 +592,8 @@ export default function SignupFlow() {
               </motion.div>
             )}
 
-            {/* Step 4: What's Your Primary Goal */}
-            {currentStep === 4 && (
+            {/* Step 5: What's Your Primary Goal */}
+            {currentStep === 5 && (
               <motion.div
                 key="goal"
                 variants={pageVariants}
@@ -482,7 +654,7 @@ export default function SignupFlow() {
                     Back
                   </Button>
                   <Button
-                    onClick={() => setCurrentStep(5)}
+                    onClick={() => setCurrentStep(6)}
                     disabled={!primaryGoal}
                     className="bg-green-600 hover:bg-green-700 h-12 px-8 disabled:opacity-50"
                   >
@@ -493,8 +665,8 @@ export default function SignupFlow() {
               </motion.div>
             )}
 
-            {/* Step 5: AI Capabilities Overview */}
-            {currentStep === 5 && (
+            {/* Step 6: AI Capabilities Overview */}
+            {currentStep === 6 && (
               <motion.div
                 key="capabilities"
                 variants={pageVariants}
@@ -563,7 +735,7 @@ export default function SignupFlow() {
                     Back
                   </Button>
                   <Button
-                    onClick={() => setCurrentStep(6)}
+                    onClick={() => setCurrentStep(7)}
                     className="bg-green-600 hover:bg-green-700 h-12 px-8"
                   >
                     Continue
@@ -627,158 +799,8 @@ export default function SignupFlow() {
               </motion.div>
             )}
 
-            {/* Step 7: Email Preferences */}
-            {currentStep === 7 && (
-              <motion.div
-                key="email"
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.3 }}
-              >
-                <div className="mb-8">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-6 shadow-xl shadow-blue-200">
-                    <Mail className="w-10 h-10 text-white" />
-                  </div>
-                  <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Stay In The Loop</h1>
-                  <p className="text-lg text-slate-600">
-                    Where should we send important updates about your AI projects?
-                  </p>
-                </div>
-
-                <div className="space-y-5 mb-8">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Email Address
-                    </label>
-                    <Input
-                      type="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-14 text-lg border-slate-200 focus:border-green-500 focus:ring-green-500"
-                    />
-                  </div>
-
-                  <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 hover:border-green-300 hover:bg-green-50/30 transition-all">
-                    <input
-                      type="checkbox"
-                      checked={emailUpdates}
-                      onChange={(e) => setEmailUpdates(e.target.checked)}
-                      className="mt-0.5 h-5 w-5 rounded border-slate-300 text-green-600 focus:ring-green-500"
-                    />
-                    <div>
-                      <span className="font-medium text-slate-900 block">Send me weekly insights</span>
-                      <span className="text-sm text-slate-500">Tips, updates, and ways to get more from REVVEN</span>
-                    </div>
-                  </label>
-
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <Shield className="w-4 h-4" />
-                    <span>We respect your inbox. Unsubscribe anytime.</span>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={handleGoBack}
-                    className="h-12 px-6"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={handleEmailSave}
-                    className="bg-green-600 hover:bg-green-700 h-12 px-8"
-                  >
-                    Continue
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 8: Phone Number */}
+            {/* Step 8: Browser Notifications */}
             {currentStep === 8 && (
-              <motion.div
-                key="phone"
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.3 }}
-              >
-                <div className="mb-8">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-6 shadow-xl shadow-emerald-200">
-                    <MessageSquare className="w-10 h-10 text-white" />
-                  </div>
-                  <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Get Instant Alerts</h1>
-                  <p className="text-lg text-slate-600">
-                    Receive text notifications when critical tasks complete or need your attention.
-                  </p>
-                </div>
-
-                <div className="space-y-5 mb-8">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Mobile Number
-                    </label>
-                    <Input
-                      type="tel"
-                      placeholder="+1 (555) 123-4567"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="h-14 text-lg border-slate-200 focus:border-green-500 focus:ring-green-500"
-                    />
-                  </div>
-
-                  {phoneNumber.trim() && (
-                    <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 hover:border-green-300 hover:bg-green-50/30 transition-all">
-                      <input
-                        type="checkbox"
-                        checked={agreeToSms}
-                        onChange={(e) => setAgreeToSms(e.target.checked)}
-                        className="mt-0.5 h-5 w-5 rounded border-slate-300 text-green-600 focus:ring-green-500"
-                      />
-                      <div>
-                        <span className="font-medium text-slate-900 block">I agree to receive SMS updates</span>
-                        <span className="text-sm text-slate-500">Message & data rates may apply. Reply STOP to cancel.</span>
-                      </div>
-                    </label>
-                  )}
-
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Clock className="w-4 h-4 text-slate-400" />
-                      <span>We detected your timezone: <span className="font-medium text-slate-900">{timezone}</span></span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={handleGoBack}
-                    className="h-12 px-6"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={handlePhoneSave}
-                    className="bg-green-600 hover:bg-green-700 h-12 px-8"
-                  >
-                    Continue
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 9: Browser Notifications */}
-            {currentStep === 9 && (
               <motion.div
                 key="notifications"
                 variants={pageVariants}
@@ -788,7 +810,7 @@ export default function SignupFlow() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="mb-8">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-6 shadow-xl shadow-amber-200">
+                  <div className="w-20 h-20 rounded-3xl bg-amber-500 flex items-center justify-center mb-6 shadow-xl shadow-amber-200">
                     <Bell className="w-10 h-10 text-white" />
                   </div>
                   <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Never Miss a Moment</h1>
@@ -797,7 +819,7 @@ export default function SignupFlow() {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100 mb-8">
+                <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 mb-8">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
                       <Zap className="w-6 h-6 text-amber-600" />
@@ -830,7 +852,7 @@ export default function SignupFlow() {
                     </Button>
                     <Button
                       variant="ghost"
-                      onClick={() => setCurrentStep(10)}
+                      onClick={() => setCurrentStep(9)}
                       className="h-12 px-6 text-slate-500 hover:text-slate-700 flex-1"
                     >
                       Continue
@@ -841,8 +863,8 @@ export default function SignupFlow() {
               </motion.div>
             )}
 
-            {/* Step 10: Ready to Launch */}
-            {currentStep === 10 && (
+            {/* Step 9: Ready to Launch */}
+            {currentStep === 9 && (
               <motion.div
                 key="launch"
                 variants={pageVariants}
@@ -852,7 +874,7 @@ export default function SignupFlow() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center mb-10">
-                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-200">
+                  <div className="w-24 h-24 rounded-3xl bg-green-600 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-200">
                     <Rocket className="w-12 h-12 text-white" />
                   </div>
                   <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">You're Ready to Launch</h1>
@@ -861,7 +883,7 @@ export default function SignupFlow() {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 mb-8 text-white">
+                <div className="bg-slate-900 rounded-2xl p-6 mb-8 text-white">
                   <div className="flex items-center gap-2 mb-4">
                     <Sparkles className="w-5 h-5 text-amber-400" />
                     <span className="font-semibold text-amber-400">Pro Tip</span>
@@ -894,7 +916,7 @@ export default function SignupFlow() {
                   </Button>
                   <Button
                     onClick={() => navigate('/dashboard')}
-                    className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 h-14 text-lg font-semibold shadow-lg shadow-green-200"
+                    className="flex-1 bg-green-600 hover:bg-green-700 h-14 text-lg font-semibold shadow-lg shadow-green-200"
                   >
                     Enter REVVEN
                     <ArrowRight className="w-5 h-5 ml-2" />
