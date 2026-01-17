@@ -359,7 +359,7 @@ export default function SignupFlow() {
                 <div className="mb-8">
                   <span className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full mb-4">
                     <User className="w-3 h-3" />
-                    YOUR AI EMPLOYEE
+                    YOUR AI ASSISTANT
                   </span>
                   <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Name Your Agent</h1>
                   <p className="text-lg text-slate-600">
@@ -393,7 +393,7 @@ export default function SignupFlow() {
                   className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700 font-medium mb-6 transition-colors"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  Give me new names
+                  Give Me New Names
                 </button>
 
                 <div className="border-t border-slate-200 pt-6 mb-6">
