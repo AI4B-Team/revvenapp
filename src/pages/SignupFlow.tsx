@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers, RefreshCw, User, Loader2 } from 'lucide-react';
+import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers, RefreshCw, User, Loader2, PenLine } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -439,7 +439,7 @@ export default function SignupFlow() {
                         : 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-800'
                     }`}
                   >
-                    {showCustomAgentName ? '✓ Name My Own Agent' : '✏️ Name My Own Agent'}
+                    {showCustomAgentName ? <><Check className="w-4 h-4 mr-1.5" /> Name My Own Agent</> : <><PenLine className="w-4 h-4 mr-1.5" /> Name My Own Agent</>}
                   </button>
 
                   {showCustomAgentName && (
