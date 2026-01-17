@@ -968,7 +968,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     onClick={() => navigate('/dashboard')}
                     className="flex-1 bg-green-600 hover:bg-green-700 h-14 text-lg font-semibold shadow-lg shadow-green-200"
                   >
-                    Launch Your AI Agent
+                    Enter REVVEN
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </div>
