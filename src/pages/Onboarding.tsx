@@ -32,7 +32,7 @@ const Onboarding = () => {
     {
       id: 'overview',
       title: 'Watch This 3 Minute Overview',
-      description: 'Get started with REVVEN by watching this video.',
+      description: 'Get started by watching this video.',
       thumbnail: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
       videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     },
@@ -121,14 +121,14 @@ const Onboarding = () => {
           id: 'create-project',
           icon: <Sparkles size={20} />,
           title: 'Create Your First Project',
-          description: 'Kickstart your REVVEN journey by creating your first project',
+          description: 'Kickstart your journey by creating your first project',
           completed: true
         },
         {
           id: 'watch-video',
           icon: <Play size={20} />,
-          title: 'Get To Know The REVVEN Platform',
-          description: 'See what you\'ll be able to do with REVVEN',
+          title: 'Get To Know The Platform',
+          description: 'See what your AI Agent can do for you',
           actionLabel: 'Play Video',
           actionColor: 'indigo'
         },
@@ -353,7 +353,7 @@ const Onboarding = () => {
                   <div className="bg-card rounded-2xl shadow-sm p-8 border border-border">
                     <h2 className="text-3xl font-bold text-foreground mb-3">Quick Start</h2>
                     <p className="text-muted-foreground mb-6">
-                      Get started with REVVEN by completing the following steps.
+                      Get started by completing the following steps.
                     </p>
 
                     {/* Progress Bar */}
