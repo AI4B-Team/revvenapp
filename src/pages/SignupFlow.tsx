@@ -802,8 +802,8 @@ const [phoneNumber, setPhoneNumber] = useState('');
                 <div className="grid grid-cols-2 gap-4 mb-8">
                   <CapabilityCard 
                     icon={Brain} 
-                    title="Autonomous Agents" 
-                    description="AI workers that execute multi-step tasks 24/7 without supervision"
+                    title="Your AI Agent" 
+                    description="One intelligent agent that runs your entire REVVEN system 24/7"
                     color="bg-indigo-600"
                   />
                   <CapabilityCard 
