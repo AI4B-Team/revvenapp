@@ -16,6 +16,8 @@ interface IdentityPageProps {
       id: string;
       name: string;
       preview: string;
+      gradient?: string;
+      description?: string;
     };
   };
   onUpdate: (data: any) => void;
@@ -419,7 +421,7 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
         <div className={`${!canGoBack ? 'ml-auto' : ''}`}>
           <button
             onClick={validateAndProceed}
-            className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="px-8 py-3 bg-brand-green text-white font-semibold rounded-lg hover:bg-brand-green/90 transition-colors flex items-center gap-2 shadow-lg shadow-brand-green/20"
           >
             Continue
             <Check size={18} />

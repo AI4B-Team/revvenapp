@@ -167,7 +167,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
           </Button>
           <Button
             onClick={onComplete}
-            className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+            className="gap-2 bg-brand-green hover:bg-brand-green/90 text-white shadow-lg shadow-brand-green/20"
             size="lg"
           >
             <CheckCircle className="w-5 h-5" />

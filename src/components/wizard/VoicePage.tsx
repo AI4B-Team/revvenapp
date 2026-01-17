@@ -432,7 +432,7 @@ const VoicePage: React.FC<VoicePageProps> = ({
         
         <button
           onClick={validateAndProceed}
-          className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+          className="px-8 py-3 bg-brand-green text-white font-semibold rounded-lg hover:bg-brand-green/90 transition-colors flex items-center gap-2 shadow-lg shadow-brand-green/20"
         >
           Continue
           <Check size={18} />
