@@ -448,7 +448,7 @@ export default function SignupFlow() {
                       animate={{ opacity: 1, height: 'auto' }}
                       className="mt-4 space-y-4"
                     >
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Or Enter Your Own</p>
+                      
                       <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${
                         isEmailAvailable && customFirstName && customLastName 
                           ? 'border-green-500 bg-green-50/50' 
