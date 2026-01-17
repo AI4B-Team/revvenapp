@@ -847,8 +847,8 @@ const [phoneNumber, setPhoneNumber] = useState('');
               </motion.div>
             )}
 
-            {/* Step 6: Smart Pacing Explanation */}
-            {currentStep === 6 && (
+            {/* Step 7: Smart Pacing Explanation */}
+            {currentStep === 7 && (
               <motion.div
                 key="pacing"
                 variants={pageVariants}
@@ -891,7 +891,7 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     Back
                   </Button>
                   <Button
-                    onClick={() => setCurrentStep(7)}
+                    onClick={() => setCurrentStep(8)}
                     className="bg-green-600 hover:bg-green-700 h-12 px-8"
                   >
                     Continue
