@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers, RefreshCw, User } from 'lucide-react';
+import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers, RefreshCw, User, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -175,6 +175,8 @@ export default function SignupFlow() {
   const [showCustomAgentName, setShowCustomAgentName] = useState(false);
   const [customFirstName, setCustomFirstName] = useState('');
   const [customLastName, setCustomLastName] = useState('');
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const [isEmailAvailable, setIsEmailAvailable] = useState(false);
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -223,6 +225,31 @@ export default function SignupFlow() {
       setTimezone('UTC');
     }
   }, []);
+
+  // Check email availability when custom name changes
+  useEffect(() => {
+    if (customFirstName && customLastName) {
+      setIsEmailAvailable(false);
+      setIsCheckingAvailability(true);
+      
+      const timer = setTimeout(() => {
+        // Simulate checking availability (in production, this would be an API call)
+        setIsCheckingAvailability(false);
+        setIsEmailAvailable(true);
+        
+        // Auto-set the agent name and email when confirmed
+        const fullName = `${customFirstName} ${customLastName}`;
+        const email = `${customFirstName.toLowerCase()}.${customLastName.toLowerCase()}@revven.ai`;
+        setAgentName(fullName);
+        setAgentEmail(email);
+      }, 800);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setIsEmailAvailable(false);
+      setIsCheckingAvailability(false);
+    }
+  }, [customFirstName, customLastName]);
 
   const handleWorkspaceSetup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -420,8 +447,8 @@ export default function SignupFlow() {
                       className="mt-4 space-y-4"
                     >
                       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Or Enter Your Own</p>
-                      <div className={`p-4 rounded-xl border-2 transition-colors ${
-                        customFirstName && customLastName 
+                      <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                        isEmailAvailable && customFirstName && customLastName 
                           ? 'border-green-500 bg-green-50/50' 
                           : 'border-slate-200 bg-white'
                       }`}>
@@ -448,10 +475,19 @@ export default function SignupFlow() {
                           </div>
                         </div>
                         {customFirstName && customLastName && (
-                          <p className="text-sm text-green-600 mt-3 flex items-center gap-1.5">
-                            <Check className="w-4 h-4" />
-                            Agent Email: <span className="font-medium">{customFirstName.toLowerCase()}.{customLastName.toLowerCase()}@revven.ai</span>
-                          </p>
+                          <div className="mt-3">
+                            {isCheckingAvailability ? (
+                              <p className="text-sm text-slate-500 flex items-center gap-1.5">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Checking availability...
+                              </p>
+                            ) : isEmailAvailable ? (
+                              <p className="text-sm text-green-600 flex items-center gap-1.5">
+                                <Check className="w-4 h-4" />
+                                Agent Email: <span className="font-medium">{customFirstName.toLowerCase()}.{customLastName.toLowerCase()}@revven.ai</span>
+                              </p>
+                            ) : null}
+                          </div>
                         )}
                       </div>
                     </motion.div>
