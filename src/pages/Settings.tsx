@@ -384,7 +384,7 @@ export default function Settings() {
                 <div className="grid grid-cols-3 gap-4 items-start">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 block mb-1">
-                      Your photo
+                      Your Photo
                     </Label>
                     <p className="text-sm text-gray-500">
                       This will be displayed on your profile.
@@ -429,7 +429,7 @@ export default function Settings() {
                 <div className="grid grid-cols-3 gap-4 items-start">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 block mb-1">
-                      Your bio
+                      Your Bio
                     </Label>
                     <p className="text-sm text-gray-500">
                       Write a short introduction.
@@ -484,7 +484,7 @@ export default function Settings() {
                 {/* Job Title */}
                 <div className="grid grid-cols-3 gap-4 items-start">
                   <Label className="text-sm font-medium text-gray-700 pt-2">
-                    Job title
+                    Job Title
                   </Label>
                   <div className="col-span-2 space-y-3">
                     <Input
@@ -513,7 +513,7 @@ export default function Settings() {
                 <div className="grid grid-cols-3 gap-4 items-start pb-6 border-b border-gray-300">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 block mb-1">
-                      Alternative contact email
+                      Alternative Contact Email
                     </Label>
                     <p className="text-sm text-gray-500">
                       Enter an alternative email if you'd like to
@@ -1092,7 +1092,7 @@ export default function Settings() {
                     Cancel
                   </Button>
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                    Save preferences
+                    Save Preferences
                   </Button>
                 </div>
               </div>
@@ -1174,7 +1174,7 @@ export default function Settings() {
                     Cancel
                   </Button>
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                    Save preferences
+                    Save Preferences
                   </Button>
                 </div>
               </div>
