@@ -24,6 +24,7 @@ import MCAnalytics from '@/components/master-closer/MCAnalytics';
 import MCTeamManagement from '@/components/master-closer/MCTeamManagement';
 import MCSettings from '@/components/master-closer/MCSettings';
 import MCAgentSettings from '@/components/master-closer/MCAgentSettings';
+import MCConversationTemplates, { ConversationTemplate } from '@/components/master-closer/MCConversationTemplates';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'agent-settings';
@@ -35,6 +36,9 @@ const MasterCloser = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isInnerSidebarCollapsed, setIsInnerSidebarCollapsed] = useState(false);
   const [callMode, setCallMode] = useState<CallMode>('start-call');
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<ConversationTemplate | null>(null);
+  const [pendingCallMode, setPendingCallMode] = useState<CallMode>('start-call');
 
   const navigation = [
     { id: 'dashboard', name: 'Command', icon: BarChart3, view: 'dashboard' },
@@ -48,7 +52,21 @@ const MasterCloser = () => {
   ];
 
   const handleStartCall = (mode: CallMode) => {
-    setCallMode(mode);
+    setPendingCallMode(mode);
+    setShowTemplateSelector(true);
+  };
+
+  const handleTemplateSelect = (template: ConversationTemplate) => {
+    setSelectedTemplate(template);
+    setShowTemplateSelector(false);
+    setCallMode(pendingCallMode);
+    setIsCallActive(true);
+    setCurrentView('live-call');
+  };
+
+  const handleSkipTemplate = () => {
+    setShowTemplateSelector(false);
+    setCallMode(pendingCallMode);
     setIsCallActive(true);
     setCurrentView('live-call');
   };
@@ -266,6 +284,14 @@ const MasterCloser = () => {
           </main>
         </div>
       </div>
+
+      {/* Template Selector Modal */}
+      <MCConversationTemplates
+        open={showTemplateSelector}
+        onClose={() => setShowTemplateSelector(false)}
+        onSelect={handleTemplateSelect}
+        selectedTemplate={selectedTemplate}
+      />
     </div>
   );
 };
