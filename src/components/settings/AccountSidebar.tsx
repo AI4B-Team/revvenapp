@@ -62,8 +62,8 @@ export default function AccountSidebar({
   const [userAvatar, setUserAvatar] = useState('');
 
   const menuItems = [
-    { id: 'billing', label: t('settings.subscription'), icon: CreditCard, badge: 'Pro' },
     { id: 'my-details', label: t('settings.account'), icon: Settings },
+    { id: 'billing', label: t('settings.subscription'), icon: CreditCard, badge: 'Pro' },
     { id: 'workspace', label: 'Spaces', icon: LayoutGrid },
     { id: 'invites', label: t('settings.invites'), icon: Mail },
     { id: 'integrations', label: t('settings.integrations'), icon: Plug },

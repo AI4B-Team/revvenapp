@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function Settings() {
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const [activeTab, setActiveTab] = useState(tabParam || 'profile');
+  const [activeTab, setActiveTab] = useState(tabParam || 'my-details');
   const [username, setUsername] = useState('olivia');
   const [website, setWebsite] = useState('www.untitledui.com');
   const [bio, setBio] = useState("I'm a Product Designer based in Melbourne, Australia. I specialise in UX/UI design, brand strategy, and Webflow development.");
