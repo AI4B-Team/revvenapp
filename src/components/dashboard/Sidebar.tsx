@@ -21,6 +21,7 @@ import OnboardingProgress from './OnboardingProgress';
 import ProjectSelector from './ProjectSelector';
 import { creationsData } from '@/data/creationsData';
 import { useBrand } from '@/contexts/BrandContext';
+import { useSpace } from '@/contexts/SpaceContext';
 
 interface SidebarProps {
   activeTab?: string;
@@ -227,6 +228,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   const [brandSearchQuery, setBrandSearchQuery] = useState('');
+  const [spaceSearchQuery, setSpaceSearchQuery] = useState('');
 
   // Use brand context
   const { 
@@ -237,6 +239,16 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     setIsCreatingNewBrand,
     draftBrand 
   } = useBrand();
+
+  // Use space context
+  const {
+    spaces,
+    selectedSpace,
+    setSelectedSpace,
+    isCreatingNewSpace,
+    setIsCreatingNewSpace,
+    draftSpace,
+  } = useSpace();
   
   // Display brand - show draft brand name if creating new, otherwise selected brand
   const displayBrand = isCreatingNewBrand && draftBrand?.name 
@@ -247,6 +259,21 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         isComplete: false 
       }
     : selectedBrand;
+
+  // Display space - show draft space name if creating new, otherwise selected space
+  const displaySpace = isCreatingNewSpace && draftSpace?.name
+    ? {
+        name: draftSpace.name,
+        initial: draftSpace.name.charAt(0).toUpperCase(),
+        bgColor: draftSpace.bgColor || 'bg-brand-green',
+      }
+    : selectedSpace;
+  
+  const handleSpaceSelect = (space: typeof spaces[0]) => {
+    setSelectedSpace(space);
+    setIsWorkspaceOpen(false);
+    setSpaceSearchQuery('');
+  };
   
   const handleBrandSelect = (brand: typeof brands[0]) => {
     setSelectedBrand(brand);
@@ -307,11 +334,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     { id: 4, title: 'Generate a video...', time: '2 days ago' },
   ];
 
-  const workspaces = [
-    { name: "Dolmar's Space", initial: 'D', bgColor: 'bg-brand-green' },
-    { name: "Brian's Space", initial: 'B', bgColor: 'bg-brand-blue' },
-    { name: 'Team Space', initial: 'T', bgColor: 'bg-brand-yellow' },
-  ];
+  // workspaces is now managed by SpaceContext - removed static array
 
   return (
     <>
@@ -361,70 +384,103 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           )}
         </div>
 
-      {/* Workspace Selector */}
+      {/* Workspace/Space Selector */}
       {!isCollapsed && (
         <div className="px-4 mb-2 relative flex-shrink-0">
           <button 
             onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
             className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
           >
-            <div className="w-8 h-8 bg-primary/20 rounded flex items-center justify-center text-sm font-bold text-primary">
-              B
+            <div className={`w-8 h-8 ${displaySpace?.bgColor || 'bg-brand-green'} bg-opacity-20 rounded flex items-center justify-center text-sm font-bold text-primary`}>
+              {displaySpace?.initial || 'S'}
             </div>
-            <span className="flex-1 text-left text-sm text-primary font-medium">Brian's Space</span>
+            <span className="flex-1 text-left text-sm text-primary font-medium">
+              {displaySpace?.name || 'Select Space'}
+            </span>
             <ChevronDown size={16} className={`transition-transform text-primary ${isWorkspaceOpen ? 'rotate-180' : ''}`} />
           </button>
         
           {isWorkspaceOpen && (
-            <div className="absolute top-full left-4 right-4 mt-2 bg-[#1e1e1e] rounded-lg shadow-xl z-50 py-3 border border-gray-800">
+            <div className="absolute top-full left-4 right-4 mt-2 bg-sidebar border border-border rounded-lg shadow-xl z-50 py-3">
               {/* Search Field */}
-              <div className="px-3 pb-3 border-b border-gray-700">
-                <div className="flex items-center gap-2 px-3 py-2 bg-[#2a2a2a] rounded-lg border border-gray-700">
-                  <Search size={14} className="text-gray-500" />
+              <div className="px-3 pb-3 border-b border-border">
+                <div className="flex items-center gap-2 px-3 py-2 bg-sidebar-hover rounded-lg border border-border">
+                  <Search size={14} className="text-sidebar-muted" />
                   <input 
                     type="text" 
                     placeholder="Search Spaces" 
-                    className="flex-1 text-sm bg-transparent text-gray-300 placeholder:text-gray-500 outline-none"
+                    value={spaceSearchQuery}
+                    onChange={(e) => setSpaceSearchQuery(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 text-sm bg-transparent text-sidebar-text placeholder:text-sidebar-muted outline-none"
                   />
                 </div>
               </div>
               
               {/* Space List */}
-              <div className="py-2">
-                {workspaces.map((workspace, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between px-4 py-2.5 hover:bg-white/5 transition cursor-pointer group"
+              <div className="py-2 max-h-48 overflow-y-auto">
+                {spaces
+                  .filter((space) => space.name.toLowerCase().includes(spaceSearchQuery.toLowerCase()))
+                  .map((space) => (
+                  <button
+                    key={space.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleSpaceSelect(space);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 hover:bg-sidebar-hover transition cursor-pointer group ${
+                      selectedSpace?.id === space.id ? 'bg-sidebar-active' : ''
+                    }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-200">{workspace.name}</span>
-                      {idx === 0 && <Check size={14} className="text-brand-green" />}
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 ${space.bgColor} rounded flex items-center justify-center text-sm font-bold text-white`}>
+                        {space.initial}
+                      </div>
+                      <span className="text-sm text-sidebar-text">{space.name}</span>
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button 
-                          className="p-1 hover:bg-white/10 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreVertical size={14} className="text-gray-400" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-32 bg-[#2a2a2a] border-gray-700">
-                        <DropdownMenuItem className="text-gray-200 hover:bg-white/10 focus:bg-white/10">
-                          Invite
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-gray-200 hover:bg-white/10 focus:bg-white/10">
-                          Edit
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      {selectedSpace?.id === space.id && <Check size={14} className="text-brand-green" />}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button 
+                            className="p-1 hover:bg-sidebar-active rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreVertical size={14} className="text-sidebar-muted" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-32 bg-sidebar border-border">
+                          <DropdownMenuItem 
+                            className="text-sidebar-text hover:bg-sidebar-hover focus:bg-sidebar-hover"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsWorkspaceOpen(false);
+                              setSpaceSearchQuery('');
+                              navigate('/space-settings');
+                            }}
+                          >
+                            Edit
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </button>
                 ))}
               </div>
               
               {/* Create New Space Button */}
-              <div className="px-3 pt-2 border-t border-gray-700">
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-green hover:bg-brand-green/90 rounded-lg transition text-primary font-medium text-sm">
+              <div className="px-3 pt-2 border-t border-border">
+                <button 
+                  onClick={() => {
+                    setIsWorkspaceOpen(false);
+                    setSpaceSearchQuery('');
+                    setIsCreatingNewSpace(true);
+                    navigate('/space-settings?new=true');
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-green hover:bg-brand-green/90 rounded-lg transition text-primary font-medium text-sm"
+                >
                   <Plus size={16} />
                   <span>Create New Space</span>
                 </button>
