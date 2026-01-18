@@ -32,8 +32,8 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
   };
 
   const seatsData = {
-    total: 4,
-    used: 3,
+    total: 3,
+    used: 2,
   };
 
   const workspacesData = {
@@ -123,7 +123,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
           {/* Bottom Row - Workspaces & Seats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Workspaces Card - First */}
-            <div className="border border-gray-200 rounded-xl p-5 bg-white">
+            <div className="border border-gray-400 rounded-xl p-5 bg-white">
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                 <LayoutGrid className="w-4 h-4" />
                 <span>Spaces</span>
@@ -142,7 +142,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
                 <span className="text-2xl font-bold text-gray-900">{workspacesData.total}</span>
               </div>
               <div className="mb-4">
-                <Progress value={(workspacesData.used / workspacesData.total) * 100} className="h-1.5 mb-1" />
+                <Progress value={(workspacesData.used / workspacesData.total) * 100} className="h-1.5 mb-1 [&>div]:bg-brand-green" />
                 <p className="text-xs text-gray-500">{workspacesData.used} of {workspacesData.total} Spaces In Use</p>
               </div>
               <div className="flex gap-2">
@@ -158,7 +158,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
             </div>
 
             {/* Seats Card */}
-            <div className="border border-gray-200 rounded-xl p-5 bg-white">
+            <div className="border border-gray-400 rounded-xl p-5 bg-white">
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                 <Users className="w-4 h-4" />
                 <span>Seats</span>
@@ -177,7 +177,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
                 <span className="text-2xl font-bold text-gray-900">{seatsData.total}</span>
               </div>
               <div className="mb-4">
-                <Progress value={(seatsData.used / seatsData.total) * 100} className="h-1.5 mb-1" />
+                <Progress value={(seatsData.used / seatsData.total) * 100} className="h-1.5 mb-1 [&>div]:bg-brand-green" />
                 <p className="text-xs text-gray-500">{seatsData.used} of {seatsData.total} seats being used</p>
               </div>
               <div className="flex gap-2">
