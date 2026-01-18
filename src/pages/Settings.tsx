@@ -914,9 +914,6 @@ export default function Settings() {
                   cancellationDate={cancellationDate}
                 />
 
-                {/* Team Members */}
-                <TeamMembersSection maxSeats={4} />
-
                 {/* Payment Method */}
                 <div className="border border-gray-300 rounded-lg p-6">
                   <div className="flex items-start justify-between mb-4">
