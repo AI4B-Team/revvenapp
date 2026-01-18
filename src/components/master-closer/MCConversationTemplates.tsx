@@ -16,10 +16,13 @@ import {
   Building,
   Search,
   Check,
-  ChevronRight
+  Sparkles,
+  X,
+  ArrowRight
 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 
 export interface ConversationTemplate {
   id: string;
@@ -41,16 +44,16 @@ interface MCConversationTemplatesProps {
 }
 
 const templateCategories = [
-  { id: 'sales', name: 'Sales & Revenue', icon: <DollarSign className="w-4 h-4" /> },
-  { id: 'business', name: 'Business & Capital', icon: <Briefcase className="w-4 h-4" /> },
-  { id: 'recruiting', name: 'Recruiting & Career', icon: <UserCheck className="w-4 h-4" /> },
-  { id: 'leadership', name: 'Leadership & Internal', icon: <Award className="w-4 h-4" /> },
-  { id: 'coaching', name: 'Coaching & Advisory', icon: <Lightbulb className="w-4 h-4" /> },
-  { id: 'personal', name: 'Personal & Connection', icon: <Heart className="w-4 h-4" /> },
+  { id: 'sales', name: 'Sales', icon: <DollarSign className="w-5 h-5" />, color: 'from-emerald-500 to-green-600' },
+  { id: 'business', name: 'Business', icon: <Briefcase className="w-5 h-5" />, color: 'from-blue-500 to-indigo-600' },
+  { id: 'recruiting', name: 'Recruiting', icon: <UserCheck className="w-5 h-5" />, color: 'from-violet-500 to-purple-600' },
+  { id: 'leadership', name: 'Leadership', icon: <Award className="w-5 h-5" />, color: 'from-orange-500 to-amber-600' },
+  { id: 'coaching', name: 'Coaching', icon: <Lightbulb className="w-5 h-5" />, color: 'from-yellow-500 to-orange-500' },
+  { id: 'personal', name: 'Personal', icon: <Heart className="w-5 h-5" />, color: 'from-pink-500 to-rose-600' },
 ];
 
 const templates: ConversationTemplate[] = [
-  // Sales & Revenue
+  // Sales
   {
     id: 'discovery-call',
     name: 'Discovery Call',
@@ -108,7 +111,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'renewal-retention',
-    name: 'Renewal / Retention',
+    name: 'Retention',
     category: 'sales',
     icon: <TrendingUp className="w-5 h-5" />,
     description: 'Retain and upsell existing customers',
@@ -118,7 +121,7 @@ const templates: ConversationTemplate[] = [
     recommendedTone: 'Appreciative, strategic, value-focused'
   },
 
-  // Business & Capital
+  // Business
   {
     id: 'investor-pitch',
     name: 'Investor Pitch',
@@ -132,7 +135,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'partner-jv-call',
-    name: 'Partner / JV Call',
+    name: 'Partnership',
     category: 'business',
     icon: <Handshake className="w-5 h-5" />,
     description: 'Establish strategic partnerships',
@@ -143,7 +146,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'vendor-negotiation',
-    name: 'Vendor Negotiation',
+    name: 'Negotiation',
     category: 'business',
     icon: <Building className="w-5 h-5" />,
     description: 'Negotiate contracts and pricing',
@@ -154,7 +157,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'real-estate-deal',
-    name: 'Real Estate Deal Call',
+    name: 'Real Estate',
     category: 'business',
     icon: <Building className="w-5 h-5" />,
     description: 'Close property transactions',
@@ -165,7 +168,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'client-onboarding',
-    name: 'Client Onboarding',
+    name: 'Onboarding',
     category: 'business',
     icon: <UserCheck className="w-5 h-5" />,
     description: 'Welcome and activate new clients',
@@ -175,10 +178,10 @@ const templates: ConversationTemplate[] = [
     recommendedTone: 'Warm, organized, supportive'
   },
 
-  // Recruiting & Career
+  // Recruiting
   {
     id: 'hiring-interview',
-    name: 'Hiring Interview',
+    name: 'Hiring',
     category: 'recruiting',
     icon: <UserCheck className="w-5 h-5" />,
     description: 'Evaluate and attract top talent',
@@ -189,7 +192,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'job-candidate-interview',
-    name: 'Job Candidate Interview',
+    name: 'Job Interview',
     category: 'recruiting',
     icon: <Award className="w-5 h-5" />,
     description: 'Navigate your job interviews',
@@ -200,7 +203,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'executive-screening',
-    name: 'Executive Screening',
+    name: 'Executive',
     category: 'recruiting',
     icon: <Briefcase className="w-5 h-5" />,
     description: 'High-level leadership evaluation',
@@ -210,10 +213,10 @@ const templates: ConversationTemplate[] = [
     recommendedTone: 'Strategic, peer-level, direct'
   },
 
-  // Leadership & Internal
+  // Leadership
   {
     id: 'difficult-conversation',
-    name: 'Difficult Conversation',
+    name: 'Difficult Talk',
     category: 'leadership',
     icon: <MessageSquare className="w-5 h-5" />,
     description: 'Navigate sensitive workplace discussions',
@@ -224,7 +227,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'performance-review',
-    name: 'Performance Review',
+    name: 'Performance',
     category: 'leadership',
     icon: <Award className="w-5 h-5" />,
     description: 'Conduct effective performance discussions',
@@ -235,7 +238,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'conflict-resolution',
-    name: 'Conflict Resolution',
+    name: 'Conflict',
     category: 'leadership',
     icon: <Shield className="w-5 h-5" />,
     description: 'Mediate and resolve team conflicts',
@@ -246,7 +249,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'team-leadership-call',
-    name: 'Team Leadership Call',
+    name: 'Team Lead',
     category: 'leadership',
     icon: <Users className="w-5 h-5" />,
     description: 'Lead team meetings and 1:1s',
@@ -256,10 +259,10 @@ const templates: ConversationTemplate[] = [
     recommendedTone: 'Supportive, clear, empowering'
   },
 
-  // Coaching & Advisory
+  // Coaching
   {
     id: 'coaching-session',
-    name: 'Coaching Session',
+    name: 'Coaching',
     category: 'coaching',
     icon: <Lightbulb className="w-5 h-5" />,
     description: 'Guide clients to breakthroughs',
@@ -270,7 +273,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'consulting-diagnostic',
-    name: 'Consulting Diagnostic Call',
+    name: 'Consulting',
     category: 'coaching',
     icon: <Search className="w-5 h-5" />,
     description: 'Assess client situation and needs',
@@ -281,7 +284,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'financial-advisory',
-    name: 'Financial Advisory Call',
+    name: 'Financial',
     category: 'coaching',
     icon: <DollarSign className="w-5 h-5" />,
     description: 'Provide financial guidance',
@@ -291,10 +294,10 @@ const templates: ConversationTemplate[] = [
     recommendedTone: 'Trustworthy, educational, reassuring'
   },
 
-  // Personal & Connection
+  // Personal
   {
     id: 'dating-first-call',
-    name: 'Dating / First Call',
+    name: 'Dating',
     category: 'personal',
     icon: <Heart className="w-5 h-5" />,
     description: 'Navigate romantic first conversations',
@@ -305,7 +308,7 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'boundary-conversation',
-    name: 'Boundary or Clarity Conversation',
+    name: 'Boundaries',
     category: 'personal',
     icon: <Shield className="w-5 h-5" />,
     description: 'Set boundaries in personal relationships',
@@ -316,10 +319,10 @@ const templates: ConversationTemplate[] = [
   },
   {
     id: 'personal-negotiation',
-    name: 'Personal Negotiation',
+    name: 'Negotiate',
     category: 'personal',
     icon: <Handshake className="w-5 h-5" />,
-    description: 'Negotiate personal matters (salary, purchases, etc.)',
+    description: 'Negotiate personal matters (salary, purchases)',
     objective: 'Achieve favorable outcome while maintaining relationship',
     keyPhases: ['Research', 'Opening Position', 'Exchange', 'Concessions', 'Agreement'],
     commonObjections: ['Final offer', 'Policy limitations', 'Take it or leave it'],
@@ -334,134 +337,197 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
   selectedTemplate
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('sales');
-  const [hoveredTemplate, setHoveredTemplate] = useState<ConversationTemplate | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<ConversationTemplate | null>(null);
 
   const filteredTemplates = templates.filter(t => t.category === selectedCategory);
+  const currentCategory = templateCategories.find(c => c.id === selectedCategory);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-xl font-bold">Choose Conversation Template</DialogTitle>
-          <DialogDescription>
-            Select a template that matches your conversation type for optimized AI guidance
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden bg-card border-0 shadow-2xl">
+        {/* Header */}
+        <div className="relative bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white">
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">Choose Your Template</h2>
+              <p className="text-emerald-100 text-sm">Select a conversation type for optimized AI guidance</p>
+            </div>
+          </div>
+        </div>
 
-        <div className="flex h-[60vh]">
-          {/* Category Sidebar */}
-          <div className="w-56 border-r border-border p-4">
-            <div className="space-y-1">
-              {templateCategories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                    selectedCategory === category.id
-                      ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`}
-                >
+        <div className="flex h-[65vh]">
+          {/* Category Tabs - Horizontal */}
+          <div className="w-44 bg-muted/30 border-r border-border p-3 flex flex-col gap-1">
+            {templateCategories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all ${
+                  selectedCategory === category.id
+                    ? `bg-gradient-to-r ${category.color} text-white shadow-lg`
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <div className={`${selectedCategory === category.id ? '' : 'opacity-70'}`}>
                   {category.icon}
-                  <span className="font-medium">{category.name}</span>
-                </button>
-              ))}
+                </div>
+                <span className="font-semibold text-sm">{category.name}</span>
+              </button>
+            ))}
+
+            {/* Skip button at bottom */}
+            <div className="mt-auto pt-4 border-t border-border">
+              <button
+                onClick={onClose}
+                className="w-full text-sm text-muted-foreground hover:text-foreground py-2 transition-colors"
+              >
+                Skip for now
+              </button>
             </div>
           </div>
 
           {/* Templates Grid */}
-          <div className="flex-1 p-4">
-            <ScrollArea className="h-full pr-4">
-              <div className="grid grid-cols-2 gap-3">
-                {filteredTemplates.map((template) => (
-                  <button
-                    key={template.id}
-                    onClick={() => onSelect(template)}
-                    onMouseEnter={() => setHoveredTemplate(template)}
-                    onMouseLeave={() => setHoveredTemplate(null)}
-                    className={`relative p-4 rounded-lg border text-left transition-all hover:shadow-md ${
-                      selectedTemplate?.id === template.id
-                        ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200'
-                        : 'border-border bg-card hover:border-emerald-300'
-                    }`}
-                  >
-                    {selectedTemplate?.id === template.id && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        selectedTemplate?.id === template.id
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {template.icon}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-sm text-foreground">{template.name}</h4>
-                        <p className="text-xs text-muted-foreground">{template.description}</p>
-                      </div>
-                    </div>
+          <div className="flex-1 p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${currentCategory?.color} flex items-center justify-center text-white`}>
+                {currentCategory?.icon}
+              </div>
+              <h3 className="font-bold text-lg text-foreground">{currentCategory?.name} Templates</h3>
+              <span className="text-xs text-muted-foreground ml-2">({filteredTemplates.length} templates)</span>
+            </div>
 
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="px-2 py-0.5 bg-muted rounded-full">{template.keyPhases.length} phases</span>
-                      <span className="px-2 py-0.5 bg-muted rounded-full">{template.commonObjections.length} objections</span>
-                    </div>
-                  </button>
-                ))}
+            <ScrollArea className="h-[calc(100%-3rem)]">
+              <div className="grid grid-cols-3 gap-3 pr-4">
+                {filteredTemplates.map((template) => {
+                  const isSelected = selectedTemplate?.id === template.id;
+                  const isHovered = previewTemplate?.id === template.id;
+                  
+                  return (
+                    <button
+                      key={template.id}
+                      onClick={() => onSelect(template)}
+                      onMouseEnter={() => setPreviewTemplate(template)}
+                      onMouseLeave={() => setPreviewTemplate(null)}
+                      className={`group relative p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                        isSelected
+                          ? 'border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-100'
+                          : isHovered
+                          ? 'border-emerald-300 bg-card shadow-md'
+                          : 'border-border bg-card hover:border-muted-foreground/30'
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      
+                      <div className="flex items-start gap-3">
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                          isSelected
+                            ? `bg-gradient-to-r ${currentCategory?.color} text-white`
+                            : 'bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-600'
+                        }`}>
+                          {template.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-sm text-foreground truncate">{template.name}</h4>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{template.description}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-3">
+                        <span className="px-2 py-1 bg-muted rounded-md text-xs text-muted-foreground font-medium">
+                          {template.keyPhases.length} phases
+                        </span>
+                        {isHovered && (
+                          <ArrowRight className="w-4 h-4 text-emerald-500 ml-auto animate-pulse" />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </ScrollArea>
           </div>
 
           {/* Preview Panel */}
-          {hoveredTemplate && (
-            <div className="w-72 border-l border-border p-4 bg-muted/30">
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  {hoveredTemplate.icon}
-                  <h4 className="font-bold text-foreground">{hoveredTemplate.name}</h4>
-                </div>
-                <p className="text-sm text-muted-foreground">{hoveredTemplate.description}</p>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Objective</h5>
-                  <p className="text-sm text-foreground">{hoveredTemplate.objective}</p>
-                </div>
-
-                <div>
-                  <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Key Phases</h5>
-                  <div className="flex flex-wrap gap-1">
-                    {hoveredTemplate.keyPhases.map((phase, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full">
-                        {phase}
-                      </span>
-                    ))}
+          <div className={`w-80 border-l border-border bg-muted/20 transition-all duration-300 ${previewTemplate ? 'opacity-100' : 'opacity-50'}`}>
+            {previewTemplate ? (
+              <div className="p-5 h-full flex flex-col">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${currentCategory?.color} flex items-center justify-center text-white`}>
+                    {previewTemplate.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-foreground">{previewTemplate.name}</h4>
+                    <p className="text-xs text-muted-foreground">{previewTemplate.description}</p>
                   </div>
                 </div>
 
-                <div>
-                  <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Recommended Tone</h5>
-                  <p className="text-sm text-foreground italic">{hoveredTemplate.recommendedTone}</p>
+                <div className="space-y-4 flex-1">
+                  <div>
+                    <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Objective</h5>
+                    <p className="text-sm text-foreground bg-card p-3 rounded-lg border border-border">{previewTemplate.objective}</p>
+                  </div>
+
+                  <div>
+                    <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Call Phases</h5>
+                    <div className="flex flex-wrap gap-1.5">
+                      {previewTemplate.keyPhases.map((phase, i) => (
+                        <span key={i} className={`px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${currentCategory?.color} text-white`}>
+                          {phase}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Tone</h5>
+                    <p className="text-sm text-foreground italic">{previewTemplate.recommendedTone}</p>
+                  </div>
+
+                  <div>
+                    <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Common Objections</h5>
+                    <ul className="space-y-1.5">
+                      {previewTemplate.commonObjections.slice(0, 3).map((objection, i) => (
+                        <li key={i} className="text-xs text-muted-foreground flex items-center gap-2 bg-card p-2 rounded-md border border-border">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          {objection}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
 
-                <div>
-                  <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Common Objections</h5>
-                  <ul className="space-y-1">
-                    {hoveredTemplate.commonObjections.map((objection, i) => (
-                      <li key={i} className="text-xs text-muted-foreground flex items-center gap-2">
-                        <ChevronRight className="w-3 h-3" />
-                        {objection}
-                      </li>
-                    ))}
-                  </ul>
+                <Button 
+                  onClick={() => onSelect(previewTemplate)}
+                  className={`w-full mt-4 bg-gradient-to-r ${currentCategory?.color} hover:opacity-90 text-white`}
+                >
+                  Use This Template
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center p-5">
+                <div className="text-center text-muted-foreground">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                    <Sparkles className="w-8 h-8" />
+                  </div>
+                  <p className="text-sm">Hover over a template to preview</p>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
