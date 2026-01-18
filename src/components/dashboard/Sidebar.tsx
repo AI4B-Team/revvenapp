@@ -391,8 +391,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
             className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
           >
-            <div className={`w-8 h-8 ${displaySpace?.bgColor || 'bg-brand-green'} bg-opacity-20 rounded flex items-center justify-center text-sm font-bold text-primary`}>
-              {displaySpace?.initial || 'S'}
+            <div className={`w-8 h-8 ${displaySpace?.bgColor || 'bg-brand-green'} bg-opacity-20 rounded flex items-center justify-center`}>
+              <LayoutGrid size={16} className="text-primary" />
             </div>
             <span className="flex-1 text-left text-sm text-primary font-medium">
               {displaySpace?.name || 'Select Space'}
@@ -499,8 +499,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               onClick={() => navigate('/brand')}
               className="flex items-center gap-3 flex-1 text-left"
             >
-              <div className={`w-8 h-8 ${displayBrand?.bgColor || 'bg-brand-green'} rounded flex items-center justify-center text-sm font-bold text-white`}>
-                {displayBrand?.initial || '+'}
+              <div className={`w-8 h-8 ${displayBrand?.bgColor || 'bg-brand-green'} rounded flex items-center justify-center`}>
+                <Palette size={16} className="text-white" />
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-medium hover:text-brand-green transition">
