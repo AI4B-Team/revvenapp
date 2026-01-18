@@ -22,7 +22,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
   // Mock data
   const planData = {
     name: 'Pro',
-    price: 49,
+    price: 47,
     billingCycle: 'month',
   };
 
@@ -178,7 +178,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
               </div>
               <div className="mb-4">
                 <Progress value={(seatsData.used / seatsData.total) * 100} className="h-1.5 mb-1 [&>div]:bg-brand-green" />
-                <p className="text-xs text-gray-500">{seatsData.used} of {seatsData.total} seats being used</p>
+                <p className="text-xs text-gray-500">{seatsData.used} of {seatsData.total} Seats Being Used</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="flex-1 gap-2">
