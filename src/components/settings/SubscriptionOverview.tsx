@@ -169,7 +169,6 @@ export default function SubscriptionOverview({
                 size="sm" 
                 className="w-full bg-brand-green hover:bg-brand-green/90 text-white"
                 onClick={() => setIsCreditsModalOpen(true)}
-                disabled={isPendingCancellation}
               >
                 Add Credits Pack
               </Button>
@@ -275,7 +274,6 @@ export default function SubscriptionOverview({
             <Button 
               className="bg-brand-green hover:bg-brand-green/90 text-white"
               onClick={() => setIsCreditsModalOpen(true)}
-              disabled={isPendingCancellation}
             >
               Add Credits
             </Button>
