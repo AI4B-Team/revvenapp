@@ -454,10 +454,15 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 <span className="flex-1 text-left text-sm">Search Brands</span>
               </button>
               {brandProfiles.map((brand, idx) => (
-                <div
+                <button
                   key={idx}
+                  type="button"
                   className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group cursor-pointer ${selectedBrand.name === brand.name ? 'bg-sidebar-active' : ''}`}
-                  onClick={() => handleBrandSelect(brand)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleBrandSelect(brand);
+                  }}
                 >
                   <div className={`w-8 h-8 ${brand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white relative`}>
                     {brand.initial}
@@ -474,30 +479,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                   {selectedBrand.name === brand.name && (
                     <Check size={16} className="text-brand-green" />
                   )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button 
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-sidebar-active rounded"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreVertical size={16} className="text-sidebar-muted" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-popover">
-                      <DropdownMenuItem onClick={(e) => {
-                        e.stopPropagation();
-                        navigate('/brand');
-                      }}>
-                        <Edit size={14} className="mr-2" />
-                        Edit Brand
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                        <Settings size={14} className="mr-2" />
-                        Settings
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                </button>
               ))}
               <button 
                 onClick={() => navigate('/brand')}
