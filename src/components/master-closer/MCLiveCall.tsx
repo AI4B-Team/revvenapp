@@ -81,77 +81,77 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
 
   // Generate template-specific mock conversations
   const getTemplateConversation = (template: ConversationTemplate | null | undefined): TranscriptMessage[] => {
-    const speakerType = callMode === 'voice-agent' ? 'agent' : 'you';
+    const speakerType: 'you' | 'agent' = callMode === 'voice-agent' ? 'agent' : 'you';
     
     if (!template) {
       return [
-        { id: '1', speaker: speakerType, text: 'Hi Sarah, thanks for taking the time to chat today!', timestamp: '00:00', confidence: 95 },
-        { id: '2', speaker: 'prospect', text: "Sure, but I only have about 15 minutes. We're pretty happy with our current solution to be honest.", timestamp: '00:05', confidence: 92 }
+        { id: '1', speaker: speakerType, text: "Hey, thanks for hopping on. Really appreciate you making the time.", timestamp: '00:00', confidence: 95 },
+        { id: '2', speaker: 'prospect', text: "No problem. I've only got about 15 minutes though - we're actually pretty happy with what we have.", timestamp: '00:05', confidence: 92 }
       ];
     }
 
     const mockConversations: Record<string, TranscriptMessage[]> = {
       'discovery-call': [
-        { id: '1', speaker: speakerType, text: "Hi Sarah, thanks for joining me today. I'm looking forward to learning more about your situation.", timestamp: '00:00', confidence: 96 },
-        { id: '2', speaker: 'prospect', text: "Thanks for reaching out. I've got about 30 minutes. We're exploring some options for next quarter.", timestamp: '00:08', confidence: 94 }
+        { id: '1', speaker: speakerType, text: "Hey! Thanks for taking the time today. I'm really curious to learn more about what's going on over there.", timestamp: '00:00', confidence: 96 },
+        { id: '2', speaker: 'prospect', text: "Yeah, happy to chat. We've got about 30 minutes. Been looking at some options for next quarter.", timestamp: '00:08', confidence: 94 }
       ],
       'inbound-sales': [
-        { id: '1', speaker: speakerType, text: "Hi! Thanks so much for reaching out to us. I saw you signed up through our website - what caught your interest?", timestamp: '00:00', confidence: 97 },
-        { id: '2', speaker: 'prospect', text: "Yeah, I saw your demo video and it looks like exactly what we need. We've been struggling with our current tool for months.", timestamp: '00:06', confidence: 95 }
+        { id: '1', speaker: speakerType, text: "Hey! So glad you reached out. Saw you came through the website - what got your attention?", timestamp: '00:00', confidence: 97 },
+        { id: '2', speaker: 'prospect', text: "Honestly, I watched your demo and thought 'this is exactly what we need.' Our current tool has been a nightmare.", timestamp: '00:06', confidence: 95 }
       ],
       'outbound-sales': [
-        { id: '1', speaker: speakerType, text: "Hi Sarah, this is James from Acme Solutions. I know this is an unexpected call - do you have just 30 seconds?", timestamp: '00:00', confidence: 93 },
-        { id: '2', speaker: 'prospect', text: "Uh, sure, but I'm really busy right now. What's this about?", timestamp: '00:04', confidence: 88 }
+        { id: '1', speaker: speakerType, text: "Hey, I know you weren't expecting this call. Got 30 seconds for me to explain why I'm reaching out?", timestamp: '00:00', confidence: 93 },
+        { id: '2', speaker: 'prospect', text: "Uh... I'm pretty slammed right now. What is this about?", timestamp: '00:04', confidence: 88 }
       ],
       'high-ticket-sales': [
-        { id: '1', speaker: speakerType, text: "Welcome, Sarah. Before we dive in, I want to be upfront - our program isn't for everyone. I'm here to see if we're even the right fit for you.", timestamp: '00:00', confidence: 98 },
-        { id: '2', speaker: 'prospect', text: "I appreciate that. I've done my research and I'm serious about making a change. What do you need to know?", timestamp: '00:10', confidence: 96 }
+        { id: '1', speaker: speakerType, text: "Thanks for joining. Look, I'll be real - this isn't for everyone. I want to figure out if we're even the right fit before we go further.", timestamp: '00:00', confidence: 98 },
+        { id: '2', speaker: 'prospect', text: "I appreciate that honesty. I've done my homework and I'm ready to make a move. What do you need from me?", timestamp: '00:10', confidence: 96 }
       ],
       'investor-pitch': [
-        { id: '1', speaker: speakerType, text: "Thank you for taking this meeting. We're building the infrastructure layer for [industry] - a $50 billion market that's fundamentally broken.", timestamp: '00:00', confidence: 97 },
-        { id: '2', speaker: 'prospect', text: "Interesting. What's your unique insight that the incumbents are missing?", timestamp: '00:08', confidence: 94 }
+        { id: '1', speaker: speakerType, text: "Thanks for the meeting. We're tackling a $50 billion market that's completely broken - and we've got a unique angle.", timestamp: '00:00', confidence: 97 },
+        { id: '2', speaker: 'prospect', text: "Okay, I'm listening. What do you see that the big players are missing?", timestamp: '00:08', confidence: 94 }
       ],
       'hiring-interview': [
-        { id: '1', speaker: speakerType, text: "Thanks for coming in, Sarah. I've reviewed your background and I'm excited to learn more. What drew you to this role?", timestamp: '00:00', confidence: 95 },
-        { id: '2', speaker: 'prospect', text: "Thank you for having me. I've been following your company's growth and the role aligns perfectly with where I want to take my career.", timestamp: '00:07', confidence: 93 }
+        { id: '1', speaker: speakerType, text: "Thanks for coming in! I've gone through your background - really impressive. What made you interested in this role?", timestamp: '00:00', confidence: 95 },
+        { id: '2', speaker: 'prospect', text: "I've been following your growth for a while. This role fits exactly where I want to take my career next.", timestamp: '00:07', confidence: 93 }
       ],
       'negotiation': [
-        { id: '1', speaker: speakerType, text: "I've reviewed the proposal you sent over. I think we're close, but I'd like to discuss a few points before we finalize.", timestamp: '00:00', confidence: 94 },
-        { id: '2', speaker: 'prospect', text: "Of course. We're committed to making this work, but we do have some constraints we need to work within.", timestamp: '00:06', confidence: 91 }
+        { id: '1', speaker: speakerType, text: "Alright, I've gone through everything. We're close, but there's a few things I'd like to work through before we finalize.", timestamp: '00:00', confidence: 94 },
+        { id: '2', speaker: 'prospect', text: "Sure, we want to make this work too. Just know we have some hard constraints on our end.", timestamp: '00:06', confidence: 91 }
       ],
       'performance-review': [
-        { id: '1', speaker: speakerType, text: "Thanks for meeting with me, Sarah. I wanted to have an open conversation about your progress this quarter and your goals going forward.", timestamp: '00:00', confidence: 96 },
-        { id: '2', speaker: 'prospect', text: "I appreciate that. I've been thinking a lot about my growth here and I have some things I'd like to discuss too.", timestamp: '00:08', confidence: 92 }
+        { id: '1', speaker: speakerType, text: "Thanks for sitting down with me. Want to have an honest conversation about how things are going and where you want to head.", timestamp: '00:00', confidence: 96 },
+        { id: '2', speaker: 'prospect', text: "Yeah, I've been thinking about this a lot actually. There's some stuff I want to talk through too.", timestamp: '00:08', confidence: 92 }
       ],
       'conflict-resolution': [
-        { id: '1', speaker: speakerType, text: "I appreciate you taking time to talk this through. I think there's been some miscommunication and I want to understand your perspective.", timestamp: '00:00', confidence: 93 },
-        { id: '2', speaker: 'prospect', text: "Yeah, I agree we need to clear the air. I've felt frustrated about how things have been handled lately.", timestamp: '00:07', confidence: 89 }
+        { id: '1', speaker: speakerType, text: "I appreciate you being willing to talk. I feel like there's been some miscommunication and I really want to hear your side.", timestamp: '00:00', confidence: 93 },
+        { id: '2', speaker: 'prospect', text: "Yeah, I think we need to clear the air. Honestly, I've been pretty frustrated with how things went down.", timestamp: '00:07', confidence: 89 }
       ],
       'client-success': [
-        { id: '1', speaker: speakerType, text: "Hi Sarah! Thanks for joining our quarterly review. I've been looking at your account and I'm excited to share some wins and opportunities.", timestamp: '00:00', confidence: 97 },
-        { id: '2', speaker: 'prospect', text: "Great! We've been loving the product. Though there are a few things we've been wanting to explore.", timestamp: '00:06', confidence: 95 }
+        { id: '1', speaker: speakerType, text: "Hey! Great to connect for our quarterly check-in. Been looking at your numbers - got some wins to celebrate and ideas to share.", timestamp: '00:00', confidence: 97 },
+        { id: '2', speaker: 'prospect', text: "Awesome! Yeah, we've been really happy. There's also a few things we've been meaning to ask about.", timestamp: '00:06', confidence: 95 }
       ],
       'cold-outreach': [
-        { id: '1', speaker: speakerType, text: "Hi Sarah, I know we haven't spoken before. I noticed your company just announced [recent news] - congratulations! I had a quick thought that might be relevant.", timestamp: '00:00', confidence: 91 },
-        { id: '2', speaker: 'prospect', text: "Oh, thanks. Yeah, it's been a busy time. What did you have in mind?", timestamp: '00:05', confidence: 87 }
+        { id: '1', speaker: speakerType, text: "Hey, I know we haven't talked before. Saw you just announced some big news - congrats! Had a quick idea that might be relevant.", timestamp: '00:00', confidence: 91 },
+        { id: '2', speaker: 'prospect', text: "Oh, thanks! Yeah, it's been crazy. What were you thinking?", timestamp: '00:05', confidence: 87 }
       ],
       'partnership-discussion': [
-        { id: '1', speaker: speakerType, text: "Thanks for exploring this partnership opportunity. I think there's real synergy between our companies and I'm excited to see how we can collaborate.", timestamp: '00:00', confidence: 95 },
-        { id: '2', speaker: 'prospect', text: "Agreed. We've been looking for the right partner in this space. What does a successful partnership look like to you?", timestamp: '00:08', confidence: 94 }
+        { id: '1', speaker: speakerType, text: "Thanks for exploring this with us. I really think there's something here between our companies.", timestamp: '00:00', confidence: 95 },
+        { id: '2', speaker: 'prospect', text: "Same here. We've been looking for the right partner. What does success look like from your side?", timestamp: '00:08', confidence: 94 }
       ],
       'coaching-session': [
-        { id: '1', speaker: speakerType, text: "Good to see you, Sarah. Before we dive in, how are you feeling about everything we discussed last time?", timestamp: '00:00', confidence: 96 },
-        { id: '2', speaker: 'prospect', text: "I've made some progress, but I'm still struggling with the confidence piece we talked about.", timestamp: '00:06', confidence: 90 }
+        { id: '1', speaker: speakerType, text: "Good to see you! Before we jump in - how are you feeling about what we worked on last time?", timestamp: '00:00', confidence: 96 },
+        { id: '2', speaker: 'prospect', text: "Made some progress, but that confidence thing we talked about? Still struggling with it.", timestamp: '00:06', confidence: 90 }
       ],
       'sales-demo': [
-        { id: '1', speaker: speakerType, text: "Thanks for joining the demo! Before I show you anything, I want to make sure I understand exactly what you're hoping to solve.", timestamp: '00:00', confidence: 97 },
-        { id: '2', speaker: 'prospect', text: "Sure. Our main pain point is [specific issue]. We've tried a couple other tools but they haven't worked out.", timestamp: '00:07', confidence: 93 }
+        { id: '1', speaker: speakerType, text: "Thanks for joining! Before I show you anything, I want to make sure I really understand what you're trying to solve.", timestamp: '00:00', confidence: 97 },
+        { id: '2', speaker: 'prospect', text: "Yeah, so our biggest issue is our current workflow. We've tried a couple tools but nothing's stuck.", timestamp: '00:07', confidence: 93 }
       ]
     };
 
     return mockConversations[template.id] || [
-      { id: '1', speaker: speakerType, text: `Hi Sarah, thanks for joining me for this ${template.name.toLowerCase()}. I'm looking forward to our conversation.`, timestamp: '00:00', confidence: 95 },
-      { id: '2', speaker: 'prospect', text: "Thanks for having me. I'm ready to get started.", timestamp: '00:05', confidence: 93 }
+      { id: '1', speaker: speakerType, text: "Hey, thanks for making time for this. Really looking forward to our conversation.", timestamp: '00:00', confidence: 95 },
+      { id: '2', speaker: 'prospect', text: "Yeah, happy to be here. Let's get into it.", timestamp: '00:05', confidence: 93 }
     ];
   };
   
