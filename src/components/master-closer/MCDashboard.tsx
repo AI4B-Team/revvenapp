@@ -188,10 +188,15 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Recent Calls */}
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
-            <Phone className="w-5 h-5 text-emerald-600" />
-            Recent Calls
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold flex items-center gap-2 text-foreground">
+              <Phone className="w-5 h-5 text-emerald-600" />
+              Recent Calls
+            </h3>
+            <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium hover:underline">
+              View All
+            </button>
+          </div>
           <div className="space-y-3">
             {recentCalls.map((call) => (
               <div
@@ -236,10 +241,15 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
 
         {/* Top Performers */}
         <div className="bg-card border border-border rounded-xl p-6">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
-            <Award className="w-5 h-5 text-yellow-500" />
-            Top Performers
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold flex items-center gap-2 text-foreground">
+              <Award className="w-5 h-5 text-yellow-500" />
+              Top Performers
+            </h3>
+            <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium hover:underline">
+              View All
+            </button>
+          </div>
           <div className="space-y-3">
             {topPerformers.map((performer, index) => (
               <div
