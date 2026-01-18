@@ -1420,7 +1420,7 @@ export default function Settings() {
       <CancellationFlow
         isOpen={isCancellationOpen}
         onClose={() => setIsCancellationOpen(false)}
-        subscriptionEndDate="January 1, 2025"
+        subscriptionEndDate="February 1, 2026"
         planName="Professional"
         planPrice="$49.00"
       />

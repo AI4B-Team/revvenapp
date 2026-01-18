@@ -504,7 +504,7 @@ export default function CancellationFlow({
           className="w-full"
           onClick={handleClose}
         >
-          I'll think about it...
+          I'll Think About It...
         </Button>
         <Button 
           variant="outline" 
