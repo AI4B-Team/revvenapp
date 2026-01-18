@@ -93,7 +93,7 @@ export default function TeamMembersSection({ maxSeats }: TeamMembersSectionProps
 
   return (
     <>
-      <div className="border border-gray-300 rounded-lg p-6">
+      <div className="border border-gray-400 rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-semibold text-gray-900">Team Members</h3>
           <Button 
@@ -103,7 +103,7 @@ export default function TeamMembersSection({ maxSeats }: TeamMembersSectionProps
             className="gap-2"
           >
             <UserPlus className="w-4 h-4" />
-            Invite Member
+            Invite Members
           </Button>
         </div>
 
@@ -154,8 +154,8 @@ export default function TeamMembersSection({ maxSeats }: TeamMembersSectionProps
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Change role</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">Remove member</DropdownMenuItem>
+                          <DropdownMenuItem>Change Role</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">Remove Member</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}
