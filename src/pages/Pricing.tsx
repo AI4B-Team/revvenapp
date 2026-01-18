@@ -21,7 +21,7 @@ const Pricing = () => {
       buttonText: 'Get Started Free',
       buttonVariant: 'outline' as const,
       popular: false,
-      color: 'bg-slate-600',
+      color: 'bg-brand-purple',
       href: '/signup',
     },
     {
@@ -45,7 +45,7 @@ const Pricing = () => {
       buttonText: 'Start Free Trial',
       buttonVariant: 'default' as const,
       popular: true,
-      color: 'bg-brand-purple',
+      color: 'bg-brand-green',
       href: '/signup?plan=creator',
     },
     {
@@ -299,10 +299,10 @@ const Pricing = () => {
               return (
                 <Card
                   key={plan.name}
-                  className={`relative p-6 ${plan.popular ? 'border-2 border-primary shadow-lg lg:scale-105' : 'border'}`}
+                  className={`relative p-6 ${plan.popular ? 'border-2 border-brand-green shadow-lg lg:scale-105' : 'border'}`}
                 >
                   {plan.popular && (
-                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary">
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-green text-white">
                       Most Popular
                     </Badge>
                   )}
