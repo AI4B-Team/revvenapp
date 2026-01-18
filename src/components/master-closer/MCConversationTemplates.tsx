@@ -344,51 +344,55 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden bg-card border-0 shadow-2xl">
+      <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden bg-card border border-border/50 shadow-2xl rounded-2xl [&>button]:hidden">
         {/* Header */}
-        <div className="relative bg-muted p-6">
+        <div className="relative bg-card p-6 border-b border-border">
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-foreground/10 rounded-full transition-colors text-muted-foreground"
+            className="absolute top-4 right-4 p-2.5 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-foreground"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-foreground/10 rounded-xl flex items-center justify-center text-foreground">
-              <Sparkles className="w-6 h-6" />
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center text-foreground shadow-sm">
+              <Sparkles className="w-7 h-7" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-foreground">Choose Your Template</h2>
-              <p className="text-muted-foreground text-sm">Select a conversation type for optimized AI guidance</p>
+              <h2 className="text-2xl font-bold text-foreground tracking-tight">Choose Your Template</h2>
+              <p className="text-muted-foreground text-sm mt-0.5">Select a conversation type for optimized AI guidance</p>
             </div>
           </div>
         </div>
 
         <div className="flex h-[65vh]">
-          {/* Category Tabs - Horizontal */}
-          <div className="w-44 bg-muted/30 border-r border-border p-3 flex flex-col gap-1">
+          {/* Category Sidebar */}
+          <div className="w-48 bg-muted/20 border-r border-border p-4 flex flex-col gap-1.5">
             {templateCategories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
                   selectedCategory === category.id
-                    ? 'bg-secondary text-foreground shadow-md border border-border'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'bg-card text-foreground shadow-sm border border-border'
+                    : 'text-muted-foreground hover:bg-card/50 hover:text-foreground'
                 }`}
               >
-                <div className={`${selectedCategory === category.id ? '' : 'opacity-70'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                  selectedCategory === category.id 
+                    ? 'bg-muted text-foreground' 
+                    : 'bg-transparent'
+                }`}>
                   {category.icon}
                 </div>
-                <span className="font-semibold text-sm">{category.name}</span>
+                <span className="font-medium text-sm">{category.name}</span>
               </button>
             ))}
 
             {/* Skip button at bottom */}
-            <div className="mt-auto pt-4 border-t border-border">
+            <div className="mt-auto pt-4">
               <button
                 onClick={onClose}
-                className="w-full text-sm text-muted-foreground hover:text-foreground py-2 transition-colors"
+                className="w-full text-sm text-muted-foreground hover:text-foreground py-2.5 transition-colors rounded-lg hover:bg-muted/50"
               >
                 Skip For Now
               </button>
@@ -396,17 +400,19 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
           </div>
 
           {/* Templates Grid */}
-          <div className="flex-1 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-foreground border border-border">
+          <div className="flex-1 p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-foreground">
                 {currentCategory?.icon}
               </div>
-              <h3 className="font-bold text-lg text-foreground">{currentCategory?.name} Templates</h3>
-              <span className="text-xs text-muted-foreground ml-2">({filteredTemplates.length} templates)</span>
+              <div>
+                <h3 className="font-semibold text-lg text-foreground">{currentCategory?.name} Templates</h3>
+                <span className="text-xs text-muted-foreground">{filteredTemplates.length} templates available</span>
+              </div>
             </div>
 
-            <ScrollArea className="h-[calc(100%-3rem)]">
-              <div className="grid grid-cols-3 gap-3 pr-4">
+            <ScrollArea className="h-[calc(100%-4rem)]">
+              <div className="grid grid-cols-3 gap-4 pr-4">
                 {filteredTemplates.map((template) => {
                   const isSelected = selectedTemplate?.id === template.id;
                   const isHovered = previewTemplate?.id === template.id;
@@ -417,41 +423,38 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                       onClick={() => onSelect(template)}
                       onMouseEnter={() => setPreviewTemplate(template)}
                       onMouseLeave={() => setPreviewTemplate(null)}
-                      className={`group relative p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                      className={`group relative p-4 pt-5 rounded-xl border text-left transition-all duration-200 ${
                         isSelected
-                          ? 'border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-100'
+                          ? 'border-foreground/20 bg-muted shadow-md ring-1 ring-foreground/10'
                           : isHovered
-                          ? 'border-emerald-300 bg-card shadow-md'
-                          : 'border-border bg-card hover:border-muted-foreground/30'
+                          ? 'border-border bg-muted/50 shadow-sm'
+                          : 'border-border bg-card hover:bg-muted/30 hover:shadow-sm'
                       }`}
                     >
                       {isSelected && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
-                          <Check className="w-4 h-4 text-white" />
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-foreground rounded-full flex items-center justify-center">
+                          <Check className="w-3 h-3 text-background" />
                         </div>
                       )}
                       
                       <div className="flex items-start gap-3">
-                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
                           isSelected
-                            ? 'bg-secondary text-foreground border border-border'
-                            : 'bg-muted text-muted-foreground group-hover:bg-secondary group-hover:text-foreground'
+                            ? 'bg-foreground/10 text-foreground'
+                            : 'bg-muted text-muted-foreground group-hover:text-foreground'
                         }`}>
                           {template.icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-sm text-foreground truncate">{template.name}</h4>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{template.description}</p>
+                          <h4 className="font-semibold text-sm text-foreground">{template.name}</h4>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">{template.description}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 mt-3">
-                        <span className="px-2 py-1 bg-muted rounded-md text-xs text-muted-foreground font-medium">
+                        <span className="px-2.5 py-1 bg-background rounded-lg text-xs text-muted-foreground font-medium border border-border/50">
                           {template.keyPhases.length} Phases
                         </span>
-                        {isHovered && (
-                          <ArrowRight className="w-4 h-4 text-primary ml-auto animate-pulse" />
-                        )}
                       </div>
                     </button>
                   );
@@ -461,30 +464,30 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
           </div>
 
           {/* Preview Panel */}
-          <div className={`w-80 border-l border-border bg-muted/20 transition-all duration-300 ${previewTemplate ? 'opacity-100' : 'opacity-50'}`}>
+          <div className={`w-80 border-l border-border bg-muted/10 transition-all duration-300 ${previewTemplate ? 'opacity-100' : 'opacity-60'}`}>
             {previewTemplate ? (
               <div className="p-5 h-full flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-foreground border border-border">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-foreground">
                     {previewTemplate.icon}
                   </div>
                   <div>
-                    <h4 className="font-bold text-foreground">{previewTemplate.name}</h4>
-                    <p className="text-xs text-muted-foreground">{previewTemplate.description}</p>
+                    <h4 className="font-semibold text-foreground">{previewTemplate.name}</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{previewTemplate.description}</p>
                   </div>
                 </div>
 
-                <div className="space-y-4 flex-1">
+                <div className="space-y-5 flex-1 overflow-y-auto">
                   <div>
-                    <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Objective</h5>
-                    <p className="text-sm text-foreground bg-card p-3 rounded-lg border border-border">{previewTemplate.objective}</p>
+                    <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Objective</h5>
+                    <p className="text-sm text-foreground bg-background p-3 rounded-xl border border-border leading-relaxed">{previewTemplate.objective}</p>
                   </div>
 
                   <div>
-                    <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Call Phases</h5>
+                    <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Call Phases</h5>
                     <div className="flex flex-wrap gap-1.5">
                       {previewTemplate.keyPhases.map((phase, i) => (
-                        <span key={i} className="px-2.5 py-1 rounded-full text-xs font-medium bg-secondary text-foreground border border-border">
+                        <span key={i} className="px-2.5 py-1 rounded-lg text-xs font-medium bg-background text-foreground border border-border">
                           {phase}
                         </span>
                       ))}
@@ -492,17 +495,17 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                   </div>
 
                   <div>
-                    <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Tone</h5>
+                    <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Tone</h5>
                     <p className="text-sm text-foreground italic">{previewTemplate.recommendedTone}</p>
                   </div>
 
                   <div>
-                    <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Common Objections</h5>
-                    <ul className="space-y-1.5">
+                    <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Common Objections</h5>
+                    <ul className="space-y-2">
                       {previewTemplate.commonObjections.slice(0, 3).map((objection, i) => (
-                        <li key={i} className="text-xs text-muted-foreground flex items-center gap-2 bg-card p-2 rounded-md border border-border">
-                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                          {objection}
+                        <li key={i} className="text-xs text-muted-foreground flex items-start gap-2 bg-background p-2.5 rounded-lg border border-border">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1 shrink-0" />
+                          <span>{objection}</span>
                         </li>
                       ))}
                     </ul>
@@ -511,20 +514,19 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 
                 <Button 
                   onClick={() => onSelect(previewTemplate)}
-                  variant="secondary"
-                  className="w-full mt-4 border border-border"
+                  className="w-full mt-5 h-11"
                 >
                   Use This Template
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center p-5">
+              <div className="h-full flex items-center justify-center p-5 -mt-16">
                 <div className="text-center text-muted-foreground">
-                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
-                    <Sparkles className="w-8 h-8" />
+                  <div className="w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                    <Sparkles className="w-9 h-9" />
                   </div>
-                  <p className="text-sm">Hover Over Template For Preview</p>
+                  <p className="text-sm font-medium">Hover Over Template For Preview</p>
                 </div>
               </div>
             )}
