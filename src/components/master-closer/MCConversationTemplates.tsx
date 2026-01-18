@@ -423,8 +423,8 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                       }`}
                     >
                       {isActive && (
-                        <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                          <Check className="w-3 h-3 text-white" />
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-md">
+                          <Check className="w-3.5 h-3.5 text-white" />
                         </div>
                       )}
                       
