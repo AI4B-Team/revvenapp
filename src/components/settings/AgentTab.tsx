@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bot, Save, Mic, Volume2, MessageSquare, Sparkles, Globe, Mail, Phone, Upload, Image } from 'lucide-react';
+import { Bot, Save, Mic, Volume2, MessageSquare, Sparkles, Globe, Mail, Phone, Upload, Image, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -71,6 +71,9 @@ export default function AgentTab() {
   const [enableLearning, setEnableLearning] = useState(true);
   const [enableMemory, setEnableMemory] = useState(true);
   const [enableProactiveMessages, setEnableProactiveMessages] = useState(false);
+  
+  // SMS Settings
+  const [enableSms, setEnableSms] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -104,6 +107,9 @@ export default function AgentTab() {
           learning: enableLearning,
           memory: enableMemory,
           proactiveMessages: enableProactiveMessages,
+        },
+        sms: {
+          enabled: enableSms,
         },
       };
       
@@ -159,6 +165,11 @@ export default function AgentTab() {
           setEnableLearning(settings.capabilities.learning ?? true);
           setEnableMemory(settings.capabilities.memory ?? true);
           setEnableProactiveMessages(settings.capabilities.proactiveMessages ?? false);
+        }
+        
+        // SMS
+        if (settings.sms) {
+          setEnableSms(settings.sms.enabled ?? false);
         }
       } catch (error) {
         console.error('Failed to parse saved agent settings:', error);
@@ -472,6 +483,38 @@ export default function AgentTab() {
               onCheckedChange={setEnableProactiveMessages}
             />
           </div>
+        </div>
+      </div>
+
+      {/* SMS Settings Section */}
+      <div className="bg-white rounded-lg border border-gray-300 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Smartphone className="w-5 h-5 text-gray-600" />
+          <h3 className="font-semibold text-gray-900">SMS Settings</h3>
+        </div>
+        
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-5 h-5 text-gray-500" />
+              <div>
+                <p className="font-medium text-gray-900">Enable SMS With Agent</p>
+                <p className="text-sm text-gray-500">Text your agent for quick tasks and updates</p>
+              </div>
+            </div>
+            <Switch
+              checked={enableSms}
+              onCheckedChange={setEnableSms}
+            />
+          </div>
+          
+          {enableSms && (
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700">
+                SMS is enabled. Your agent will use the phone number configured above to send and receive text messages.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
