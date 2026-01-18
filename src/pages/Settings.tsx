@@ -330,9 +330,9 @@ export default function Settings() {
                 </TabsList>
 
           <TabsContent value="profile" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
               {/* Profile Header */}
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Profile</h2>
                   <p className="text-sm text-gray-500">
@@ -438,9 +438,9 @@ export default function Settings() {
                     </p>
                   </div>
                   <div className="col-span-2">
-                    <div className="border border-gray-200 rounded-lg">
+                    <div className="border border-gray-300 rounded-lg">
                       {/* Formatting Toolbar */}
-                      <div className="flex items-center gap-1 p-2 border-b border-gray-200">
+                      <div className="flex items-center gap-1 p-2 border-b border-gray-300">
                         <select className="text-sm border-none bg-transparent text-gray-700 focus:outline-none">
                           <option>Normal text</option>
                           <option>Heading 1</option>
@@ -474,7 +474,7 @@ export default function Settings() {
                       />
                       
                       {/* Character Count */}
-                      <div className="px-3 py-2 border-t border-gray-200">
+                      <div className="px-3 py-2 border-t border-gray-300">
                         <p className="text-xs text-gray-500">
                           {remainingChars} characters left
                         </p>
@@ -512,7 +512,7 @@ export default function Settings() {
                 </div>
 
                 {/* Alternative Contact Email */}
-                <div className="grid grid-cols-3 gap-4 items-start pb-6 border-b border-gray-200">
+                <div className="grid grid-cols-3 gap-4 items-start pb-6 border-b border-gray-300">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 block mb-1">
                       Alternative contact email
@@ -552,8 +552,8 @@ export default function Settings() {
 
           {/* My Details Tab */}
           <TabsContent value="my-details" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Personal Information</h2>
                   <p className="text-sm text-gray-500">
@@ -703,7 +703,7 @@ export default function Settings() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-3 pt-2 border-t border-gray-200">
+                <div className="flex justify-end gap-3 pt-2 border-t border-gray-300">
                   <Button variant="outline" className="text-gray-700 border-gray-200">
                     Cancel
                   </Button>
@@ -717,8 +717,8 @@ export default function Settings() {
 
           {/* Password Tab */}
           <TabsContent value="password" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Password</h2>
                   <p className="text-sm text-gray-500">
@@ -762,7 +762,7 @@ export default function Settings() {
                 </div>
 
                 {/* Confirm Password */}
-                <div className="grid grid-cols-3 gap-4 items-start pb-6 border-b border-gray-200">
+                <div className="grid grid-cols-3 gap-4 items-start pb-6 border-b border-gray-300">
                   <Label className="text-sm font-medium text-gray-700 pt-2">
                     Confirm Password
                   </Label>
@@ -790,8 +790,8 @@ export default function Settings() {
 
           {/* Plan Tab */}
           <TabsContent value="plan" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Current Plan</h2>
                   <p className="text-sm text-gray-500">
@@ -802,7 +802,7 @@ export default function Settings() {
 
               <div className="space-y-6">
                 {/* Current Plan Card */}
-                <div className="border border-gray-200 rounded-lg p-6">
+                <div className="border border-gray-300 rounded-lg p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
@@ -817,7 +817,7 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  <div className="space-y-3 pt-4 border-t border-gray-200">
+                  <div className="space-y-3 pt-4 border-t border-gray-300">
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <span className="text-green-500">✓</span>
                       <span>100,000 monthly credits</span>
@@ -838,7 +838,7 @@ export default function Settings() {
                 </div>
 
                 {/* Usage Stats */}
-                <div className="border border-gray-200 rounded-lg p-6">
+                <div className="border border-gray-300 rounded-lg p-6">
                   <h3 className="text-sm font-semibold text-gray-900 mb-4">Usage This Month</h3>
                   <div className="space-y-4">
                     <div>
@@ -865,10 +865,10 @@ export default function Settings() {
                 </div>
 
                 {/* Upgrade Options */}
-                <div className="pt-6 border-t border-gray-200">
+                <div className="pt-6 border-t border-gray-300">
                   <h3 className="text-sm font-semibold text-gray-900 mb-4">Available Plans</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors cursor-pointer">
+                    <div className="border border-gray-300 rounded-lg p-4 hover:border-purple-300 transition-colors cursor-pointer">
                       <div className="text-lg font-semibold text-gray-900 mb-1">Basic</div>
                       <div className="text-2xl font-bold text-gray-900 mb-2">$19<span className="text-sm font-normal text-gray-500">/mo</span></div>
                       <p className="text-sm text-gray-500 mb-4">50,000 credits/month</p>
@@ -888,8 +888,8 @@ export default function Settings() {
 
           {/* Subscription Tab with Cancel Section */}
           <TabsContent value="billing" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Subscription & Billing</h2>
                   <p className="text-sm text-gray-500">
@@ -900,7 +900,7 @@ export default function Settings() {
 
               <div className="space-y-6">
                 {/* Subscription Status */}
-                <div className="border border-gray-200 rounded-lg p-6">
+                <div className="border border-gray-300 rounded-lg p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-base font-semibold text-gray-900 mb-1">Active Subscription</h3>
@@ -909,7 +909,7 @@ export default function Settings() {
                     <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Active</Badge>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-300">
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Amount</p>
                       <p className="text-lg font-semibold text-gray-900">$49.00 / month</p>
@@ -922,7 +922,7 @@ export default function Settings() {
                 </div>
 
                 {/* Payment Method */}
-                <div className="border border-gray-200 rounded-lg p-6">
+                <div className="border border-gray-300 rounded-lg p-6">
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="text-base font-semibold text-gray-900">Payment Method</h3>
                     <Button variant="outline" size="sm" className="text-gray-700 border-gray-200">
@@ -942,7 +942,7 @@ export default function Settings() {
                 </div>
 
                 {/* Billing History */}
-                <div className="border border-gray-200 rounded-lg p-6">
+                <div className="border border-gray-300 rounded-lg p-6">
                   <h3 className="text-base font-semibold text-gray-900 mb-4">Recent Invoices</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
@@ -1022,8 +1022,8 @@ export default function Settings() {
 
           {/* Email Tab */}
           <TabsContent value="email" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Email Preferences</h2>
                   <p className="text-sm text-gray-500">
@@ -1034,7 +1034,7 @@ export default function Settings() {
 
               <div className="space-y-6">
                 {/* Primary Email */}
-                <div className="grid grid-cols-3 gap-4 items-start pb-6 border-b border-gray-200">
+                <div className="grid grid-cols-3 gap-4 items-start pb-6 border-b border-gray-300">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 block mb-1">
                       Primary Email
@@ -1092,7 +1092,7 @@ export default function Settings() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+                <div className="flex justify-end gap-3 pt-6 border-t border-gray-300">
                   <Button variant="outline" className="text-gray-700 border-gray-200">
                     Cancel
                   </Button>
@@ -1106,8 +1106,8 @@ export default function Settings() {
 
           {/* Notifications Tab */}
           <TabsContent value="notifications" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Notification Settings</h2>
                   <p className="text-sm text-gray-500">
@@ -1146,7 +1146,7 @@ export default function Settings() {
                 </div>
 
                 {/* In-App Notifications */}
-                <div className="pt-6 border-t border-gray-200">
+                <div className="pt-6 border-t border-gray-300">
                   <h3 className="text-sm font-semibold text-gray-900 mb-4">In-App Notifications</h3>
                   <div className="space-y-4">
                     <div className="flex items-start justify-between py-3">
@@ -1174,7 +1174,7 @@ export default function Settings() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+                <div className="flex justify-end gap-3 pt-6 border-t border-gray-300">
                   <Button variant="outline" className="text-gray-700 border-gray-200">
                     Cancel
                   </Button>
@@ -1188,8 +1188,8 @@ export default function Settings() {
 
           {/* Integrations Tab */}
           <TabsContent value="integrations" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Integrations</h2>
                   <p className="text-sm text-gray-500">
@@ -1203,7 +1203,7 @@ export default function Settings() {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900 mb-4">Connected</h3>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                           <span className="text-xl">🔵</span>
@@ -1217,7 +1217,7 @@ export default function Settings() {
                         Disconnect
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                           <span className="text-xl">📱</span>
@@ -1235,10 +1235,10 @@ export default function Settings() {
                 </div>
 
                 {/* Available Integrations */}
-                <div className="pt-6 border-t border-gray-200">
+                <div className="pt-6 border-t border-gray-300">
                   <h3 className="text-sm font-semibold text-gray-900 mb-4">Available Integrations</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-purple-300 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                           <span className="text-xl">📧</span>
@@ -1252,7 +1252,7 @@ export default function Settings() {
                         Connect
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-purple-300 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                           <span className="text-xl">📊</span>
@@ -1266,7 +1266,7 @@ export default function Settings() {
                         Connect
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-purple-300 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                           <span className="text-xl">💳</span>
@@ -1280,7 +1280,7 @@ export default function Settings() {
                         Connect
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-purple-300 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                           <span className="text-xl">📝</span>
@@ -1302,8 +1302,8 @@ export default function Settings() {
 
           {/* API Tab */}
           <TabsContent value="api" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">API Keys</h2>
                   <p className="text-sm text-gray-500">
@@ -1320,7 +1320,7 @@ export default function Settings() {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900 mb-4">Active API Keys</h3>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-sm font-medium text-gray-900">Production API Key</p>
@@ -1338,7 +1338,7 @@ export default function Settings() {
                         Revoke
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-sm font-medium text-gray-900">Development API Key</p>
@@ -1360,9 +1360,9 @@ export default function Settings() {
                 </div>
 
                 {/* API Documentation */}
-                <div className="pt-6 border-t border-gray-200">
+                <div className="pt-6 border-t border-gray-300">
                   <h3 className="text-sm font-semibold text-gray-900 mb-4">API Documentation</h3>
-                  <div className="border border-gray-200 rounded-lg p-4">
+                  <div className="border border-gray-300 rounded-lg p-4">
                     <p className="text-sm text-gray-700 mb-4">
                       Learn how to integrate REVVEN's API into your applications.
                     </p>
@@ -1381,9 +1381,9 @@ export default function Settings() {
                 </div>
 
                 {/* Rate Limits */}
-                <div className="pt-6 border-t border-gray-200">
+                <div className="pt-6 border-t border-gray-300">
                   <h3 className="text-sm font-semibold text-gray-900 mb-4">Rate Limits</h3>
-                  <div className="border border-gray-200 rounded-lg p-4">
+                  <div className="border border-gray-300 rounded-lg p-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Requests per minute</p>
@@ -1412,7 +1412,7 @@ export default function Settings() {
           </TabsContent>
 
           <TabsContent value="workspace" className="mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
               <WorkspaceTab />
             </div>
           </TabsContent>

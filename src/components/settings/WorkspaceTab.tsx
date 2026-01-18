@@ -85,7 +85,7 @@ export default function WorkspaceTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="pb-6 border-b border-gray-200">
+      <div className="pb-6 border-b border-gray-300">
         <h2 className="text-lg font-semibold text-gray-900 mb-1">Workspace</h2>
         <p className="text-sm text-gray-500">
           Configure your workspace preferences and agent settings.
@@ -94,7 +94,7 @@ export default function WorkspaceTab() {
 
       {/* Space Settings */}
       {selectedSpace && (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white rounded-lg border border-gray-300 p-6">
           <div className="flex items-center gap-3 mb-4">
             <Settings className="w-5 h-5 text-gray-600" />
             <h3 className="font-semibold text-gray-900">Space Settings</h3>
@@ -133,7 +133,7 @@ export default function WorkspaceTab() {
       )}
 
       {/* Appearance */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-300 p-6">
         <div className="flex items-center gap-3 mb-4">
           <Palette className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-gray-900">Appearance</h3>
@@ -160,7 +160,7 @@ export default function WorkspaceTab() {
       </div>
 
       {/* Your Agent Section */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-300 p-6">
         <div className="flex items-center gap-3 mb-4">
           <Bot className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-gray-900">Your Agent</h3>
@@ -194,7 +194,7 @@ export default function WorkspaceTab() {
       </div>
 
       {/* Notifications Section */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-300 p-6">
         <div className="flex items-center gap-3 mb-4">
           <Bell className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-gray-900">Notifications</h3>
@@ -218,7 +218,7 @@ export default function WorkspaceTab() {
       </div>
 
       {/* SMS Settings Section */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-300 p-6">
         <div className="flex items-center gap-3 mb-4">
           <Phone className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-gray-900">SMS Settings</h3>
@@ -254,7 +254,7 @@ export default function WorkspaceTab() {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-4 border-t border-gray-300">
         {selectedSpace && spaces.length > 1 && (
           <Button
             variant="ghost"

@@ -151,7 +151,7 @@ export default function AccountSidebar({
   };
 
   return (
-    <div className="w-72 bg-card text-card-foreground border border-border rounded-xl p-4 flex flex-col gap-4">
+    <div className="w-72 bg-card text-card-foreground border border-gray-300 rounded-xl p-4 flex flex-col gap-4">
       {/* User Profile Section */}
       <div className="flex flex-col items-center text-center pb-4">
         <Avatar className="w-16 h-16 mb-3 border-2 border-emerald-500">
