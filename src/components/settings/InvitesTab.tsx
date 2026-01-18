@@ -140,7 +140,7 @@ export default function InvitesTab() {
         <Button
           onClick={generateInviteCode}
           disabled={isGenerating}
-          className="bg-gradient-to-r from-brand-purple via-brand-red to-brand-red hover:opacity-90 text-white px-12 py-6 text-lg font-semibold rounded-xl shadow-lg h-auto"
+          className="bg-brand-green hover:bg-brand-green/90 text-primary px-12 py-6 text-lg font-semibold rounded-xl shadow-lg h-auto"
         >
           {isGenerating ? 'Generating...' : 'Generate Invite Code'}
         </Button>
@@ -168,7 +168,7 @@ export default function InvitesTab() {
             </p>
             <Button
               onClick={generateInviteCode}
-              className="bg-gradient-to-r from-brand-purple via-brand-red to-brand-red hover:opacity-90 text-white"
+              className="bg-brand-green hover:bg-brand-green/90 text-primary"
             >
               Generate Your First Code
             </Button>
