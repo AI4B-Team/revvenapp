@@ -403,7 +403,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
               </div>
               <div>
                 <h3 className="font-semibold text-lg text-foreground">{currentCategory?.name} Templates</h3>
-                <span className="text-xs text-muted-foreground">{filteredTemplates.length} templates available</span>
+                <span className="text-xs text-muted-foreground">{filteredTemplates.length} Templates Available</span>
               </div>
             </div>
 
