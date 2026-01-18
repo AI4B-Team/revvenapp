@@ -19,6 +19,7 @@ import MembersTab from '@/components/settings/MembersTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
 import CancellationFlow from '@/components/settings/CancellationFlow';
 import SubscriptionOverview from '@/components/settings/SubscriptionOverview';
+import CancelSubscriptionSection from '@/components/settings/CancelSubscriptionSection';
 import TeamMembersSection from '@/components/settings/TeamMembersSection';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -911,13 +912,6 @@ export default function Settings() {
                   onCancelClick={() => setIsCancellationOpen(true)} 
                   isPendingCancellation={isPendingCancellation}
                   cancellationDate={cancellationDate}
-                  onReactivate={() => {
-                    setIsPendingCancellation(false);
-                    toast({
-                      title: "Subscription Reactivated",
-                      description: "Your subscription has been reactivated successfully.",
-                    });
-                  }}
                 />
 
                 {/* Team Members */}
@@ -953,7 +947,7 @@ export default function Settings() {
                         <p className="text-xs text-gray-500">Paid on Dec 1, 2025</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900">$79.00</span>
+                        <span className="text-sm font-medium text-gray-900">$47.00</span>
                         <Button variant="ghost" size="sm" className="text-brand-green hover:text-brand-green/80">
                           Download
                         </Button>
@@ -965,7 +959,7 @@ export default function Settings() {
                         <p className="text-xs text-gray-500">Paid on Nov 1, 2025</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900">$79.00</span>
+                        <span className="text-sm font-medium text-gray-900">$47.00</span>
                         <Button variant="ghost" size="sm" className="text-brand-green hover:text-brand-green/80">
                           Download
                         </Button>
@@ -977,7 +971,7 @@ export default function Settings() {
                         <p className="text-xs text-gray-500">Paid on Oct 1, 2025</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900">$79.00</span>
+                        <span className="text-sm font-medium text-gray-900">$47.00</span>
                         <Button variant="ghost" size="sm" className="text-brand-green hover:text-brand-green/80">
                           Download
                         </Button>
@@ -988,6 +982,19 @@ export default function Settings() {
                     View All Invoices
                   </Button>
                 </div>
+
+                <CancelSubscriptionSection
+                  onCancelClick={() => setIsCancellationOpen(true)}
+                  isPendingCancellation={isPendingCancellation}
+                  cancellationDate={cancellationDate}
+                  onReactivate={() => {
+                    setIsPendingCancellation(false);
+                    toast({
+                      title: 'Subscription Reactivated',
+                      description: 'Your subscription has been reactivated successfully.',
+                    });
+                  }}
+                />
               </div>
             </div>
           </TabsContent>
