@@ -408,7 +408,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
             </div>
 
             <ScrollArea className="h-[calc(100%-4rem)]">
-              <div className="grid grid-cols-3 gap-4 pr-4">
+              <div className="grid grid-cols-3 gap-4 pr-4 pt-2">
                 {filteredTemplates.map((template) => {
                   const isActive = previewTemplate?.id === template.id;
                   
