@@ -93,16 +93,6 @@ const Signature = lazy(() => import("./pages/Signature"));
 const MasterCloser = lazy(() => import("./pages/MasterCloser"));
 const SpaceSettings = lazy(() => import("./pages/SpaceSettings"));
 
-// Admin pages
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
-const AdminPosts = lazy(() => import("./pages/admin/AdminPosts"));
-const AdminImages = lazy(() => import("./pages/admin/AdminImages"));
-const AdminVideos = lazy(() => import("./pages/admin/AdminVideos"));
-const AdminAudio = lazy(() => import("./pages/admin/AdminAudio"));
-const AdminRoles = lazy(() => import("./pages/admin/AdminRoles"));
-const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
-const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 
 const queryClient = new QueryClient();
 
@@ -199,16 +189,7 @@ const App = () => (
                           <Route path="/account" element={<Settings />} />
                           <Route path="/brand" element={<Brand />} />
                           <Route path="/space-settings" element={<SpaceSettings />} />
-                          {/* Admin Routes */}
-                          <Route path="/manage" element={<AdminDashboard />} />
-                          <Route path="/manage/users" element={<AdminUsers />} />
-                          <Route path="/manage/posts" element={<AdminPosts />} />
-                          <Route path="/manage/images" element={<AdminImages />} />
-                          <Route path="/manage/videos" element={<AdminVideos />} />
-                          <Route path="/manage/audio" element={<AdminAudio />} />
-                          <Route path="/manage/roles" element={<AdminRoles />} />
-                          <Route path="/manage/analytics" element={<AdminAnalytics />} />
-                          <Route path="/manage/settings" element={<AdminSettings />} />
+                          {/* Admin is now accessible via /account?tab=admin */}
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
                         </Routes>
