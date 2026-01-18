@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Zap, Users, Package, ExternalLink, Settings, Info } from 'lucide-react';
+import { Zap, Users, Package, ExternalLink, Settings, Info, LayoutGrid, Plus } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -37,6 +37,11 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
     used: 3,
   };
 
+  const workspacesData = {
+    total: 3,
+    used: 2,
+  };
+
   const teamCredits = {
     used: 62333,
     total: 98000,
@@ -57,8 +62,8 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
           </Button>
         </div>
 
-        {/* Three Card Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Four Card Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Current Plan Card */}
           <div className="border border-gray-300 rounded-xl p-5 bg-gradient-to-br from-white to-gray-50">
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
@@ -140,6 +145,41 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
               </Button>
               <Button variant="outline" size="sm" className="w-full">
                 Invite Teammate
+              </Button>
+            </div>
+          </div>
+
+          {/* Workspaces Card */}
+          <div className="border border-gray-300 rounded-xl p-5 bg-gradient-to-br from-white to-gray-50">
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+              <LayoutGrid className="w-4 h-4" />
+              <span>Workspaces</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="w-3 h-3 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Separate environments for different projects or clients</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="mb-1">
+              <span className="text-2xl font-bold text-gray-900">{workspacesData.total}</span>
+            </div>
+            <div className="mb-4">
+              <Progress value={(workspacesData.used / workspacesData.total) * 100} className="h-1.5 mb-1" />
+              <p className="text-xs text-gray-500">{workspacesData.used} of {workspacesData.total} workspaces in use</p>
+            </div>
+            <div className="space-y-2">
+              <Button variant="outline" size="sm" className="w-full gap-2">
+                <Settings className="w-4 h-4" />
+                Manage Workspaces
+              </Button>
+              <Button variant="outline" size="sm" className="w-full gap-2">
+                <Plus className="w-4 h-4" />
+                Add Workspace
               </Button>
             </div>
           </div>

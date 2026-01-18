@@ -965,7 +965,7 @@ export default function Settings() {
                     </div>
                   </div>
                   <Button variant="outline" className="w-full mt-4 text-gray-700 border-gray-200">
-                    View all invoices
+                    View All Invoices
                   </Button>
                 </div>
               </div>
