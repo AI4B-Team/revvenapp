@@ -62,7 +62,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
         </div>
 
         {/* Subscription Cards Container */}
-        <div className="border border-gray-300 rounded-xl p-5 space-y-4">
+        <div className="border border-gray-400 rounded-xl p-5 space-y-4">
           {/* Top Row - Current Plan & Credits Pack */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Current Plan Card - Highlighted */}
@@ -186,7 +186,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
                   Manage Seats
                 </Button>
                 <Button variant="outline" size="sm" className="flex-1">
-                  Invite Member
+                  Invite Members
                 </Button>
               </div>
             </div>
@@ -194,7 +194,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
         </div>
 
         {/* Team Shared Credits - Different background color */}
-        <div className="border border-brand-blue/30 rounded-xl p-5 bg-gradient-to-br from-brand-blue/5 to-brand-blue/10">
+        <div className="border border-gray-400 rounded-xl p-5 bg-gradient-to-br from-brand-blue/5 to-brand-blue/10">
           <h4 className="text-base font-semibold text-gray-900 mb-4">Team Shared Credits</h4>
           <div className="flex items-center justify-between">
             <div className="space-y-2 flex-1">
