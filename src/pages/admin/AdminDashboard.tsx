@@ -175,7 +175,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Click to see who's online
+                  Click To See Who's Online
                 </div>
               </div>
             </CardContent>
