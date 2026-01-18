@@ -396,11 +396,12 @@ export default function Settings() {
                     </p>
                   </div>
                   <div className="col-span-2 flex items-center gap-4">
-                    <img
-                      src={profilePhoto}
-                      alt="Profile"
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
+                    <Avatar className="w-16 h-16">
+                      <AvatarImage src={profilePhoto} alt="Profile" />
+                      <AvatarFallback className="bg-gray-100 text-gray-600 text-lg">
+                        {userFullName ? userFullName.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="flex gap-3">
                       <Button
                         variant="outline"
