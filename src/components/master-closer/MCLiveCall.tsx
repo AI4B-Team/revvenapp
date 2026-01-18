@@ -81,92 +81,180 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(1); // Start at phase 2 (index 1)
   const [phaseDurations, setPhaseDurations] = useState<Record<number, number>>({ 0: 150 }); // Phase 0 completed at 2:30
 
-  // Generate template-specific mock conversations
-  const getTemplateConversation = (template: ConversationTemplate | null | undefined): TranscriptMessage[] => {
+  // Phase-specific conversation additions for each template
+  const getPhaseConversation = (template: ConversationTemplate | null | undefined, phaseIndex: number): TranscriptMessage[] => {
     const speakerType: 'you' | 'agent' = callMode === 'voice-agent' ? 'agent' : 'you';
     
     if (!template) {
-      return [
-        { id: '1', speaker: speakerType, text: "Hey, thanks for hopping on. Really appreciate you making the time.", timestamp: '00:00', confidence: 95 },
-        { id: '2', speaker: 'prospect', text: "No problem. I've only got about 15 minutes though - we're actually pretty happy with what we have.", timestamp: '00:05', confidence: 92 }
-      ];
+      const defaultPhases: Record<number, TranscriptMessage[]> = {
+        0: [
+          { id: 'p0-1', speaker: speakerType, text: "Hey, thanks for hopping on. Really appreciate you making the time.", timestamp: '00:00', confidence: 95 },
+          { id: 'p0-2', speaker: 'prospect', text: "No problem. I've only got about 15 minutes though.", timestamp: '00:05', confidence: 92 }
+        ],
+        1: [
+          { id: 'p1-1', speaker: speakerType, text: "So tell me a bit about what's going on over there. What are you currently working with?", timestamp: '02:30', confidence: 94 },
+          { id: 'p1-2', speaker: 'prospect', text: "Honestly, we've been struggling with our current setup. It's slowing us down.", timestamp: '02:45', confidence: 91 }
+        ],
+        2: [
+          { id: 'p2-1', speaker: speakerType, text: "Based on what you've shared, I think we can really help here. Let me show you how.", timestamp: '05:00', confidence: 96 },
+          { id: 'p2-2', speaker: 'prospect', text: "Okay, I'm listening. What would that look like for us?", timestamp: '05:12', confidence: 93 }
+        ],
+        3: [
+          { id: 'p3-1', speaker: speakerType, text: "So here's what I'm thinking for next steps. Does a follow-up Thursday work for you?", timestamp: '08:30', confidence: 95 },
+          { id: 'p3-2', speaker: 'prospect', text: "Yeah, Thursday afternoon works. Send me a calendar invite.", timestamp: '08:42', confidence: 94 }
+        ]
+      };
+      return defaultPhases[phaseIndex] || [];
     }
 
-    const mockConversations: Record<string, TranscriptMessage[]> = {
-      'discovery-call': [
-        { id: '1', speaker: speakerType, text: "Hey! Thanks for taking the time today. I'm really curious to learn more about what's going on over there.", timestamp: '00:00', confidence: 96 },
-        { id: '2', speaker: 'prospect', text: "Yeah, happy to chat. We've got about 30 minutes. Been looking at some options for next quarter.", timestamp: '00:08', confidence: 94 }
-      ],
-      'inbound-sales': [
-        { id: '1', speaker: speakerType, text: "Hey! So glad you reached out. Saw you came through the website - what got your attention?", timestamp: '00:00', confidence: 97 },
-        { id: '2', speaker: 'prospect', text: "Honestly, I watched your demo and thought 'this is exactly what we need.' Our current tool has been a nightmare.", timestamp: '00:06', confidence: 95 }
-      ],
-      'outbound-sales': [
-        { id: '1', speaker: speakerType, text: "Hey, I know you weren't expecting this call. Got 30 seconds for me to explain why I'm reaching out?", timestamp: '00:00', confidence: 93 },
-        { id: '2', speaker: 'prospect', text: "Uh... I'm pretty slammed right now. What is this about?", timestamp: '00:04', confidence: 88 }
-      ],
-      'high-ticket-sales': [
-        { id: '1', speaker: speakerType, text: "Thanks for joining. Look, I'll be real - this isn't for everyone. I want to figure out if we're even the right fit before we go further.", timestamp: '00:00', confidence: 98 },
-        { id: '2', speaker: 'prospect', text: "I appreciate that honesty. I've done my homework and I'm ready to make a move. What do you need from me?", timestamp: '00:10', confidence: 96 }
-      ],
-      'investor-pitch': [
-        { id: '1', speaker: speakerType, text: "Thanks for the meeting. We're tackling a $50 billion market that's completely broken - and we've got a unique angle.", timestamp: '00:00', confidence: 97 },
-        { id: '2', speaker: 'prospect', text: "Okay, I'm listening. What do you see that the big players are missing?", timestamp: '00:08', confidence: 94 }
-      ],
-      'hiring-interview': [
-        { id: '1', speaker: speakerType, text: "Thanks for coming in! I've gone through your background - really impressive. What made you interested in this role?", timestamp: '00:00', confidence: 95 },
-        { id: '2', speaker: 'prospect', text: "I've been following your growth for a while. This role fits exactly where I want to take my career next.", timestamp: '00:07', confidence: 93 }
-      ],
-      'negotiation': [
-        { id: '1', speaker: speakerType, text: "Alright, I've gone through everything. We're close, but there's a few things I'd like to work through before we finalize.", timestamp: '00:00', confidence: 94 },
-        { id: '2', speaker: 'prospect', text: "Sure, we want to make this work too. Just know we have some hard constraints on our end.", timestamp: '00:06', confidence: 91 }
-      ],
-      'performance-review': [
-        { id: '1', speaker: speakerType, text: "Thanks for sitting down with me. Want to have an honest conversation about how things are going and where you want to head.", timestamp: '00:00', confidence: 96 },
-        { id: '2', speaker: 'prospect', text: "Yeah, I've been thinking about this a lot actually. There's some stuff I want to talk through too.", timestamp: '00:08', confidence: 92 }
-      ],
-      'conflict-resolution': [
-        { id: '1', speaker: speakerType, text: "I appreciate you being willing to talk. I feel like there's been some miscommunication and I really want to hear your side.", timestamp: '00:00', confidence: 93 },
-        { id: '2', speaker: 'prospect', text: "Yeah, I think we need to clear the air. Honestly, I've been pretty frustrated with how things went down.", timestamp: '00:07', confidence: 89 }
-      ],
-      'client-success': [
-        { id: '1', speaker: speakerType, text: "Hey! Great to connect for our quarterly check-in. Been looking at your numbers - got some wins to celebrate and ideas to share.", timestamp: '00:00', confidence: 97 },
-        { id: '2', speaker: 'prospect', text: "Awesome! Yeah, we've been really happy. There's also a few things we've been meaning to ask about.", timestamp: '00:06', confidence: 95 }
-      ],
-      'cold-outreach': [
-        { id: '1', speaker: speakerType, text: "Hey, I know we haven't talked before. Saw you just announced some big news - congrats! Had a quick idea that might be relevant.", timestamp: '00:00', confidence: 91 },
-        { id: '2', speaker: 'prospect', text: "Oh, thanks! Yeah, it's been crazy. What were you thinking?", timestamp: '00:05', confidence: 87 }
-      ],
-      'partnership-discussion': [
-        { id: '1', speaker: speakerType, text: "Thanks for exploring this with us. I really think there's something here between our companies.", timestamp: '00:00', confidence: 95 },
-        { id: '2', speaker: 'prospect', text: "Same here. We've been looking for the right partner. What does success look like from your side?", timestamp: '00:08', confidence: 94 }
-      ],
-      'coaching-session': [
-        { id: '1', speaker: speakerType, text: "Good to see you! Before we jump in - how are you feeling about what we worked on last time?", timestamp: '00:00', confidence: 96 },
-        { id: '2', speaker: 'prospect', text: "Made some progress, but that confidence thing we talked about? Still struggling with it.", timestamp: '00:06', confidence: 90 }
-      ],
-      'sales-demo': [
-        { id: '1', speaker: speakerType, text: "Thanks for joining! Before I show you anything, I want to make sure I really understand what you're trying to solve.", timestamp: '00:00', confidence: 97 },
-        { id: '2', speaker: 'prospect', text: "Yeah, so our biggest issue is our current workflow. We've tried a couple tools but nothing's stuck.", timestamp: '00:07', confidence: 93 }
-      ]
+    // Template-specific phase conversations
+    const templatePhaseConversations: Record<string, Record<number, TranscriptMessage[]>> = {
+      'discovery-call': {
+        0: [
+          { id: 'p0-1', speaker: speakerType, text: "Hey! Thanks for taking the time today. I'm really curious to learn more about what's going on over there.", timestamp: '00:00', confidence: 96 },
+          { id: 'p0-2', speaker: 'prospect', text: "Yeah, happy to chat. We've got about 30 minutes. Been looking at some options for next quarter.", timestamp: '00:08', confidence: 94 }
+        ],
+        1: [
+          { id: 'p1-1', speaker: speakerType, text: "Walk me through a typical week for your team. Where are the biggest bottlenecks?", timestamp: '02:30', confidence: 95 },
+          { id: 'p1-2', speaker: 'prospect', text: "The biggest thing is our reporting. Takes my team hours every week to pull data together.", timestamp: '02:50', confidence: 92 }
+        ],
+        2: [
+          { id: 'p2-1', speaker: speakerType, text: "So based on what you've told me, sounds like you need something that automates those reports. We've seen teams cut that time by 80%.", timestamp: '06:00', confidence: 97 },
+          { id: 'p2-2', speaker: 'prospect', text: "80%? That would be huge. How does that actually work?", timestamp: '06:15', confidence: 94 }
+        ],
+        3: [
+          { id: 'p3-1', speaker: speakerType, text: "I'd love to show you this in action with your actual data. Can we set up a technical deep-dive next week?", timestamp: '12:00', confidence: 96 },
+          { id: 'p3-2', speaker: 'prospect', text: "Yeah, let's do it. Loop in my ops manager too - she'll want to see this.", timestamp: '12:15', confidence: 95 }
+        ]
+      },
+      'inbound-sales': {
+        0: [
+          { id: 'p0-1', speaker: speakerType, text: "Hey! So glad you reached out. Saw you came through the website - what got your attention?", timestamp: '00:00', confidence: 97 },
+          { id: 'p0-2', speaker: 'prospect', text: "Honestly, I watched your demo and thought 'this is exactly what we need.' Our current tool has been a nightmare.", timestamp: '00:06', confidence: 95 }
+        ],
+        1: [
+          { id: 'p1-1', speaker: speakerType, text: "I hear that a lot. What specifically has been the nightmare? I want to make sure we can actually solve it.", timestamp: '01:30', confidence: 96 },
+          { id: 'p1-2', speaker: 'prospect', text: "The interface is clunky, integrations keep breaking, and support takes forever to respond.", timestamp: '01:45', confidence: 93 }
+        ],
+        2: [
+          { id: 'p2-1', speaker: speakerType, text: "Okay, so reliability and support are huge for you. Good news - that's literally our bread and butter. Let me show you our uptime stats.", timestamp: '04:00', confidence: 97 },
+          { id: 'p2-2', speaker: 'prospect', text: "Yeah, please. I need to see the receipts before I can sell this internally.", timestamp: '04:15', confidence: 94 }
+        ],
+        3: [
+          { id: 'p3-1', speaker: speakerType, text: "I can send over a case study from a company in your space. What's the timeline you're working with?", timestamp: '08:00', confidence: 96 },
+          { id: 'p3-2', speaker: 'prospect', text: "We need something in place by end of Q1. Can you make that happen?", timestamp: '08:12', confidence: 95 }
+        ]
+      },
+      'outbound-sales': {
+        0: [
+          { id: 'p0-1', speaker: speakerType, text: "Hey, I know you weren't expecting this call. Got 30 seconds for me to explain why I'm reaching out?", timestamp: '00:00', confidence: 93 },
+          { id: 'p0-2', speaker: 'prospect', text: "Uh... I'm pretty slammed right now. What is this about?", timestamp: '00:04', confidence: 88 }
+        ],
+        1: [
+          { id: 'p1-1', speaker: speakerType, text: "Fair enough, I'll be quick. I saw you guys just expanded your sales team. Usually that means more pipeline chaos. Am I off base?", timestamp: '00:30', confidence: 91 },
+          { id: 'p1-2', speaker: 'prospect', text: "Ha, no you're right. It's been... a lot. What do you have in mind?", timestamp: '00:45', confidence: 89 }
+        ],
+        2: [
+          { id: 'p2-1', speaker: speakerType, text: "We help teams like yours scale without the chaos. Just helped a 50-person sales team cut ramp time in half.", timestamp: '02:00', confidence: 94 },
+          { id: 'p2-2', speaker: 'prospect', text: "Okay, that's interesting. How'd they do that?", timestamp: '02:12', confidence: 91 }
+        ],
+        3: [
+          { id: 'p3-1', speaker: speakerType, text: "I can send you the breakdown. Worth 15 minutes next week to see if it fits your situation?", timestamp: '05:00', confidence: 93 },
+          { id: 'p3-2', speaker: 'prospect', text: "Yeah, send it over. If it looks good, let's talk Tuesday.", timestamp: '05:10', confidence: 90 }
+        ]
+      },
+      'high-ticket-sales': {
+        0: [
+          { id: 'p0-1', speaker: speakerType, text: "Thanks for joining. Look, I'll be real - this isn't for everyone. I want to figure out if we're even the right fit before we go further.", timestamp: '00:00', confidence: 98 },
+          { id: 'p0-2', speaker: 'prospect', text: "I appreciate that honesty. I've done my homework and I'm ready to make a move. What do you need from me?", timestamp: '00:10', confidence: 96 }
+        ],
+        1: [
+          { id: 'p1-1', speaker: speakerType, text: "Tell me about your current situation. What's at stake if you don't solve this in the next 6 months?", timestamp: '02:00', confidence: 97 },
+          { id: 'p1-2', speaker: 'prospect', text: "Honestly? We'll lose market share. Our competitors are moving fast and we're behind.", timestamp: '02:20', confidence: 95 }
+        ],
+        2: [
+          { id: 'p2-1', speaker: speakerType, text: "Let me paint a picture of what's possible. Our top clients in your space are seeing 3x ROI within the first year.", timestamp: '08:00', confidence: 98 },
+          { id: 'p2-2', speaker: 'prospect', text: "3x? Walk me through how you're calculating that.", timestamp: '08:15', confidence: 96 }
+        ],
+        3: [
+          { id: 'p3-1', speaker: speakerType, text: "I want you to talk to one of our clients directly. Then we can discuss the investment. Does that work for you?", timestamp: '20:00', confidence: 97 },
+          { id: 'p3-2', speaker: 'prospect', text: "Yeah, I'd like that. Set it up and let's move forward from there.", timestamp: '20:15', confidence: 96 }
+        ]
+      },
+      'sales-demo': {
+        0: [
+          { id: 'p0-1', speaker: speakerType, text: "Thanks for joining! Before I show you anything, I want to make sure I really understand what you're trying to solve.", timestamp: '00:00', confidence: 97 },
+          { id: 'p0-2', speaker: 'prospect', text: "Yeah, so our biggest issue is our current workflow. We've tried a couple tools but nothing's stuck.", timestamp: '00:07', confidence: 93 }
+        ],
+        1: [
+          { id: 'p1-1', speaker: speakerType, text: "What made the other tools not stick? Was it adoption, features, or something else?", timestamp: '01:30', confidence: 95 },
+          { id: 'p1-2', speaker: 'prospect', text: "Mostly adoption. The team just didn't want to use them - too complicated.", timestamp: '01:45', confidence: 92 }
+        ],
+        2: [
+          { id: 'p2-1', speaker: speakerType, text: "Okay, let me share my screen. I'm going to show you the simplest workflow possible - the one most teams start with.", timestamp: '04:00', confidence: 97 },
+          { id: 'p2-2', speaker: 'prospect', text: "Oh wow, that's actually really clean. My team could definitely use this.", timestamp: '05:30', confidence: 95 }
+        ],
+        3: [
+          { id: 'p3-1', speaker: speakerType, text: "I can set you up with a trial and have our onboarding team walk your folks through it. Sound good?", timestamp: '15:00', confidence: 96 },
+          { id: 'p3-2', speaker: 'prospect', text: "Yeah, let's do it. I want to test it with my team next week.", timestamp: '15:12', confidence: 95 }
+        ]
+      }
     };
 
-    return mockConversations[template.id] || [
-      { id: '1', speaker: speakerType, text: "Hey, thanks for making time for this. Really looking forward to our conversation.", timestamp: '00:00', confidence: 95 },
-      { id: '2', speaker: 'prospect', text: "Yeah, happy to be here. Let's get into it.", timestamp: '00:05', confidence: 93 }
-    ];
+    // Get template-specific conversation or fall back to defaults
+    const templateConvo = templatePhaseConversations[template.id];
+    if (templateConvo && templateConvo[phaseIndex]) {
+      return templateConvo[phaseIndex];
+    }
+
+    // Generic phase conversations for templates without specific ones
+    const genericPhases: Record<number, TranscriptMessage[]> = {
+      0: [
+        { id: 'p0-1', speaker: speakerType, text: "Hey, thanks for making time for this. Really looking forward to our conversation.", timestamp: '00:00', confidence: 95 },
+        { id: 'p0-2', speaker: 'prospect', text: "Yeah, happy to be here. Let's get into it.", timestamp: '00:05', confidence: 93 }
+      ],
+      1: [
+        { id: 'p1-1', speaker: speakerType, text: "So tell me what's been going on. What brought you to this point?", timestamp: '02:30', confidence: 94 },
+        { id: 'p1-2', speaker: 'prospect', text: "Well, we've been dealing with some challenges that we think you might be able to help with.", timestamp: '02:45', confidence: 91 }
+      ],
+      2: [
+        { id: 'p2-1', speaker: speakerType, text: "Based on everything you've shared, here's what I think would work best for your situation.", timestamp: '06:00', confidence: 96 },
+        { id: 'p2-2', speaker: 'prospect', text: "That sounds promising. Tell me more about how that would work.", timestamp: '06:12', confidence: 93 }
+      ],
+      3: [
+        { id: 'p3-1', speaker: speakerType, text: "So here's what I'm thinking for next steps. What works best for you?", timestamp: '10:00', confidence: 95 },
+        { id: 'p3-2', speaker: 'prospect', text: "Yeah, let's move forward. What do you need from me?", timestamp: '10:12', confidence: 94 }
+      ]
+    };
+    return genericPhases[phaseIndex] || [];
+  };
+
+  // Build full transcript from all completed and current phases
+  const buildTranscriptFromPhases = (template: ConversationTemplate | null | undefined, currentPhase: number): TranscriptMessage[] => {
+    const allMessages: TranscriptMessage[] = [];
+    for (let i = 0; i <= currentPhase; i++) {
+      const phaseMessages = getPhaseConversation(template, i);
+      allMessages.push(...phaseMessages);
+    }
+    return allMessages;
   };
   
-  const [transcript, setTranscript] = useState<TranscriptMessage[]>(getTemplateConversation(selectedTemplate));
+  const [transcript, setTranscript] = useState<TranscriptMessage[]>(buildTranscriptFromPhases(selectedTemplate, currentPhaseIndex));
 
   // Update transcript when template changes
   useEffect(() => {
-    const newConversation = getTemplateConversation(selectedTemplate);
+    const newConversation = buildTranscriptFromPhases(selectedTemplate, 1); // Start at phase index 1
     setTranscript(newConversation);
     setCallDuration(0); // Reset call duration
     setCurrentPhaseIndex(1); // Reset to phase 2
     setPhaseDurations({ 0: 150 }); // Reset phase durations
   }, [selectedTemplate]);
+
+  // Update transcript when phase advances
+  useEffect(() => {
+    const updatedTranscript = buildTranscriptFromPhases(selectedTemplate, currentPhaseIndex);
+    setTranscript(updatedTranscript);
+  }, [currentPhaseIndex, selectedTemplate]);
 
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
 
