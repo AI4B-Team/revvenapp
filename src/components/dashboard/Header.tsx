@@ -352,6 +352,13 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
 
             {/* Menu Items */}
             <div className="space-y-1">
+              <DropdownMenuItem asChild className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
+                <Link to="/account?tab=my-details" className="flex items-center gap-3 w-full">
+                  <Settings size={18} className="text-gray-500" />
+                  <span>{t('settings.account')}</span>
+                </Link>
+              </DropdownMenuItem>
+
               <DropdownMenuItem asChild className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
                 <Link to="/account?tab=billing" className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-3">
@@ -359,13 +366,6 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                     <span>{t('settings.subscription')}</span>
                   </div>
                   <span className="text-sm text-gray-400">Pro</span>
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
-                <Link to="/account?tab=my-details" className="flex items-center gap-3 w-full">
-                  <Settings size={18} className="text-gray-500" />
-                  <span>{t('settings.account')}</span>
                 </Link>
               </DropdownMenuItem>
 
