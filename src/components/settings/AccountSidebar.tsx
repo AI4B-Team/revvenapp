@@ -65,13 +65,13 @@ export default function AccountSidebar({
 
   const menuItems = [
     { id: 'my-details', label: t('settings.account'), icon: Settings },
+    ...(isAdminOrModerator ? [{ id: 'admin', label: 'Admin', icon: Shield }] : []),
     { id: 'billing', label: t('settings.subscription'), icon: CreditCard, badge: 'Pro' },
     { id: 'workspace', label: 'Spaces', icon: LayoutGrid },
     { id: 'agent', label: 'Agent', icon: Bot },
     { id: 'members', label: 'Members', icon: Users },
     { id: 'invites', label: t('settings.invites'), icon: Mail },
     { id: 'integrations', label: t('settings.integrations'), icon: Plug },
-    ...(isAdminOrModerator ? [{ id: 'admin', label: 'Admin Panel', icon: Shield }] : []),
   ];
 
   // Fetch user data on mount
