@@ -82,58 +82,36 @@ export default function SubscriptionOverview({
         <div className="border border-gray-200 rounded-xl p-5 space-y-4">
           {/* Top Row - Current Plan & Credits Pack */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Current Plan Card - Conditionally styled based on cancellation status */}
-            {isPendingCancellation ? (
-              <div className="border-2 border-red-400 rounded-xl p-5 bg-gradient-to-br from-red-50 to-red-100 relative">
-                <div className="absolute top-3 right-3">
+            {/* Current Plan Card */}
+            <div className={`border-2 rounded-xl p-5 relative ${
+              isPendingCancellation 
+                ? 'border-red-400 bg-gradient-to-br from-red-50 to-red-100' 
+                : 'border-brand-green bg-gradient-to-br from-brand-green/5 to-brand-green/10'
+            }`}>
+              <div className="absolute top-3 right-3">
+                {isPendingCancellation ? (
                   <span className="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" />
                     Canceling
                   </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-red-700 mb-3">
-                  <Calendar className="w-4 h-4" />
-                  Subscription Ending
-                </div>
-                <div className="mb-1">
-                  <span className="text-2xl font-bold text-gray-900">{planData.name}</span>
-                </div>
-                <p className="text-sm text-red-700 mb-2">
-                  Access until <span className="font-semibold">{cancellationDate}</span>
-                </p>
-                <p className="text-xs text-gray-500 mb-4">
-                  After this date, your account will be downgraded to the Free plan with limited features.
-                </p>
-                <div className="bg-white/60 border border-red-200 rounded-lg p-3 mb-4">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Changed your mind?</span> You can reactivate your subscription anytime before {cancellationDate}.
-                  </p>
-                </div>
-                <Button 
-                  size="sm" 
-                  className="w-full bg-brand-green hover:bg-brand-green/90 text-white gap-2"
-                  onClick={handleReactivate}
-                  disabled={isReactivating}
-                >
-                  <RotateCcw className={`w-4 h-4 ${isReactivating ? 'animate-spin' : ''}`} />
-                  {isReactivating ? 'Reactivating...' : 'Reactivate Subscription'}
-                </Button>
-              </div>
-            ) : (
-              <div className="border-2 border-brand-green rounded-xl p-5 bg-gradient-to-br from-brand-green/5 to-brand-green/10 relative">
-                <div className="absolute top-3 right-3">
+                ) : (
                   <span className="bg-brand-green text-white text-xs font-medium px-2 py-1 rounded-full">Current</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                  <Zap className="w-4 h-4 text-brand-green" />
-                  Current Plan
-                </div>
-                <div className="mb-1">
-                  <span className="text-2xl font-bold text-gray-900">{planData.name}</span>
-                </div>
-                <p className="text-sm text-gray-500 mb-4">
-                  ${planData.price}/Month
-                </p>
+                )}
+              </div>
+              <div className={`flex items-center gap-2 text-sm mb-3 ${isPendingCancellation ? 'text-red-700' : 'text-gray-500'}`}>
+                <Zap className={`w-4 h-4 ${isPendingCancellation ? 'text-red-500' : 'text-brand-green'}`} />
+                {isPendingCancellation ? 'Subscription Ending' : 'Current Plan'}
+              </div>
+              <div className="mb-1">
+                <span className="text-2xl font-bold text-gray-900">{planData.name}</span>
+              </div>
+              <p className={`text-sm mb-4 ${isPendingCancellation ? 'text-red-700' : 'text-gray-500'}`}>
+                {isPendingCancellation 
+                  ? <>Access until <span className="font-semibold">{cancellationDate}</span></>
+                  : `$${planData.price}/Month`
+                }
+              </p>
+              {!isPendingCancellation && (
                 <div className="flex gap-2">
                   <Button 
                     size="sm" 
@@ -150,8 +128,8 @@ export default function SubscriptionOverview({
                     Cancel
                   </Button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Credits Pack Card - Different color */}
             <div className="border border-amber-200 rounded-xl p-5 bg-gradient-to-br from-amber-50 to-orange-50">
