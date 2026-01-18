@@ -1,27 +1,85 @@
-import { useState } from 'react';
-import { Bot, Bell, MessageSquare, Phone, Save, Check, Mail } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Bot, Bell, MessageSquare, Phone, Save, Mail, Settings, Palette, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useSpace } from '@/contexts/SpaceContext';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+
+const bgColorOptions = [
+  { value: 'bg-brand-green', label: 'Green', color: '#00FF88' },
+  { value: 'bg-brand-blue', label: 'Blue', color: '#3B82F6' },
+  { value: 'bg-brand-yellow', label: 'Yellow', color: '#EAB308' },
+  { value: 'bg-brand-pink', label: 'Pink', color: '#EC4899' },
+  { value: 'bg-brand-red', label: 'Red', color: '#EF4444' },
+];
 
 export default function WorkspaceTab() {
-  const { selectedSpace, updateSpace } = useSpace();
+  const navigate = useNavigate();
+  const { selectedSpace, updateSpace, deleteSpace, spaces } = useSpace();
   
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    bgColor: 'bg-brand-green',
+  });
   const [agentName, setAgentName] = useState('AIVA');
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsEnabled, setSmsEnabled] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Initialize form data from selected space
+  useEffect(() => {
+    if (selectedSpace) {
+      setFormData({
+        name: selectedSpace.name,
+        description: selectedSpace.description || '',
+        bgColor: selectedSpace.bgColor,
+      });
+    }
+  }, [selectedSpace]);
+
   const handleSave = async () => {
+    if (!formData.name.trim()) {
+      toast.error('Please enter a space name');
+      return;
+    }
+
     setIsSaving(true);
-    // Simulate save
-    await new Promise(resolve => setTimeout(resolve, 500));
-    toast.success('Workspace settings saved');
-    setIsSaving(false);
+    
+    try {
+      if (selectedSpace) {
+        updateSpace(selectedSpace.id, {
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          bgColor: formData.bgColor,
+        });
+      }
+      toast.success('Workspace settings saved');
+    } catch (error) {
+      toast.error('Failed to save settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = () => {
+    if (!selectedSpace) return;
+    
+    if (spaces.length <= 1) {
+      toast.error('Cannot delete the only space');
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete "${selectedSpace.name}"?`)) {
+      deleteSpace(selectedSpace.id);
+      toast.success('Space deleted');
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -34,20 +92,78 @@ export default function WorkspaceTab() {
         </p>
       </div>
 
-      {/* Current Workspace */}
+      {/* Space Preview & General Settings */}
       {selectedSpace && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className={`w-12 h-12 ${selectedSpace.bgColor} rounded-xl flex items-center justify-center text-xl font-bold text-white`}>
-              {selectedSpace.initial}
+          <div className="flex items-center gap-3 mb-4">
+            <Settings className="w-5 h-5 text-gray-600" />
+            <h3 className="font-semibold text-gray-900">Space Settings</h3>
+          </div>
+          
+          {/* Preview */}
+          <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg mb-4">
+            <div className={`w-12 h-12 ${formData.bgColor} rounded-xl flex items-center justify-center text-xl font-bold text-white`}>
+              {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">{selectedSpace.name}</h3>
-              <p className="text-sm text-gray-500">Current workspace</p>
+              <h4 className="font-semibold text-gray-900">{formData.name || 'New Space'}</h4>
+              <p className="text-sm text-gray-500">{formData.description || 'No description'}</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="spaceName">Space Name</Label>
+              <Input
+                id="spaceName"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="My Workspace"
+                className="bg-white border-gray-200"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="spaceDescription">Description (optional)</Label>
+              <Textarea
+                id="spaceDescription"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="What is this space for?"
+                className="bg-white border-gray-200 resize-none"
+                rows={3}
+              />
             </div>
           </div>
         </div>
       )}
+
+      {/* Appearance */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Palette className="w-5 h-5 text-gray-600" />
+          <h3 className="font-semibold text-gray-900">Appearance</h3>
+        </div>
+        
+        <div className="space-y-2">
+          <Label>Space Color</Label>
+          <div className="flex gap-3">
+            {bgColorOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setFormData(prev => ({ ...prev, bgColor: option.value }))}
+                className={`w-10 h-10 rounded-lg transition-all ${
+                  formData.bgColor === option.value 
+                    ? 'ring-2 ring-offset-2 ring-offset-white ring-brand-green scale-110' 
+                    : 'hover:scale-105'
+                }`}
+                style={{ backgroundColor: option.color }}
+                title={option.label}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Your Agent Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -143,12 +259,23 @@ export default function WorkspaceTab() {
         </div>
       </div>
 
-      {/* Save Button */}
-      <div className="flex justify-end pt-4 border-t border-gray-200">
+      {/* Actions */}
+      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+        {selectedSpace && spaces.length > 1 && (
+          <Button
+            variant="ghost"
+            onClick={handleDelete}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Space
+          </Button>
+        )}
+        
         <Button
           onClick={handleSave}
-          disabled={isSaving}
-          className="bg-brand-green text-primary hover:bg-brand-green/90"
+          disabled={isSaving || !formData.name.trim()}
+          className="bg-brand-green text-primary hover:bg-brand-green/90 ml-auto"
         >
           {isSaving ? (
             <>Saving...</>
