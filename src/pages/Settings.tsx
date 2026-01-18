@@ -988,49 +988,6 @@ export default function Settings() {
                     View All Invoices
                   </Button>
                 </div>
-
-                {/* Cancel Subscription Section */}
-                <div className="border border-red-200 bg-red-50 rounded-lg p-6">
-                  <h3 className="text-base font-semibold text-gray-900 mb-2">Cancel Subscription</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    If you cancel your subscription, you'll lose access to all premium features at the end of your current billing period. Your account will be downgraded to the free plan.
-                  </p>
-                  
-                  <div className="bg-white border border-red-200 rounded-lg p-4 mb-4">
-                    <p className="text-sm font-medium text-gray-900 mb-2">What you'll lose:</p>
-                    <ul className="space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2">
-                        <span className="text-red-500">✗</span>
-                        <span>100,000 monthly credits (reduced to 10,000)</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-red-500">✗</span>
-                        <span>Priority support</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-red-500">✗</span>
-                        <span>Advanced analytics</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-red-500">✗</span>
-                        <span>White-label options</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Button 
-                      variant="destructive" 
-                      className="bg-red-600 hover:bg-red-700"
-                      onClick={() => setIsCancellationOpen(true)}
-                    >
-                      Cancel Subscription
-                    </Button>
-                    <p className="text-xs text-gray-600">
-                      Access continues until Feb 1, 2026
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           </TabsContent>
