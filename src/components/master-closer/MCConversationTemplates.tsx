@@ -57,7 +57,7 @@ const templateCategories = [
   { id: 'personal', name: 'Personal', icon: <Heart className="w-5 h-5" /> },
 ];
 
-const templates: ConversationTemplate[] = [
+export const templates: ConversationTemplate[] = [
   // Sales
   {
     id: 'discovery-call',
@@ -529,4 +529,3 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 };
 
 export default MCConversationTemplates;
-export { templates };
