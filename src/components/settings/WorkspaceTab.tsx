@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bot, Bell, MessageSquare, Phone, Save, Mail, Settings, Palette, Trash2 } from 'lucide-react';
+import { Bot, Bell, MessageSquare, Phone, Save, Mail, Settings, Palette, Trash2, Plus, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -85,11 +85,20 @@ export default function WorkspaceTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="pb-6 border-b border-gray-300">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">Workspace</h2>
-        <p className="text-sm text-gray-500">
-          Configure your workspace preferences and agent settings.
-        </p>
+      <div className="pb-6 border-b border-gray-300 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">Workspace</h2>
+          <p className="text-sm text-gray-500">
+            Configure your workspace preferences and agent settings.
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate('/space-settings?new=true')}
+          className="bg-brand-green hover:bg-brand-green/90 text-primary gap-2"
+        >
+          <Plus size={16} />
+          Add New Space
+        </Button>
       </div>
 
       {/* Space Settings */}
