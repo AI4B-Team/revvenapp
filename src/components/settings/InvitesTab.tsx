@@ -135,7 +135,7 @@ export default function InvitesTab() {
         </div>
         
         <h3 className="text-xl font-semibold text-sidebar-text mb-2">Available Invites</h3>
-        <p className="text-sidebar-text-muted mb-8">Unlimited invites to share</p>
+        <p className="text-sidebar-text-muted mb-8">Unlimited Invites To Share</p>
         
         <Button
           onClick={generateInviteCode}
@@ -164,7 +164,7 @@ export default function InvitesTab() {
               <Infinity className="w-8 h-8 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground text-lg mb-6">
-              No invite codes yet. Generate your first one above!
+              No Invite Codes Yet. Generate Your First One Above!
             </p>
             <Button
               onClick={generateInviteCode}
