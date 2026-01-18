@@ -227,10 +227,22 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const [isRecentOpen, setIsRecentOpen] = useState(false);
 
   const brandProfiles = [
-    { name: 'Xalina Voss', initial: 'X', bgColor: 'bg-brand-pink' },
-    { name: 'Lifestyle Brand', initial: 'L', bgColor: 'bg-brand-blue' },
-    { name: 'Fitness Pro', initial: 'F', bgColor: 'bg-brand-yellow' },
+    { name: 'Xalina Voss', initial: 'X', bgColor: 'bg-brand-pink', isComplete: true },
+    { name: 'Lifestyle Brand', initial: 'L', bgColor: 'bg-brand-blue', isComplete: false, incompleteSection: 'voice' },
+    { name: 'Fitness Pro', initial: 'F', bgColor: 'bg-brand-yellow', isComplete: false, incompleteSection: 'identity' },
   ];
+  
+  const [selectedBrand, setSelectedBrand] = useState(brandProfiles[0]);
+  
+  const handleBrandSelect = (brand: typeof brandProfiles[0]) => {
+    setSelectedBrand(brand);
+    setIsBrandsDropdownOpen(false);
+    
+    // If brand profile is incomplete, navigate to brand page with the incomplete section
+    if (!brand.isComplete && brand.incompleteSection) {
+      navigate(`/brand?section=${brand.incompleteSection}&incomplete=true`);
+    }
+  };
   
   // Notify parent component when collapse state changes
   useEffect(() => {
@@ -416,10 +428,15 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               onClick={() => navigate('/brand')}
               className="flex items-center gap-3 flex-1 text-left"
             >
-              <div className="w-8 h-8 bg-brand-pink rounded flex items-center justify-center text-sm font-bold text-white">
-                X
+              <div className={`w-8 h-8 ${selectedBrand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white`}>
+                {selectedBrand.initial}
               </div>
-              <span className="text-sm font-medium hover:text-brand-green transition">Digital Influencer</span>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium hover:text-brand-green transition">{selectedBrand.name}</span>
+                {!selectedBrand.isComplete && (
+                  <span className="text-xs text-brand-yellow">Profile incomplete</span>
+                )}
+              </div>
             </button>
             {/* Caret - toggles dropdown */}
             <button
@@ -439,18 +456,24 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               {brandProfiles.map((brand, idx) => (
                 <div
                   key={idx}
-                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group cursor-pointer"
-                  onClick={() => {
-                    // Switch to this brand and close dropdown
-                    setIsBrandsDropdownOpen(false);
-                    // Navigate to dashboard with the selected brand
-                    navigate('/');
-                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group cursor-pointer ${selectedBrand.name === brand.name ? 'bg-sidebar-active' : ''}`}
+                  onClick={() => handleBrandSelect(brand)}
                 >
-                  <div className={`w-8 h-8 ${brand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white`}>
+                  <div className={`w-8 h-8 ${brand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white relative`}>
                     {brand.initial}
+                    {!brand.isComplete && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-brand-yellow rounded-full border-2 border-sidebar" />
+                    )}
                   </div>
-                  <span className="flex-1 text-left text-sm">{brand.name}</span>
+                  <div className="flex-1 text-left">
+                    <span className="text-sm block">{brand.name}</span>
+                    {!brand.isComplete && (
+                      <span className="text-xs text-brand-yellow">Incomplete</span>
+                    )}
+                  </div>
+                  {selectedBrand.name === brand.name && (
+                    <Check size={16} className="text-brand-green" />
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button 
