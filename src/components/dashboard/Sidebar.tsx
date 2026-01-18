@@ -20,6 +20,7 @@ import {
 import OnboardingProgress from './OnboardingProgress';
 import ProjectSelector from './ProjectSelector';
 import { creationsData } from '@/data/creationsData';
+import { useBrand } from '@/contexts/BrandContext';
 
 interface SidebarProps {
   activeTab?: string;
@@ -227,15 +228,27 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   const [brandSearchQuery, setBrandSearchQuery] = useState('');
 
-  const brandProfiles = [
-    { name: 'Xalina Voss', initial: 'X', bgColor: 'bg-brand-pink', isComplete: true },
-    { name: 'Lifestyle Brand', initial: 'L', bgColor: 'bg-brand-blue', isComplete: false, incompleteSection: 'voice' },
-    { name: 'Fitness Pro', initial: 'F', bgColor: 'bg-brand-yellow', isComplete: false, incompleteSection: 'identity' },
-  ];
+  // Use brand context
+  const { 
+    brands, 
+    selectedBrand, 
+    setSelectedBrand, 
+    isCreatingNewBrand, 
+    setIsCreatingNewBrand,
+    draftBrand 
+  } = useBrand();
   
-  const [selectedBrand, setSelectedBrand] = useState(brandProfiles[0]);
+  // Display brand - show draft brand name if creating new, otherwise selected brand
+  const displayBrand = isCreatingNewBrand && draftBrand?.name 
+    ? { 
+        name: draftBrand.name, 
+        initial: draftBrand.name.charAt(0).toUpperCase(), 
+        bgColor: 'bg-brand-green',
+        isComplete: false 
+      }
+    : selectedBrand;
   
-  const handleBrandSelect = (brand: typeof brandProfiles[0]) => {
+  const handleBrandSelect = (brand: typeof brands[0]) => {
     setSelectedBrand(brand);
     setIsBrandsDropdownOpen(false);
     setBrandSearchQuery('');
@@ -430,12 +443,14 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               onClick={() => navigate('/brand')}
               className="flex items-center gap-3 flex-1 text-left"
             >
-              <div className={`w-8 h-8 ${selectedBrand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white`}>
-                {selectedBrand.initial}
+              <div className={`w-8 h-8 ${displayBrand?.bgColor || 'bg-brand-green'} rounded flex items-center justify-center text-sm font-bold text-white`}>
+                {displayBrand?.initial || '+'}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium hover:text-brand-green transition">{selectedBrand.name}</span>
-                {!selectedBrand.isComplete && (
+                <span className="text-sm font-medium hover:text-brand-green transition">
+                  {displayBrand?.name || 'Create Brand'}
+                </span>
+                {displayBrand && !displayBrand.isComplete && (
                   <span className="text-xs text-brand-yellow">Profile incomplete</span>
                 )}
               </div>
@@ -462,13 +477,13 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>
-              {brandProfiles
+              {brands
                 .filter((brand) => brand.name.toLowerCase().includes(brandSearchQuery.toLowerCase()))
                 .map((brand, idx) => (
                 <button
-                  key={idx}
+                  key={brand.id}
                   type="button"
-                  className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group cursor-pointer ${selectedBrand.name === brand.name ? 'bg-sidebar-active' : ''}`}
+                  className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group cursor-pointer ${selectedBrand?.id === brand.id ? 'bg-sidebar-active' : ''}`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -487,7 +502,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                       <span className="text-xs text-brand-yellow">Incomplete</span>
                     )}
                   </div>
-                  {selectedBrand.name === brand.name && (
+                  {selectedBrand?.id === brand.id && (
                     <Check size={16} className="text-brand-green" />
                   )}
                 </button>
@@ -496,6 +511,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 onClick={() => {
                   setIsBrandsDropdownOpen(false);
                   setBrandSearchQuery('');
+                  setIsCreatingNewBrand(true);
                   navigate('/brand?new=true');
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition mt-2 border-t border-border text-sidebar-text"

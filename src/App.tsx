@@ -10,6 +10,7 @@ import { useTrackVisitor } from "@/hooks/useLiveVisitors";
 import { useRouteTracker } from "@/hooks/useRouteTracker";
 import { EbookProvider } from "@/contexts/EbookContext";
 import { ArticleProvider } from "@/contexts/ArticleContext";
+import { BrandProvider } from "@/contexts/BrandContext";
 
 // Preload-heavy route statically to avoid dynamic import fetch failures in preview.
 import Create from "./pages/Create";
@@ -111,9 +112,10 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <EbookProvider>
-              <ArticleProvider>
-                <VisitorTracker>
+            <BrandProvider>
+              <EbookProvider>
+                <ArticleProvider>
+                  <VisitorTracker>
                   <Suspense
                     fallback={
                       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
@@ -210,6 +212,7 @@ const App = () => (
                 </VisitorTracker>
               </ArticleProvider>
             </EbookProvider>
+          </BrandProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>

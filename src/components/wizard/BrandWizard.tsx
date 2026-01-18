@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { AlertCircle, X } from 'lucide-react';
 import IdentityPage from './IdentityPage';
 import VoicePage from './VoicePage';
@@ -9,6 +9,7 @@ import CharactersPage from './CharactersPage';
 import ReviewPage from './ReviewPage';
 import CompletionPage from './CompletionPage';
 import BrandWizardProgress from './BrandWizardProgress';
+import { useBrand } from '@/contexts/BrandContext';
 
 interface BrandWizardData {
   // Identity
@@ -43,8 +44,11 @@ interface BrandWizardData {
 
 const BrandWizard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { addBrand, setIsCreatingNewBrand, setDraftBrand, isCreatingNewBrand } = useBrand();
   const [currentStep, setCurrentStep] = useState(0);
   const [showIncompleteBanner, setShowIncompleteBanner] = useState(false);
+  const [isNewBrand, setIsNewBrand] = useState(false);
   const [formData, setFormData] = useState<BrandWizardData>({
     brandName: '',
     primaryColor: '#3B82F6',
@@ -116,6 +120,9 @@ const BrandWizard: React.FC = () => {
       });
       setCurrentStep(0);
       setShowIncompleteBanner(false);
+      setIsNewBrand(true);
+      setIsCreatingNewBrand(true);
+      setDraftBrand(null);
       // Clear the params after processing
       setSearchParams({});
       return;
@@ -131,7 +138,14 @@ const BrandWizard: React.FC = () => {
       // Clear the params after processing
       setSearchParams({});
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, setIsCreatingNewBrand, setDraftBrand]);
+
+  // Update draft brand name in context when brand name changes (for new brands)
+  useEffect(() => {
+    if (isNewBrand && formData.brandName) {
+      setDraftBrand({ name: formData.brandName });
+    }
+  }, [formData.brandName, isNewBrand, setDraftBrand]);
 
   const dismissBanner = () => {
     setShowIncompleteBanner(false);
@@ -159,10 +173,29 @@ const BrandWizard: React.FC = () => {
 
   const handleFinalComplete = () => {
     console.log('Brand Setup Complete!', formData);
-    // Here you would typically:
-    // 1. Save the data to your backend
-    // 2. Redirect to the main dashboard
-    // 3. Show a success message
+    
+    if (isNewBrand && formData.brandName) {
+      // Generate a unique ID and random color
+      const colors = ['bg-brand-pink', 'bg-brand-blue', 'bg-brand-yellow', 'bg-brand-green', 'bg-brand-red'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      
+      // Add the new brand to the context
+      addBrand({
+        id: crypto.randomUUID(),
+        name: formData.brandName,
+        initial: formData.brandName.charAt(0).toUpperCase(),
+        bgColor: randomColor,
+        isComplete: true,
+        primaryColor: formData.primaryColor,
+        secondaryColor: formData.secondaryColor,
+        accentColor: formData.accentColor,
+        primaryFont: formData.primaryFont,
+        secondaryFont: formData.secondaryFont,
+      });
+      
+      setIsNewBrand(false);
+    }
+    
     setCurrentStep(currentStep + 1);
   };
 
