@@ -82,6 +82,7 @@ const MasterCloser = () => {
             onEndCall={() => setIsCallActive(false)} 
             callMode={callMode}
             selectedTemplate={selectedTemplate}
+            onTemplateChange={setSelectedTemplate}
           />
         );
       case 'agent-settings':

@@ -25,17 +25,30 @@ import {
   Play,
   Eye,
   EyeOff,
-  ArrowRight
+  ArrowRight,
+  RefreshCw,
+  ChevronDown,
+  X
 } from 'lucide-react';
 import MCTransferModal from './MCTransferModal';
 import type { CallMode } from '@/pages/MasterCloser';
-import type { ConversationTemplate } from './MCConversationTemplates';
+import { templates, type ConversationTemplate } from './MCConversationTemplates';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MCLiveCallProps {
   isActive: boolean;
   onEndCall: () => void;
   callMode: CallMode;
   selectedTemplate?: ConversationTemplate | null;
+  onTemplateChange?: (template: ConversationTemplate | null) => void;
 }
 
 interface TranscriptMessage {
@@ -54,7 +67,7 @@ interface AISuggestion {
   reasoning?: string;
 }
 
-const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, selectedTemplate }) => {
+const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, selectedTemplate, onTemplateChange }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [sentiment, setSentiment] = useState(75);
@@ -444,17 +457,83 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
         </div>
 
         {/* Template Info Section */}
-        {selectedTemplate && (
-          <div className="p-4 border-b border-border bg-amber-50/50">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
-                {selectedTemplate.icon}
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-foreground">{selectedTemplate.name}</h4>
-                <p className="text-xs text-muted-foreground">{selectedTemplate.objective}</p>
-              </div>
+        <div className="p-4 border-b border-border bg-amber-50/50">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              {selectedTemplate ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
+                    {selectedTemplate.icon}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground">{selectedTemplate.name}</h4>
+                    <p className="text-xs text-muted-foreground">{selectedTemplate.objective}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground">No Template</h4>
+                    <p className="text-xs text-muted-foreground">Select a conversation template</p>
+                  </div>
+                </>
+              )}
             </div>
+            
+            {/* Template Switcher Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-amber-100 hover:bg-amber-200 text-amber-700 transition-colors">
+                  <RefreshCw className="w-3 h-3" />
+                  Switch
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 max-h-80">
+                <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Template</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <ScrollArea className="h-64">
+                  {selectedTemplate && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => onTemplateChange?.(null)}
+                        className="flex items-center gap-2 text-red-600 cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                        <span>Clear Template</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  {templates.map((template) => (
+                    <DropdownMenuItem
+                      key={template.id}
+                      onClick={() => onTemplateChange?.(template)}
+                      className={`flex items-center gap-2 cursor-pointer ${
+                        selectedTemplate?.id === template.id ? 'bg-amber-50' : ''
+                      }`}
+                    >
+                      <div className="w-6 h-6 rounded flex items-center justify-center bg-amber-100 text-amber-600 flex-shrink-0">
+                        {template.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{template.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{template.category}</p>
+                      </div>
+                      {selectedTemplate?.id === template.id && (
+                        <CheckCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </ScrollArea>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {selectedTemplate && (
             <div className="space-y-2">
               <div>
                 <span className="text-xs font-medium text-muted-foreground">Phases: </span>
@@ -471,8 +550,8 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
                 <span className="text-xs text-foreground">{selectedTemplate.recommendedTone}</span>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Call Phase Tracker */}
         <div className="p-4 border-b border-border">
