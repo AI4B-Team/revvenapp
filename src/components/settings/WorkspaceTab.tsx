@@ -19,9 +19,15 @@ const bgColorOptions = [
 
 export default function WorkspaceTab() {
   const navigate = useNavigate();
-  const { selectedSpace, updateSpace, deleteSpace, spaces } = useSpace();
+  const { selectedSpace, updateSpace, deleteSpace, spaces, addSpace, setSelectedSpace } = useSpace();
   
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    bgColor: 'bg-brand-green',
+  });
+  const [newSpaceData, setNewSpaceData] = useState({
     name: '',
     description: '',
     bgColor: 'bg-brand-green',
@@ -34,14 +40,43 @@ export default function WorkspaceTab() {
 
   // Initialize form data from selected space
   useEffect(() => {
-    if (selectedSpace) {
+    if (selectedSpace && !isCreatingNew) {
       setFormData({
         name: selectedSpace.name,
         description: selectedSpace.description || '',
         bgColor: selectedSpace.bgColor,
       });
     }
-  }, [selectedSpace]);
+  }, [selectedSpace, isCreatingNew]);
+
+  const handleCreateSpace = async () => {
+    if (!newSpaceData.name.trim()) {
+      toast.error('Please enter a space name');
+      return;
+    }
+
+    setIsSaving(true);
+    
+    try {
+      const newSpace = addSpace({
+        id: crypto.randomUUID(),
+        name: newSpaceData.name.trim(),
+        initial: newSpaceData.name.trim().charAt(0).toUpperCase(),
+        description: newSpaceData.description.trim(),
+        bgColor: newSpaceData.bgColor,
+        createdAt: new Date().toISOString(),
+      });
+      
+      setSelectedSpace(newSpace);
+      setIsCreatingNew(false);
+      setNewSpaceData({ name: '', description: '', bgColor: 'bg-brand-green' });
+      toast.success('New space created');
+    } catch (error) {
+      toast.error('Failed to create space');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
@@ -82,6 +117,118 @@ export default function WorkspaceTab() {
     }
   };
 
+  const handleCancelCreate = () => {
+    setIsCreatingNew(false);
+    setNewSpaceData({ name: '', description: '', bgColor: 'bg-brand-green' });
+  };
+
+  // Show create new space form
+  if (isCreatingNew) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="pb-6 border-b border-gray-300 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Create New Space</h2>
+            <p className="text-sm text-gray-500">
+              Set up your new workspace
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={handleCancelCreate}
+            className="gap-2"
+          >
+            Cancel
+          </Button>
+        </div>
+
+        {/* Space Settings */}
+        <div className="bg-white rounded-lg border border-gray-300 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Settings className="w-5 h-5 text-gray-600" />
+            <h3 className="font-semibold text-gray-900">Space Settings</h3>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newSpaceName">Name</Label>
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 ${newSpaceData.bgColor} rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0`}>
+                  {newSpaceData.name ? newSpaceData.name.charAt(0).toUpperCase() : '?'}
+                </div>
+                <Input
+                  id="newSpaceName"
+                  value={newSpaceData.name}
+                  onChange={(e) => setNewSpaceData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="My Workspace"
+                  className="bg-white border-gray-200"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newSpaceDescription">Description (optional)</Label>
+              <Textarea
+                id="newSpaceDescription"
+                value={newSpaceData.description}
+                onChange={(e) => setNewSpaceData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="What is this space for?"
+                className="bg-white border-gray-200 resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Appearance */}
+        <div className="bg-white rounded-lg border border-gray-300 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Palette className="w-5 h-5 text-gray-600" />
+            <h3 className="font-semibold text-gray-900">Appearance</h3>
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Space Color</Label>
+            <div className="flex gap-3">
+              {bgColorOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setNewSpaceData(prev => ({ ...prev, bgColor: option.value }))}
+                  className={`w-10 h-10 rounded-lg transition-all ${
+                    newSpaceData.bgColor === option.value 
+                      ? 'ring-2 ring-offset-2 ring-offset-white ring-brand-green scale-110' 
+                      : 'hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: option.color }}
+                  title={option.label}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-end pt-4 border-t border-gray-300">
+          <Button
+            onClick={handleCreateSpace}
+            disabled={isSaving || !newSpaceData.name.trim()}
+            className="bg-brand-green text-primary hover:bg-brand-green/90"
+          >
+            {isSaving ? (
+              <>Creating...</>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Space
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -93,7 +240,7 @@ export default function WorkspaceTab() {
           </p>
         </div>
         <Button
-          onClick={() => navigate('/space-settings?new=true')}
+          onClick={() => setIsCreatingNew(true)}
           className="bg-brand-green hover:bg-brand-green/90 text-primary gap-2"
         >
           <Plus size={16} />
