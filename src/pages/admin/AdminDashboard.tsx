@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminTopNav from '@/components/admin/AdminTopNav';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -144,17 +144,10 @@ const AdminDashboard = () => {
 
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-background">
-        <AdminSidebar />
-        <main className="flex-1 p-8">
+      <div className="min-h-screen bg-background">
+        <AdminTopNav />
+        <main className="p-8">
           <div className="mb-8">
-            <button 
-              onClick={() => navigate('/account')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
-            >
-              <ArrowLeft size={18} />
-              <span>Back to Account</span>
-            </button>
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="text-muted-foreground">Welcome to the admin panel. Here's an overview of your platform.</p>
           </div>
