@@ -18,8 +18,10 @@ import {
   Check,
   Sparkles,
   X,
-  ArrowRight
+  ArrowRight,
+  Book
 } from 'lucide-react';
+import MCTemplateKnowledgeBase from './MCTemplateKnowledgeBase';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -335,6 +337,17 @@ export const templates: ConversationTemplate[] = [
   },
 ];
 
+interface DataSource {
+  id: string;
+  name: string;
+  type: 'file' | 'website' | 'text';
+  fileType?: 'pdf' | 'audio' | 'video' | 'text';
+  content?: string;
+  url?: string;
+  status: 'training' | 'trained' | 'failed';
+  createdAt: Date;
+}
+
 const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
   open,
   onClose,
@@ -343,13 +356,22 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('sales');
   const [previewTemplate, setPreviewTemplate] = useState<ConversationTemplate | null>(null);
+  const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
+  const [templateKnowledge, setTemplateKnowledge] = useState<Record<string, DataSource[]>>({});
+
+  const handleUpdateKnowledge = (templateId: string, dataSources: DataSource[]) => {
+    setTemplateKnowledge(prev => ({
+      ...prev,
+      [templateId]: dataSources
+    }));
+  };
 
   const filteredTemplates = templates.filter(t => t.category === selectedCategory);
   const currentCategory = templateCategories.find(c => c.id === selectedCategory);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden bg-card border border-border/50 shadow-2xl rounded-2xl [&>button]:hidden">
+      <DialogContent className="max-w-7xl max-h-[90vh] p-0 overflow-hidden bg-card border border-border/50 shadow-2xl rounded-2xl [&>button]:hidden">
         {/* Header */}
         <div className="relative p-6 border-b border-border">
           <button 
@@ -475,7 +497,8 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                   </div>
 
                   <div>
-                    <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Call Phases</h5>
+                    <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Call Phases</h5>
+                    <p className="text-[10px] text-emerald-600 font-medium mb-2">Guided By AI</p>
                     <div className="flex flex-wrap gap-1.5">
                       {previewTemplate.keyPhases.map((phase, i) => (
                         <span key={i} className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -487,11 +510,12 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 
                   <div>
                     <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Tone</h5>
-                    <p className="text-sm text-foreground italic">{previewTemplate.recommendedTone}</p>
+                    <p className="text-sm text-foreground italic">{capitalizeWords(previewTemplate.recommendedTone)}</p>
                   </div>
 
                   <div>
-                    <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Common Objections</h5>
+                    <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Common Objections</h5>
+                    <p className="text-[10px] text-amber-600 font-medium mb-2">Handled LIVE By AI</p>
                     <ul className="space-y-2">
                       {previewTemplate.commonObjections.slice(0, 3).map((objection, i) => (
                         <li key={i} className="text-xs text-foreground flex items-start gap-2 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
@@ -501,6 +525,24 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                       ))}
                     </ul>
                   </div>
+
+                  {/* Knowledge Base Button */}
+                  <button
+                    onClick={() => setShowKnowledgeBase(true)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/50 hover:bg-emerald-100 hover:border-emerald-400 transition-colors text-left"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <Book className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-foreground">Knowledge Base</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {(templateKnowledge[previewTemplate.id] || []).length > 0 
+                          ? `${templateKnowledge[previewTemplate.id].length} sources added`
+                          : 'Add training data (optional)'}
+                      </p>
+                    </div>
+                  </button>
                 </div>
 
                 <Button 
@@ -524,6 +566,18 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
           </div>
         </div>
       </DialogContent>
+
+      {/* Knowledge Base Modal */}
+      {previewTemplate && (
+        <MCTemplateKnowledgeBase
+          templateId={previewTemplate.id}
+          templateName={previewTemplate.name}
+          open={showKnowledgeBase}
+          onClose={() => setShowKnowledgeBase(false)}
+          dataSources={templateKnowledge[previewTemplate.id] || []}
+          onUpdate={(dataSources) => handleUpdateKnowledge(previewTemplate.id, dataSources)}
+        />
+      )}
     </Dialog>
   );
 };
