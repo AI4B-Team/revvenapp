@@ -24,14 +24,15 @@ interface TeamMember {
   name: string;
   email: string;
   status: 'active' | 'pending' | 'inactive';
+  role: 'admin' | 'editor' | 'viewer' | 'member';
   avatarUrl?: string;
   isOwner?: boolean;
 }
 
 const mockTeamMembers: TeamMember[] = [
-  { id: '1', name: 'Dolmar Cross', email: 'dolmarcross@gmail.com', status: 'active', isOwner: true },
-  { id: '2', name: 'Javier Pons', email: 'javier@realadvisors.com', status: 'active' },
-  { id: '3', name: 'Jaypee Vestidas', email: 'jaypee@realadvisors.com', status: 'active' },
+  { id: '1', name: 'Dolmar Cross', email: 'dolmarcross@gmail.com', status: 'active', role: 'admin', isOwner: true },
+  { id: '2', name: 'Javier Pons', email: 'javier@realadvisors.com', status: 'active', role: 'editor' },
+  { id: '3', name: 'Jaypee Vestidas', email: 'jaypee@realadvisors.com', status: 'active', role: 'member' },
 ];
 
 interface TeamMembersSectionProps {
@@ -77,6 +78,19 @@ export default function TeamMembersSection({ maxSeats }: TeamMembersSectionProps
     }
   };
 
+  const getRoleBadge = (role: TeamMember['role']) => {
+    switch (role) {
+      case 'admin':
+        return <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 border-0">Admin</Badge>;
+      case 'editor':
+        return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-0">Editor</Badge>;
+      case 'viewer':
+        return <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-100 border-0">Viewer</Badge>;
+      case 'member':
+        return <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-100 border-0">Member</Badge>;
+    }
+  };
+
   return (
     <>
       <div className="border border-gray-300 rounded-lg p-6">
@@ -100,6 +114,7 @@ export default function TeamMembersSection({ maxSeats }: TeamMembersSectionProps
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 px-2 text-sm font-medium text-gray-500">Name</th>
                 <th className="text-left py-3 px-2 text-sm font-medium text-gray-500">Email address</th>
+                <th className="text-left py-3 px-2 text-sm font-medium text-gray-500">Role</th>
                 <th className="text-left py-3 px-2 text-sm font-medium text-gray-500">Status</th>
                 <th className="text-right py-3 px-2 text-sm font-medium text-gray-500">Action</th>
               </tr>
@@ -123,6 +138,9 @@ export default function TeamMembersSection({ maxSeats }: TeamMembersSectionProps
                       {member.email}
                       {member.isOwner && <span className="text-gray-400 ml-1">(You)</span>}
                     </span>
+                  </td>
+                  <td className="py-4 px-2">
+                    {getRoleBadge(member.role)}
                   </td>
                   <td className="py-4 px-2">
                     {getStatusBadge(member.status)}
