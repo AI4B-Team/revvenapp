@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Zap, Users, Package, ExternalLink, Settings, Info, LayoutGrid, Plus, UserPlus, AlertTriangle } from 'lucide-react';
+import { Zap, Users, Package, ExternalLink, Settings, Info, LayoutGrid, Plus, UserPlus, AlertTriangle, RotateCcw } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -25,7 +25,15 @@ export default function SubscriptionOverview({
   onReactivate
 }: SubscriptionOverviewProps) {
   const [isCreditsModalOpen, setIsCreditsModalOpen] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
   const navigate = useNavigate();
+
+  const handleReactivate = async () => {
+    setIsReactivating(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsReactivating(false);
+    onReactivate?.();
+  };
 
   // Mock data
   const planData = {
@@ -102,7 +110,19 @@ export default function SubscriptionOverview({
                   : `$${planData.price}/Month`
                 }
               </p>
-              {!isPendingCancellation && (
+              {isPendingCancellation ? (
+                <div className="flex items-center gap-3">
+                  <Button 
+                    size="sm" 
+                    className="bg-brand-green hover:bg-brand-green/90 text-white gap-2"
+                    onClick={handleReactivate}
+                    disabled={isReactivating}
+                  >
+                    <RotateCcw className={`w-4 h-4 ${isReactivating ? 'animate-spin' : ''}`} />
+                    {isReactivating ? 'Reactivating...' : 'Reactivate Subscription'}
+                  </Button>
+                </div>
+              ) : (
                 <div className="flex gap-2">
                   <Button 
                     size="sm" 
@@ -132,7 +152,7 @@ export default function SubscriptionOverview({
                 <span className="text-2xl font-bold text-gray-900">{creditsData.packs} Packs</span>
               </div>
               <p className="text-sm text-gray-500 mb-4">
-                ${creditsData.pricePerPack}/Month
+                ${creditsData.pricePerPack}/Pack/Month
               </p>
               <Button 
                 size="sm" 
@@ -174,7 +194,7 @@ export default function SubscriptionOverview({
                   <Settings className="w-4 h-4" />
                   Manage Spaces
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 gap-2" disabled={isPendingCancellation}>
+                <Button variant="outline" size="sm" className="flex-1 gap-2">
                   <Plus className="w-4 h-4" />
                   Add Space
                 </Button>
@@ -209,7 +229,7 @@ export default function SubscriptionOverview({
                   <Settings className="w-4 h-4" />
                   Manage Seats
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 gap-2" disabled={isPendingCancellation}>
+                <Button variant="outline" size="sm" className="flex-1 gap-2">
                   <UserPlus className="w-4 h-4" />
                   Invite Members
                 </Button>
