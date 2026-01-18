@@ -118,10 +118,6 @@ export default function AccountSidebar({
   }, []);
 
   const handleTabClick = (tabId: string) => {
-    if (tabId === 'admin') {
-      navigate('/manage');
-      return;
-    }
     onTabChange(tabId);
     navigate(`/account?tab=${tabId}`);
   };
