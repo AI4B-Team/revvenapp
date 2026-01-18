@@ -13,7 +13,7 @@ interface SpaceContextType {
   spaces: Space[];
   selectedSpace: Space | null;
   setSelectedSpace: (space: Space) => void;
-  addSpace: (space: Space) => void;
+  addSpace: (space: Space) => Space;
   updateSpace: (id: string, updates: Partial<Space>) => void;
   deleteSpace: (id: string) => void;
   isCreatingNewSpace: boolean;
