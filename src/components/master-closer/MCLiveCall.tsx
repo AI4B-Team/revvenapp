@@ -683,12 +683,12 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
               <div className={`w-1 h-4 ${modeColors.bg} rounded-full animate-pulse`} style={{ animationDelay: '0.2s' }} />
               <div className={`w-1 h-4 ${modeColors.bg} rounded-full animate-pulse`} style={{ animationDelay: '0.4s' }} />
             </div>
-            <span className={`text-sm ${modeColors.text} font-medium`}>
+          <span className={`text-sm ${modeColors.text} font-medium`}>
               {callMode === 'listen' 
-                ? 'AI is listening to external call and analyzing...' 
+                ? 'AI Is Listening & Analyzing...' 
                 : callMode === 'voice-agent'
-                  ? 'AI Voice Agent is handling the conversation...'
-                  : 'AI is listening and analyzing...'}
+                  ? 'AI Voice Agent Is Handling The Conversation...'
+                  : 'AI Is Listening & Analyzing...'}
             </span>
           </div>
         </div>
