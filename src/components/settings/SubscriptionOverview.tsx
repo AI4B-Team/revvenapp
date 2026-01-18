@@ -131,17 +131,17 @@ export default function SubscriptionOverview({
               )}
             </div>
 
-            {/* Credits Pack Card - Different color */}
+            {/* Optional Add-On Card */}
             <div className="border border-amber-200 rounded-xl p-5 bg-gradient-to-br from-amber-50 to-orange-50">
               <div className="flex items-center gap-2 text-sm text-amber-700 mb-3">
                 <Package className="w-4 h-4" />
-                Credits Pack
+                Optional Add-On
               </div>
               <div className="mb-1">
                 <span className="text-2xl font-bold text-gray-900">{creditsData.packs} Packs</span>
               </div>
               <p className="text-sm text-gray-500 mb-4">
-                ${creditsData.pricePerPack}/Pack/Month
+                ${creditsData.pricePerPack}/Month
               </p>
               <Button 
                 size="sm" 
