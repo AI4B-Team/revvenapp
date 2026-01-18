@@ -416,15 +416,15 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                     <button
                       key={template.id}
                       onClick={() => setPreviewTemplate(template)}
-                      className={`group relative p-4 pt-5 rounded-xl border text-left transition-all duration-200 flex flex-col h-full ${
+                      className={`group relative p-4 pt-5 rounded-xl border text-left transition-all duration-200 flex flex-col h-full overflow-visible ${
                         isActive
                           ? 'border-emerald-400 bg-emerald-50 shadow-md'
                           : 'border-border bg-white hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-sm'
                       }`}
                     >
                       {isActive && (
-                        <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
-                          <Check className="w-3 h-3 text-white" />
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-md z-10">
+                          <Check className="w-3.5 h-3.5 text-white" />
                         </div>
                       )}
                       
