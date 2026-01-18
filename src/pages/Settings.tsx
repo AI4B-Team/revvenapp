@@ -326,7 +326,7 @@ export default function Settings() {
                   </TabsTrigger>
                 </TabsList>
 
-          <TabsContent value="profile" className="mt-8">
+          <TabsContent value="profile" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               {/* Profile Header */}
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
@@ -549,7 +549,7 @@ export default function Settings() {
           </TabsContent>
 
           {/* My Details Tab */}
-          <TabsContent value="my-details" className="mt-8">
+          <TabsContent value="my-details" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
@@ -714,7 +714,7 @@ export default function Settings() {
           </TabsContent>
 
           {/* Password Tab */}
-          <TabsContent value="password" className="mt-8">
+          <TabsContent value="password" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
@@ -787,7 +787,7 @@ export default function Settings() {
           </TabsContent>
 
           {/* Plan Tab */}
-          <TabsContent value="plan" className="mt-8">
+          <TabsContent value="plan" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
@@ -885,7 +885,7 @@ export default function Settings() {
           </TabsContent>
 
           {/* Subscription Tab with Cancel Section */}
-          <TabsContent value="billing" className="mt-8">
+          <TabsContent value="billing" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
@@ -1016,7 +1016,7 @@ export default function Settings() {
           </TabsContent>
 
           {/* Email Tab */}
-          <TabsContent value="email" className="mt-8">
+          <TabsContent value="email" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
@@ -1100,7 +1100,7 @@ export default function Settings() {
           </TabsContent>
 
           {/* Notifications Tab */}
-          <TabsContent value="notifications" className="mt-8">
+          <TabsContent value="notifications" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
@@ -1182,7 +1182,7 @@ export default function Settings() {
           </TabsContent>
 
           {/* Integrations Tab */}
-          <TabsContent value="integrations" className="mt-8">
+          <TabsContent value="integrations" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
@@ -1296,7 +1296,7 @@ export default function Settings() {
           </TabsContent>
 
           {/* API Tab */}
-          <TabsContent value="api" className="mt-8">
+          <TabsContent value="api" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <div className="flex items-start justify-between mb-6 pb-6 border-b border-gray-300">
                 <div>
@@ -1398,15 +1398,15 @@ export default function Settings() {
             </div>
           </TabsContent>
 
-          <TabsContent value="white-label" className="mt-8">
+          <TabsContent value="white-label" className="mt-0 lg:mt-0">
             <WhiteLabelTab />
           </TabsContent>
 
-          <TabsContent value="invites" className="mt-8">
+          <TabsContent value="invites" className="mt-0 lg:mt-0">
             <InvitesTab />
           </TabsContent>
 
-          <TabsContent value="workspace" className="mt-8">
+          <TabsContent value="workspace" className="mt-0 lg:mt-0">
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <WorkspaceTab />
             </div>
