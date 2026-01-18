@@ -78,6 +78,8 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(1); // Start at phase 2 (index 1)
+  const [phaseDurations, setPhaseDurations] = useState<Record<number, number>>({ 0: 150 }); // Phase 0 completed at 2:30
 
   // Generate template-specific mock conversations
   const getTemplateConversation = (template: ConversationTemplate | null | undefined): TranscriptMessage[] => {
@@ -162,6 +164,8 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
     const newConversation = getTemplateConversation(selectedTemplate);
     setTranscript(newConversation);
     setCallDuration(0); // Reset call duration
+    setCurrentPhaseIndex(1); // Reset to phase 2
+    setPhaseDurations({ 0: 150 }); // Reset phase durations
   }, [selectedTemplate]);
 
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
@@ -249,20 +253,50 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
 
   // Generate call phases based on template
   const getCallPhases = () => {
+    const getPhaseStatus = (index: number): 'completed' | 'active' | 'pending' => {
+      if (index < currentPhaseIndex) return 'completed';
+      if (index === currentPhaseIndex) return 'active';
+      return 'pending';
+    };
+
+    const getPhaseDuration = (index: number): string => {
+      if (index < currentPhaseIndex) {
+        return formatDuration(phaseDurations[index] || 0);
+      }
+      if (index === currentPhaseIndex) {
+        return formatDuration(callDuration);
+      }
+      return '0:00';
+    };
+
     if (selectedTemplate?.keyPhases && selectedTemplate.keyPhases.length > 0) {
       return selectedTemplate.keyPhases.map((phase, index) => ({
         id: phase.toLowerCase().replace(/\s+/g, '-'),
         name: phase,
-        status: index === 0 ? 'completed' : index === 1 ? 'active' : 'pending',
-        duration: index === 0 ? '2:30' : index === 1 ? formatDuration(callDuration) : '0:00'
+        status: getPhaseStatus(index),
+        duration: getPhaseDuration(index)
       }));
     }
     return [
-      { id: 'intro', name: 'Introduction', status: 'completed', duration: '2:30' },
-      { id: 'discovery', name: 'Discovery', status: 'active', duration: formatDuration(callDuration) },
-      { id: 'solution', name: 'Solution', status: 'pending', duration: '0:00' },
-      { id: 'close', name: 'Close', status: 'pending', duration: '0:00' }
+      { id: 'intro', name: 'Introduction', status: getPhaseStatus(0), duration: getPhaseDuration(0) },
+      { id: 'discovery', name: 'Discovery', status: getPhaseStatus(1), duration: getPhaseDuration(1) },
+      { id: 'solution', name: 'Solution', status: getPhaseStatus(2), duration: getPhaseDuration(2) },
+      { id: 'close', name: 'Close', status: getPhaseStatus(3), duration: getPhaseDuration(3) }
     ];
+  };
+
+  // Advance to next phase
+  const advancePhase = () => {
+    const totalPhases = selectedTemplate?.keyPhases?.length || 4;
+    if (currentPhaseIndex < totalPhases - 1) {
+      setPhaseDurations(prev => ({ ...prev, [currentPhaseIndex]: callDuration }));
+      setCurrentPhaseIndex(prev => prev + 1);
+      
+      // Add phase transition message to transcript
+      const nextPhaseName = selectedTemplate?.keyPhases?.[currentPhaseIndex + 1] || 
+        ['Introduction', 'Discovery', 'Solution', 'Close'][currentPhaseIndex + 1];
+      toast.success(`Moving to: ${nextPhaseName}`);
+    }
   };
 
   const callPhases = getCallPhases();
@@ -640,20 +674,38 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
 
         {/* Call Phase Tracker */}
         <div className="p-4 border-b border-border">
-          <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-foreground">
-            <Target className="w-4 h-4" />
-            Call Structure
-          </h4>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Target className="w-4 h-4" />
+              Call Structure
+            </h4>
+            {currentPhaseIndex < (selectedTemplate?.keyPhases?.length || 4) - 1 && (
+              <button
+                onClick={advancePhase}
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md ${modeColors.light} ${modeColors.text} hover:opacity-80 transition-opacity`}
+              >
+                <ArrowRight className="w-3 h-3" />
+                Next Phase
+              </button>
+            )}
+          </div>
           <div className="space-y-2">
-            {callPhases.map((phase) => (
+            {callPhases.map((phase, index) => (
               <div
                 key={phase.id}
-                className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                onClick={() => {
+                  if (index <= currentPhaseIndex) return; // Can't go back
+                  // Jump to clicked phase
+                  setPhaseDurations(prev => ({ ...prev, [currentPhaseIndex]: callDuration }));
+                  setCurrentPhaseIndex(index);
+                  toast.success(`Moving to: ${phase.name}`);
+                }}
+                className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
                   phase.status === 'active'
                     ? `${modeColors.light} ${modeColors.border} border`
                     : phase.status === 'completed'
                     ? 'bg-emerald-100 border border-emerald-200'
-                    : 'bg-muted border border-border'
+                    : 'bg-muted border border-border hover:bg-muted/80'
                 }`}
               >
                 <div className="flex items-center gap-2">
