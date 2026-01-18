@@ -253,7 +253,7 @@ const Pricing = () => {
             <Switch
               checked={isAnnual}
               onCheckedChange={setIsAnnual}
-              className="data-[state=checked]:bg-primary"
+              className="data-[state=checked]:bg-brand-green"
             />
             <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
               Annual
