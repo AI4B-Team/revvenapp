@@ -164,11 +164,10 @@ export default function AccountSidebar({
         <p className="text-sm text-muted-foreground">{userEmail || 'No email'}</p>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex flex-col gap-2">
         <Button 
           className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium"
-          onClick={() => handleTabClick('plan')}
+          onClick={() => navigate('/pricing')}
         >
           <Zap className="w-4 h-4 mr-2" />
           {t('nav.upgrade')}

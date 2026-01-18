@@ -218,7 +218,11 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         <TooltipProvider delayDuration={100}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 hidden sm:flex items-center gap-1.5 px-3 md:px-4 h-10 text-sm border border-amber-200">
+              <Button 
+                size="sm" 
+                className="bg-amber-100 hover:bg-amber-200 text-amber-700 hidden sm:flex items-center gap-1.5 px-3 md:px-4 h-10 text-sm border border-amber-200"
+                onClick={() => navigate('/pricing')}
+              >
                 <Crown size={14} />
                 <span className="font-semibold hidden md:inline">{t('nav.upgrade')}</span>
               </Button>
@@ -330,9 +334,11 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="space-y-2 mb-4">
-              <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-10 text-sm font-medium rounded-lg">
+              <Button 
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-10 text-sm font-medium rounded-lg"
+                onClick={() => navigate('/pricing')}
+              >
                 <Zap size={16} className="mr-2" />
                 {t('nav.upgrade')}
               </Button>
