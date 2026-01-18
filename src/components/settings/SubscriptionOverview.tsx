@@ -111,16 +111,21 @@ export default function SubscriptionOverview({
                 }
               </p>
               {isPendingCancellation ? (
-                <div className="flex items-center gap-3">
-                  <Button 
-                    size="sm" 
-                    className="bg-brand-green hover:bg-brand-green/90 text-white gap-2"
-                    onClick={handleReactivate}
-                    disabled={isReactivating}
-                  >
-                    <RotateCcw className={`w-4 h-4 ${isReactivating ? 'animate-spin' : ''}`} />
-                    {isReactivating ? 'Reactivating...' : 'Reactivate Subscription'}
-                  </Button>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600">
+                    Changed your mind? Reactivate now to keep your premium features.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      size="sm" 
+                      className="bg-brand-green hover:bg-brand-green/90 text-white gap-2"
+                      onClick={handleReactivate}
+                      disabled={isReactivating}
+                    >
+                      <RotateCcw className={`w-4 h-4 ${isReactivating ? 'animate-spin' : ''}`} />
+                      {isReactivating ? 'Reactivating...' : 'Reactivate Subscription'}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex gap-2">
