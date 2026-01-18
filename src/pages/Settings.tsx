@@ -16,6 +16,7 @@ import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
 import InvitesTab from '@/components/settings/InvitesTab';
 import WorkspaceTab from '@/components/settings/WorkspaceTab';
 import MembersTab from '@/components/settings/MembersTab';
+import AgentTab from '@/components/settings/AgentTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
 import CancellationFlow from '@/components/settings/CancellationFlow';
 import SubscriptionOverview from '@/components/settings/SubscriptionOverview';
@@ -1395,6 +1396,12 @@ export default function Settings() {
 
           <TabsContent value="members" className="mt-0 lg:mt-0">
             <MembersTab />
+          </TabsContent>
+
+          <TabsContent value="agent" className="mt-0 lg:mt-0">
+            <div className="bg-white rounded-lg border border-gray-300 p-6">
+              <AgentTab />
+            </div>
           </TabsContent>
               </Tabs>
             </div>
