@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mic, Check, AlertCircle, MessageSquare, Sparkles } from 'lucide-react';
+import { Mic, Check, AlertCircle, MessageSquare, Sparkles, Briefcase, Smile, Hand, GraduationCap, PartyPopper, Heart, Zap, Palette } from 'lucide-react';
 import TutorialModal from './TutorialModal';
 
 interface VoicePageProps {
@@ -28,14 +28,14 @@ const VoicePage: React.FC<VoicePageProps> = ({
   const [showTutorial, setShowTutorial] = useState(false);
 
   const toneOptions = [
-    { value: 'professional', label: 'Professional', icon: '💼' },
-    { value: 'friendly', label: 'Friendly', icon: '😊' },
-    { value: 'casual', label: 'Casual', icon: '👋' },
-    { value: 'formal', label: 'Formal', icon: '🎩' },
-    { value: 'enthusiastic', label: 'Enthusiastic', icon: '🎉' },
-    { value: 'empathetic', label: 'Empathetic', icon: '💙' },
-    { value: 'authoritative', label: 'Authoritative', icon: '⚡' },
-    { value: 'playful', label: 'Playful', icon: '🎨' },
+    { value: 'professional', label: 'Professional', icon: Briefcase },
+    { value: 'friendly', label: 'Friendly', icon: Smile },
+    { value: 'casual', label: 'Casual', icon: Hand },
+    { value: 'formal', label: 'Formal', icon: GraduationCap },
+    { value: 'enthusiastic', label: 'Enthusiastic', icon: PartyPopper },
+    { value: 'empathetic', label: 'Empathetic', icon: Heart },
+    { value: 'authoritative', label: 'Authoritative', icon: Zap },
+    { value: 'playful', label: 'Playful', icon: Palette },
   ];
 
   const writingStyleOptions = [
@@ -164,20 +164,25 @@ const VoicePage: React.FC<VoicePageProps> = ({
                   Select all that apply to describe your brand's communication style
                 </p>
                 <div className="grid grid-cols-2 gap-3">
-                  {toneOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => toggleTone(option.value)}
-                      className={`px-4 py-3 rounded-lg border-2 transition-all ${
-                        (formData.toneOfVoice || []).includes(option.value)
-                          ? 'border-purple-600 bg-purple-50'
-                          : 'border-gray-200 hover:border-purple-300'
-                      }`}
-                    >
-                      <div className="text-2xl mb-1">{option.icon}</div>
-                      <div className="text-sm font-medium text-gray-900">{option.label}</div>
-                    </button>
-                  ))}
+                  {toneOptions.map((option) => {
+                    const IconComponent = option.icon;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => toggleTone(option.value)}
+                        className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                          (formData.toneOfVoice || []).includes(option.value)
+                            ? 'border-purple-600 bg-purple-50'
+                            : 'border-gray-200 hover:border-purple-300'
+                        }`}
+                      >
+                        <div className="flex justify-center mb-1">
+                          <IconComponent size={24} className={`${(formData.toneOfVoice || []).includes(option.value) ? 'text-purple-600' : 'text-gray-500'}`} />
+                        </div>
+                        <div className="text-sm font-medium text-gray-900">{option.label}</div>
+                      </button>
+                    );
+                  })}
                 </div>
                 {errors.toneOfVoice && (
                   <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
