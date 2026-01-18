@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Mic,
   MicOff,
@@ -28,7 +28,8 @@ import {
   ArrowRight,
   RefreshCw,
   ChevronDown,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import MCTransferModal from './MCTransferModal';
 import type { CallMode } from '@/pages/MasterCloser';
@@ -42,6 +43,8 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface MCLiveCallProps {
   isActive: boolean;
@@ -75,6 +78,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
   const [coachModeEnabled, setCoachModeEnabled] = useState(true);
   const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([
     {
@@ -93,88 +97,81 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
     }
   ]);
 
-  // Generate suggestions based on template
-  const getTemplateSuggestions = (): AISuggestion[] => {
-    if (!selectedTemplate) {
-      return [
-        {
-          id: '1',
-          type: callMode === 'listen' ? 'coach' : 'response',
-          text: callMode === 'listen' 
-            ? "💡 They mentioned 'happy with current solution' - this is a soft objection. Suggest probing for hidden pain points."
-            : "I completely understand. Many of our happiest clients said the same thing initially. What I've found is that even when things are working well, there's often 1-2 pain points lurking beneath the surface. Mind if I ask you just 2-3 quick questions to see if we're even a fit?",
-          confidence: 94,
-          reasoning: callMode === 'listen' ? 'Coaching tip for sales rep' : 'Acknowledges objection, builds credibility, asks permission to continue'
-        },
-        {
-          id: '2',
-          type: 'objection',
-          text: 'Handle "Happy with current solution" → Use permission-based discovery',
-          confidence: 89,
-          reasoning: 'Common early objection, needs soft approach'
-        },
-        {
-          id: '3',
-          type: 'question',
-          text: "What made you agree to this call in the first place?",
-          confidence: 87,
-          reasoning: 'Uncovers hidden pain points'
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
+
+  // Fetch AI suggestions from the edge function
+  const fetchAISuggestions = useCallback(async () => {
+    if (!isActive) return;
+    
+    setIsLoadingSuggestions(true);
+    
+    try {
+      const transcriptText = transcript
+        .map(msg => `${msg.speaker.toUpperCase()}: ${msg.text}`)
+        .join('\n');
+
+      const { data, error } = await supabase.functions.invoke('master-closer-ai', {
+        body: {
+          transcript: transcriptText,
+          template: selectedTemplate ? {
+            name: selectedTemplate.name,
+            objective: selectedTemplate.objective,
+            keyPhases: selectedTemplate.keyPhases,
+            commonObjections: selectedTemplate.commonObjections,
+            recommendedTone: selectedTemplate.recommendedTone
+          } : null,
+          context: callMode === 'listen' ? 'User is in LISTEN mode - provide coaching tips only, not direct responses.' : null
         }
-      ];
+      });
+
+      if (error) {
+        console.error('Error fetching AI suggestions:', error);
+        if (error.message?.includes('429')) {
+          toast.error('Rate limit reached. Suggestions will refresh shortly.');
+        } else if (error.message?.includes('402')) {
+          toast.error('AI credits exhausted. Please add funds to continue.');
+        }
+        return;
+      }
+
+      if (data?.suggestions && Array.isArray(data.suggestions)) {
+        const formattedSuggestions: AISuggestion[] = data.suggestions.map((s: any, idx: number) => ({
+          id: `ai-${idx}-${Date.now()}`,
+          type: s.type || 'response',
+          text: s.text,
+          confidence: s.confidence || 90,
+          reasoning: s.reasoning
+        }));
+        setSuggestions(formattedSuggestions);
+        
+        if (data.sentiment) {
+          setSentiment(data.sentiment);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch suggestions:', err);
+    } finally {
+      setIsLoadingSuggestions(false);
     }
+  }, [transcript, selectedTemplate, callMode, isActive]);
 
-    // Template-specific suggestions
-    const templateSuggestions: Record<string, AISuggestion[]> = {
-      'discovery-call': [
-        { id: '1', type: 'response', text: `Let's start with understanding your current situation. ${selectedTemplate.keyPhases[1] ? `We're in the ${selectedTemplate.keyPhases[1]} phase` : ''}. What challenges are you facing right now?`, confidence: 95, reasoning: 'SPIN methodology - Situation question' },
-        { id: '2', type: 'question', text: "What's the impact of this problem on your team or business?", confidence: 92, reasoning: 'Implication question to deepen pain' },
-        { id: '3', type: 'objection', text: `Common objection: "${selectedTemplate.commonObjections[0]}" → Acknowledge and probe deeper`, confidence: 88, reasoning: 'Prepared for likely resistance' }
-      ],
-      'inbound-sales': [
-        { id: '1', type: 'response', text: "Thanks for reaching out! I'm excited to learn more about what brought you to us. What specific problem are you trying to solve?", confidence: 96, reasoning: 'Warm lead - acknowledge interest first' },
-        { id: '2', type: 'question', text: "What would success look like for you in 90 days?", confidence: 91, reasoning: 'Future-pacing to understand desired outcome' },
-        { id: '3', type: 'objection', text: `Handle "${selectedTemplate.commonObjections[1]}" → Show unique differentiators`, confidence: 87, reasoning: 'They\'re comparing - stand out' }
-      ],
-      'outbound-sales': [
-        { id: '1', type: 'response', text: "I know you weren't expecting my call, so I'll be brief. I'm reaching out because companies like yours are seeing [specific result]. Would it be worth a quick chat?", confidence: 94, reasoning: 'Permission-based pattern interrupt' },
-        { id: '2', type: 'question', text: "Before I take more of your time, can I ask what your biggest priority is this quarter?", confidence: 90, reasoning: 'Quick qualification' },
-        { id: '3', type: 'objection', text: `When they say "${selectedTemplate.commonObjections[0]}" → Earn 30 more seconds`, confidence: 85, reasoning: 'Expected resistance - stay confident' }
-      ],
-      'high-ticket-sales': [
-        { id: '1', type: 'response', text: "This isn't for everyone, and that's by design. Let me understand if you're the right fit for what we offer. Tell me about your vision for the next 12 months.", confidence: 97, reasoning: 'Premium positioning - qualify them' },
-        { id: '2', type: 'question', text: "What would it be worth to you to solve this problem completely?", confidence: 93, reasoning: 'Anchor to transformation value' },
-        { id: '3', type: 'objection', text: `"${selectedTemplate.commonObjections[0]}" → Reframe as investment with ROI`, confidence: 91, reasoning: 'Price objection = value not established' }
-      ],
-      'investor-pitch': [
-        { id: '1', type: 'response', text: "We're solving a $X billion problem that affects Y million people. Our unique insight is [key differentiator].", confidence: 96, reasoning: 'Lead with market size and insight' },
-        { id: '2', type: 'question', text: "What's your typical check size for companies at our stage?", confidence: 88, reasoning: 'Qualify investor fit' },
-        { id: '3', type: 'objection', text: `Address "${selectedTemplate.commonObjections[0]}" with TAM/SAM/SOM analysis`, confidence: 90, reasoning: 'Back claims with data' }
-      ],
-      'hiring-interview': [
-        { id: '1', type: 'response', text: "Tell me about a time when you faced a significant challenge in your role. How did you handle it?", confidence: 94, reasoning: 'Behavioral interview - past behavior predicts future' },
-        { id: '2', type: 'question', text: "What would make this the best career move you've ever made?", confidence: 91, reasoning: 'Understand their motivations' },
-        { id: '3', type: 'objection', text: `If they raise "${selectedTemplate.commonObjections[0]}" → Discuss total compensation and growth`, confidence: 87, reasoning: 'Sell the opportunity' }
-      ],
-      'negotiation': [
-        { id: '1', type: 'response', text: "I appreciate your position. Help me understand what's most important to you in this agreement.", confidence: 95, reasoning: 'Understand their priorities first' },
-        { id: '2', type: 'question', text: "If we can meet you on [X], would you be ready to move forward today?", confidence: 92, reasoning: 'Conditional close to test commitment' },
-        { id: '3', type: 'objection', text: `Counter "${selectedTemplate.commonObjections[0]}" with value justification`, confidence: 89, reasoning: 'Hold your ground with confidence' }
-      ]
-    };
-
-    return templateSuggestions[selectedTemplate.id] || [
-      { id: '1', type: 'response', text: `Based on the ${selectedTemplate.name} template, focus on: ${selectedTemplate.objective}`, confidence: 93, reasoning: `Following ${selectedTemplate.recommendedTone} approach` },
-      { id: '2', type: 'question', text: `Key phase: ${selectedTemplate.keyPhases[0]} - Start by building rapport`, confidence: 90, reasoning: 'Template-guided structure' },
-      { id: '3', type: 'objection', text: `Prepare for: "${selectedTemplate.commonObjections[0]}"`, confidence: 87, reasoning: 'Anticipated objection from template' }
-    ];
-  };
-
-  const [suggestions, setSuggestions] = useState<AISuggestion[]>(getTemplateSuggestions());
-
-  // Update suggestions when template changes
+  // Fetch suggestions when transcript changes or template changes
   useEffect(() => {
-    setSuggestions(getTemplateSuggestions());
-  }, [selectedTemplate, callMode]);
+    if (isActive && transcript.length > 0) {
+      const debounceTimer = setTimeout(() => {
+        fetchAISuggestions();
+      }, 1000); // Debounce to avoid too many API calls
+      
+      return () => clearTimeout(debounceTimer);
+    }
+  }, [transcript, selectedTemplate, isActive]);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    if (isActive) {
+      fetchAISuggestions();
+    }
+  }, [isActive]);
 
   // Format duration helper - defined early for use in getCallPhases
   const formatDuration = (seconds: number) => {
@@ -649,10 +646,30 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
 
         {/* AI Suggestions */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-foreground">
-            <Zap className="w-4 h-4 text-yellow-500" />
-            {callMode === 'listen' ? 'Coaching Tips' : 'Smart Suggestions'}
-          </h4>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Zap className="w-4 h-4 text-yellow-500" />
+              {callMode === 'listen' ? 'Coaching Tips' : 'Smart Suggestions'}
+              {isLoadingSuggestions && (
+                <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+              )}
+            </h4>
+            <button
+              onClick={fetchAISuggestions}
+              disabled={isLoadingSuggestions}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-muted hover:bg-muted/80 text-muted-foreground transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3 h-3 ${isLoadingSuggestions ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          </div>
+
+          {suggestions.length === 0 && !isLoadingSuggestions && (
+            <div className="text-center py-8 text-muted-foreground">
+              <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">AI is analyzing the conversation...</p>
+            </div>
+          )}
 
           {suggestions.map((suggestion) => (
             <div
