@@ -493,7 +493,11 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 </button>
               ))}
               <button 
-                onClick={() => navigate('/brand')}
+                onClick={() => {
+                  setIsBrandsDropdownOpen(false);
+                  setBrandSearchQuery('');
+                  navigate('/brand?new=true');
+                }}
                 className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition mt-2 border-t border-border text-sidebar-text"
               >
                 <div className="w-8 h-8 bg-brand-green rounded flex items-center justify-center text-sm font-bold text-primary">

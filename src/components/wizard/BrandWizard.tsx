@@ -86,10 +86,40 @@ const BrandWizard: React.FC = () => {
     review: 5,
   };
 
-  // Handle URL parameters for incomplete profile navigation
+  // Handle URL parameters for incomplete profile navigation or new brand creation
   useEffect(() => {
     const section = searchParams.get('section');
     const incomplete = searchParams.get('incomplete');
+    const isNew = searchParams.get('new');
+    
+    if (isNew === 'true') {
+      // Reset form for new brand
+      setFormData({
+        brandName: '',
+        primaryColor: '#3B82F6',
+        secondaryColor: '#6B7280',
+        accentColor: '#10B981',
+        primaryFont: 'Inter',
+        secondaryFont: 'Inter',
+        toneOfVoice: [],
+        writingStyle: '',
+        communicationGuidelines: '',
+        brandPersonality: [],
+        dosList: [],
+        dontsList: [],
+        dataSources: [],
+        competitors: [],
+        emailCompetitors: [],
+        trackedContent: [],
+        selectedCharacters: [],
+        defaultCharacter: '',
+      });
+      setCurrentStep(0);
+      setShowIncompleteBanner(false);
+      // Clear the params after processing
+      setSearchParams({});
+      return;
+    }
     
     if (section && sectionToStepIndex[section] !== undefined) {
       setCurrentStep(sectionToStepIndex[section]);
