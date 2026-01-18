@@ -176,6 +176,13 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
     setSuggestions(getTemplateSuggestions());
   }, [selectedTemplate, callMode]);
 
+  // Format duration helper - defined early for use in getCallPhases
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   // Generate call phases based on template
   const getCallPhases = () => {
     if (selectedTemplate?.keyPhases && selectedTemplate.keyPhases.length > 0) {
@@ -222,12 +229,6 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
       return () => clearInterval(speakingInterval);
     }
   }, [callMode, isActive]);
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const handleUseSuggestion = (suggestion: AISuggestion) => {
     const newMessage: TranscriptMessage = {
