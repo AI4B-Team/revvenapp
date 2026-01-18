@@ -40,6 +40,8 @@ export default function Settings() {
   const [userEmail, setUserEmail] = useState('');
   const [accountStatus, setAccountStatus] = useState<string>('active');
   const [isCancellationOpen, setIsCancellationOpen] = useState(false);
+  const [isPendingCancellation, setIsPendingCancellation] = useState(false);
+  const [cancellationDate, setCancellationDate] = useState('February 18, 2026');
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -905,7 +907,18 @@ export default function Settings() {
 
               <div className="space-y-8">
                 {/* Subscription Overview */}
-                <SubscriptionOverview onCancelClick={() => setIsCancellationOpen(true)} />
+                <SubscriptionOverview 
+                  onCancelClick={() => setIsCancellationOpen(true)} 
+                  isPendingCancellation={isPendingCancellation}
+                  cancellationDate={cancellationDate}
+                  onReactivate={() => {
+                    setIsPendingCancellation(false);
+                    toast({
+                      title: "Subscription Reactivated",
+                      description: "Your subscription has been reactivated successfully.",
+                    });
+                  }}
+                />
 
                 {/* Team Members */}
                 <TeamMembersSection maxSeats={4} />
@@ -1431,9 +1444,13 @@ export default function Settings() {
       <CancellationFlow
         isOpen={isCancellationOpen}
         onClose={() => setIsCancellationOpen(false)}
-        subscriptionEndDate="February 1, 2026"
+        subscriptionEndDate={cancellationDate}
         planName="Professional"
         planPrice="$49.00"
+        onConfirmCancel={(endDate) => {
+          setIsPendingCancellation(true);
+          setCancellationDate(endDate);
+        }}
       />
     </div>
   );

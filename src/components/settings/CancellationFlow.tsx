@@ -31,6 +31,7 @@ interface CancellationFlowProps {
   subscriptionEndDate: string;
   planName: string;
   planPrice: string;
+  onConfirmCancel?: (endDate: string) => void;
 }
 
 type CancellationStep = 'reason' | 'offer' | 'warning' | 'confirm' | 'success';
@@ -108,7 +109,8 @@ export default function CancellationFlow({
   onClose, 
   subscriptionEndDate,
   planName,
-  planPrice
+  planPrice,
+  onConfirmCancel
 }: CancellationFlowProps) {
   const [step, setStep] = useState<CancellationStep>('reason');
   const [selectedReason, setSelectedReason] = useState<string>('');
@@ -174,6 +176,8 @@ export default function CancellationFlow({
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsProcessing(false);
     setStep('success');
+    // Notify parent component of successful cancellation
+    onConfirmCancel?.(subscriptionEndDate);
   };
 
   const renderStepIndicator = () => {
