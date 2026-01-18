@@ -18,6 +18,7 @@ import WorkspaceTab from '@/components/settings/WorkspaceTab';
 import MembersTab from '@/components/settings/MembersTab';
 import AgentTab from '@/components/settings/AgentTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
+import AdminPanel from '@/components/admin/AdminPanel';
 import CancellationFlow from '@/components/settings/CancellationFlow';
 import SubscriptionOverview from '@/components/settings/SubscriptionOverview';
 import CancelSubscriptionSection from '@/components/settings/CancelSubscriptionSection';
@@ -1402,6 +1403,10 @@ export default function Settings() {
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <AgentTab />
             </div>
+          </TabsContent>
+
+          <TabsContent value="admin" className="mt-0 lg:mt-0">
+            <AdminPanel />
           </TabsContent>
               </Tabs>
             </div>
