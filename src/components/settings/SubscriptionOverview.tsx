@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Zap, Users, Package, ExternalLink, Settings, Info, LayoutGrid, Plus } from 'lucide-react';
+import { Zap, Users, Package, ExternalLink, Settings, Info, LayoutGrid, Plus, UserPlus } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -185,7 +185,8 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
                   <Settings className="w-4 h-4" />
                   Manage Seats
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1 gap-2">
+                  <UserPlus className="w-4 h-4" />
                   Invite Members
                 </Button>
               </div>
