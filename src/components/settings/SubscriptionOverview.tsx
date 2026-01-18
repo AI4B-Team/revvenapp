@@ -84,27 +84,27 @@ export default function SubscriptionOverview({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Current Plan Card - Conditionally styled based on cancellation status */}
             {isPendingCancellation ? (
-              <div className="border-2 border-amber-400 rounded-xl p-5 bg-gradient-to-br from-amber-50 to-orange-50 relative">
+              <div className="border-2 border-red-400 rounded-xl p-5 bg-gradient-to-br from-red-50 to-red-100 relative">
                 <div className="absolute top-3 right-3">
-                  <span className="bg-amber-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                  <span className="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" />
                     Canceling
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-amber-700 mb-3">
+                <div className="flex items-center gap-2 text-sm text-red-700 mb-3">
                   <Calendar className="w-4 h-4" />
                   Subscription Ending
                 </div>
                 <div className="mb-1">
                   <span className="text-2xl font-bold text-gray-900">{planData.name}</span>
                 </div>
-                <p className="text-sm text-amber-700 mb-2">
+                <p className="text-sm text-red-700 mb-2">
                   Access until <span className="font-semibold">{cancellationDate}</span>
                 </p>
                 <p className="text-xs text-gray-500 mb-4">
                   After this date, your account will be downgraded to the Free plan with limited features.
                 </p>
-                <div className="bg-white/60 border border-amber-200 rounded-lg p-3 mb-4">
+                <div className="bg-white/60 border border-red-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-gray-700">
                     <span className="font-medium">Changed your mind?</span> You can reactivate your subscription anytime before {cancellationDate}.
                   </p>
@@ -286,9 +286,101 @@ export default function SubscriptionOverview({
             <Progress value={creditPercentage} className="h-2 [&>div]:bg-brand-green" />
           </div>
         </div>
+
+        {/* Cancel Subscription Section - Conditionally shows pending state */}
+        {isPendingCancellation ? (
+          <div className="border border-red-200 rounded-xl p-5 bg-gradient-to-br from-red-50 to-red-100">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-base font-semibold text-gray-900">Cancellation Pending</h4>
+              <span className="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                Ending Soon
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Your subscription will end on <span className="font-semibold text-red-700">{cancellationDate}</span>. 
+              After this date, you'll lose access to premium features.
+            </p>
+            <div className="border border-red-200 rounded-lg p-4 mb-4 bg-white/60">
+              <p className="text-sm font-medium text-gray-900 mb-3">What you'll lose:</p>
+              <ul className="space-y-2">
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="text-red-500">✕</span>
+                  100,000 monthly credits (reduced to 10,000)
+                </li>
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="text-red-500">✕</span>
+                  Priority support
+                </li>
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="text-red-500">✕</span>
+                  Advanced analytics
+                </li>
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="text-red-500">✕</span>
+                  White-label options
+                </li>
+              </ul>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button 
+                size="sm" 
+                className="bg-brand-green hover:bg-brand-green/90 text-white gap-2"
+                onClick={handleReactivate}
+                disabled={isReactivating}
+              >
+                <RotateCcw className={`w-4 h-4 ${isReactivating ? 'animate-spin' : ''}`} />
+                {isReactivating ? 'Reactivating...' : 'Reactivate Subscription'}
+              </Button>
+              <span className="text-sm text-gray-500">
+                Access continues until {cancellationDate}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="border border-red-200 rounded-xl p-5 bg-gradient-to-br from-red-50 to-red-100">
+            <h4 className="text-base font-semibold text-gray-900 mb-2">Cancel Subscription</h4>
+            <p className="text-sm text-gray-600 mb-4">
+              If you cancel your subscription, you'll lose access to all premium features at the end of your current billing period. Your account will be downgraded to the free plan.
+            </p>
+            <div className="border border-gray-200 rounded-lg p-4 mb-4 bg-white/60">
+              <p className="text-sm font-medium text-gray-900 mb-3">What you'll lose:</p>
+              <ul className="space-y-2">
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="text-red-500">✕</span>
+                  100,000 monthly credits (reduced to 10,000)
+                </li>
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="text-red-500">✕</span>
+                  Priority support
+                </li>
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="text-red-500">✕</span>
+                  Advanced analytics
+                </li>
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="text-red-500">✕</span>
+                  White-label options
+                </li>
+              </ul>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="destructive"
+                size="sm" 
+                onClick={onCancelClick}
+              >
+                Cancel Subscription
+              </Button>
+              <span className="text-sm text-gray-500">
+                Access continues until Feb 1, 2026
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
-      <CreditsPackModal 
+      <CreditsPackModal
         isOpen={isCreditsModalOpen}
         onClose={() => setIsCreditsModalOpen(false)}
         currentPacks={creditsData.packs}
