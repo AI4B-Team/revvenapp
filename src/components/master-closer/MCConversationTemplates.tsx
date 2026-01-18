@@ -410,24 +410,19 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
             <ScrollArea className="h-[calc(100%-4rem)]">
               <div className="grid grid-cols-3 gap-4 pr-4">
                 {filteredTemplates.map((template) => {
-                  const isSelected = selectedTemplate?.id === template.id;
-                  const isHovered = previewTemplate?.id === template.id;
+                  const isActive = previewTemplate?.id === template.id;
                   
                   return (
                     <button
                       key={template.id}
-                      onClick={() => onSelect(template)}
-                      onMouseEnter={() => setPreviewTemplate(template)}
-                      onMouseLeave={() => setPreviewTemplate(null)}
+                      onClick={() => setPreviewTemplate(template)}
                       className={`group relative p-4 pt-5 rounded-xl border text-left transition-all duration-200 flex flex-col h-full ${
-                        isSelected
+                        isActive
                           ? 'border-emerald-400 bg-emerald-50 shadow-md'
-                          : isHovered
-                          ? 'border-emerald-200 bg-emerald-50/50 shadow-sm'
                           : 'border-border bg-white hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-sm'
                       }`}
                     >
-                      {isSelected && (
+                      {isActive && (
                         <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <Check className="w-3 h-3 text-white" />
                         </div>
@@ -435,7 +430,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                       
                       <div className="flex items-start gap-3 flex-1">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
-                          isSelected
+                          isActive
                             ? 'bg-emerald-100 text-emerald-600'
                             : 'bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100 group-hover:text-emerald-600'
                         }`}>
