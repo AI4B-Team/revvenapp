@@ -541,9 +541,12 @@ export default function CancellationFlow({
             {subscriptionEndDate}
           </p>
         </div>
-        <div className="pt-4 border-t border-border">
-          <p className="text-sm text-muted-foreground text-center">
-            Changed your mind? You can reactivate your subscription at any time before this date.
+        <div className="pt-4 border-t border-border text-center">
+          <p className="text-sm font-medium text-foreground mb-1">
+            Changed Your Mind?
+          </p>
+          <p className="text-sm text-muted-foreground">
+            You can reactivate your subscription at any time before this date.
           </p>
         </div>
       </div>
