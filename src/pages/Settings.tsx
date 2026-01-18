@@ -17,6 +17,8 @@ import InvitesTab from '@/components/settings/InvitesTab';
 import WorkspaceTab from '@/components/settings/WorkspaceTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
 import CancellationFlow from '@/components/settings/CancellationFlow';
+import SubscriptionOverview from '@/components/settings/SubscriptionOverview';
+import TeamMembersSection from '@/components/settings/TeamMembersSection';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -889,33 +891,17 @@ export default function Settings() {
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-1">Subscription & Billing</h2>
                   <p className="text-sm text-gray-500">
-                    Manage your subscription, payment methods, and billing history.
+                    Manage your subscription, team members, and billing history.
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-6">
-                {/* Subscription Status */}
-                <div className="border border-gray-300 rounded-lg p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-base font-semibold text-gray-900 mb-1">Active Subscription</h3>
-                      <p className="text-sm text-gray-500">Professional Plan - Billed monthly</p>
-                    </div>
-                    <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Active</Badge>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-300">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Amount</p>
-                      <p className="text-lg font-semibold text-gray-900">$49.00 / month</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Next Payment</p>
-                      <p className="text-lg font-semibold text-gray-900">Jan 1, 2025</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-8">
+                {/* Subscription Overview */}
+                <SubscriptionOverview onCancelClick={() => setIsCancellationOpen(true)} />
+
+                {/* Team Members */}
+                <TeamMembersSection maxSeats={4} />
 
                 {/* Payment Method */}
                 <div className="border border-gray-300 rounded-lg p-6">
@@ -943,24 +929,36 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">December 2024</p>
-                        <p className="text-xs text-gray-500">Paid on Dec 1, 2024</p>
+                        <p className="text-sm font-medium text-gray-900">December 2025</p>
+                        <p className="text-xs text-gray-500">Paid on Dec 1, 2025</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900">$49.00</span>
-                        <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700">
+                        <span className="text-sm font-medium text-gray-900">$79.00</span>
+                        <Button variant="ghost" size="sm" className="text-brand-green hover:text-brand-green/80">
                           Download
                         </Button>
                       </div>
                     </div>
                     <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">November 2024</p>
-                        <p className="text-xs text-gray-500">Paid on Nov 1, 2024</p>
+                        <p className="text-sm font-medium text-gray-900">November 2025</p>
+                        <p className="text-xs text-gray-500">Paid on Nov 1, 2025</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900">$49.00</span>
-                        <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700">
+                        <span className="text-sm font-medium text-gray-900">$79.00</span>
+                        <Button variant="ghost" size="sm" className="text-brand-green hover:text-brand-green/80">
+                          Download
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">October 2025</p>
+                        <p className="text-xs text-gray-500">Paid on Oct 1, 2025</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-gray-900">$79.00</span>
+                        <Button variant="ghost" size="sm" className="text-brand-green hover:text-brand-green/80">
                           Download
                         </Button>
                       </div>
@@ -969,49 +967,6 @@ export default function Settings() {
                   <Button variant="outline" className="w-full mt-4 text-gray-700 border-gray-200">
                     View all invoices
                   </Button>
-                </div>
-
-                {/* Cancel Subscription Section */}
-                <div className="border border-red-200 bg-red-50 rounded-lg p-6">
-                  <h3 className="text-base font-semibold text-gray-900 mb-2">Cancel Subscription</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    If you cancel your subscription, you'll lose access to all premium features at the end of your current billing period. Your account will be downgraded to the free plan.
-                  </p>
-                  
-                  <div className="bg-white border border-red-200 rounded-lg p-4 mb-4">
-                    <p className="text-sm font-medium text-gray-900 mb-2">What you'll lose:</p>
-                    <ul className="space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2">
-                        <span className="text-red-500">✗</span>
-                        <span>100,000 monthly credits (reduced to 10,000)</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-red-500">✗</span>
-                        <span>Priority support</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-red-500">✗</span>
-                        <span>Advanced analytics</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-red-500">✗</span>
-                        <span>White-label options</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Button 
-                      variant="destructive" 
-                      className="bg-red-600 hover:bg-red-700"
-                      onClick={() => setIsCancellationOpen(true)}
-                    >
-                      Cancel Subscription
-                    </Button>
-                    <p className="text-xs text-gray-600">
-                      Access continues until Jan 1, 2025
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
