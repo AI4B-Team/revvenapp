@@ -532,7 +532,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
               <Brain className="w-4 h-4 text-amber-600" />
-              Active Template
+              Call Template
             </h4>
             
             {/* Template Switcher Dropdown */}
@@ -587,30 +587,17 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
           {/* Template Card */}
           {selectedTemplate ? (
             <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-4">
-              <div className="flex items-start gap-3 mb-3">
+              <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-amber-600 text-lg border border-amber-100">
                   {selectedTemplate.icon}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h5 className="font-semibold text-foreground">{selectedTemplate.name}</h5>
                   <p className="text-xs text-amber-700/80 mt-0.5">{selectedTemplate.category}</p>
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                    {selectedTemplate.objective}
+                  </p>
                 </div>
-              </div>
-              
-              <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
-                {selectedTemplate.objective}
-              </p>
-              
-              <div className="flex items-center gap-2 text-xs">
-                <span className="px-2 py-1 rounded-md bg-white/80 text-amber-700 font-medium border border-amber-200">
-                  {selectedTemplate.recommendedTone}
-                </span>
-                <span className="px-2 py-1 rounded-md bg-white/80 text-amber-700/70">
-                  {selectedTemplate.keyPhases.length} phases
-                </span>
-                <span className="px-2 py-1 rounded-md bg-white/80 text-amber-700/70">
-                  {selectedTemplate.commonObjections.length} objections prep
-                </span>
               </div>
             </div>
           ) : (
