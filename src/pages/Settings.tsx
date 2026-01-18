@@ -237,7 +237,7 @@ export default function Settings() {
             </div>
 
             {/* Main Content with Sidebar */}
-            <div className="flex gap-8">
+            <div className="flex gap-8 items-start">
               {/* Account Sidebar */}
               <div className="hidden lg:block flex-shrink-0">
                 <AccountSidebar 
