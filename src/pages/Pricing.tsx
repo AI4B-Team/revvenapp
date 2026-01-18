@@ -518,16 +518,11 @@ const Pricing = () => {
           <p className="text-muted-foreground mb-8">
             Join thousands of creators who are already using Revven to grow their business.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex items-center justify-center">
             <Link to="/signup">
-              <Button size="lg">
-                Start Free Trial
+              <Button size="lg" className="bg-brand-green hover:bg-brand-green/90 text-white">
+                Start Free
                 <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </Link>
-            <Link to="/dashboard">
-              <Button size="lg" variant="outline">
-                View Demo
               </Button>
             </Link>
           </div>
