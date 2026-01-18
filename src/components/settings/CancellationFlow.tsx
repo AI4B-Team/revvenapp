@@ -182,20 +182,20 @@ export default function CancellationFlow({
     if (step === 'success') return null;
     
     return (
-      <div className="flex items-center justify-center gap-2 mb-6">
+      <div className="flex items-center justify-center gap-2 mb-4">
         {steps.map((s, i) => (
           <div key={s} className="flex items-center">
             <div 
               className={cn(
                 "w-2 h-2 rounded-full transition-colors",
-                i <= currentIndex ? "bg-destructive" : "bg-muted"
+                i <= currentIndex ? "bg-destructive" : "bg-border"
               )}
             />
             {i < steps.length - 1 && (
               <div 
                 className={cn(
-                  "w-8 h-0.5 mx-1 transition-colors",
-                  i < currentIndex ? "bg-destructive" : "bg-muted"
+                  "w-6 h-0.5 mx-1 transition-colors",
+                  i < currentIndex ? "bg-destructive" : "bg-border"
                 )}
               />
             )}
@@ -206,28 +206,28 @@ export default function CancellationFlow({
   };
 
   const renderReasonStep = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
-          <MessageSquare className="w-8 h-8 text-amber-600" />
+        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+          <MessageSquare className="w-6 h-6 text-amber-600" />
         </div>
-        <DialogTitle className="text-xl font-semibold text-foreground mb-2">
-          We're sorry to see you go
+        <DialogTitle className="text-lg font-semibold text-foreground mb-1">
+          We're Sorry To See You Go
         </DialogTitle>
-        <DialogDescription className="text-muted-foreground">
+        <DialogDescription className="text-sm text-muted-foreground">
           Before you cancel, please let us know why you're leaving so we can improve.
         </DialogDescription>
       </div>
 
-      <RadioGroup value={selectedReason} onValueChange={setSelectedReason} className="space-y-3">
+      <RadioGroup value={selectedReason} onValueChange={setSelectedReason} className="space-y-2">
         {cancellationReasons.map((reason) => (
           <div
             key={reason.id}
             className={cn(
-              "flex items-start space-x-3 p-4 rounded-lg border transition-all cursor-pointer",
+              "flex items-start space-x-3 p-3 rounded-lg border-2 transition-all cursor-pointer",
               selectedReason === reason.id 
                 ? "border-destructive bg-destructive/5" 
-                : "border-border hover:border-muted-foreground/30"
+                : "border-border/60 hover:border-border"
             )}
             onClick={() => setSelectedReason(reason.id)}
           >
@@ -237,7 +237,7 @@ export default function CancellationFlow({
                 {reason.label}
               </Label>
               {reason.description && (
-                <p className="text-xs text-muted-foreground mt-0.5">{reason.description}</p>
+                <p className="text-xs text-muted-foreground">{reason.description}</p>
               )}
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function CancellationFlow({
       </RadioGroup>
 
       {selectedReason === 'other' && (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label htmlFor="feedback" className="text-sm font-medium">
             Please tell us more (optional)
           </Label>
@@ -254,14 +254,14 @@ export default function CancellationFlow({
             placeholder="What could we have done better?"
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
-            className="resize-none"
-            rows={3}
+            className="resize-none border-2 border-border/60"
+            rows={2}
           />
         </div>
       )}
 
-      <div className="flex gap-3 pt-4">
-        <Button variant="outline" className="flex-1" onClick={handleClose}>
+      <div className="flex gap-3 pt-2">
+        <Button variant="outline" className="flex-1 border-2 border-border/60" onClick={handleClose}>
           Never mind
         </Button>
         <Button 
