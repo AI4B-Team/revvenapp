@@ -104,15 +104,15 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
         </DialogHeader>
 
         <div className="space-y-6 flex-1 flex flex-col">
-          {/* Pricing Display - Dark themed card */}
-          <div className="bg-gray-900 rounded-xl p-5 text-white">
+          {/* Pricing Display */}
+          <div className="bg-muted/50 rounded-xl p-5">
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-lg font-medium text-white">Extra Credit</span>
+              <span className="text-lg font-medium text-foreground">Extra Credit</span>
               <span className="text-4xl font-bold text-brand-green">${formatCredits(currentTier.price)}</span>
-              <span className="text-gray-400">/month</span>
+              <span className="text-muted-foreground">/month</span>
             </div>
-            <p className="text-sm text-gray-400 mb-6">
-              Available exclusively for <span className="font-medium text-white">Advanced</span>, <span className="font-medium text-white">Infinite</span> and <span className="font-medium text-white">Wonder</span> plan – Add extra monthly credits to your plan. <span className="text-brand-green cursor-pointer hover:underline">Learn more.</span>
+            <p className="text-sm text-muted-foreground mb-6">
+              Available exclusively for <span className="font-medium text-foreground">Advanced</span>, <span className="font-medium text-foreground">Infinite</span> and <span className="font-medium text-foreground">Wonder</span> plan – Add extra monthly credits to your plan. <span className="text-brand-green cursor-pointer hover:underline">Learn more.</span>
             </p>
 
             {/* Slider with Dropdown Control */}
@@ -124,21 +124,20 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
                 <div className="flex-1 relative">
                   <Progress 
                     value={progressPercentage} 
-                    className="h-3 bg-gray-700 [&>div]:bg-brand-green rounded-full"
+                    className="h-3 bg-gray-200 [&>div]:bg-brand-green rounded-full"
                   />
                 </div>
                 <Select value={selectedTierIndex.toString()} onValueChange={handleTierChange}>
-                  <SelectTrigger className="w-[200px] bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
+                  <SelectTrigger className="w-[200px] bg-background border-input hover:bg-muted">
                     <SelectValue>
                       {formatCredits(currentTier.credits)} credits / month
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="max-h-[300px] bg-gray-800 border-gray-700">
+                  <SelectContent className="max-h-[300px]">
                     {creditTiers.slice(1).map((tier, index) => (
                       <SelectItem 
                         key={tier.multiplier} 
                         value={(index + 1).toString()}
-                        className="text-white hover:bg-gray-700 focus:bg-gray-700 focus:text-white"
                       >
                         {formatCredits(tier.credits)} credits / month
                       </SelectItem>
