@@ -30,7 +30,7 @@ const Pricing = () => {
       monthlyPrice: 9,
       annualPrice: 7,
       description: 'Great for individuals getting started',
-      buttonText: 'Start Free Trial',
+      buttonText: 'Start Free',
       buttonVariant: 'outline' as const,
       popular: false,
       color: 'bg-blue-500',
@@ -42,7 +42,7 @@ const Pricing = () => {
       monthlyPrice: 59,
       annualPrice: 47,
       description: 'For creators who want to grow faster',
-      buttonText: 'Start Free Trial',
+      buttonText: 'Start Free',
       buttonVariant: 'default' as const,
       popular: true,
       color: 'bg-brand-green',
@@ -54,7 +54,7 @@ const Pricing = () => {
       monthlyPrice: 119,
       annualPrice: 97,
       description: 'For professionals and teams',
-      buttonText: 'Start Free Trial',
+      buttonText: 'Start Free',
       buttonVariant: 'outline' as const,
       popular: false,
       color: 'bg-amber-500',
@@ -234,27 +234,6 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">R</span>
-              </div>
-              <span className="font-semibold text-xl">Revven</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link to="/login">
-                <Button variant="ghost">Log in</Button>
-              </Link>
-              <Link to="/signup">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Hero Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 text-center">
@@ -340,7 +319,7 @@ const Pricing = () => {
 
                   <Link to={plan.href}>
                     <Button
-                      className="w-full mb-6"
+                      className={`w-full mb-6 ${plan.buttonVariant === 'outline' ? 'border-brand-green text-brand-green hover:bg-brand-green hover:text-white' : 'bg-brand-green hover:bg-brand-green/90 text-white'}`}
                       variant={plan.buttonVariant}
                     >
                       {plan.buttonText}
