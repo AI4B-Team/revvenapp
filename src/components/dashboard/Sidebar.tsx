@@ -225,6 +225,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const [isCampaignsOpen, setIsCampaignsOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
+  const [brandSearchQuery, setBrandSearchQuery] = useState('');
 
   const brandProfiles = [
     { name: 'Xalina Voss', initial: 'X', bgColor: 'bg-brand-pink', isComplete: true },
@@ -237,6 +238,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const handleBrandSelect = (brand: typeof brandProfiles[0]) => {
     setSelectedBrand(brand);
     setIsBrandsDropdownOpen(false);
+    setBrandSearchQuery('');
     
     // If brand profile is incomplete, navigate to brand page with the incomplete section
     if (!brand.isComplete && brand.incompleteSection) {
@@ -449,11 +451,20 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         
           {isBrandsDropdownOpen && (
             <div className="absolute top-full left-4 right-4 mt-2 bg-sidebar border border-border rounded-lg shadow-lg z-50 py-2">
-              <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text border-b border-border mb-2">
-                <Search size={16} />
-                <span className="flex-1 text-left text-sm">Search Brands</span>
-              </button>
-              {brandProfiles.map((brand, idx) => (
+              <div className="flex items-center gap-3 px-3 py-2 border-b border-border mb-2">
+                <Search size={16} className="text-sidebar-muted" />
+                <input
+                  type="text"
+                  placeholder="Search Brands"
+                  value={brandSearchQuery}
+                  onChange={(e) => setBrandSearchQuery(e.target.value)}
+                  className="flex-1 text-sm bg-transparent text-sidebar-text placeholder:text-sidebar-muted outline-none"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+              {brandProfiles
+                .filter((brand) => brand.name.toLowerCase().includes(brandSearchQuery.toLowerCase()))
+                .map((brand, idx) => (
                 <button
                   key={idx}
                   type="button"
