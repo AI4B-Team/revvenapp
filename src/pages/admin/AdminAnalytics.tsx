@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminTopNav from '@/components/admin/AdminTopNav';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -103,9 +103,9 @@ const AdminAnalytics = () => {
   if (isLoading) {
     return (
       <AdminGuard>
-        <div className="flex min-h-screen bg-background">
-          <AdminSidebar />
-          <main className="flex-1 p-8 flex items-center justify-center">
+        <div className="min-h-screen bg-background">
+          <AdminTopNav />
+          <main className="p-8 flex items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </main>
         </div>
@@ -115,9 +115,9 @@ const AdminAnalytics = () => {
 
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-background">
-        <AdminSidebar />
-        <main className="flex-1 p-8">
+      <div className="min-h-screen bg-background">
+        <AdminTopNav />
+        <main className="p-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Analytics</h1>
             <p className="text-muted-foreground">Platform usage and performance metrics.</p>

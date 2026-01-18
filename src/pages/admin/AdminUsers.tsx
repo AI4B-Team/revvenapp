@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminTopNav from '@/components/admin/AdminTopNav';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -244,9 +244,9 @@ const AdminUsers = () => {
 
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-background">
-        <AdminSidebar />
-        <main className="flex-1 p-8">
+      <div className="min-h-screen bg-background">
+        <AdminTopNav />
+        <main className="p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold">Users</h1>
