@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, MessageSquare, Phone, Save, Mail, Settings, Palette, Trash2, Plus, LayoutGrid } from 'lucide-react';
+import { Bell, Save, Mail, Settings, Palette, Trash2, Plus, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -33,8 +33,6 @@ export default function WorkspaceTab() {
     bgColor: 'bg-brand-green',
   });
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [smsEnabled, setSmsEnabled] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   // Initialize form data from selected space
@@ -333,42 +331,6 @@ export default function WorkspaceTab() {
             <Switch
               checked={emailNotifications}
               onCheckedChange={setEmailNotifications}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* SMS Settings Section */}
-      <div className="bg-white rounded-lg border border-gray-300 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Phone className="w-5 h-5 text-gray-600" />
-          <h3 className="font-semibold text-gray-900">SMS Settings</h3>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber">Phone Number</Label>
-            <Input
-              id="phoneNumber"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+1234567890"
-              className="bg-white border-gray-200"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <MessageSquare className="w-5 h-5 text-gray-500" />
-              <div>
-                <p className="font-medium text-gray-900">Enable SMS with agent</p>
-                <p className="text-sm text-gray-500">Text your agent for quick tasks</p>
-              </div>
-            </div>
-            <Switch
-              checked={smsEnabled}
-              onCheckedChange={setSmsEnabled}
             />
           </div>
         </div>
