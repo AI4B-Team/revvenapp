@@ -390,7 +390,7 @@ export default function CancellationFlow({
           >
             {offerType === 'discount' && 'Claim My 50% Discount'}
             {offerType === 'pause' && 'Pause My Subscription'}
-            {offerType === 'support' && 'Chat with Support'}
+            {offerType === 'support' && 'Chat With Support'}
           </Button>
           <Button 
             variant="ghost" 
