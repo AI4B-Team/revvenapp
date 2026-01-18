@@ -440,6 +440,12 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 <div
                   key={idx}
                   className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group cursor-pointer"
+                  onClick={() => {
+                    // Switch to this brand and close dropdown
+                    setIsBrandsDropdownOpen(false);
+                    // Navigate to dashboard with the selected brand
+                    navigate('/');
+                  }}
                 >
                   <div className={`w-8 h-8 ${brand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white`}>
                     {brand.initial}
@@ -455,11 +461,14 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48 bg-popover">
-                      <DropdownMenuItem onClick={() => navigate('/brand')}>
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/brand');
+                      }}>
                         <Edit size={14} className="mr-2" />
                         Edit Brand
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
                         <Settings size={14} className="mr-2" />
                         Settings
                       </DropdownMenuItem>
