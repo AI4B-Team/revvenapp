@@ -527,33 +527,51 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
           </p>
         </div>
 
-        {/* Template & Call Structure Section - Redesigned */}
-        <div className="p-4 border-b border-border">
-          {/* Template Header with Switcher */}
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
-              <Target className="w-4 h-4" />
-              {selectedTemplate ? selectedTemplate.name : 'Call Structure'}
-            </h4>
+        {/* Template Info Section */}
+        <div className="p-4 border-b border-border bg-amber-50/50">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              {selectedTemplate ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
+                    {selectedTemplate.icon}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground">{selectedTemplate.name}</h4>
+                    <p className="text-xs text-muted-foreground">{selectedTemplate.objective}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground">No Template</h4>
+                    <p className="text-xs text-muted-foreground">Select a conversation template</p>
+                  </div>
+                </>
+              )}
+            </div>
             
             {/* Template Switcher Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors border border-border">
+                <button className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-amber-100 hover:bg-amber-200 text-amber-700 transition-colors">
                   <RefreshCw className="w-3 h-3" />
-                  {selectedTemplate ? 'Switch' : 'Select Template'}
+                  Switch
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 max-h-80 bg-popover border border-border shadow-lg z-50">
-                <DropdownMenuLabel className="text-xs text-muted-foreground">Choose Template</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-64 max-h-80">
+                <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Template</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <ScrollArea className="h-64">
                   {selectedTemplate && (
                     <>
                       <DropdownMenuItem
                         onClick={() => onTemplateChange?.(null)}
-                        className="flex items-center gap-2 text-red-600 cursor-pointer hover:bg-red-50"
+                        className="flex items-center gap-2 text-red-600 cursor-pointer"
                       >
                         <X className="w-4 h-4" />
                         <span>Clear Template</span>
@@ -566,18 +584,18 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
                       key={template.id}
                       onClick={() => onTemplateChange?.(template)}
                       className={`flex items-center gap-2 cursor-pointer ${
-                        selectedTemplate?.id === template.id ? 'bg-emerald-50' : ''
+                        selectedTemplate?.id === template.id ? 'bg-amber-50' : ''
                       }`}
                     >
-                      <div className="w-6 h-6 rounded flex items-center justify-center bg-emerald-100 text-emerald-600 flex-shrink-0">
+                      <div className="w-6 h-6 rounded flex items-center justify-center bg-amber-100 text-amber-600 flex-shrink-0">
                         {template.icon}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{template.name}</p>
-                        <p className="text-xs text-muted-foreground truncate capitalize">{template.category}</p>
+                        <p className="text-xs text-muted-foreground truncate">{template.category}</p>
                       </div>
                       {selectedTemplate?.id === template.id && (
-                        <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                        <CheckCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
                       )}
                     </DropdownMenuItem>
                   ))}
@@ -585,93 +603,59 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
-          {/* Call Phases - Card-based like the reference */}
-          <div className="space-y-2">
-            {callPhases.map((phase, index) => (
-              <div
-                key={phase.id}
-                className={`flex items-center justify-between p-3 rounded-xl transition-all duration-200 ${
-                  phase.status === 'completed'
-                    ? 'bg-emerald-50 border border-emerald-100'
-                    : phase.status === 'active'
-                    ? `${modeColors.light} border ${modeColors.border}`
-                    : 'bg-muted/50 border border-transparent'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {phase.status === 'completed' ? (
-                    <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
-                      <CheckCircle className="w-3.5 h-3.5 text-white" />
-                    </div>
-                  ) : phase.status === 'active' ? (
-                    <div className={`w-5 h-5 rounded-full ${
-                      callMode === 'listen' ? 'bg-blue-500' : callMode === 'voice-agent' ? 'bg-purple-500' : 'bg-emerald-500'
-                    } flex items-center justify-center`}>
-                      <Clock className="w-3 h-3 text-white animate-pulse" />
-                    </div>
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/30 bg-background" />
-                  )}
-                  <span className={`text-sm font-medium ${
-                    phase.status === 'completed' 
-                      ? 'text-emerald-700' 
-                      : phase.status === 'active'
-                      ? 'text-foreground'
-                      : 'text-muted-foreground'
-                  }`}>
-                    {phase.name}
-                  </span>
-                </div>
-                <span className={`text-xs font-mono ${
-                  phase.status === 'active' ? 'text-foreground font-medium' : 'text-muted-foreground'
-                }`}>
-                  {phase.duration}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Template Details - Tone & Objections */}
+          
           {selectedTemplate && (
-            <div className="mt-4 space-y-3">
-              {/* Recommended Tone */}
-              <div className="p-3 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100">
-                <div className="flex items-center gap-2 mb-1">
-                  <MessageSquare className="w-3.5 h-3.5 text-purple-600" />
-                  <span className="text-xs font-semibold text-purple-700">Recommended Tone</span>
-                </div>
-                <p className="text-sm text-purple-900">{selectedTemplate.recommendedTone}</p>
-              </div>
-
-              {/* Common Objections Warning */}
-              <div className="p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                  <span className="text-xs font-semibold text-amber-700">Watch For These Objections</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedTemplate.commonObjections.slice(0, 3).map((objection, idx) => (
-                    <span 
-                      key={idx} 
-                      className="px-2 py-1 rounded-lg text-xs bg-amber-100 text-amber-800 border border-amber-200"
-                    >
-                      "{objection}"
+            <div className="space-y-2">
+              <div>
+                <span className="text-xs font-medium text-muted-foreground">Phases: </span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {selectedTemplate.keyPhases.map((phase, idx) => (
+                    <span key={idx} className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-700">
+                      {phase}
                     </span>
                   ))}
                 </div>
               </div>
-
-              {/* Template Objective */}
-              <div className="p-3 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100">
-                <div className="flex items-center gap-2 mb-1">
-                  <Target className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="text-xs font-semibold text-emerald-700">Goal</span>
-                </div>
-                <p className="text-sm text-emerald-900">{selectedTemplate.objective}</p>
+              <div>
+                <span className="text-xs font-medium text-muted-foreground">Tone: </span>
+                <span className="text-xs text-foreground">{selectedTemplate.recommendedTone}</span>
               </div>
             </div>
           )}
+        </div>
+
+        {/* Call Phase Tracker */}
+        <div className="p-4 border-b border-border">
+          <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-foreground">
+            <Target className="w-4 h-4" />
+            Call Structure
+          </h4>
+          <div className="space-y-2">
+            {callPhases.map((phase) => (
+              <div
+                key={phase.id}
+                className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                  phase.status === 'active'
+                    ? `${modeColors.light} ${modeColors.border} border`
+                    : phase.status === 'completed'
+                    ? 'bg-emerald-100 border border-emerald-200'
+                    : 'bg-muted border border-border'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {phase.status === 'completed' ? (
+                    <CheckCircle className="w-4 h-4 text-emerald-600" />
+                  ) : phase.status === 'active' ? (
+                    <Clock className={`w-4 h-4 ${callMode === 'listen' ? 'text-blue-600' : callMode === 'voice-agent' ? 'text-purple-600' : 'text-emerald-600'} animate-pulse`} />
+                  ) : (
+                    <div className="w-4 h-4 rounded-full border-2 border-muted-foreground" />
+                  )}
+                  <span className="text-sm font-medium text-foreground">{phase.name}</span>
+                </div>
+                <span className="text-xs text-muted-foreground font-mono">{phase.duration}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* AI Suggestions */}
