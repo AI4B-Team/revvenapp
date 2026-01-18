@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Save, Trash2, Users, Settings, Palette, MoreHorizontal, Plus } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Users, Settings, Palette, MoreHorizontal, Plus, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -192,8 +192,8 @@ const SpaceSettings = () => {
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${formData.bgColor} rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0`}>
-                      {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
+                    <div className={`w-10 h-10 ${formData.bgColor} rounded-xl flex items-center justify-center shrink-0`}>
+                      <LayoutGrid className="w-5 h-5 text-white" />
                     </div>
                     <Input
                       id="name"
