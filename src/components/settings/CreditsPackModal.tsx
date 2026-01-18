@@ -55,7 +55,7 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader className="text-center pb-2">
           <div className="flex items-center justify-center gap-2 text-brand-green mb-2">
             <Sparkles className="w-5 h-5" />

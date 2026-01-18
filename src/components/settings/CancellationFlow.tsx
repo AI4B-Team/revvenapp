@@ -568,7 +568,7 @@ export default function CancellationFlow({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>Cancel Subscription</DialogTitle>
           <DialogDescription>Steps to cancel your subscription</DialogDescription>
