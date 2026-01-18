@@ -44,12 +44,12 @@ interface MCConversationTemplatesProps {
 }
 
 const templateCategories = [
-  { id: 'sales', name: 'Sales', icon: <DollarSign className="w-5 h-5" />, color: 'from-emerald-500 to-green-600' },
-  { id: 'business', name: 'Business', icon: <Briefcase className="w-5 h-5" />, color: 'from-blue-500 to-indigo-600' },
-  { id: 'recruiting', name: 'Recruiting', icon: <UserCheck className="w-5 h-5" />, color: 'from-violet-500 to-purple-600' },
-  { id: 'leadership', name: 'Leadership', icon: <Award className="w-5 h-5" />, color: 'from-orange-500 to-amber-600' },
-  { id: 'coaching', name: 'Coaching', icon: <Lightbulb className="w-5 h-5" />, color: 'from-yellow-500 to-orange-500' },
-  { id: 'personal', name: 'Personal', icon: <Heart className="w-5 h-5" />, color: 'from-pink-500 to-rose-600' },
+  { id: 'sales', name: 'Sales', icon: <DollarSign className="w-5 h-5" /> },
+  { id: 'business', name: 'Business', icon: <Briefcase className="w-5 h-5" /> },
+  { id: 'recruiting', name: 'Recruiting', icon: <UserCheck className="w-5 h-5" /> },
+  { id: 'leadership', name: 'Leadership', icon: <Award className="w-5 h-5" /> },
+  { id: 'coaching', name: 'Coaching', icon: <Lightbulb className="w-5 h-5" /> },
+  { id: 'personal', name: 'Personal', icon: <Heart className="w-5 h-5" /> },
 ];
 
 const templates: ConversationTemplate[] = [
@@ -346,20 +346,20 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden bg-card border-0 shadow-2xl">
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white">
+        <div className="relative bg-primary p-6 text-primary-foreground">
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+            className="absolute top-4 right-4 p-2 hover:bg-primary-foreground/20 rounded-full transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+            <div className="w-12 h-12 bg-primary-foreground/20 rounded-xl flex items-center justify-center">
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-2xl font-bold">Choose Your Template</h2>
-              <p className="text-emerald-100 text-sm">Select a conversation type for optimized AI guidance</p>
+              <p className="text-primary-foreground/80 text-sm">Select a conversation type for optimized AI guidance</p>
             </div>
           </div>
         </div>
@@ -373,7 +373,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                 onClick={() => setSelectedCategory(category.id)}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all ${
                   selectedCategory === category.id
-                    ? `bg-gradient-to-r ${category.color} text-white shadow-lg`
+                    ? 'bg-primary text-primary-foreground shadow-lg'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
@@ -398,7 +398,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
           {/* Templates Grid */}
           <div className="flex-1 p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${currentCategory?.color} flex items-center justify-center text-white`}>
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
                 {currentCategory?.icon}
               </div>
               <h3 className="font-bold text-lg text-foreground">{currentCategory?.name} Templates</h3>
@@ -434,8 +434,8 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                       <div className="flex items-start gap-3">
                         <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
                           isSelected
-                            ? `bg-gradient-to-r ${currentCategory?.color} text-white`
-                            : 'bg-muted text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-600'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
                         }`}>
                           {template.icon}
                         </div>
@@ -465,7 +465,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
             {previewTemplate ? (
               <div className="p-5 h-full flex flex-col">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${currentCategory?.color} flex items-center justify-center text-white`}>
+                  <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
                     {previewTemplate.icon}
                   </div>
                   <div>
@@ -484,7 +484,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                     <h5 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Call Phases</h5>
                     <div className="flex flex-wrap gap-1.5">
                       {previewTemplate.keyPhases.map((phase, i) => (
-                        <span key={i} className={`px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${currentCategory?.color} text-white`}>
+                        <span key={i} className="px-2.5 py-1 rounded-full text-xs font-medium bg-primary text-primary-foreground">
                           {phase}
                         </span>
                       ))}
@@ -511,7 +511,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 
                 <Button 
                   onClick={() => onSelect(previewTemplate)}
-                  className={`w-full mt-4 bg-gradient-to-r ${currentCategory?.color} hover:opacity-90 text-white`}
+                  className="w-full mt-4"
                 >
                   Use This Template
                   <ArrowRight className="w-4 h-4 ml-2" />
