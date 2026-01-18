@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import Sidebar from '@/components/dashboard/Sidebar';
 
 const bgColorOptions = [
-  { value: 'bg-brand-green', label: 'Green', color: '#00FF88' },
+  { value: 'bg-brand-green', label: 'Green', color: '#57C785' },
   { value: 'bg-brand-blue', label: 'Blue', color: '#3B82F6' },
   { value: 'bg-brand-yellow', label: 'Yellow', color: '#EAB308' },
   { value: 'bg-brand-pink', label: 'Pink', color: '#EC4899' },
