@@ -351,15 +351,15 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden bg-card border border-border/50 shadow-2xl rounded-2xl [&>button]:hidden">
         {/* Header */}
-        <div className="relative bg-emerald-50 p-6 border-b border-emerald-100">
+        <div className="relative p-6 border-b border-border">
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 p-2.5 hover:bg-white rounded-xl transition-all text-muted-foreground hover:text-foreground"
+            className="absolute top-4 right-4 p-2.5 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-foreground"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+            <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
               <Sparkles className="w-7 h-7" />
             </div>
             <div>
@@ -393,15 +393,6 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
               </button>
             ))}
 
-            {/* Skip button at bottom */}
-            <div className="mt-auto pt-4">
-              <button
-                onClick={onClose}
-                className="w-full text-sm text-muted-foreground hover:text-foreground py-2.5 transition-colors rounded-lg hover:bg-muted/50"
-              >
-                Skip For Now
-              </button>
-            </div>
           </div>
 
           {/* Templates Grid */}
@@ -428,7 +419,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                       onClick={() => onSelect(template)}
                       onMouseEnter={() => setPreviewTemplate(template)}
                       onMouseLeave={() => setPreviewTemplate(null)}
-                      className={`group relative p-4 pt-5 rounded-xl border text-left transition-all duration-200 ${
+                      className={`group relative p-4 pt-5 rounded-xl border text-left transition-all duration-200 flex flex-col h-full ${
                         isSelected
                           ? 'border-emerald-400 bg-emerald-50 shadow-md'
                           : isHovered
@@ -442,7 +433,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                         </div>
                       )}
                       
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-3 flex-1">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
                           isSelected
                             ? 'bg-emerald-100 text-emerald-600'
@@ -456,7 +447,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 mt-3">
+                      <div className="flex items-center gap-2 mt-3 pt-2">
                         <span className="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium border border-emerald-200">
                           {template.keyPhases.length} Phases
                         </span>
