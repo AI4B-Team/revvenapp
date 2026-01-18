@@ -35,13 +35,11 @@ import MCTransferModal from './MCTransferModal';
 import type { CallMode } from '@/pages/MasterCloser';
 import { templates, type ConversationTemplate } from './MCConversationTemplates';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from '@/components/ui/dropdown-menu';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -78,6 +76,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
   const [coachModeEnabled, setCoachModeEnabled] = useState(true);
   const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([
@@ -532,53 +531,14 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
               Call Template
             </h4>
             
-            {/* Template Switcher Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors border border-border">
-                  <RefreshCw className="w-3 h-3" />
-                  Switch
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 max-h-80">
-                <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Template</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <ScrollArea className="h-64">
-                  {selectedTemplate && (
-                    <>
-                      <DropdownMenuItem
-                        onClick={() => onTemplateChange?.(null)}
-                        className="flex items-center gap-2 text-red-600 cursor-pointer"
-                      >
-                        <X className="w-4 h-4" />
-                        <span>Clear Template</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-                  {templates.map((template) => (
-                    <DropdownMenuItem
-                      key={template.id}
-                      onClick={() => onTemplateChange?.(template)}
-                      className={`flex items-center gap-2 cursor-pointer ${
-                        selectedTemplate?.id === template.id ? 'bg-amber-50' : ''
-                      }`}
-                    >
-                      <div className="w-6 h-6 rounded flex items-center justify-center bg-amber-100 text-amber-600 flex-shrink-0">
-                        {template.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{template.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{template.category}</p>
-                      </div>
-                      {selectedTemplate?.id === template.id && (
-                        <CheckCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
-                </ScrollArea>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Template Switcher Button */}
+            <button 
+              onClick={() => setShowTemplateModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors border border-border"
+            >
+              <RefreshCw className="w-3 h-3" />
+              Switch
+            </button>
           </div>
           
           {/* Template Card */}
@@ -766,6 +726,73 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
         onClose={() => setShowTransferModal(false)}
         onTransfer={handleTransferComplete}
       />
+
+      {/* Switch Template Modal */}
+      <Dialog open={showTemplateModal} onOpenChange={setShowTemplateModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-amber-600" />
+              Switch Template
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-hidden">
+            {selectedTemplate && (
+              <button
+                onClick={() => {
+                  onTemplateChange?.(null);
+                  setShowTemplateModal(false);
+                }}
+                className="w-full mb-4 flex items-center gap-2 p-3 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+                <span className="font-medium">Clear Current Template</span>
+              </button>
+            )}
+            
+            <ScrollArea className="h-[50vh]">
+              <div className="grid grid-cols-2 gap-3 pr-4">
+                {templates.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => {
+                      onTemplateChange?.(template);
+                      setShowTemplateModal(false);
+                      toast.success(`Switched to ${template.name}`);
+                    }}
+                    className={`text-left p-4 rounded-xl border transition-all hover:shadow-md ${
+                      selectedTemplate?.id === template.id
+                        ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 shadow-md'
+                        : 'border-border bg-card hover:border-amber-200'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0 ${
+                        selectedTemplate?.id === template.id
+                          ? 'bg-amber-100 text-amber-600'
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {template.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-foreground truncate">{template.name}</h4>
+                          {selectedTemplate?.id === template.id && (
+                            <CheckCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">{template.category}</p>
+                        <p className="text-xs text-muted-foreground/80 mt-1 line-clamp-2">{template.objective}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
