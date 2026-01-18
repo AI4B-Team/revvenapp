@@ -92,7 +92,7 @@ export default function WorkspaceTab() {
         </p>
       </div>
 
-      {/* Space Preview & General Settings */}
+      {/* Space Settings */}
       {selectedSpace && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -100,27 +100,21 @@ export default function WorkspaceTab() {
             <h3 className="font-semibold text-gray-900">Space Settings</h3>
           </div>
           
-          {/* Preview */}
-          <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg mb-4">
-            <div className={`w-12 h-12 ${formData.bgColor} rounded-xl flex items-center justify-center text-xl font-bold text-white`}>
-              {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900">{formData.name || 'New Space'}</h4>
-              <p className="text-sm text-gray-500">{formData.description || 'No description'}</p>
-            </div>
-          </div>
-
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="spaceName">Space Name</Label>
-              <Input
-                id="spaceName"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="My Workspace"
-                className="bg-white border-gray-200"
-              />
+              <Label htmlFor="spaceName">Name</Label>
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 ${formData.bgColor} rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0`}>
+                  {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
+                </div>
+                <Input
+                  id="spaceName"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="My Workspace"
+                  className="bg-white border-gray-200"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
