@@ -262,7 +262,7 @@ export default function CancellationFlow({
 
       <div className="flex gap-3 pt-1">
         <Button variant="outline" className="flex-1 border-2 border-border/60" onClick={handleClose}>
-          Never mind
+          Never Mind
         </Button>
         <Button 
           variant="destructive" 
@@ -397,7 +397,7 @@ export default function CancellationFlow({
             className="w-full text-muted-foreground"
             onClick={handleNext}
           >
-            No thanks, continue canceling
+            No Thanks, Continue Canceling
           </Button>
         </div>
       </div>
@@ -405,10 +405,10 @@ export default function CancellationFlow({
   };
 
   const renderWarningStep = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
-          <AlertTriangle className="w-8 h-8 text-amber-600" />
+        <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+          <AlertTriangle className="w-7 h-7 text-amber-600" />
         </div>
         <DialogTitle className="text-xl font-semibold text-foreground mb-2">
           Before You Cancel
@@ -418,14 +418,14 @@ export default function CancellationFlow({
         </DialogDescription>
       </div>
 
-      <div className="space-y-4">
-        {/* What you'll lose */}
+      <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+        {/* What You'll Lose */}
         <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-5 h-5 rounded-full bg-destructive/20 flex items-center justify-center">
               <X className="w-3 h-3 text-destructive" />
             </div>
-            <h4 className="font-semibold text-foreground">What you'll lose</h4>
+            <h4 className="font-semibold text-foreground">What You'll Lose</h4>
           </div>
           <ul className="space-y-2">
             {whatYouLose.map((item, i) => (
@@ -437,13 +437,13 @@ export default function CancellationFlow({
           </ul>
         </div>
 
-        {/* What you'll keep */}
+        {/* What You'll Keep */}
         <div className="bg-brand-green/5 border border-brand-green/20 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-5 h-5 rounded-full bg-brand-green/20 flex items-center justify-center">
               <Check className="w-3 h-3 text-brand-green" />
             </div>
-            <h4 className="font-semibold text-foreground">What you'll keep</h4>
+            <h4 className="font-semibold text-foreground">What You'll Keep</h4>
           </div>
           <ul className="space-y-2">
             {whatYouKeep.map((item, i) => (
@@ -456,7 +456,7 @@ export default function CancellationFlow({
         </div>
       </div>
 
-      <div className="flex gap-3 pt-4">
+      <div className="flex gap-3 pt-2">
         <Button variant="default" className="flex-1" onClick={handleClose}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Keep My Subscription
@@ -466,7 +466,7 @@ export default function CancellationFlow({
           className="flex-1 text-destructive border-destructive/30 hover:bg-destructive/5"
           onClick={handleNext}
         >
-          Continue to Cancel
+          Continue To Cancel
         </Button>
       </div>
     </div>
@@ -568,7 +568,7 @@ export default function CancellationFlow({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden max-h-[90vh]">
+      <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden max-h-[90vh]">
         <DialogHeader className="sr-only">
           <DialogTitle>Cancel Subscription</DialogTitle>
           <DialogDescription>Steps to cancel your subscription</DialogDescription>
