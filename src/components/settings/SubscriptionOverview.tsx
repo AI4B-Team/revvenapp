@@ -42,7 +42,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
   };
 
   const teamCredits = {
-    used: 62333,
+    used: 10000,
     total: 98000,
     refillDate: 'Jan 18',
   };
@@ -78,7 +78,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
                 <span className="text-2xl font-bold text-gray-900">{planData.name}</span>
               </div>
               <p className="text-sm text-gray-500 mb-4">
-                ${planData.price}/{planData.billingCycle}
+                ${planData.price}/Month
               </p>
               <div className="flex gap-2">
                 <Button 
@@ -105,10 +105,10 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
                 Credits Pack
               </div>
               <div className="mb-1">
-                <span className="text-2xl font-bold text-gray-900">{creditsData.packs} packs</span>
+                <span className="text-2xl font-bold text-gray-900">{creditsData.packs} Packs</span>
               </div>
               <p className="text-sm text-gray-500 mb-4">
-                ${creditsData.pricePerPack}/Pack/month
+                ${creditsData.pricePerPack}/Pack/Month
               </p>
               <Button 
                 size="sm" 
@@ -126,7 +126,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
             <div className="border border-gray-200 rounded-xl p-5 bg-white">
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                 <LayoutGrid className="w-4 h-4" />
-                <span>Workspaces</span>
+                <span>Spaces</span>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
@@ -143,16 +143,16 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
               </div>
               <div className="mb-4">
                 <Progress value={(workspacesData.used / workspacesData.total) * 100} className="h-1.5 mb-1" />
-                <p className="text-xs text-gray-500">{workspacesData.used} of {workspacesData.total} workspaces in use</p>
+                <p className="text-xs text-gray-500">{workspacesData.used} of {workspacesData.total} Spaces In Use</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="flex-1 gap-2">
                   <Settings className="w-4 h-4" />
-                  Manage Workspaces
+                  Manage Spaces
                 </Button>
                 <Button variant="outline" size="sm" className="flex-1 gap-2">
                   <Plus className="w-4 h-4" />
-                  Add Workspace
+                  Add Space
                 </Button>
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
                   Manage Seats
                 </Button>
                 <Button variant="outline" size="sm" className="flex-1">
-                  Invite Teammate
+                  Invite Member
                 </Button>
               </div>
             </div>
@@ -220,9 +220,9 @@ export default function SubscriptionOverview({ onCancelClick }: SubscriptionOver
             </Button>
           </div>
           
-          {/* Credits Progress Bar */}
+          {/* Credits Progress Bar - Green */}
           <div className="mt-4">
-            <Progress value={creditPercentage} className="h-2" />
+            <Progress value={creditPercentage} className="h-2 [&>div]:bg-brand-green" />
           </div>
         </div>
       </div>

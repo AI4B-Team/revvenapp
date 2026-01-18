@@ -823,11 +823,11 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 </Tooltip>
               </div>
             </TooltipProvider>
-            <div className="text-xs text-sidebar-muted mb-2">10000 / 98000 Used</div>
+            <div className="text-xs text-sidebar-muted mb-2">10,000 / 98,000 Used</div>
             <div className="w-full bg-sidebar-hover rounded-full h-2 mb-3">
               <div className="bg-brand-green h-2 rounded-full" style={{ width: '10.2%' }}></div>
             </div>
-            <div className="text-sm text-brand-green font-semibold mb-3">88000 Credits Remaining</div>
+            <div className="text-sm text-brand-green font-semibold mb-3">88,000 Credits Remaining</div>
             <button className="w-full bg-brand-green hover:opacity-90 text-primary font-semibold py-2 rounded-lg transition">
               Purchase Extra Credit
             </button>
