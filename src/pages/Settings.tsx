@@ -15,6 +15,7 @@ import Header from '@/components/dashboard/Header';
 import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
 import InvitesTab from '@/components/settings/InvitesTab';
 import WorkspaceTab from '@/components/settings/WorkspaceTab';
+import MembersTab from '@/components/settings/MembersTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
 import CancellationFlow from '@/components/settings/CancellationFlow';
 import SubscriptionOverview from '@/components/settings/SubscriptionOverview';
@@ -323,6 +324,12 @@ export default function Settings() {
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Workspace
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="members"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
+                  >
+                    Members
                   </TabsTrigger>
                 </TabsList>
 
@@ -1410,6 +1417,10 @@ export default function Settings() {
             <div className="bg-white rounded-lg border border-gray-300 p-6">
               <WorkspaceTab />
             </div>
+          </TabsContent>
+
+          <TabsContent value="members" className="mt-0 lg:mt-0">
+            <MembersTab />
           </TabsContent>
               </Tabs>
             </div>
