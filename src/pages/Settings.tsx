@@ -14,6 +14,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
 import InvitesTab from '@/components/settings/InvitesTab';
+import WorkspaceTab from '@/components/settings/WorkspaceTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -319,6 +320,12 @@ export default function Settings() {
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Invites
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="workspace"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
+                  >
+                    Workspace
                   </TabsTrigger>
                 </TabsList>
 
@@ -1402,6 +1409,12 @@ export default function Settings() {
 
           <TabsContent value="invites" className="mt-8">
             <InvitesTab />
+          </TabsContent>
+
+          <TabsContent value="workspace" className="mt-8">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <WorkspaceTab />
+            </div>
           </TabsContent>
               </Tabs>
             </div>

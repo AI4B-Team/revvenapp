@@ -13,7 +13,8 @@ import {
   Sun,
   Monitor,
   ChevronRight,
-  Shield
+  Shield,
+  LayoutGrid
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -63,6 +64,7 @@ export default function AccountSidebar({
   const menuItems = [
     { id: 'billing', label: t('settings.subscription'), icon: CreditCard, badge: 'Pro' },
     { id: 'my-details', label: t('settings.account'), icon: Settings },
+    { id: 'workspace', label: 'Workspace', icon: LayoutGrid },
     { id: 'invites', label: t('settings.invites'), icon: Mail },
     { id: 'integrations', label: t('settings.integrations'), icon: Plug },
     ...(isAdminOrModerator ? [{ id: 'admin', label: 'Admin Panel', icon: Shield }] : []),
