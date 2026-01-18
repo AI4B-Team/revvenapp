@@ -29,11 +29,13 @@ import {
 } from 'lucide-react';
 import MCTransferModal from './MCTransferModal';
 import type { CallMode } from '@/pages/MasterCloser';
+import type { ConversationTemplate } from './MCConversationTemplates';
 
 interface MCLiveCallProps {
   isActive: boolean;
   onEndCall: () => void;
   callMode: CallMode;
+  selectedTemplate?: ConversationTemplate | null;
 }
 
 interface TranscriptMessage {
@@ -52,7 +54,7 @@ interface AISuggestion {
   reasoning?: string;
 }
 
-const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }) => {
+const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, selectedTemplate }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [sentiment, setSentiment] = useState(75);
@@ -208,7 +210,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                 )}
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="font-bold text-lg text-foreground">Sarah Johnson</h2>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${modeColors.light} ${modeColors.text}`}>
                     {callMode === 'listen' 
@@ -217,6 +219,11 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                         ? '🤖 Voice Agent' 
                         : '🎙️ Live Call'}
                   </span>
+                  {selectedTemplate && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                      📋 {selectedTemplate.name}
+                    </span>
+                  )}
                   {callMode === 'voice-agent' && isAgentSpeaking && (
                     <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-200 text-purple-800 animate-pulse">
                       Agent Speaking...
@@ -435,6 +442,37 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode }
                 : 'Real-time suggestions and guidance'}
           </p>
         </div>
+
+        {/* Template Info Section */}
+        {selectedTemplate && (
+          <div className="p-4 border-b border-border bg-amber-50/50">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
+                {selectedTemplate.icon}
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">{selectedTemplate.name}</h4>
+                <p className="text-xs text-muted-foreground">{selectedTemplate.objective}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div>
+                <span className="text-xs font-medium text-muted-foreground">Phases: </span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {selectedTemplate.keyPhases.map((phase, idx) => (
+                    <span key={idx} className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-700">
+                      {phase}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-medium text-muted-foreground">Tone: </span>
+                <span className="text-xs text-foreground">{selectedTemplate.recommendedTone}</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Call Phase Tracker */}
         <div className="p-4 border-b border-border">
