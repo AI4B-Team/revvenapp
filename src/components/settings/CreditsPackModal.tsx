@@ -55,21 +55,21 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] min-h-[520px] flex flex-col">
         <DialogHeader className="text-center pb-2">
           <div className="flex items-center justify-center gap-2 text-brand-green mb-2">
             <Sparkles className="w-5 h-5" />
-            <span className="font-semibold">Optional add-on</span>
+            <span className="font-semibold">Optional Add-On</span>
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 flex-1 flex flex-col">
           {/* Pricing Display */}
           <div className="bg-muted/50 rounded-xl p-5">
             <div className="flex items-baseline gap-2 mb-2">
               <span className="text-lg font-medium text-foreground">Extra Credit</span>
               <span className="text-4xl font-bold text-brand-green">${currentTier.price}</span>
-              <span className="text-muted-foreground">/month</span>
+              <span className="text-muted-foreground">/Month</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Available exclusively for <span className="font-medium text-foreground">Pro</span>, <span className="font-medium text-foreground">Business</span> and <span className="font-medium text-foreground">Enterprise</span> plan – Add extra monthly credits to your plan. <span className="text-brand-green cursor-pointer hover:underline">Learn more.</span>
@@ -91,7 +91,7 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
                   />
                 </div>
                 <div className="text-sm text-muted-foreground min-w-[140px] text-right">
-                  {formatCredits(currentTier.credits)} credits / month
+                  {formatCredits(currentTier.credits)} credits / Month
                 </div>
               </div>
             </div>
@@ -113,42 +113,62 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
                 <span className="text-muted-foreground"> Business users get 10% off credit packs.</span>
               </p>
             </div>
+            <div className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-brand-green shrink-0 mt-0.5" />
+              <p className="text-sm">
+                <span className="font-medium text-foreground">Rollover Credits:</span>
+                <span className="text-muted-foreground"> Unused add-on credits roll over for up to 3 months.</span>
+              </p>
+            </div>
           </div>
 
-          {/* Warning/Info Message */}
-          {isCurrentPack && currentPacks > 0 && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800">
-                This is your current pack. Slide right to increase your credit pack.
-              </p>
-            </div>
-          )}
-
-          {selectedTier === 0 && currentPacks > 0 && (
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-              <p className="text-sm text-destructive">
-                If you cancel, this seat will no longer receive {formatCredits(creditTiers[currentPacks].credits)} monthly credits starting next month.
-              </p>
-            </div>
-          )}
-
-          {/* Action Button */}
-          <Button
-            className={cn(
-              "w-full",
-              selectedTier === 0 
-                ? "bg-foreground hover:bg-foreground/90 text-background" 
-                : isIncrease 
-                  ? "bg-brand-green hover:bg-brand-green/90 text-white"
-                  : "bg-foreground hover:bg-foreground/90 text-background"
+          {/* Message Area - Fixed height to prevent layout shift */}
+          <div className="min-h-[60px] flex items-center">
+            {isCurrentPack && currentPacks > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3 w-full">
+                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800">
+                  This is your current pack. Slide right to increase your credit pack.
+                </p>
+              </div>
             )}
-            disabled={isCurrentPack && currentPacks > 0}
-            onClick={onClose}
-          >
-            {getButtonText()}
-          </Button>
+
+            {selectedTier === 0 && currentPacks > 0 && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3 w-full">
+                <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                <p className="text-sm text-destructive">
+                  If you cancel, this seat will no longer receive {formatCredits(creditTiers[currentPacks].credits)} monthly credits starting next Month.
+                </p>
+              </div>
+            )}
+
+            {!isCurrentPack && selectedTier > 0 && (
+              <div className="bg-brand-green/10 border border-brand-green/20 rounded-lg p-4 flex items-start gap-3 w-full">
+                <Check className="w-5 h-5 text-brand-green shrink-0 mt-0.5" />
+                <p className="text-sm text-brand-green">
+                  You'll receive {formatCredits(currentTier.credits)} extra credits every month.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Action Button - Always at bottom */}
+          <div className="mt-auto pt-2">
+            <Button
+              className={cn(
+                "w-full",
+                selectedTier === 0 
+                  ? "bg-foreground hover:bg-foreground/90 text-background" 
+                  : isIncrease 
+                    ? "bg-brand-green hover:bg-brand-green/90 text-white"
+                    : "bg-foreground hover:bg-foreground/90 text-background"
+              )}
+              disabled={isCurrentPack && currentPacks > 0}
+              onClick={onClose}
+            >
+              {getButtonText()}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
