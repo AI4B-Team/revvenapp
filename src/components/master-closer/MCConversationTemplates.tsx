@@ -390,7 +390,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                 onClick={onClose}
                 className="w-full text-sm text-muted-foreground hover:text-foreground py-2 transition-colors"
               >
-                Skip for now
+                Skip For Now
               </button>
             </div>
           </div>
@@ -447,10 +447,10 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 
                       <div className="flex items-center gap-2 mt-3">
                         <span className="px-2 py-1 bg-muted rounded-md text-xs text-muted-foreground font-medium">
-                          {template.keyPhases.length} phases
+                          {template.keyPhases.length} Phases
                         </span>
                         {isHovered && (
-                          <ArrowRight className="w-4 h-4 text-emerald-500 ml-auto animate-pulse" />
+                          <ArrowRight className="w-4 h-4 text-primary ml-auto animate-pulse" />
                         )}
                       </div>
                     </button>
@@ -523,7 +523,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
                     <Sparkles className="w-8 h-8" />
                   </div>
-                  <p className="text-sm">Hover over a template to preview</p>
+                  <p className="text-sm">Hover Over Template For Preview</p>
                 </div>
               </div>
             )}
