@@ -24,6 +24,11 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 
+// Helper function to capitalize first letter of each word
+const capitalizeWords = (str: string) => {
+  return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 export interface ConversationTemplate {
   id: string;
   name: string;
@@ -346,15 +351,15 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden bg-card border border-border/50 shadow-2xl rounded-2xl [&>button]:hidden">
         {/* Header */}
-        <div className="relative bg-card p-6 border-b border-border">
+        <div className="relative bg-gradient-to-r from-emerald-50 to-amber-50 p-6 border-b border-border">
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 p-2.5 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-foreground"
+            className="absolute top-4 right-4 p-2.5 hover:bg-white/80 rounded-xl transition-all text-muted-foreground hover:text-foreground"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center text-foreground shadow-sm">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
               <Sparkles className="w-7 h-7" />
             </div>
             <div>
@@ -447,12 +452,12 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-sm text-foreground">{template.name}</h4>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">{template.description}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{template.description}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 mt-3">
-                        <span className="px-2.5 py-1 bg-background rounded-lg text-xs text-muted-foreground font-medium border border-border/50">
+                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium border border-emerald-200">
                           {template.keyPhases.length} Phases
                         </span>
                       </div>
@@ -487,7 +492,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                     <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Call Phases</h5>
                     <div className="flex flex-wrap gap-1.5">
                       {previewTemplate.keyPhases.map((phase, i) => (
-                        <span key={i} className="px-2.5 py-1 rounded-lg text-xs font-medium bg-background text-foreground border border-border">
+                        <span key={i} className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                           {phase}
                         </span>
                       ))}
@@ -503,9 +508,9 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                     <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Common Objections</h5>
                     <ul className="space-y-2">
                       {previewTemplate.commonObjections.slice(0, 3).map((objection, i) => (
-                        <li key={i} className="text-xs text-muted-foreground flex items-start gap-2 bg-background p-2.5 rounded-lg border border-border">
+                        <li key={i} className="text-xs text-foreground flex items-start gap-2 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
                           <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1 shrink-0" />
-                          <span>{objection}</span>
+                          <span>{capitalizeWords(objection)}</span>
                         </li>
                       ))}
                     </ul>
@@ -514,7 +519,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 
                 <Button 
                   onClick={() => onSelect(previewTemplate)}
-                  className="w-full mt-5 h-11"
+                  className="w-full mt-5 h-11 bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                   Use This Template
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -523,8 +528,8 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
             ) : (
               <div className="h-full flex items-center justify-center p-5 -mt-16">
                 <div className="text-center text-muted-foreground">
-                  <div className="w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="w-9 h-9" />
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-amber-100 flex items-center justify-center mx-auto mb-4">
+                    <Sparkles className="w-9 h-9 text-emerald-600" />
                   </div>
                   <p className="text-sm font-medium">Hover Over Template For Preview</p>
                 </div>
