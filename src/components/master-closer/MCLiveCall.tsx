@@ -527,40 +527,20 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
           </p>
         </div>
 
-        {/* Template Info Section */}
-        <div className="p-4 border-b border-border bg-amber-50/50">
+        {/* Template Info Section - Redesigned */}
+        <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              {selectedTemplate ? (
-                <>
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
-                    {selectedTemplate.icon}
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-foreground">{selectedTemplate.name}</h4>
-                    <p className="text-xs text-muted-foreground">{selectedTemplate.objective}</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                    <Target className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-foreground">No Template</h4>
-                    <p className="text-xs text-muted-foreground">Select a conversation template</p>
-                  </div>
-                </>
-              )}
-            </div>
+            <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Brain className="w-4 h-4 text-amber-600" />
+              Active Template
+            </h4>
             
             {/* Template Switcher Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-amber-100 hover:bg-amber-200 text-amber-700 transition-colors">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors border border-border">
                   <RefreshCw className="w-3 h-3" />
                   Switch
-                  <ChevronDown className="w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 max-h-80">
@@ -604,22 +584,44 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
             </DropdownMenu>
           </div>
           
-          {selectedTemplate && (
-            <div className="space-y-2">
-              <div>
-                <span className="text-xs font-medium text-muted-foreground">Phases: </span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {selectedTemplate.keyPhases.map((phase, idx) => (
-                    <span key={idx} className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-700">
-                      {phase}
-                    </span>
-                  ))}
+          {/* Template Card */}
+          {selectedTemplate ? (
+            <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-amber-600 text-lg border border-amber-100">
+                  {selectedTemplate.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h5 className="font-semibold text-foreground">{selectedTemplate.name}</h5>
+                  <p className="text-xs text-amber-700/80 mt-0.5">{selectedTemplate.category}</p>
                 </div>
               </div>
-              <div>
-                <span className="text-xs font-medium text-muted-foreground">Tone: </span>
-                <span className="text-xs text-foreground">{selectedTemplate.recommendedTone}</span>
+              
+              <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                {selectedTemplate.objective}
+              </p>
+              
+              <div className="flex items-center gap-2 text-xs">
+                <span className="px-2 py-1 rounded-md bg-white/80 text-amber-700 font-medium border border-amber-200">
+                  {selectedTemplate.recommendedTone}
+                </span>
+                <span className="px-2 py-1 rounded-md bg-white/80 text-amber-700/70">
+                  {selectedTemplate.keyPhases.length} phases
+                </span>
+                <span className="px-2 py-1 rounded-md bg-white/80 text-amber-700/70">
+                  {selectedTemplate.commonObjections.length} objections prep
+                </span>
               </div>
+            </div>
+          ) : (
+            <div className="rounded-xl bg-muted/50 border border-dashed border-border p-6 text-center">
+              <div className="w-12 h-12 rounded-xl bg-muted mx-auto mb-3 flex items-center justify-center">
+                <Target className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground mb-1">No Template Selected</p>
+              <p className="text-xs text-muted-foreground/70">
+                Select a template to get guided suggestions
+              </p>
             </div>
           )}
         </div>
