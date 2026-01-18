@@ -154,8 +154,8 @@ export default function WorkspaceTab() {
             <div className="space-y-2">
               <Label htmlFor="newSpaceName">Name</Label>
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 ${newSpaceData.bgColor} rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0`}>
-                  {newSpaceData.name ? newSpaceData.name.charAt(0).toUpperCase() : '?'}
+                <div className={`w-10 h-10 ${newSpaceData.bgColor} rounded-xl flex items-center justify-center shrink-0`}>
+                  <LayoutGrid className="w-5 h-5 text-white" />
                 </div>
                 <Input
                   id="newSpaceName"
@@ -260,8 +260,8 @@ export default function WorkspaceTab() {
             <div className="space-y-2">
               <Label htmlFor="spaceName">Name</Label>
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 ${formData.bgColor} rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0`}>
-                  {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
+                <div className={`w-10 h-10 ${formData.bgColor} rounded-xl flex items-center justify-center shrink-0`}>
+                  <LayoutGrid className="w-5 h-5 text-white" />
                 </div>
                 <Input
                   id="spaceName"
