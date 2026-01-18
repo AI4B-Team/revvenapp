@@ -327,7 +327,7 @@ export default function CancellationFlow({
               <div className="flex items-center gap-4 mb-4">
                 <Clock className="w-6 h-6 text-brand-blue" />
                 <div>
-                  <p className="font-medium text-foreground">Pause for up to 3 months</p>
+                  <p className="font-medium text-foreground">Pause for 1 month</p>
                   <p className="text-sm text-muted-foreground">No charges during pause</p>
                 </div>
               </div>
@@ -571,7 +571,7 @@ export default function CancellationFlow({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden max-h-[90vh]">
+      <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden max-h-[90vh]">
         <DialogHeader className="sr-only">
           <DialogTitle>Cancel Subscription</DialogTitle>
           <DialogDescription>Steps to cancel your subscription</DialogDescription>
