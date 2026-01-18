@@ -351,15 +351,15 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden bg-card border border-border/50 shadow-2xl rounded-2xl [&>button]:hidden">
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-emerald-50 to-amber-50 p-6 border-b border-border">
+        <div className="relative bg-emerald-50 p-6 border-b border-emerald-100">
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 p-2.5 hover:bg-white/80 rounded-xl transition-all text-muted-foreground hover:text-foreground"
+            className="absolute top-4 right-4 p-2.5 hover:bg-white rounded-xl transition-all text-muted-foreground hover:text-foreground"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+            <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
               <Sparkles className="w-7 h-7" />
             </div>
             <div>
@@ -371,21 +371,21 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
 
         <div className="flex h-[65vh]">
           {/* Category Sidebar */}
-          <div className="w-48 bg-muted/20 border-r border-border p-4 flex flex-col gap-1.5">
+          <div className="w-48 bg-white border-r border-border p-4 flex flex-col gap-1.5">
             {templateCategories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
                   selectedCategory === category.id
-                    ? 'bg-card text-foreground shadow-sm border border-border'
-                    : 'text-muted-foreground hover:bg-card/50 hover:text-foreground'
+                    ? 'bg-emerald-500 text-white shadow-md'
+                    : 'text-muted-foreground hover:bg-emerald-50 hover:text-foreground'
                 }`}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
                   selectedCategory === category.id 
-                    ? 'bg-muted text-foreground' 
-                    : 'bg-transparent'
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-muted'
                 }`}>
                   {category.icon}
                 </div>
@@ -430,23 +430,23 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                       onMouseLeave={() => setPreviewTemplate(null)}
                       className={`group relative p-4 pt-5 rounded-xl border text-left transition-all duration-200 ${
                         isSelected
-                          ? 'border-foreground/20 bg-muted shadow-md ring-1 ring-foreground/10'
+                          ? 'border-emerald-400 bg-emerald-50 shadow-md'
                           : isHovered
-                          ? 'border-border bg-muted/50 shadow-sm'
-                          : 'border-border bg-card hover:bg-muted/30 hover:shadow-sm'
+                          ? 'border-emerald-200 bg-emerald-50/50 shadow-sm'
+                          : 'border-border bg-white hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-sm'
                       }`}
                     >
                       {isSelected && (
-                        <div className="absolute top-2 right-2 w-5 h-5 bg-foreground rounded-full flex items-center justify-center">
-                          <Check className="w-3 h-3 text-background" />
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                          <Check className="w-3 h-3 text-white" />
                         </div>
                       )}
                       
                       <div className="flex items-start gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
                           isSelected
-                            ? 'bg-foreground/10 text-foreground'
-                            : 'bg-muted text-muted-foreground group-hover:text-foreground'
+                            ? 'bg-emerald-100 text-emerald-600'
+                            : 'bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100 group-hover:text-emerald-600'
                         }`}>
                           {template.icon}
                         </div>
@@ -457,7 +457,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 mt-3">
-                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium border border-emerald-200">
+                        <span className="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium border border-emerald-200">
                           {template.keyPhases.length} Phases
                         </span>
                       </div>
@@ -528,7 +528,7 @@ const MCConversationTemplates: React.FC<MCConversationTemplatesProps> = ({
             ) : (
               <div className="h-full flex items-center justify-center p-5 -mt-16">
                 <div className="text-center text-muted-foreground">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-amber-100 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-20 h-20 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-4">
                     <Sparkles className="w-9 h-9 text-emerald-600" />
                   </div>
                   <p className="text-sm font-medium">Hover Over Template For Preview</p>
