@@ -16,6 +16,7 @@ import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
 import InvitesTab from '@/components/settings/InvitesTab';
 import WorkspaceTab from '@/components/settings/WorkspaceTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
+import CancellationFlow from '@/components/settings/CancellationFlow';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,6 +36,7 @@ export default function Settings() {
   const [userFullName, setUserFullName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [accountStatus, setAccountStatus] = useState<string>('active');
+  const [isCancellationOpen, setIsCancellationOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -1008,6 +1010,7 @@ export default function Settings() {
                     <Button 
                       variant="destructive" 
                       className="bg-red-600 hover:bg-red-700"
+                      onClick={() => setIsCancellationOpen(true)}
                     >
                       Cancel Subscription
                     </Button>
@@ -1421,6 +1424,14 @@ export default function Settings() {
           </div>
         </div>
       </div>
+      {/* Cancellation Flow Modal */}
+      <CancellationFlow
+        isOpen={isCancellationOpen}
+        onClose={() => setIsCancellationOpen(false)}
+        subscriptionEndDate="January 1, 2025"
+        planName="Professional"
+        planPrice="$49.00"
+      />
     </div>
   );
 }
