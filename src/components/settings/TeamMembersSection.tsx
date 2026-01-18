@@ -103,7 +103,7 @@ export default function TeamMembersSection({ maxSeats }: TeamMembersSectionProps
             className="gap-2"
           >
             <UserPlus className="w-4 h-4" />
-            Invite Teammate
+            Invite Member
           </Button>
         </div>
 
@@ -171,7 +171,7 @@ export default function TeamMembersSection({ maxSeats }: TeamMembersSectionProps
       <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">Invite Teammate</DialogTitle>
+            <DialogTitle className="text-xl font-semibold">Invite Member</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6 pt-2">
