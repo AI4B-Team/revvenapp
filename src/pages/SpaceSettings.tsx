@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Save, Trash2, Users, Settings, Palette, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Users, Settings, Palette, MoreHorizontal, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -143,25 +143,39 @@ const SpaceSettings = () => {
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="pb-6 border-b border-gray-200 mb-6">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleCancel}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <ArrowLeft size={20} />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  {isCreating ? 'Create New Space' : 'Workspace'}
-                </h1>
-                <p className="text-muted-foreground text-sm">
-                  {isCreating 
-                    ? 'Set up your new workspace'
-                    : 'Configure your workspace preferences and agent settings.'}
-                </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCancel}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowLeft size={20} />
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {isCreating ? 'Create New Space' : 'Workspace'}
+                  </h1>
+                  <p className="text-muted-foreground text-sm">
+                    {isCreating 
+                      ? 'Set up your new workspace'
+                      : 'Configure your workspace preferences and agent settings.'}
+                  </p>
+                </div>
               </div>
+              {!isCreating && (
+                <Button
+                  onClick={() => {
+                    setIsCreatingNewSpace(true);
+                    navigate('/space-settings?new=true');
+                  }}
+                  className="bg-brand-green hover:bg-brand-green/90 text-primary gap-2"
+                >
+                  <Plus size={16} />
+                  Add New Space
+                </Button>
+              )}
             </div>
           </div>
 
