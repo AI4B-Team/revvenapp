@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bot, Bell, MessageSquare, Phone, Save, Mail, Settings, Palette, Trash2, Plus, LayoutGrid } from 'lucide-react';
+import { Bell, MessageSquare, Phone, Save, Mail, Settings, Palette, Trash2, Plus, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,7 +32,6 @@ export default function WorkspaceTab() {
     description: '',
     bgColor: 'bg-brand-green',
   });
-  const [agentName, setAgentName] = useState('AIVA');
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsEnabled, setSmsEnabled] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -236,7 +235,7 @@ export default function WorkspaceTab() {
         <div>
           <h2 className="text-lg font-semibold text-gray-900 mb-1">Workspace</h2>
           <p className="text-sm text-gray-500">
-            Configure your workspace preferences and agent settings.
+            Configure your workspace preferences.
           </p>
         </div>
         <Button
@@ -311,40 +310,6 @@ export default function WorkspaceTab() {
                 title={option.label}
               />
             ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Your Agent Section */}
-      <div className="bg-white rounded-lg border border-gray-300 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Bot className="w-5 h-5 text-gray-600" />
-          <h3 className="font-semibold text-gray-900">Your Agent</h3>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-brand-green/20 rounded-full flex items-center justify-center">
-                <Bot className="w-5 h-5 text-brand-green" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">{agentName}</p>
-                <p className="text-sm text-gray-500">AI Assistant</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="agentName">Agent Name</Label>
-            <Input
-              id="agentName"
-              value={agentName}
-              onChange={(e) => setAgentName(e.target.value)}
-              placeholder="Enter agent name"
-              className="bg-white border-gray-200"
-            />
-            <p className="text-xs text-gray-500">This is how your AI assistant will identify itself.</p>
           </div>
         </div>
       </div>
