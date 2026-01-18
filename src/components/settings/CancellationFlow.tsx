@@ -418,7 +418,7 @@ export default function CancellationFlow({
         </DialogDescription>
       </div>
 
-      <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+      <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
         {/* What You'll Lose */}
         <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
