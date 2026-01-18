@@ -545,8 +545,8 @@ export default function Settings() {
                   <Button variant="outline" className="text-gray-700 border-gray-200">
                     Cancel
                   </Button>
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                    Save changes
+                  <Button className="bg-brand-green hover:bg-brand-green/90 text-white">
+                    Save Changes
                   </Button>
                 </div>
               </div>
@@ -710,8 +710,8 @@ export default function Settings() {
                   <Button variant="outline" className="text-gray-700 border-gray-200">
                     Cancel
                   </Button>
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                    Save changes
+                  <Button className="bg-brand-green hover:bg-brand-green/90 text-white">
+                    Save Changes
                   </Button>
                 </div>
               </div>
