@@ -232,15 +232,8 @@ export default function Settings() {
             )}
 
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="mb-8">
               <h1 className="text-3xl font-semibold text-gray-900">Account</h1>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search"
-                  className="pl-10 w-80 bg-white border-gray-200"
-                />
-              </div>
             </div>
 
             {/* Main Content with Sidebar */}
