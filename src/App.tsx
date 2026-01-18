@@ -11,6 +11,7 @@ import { useRouteTracker } from "@/hooks/useRouteTracker";
 import { EbookProvider } from "@/contexts/EbookContext";
 import { ArticleProvider } from "@/contexts/ArticleContext";
 import { BrandProvider } from "@/contexts/BrandContext";
+import { SpaceProvider } from "@/contexts/SpaceContext";
 
 // Preload-heavy route statically to avoid dynamic import fetch failures in preview.
 import Create from "./pages/Create";
@@ -90,6 +91,7 @@ const Forms = lazy(() => import("./pages/Forms"));
 const InfinityTalk = lazy(() => import("./pages/InfinityTalk"));
 const Signature = lazy(() => import("./pages/Signature"));
 const MasterCloser = lazy(() => import("./pages/MasterCloser"));
+const SpaceSettings = lazy(() => import("./pages/SpaceSettings"));
 
 // Admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -112,107 +114,110 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <BrandProvider>
-              <EbookProvider>
-                <ArticleProvider>
-                  <VisitorTracker>
-                  <Suspense
-                    fallback={
-                      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-                        <p className="text-muted-foreground">Loading…</p>
-                      </div>
-                    }
-                  >
-                    <Routes>
-                  <Route path="/sales" element={<Landing />} />
-                  <Route path="/landing" element={<LandingNew />} />
-                  <Route path="/" element={<LandingNew />} />
-                  <Route path="/dashboard" element={<Index />} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/edit" element={<Edit />} />
-                <Route path="/ai-influencer" element={<AIInfluencer />} />
-                <Route path="/automate" element={<AIAgents />} />
-                <Route path="/ai-agents" element={<AIAgents />} />
-                <Route path="/templates" element={<Templates />} />
-                <Route path="/assistant" element={<Assistant />} />
-                <Route path="/monetize" element={<Monetize />} />
-                <Route path="/websites" element={<Websites />} />
-                <Route path="/websites/edit/:templateId" element={<WebsiteEditor />} />
-                <Route path="/funnels" element={<Funnels />} />
-                <Route path="/store" element={<Store />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/contacts" element={<Contacts />} />
-                <Route path="/revenue" element={<Revenue />} />
-                <Route path="/marketing" element={<Marketing />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/apps" element={<Apps />} />
-                <Route path="/sessions" element={<Sessions />} />
-                <Route path="/video-downloader" element={<VideoDownloader />} />
-                <Route path="/versus" element={<Versus />} />
-                <Route path="/transcribe" element={<Transcribe />} />
-                <Route path="/transcribe/:id" element={<TranscriptDetail />} />
-                <Route path="/voice-cloner" element={<VoiceCloner />} />
-                <Route path="/voice-changer" element={<VoiceChanger />} />
-                <Route path="/voiceovers" element={<Voiceovers />} />
-                <Route path="/audio-dubber" element={<AudioDubber />} />
-                <Route path="/noise-remover" element={<NoiseRemover />} />
-                <Route path="/background-remover" element={<BackgroundRemover />} />
-                <Route path="/image-upscaler" element={<ImageUpscaler />} />
-                <Route path="/image-enhancer" element={<ImageEnhancer />} />
-                <Route path="/blog-writer" element={<BlogWriter />} />
-                <Route path="/social-posts" element={<SocialPosts />} />
-                <Route path="/email-generator" element={<EmailGenerator />} />
-                <Route path="/ad-copy-writer" element={<AdCopyWriter />} />
-                <Route path="/script-writer" element={<ScriptWriter />} />
-                <Route path="/seo-optimizer" element={<SEOOptimizer />} />
-                <Route path="/ebook-creator" element={<EbookCreator />} />
-                <Route path="/ebook-creator/new" element={<NewEbook />} />
-                <Route path="/explainer-video" element={<ExplainerVideo />} />
-                <Route path="/viral-shorts" element={<ViralShorts />} />
-                <Route path="/ai-story" element={<AIStory />} />
-                <Route path="/lead-generation" element={<LeadGeneration />} />
-                <Route path="/autoyt" element={<AutoYT />} />
-                <Route path="/newsletter" element={<Newsletter />} />
-                <Route path="/article" element={<ArticleHub />} />
-                <Route path="/article/new" element={<NewArticle />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/forms" element={<Forms />} />
-                <Route path="/infinity-talk" element={<InfinityTalk />} />
-                <Route path="/signature" element={<Signature />} />
-                <Route path="/master-closer" element={<MasterCloser />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/oauth/callback" element={<OAuthCallback />} />
-                <Route path="/assets" element={<Assets />} />
-                <Route path="/integrations" element={<Integrations />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/signup/flow" element={<SignupFlow />} />
-                <Route path="/invite-verification" element={<InviteVerification />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
-                <Route path="/account" element={<Settings />} />
-                <Route path="/brand" element={<Brand />} />
-                {/* Admin Routes */}
-                <Route path="/manage" element={<AdminDashboard />} />
-                <Route path="/manage/users" element={<AdminUsers />} />
-                <Route path="/manage/posts" element={<AdminPosts />} />
-                <Route path="/manage/images" element={<AdminImages />} />
-                <Route path="/manage/videos" element={<AdminVideos />} />
-                <Route path="/manage/audio" element={<AdminAudio />} />
-                <Route path="/manage/roles" element={<AdminRoles />} />
-                <Route path="/manage/analytics" element={<AdminAnalytics />} />
-                <Route path="/manage/settings" element={<AdminSettings />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                </VisitorTracker>
-              </ArticleProvider>
-            </EbookProvider>
-          </BrandProvider>
+            <SpaceProvider>
+              <BrandProvider>
+                <EbookProvider>
+                  <ArticleProvider>
+                    <VisitorTracker>
+                      <Suspense
+                        fallback={
+                          <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+                            <p className="text-muted-foreground">Loading…</p>
+                          </div>
+                        }
+                      >
+                        <Routes>
+                          <Route path="/sales" element={<Landing />} />
+                          <Route path="/landing" element={<LandingNew />} />
+                          <Route path="/" element={<LandingNew />} />
+                          <Route path="/dashboard" element={<Index />} />
+                          <Route path="/create" element={<Create />} />
+                          <Route path="/edit" element={<Edit />} />
+                          <Route path="/ai-influencer" element={<AIInfluencer />} />
+                          <Route path="/automate" element={<AIAgents />} />
+                          <Route path="/ai-agents" element={<AIAgents />} />
+                          <Route path="/templates" element={<Templates />} />
+                          <Route path="/assistant" element={<Assistant />} />
+                          <Route path="/monetize" element={<Monetize />} />
+                          <Route path="/websites" element={<Websites />} />
+                          <Route path="/websites/edit/:templateId" element={<WebsiteEditor />} />
+                          <Route path="/funnels" element={<Funnels />} />
+                          <Route path="/store" element={<Store />} />
+                          <Route path="/products" element={<Products />} />
+                          <Route path="/contacts" element={<Contacts />} />
+                          <Route path="/revenue" element={<Revenue />} />
+                          <Route path="/marketing" element={<Marketing />} />
+                          <Route path="/community" element={<Community />} />
+                          <Route path="/apps" element={<Apps />} />
+                          <Route path="/sessions" element={<Sessions />} />
+                          <Route path="/video-downloader" element={<VideoDownloader />} />
+                          <Route path="/versus" element={<Versus />} />
+                          <Route path="/transcribe" element={<Transcribe />} />
+                          <Route path="/transcribe/:id" element={<TranscriptDetail />} />
+                          <Route path="/voice-cloner" element={<VoiceCloner />} />
+                          <Route path="/voice-changer" element={<VoiceChanger />} />
+                          <Route path="/voiceovers" element={<Voiceovers />} />
+                          <Route path="/audio-dubber" element={<AudioDubber />} />
+                          <Route path="/noise-remover" element={<NoiseRemover />} />
+                          <Route path="/background-remover" element={<BackgroundRemover />} />
+                          <Route path="/image-upscaler" element={<ImageUpscaler />} />
+                          <Route path="/image-enhancer" element={<ImageEnhancer />} />
+                          <Route path="/blog-writer" element={<BlogWriter />} />
+                          <Route path="/social-posts" element={<SocialPosts />} />
+                          <Route path="/email-generator" element={<EmailGenerator />} />
+                          <Route path="/ad-copy-writer" element={<AdCopyWriter />} />
+                          <Route path="/script-writer" element={<ScriptWriter />} />
+                          <Route path="/seo-optimizer" element={<SEOOptimizer />} />
+                          <Route path="/ebook-creator" element={<EbookCreator />} />
+                          <Route path="/ebook-creator/new" element={<NewEbook />} />
+                          <Route path="/explainer-video" element={<ExplainerVideo />} />
+                          <Route path="/viral-shorts" element={<ViralShorts />} />
+                          <Route path="/ai-story" element={<AIStory />} />
+                          <Route path="/lead-generation" element={<LeadGeneration />} />
+                          <Route path="/autoyt" element={<AutoYT />} />
+                          <Route path="/newsletter" element={<Newsletter />} />
+                          <Route path="/article" element={<ArticleHub />} />
+                          <Route path="/article/new" element={<NewArticle />} />
+                          <Route path="/pricing" element={<Pricing />} />
+                          <Route path="/forms" element={<Forms />} />
+                          <Route path="/infinity-talk" element={<InfinityTalk />} />
+                          <Route path="/signature" element={<Signature />} />
+                          <Route path="/master-closer" element={<MasterCloser />} />
+                          <Route path="/terms" element={<TermsOfService />} />
+                          <Route path="/terms-of-service" element={<TermsOfService />} />
+                          <Route path="/privacy" element={<PrivacyPolicy />} />
+                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                          <Route path="/oauth/callback" element={<OAuthCallback />} />
+                          <Route path="/assets" element={<Assets />} />
+                          <Route path="/integrations" element={<Integrations />} />
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/signup" element={<Signup />} />
+                          <Route path="/signup/flow" element={<SignupFlow />} />
+                          <Route path="/invite-verification" element={<InviteVerification />} />
+                          <Route path="/onboarding" element={<Onboarding />} />
+                          <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
+                          <Route path="/account" element={<Settings />} />
+                          <Route path="/brand" element={<Brand />} />
+                          <Route path="/space-settings" element={<SpaceSettings />} />
+                          {/* Admin Routes */}
+                          <Route path="/manage" element={<AdminDashboard />} />
+                          <Route path="/manage/users" element={<AdminUsers />} />
+                          <Route path="/manage/posts" element={<AdminPosts />} />
+                          <Route path="/manage/images" element={<AdminImages />} />
+                          <Route path="/manage/videos" element={<AdminVideos />} />
+                          <Route path="/manage/audio" element={<AdminAudio />} />
+                          <Route path="/manage/roles" element={<AdminRoles />} />
+                          <Route path="/manage/analytics" element={<AdminAnalytics />} />
+                          <Route path="/manage/settings" element={<AdminSettings />} />
+                          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </Suspense>
+                    </VisitorTracker>
+                  </ArticleProvider>
+                </EbookProvider>
+              </BrandProvider>
+            </SpaceProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
