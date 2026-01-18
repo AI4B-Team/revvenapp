@@ -206,12 +206,12 @@ export default function CancellationFlow({
   };
 
   const renderReasonStep = () => (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="text-center">
-        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
-          <MessageSquare className="w-6 h-6 text-amber-600" />
+        <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-amber-100 flex items-center justify-center">
+          <MessageSquare className="w-5 h-5 text-amber-600" />
         </div>
-        <DialogTitle className="text-xl font-semibold text-foreground mb-1">
+        <DialogTitle className="text-lg font-semibold text-foreground mb-1">
           We're Sorry To See You Go
         </DialogTitle>
         <DialogDescription className="text-sm text-muted-foreground">
@@ -219,12 +219,12 @@ export default function CancellationFlow({
         </DialogDescription>
       </div>
 
-      <RadioGroup value={selectedReason} onValueChange={setSelectedReason} className="space-y-2">
+      <RadioGroup value={selectedReason} onValueChange={setSelectedReason} className="space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
         {cancellationReasons.map((reason) => (
           <div
             key={reason.id}
             className={cn(
-              "flex items-start space-x-3 p-3 rounded-lg border-2 transition-all cursor-pointer",
+              "flex items-start space-x-2 p-2.5 rounded-lg border-2 transition-all cursor-pointer",
               selectedReason === reason.id 
                 ? "border-destructive bg-destructive/5" 
                 : "border-border/60 hover:border-border"
@@ -245,7 +245,7 @@ export default function CancellationFlow({
       </RadioGroup>
 
       {selectedReason === 'other' && (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <Label htmlFor="feedback" className="text-sm font-medium">
             Please tell us more (optional)
           </Label>
@@ -260,7 +260,7 @@ export default function CancellationFlow({
         </div>
       )}
 
-      <div className="flex gap-3 pt-2">
+      <div className="flex gap-3 pt-1">
         <Button variant="outline" className="flex-1 border-2 border-border/60" onClick={handleClose}>
           Never mind
         </Button>
@@ -568,13 +568,13 @@ export default function CancellationFlow({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden max-h-[90vh]">
         <DialogHeader className="sr-only">
           <DialogTitle>Cancel Subscription</DialogTitle>
           <DialogDescription>Steps to cancel your subscription</DialogDescription>
         </DialogHeader>
         
-        <div className="p-6">
+        <div className="p-5">
           {step !== 'success' && step !== 'reason' && (
             <Button 
               variant="ghost" 
