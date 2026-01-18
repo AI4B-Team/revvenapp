@@ -211,7 +211,7 @@ export default function CancellationFlow({
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
           <MessageSquare className="w-6 h-6 text-amber-600" />
         </div>
-        <DialogTitle className="text-lg font-semibold text-foreground mb-1">
+        <DialogTitle className="text-xl font-semibold text-foreground mb-1">
           We're Sorry To See You Go
         </DialogTitle>
         <DialogDescription className="text-sm text-muted-foreground">
@@ -290,7 +290,7 @@ export default function CancellationFlow({
             </div>
             <div className="text-center">
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                Wait! We have a special offer for you
+                Wait! We Have A Special Offer For You
               </h3>
               <p className="text-muted-foreground">
                 We'd love to keep you! Here's an exclusive discount:
@@ -317,7 +317,7 @@ export default function CancellationFlow({
             </div>
             <div className="text-center">
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                Need a break? Pause instead!
+                Need A Break? Pause Instead!
               </h3>
               <p className="text-muted-foreground">
                 No need to cancel. Pause your subscription and come back when you're ready.
@@ -350,7 +350,7 @@ export default function CancellationFlow({
             </div>
             <div className="text-center">
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                Let's fix this together
+                Let's Fix This Together
               </h3>
               <p className="text-muted-foreground">
                 We want to make things right. Talk to our support team for personalized help.
@@ -411,7 +411,7 @@ export default function CancellationFlow({
           <AlertTriangle className="w-8 h-8 text-amber-600" />
         </div>
         <DialogTitle className="text-xl font-semibold text-foreground mb-2">
-          Before you cancel
+          Before You Cancel
         </DialogTitle>
         <DialogDescription className="text-muted-foreground">
           Here's what happens when you cancel your {planName} subscription:
@@ -525,7 +525,7 @@ export default function CancellationFlow({
           <Check className="w-8 h-8 text-muted-foreground" />
         </div>
         <DialogTitle className="text-xl font-semibold text-foreground mb-2">
-          Your subscription has been cancelled
+          Your Subscription Has Been Cancelled
         </DialogTitle>
         <DialogDescription className="text-muted-foreground">
           We're sorry to see you go! Your feedback helps us improve.
@@ -568,7 +568,7 @@ export default function CancellationFlow({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>Cancel Subscription</DialogTitle>
           <DialogDescription>Steps to cancel your subscription</DialogDescription>
