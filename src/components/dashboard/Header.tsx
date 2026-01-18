@@ -375,13 +375,6 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                   <span>{t('settings.invites')}</span>
                 </Link>
               </DropdownMenuItem>
-
-              <DropdownMenuItem asChild className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
-                <Link to="/account?tab=integrations" className="flex items-center gap-3 w-full">
-                  <Plug size={18} className="text-gray-500" />
-                  <span>{t('settings.integrations')}</span>
-                </Link>
-              </DropdownMenuItem>
             </div>
 
               <DropdownMenuSeparator className="bg-gray-100 my-2" />
