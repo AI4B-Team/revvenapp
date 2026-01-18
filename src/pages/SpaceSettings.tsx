@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Save, Trash2, Users, Settings, Palette } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Users, Settings, Palette, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -133,6 +133,8 @@ const SpaceSettings = () => {
     navigate('/dashboard');
   };
 
+  const isCreating = isNewSpace || isCreatingNewSpace;
+
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar />
@@ -140,61 +142,58 @@ const SpaceSettings = () => {
       <main className="flex-1 ml-64 p-8">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft size={20} />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                {isNewSpace || isCreatingNewSpace ? 'Create New Space' : 'Space Settings'}
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                {isNewSpace || isCreatingNewSpace 
-                  ? 'Set up your new workspace'
-                  : 'Manage your space settings'}
-              </p>
+          <div className="pb-6 border-b border-gray-200 mb-6">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCancel}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {isCreating ? 'Create New Space' : 'Workspace'}
+                </h1>
+                <p className="text-muted-foreground text-sm">
+                  {isCreating 
+                    ? 'Set up your new workspace'
+                    : 'Configure your workspace preferences and agent settings.'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Form */}
-          <div className="space-y-8">
-            {/* Space Preview */}
-            <div className="flex items-center gap-4 p-6 bg-card rounded-xl border border-border">
-              <div className={`w-16 h-16 ${formData.bgColor} rounded-xl flex items-center justify-center text-2xl font-bold text-white`}>
-                {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
+          <div className="space-y-6">
+            {/* Space Settings Card */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Settings className="w-5 h-5 text-gray-600" />
+                <h3 className="font-semibold text-gray-900">Space Settings</h3>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">
-                  {formData.name || 'New Space'}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {formData.description || 'No description'}
-                </p>
-              </div>
-            </div>
-
-            {/* General Settings */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 text-foreground">
-                <Settings size={20} />
-                <h2 className="text-lg font-semibold">General</h2>
-              </div>
-
+              
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Space Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="My Workspace"
-                    className="bg-card border-border"
-                  />
+                  <Label htmlFor="name">Name</Label>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 ${formData.bgColor} rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0`}>
+                      {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
+                    </div>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="My Workspace"
+                      className="bg-white border-gray-200 flex-1"
+                    />
+                    {!isCreating && (
+                      <Button variant="ghost" size="icon" className="text-destructive shrink-0">
+                        <MoreHorizontal size={20} />
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -204,20 +203,20 @@ const SpaceSettings = () => {
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="What is this space for?"
-                    className="bg-card border-border resize-none"
+                    className="bg-white border-gray-200 resize-none"
                     rows={3}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Appearance */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 text-foreground">
-                <Palette size={20} />
-                <h2 className="text-lg font-semibold">Appearance</h2>
+            {/* Appearance Card */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Palette className="w-5 h-5 text-gray-600" />
+                <h3 className="font-semibold text-gray-900">Appearance</h3>
               </div>
-
+              
               <div className="space-y-2">
                 <Label>Space Color</Label>
                 <div className="flex gap-3">
@@ -225,9 +224,9 @@ const SpaceSettings = () => {
                     <button
                       key={option.value}
                       onClick={() => setFormData(prev => ({ ...prev, bgColor: option.value }))}
-                      className={`w-10 h-10 rounded-lg transition-all ${
+                      className={`w-12 h-12 rounded-xl transition-all ${
                         formData.bgColor === option.value 
-                          ? 'ring-2 ring-offset-2 ring-offset-background ring-primary scale-110' 
+                          ? 'ring-2 ring-offset-2 ring-offset-white ring-brand-green scale-110' 
                           : 'hover:scale-105'
                       }`}
                       style={{ backgroundColor: option.color }}
@@ -238,23 +237,25 @@ const SpaceSettings = () => {
               </div>
             </div>
 
-            {/* Team (placeholder for future) */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 text-foreground">
-                <Users size={20} />
-                <h2 className="text-lg font-semibold">Team</h2>
+            {/* Team Card (placeholder) */}
+            {isCreating && (
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Users className="w-5 h-5 text-gray-600" />
+                  <h3 className="font-semibold text-gray-900">Team</h3>
+                </div>
+                
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-muted-foreground">
+                    Team management coming soon. Invite collaborators to work together in this space.
+                  </p>
+                </div>
               </div>
-
-              <div className="p-4 bg-card rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground">
-                  Team management coming soon. Invite collaborators to work together in this space.
-                </p>
-              </div>
-            </div>
+            )}
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-6 border-t border-border">
-              {!isNewSpace && !isCreatingNewSpace && selectedSpace && (
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              {!isCreating && selectedSpace && spaces.length > 1 && (
                 <Button
                   variant="ghost"
                   onClick={handleDelete}
@@ -278,7 +279,7 @@ const SpaceSettings = () => {
                   className="bg-brand-green text-primary hover:bg-brand-green/90"
                 >
                   <Save size={16} className="mr-2" />
-                  {isSaving ? 'Saving...' : isNewSpace || isCreatingNewSpace ? 'Create Space' : 'Save Changes'}
+                  {isSaving ? 'Saving...' : isCreating ? 'Create Space' : 'Save Settings'}
                 </Button>
               </div>
             </div>
