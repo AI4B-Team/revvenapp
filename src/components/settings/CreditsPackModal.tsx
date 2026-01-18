@@ -5,7 +5,8 @@ import {
   DialogHeader,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Check, AlertCircle, ChevronDown } from 'lucide-react';
+import { Sparkles, Check, AlertCircle } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import {
   Select,
@@ -14,8 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
-
 interface CreditsPackModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -95,7 +94,7 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] min-h-[560px] flex flex-col">
+      <DialogContent className="sm:max-w-[680px] min-h-[560px] flex flex-col">
         <DialogHeader className="text-center pb-2">
           <div className="flex items-center justify-center gap-2 text-brand-green mb-2">
             <Sparkles className="w-5 h-5" />
@@ -122,15 +121,19 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
                   {currentTier.multiplier}x
                 </div>
                 <div className="flex-1 relative">
-                  <Progress 
-                    value={progressPercentage} 
-                    className="h-3 bg-gray-200 [&>div]:bg-brand-green rounded-full"
+                  <Slider
+                    value={[selectedTierIndex]}
+                    onValueChange={(value) => setSelectedTierIndex(value[0])}
+                    max={creditTiers.length - 1}
+                    min={0}
+                    step={1}
+                    className="[&_[role=slider]]:bg-brand-green [&_[role=slider]]:border-brand-green [&_.relative]:bg-muted [&_[data-orientation=horizontal]>.bg-primary]:bg-brand-green"
                   />
                 </div>
                 <Select value={selectedTierIndex.toString()} onValueChange={handleTierChange}>
-                  <SelectTrigger className="w-[200px] bg-background border-input hover:bg-muted">
+                  <SelectTrigger className="w-[240px] bg-background border-input hover:bg-muted">
                     <SelectValue>
-                      {formatCredits(currentTier.credits)} credits / month
+                      {formatCredits(currentTier.credits)} Credits/Month
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
@@ -139,7 +142,7 @@ export default function CreditsPackModal({ isOpen, onClose, currentPacks }: Cred
                         key={tier.multiplier} 
                         value={(index + 1).toString()}
                       >
-                        {formatCredits(tier.credits)} credits / month
+                        {formatCredits(tier.credits)} Credits/Month
                       </SelectItem>
                     ))}
                   </SelectContent>
