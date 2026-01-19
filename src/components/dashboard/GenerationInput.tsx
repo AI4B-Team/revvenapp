@@ -3,6 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook } from 'react-icons/fa';
 import { FaGithub, FaFigma } from 'react-icons/fa';
 import githubLogo from '@/assets/model-logos/github.png';
+import autoLogo from '@/assets/model-logos/auto.png';
+import fluxLogo from '@/assets/model-logos/flux.png';
+import openaiLogo from '@/assets/model-logos/openai.png';
+import imagenLogo from '@/assets/model-logos/imagen.png';
+import qwenLogo from '@/assets/model-logos/qwen.png';
+import seedreamLogo from '@/assets/model-logos/seedream.png';
+import nanoBananaLogo from '@/assets/model-logos/nano-banana.png';
+import zImageLogo from '@/assets/model-logos/z-image.png';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
 import UGCCharacterBox from './UGCCharacterBox';
@@ -497,17 +505,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Design model options (same as image models)
   const designModels = [
-    { value: 'auto', label: 'Auto', description: 'AI picks the best model', logo: '/src/assets/model-logos/auto.png' },
-    { value: 'flux-pro', label: 'Flux Pro', description: 'High quality professional results', logo: '/src/assets/model-logos/flux.png' },
-    { value: 'flux-max', label: 'Flux Max', description: 'Maximum quality output', logo: '/src/assets/model-logos/flux.png' },
-    { value: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI\'s vision model', logo: '/src/assets/model-logos/openai.png' },
-    { value: 'imagen-ultra', label: 'Imagen 4 Ultra', description: 'Google\'s most advanced model', logo: '/src/assets/model-logos/imagen.png' },
-    { value: 'grok', label: 'Grok Imagine', description: 'X.AI\'s powerful model', logo: '/src/assets/model-logos/grok.png' },
-    { value: 'qwen', label: 'Qwen Image', description: 'Alibaba\'s multilingual model', logo: '/src/assets/model-logos/qwen.png' },
-    { value: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen model', logo: '/src/assets/model-logos/seedream.png' },
-    { value: 'seedream', label: 'Seedream 3.0', description: 'ByteDance\'s reliable model', logo: '/src/assets/model-logos/seedream.png' },
-    { value: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini model', logo: '/src/assets/model-logos/nano-banana.png' },
-    { value: 'z-image', label: 'Z-Image', description: 'DeepSeek V3 image model', logo: '/src/assets/model-logos/z-image.png' },
+    { value: 'auto', label: 'Auto', description: 'AI picks the best model', logo: autoLogo },
+    { value: 'flux-pro', label: 'Flux Pro', description: 'High quality professional results', logo: fluxLogo },
+    { value: 'flux-max', label: 'Flux Max', description: 'Maximum quality output', logo: fluxLogo },
+    { value: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI\'s vision model', logo: openaiLogo },
+    { value: 'imagen-ultra', label: 'Imagen 4 Ultra', description: 'Google\'s most advanced model', logo: imagenLogo },
+    { value: 'grok', label: 'Grok Imagine', description: 'X.AI\'s powerful model', logo: grokLogo },
+    { value: 'qwen', label: 'Qwen Image', description: 'Alibaba\'s multilingual model', logo: qwenLogo },
+    { value: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen model', logo: seedreamLogo },
+    { value: 'seedream', label: 'Seedream 3.0', description: 'ByteDance\'s reliable model', logo: seedreamLogo },
+    { value: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini model', logo: nanoBananaLogo },
+    { value: 'z-image', label: 'Z-Image', description: 'DeepSeek V3 image model', logo: zImageLogo },
   ];
   
   // Video mode specific state
