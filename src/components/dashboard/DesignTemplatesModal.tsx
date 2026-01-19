@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Search, Sparkles, LayoutGrid, FileText, Image, Presentation, Mail, Tag, BookOpen, Crown, Zap, Star } from 'lucide-react';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 // Import template images
 import logoNeonCyber from '@/assets/templates/logo-neon-cyber.jpg';
@@ -299,7 +299,6 @@ const categories = [
 const DesignTemplatesModal = ({ isOpen, onClose, onSelectTemplate, designType }: DesignTemplatesModalProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(designType || 'all');
-  const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
 
   // Filter templates based on search and category
   const filteredTemplates = designTemplates.filter(template => {
@@ -390,126 +389,82 @@ const DesignTemplatesModal = ({ isOpen, onClose, onSelectTemplate, designType }:
             
             {/* Templates Grid */}
             <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-              <AnimatePresence mode="popLayout">
-                {filteredTemplates.length > 0 ? (
-                  <motion.div 
-                    className="grid grid-cols-3 gap-5"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {filteredTemplates.map((template, index) => (
-                      <motion.button
-                        key={template.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ delay: index * 0.05, duration: 0.3 }}
-                        onClick={() => handleSelectTemplate(template)}
-                        onMouseEnter={() => setHoveredTemplate(template.id)}
-                        onMouseLeave={() => setHoveredTemplate(null)}
-                        className="group relative rounded-2xl overflow-hidden border border-border/50 bg-gradient-to-br from-secondary/50 to-secondary/30 hover:border-brand-green/50 transition-all duration-500 hover:shadow-xl hover:shadow-brand-green/5"
-                      >
-                        {/* Premium/New Badges */}
-                        <div className="absolute top-3 left-3 z-10 flex gap-2">
-                          {template.isPremium && (
-                            <motion.span 
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="flex items-center gap-1 px-2 py-1 text-xs font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg shadow-lg"
-                            >
-                              <Crown size={10} />
-                              PRO
-                            </motion.span>
-                          )}
-                          {template.isNew && (
-                            <motion.span 
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="flex items-center gap-1 px-2 py-1 text-xs font-semibold bg-gradient-to-r from-violet-500 to-purple-500 text-white rounded-lg shadow-lg"
-                            >
-                              <Zap size={10} />
-                              NEW
-                            </motion.span>
-                          )}
-                        </div>
-                        
-                        {/* Image Container */}
-                        <div className="aspect-[4/3] overflow-hidden relative">
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-[1] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          <motion.img
-                            src={template.preview}
-                            alt={template.name}
-                            className="w-full h-full object-cover"
-                            animate={{ 
-                              scale: hoveredTemplate === template.id ? 1.1 : 1 
-                            }}
-                            transition={{ duration: 0.5, ease: "easeOut" }}
-                          />
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="p-4 relative">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <h3 className="font-semibold text-sm text-foreground group-hover:text-brand-green transition-colors line-clamp-1">
-                                {template.name}
-                              </h3>
-                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-brand-green/60" />
-                                {template.category}
-                              </p>
-                            </div>
-                            <motion.div
-                              initial={false}
-                              animate={{ 
-                                rotate: hoveredTemplate === template.id ? 15 : 0,
-                                scale: hoveredTemplate === template.id ? 1.1 : 1
-                              }}
-                              className="p-1.5 rounded-lg bg-brand-green/10 text-brand-green opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <Star size={12} className="fill-current" />
-                            </motion.div>
+              {filteredTemplates.length > 0 ? (
+                <div className="grid grid-cols-3 gap-5">
+                  {filteredTemplates.map((template) => (
+                    <button
+                      key={template.id}
+                      onClick={() => handleSelectTemplate(template)}
+                      className="group relative rounded-2xl overflow-hidden border border-border/50 bg-gradient-to-br from-secondary/50 to-secondary/30 hover:border-brand-green/50 transition-all duration-300 hover:shadow-xl hover:shadow-brand-green/5"
+                    >
+                      {/* Premium/New Badges */}
+                      <div className="absolute top-3 left-3 z-10 flex gap-2">
+                        {template.isPremium && (
+                          <span className="flex items-center gap-1 px-2 py-1 text-xs font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg shadow-lg">
+                            <Crown size={10} />
+                            PRO
+                          </span>
+                        )}
+                        {template.isNew && (
+                          <span className="flex items-center gap-1 px-2 py-1 text-xs font-semibold bg-gradient-to-r from-violet-500 to-purple-500 text-white rounded-lg shadow-lg">
+                            <Zap size={10} />
+                            NEW
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Image Container */}
+                      <div className="aspect-[4/3] overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-[1] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <img
+                          src={template.preview}
+                          alt={template.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="p-4 relative">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="font-semibold text-sm text-foreground group-hover:text-brand-green transition-colors line-clamp-1">
+                              {template.name}
+                            </h3>
+                            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-brand-green/60" />
+                              {template.category}
+                            </p>
+                          </div>
+                          <div className="p-1.5 rounded-lg bg-brand-green/10 text-brand-green opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
+                            <Star size={12} className="fill-current" />
                           </div>
                         </div>
-                        
-                        {/* Hover Overlay */}
-                        <motion.div 
-                          className="absolute inset-0 z-50 bg-gradient-to-t from-brand-green/90 via-brand-green/50 to-transparent flex items-end justify-center pb-16 pointer-events-none"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: hoveredTemplate === template.id ? 1 : 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <motion.span 
-                            className="bg-white text-brand-green px-6 py-2.5 rounded-xl text-sm font-bold shadow-2xl flex items-center gap-2 z-50"
-                            initial={{ y: 20 }}
-                            animate={{ y: hoveredTemplate === template.id ? 0 : 20 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <Sparkles size={14} />
-                            Use This Template
-                          </motion.span>
-                        </motion.div>
-                      </motion.button>
-                    ))}
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex flex-col items-center justify-center h-full text-muted-foreground"
-                  >
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-brand-green/10 blur-2xl rounded-full" />
-                      <div className="relative bg-secondary/50 p-6 rounded-2xl">
-                        <LayoutGrid className="w-12 h-12 opacity-50" />
                       </div>
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 z-50 bg-gradient-to-t from-brand-green/90 via-brand-green/50 to-transparent flex items-end justify-center pb-16 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="bg-white text-brand-green px-6 py-2.5 rounded-xl text-sm font-bold shadow-2xl flex items-center gap-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                          <Sparkles size={14} />
+                          Use This Template
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-brand-green/10 blur-2xl rounded-full" />
+                    <div className="relative bg-secondary/50 p-6 rounded-2xl">
+                      <LayoutGrid className="w-12 h-12 opacity-50" />
                     </div>
-                    <p className="text-sm mt-4 font-medium">No templates found</p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">Try a different search term</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+                  <p className="text-sm mt-4 font-medium">No templates found</p>
+                  <p className="text-xs text-muted-foreground/70 mt-1">Try a different search term</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
