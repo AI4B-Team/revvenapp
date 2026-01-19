@@ -631,37 +631,43 @@ const Create = () => {
       name: 'Logo Designer', 
       description: 'Create brand logos',
       bgColor: 'bg-tool-blue',
-      emoji: '🎨'
+      emoji: '🎨',
+      onClick: () => navigate('/logo-designer')
     },
     { 
       name: 'Banner Creator', 
       description: 'Design social banners',
       bgColor: 'bg-tool-yellow',
-      emoji: '🖼️'
+      emoji: '🖼️',
+      onClick: () => navigate('/banner-creator')
     },
     { 
       name: 'Flyer Maker', 
       description: 'Create marketing flyers',
       bgColor: 'bg-tool-green',
-      emoji: '📄'
+      emoji: '📄',
+      onClick: () => navigate('/flyer-maker')
     },
     { 
       name: 'Poster Designer', 
       description: 'Design custom posters',
       bgColor: 'bg-tool-blue',
-      emoji: '🎭'
+      emoji: '🎭',
+      onClick: () => navigate('/poster-designer')
     },
     { 
       name: 'Infographic Builder', 
       description: 'Create infographics',
       bgColor: 'bg-tool-pink',
-      emoji: '📊'
+      emoji: '📊',
+      onClick: () => navigate('/infographic-builder')
     },
     { 
       name: 'Presentation Maker', 
       description: 'Design presentations',
       bgColor: 'bg-tool-yellow',
-      emoji: '📺'
+      emoji: '📺',
+      onClick: () => navigate('/presentation-maker')
     },
   ];
 
