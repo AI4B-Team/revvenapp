@@ -446,13 +446,13 @@ const DesignTemplatesModal = ({ isOpen, onClose, onSelectTemplate, designType }:
                         
                         {/* Hover Overlay */}
                         <motion.div 
-                          className="absolute inset-0 bg-gradient-to-t from-brand-green/90 via-brand-green/50 to-transparent flex items-end justify-center pb-16 pointer-events-none"
+                          className="absolute inset-0 z-50 bg-gradient-to-t from-brand-green/90 via-brand-green/50 to-transparent flex items-end justify-center pb-16 pointer-events-none"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: hoveredTemplate === template.id ? 1 : 0 }}
                           transition={{ duration: 0.3 }}
                         >
                           <motion.span 
-                            className="bg-white text-brand-green px-6 py-2.5 rounded-xl text-sm font-bold shadow-2xl flex items-center gap-2"
+                            className="bg-white text-brand-green px-6 py-2.5 rounded-xl text-sm font-bold shadow-2xl flex items-center gap-2 z-50"
                             initial={{ y: 20 }}
                             animate={{ y: hoveredTemplate === template.id ? 0 : 20 }}
                             transition={{ duration: 0.3 }}
