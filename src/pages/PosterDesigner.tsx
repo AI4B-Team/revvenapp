@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Sparkles, Download, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import ImageModelSelector, { ImageModelValue } from '@/components/design/ImageModelSelector';
 
 const PosterDesigner = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const PosterDesigner = () => {
   const [posterType, setPosterType] = useState('movie');
   const [style, setStyle] = useState('cinematic');
   const [orientation, setOrientation] = useState('portrait');
+  const [model, setModel] = useState<ImageModelValue>('auto');
   const [generatedPoster, setGeneratedPoster] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -42,7 +44,7 @@ const PosterDesigner = () => {
       const prompt = `Create a ${style} ${posterType} poster for "${title}". ${description ? `Description: ${description}` : ''} High-quality, professional poster design with dramatic composition and stunning visuals.`;
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt, model: 'flux-kontext-pro', aspectRatio: orientationRatios[orientation] }
+        body: { prompt, model, aspectRatio: orientationRatios[orientation] }
       });
 
       if (error) throw error;
@@ -170,7 +172,9 @@ const PosterDesigner = () => {
                     </Select>
                   </div>
 
-                  <Button 
+                  <ImageModelSelector value={model} onChange={setModel} />
+
+                  <Button
                     onClick={handleGenerate} 
                     disabled={isGenerating}
                     className="w-full"

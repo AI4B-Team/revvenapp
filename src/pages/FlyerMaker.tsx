@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Sparkles, Download, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import ImageModelSelector, { ImageModelValue } from '@/components/design/ImageModelSelector';
 
 const FlyerMaker = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const FlyerMaker = () => {
   const [details, setDetails] = useState('');
   const [flyerType, setFlyerType] = useState('event');
   const [style, setStyle] = useState('modern');
+  const [model, setModel] = useState<ImageModelValue>('auto');
   const [generatedFlyer, setGeneratedFlyer] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -35,7 +37,7 @@ const FlyerMaker = () => {
       const prompt = `Create a ${style} ${flyerType} flyer for "${eventName}". ${details ? `Details: ${details}` : ''} Professional marketing flyer with compelling design, clear hierarchy, and engaging visuals.`;
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt, model: 'flux-kontext-pro', aspectRatio: '3:4' }
+        body: { prompt, model, aspectRatio: '3:4' }
       });
 
       if (error) throw error;
@@ -149,7 +151,9 @@ const FlyerMaker = () => {
                     </Select>
                   </div>
 
-                  <Button 
+                  <ImageModelSelector value={model} onChange={setModel} />
+
+                  <Button
                     onClick={handleGenerate} 
                     disabled={isGenerating}
                     className="w-full"

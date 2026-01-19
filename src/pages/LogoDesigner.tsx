@@ -4,7 +4,6 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Sparkles, Download, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import ImageModelSelector, { ImageModelValue } from '@/components/design/ImageModelSelector';
 
 const LogoDesigner = () => {
   const navigate = useNavigate();
@@ -21,6 +21,7 @@ const LogoDesigner = () => {
   const [industry, setIndustry] = useState('');
   const [style, setStyle] = useState('modern');
   const [colorScheme, setColorScheme] = useState('vibrant');
+  const [model, setModel] = useState<ImageModelValue>('auto');
   const [generatedLogo, setGeneratedLogo] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -35,7 +36,7 @@ const LogoDesigner = () => {
       const prompt = `Create a ${style} logo for "${brandName}"${industry ? ` in the ${industry} industry` : ''}. Color scheme: ${colorScheme}. Professional, clean, memorable design.`;
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt, model: 'flux-kontext-pro', aspectRatio: '1:1' }
+        body: { prompt, model, aspectRatio: '1:1' }
       });
 
       if (error) throw error;
@@ -149,7 +150,9 @@ const LogoDesigner = () => {
                     </Select>
                   </div>
 
-                  <Button 
+                  <ImageModelSelector value={model} onChange={setModel} />
+
+                  <Button
                     onClick={handleGenerate} 
                     disabled={isGenerating}
                     className="w-full"

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Sparkles, Download, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import ImageModelSelector, { ImageModelValue } from '@/components/design/ImageModelSelector';
 
 const InfographicBuilder = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const InfographicBuilder = () => {
   const [dataPoints, setDataPoints] = useState('');
   const [infographicType, setInfographicType] = useState('statistical');
   const [style, setStyle] = useState('modern');
+  const [model, setModel] = useState<ImageModelValue>('auto');
   const [generatedInfographic, setGeneratedInfographic] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -35,7 +37,7 @@ const InfographicBuilder = () => {
       const prompt = `Create a ${style} ${infographicType} infographic about "${topic}". ${dataPoints ? `Key data points: ${dataPoints}` : ''} Professional infographic design with clear data visualization, icons, and engaging layout.`;
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt, model: 'flux-kontext-pro', aspectRatio: '9:16' }
+        body: { prompt, model, aspectRatio: '9:16' }
       });
 
       if (error) throw error;
@@ -150,7 +152,9 @@ const InfographicBuilder = () => {
                     </Select>
                   </div>
 
-                  <Button 
+                  <ImageModelSelector value={model} onChange={setModel} />
+
+                  <Button
                     onClick={handleGenerate} 
                     disabled={isGenerating}
                     className="w-full"
