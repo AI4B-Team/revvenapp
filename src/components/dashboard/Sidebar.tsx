@@ -7,7 +7,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus, Trash2
 } from 'lucide-react';
 import RevvenLogo from '@/components/RevvenLogo';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -15,8 +15,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import OnboardingProgress from './OnboardingProgress';
 import ProjectSelector from './ProjectSelector';
 import { creationsData } from '@/data/creationsData';
@@ -238,10 +249,19 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     selectedBrand, 
     setSelectedBrand, 
     updateBrand,
+    deleteBrand,
+    addBrand,
     isCreatingNewBrand, 
     setIsCreatingNewBrand,
     draftBrand 
   } = useBrand();
+
+  // State for delete confirmation
+  const [brandToDelete, setBrandToDelete] = useState<{ id: string; name: string } | null>(null);
+  
+  // State for quick brand creation
+  const [isCreatingQuickBrand, setIsCreatingQuickBrand] = useState(false);
+  const [newBrandName, setNewBrandName] = useState('');
 
   const handleRenameBrand = (brandId: string) => {
     const brand = brands.find(b => b.id === brandId);
@@ -265,6 +285,43 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const cancelRenameBrand = () => {
     setRenamingBrandId(null);
     setRenameBrandValue('');
+  };
+
+  const handleDeleteBrand = (brand: { id: string; name: string }) => {
+    setBrandToDelete(brand);
+  };
+
+  const confirmDeleteBrand = () => {
+    if (brandToDelete) {
+      deleteBrand(brandToDelete.id);
+      setBrandToDelete(null);
+    }
+  };
+
+  const handleQuickCreateBrand = () => {
+    if (newBrandName.trim()) {
+      const bgColors = ['bg-brand-pink', 'bg-brand-blue', 'bg-brand-yellow', 'bg-brand-green', 'bg-brand-purple'];
+      const randomColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+      
+      const newBrand = {
+        id: Date.now().toString(),
+        name: newBrandName.trim(),
+        initial: newBrandName.trim().charAt(0).toUpperCase(),
+        bgColor: randomColor,
+        isComplete: false,
+        incompleteSection: 'identity'
+      };
+      
+      addBrand(newBrand);
+      setNewBrandName('');
+      setIsCreatingQuickBrand(false);
+      setIsBrandsDropdownOpen(false);
+    }
+  };
+
+  const cancelQuickCreateBrand = () => {
+    setNewBrandName('');
+    setIsCreatingQuickBrand(false);
   };
 
   // Use space context
@@ -633,25 +690,61 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                           <Edit size={14} className="mr-2" />
                           Rename
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-border" />
+                        <DropdownMenuItem 
+                          className="text-destructive hover:bg-sidebar-hover focus:bg-sidebar-hover cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteBrand({ id: brand.id, name: brand.name });
+                          }}
+                        >
+                          <Trash2 size={14} className="mr-2" />
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
                 </div>
               ))}
-              <button 
-                onClick={() => {
-                  setIsBrandsDropdownOpen(false);
-                  setBrandSearchQuery('');
-                  setIsCreatingNewBrand(true);
-                  navigate('/brand?new=true');
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition mt-2 border-t border-border text-sidebar-text"
-              >
-                <div className="w-8 h-8 bg-brand-green rounded flex items-center justify-center text-sm font-bold text-primary">
-                  +
-                </div>
-                <span className="flex-1 text-left text-sm">Create New Brand</span>
-              </button>
+              {/* Quick Create Brand */}
+              <div className="mt-2 border-t border-border pt-2">
+                {isCreatingQuickBrand ? (
+                  <div className="px-3 py-2 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-brand-green rounded flex items-center justify-center text-sm font-bold text-primary">
+                      {newBrandName.trim() ? newBrandName.trim().charAt(0).toUpperCase() : '+'}
+                    </div>
+                    <input
+                      type="text"
+                      value={newBrandName}
+                      onChange={(e) => setNewBrandName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleQuickCreateBrand();
+                        if (e.key === 'Escape') cancelQuickCreateBrand();
+                      }}
+                      onBlur={() => {
+                        if (newBrandName.trim()) {
+                          handleQuickCreateBrand();
+                        } else {
+                          cancelQuickCreateBrand();
+                        }
+                      }}
+                      autoFocus
+                      placeholder="Enter brand name..."
+                      className="flex-1 text-sm bg-sidebar-hover text-sidebar-text px-2 py-1 rounded border border-border outline-none focus:border-brand-green"
+                    />
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => setIsCreatingQuickBrand(true)}
+                    className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text"
+                  >
+                    <div className="w-8 h-8 bg-brand-green rounded flex items-center justify-center text-sm font-bold text-primary">
+                      +
+                    </div>
+                    <span className="flex-1 text-left text-sm">Create New Brand</span>
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -911,6 +1004,30 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         )}
       </div>
       </div>
+
+      {/* Delete Brand Confirmation Dialog */}
+      <AlertDialog open={!!brandToDelete} onOpenChange={(open) => !open && setBrandToDelete(null)}>
+        <AlertDialogContent className="bg-sidebar border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-sidebar-text">Delete Brand</AlertDialogTitle>
+            <AlertDialogDescription className="text-sidebar-muted space-y-2">
+              <p>Are you sure you want to delete <strong className="text-sidebar-text">"{brandToDelete?.name}"</strong>?</p>
+              <p className="text-destructive">This action cannot be undone. All brand data including identity settings, voice configurations, and associated content will be permanently removed.</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-sidebar-hover text-sidebar-text border-border hover:bg-sidebar-active">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteBrand}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Brand
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
