@@ -1,8 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Search, Sparkles, LayoutGrid, FileText, Image, Presentation, Mail, Tag, BookOpen, Crown, Zap, Star } from 'lucide-react';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useMemo, memo } from 'react';
 
 // Import template images
 import logoNeonCyber from '@/assets/templates/logo-neon-cyber.jpg';
@@ -345,12 +344,10 @@ const DesignTemplatesModal = ({ isOpen, onClose, onSelectTemplate, designType }:
                   : designTemplates.filter(t => t.category === category.id).length;
                 
                 return (
-                  <motion.button
+                  <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    whileHover={{ x: 4 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-3 group ${
+                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-3 group hover:translate-x-1 active:scale-[0.98] ${
                       isActive
                         ? 'bg-gradient-to-r from-brand-green/20 via-brand-green/10 to-transparent text-brand-green border-l-2 border-brand-green shadow-sm'
                         : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
@@ -367,7 +364,7 @@ const DesignTemplatesModal = ({ isOpen, onClose, onSelectTemplate, designType }:
                     }`}>
                       {count}
                     </span>
-                  </motion.button>
+                  </button>
                 );
               })}
             </div>
