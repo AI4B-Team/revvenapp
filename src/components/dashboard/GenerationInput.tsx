@@ -2942,11 +2942,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       // Use 16:9 aspect ratio for design mode, otherwise use selected aspect ratio
       const finalAspectRatio = (isDesignMode && selectedDesignType) ? '16:9' : selectedAspectRatio;
       
+      // Use designModel for design mode, otherwise use selectedModel
+      const finalModel = isDesignMode ? designModel : selectedModel;
+      
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
           prompt: finalPrompt,
           aspectRatio: finalAspectRatio,
-          model: selectedModel,
+          model: finalModel,
           numberOfImages: numberOfImages,
           character: primaryCharacter ? {
             id: primaryCharacter.id,
