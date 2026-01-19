@@ -12,7 +12,12 @@ import {
   Headphones,
   ChevronLeft,
   ChevronRight,
-  Sliders
+  Sliders,
+  Phone,
+  PhoneCall,
+  TrendingUp,
+  Database,
+  Palette
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -25,9 +30,15 @@ import MCTeamManagement from '@/components/master-closer/MCTeamManagement';
 import MCSettings from '@/components/master-closer/MCSettings';
 import MCAgentSettings from '@/components/master-closer/MCAgentSettings';
 import MCConversationTemplates, { ConversationTemplate } from '@/components/master-closer/MCConversationTemplates';
+import MCKnowledgeBase from '@/components/master-closer/MCKnowledgeBase';
+import MCPowerDialer from '@/components/master-closer/MCPowerDialer';
+import MCCRMPipeline from '@/components/master-closer/MCCRMPipeline';
+import MCSMSAutomation from '@/components/master-closer/MCSMSAutomation';
+import MCNumberManagement from '@/components/master-closer/MCNumberManagement';
+import MCWhiteLabel from '@/components/master-closer/MCWhiteLabel';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'agent-settings';
+type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'agent-settings' | 'knowledge-base' | 'power-dialer' | 'crm-pipeline' | 'sms-automation' | 'number-management' | 'white-label';
 export type CallMode = 'start-call' | 'voice-agent' | 'listen';
 
 const MasterCloser = () => {
@@ -41,15 +52,45 @@ const MasterCloser = () => {
   const [pendingCallMode, setPendingCallMode] = useState<CallMode>('start-call');
 
   const navigation = [
-    { id: 'dashboard', name: 'Command', icon: BarChart3, view: 'dashboard' },
-    { id: 'live-call', name: 'Calls', icon: Mic, view: 'live-call', highlight: true },
-    { id: 'agent-settings', name: 'Agent', icon: Bot, view: 'agent-settings' },
-    { id: 'objections', name: 'Objections', icon: MessageSquare, view: 'objections' },
-    { id: 'planner', name: 'Prep', icon: BookOpen, view: 'planner' },
-    { id: 'analytics', name: 'Performance', icon: BarChart3, view: 'analytics' },
-    { id: 'team', name: 'Team', icon: Users, view: 'team' },
-    { id: 'settings', name: 'Settings', icon: Settings, view: 'settings' }
+    // Core Features
+    { id: 'dashboard', name: 'Command', icon: BarChart3, view: 'dashboard', section: 'core' },
+    { id: 'live-call', name: 'Calls', icon: Mic, view: 'live-call', highlight: true, section: 'core' },
+    { id: 'agent-settings', name: 'Agent', icon: Bot, view: 'agent-settings', section: 'core' },
+    
+    // Dialer & Communication
+    { id: 'power-dialer', name: 'Power Dialer', icon: PhoneCall, view: 'power-dialer', section: 'dialer', badge: 'NEW' },
+    { id: 'sms-automation', name: 'SMS', icon: MessageSquare, view: 'sms-automation', section: 'dialer', badge: 'NEW' },
+    { id: 'number-management', name: 'Numbers', icon: Phone, view: 'number-management', section: 'dialer', badge: 'NEW' },
+    
+    // Sales Tools
+    { id: 'objections', name: 'Objections', icon: MessageSquare, view: 'objections', section: 'sales' },
+    { id: 'planner', name: 'Prep', icon: BookOpen, view: 'planner', section: 'sales' },
+    { id: 'crm-pipeline', name: 'CRM', icon: TrendingUp, view: 'crm-pipeline', section: 'sales', badge: 'NEW' },
+    
+    // Knowledge & Training
+    { id: 'knowledge-base', name: 'Knowledge', icon: Database, view: 'knowledge-base', section: 'training', badge: 'NEW' },
+    
+    // Management
+    { id: 'analytics', name: 'Performance', icon: BarChart3, view: 'analytics', section: 'manage' },
+    { id: 'team', name: 'Team', icon: Users, view: 'team', section: 'manage' },
+    { id: 'white-label', name: 'Branding', icon: Palette, view: 'white-label', section: 'manage', badge: 'NEW' },
+    { id: 'settings', name: 'Settings', icon: Settings, view: 'settings', section: 'manage' }
   ];
+
+  const sectionTitles: Record<string, string> = {
+    core: 'Core',
+    dialer: 'Dialer & SMS',
+    sales: 'Sales Tools',
+    training: 'Training',
+    manage: 'Management'
+  };
+
+  const groupedNav = navigation.reduce((acc, item) => {
+    const section = item.section || 'core';
+    if (!acc[section]) acc[section] = [];
+    acc[section].push(item);
+    return acc;
+  }, {} as Record<string, typeof navigation>);
 
   const handleStartCall = (mode: CallMode) => {
     setPendingCallMode(mode);
@@ -97,6 +138,18 @@ const MasterCloser = () => {
         return <MCTeamManagement />;
       case 'settings':
         return <MCSettings />;
+      case 'knowledge-base':
+        return <MCKnowledgeBase />;
+      case 'power-dialer':
+        return <MCPowerDialer />;
+      case 'crm-pipeline':
+        return <MCCRMPipeline />;
+      case 'sms-automation':
+        return <MCSMSAutomation />;
+      case 'number-management':
+        return <MCNumberManagement />;
+      case 'white-label':
+        return <MCWhiteLabel />;
       default:
         return <MCDashboard onStartCall={handleStartCall} />;
     }
@@ -211,42 +264,58 @@ const MasterCloser = () => {
             </div>
 
             {/* Navigation */}
-            <nav className={`${isInnerSidebarCollapsed ? 'p-2' : 'p-3'} space-y-1 flex-1`}>
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = currentView === item.view;
-                return (
-                  <Tooltip key={item.id}>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => setCurrentView(item.view as View)}
-                        className={`w-full flex items-center ${isInnerSidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2.5 rounded-lg transition-all text-sm ${
-                          isActive
-                            ? item.id === 'agent-settings' 
-                              ? 'bg-purple-100 text-purple-700 border border-purple-200'
-                              : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                        } ${item.highlight && !isActive ? 'border border-emerald-200' : ''}`}
-                      >
-                        <Icon className="w-4 h-4 flex-shrink-0" />
-                        {!isInnerSidebarCollapsed && (
-                          <>
-                            <span className="font-medium">{item.name}</span>
-                            {item.highlight && !isActive && (
-                              <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 text-xs rounded-full">
-                                Live
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    {isInnerSidebarCollapsed && (
-                      <TooltipContent side="right">{item.name}</TooltipContent>
-                    )}
-                  </Tooltip>
-                );
-              })}
+            <nav className={`${isInnerSidebarCollapsed ? 'p-2' : 'p-3'} space-y-4 flex-1 overflow-y-auto`}>
+              {Object.entries(groupedNav).map(([section, items]) => (
+                <div key={section}>
+                  {!isInnerSidebarCollapsed && (
+                    <div className="px-3 mb-2">
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        {sectionTitles[section]}
+                      </h3>
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    {items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = currentView === item.view;
+                      return (
+                        <Tooltip key={item.id}>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => setCurrentView(item.view as View)}
+                              className={`w-full flex items-center ${isInnerSidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2 rounded-lg transition-all text-sm ${
+                                isActive
+                                  ? item.id === 'agent-settings' 
+                                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800'
+                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                              } ${item.highlight && !isActive ? 'border border-emerald-200 dark:border-emerald-800' : ''}`}
+                            >
+                              <Icon className="w-4 h-4 flex-shrink-0" />
+                              {!isInnerSidebarCollapsed && (
+                                <>
+                                  <span className="font-medium flex-1 text-left">{item.name}</span>
+                                  {item.badge && (
+                                    <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-full font-medium">
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                  {item.highlight && !isActive && !item.badge && (
+                                    <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                                  )}
+                                </>
+                              )}
+                            </button>
+                          </TooltipTrigger>
+                          {isInnerSidebarCollapsed && (
+                            <TooltipContent side="right">{item.name}</TooltipContent>
+                          )}
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </nav>
 
             {/* Upgrade Card - Hidden when collapsed */}
