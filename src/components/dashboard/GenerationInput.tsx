@@ -3019,17 +3019,43 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     try {
       console.log("Enhancing text...");
       
-      // Determine mode for the enhancer
-      const isMusicMode = selectedType === 'Audio' && selectedAudioMode === 'Music';
-      // Music mode always uses 'music' for style descriptions (lyrics are enhanced separately)
+      // Determine mode for the enhancer based on current content type
+      let enhanceMode = 'image';
+      let specificMode = '';
+      
+      if (selectedType === 'Audio') {
+        if (selectedAudioMode === 'Music') {
+          enhanceMode = 'music';
+        } else if (selectedAudioMode === 'Voiceover') {
+          enhanceMode = 'voiceover';
+        } else if (selectedAudioMode === 'Sound Effects') {
+          enhanceMode = 'sound_effects';
+        } else if (selectedAudioMode === 'Revoice') {
+          enhanceMode = 'revoice';
+        } else {
+          enhanceMode = 'audio';
+        }
+      } else if (selectedType === 'Video' || isVideoMode) {
+        enhanceMode = 'video';
+        specificMode = selectedAnimateMode || 'Animate';
+      } else if (selectedType === 'Design') {
+        enhanceMode = 'design';
+        specificMode = selectedDesignType || '';
+      } else if (selectedType === 'Content') {
+        enhanceMode = 'content';
+      } else if (selectedType === 'Image') {
+        enhanceMode = 'image';
+        specificMode = selectedCreateMode || 'Create';
+      }
       
       const { data, error } = await supabase.functions.invoke('enhance-prompt', {
         body: { 
           prompt: text.trim(),
           fast: fast,
           maxLength: maxLength,
-          mode: isMusicMode ? 'music' : 'image',
-          musicWithVocals: isMusicMode ? !musicInstrumental : false
+          mode: enhanceMode,
+          specificMode: specificMode,
+          musicWithVocals: (selectedType === 'Audio' && selectedAudioMode === 'Music') ? !musicInstrumental : false
         }
       });
 
