@@ -28,7 +28,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Neon Cyber Logo', 
     category: 'Logo', 
     prompt: 'Ultra-premium cyberpunk logo with holographic chrome finish, neon magenta and electric cyan gradients, floating 3D geometric elements, glass morphism effects, dark obsidian background with particle effects, cinematic lighting with volumetric rays', 
-    preview: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&h=300&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=300&h=300&fit=crop',
     isPremium: true,
     isNew: true
   },
@@ -37,7 +37,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Luxury Gold Emblem', 
     category: 'Logo', 
     prompt: 'Opulent luxury emblem logo with 24k gold foil texture, intricate filigree patterns, raised 3D embossing effect, deep black velvet background, diamond dust sparkle accents, royal serif typography with metallic sheen', 
-    preview: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=300&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&h=300&fit=crop',
     isPremium: true
   },
   { 
@@ -45,7 +45,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Aurora Gradient', 
     category: 'Logo', 
     prompt: 'Mesmerizing aurora borealis gradient logo with flowing liquid metal typography, iridescent pearl finish, soft ethereal glow effects, crystalline geometric accents, dreamy pastel to deep violet color transitions', 
-    preview: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=300&h=300&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=300&h=300&fit=crop',
     isNew: true
   },
   
@@ -63,7 +63,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Creative Prism', 
     category: 'Business Card', 
     prompt: 'Bold creative agency card with holographic rainbow prism effect, transparent acrylic material appearance, floating 3D elements, gradient mesh backgrounds, avant-garde asymmetric layout, neon accent highlights', 
-    preview: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=300&h=200&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=300&h=200&fit=crop',
     isNew: true
   },
   { 
@@ -71,7 +71,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Marble Luxe', 
     category: 'Business Card', 
     prompt: 'Sophisticated marble texture business card with gold vein details, premium weight cardstock appearance, copper foil accents, elegant serif typography, museum-quality minimalist design', 
-    preview: 'https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=300&h=200&fit=crop'
+    preview: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300&h=200&fit=crop'
   },
   
   // Poster Templates - Dynamic & Cinematic
@@ -80,7 +80,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Synthwave Nights', 
     category: 'Poster', 
     prompt: 'Epic synthwave poster with retro-futuristic chrome typography, sunset gradient sky with grid mountains, neon palm silhouettes, VHS glitch effects, purple and hot pink color scheme, 80s nostalgia aesthetic with modern polish', 
-    preview: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1634017839464-5c339bbe3c45?w=300&h=400&fit=crop',
     isPremium: true,
     isNew: true
   },
@@ -89,14 +89,14 @@ const designTemplates: DesignTemplate[] = [
     name: 'Brutalist Art', 
     category: 'Poster', 
     prompt: 'High-fashion brutalist poster with bold geometric blocks, stark contrast black and white with single accent color, industrial concrete textures, experimental typography, avant-garde museum exhibition style', 
-    preview: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=300&h=400&fit=crop'
+    preview: 'https://images.unsplash.com/photo-1561998338-13ad7883b20f?w=300&h=400&fit=crop'
   },
   { 
     id: 'poster-3', 
     name: 'Cosmic Journey', 
     category: 'Poster', 
     prompt: 'Breathtaking cosmic poster with nebula clouds, holographic planet rings, stardust particle effects, ethereal gradient backgrounds, futuristic chrome typography, space exploration cinematic atmosphere', 
-    preview: 'https://images.unsplash.com/photo-1514820720301-4c4790309f46?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=300&h=400&fit=crop',
     isPremium: true
   },
   
@@ -106,7 +106,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Neon Rave', 
     category: 'Flyer', 
     prompt: 'Explosive neon rave flyer with laser beam effects, holographic metallic surfaces, UV glow typography, liquid chrome drips, cyberpunk club aesthetic, electric blue and hot pink gradients, fog machine atmosphere', 
-    preview: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=300&h=400&fit=crop',
     isNew: true
   },
   { 
@@ -114,7 +114,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Corporate Elite', 
     category: 'Flyer', 
     prompt: 'Premium corporate flyer with frosted glass panels, subtle gradient mesh, executive gold accents, architectural photography integration, sophisticated sans-serif typography, luxury real estate aesthetic', 
-    preview: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300&h=400&fit=crop',
     isPremium: true
   },
   { 
@@ -122,7 +122,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Flash Sale Blitz', 
     category: 'Flyer', 
     prompt: 'High-impact sale flyer with explosive starburst effects, 3D extruded text, chrome metallic percentages, dynamic motion blur, electric energy bolts, urgent countdown timer graphics, premium retail aesthetic', 
-    preview: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=300&h=400&fit=crop'
+    preview: 'https://images.unsplash.com/photo-1607082350899-7e105aa886ae?w=300&h=400&fit=crop'
   },
   
   // Invitation Templates - Elegant & Sophisticated
@@ -131,7 +131,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Botanical Luxe', 
     category: 'Invitation', 
     prompt: 'Exquisite wedding invitation with hand-painted botanical illustrations, watercolor wash backgrounds, gold leaf accents, luxury cotton paper texture, romantic calligraphy, soft blush and sage color palette, pressed flower details', 
-    preview: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=300&h=300&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=300&h=300&fit=crop',
     isPremium: true
   },
   { 
@@ -139,7 +139,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Party Pop Art', 
     category: 'Invitation', 
     prompt: 'Vibrant pop art party invitation with halftone dots, comic book explosions, bold primary colors, retro cartoon illustrations, playful hand-lettering, confetti bursts, celebration energy', 
-    preview: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&h=300&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=300&h=300&fit=crop',
     isNew: true
   },
   { 
@@ -147,7 +147,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Gala Noir', 
     category: 'Invitation', 
     prompt: 'Ultra-sophisticated gala invitation with deep matte black background, subtle embossed patterns, platinum foil typography, art deco geometric borders, museum-quality minimalism, exclusive luxury feel', 
-    preview: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=300&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=300&h=300&fit=crop',
     isPremium: true
   },
   
@@ -157,7 +157,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Viral Impact', 
     category: 'Thumbnail', 
     prompt: 'Maximum impact YouTube thumbnail with 3D extruded bold text, dramatic lighting, shocked expression placeholder, fire and explosion effects, saturated colors, impossible to ignore composition, click-bait masterclass', 
-    preview: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=300&h=170&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&h=170&fit=crop',
     isNew: true
   },
   { 
@@ -165,14 +165,14 @@ const designTemplates: DesignTemplate[] = [
     name: 'Pro Tutorial', 
     category: 'Thumbnail', 
     prompt: 'Premium tutorial thumbnail with sleek dark interface preview, numbered step badges, gradient glass overlays, professional headshot frame, tech company aesthetic, clean modern typography', 
-    preview: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=300&h=170&fit=crop'
+    preview: 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?w=300&h=170&fit=crop'
   },
   { 
     id: 'thumb-3', 
     name: 'Podcast Studio', 
     category: 'Thumbnail', 
     prompt: 'Atmospheric podcast thumbnail with premium microphone visualization, sound wave graphics, moody studio lighting, guest photo frames, episode number badges, Spotify aesthetic', 
-    preview: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=300&h=170&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=300&h=170&fit=crop',
     isPremium: true
   },
   
@@ -191,14 +191,14 @@ const designTemplates: DesignTemplate[] = [
     name: 'Journey Map', 
     category: 'Infographic', 
     prompt: 'Elegant journey infographic with winding path illustrations, milestone markers with icons, gradient transitions between stages, hand-drawn elements, storytelling visual flow, premium magazine quality', 
-    preview: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=400&fit=crop'
+    preview: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=400&fit=crop&sat=-100'
   },
   { 
     id: 'info-3', 
     name: 'Versus Battle', 
     category: 'Infographic', 
     prompt: 'Dynamic versus comparison infographic with split screen effect, lightning bolt divider, team color coding, stats bars with glow effects, competitive gaming aesthetic, bold iconography', 
-    preview: 'https://images.unsplash.com/photo-1543286386-713bdd548da4?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=400&fit=crop',
     isNew: true
   },
   
@@ -208,7 +208,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Fortune 500', 
     category: 'Brochure', 
     prompt: 'Elite corporate brochure with architectural photography, premium paper texture, metallic ink accents, executive boardroom aesthetic, sophisticated grid system, annual report quality, investor-ready polish', 
-    preview: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=300&h=200&fit=crop',
     isPremium: true
   },
   { 
@@ -216,14 +216,14 @@ const designTemplates: DesignTemplate[] = [
     name: 'Luxury Catalog', 
     category: 'Brochure', 
     prompt: 'High-fashion product catalog with editorial photography layouts, generous white space, subtle drop shadows, price tags with gold borders, magazine-quality print aesthetic, lifestyle imagery integration', 
-    preview: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop'
+    preview: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop'
   },
   { 
     id: 'broch-3', 
     name: 'Wanderlust', 
     category: 'Brochure', 
     prompt: 'Breathtaking travel brochure with panoramic destination photography, hand-drawn map illustrations, vintage stamp accents, adventure typography, bucket-list inspiration, National Geographic quality', 
-    preview: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=300&h=200&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=300&h=200&fit=crop',
     isNew: true
   },
   
@@ -241,7 +241,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Vogue Style', 
     category: 'Cover', 
     prompt: 'High-fashion magazine cover with supermodel photography aesthetic, bold masthead typography, exclusive cover line hierarchy, luxury brand advertisement feel, editorial excellence, newsstand impact', 
-    preview: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=400&fit=crop',
     isNew: true
   },
   { 
@@ -249,7 +249,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Platinum Record', 
     category: 'Cover', 
     prompt: 'Iconic album cover with artistic visual concept, textured background, experimental typography, mood-defining color grading, vinyl-worthy artwork, music history aesthetic, Grammy-winning vibes', 
-    preview: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1619983081563-430f63602796?w=300&h=400&fit=crop',
     isPremium: true
   },
 ];
