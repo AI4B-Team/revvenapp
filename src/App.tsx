@@ -92,6 +92,12 @@ const InfinityTalk = lazy(() => import("./pages/InfinityTalk"));
 const Signature = lazy(() => import("./pages/Signature"));
 const MasterCloser = lazy(() => import("./pages/MasterCloser"));
 const SpaceSettings = lazy(() => import("./pages/SpaceSettings"));
+const LogoDesigner = lazy(() => import("./pages/LogoDesigner"));
+const BannerCreator = lazy(() => import("./pages/BannerCreator"));
+const FlyerMaker = lazy(() => import("./pages/FlyerMaker"));
+const PosterDesigner = lazy(() => import("./pages/PosterDesigner"));
+const InfographicBuilder = lazy(() => import("./pages/InfographicBuilder"));
+const PresentationMaker = lazy(() => import("./pages/PresentationMaker"));
 
 
 const queryClient = new QueryClient();
@@ -189,6 +195,12 @@ const App = () => (
                           <Route path="/account" element={<Settings />} />
                           <Route path="/brand" element={<Brand />} />
                           <Route path="/space-settings" element={<SpaceSettings />} />
+                          <Route path="/logo-designer" element={<LogoDesigner />} />
+                          <Route path="/banner-creator" element={<BannerCreator />} />
+                          <Route path="/flyer-maker" element={<FlyerMaker />} />
+                          <Route path="/poster-designer" element={<PosterDesigner />} />
+                          <Route path="/infographic-builder" element={<InfographicBuilder />} />
+                          <Route path="/presentation-maker" element={<PresentationMaker />} />
                           {/* Admin is now accessible via /account?tab=admin */}
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
