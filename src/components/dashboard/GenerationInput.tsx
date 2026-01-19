@@ -2923,10 +2923,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       if (isDesignMode && selectedDesignType) {
         // Prepend design type instruction to force the AI to generate that specific type
         // IMPORTANT: Tell AI to use user's text as the title/content, NOT the design type name
-        // Force 16:9 aspect ratio for all design types
-        const designAspectRatio = '16:9';
+        // Use 1:1 aspect ratio for Logo, 16:9 for other design types
         const designTypeInstructions: Record<string, string> = {
-          'Logo': `Ultra high resolution 16:9 aspect ratio professional logo design for "${prompt.trim()}". Cinematic widescreen composition with stunning 3D elements, metallic textures, glass effects, dramatic lighting, and premium depth. Include creative icons, symbols, or abstract graphics. Photorealistic quality with professional gradients and shadows. Award-winning design aesthetic. Do NOT write the word "logo" in the design.`,
+          'Logo': `Ultra high resolution 1:1 square aspect ratio professional logo design for "${prompt.trim()}". Stunning 3D elements, metallic textures, glass effects, dramatic lighting, and premium depth. Include creative icons, symbols, or abstract graphics. Photorealistic quality with professional gradients and shadows. Award-winning design aesthetic. Do NOT write the word "logo" in the design.`,
           'Business Card': `Ultra high resolution 16:9 aspect ratio luxury business card design for "${prompt.trim()}". Premium mockup presentation with elegant 3D perspective, gold foil accents, embossed textures, and sophisticated shadows. Modern minimalist aesthetic with refined typography. Photorealistic render quality. Do NOT write "business card" in the design.`,
           'Brochure': `Ultra high resolution 16:9 aspect ratio stunning brochure design for "${prompt.trim()}". Magazine-quality layout with premium photography, creative overlapping elements, modern gradients, and professional visual hierarchy. Cinematic widescreen composition with luxury aesthetic. Award-winning graphic design quality. Do NOT write "brochure" in the design.`,
           'Cover': `Ultra high resolution 16:9 aspect ratio cinematic cover design for "${prompt.trim()}". Bestseller-quality with dramatic imagery, artistic overlays, premium textures, and captivating visual effects. Hollywood-style composition with professional depth and lighting. Photorealistic render. Do NOT write "cover" in the design.`,
@@ -2939,8 +2938,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         finalPrompt = designTypeInstructions[selectedDesignType] || `Ultra high resolution 16:9 aspect ratio professional ${selectedDesignType.toLowerCase()} design featuring "${prompt.trim()}" as the main content. Premium quality with creative graphics. Do NOT write the word "${selectedDesignType.toLowerCase()}" anywhere in the design.`;
       }
       
-      // Use 16:9 aspect ratio for design mode, otherwise use selected aspect ratio
-      const finalAspectRatio = (isDesignMode && selectedDesignType) ? '16:9' : selectedAspectRatio;
+      // Use 1:1 aspect ratio for Logo, 16:9 for other design types, otherwise use selected aspect ratio
+      const finalAspectRatio = (isDesignMode && selectedDesignType) 
+        ? (selectedDesignType === 'Logo' ? '1:1' : '16:9') 
+        : selectedAspectRatio;
       
       // Use designModel for design mode, otherwise use selectedModel
       const finalModel = isDesignMode ? designModel : selectedModel;
