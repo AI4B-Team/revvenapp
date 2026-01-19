@@ -2918,9 +2918,28 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       
       console.log('Reference images for generation:', allReferenceImages.length, allReferenceImages);
       
+      // Build the final prompt - enforce design type if in Design mode with a type selected
+      let finalPrompt = prompt.trim();
+      if (isDesignMode && selectedDesignType) {
+        // Prepend design type instruction to force the AI to generate that specific type
+        const designTypeInstructions: Record<string, string> = {
+          'Logo': 'Generate a professional logo design. Create ONLY a logo, not a business card, banner, poster, or any other design type.',
+          'Business Card': 'Generate a professional business card design. Create ONLY a business card, not a logo, banner, poster, or any other design type.',
+          'Brochure': 'Generate a professional brochure design. Create ONLY a brochure, not a logo, business card, or any other design type.',
+          'Cover': 'Generate a professional cover design. Create ONLY a cover, not a logo, business card, or any other design type.',
+          'Flyer': 'Generate a professional flyer design. Create ONLY a flyer, not a logo, business card, or any other design type.',
+          'Infographic': 'Generate a professional infographic design. Create ONLY an infographic, not a logo, business card, or any other design type.',
+          'Invitation': 'Generate a professional invitation design. Create ONLY an invitation, not a logo, business card, or any other design type.',
+          'Poster': 'Generate a professional poster design. Create ONLY a poster, not a logo, business card, or any other design type.',
+          'Thumbnail': 'Generate a professional thumbnail design. Create ONLY a thumbnail, not a logo, business card, or any other design type.',
+        };
+        const instruction = designTypeInstructions[selectedDesignType] || `Generate a professional ${selectedDesignType.toLowerCase()} design. Create ONLY a ${selectedDesignType.toLowerCase()}, not any other design type.`;
+        finalPrompt = `${instruction} User description: ${prompt.trim()}`;
+      }
+      
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
-          prompt: prompt.trim(),
+          prompt: finalPrompt,
           aspectRatio: selectedAspectRatio,
           model: selectedModel,
           numberOfImages: numberOfImages,
