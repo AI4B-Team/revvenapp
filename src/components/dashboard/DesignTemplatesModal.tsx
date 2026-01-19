@@ -80,7 +80,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Synthwave Nights', 
     category: 'Poster', 
     prompt: 'Epic synthwave poster with retro-futuristic chrome typography, sunset gradient sky with grid mountains, neon palm silhouettes, VHS glitch effects, purple and hot pink color scheme, 80s nostalgia aesthetic with modern polish', 
-    preview: 'https://images.unsplash.com/photo-1634017839464-5c339bbe3c45?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&h=400&fit=crop',
     isPremium: true,
     isNew: true
   },
@@ -106,7 +106,7 @@ const designTemplates: DesignTemplate[] = [
     name: 'Neon Rave', 
     category: 'Flyer', 
     prompt: 'Explosive neon rave flyer with laser beam effects, holographic metallic surfaces, UV glow typography, liquid chrome drips, cyberpunk club aesthetic, electric blue and hot pink gradients, fog machine atmosphere', 
-    preview: 'https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=300&h=400&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=400&fit=crop',
     isNew: true
   },
   { 
