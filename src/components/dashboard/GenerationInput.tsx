@@ -497,17 +497,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Design model options (same as image models)
   const designModels = [
-    { value: 'auto', label: 'Auto', description: 'AI picks the best model' },
-    { value: 'flux-pro', label: 'Flux Pro', description: 'High quality professional results' },
-    { value: 'flux-max', label: 'Flux Max', description: 'Maximum quality output' },
-    { value: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI\'s vision model' },
-    { value: 'imagen-ultra', label: 'Imagen 4 Ultra', description: 'Google\'s most advanced model' },
-    { value: 'grok', label: 'Grok Imagine', description: 'X.AI\'s powerful model' },
-    { value: 'qwen', label: 'Qwen Image', description: 'Alibaba\'s multilingual model' },
-    { value: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen model' },
-    { value: 'seedream', label: 'Seedream 3.0', description: 'ByteDance\'s reliable model' },
-    { value: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini model' },
-    { value: 'z-image', label: 'Z-Image', description: 'DeepSeek V3 image model' },
+    { value: 'auto', label: 'Auto', description: 'AI picks the best model', logo: '/src/assets/model-logos/auto.png' },
+    { value: 'flux-pro', label: 'Flux Pro', description: 'High quality professional results', logo: '/src/assets/model-logos/flux.png' },
+    { value: 'flux-max', label: 'Flux Max', description: 'Maximum quality output', logo: '/src/assets/model-logos/flux.png' },
+    { value: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI\'s vision model', logo: '/src/assets/model-logos/openai.png' },
+    { value: 'imagen-ultra', label: 'Imagen 4 Ultra', description: 'Google\'s most advanced model', logo: '/src/assets/model-logos/imagen.png' },
+    { value: 'grok', label: 'Grok Imagine', description: 'X.AI\'s powerful model', logo: '/src/assets/model-logos/grok.png' },
+    { value: 'qwen', label: 'Qwen Image', description: 'Alibaba\'s multilingual model', logo: '/src/assets/model-logos/qwen.png' },
+    { value: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen model', logo: '/src/assets/model-logos/seedream.png' },
+    { value: 'seedream', label: 'Seedream 3.0', description: 'ByteDance\'s reliable model', logo: '/src/assets/model-logos/seedream.png' },
+    { value: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini model', logo: '/src/assets/model-logos/nano-banana.png' },
+    { value: 'z-image', label: 'Z-Image', description: 'DeepSeek V3 image model', logo: '/src/assets/model-logos/z-image.png' },
   ];
   
   // Video mode specific state
@@ -7318,8 +7318,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 designModel === model.value ? 'bg-secondary' : ''
                               }`}
                             >
-                              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <Sparkles size={14} className="text-white" />
+                              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-secondary">
+                                <img 
+                                  src={model.logo} 
+                                  alt={model.label} 
+                                  className="w-6 h-6 object-contain"
+                                />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
