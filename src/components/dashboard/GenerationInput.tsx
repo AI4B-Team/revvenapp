@@ -7203,82 +7203,78 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <>
                 {/* Design Mode Controls */}
                 {/* Type Dropdown - First */}
-                <Popover open={isDesignTypeDropdownOpen} onOpenChange={setIsDesignTypeDropdownOpen}>
-                  <PopoverTrigger asChild>
-                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
-                      selectedDesignType 
-                        ? 'bg-brand-green/15 text-foreground' 
-                        : 'bg-secondary text-foreground'
-                    }`}>
-                      {(() => {
-                        const designTypeIcons = {
-                          'Brochure': BookOpen,
-                          'Business Card': User,
-                          'Cover': ImageIcon,
-                          'Flyer': FileText,
-                          'Infographic': LayoutList,
-                          'Invitation': Gift,
-                          'Logo': Sparkles,
-                          'Poster': Presentation,
-                          'Thumbnail': Film,
-                        } as Record<string, typeof LayoutGrid>;
-                        const IconComponent = designTypeIcons[selectedDesignType] || LayoutGrid;
-                        return <IconComponent size={16} className="text-muted-foreground" />;
-                      })()}
-                      {selectedDesignType || 'Type'}
-                      {selectedDesignType && (
-                        <X 
-                          size={14} 
-                          className="text-muted-foreground hover:text-foreground cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedDesignType('');
-                          }}
-                        />
-                      )}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-56 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      <button onClick={() => { setSelectedDesignType('Brochure'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <BookOpen size={16} className="text-brand-blue" />
-                        Brochure
+                {/* Design Type - Show as locked label when selected, dropdown only when not selected */}
+                {selectedDesignType ? (
+                  <div className="px-3 py-2 rounded-lg text-sm font-medium bg-brand-green/15 text-foreground flex items-center gap-2 whitespace-nowrap">
+                    {(() => {
+                      const designTypeIcons = {
+                        'Brochure': BookOpen,
+                        'Business Card': User,
+                        'Cover': ImageIcon,
+                        'Flyer': FileText,
+                        'Infographic': LayoutList,
+                        'Invitation': Gift,
+                        'Logo': Sparkles,
+                        'Poster': Presentation,
+                        'Thumbnail': Film,
+                      } as Record<string, typeof LayoutGrid>;
+                      const IconComponent = designTypeIcons[selectedDesignType] || LayoutGrid;
+                      return <IconComponent size={16} className="text-brand-green" />;
+                    })()}
+                    {selectedDesignType}
+                    <Lock size={12} className="text-muted-foreground ml-1" />
+                  </div>
+                ) : (
+                  <Popover open={isDesignTypeDropdownOpen} onOpenChange={setIsDesignTypeDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 bg-secondary text-foreground">
+                        <LayoutGrid size={16} className="text-muted-foreground" />
+                        Type
+                        <ChevronDown size={14} className="text-muted-foreground" />
                       </button>
-                      <button onClick={() => { setSelectedDesignType('Business Card'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <User size={16} className="text-brand-purple" />
-                        Business Card
-                      </button>
-                      <button onClick={() => { setSelectedDesignType('Cover'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <ImageIcon size={16} className="text-brand-green" />
-                        Cover
-                      </button>
-                      <button onClick={() => { setSelectedDesignType('Flyer'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <FileText size={16} className="text-brand-yellow" />
-                        Flyer
-                      </button>
-                      <button onClick={() => { setSelectedDesignType('Infographic'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <LayoutList size={16} className="text-brand-red" />
-                        Infographic
-                      </button>
-                      <button onClick={() => { setSelectedDesignType('Invitation'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <Gift size={16} className="text-brand-pink" />
-                        Invitation
-                      </button>
-                      <button onClick={() => { setSelectedDesignType('Logo'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <Sparkles size={16} className="text-brand-blue" />
-                        Logo
-                      </button>
-                      <button onClick={() => { setSelectedDesignType('Poster'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <Presentation size={16} className="text-brand-green" />
-                        Poster
-                      </button>
-                      <button onClick={() => { setSelectedDesignType('Thumbnail'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <Film size={16} className="text-brand-red" />
-                        Thumbnail
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 bg-background border-border z-50">
+                      <div className="space-y-1">
+                        <button onClick={() => { setSelectedDesignType('Brochure'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <BookOpen size={16} className="text-brand-blue" />
+                          Brochure
+                        </button>
+                        <button onClick={() => { setSelectedDesignType('Business Card'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <User size={16} className="text-brand-purple" />
+                          Business Card
+                        </button>
+                        <button onClick={() => { setSelectedDesignType('Cover'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <ImageIcon size={16} className="text-brand-green" />
+                          Cover
+                        </button>
+                        <button onClick={() => { setSelectedDesignType('Flyer'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <FileText size={16} className="text-brand-yellow" />
+                          Flyer
+                        </button>
+                        <button onClick={() => { setSelectedDesignType('Infographic'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <LayoutList size={16} className="text-brand-red" />
+                          Infographic
+                        </button>
+                        <button onClick={() => { setSelectedDesignType('Invitation'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <Gift size={16} className="text-brand-pink" />
+                          Invitation
+                        </button>
+                        <button onClick={() => { setSelectedDesignType('Logo'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <Sparkles size={16} className="text-brand-blue" />
+                          Logo
+                        </button>
+                        <button onClick={() => { setSelectedDesignType('Poster'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <Presentation size={16} className="text-brand-green" />
+                          Poster
+                        </button>
+                        <button onClick={() => { setSelectedDesignType('Thumbnail'); setIsDesignTypeDropdownOpen(false); }} className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <Film size={16} className="text-brand-red" />
+                          Thumbnail
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
 
                 {/* Only show separator and controls after type is selected */}
                 {selectedDesignType && (
