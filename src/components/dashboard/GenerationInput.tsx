@@ -2922,19 +2922,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       let finalPrompt = prompt.trim();
       if (isDesignMode && selectedDesignType) {
         // Prepend design type instruction to force the AI to generate that specific type
+        // IMPORTANT: Tell AI to use user's text as the title/content, NOT the design type name
         const designTypeInstructions: Record<string, string> = {
-          'Logo': 'Generate a professional logo design. Create ONLY a logo, not a business card, banner, poster, or any other design type.',
-          'Business Card': 'Generate a professional business card design. Create ONLY a business card, not a logo, banner, poster, or any other design type.',
-          'Brochure': 'Generate a professional brochure design. Create ONLY a brochure, not a logo, business card, or any other design type.',
-          'Cover': 'Generate a professional cover design. Create ONLY a cover, not a logo, business card, or any other design type.',
-          'Flyer': 'Generate a professional flyer design. Create ONLY a flyer, not a logo, business card, or any other design type.',
-          'Infographic': 'Generate a professional infographic design. Create ONLY an infographic, not a logo, business card, or any other design type.',
-          'Invitation': 'Generate a professional invitation design. Create ONLY an invitation, not a logo, business card, or any other design type.',
-          'Poster': 'Generate a professional poster design. Create ONLY a poster, not a logo, business card, or any other design type.',
-          'Thumbnail': 'Generate a professional thumbnail design. Create ONLY a thumbnail, not a logo, business card, or any other design type.',
+          'Logo': `Create a professional logo design. The logo should feature "${prompt.trim()}" as the brand/company name. Do NOT write the word "logo" anywhere in the design.`,
+          'Business Card': `Create a professional business card design for "${prompt.trim()}". Use the user's text as the company/person name on the card. Do NOT write "business card" anywhere in the design.`,
+          'Brochure': `Create a professional brochure design for "${prompt.trim()}". Use the user's text as the title/heading on the brochure. Do NOT write the word "brochure" anywhere in the design.`,
+          'Cover': `Create a professional cover design for "${prompt.trim()}". Use the user's text as the title on the cover. Do NOT write the word "cover" anywhere in the design.`,
+          'Flyer': `Create a professional flyer design for "${prompt.trim()}". Use the user's text as the main headline on the flyer. Do NOT write the word "flyer" anywhere in the design.`,
+          'Infographic': `Create a professional infographic design about "${prompt.trim()}". Use the user's text as the main topic/title. Do NOT write the word "infographic" anywhere in the design.`,
+          'Invitation': `Create a professional invitation design for "${prompt.trim()}". Use the user's text as the event name/title. Do NOT write the word "invitation" anywhere in the design.`,
+          'Poster': `Create a professional poster design for "${prompt.trim()}". Use the user's text as the main headline. Do NOT write the word "poster" anywhere in the design.`,
+          'Thumbnail': `Create a professional thumbnail design for "${prompt.trim()}". Use the user's text as the main text element. Do NOT write the word "thumbnail" anywhere in the design.`,
         };
-        const instruction = designTypeInstructions[selectedDesignType] || `Generate a professional ${selectedDesignType.toLowerCase()} design. Create ONLY a ${selectedDesignType.toLowerCase()}, not any other design type.`;
-        finalPrompt = `${instruction} User description: ${prompt.trim()}`;
+        finalPrompt = designTypeInstructions[selectedDesignType] || `Create a professional ${selectedDesignType.toLowerCase()} design featuring "${prompt.trim()}" as the main content. Do NOT write the word "${selectedDesignType.toLowerCase()}" anywhere in the design.`;
       }
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
