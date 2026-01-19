@@ -40,6 +40,7 @@ import VideoFrameBoxes from './VideoFrameBoxes';
 import { socialPlatforms, getPlatformIcon } from './SocialIcons';
 import SocialContentCalendar from './SocialContentCalendar';
 import ContentPromptChips from './ContentPromptChips';
+import DesignTemplatesModal from './DesignTemplatesModal';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -502,6 +503,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Design mode specific state
   const [designModel, setDesignModel] = useState('auto');
   const [isDesignModelDropdownOpen, setIsDesignModelDropdownOpen] = useState(false);
+  const [showDesignTemplatesModal, setShowDesignTemplatesModal] = useState(false);
+  const designFileInputRef = useRef<HTMLInputElement>(null);
   
   // Design model options (same as image models)
   const designModels = [
@@ -7416,21 +7419,61 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 bg-background border-border z-50">
                         <div className="space-y-1">
-                          <DropdownMenuItem className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <DropdownMenuItem 
+                            className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            onClick={() => setShowDesignTemplatesModal(true)}
+                          >
                             <Flame size={16} className="text-brand-green" />
                             Start With A Template
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <DropdownMenuItem 
+                            className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            onClick={() => {
+                              // Focus on the prompt textarea
+                              promptTextareaRef.current?.focus();
+                              toast({
+                                title: "AI Mode Active",
+                                description: "Describe your design and AI will create it for you",
+                              });
+                            }}
+                          >
                             <Sparkles size={16} className="text-brand-purple" />
                             Start With AI
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2">
+                          <DropdownMenuItem 
+                            className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            onClick={() => designFileInputRef.current?.click()}
+                          >
                             <FileText size={16} className="text-brand-blue" />
                             Start With A File
                           </DropdownMenuItem>
                         </div>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                    
+                    {/* Hidden file input for design file upload */}
+                    <input
+                      type="file"
+                      ref={designFileInputRef}
+                      className="hidden"
+                      accept="image/*,.pdf,.ai,.psd,.svg"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          // Handle file upload - notify user
+                          toast({
+                            title: "File Selected",
+                            description: `${file.name} - Use this as a reference for your design`,
+                          });
+                          // Trigger references modal or handle file
+                          if (onReferencesClick) {
+                            onReferencesClick();
+                          }
+                        }
+                        // Reset input
+                        e.target.value = '';
+                      }}
+                    />
                   </>
                 )}
               </>
@@ -10329,6 +10372,23 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         </div>
       )}
+      
+      {/* Design Templates Modal */}
+      <DesignTemplatesModal
+        isOpen={showDesignTemplatesModal}
+        onClose={() => setShowDesignTemplatesModal(false)}
+        onSelectTemplate={(template) => {
+          // Set the prompt from the template
+          setPrompt(template.prompt);
+          // Set the design type if it matches
+          setSelectedDesignType(template.category);
+          toast({
+            title: "Template Applied",
+            description: `"${template.name}" template loaded. Customize the prompt and generate!`,
+          });
+        }}
+        designType={selectedDesignType}
+      />
     </div>
   );
 };
