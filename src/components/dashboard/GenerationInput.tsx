@@ -491,6 +491,25 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [audioModeState, setAudioModeState] = useState<AudioModeState>({});
   const [designModeState, setDesignModeState] = useState<DesignModeState>({});
   
+  // Design mode specific state
+  const [designModel, setDesignModel] = useState('auto');
+  const [isDesignModelDropdownOpen, setIsDesignModelDropdownOpen] = useState(false);
+  
+  // Design model options (same as image models)
+  const designModels = [
+    { value: 'auto', label: 'Auto', description: 'AI picks the best model' },
+    { value: 'flux-pro', label: 'Flux Pro', description: 'High quality professional results' },
+    { value: 'flux-max', label: 'Flux Max', description: 'Maximum quality output' },
+    { value: 'gpt-4o-image', label: 'GPT-4o Image', description: 'OpenAI\'s vision model' },
+    { value: 'imagen-ultra', label: 'Imagen 4 Ultra', description: 'Google\'s most advanced model' },
+    { value: 'grok', label: 'Grok Imagine', description: 'X.AI\'s powerful model' },
+    { value: 'qwen', label: 'Qwen Image', description: 'Alibaba\'s multilingual model' },
+    { value: 'seedream-4', label: 'Seedream 4.0', description: 'ByteDance\'s next-gen model' },
+    { value: 'seedream', label: 'Seedream 3.0', description: 'ByteDance\'s reliable model' },
+    { value: 'nano-banana-pro', label: 'Nano Banana Pro', description: 'Advanced Gemini model' },
+    { value: 'z-image', label: 'Z-Image', description: 'DeepSeek V3 image model' },
+  ];
+  
   // Video mode specific state
   const [videoModel, setVideoModel] = useState('auto');
   const [videoAspectRatio, setVideoAspectRatio] = useState('16:9');
@@ -7259,16 +7278,61 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     {/* Vertical separator */}
                     <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
-                    {/* Model Button */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button className="px-3 py-2 bg-secondary rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap text-muted-foreground hover:opacity-90">
-                          <Box size={16} className="text-muted-foreground" />
-                          Auto
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>Model</TooltipContent>
-                    </Tooltip>
+                    {/* Model Button with Dropdown */}
+                    <Popover open={isDesignModelDropdownOpen} onOpenChange={setIsDesignModelDropdownOpen}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                              designModel !== 'auto' 
+                                ? 'bg-brand-green/15 text-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}>
+                              <Box size={16} className="text-muted-foreground" />
+                              {designModels.find(m => m.value === designModel)?.label || 'Auto'}
+                              {designModel !== 'auto' && (
+                                <X 
+                                  size={14} 
+                                  className="text-muted-foreground hover:text-foreground cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDesignModel('auto');
+                                  }}
+                                />
+                              )}
+                            </button>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>Model</TooltipContent>
+                      </Tooltip>
+                      <PopoverContent className="w-80 bg-background border-border z-50 p-2 max-h-96 overflow-y-auto">
+                        <div className="space-y-1">
+                          {designModels.map((model) => (
+                            <button
+                              key={model.value}
+                              onClick={() => {
+                                setDesignModel(model.value);
+                                setIsDesignModelDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-3 py-2.5 hover:bg-secondary rounded-lg transition flex items-center gap-3 ${
+                                designModel === model.value ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <Sparkles size={14} className="text-white" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-foreground text-sm">{model.label}</span>
+                                  {designModel === model.value && <Check size={14} className="text-brand-green" />}
+                                </div>
+                                <p className="text-xs text-muted-foreground">{model.description}</p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
                     {/* Start Dropdown */}
                     <DropdownMenu>
