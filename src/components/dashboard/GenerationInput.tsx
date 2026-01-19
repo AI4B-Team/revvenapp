@@ -7248,7 +7248,18 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         return <LayoutGrid size={16} className="text-muted-foreground" />;
                       })()}
                       {selectedDesignType || 'Type'}
-                      <ChevronDown size={14} className="text-muted-foreground" />
+                      {selectedDesignType ? (
+                        <X 
+                          size={14} 
+                          className="text-muted-foreground hover:text-foreground cursor-pointer ml-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedDesignType('');
+                          }}
+                        />
+                      ) : (
+                        <ChevronDown size={14} className="text-muted-foreground" />
+                      )}
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-56 bg-background border-border z-50">
