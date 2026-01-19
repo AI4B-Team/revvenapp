@@ -223,6 +223,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandsDropdownOpen, setIsBrandsDropdownOpen] = useState(false);
+  const [renamingBrandId, setRenamingBrandId] = useState<string | null>(null);
+  const [renameBrandValue, setRenameBrandValue] = useState('');
   
   const [isCampaignsOpen, setIsCampaignsOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
@@ -235,10 +237,35 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     brands, 
     selectedBrand, 
     setSelectedBrand, 
+    updateBrand,
     isCreatingNewBrand, 
     setIsCreatingNewBrand,
     draftBrand 
   } = useBrand();
+
+  const handleRenameBrand = (brandId: string) => {
+    const brand = brands.find(b => b.id === brandId);
+    if (brand) {
+      setRenamingBrandId(brandId);
+      setRenameBrandValue(brand.name);
+    }
+  };
+
+  const confirmRenameBrand = () => {
+    if (renamingBrandId && renameBrandValue.trim()) {
+      updateBrand(renamingBrandId, { 
+        name: renameBrandValue.trim(),
+        initial: renameBrandValue.trim().charAt(0).toUpperCase()
+      });
+      setRenamingBrandId(null);
+      setRenameBrandValue('');
+    }
+  };
+
+  const cancelRenameBrand = () => {
+    setRenamingBrandId(null);
+    setRenameBrandValue('');
+  };
 
   // Use space context
   const {
@@ -536,32 +563,80 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               {brands
                 .filter((brand) => brand.name.toLowerCase().includes(brandSearchQuery.toLowerCase()))
                 .map((brand, idx) => (
-                <button
+                <div
                   key={brand.id}
-                  type="button"
-                  className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group cursor-pointer ${selectedBrand?.id === brand.id ? 'bg-sidebar-active' : ''}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleBrandSelect(brand);
-                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group ${selectedBrand?.id === brand.id ? 'bg-sidebar-active' : ''}`}
                 >
-                  <div className={`w-8 h-8 ${brand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white relative`}>
-                    {brand.initial}
-                    {!brand.isComplete && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-brand-yellow rounded-full border-2 border-sidebar" />
+                  <button
+                    type="button"
+                    className="flex items-center gap-3 flex-1 cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (renamingBrandId !== brand.id) {
+                        handleBrandSelect(brand);
+                      }
+                    }}
+                  >
+                    <div className={`w-8 h-8 ${brand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white relative`}>
+                      {brand.initial}
+                      {!brand.isComplete && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-brand-yellow rounded-full border-2 border-sidebar" />
+                      )}
+                    </div>
+                    <div className="flex-1 text-left">
+                      {renamingBrandId === brand.id ? (
+                        <input
+                          type="text"
+                          value={renameBrandValue}
+                          onChange={(e) => setRenameBrandValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') confirmRenameBrand();
+                            if (e.key === 'Escape') cancelRenameBrand();
+                          }}
+                          onBlur={confirmRenameBrand}
+                          onClick={(e) => e.stopPropagation()}
+                          autoFocus
+                          className="text-sm bg-sidebar-hover text-sidebar-text px-2 py-1 rounded border border-border outline-none focus:border-brand-green w-full"
+                        />
+                      ) : (
+                        <>
+                          <span className="text-sm block">{brand.name}</span>
+                          {!brand.isComplete && (
+                            <span className="text-xs text-brand-yellow">Incomplete</span>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {selectedBrand?.id === brand.id && (
+                      <Check size={16} className="text-brand-green" />
                     )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button 
+                          className="p-1.5 hover:bg-sidebar-active rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical size={14} className="text-sidebar-muted" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-32 bg-sidebar border-border">
+                        <DropdownMenuItem 
+                          className="text-sidebar-text hover:bg-sidebar-hover focus:bg-sidebar-hover cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRenameBrand(brand.id);
+                          }}
+                        >
+                          <Edit size={14} className="mr-2" />
+                          Rename
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <div className="flex-1 text-left">
-                    <span className="text-sm block">{brand.name}</span>
-                    {!brand.isComplete && (
-                      <span className="text-xs text-brand-yellow">Incomplete</span>
-                    )}
-                  </div>
-                  {selectedBrand?.id === brand.id && (
-                    <Check size={16} className="text-brand-green" />
-                  )}
-                </button>
+                </div>
               ))}
               <button 
                 onClick={() => {
