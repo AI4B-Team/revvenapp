@@ -3181,6 +3181,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         specificMode = selectedAudioMode || 'Voiceover';
       } else if (selectedType === 'Design') {
         contentType = 'design';
+        specificMode = selectedDesignType || '';
       } else if (selectedType === 'Content') {
         contentType = 'content';
       }

@@ -190,6 +190,19 @@ Focus on: lip-sync friendly phrasing, maintaining original meaning.`,
               type: "revoice_audio"
             };
 
+          case 'sound effects':
+          case 'sound_effects':
+          case 'sfx':
+            return {
+              guidance: `Generate a specific SOUND EFFECT description.
+MUST output: A precise, detailed sound effect that can be generated.
+Examples: "Thunder rumbling in the distance with light rain", "Vintage typewriter keys clicking rapidly", "Spaceship engine powering up with electronic hum"
+Focus on: specific sound characteristics, environment, intensity, duration hints.
+Return ONLY the sound effect description.`,
+              example: "Futuristic UI button click with subtle electronic chime and soft haptic feedback",
+              type: "sound_effects_audio"
+            };
+
           case 'music':
             // Generate prose-style music description
             if (musicWithVocals) {
@@ -240,15 +253,109 @@ Include: tone, style, pacing, emotional quality.`,
         }
       }
 
-      // DESIGN MODE
+      // DESIGN MODE - with specific design types
       if (isDesign) {
-        return {
-          guidance: `Create prompts for GRAPHIC DESIGN projects.
+        switch (mode) {
+          case 'logo':
+            return {
+              guidance: `Generate a brand/company name for a LOGO design.
+MUST output: A creative, memorable brand name that would work well as a logo.
+Focus on: Modern business names, tech startups, creative agencies, lifestyle brands.
+Examples: "Nexus", "Velora", "Quantum Labs", "Bloom Studio", "Arctic Wave"
+Return ONLY the brand name, nothing else.`,
+              example: "Lumina Tech",
+              type: "logo_design"
+            };
+          case 'business card':
+            return {
+              guidance: `Generate a professional name and title for a BUSINESS CARD design.
+MUST output: A person's name and professional title/company.
+Examples: "Sarah Chen, Creative Director at Bloom Agency", "Marcus Webb, CEO - Quantum Ventures"
+Return ONLY the name and title.`,
+              example: "Alexandra Rivers, Senior Architect at Modern Spaces",
+              type: "business_card_design"
+            };
+          case 'brochure':
+            return {
+              guidance: `Generate a compelling topic/theme for a BROCHURE design.
+MUST output: A specific product, service, or event that needs a brochure.
+Examples: "Luxury Spa Resort Weekend Packages", "AI-Powered Marketing Solutions", "2024 Summer Music Festival"
+Return ONLY the brochure topic.`,
+              example: "Sustainable Living: Eco-Friendly Home Solutions",
+              type: "brochure_design"
+            };
+          case 'cover':
+            return {
+              guidance: `Generate a captivating title for a BOOK/MAGAZINE COVER design.
+MUST output: A compelling book or magazine title with optional subtitle.
+Examples: "The Art of Mindful Leadership", "VOGUE: Spring Fashion Forward", "Secrets of the Digital Age"
+Return ONLY the cover title.`,
+              example: "Rise: How to Build an Empire from Nothing",
+              type: "cover_design"
+            };
+          case 'flyer':
+            return {
+              guidance: `Generate an event or promotion for a FLYER design.
+MUST output: An exciting event, sale, or promotional announcement.
+Examples: "Summer Beach Party - August 15th", "50% OFF Flash Sale This Weekend", "Grand Opening Celebration"
+Return ONLY the flyer headline/event.`,
+              example: "Tech Innovation Summit 2024 - Join the Future",
+              type: "flyer_design"
+            };
+          case 'infographic':
+            return {
+              guidance: `Generate a data-rich topic for an INFOGRAPHIC design.
+MUST output: A topic that can be visualized with data, statistics, or step-by-step information.
+Examples: "The Evolution of AI: 1950-2024", "10 Habits of Successful Entrepreneurs", "How Coffee Gets From Farm to Cup"
+Return ONLY the infographic topic.`,
+              example: "The Future of Remote Work: Statistics & Trends",
+              type: "infographic_design"
+            };
+          case 'invitation':
+            return {
+              guidance: `Generate an elegant event for an INVITATION design.
+MUST output: A special event that requires a formal invitation.
+Examples: "Wedding of Emily & James, June 20th", "Annual Charity Gala 2024", "You're Invited: Product Launch Party"
+Return ONLY the invitation event.`,
+              example: "Celebrate With Us: Anniversary Dinner at The Grand Ballroom",
+              type: "invitation_design"
+            };
+          case 'poster':
+            return {
+              guidance: `Generate a bold topic for a POSTER design.
+MUST output: A movie, concert, exhibition, or campaign that needs a striking poster.
+Examples: "ECLIPSE - Coming Summer 2024", "World Music Festival", "Climate Action Now"
+Return ONLY the poster title/topic.`,
+              example: "NEON DREAMS - Live in Concert",
+              type: "poster_design"
+            };
+          case 'thumbnail':
+            return {
+              guidance: `Generate a click-worthy topic for a YouTube THUMBNAIL design.
+MUST output: An attention-grabbing video title that would make people want to click.
+Examples: "I Tried This for 30 Days...", "The SECRET They Don't Want You to Know", "This Changed EVERYTHING"
+Return ONLY the thumbnail title.`,
+              example: "How I Made $100K in 6 Months (Step by Step)",
+              type: "thumbnail_design"
+            };
+          case 'banner':
+            return {
+              guidance: `Generate an impactful message for a BANNER design.
+MUST output: A promotional message, announcement, or brand tagline for a web/social banner.
+Examples: "New Collection Drop - Shop Now", "Join 10,000+ Subscribers", "Limited Time: 40% OFF"
+Return ONLY the banner message.`,
+              example: "Transform Your Business with AI - Get Started Free",
+              type: "banner_design"
+            };
+          default:
+            return {
+              guidance: `Create prompts for GRAPHIC DESIGN projects.
 MUST include: design type (logo, banner, card), style direction, color scheme, typography hints.
 Focus on: visual hierarchy, brand personality, modern aesthetics.`,
-          example: "Minimalist tech startup logo, geometric sans-serif wordmark, gradient from electric blue to teal, clean negative space, scalable for app icon",
-          type: "design"
-        };
+              example: "Minimalist tech startup logo, geometric sans-serif wordmark, gradient from electric blue to teal, clean negative space, scalable for app icon",
+              type: "design"
+            };
+        }
       }
 
       // CONTENT MODE (Social Media)
