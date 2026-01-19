@@ -616,27 +616,9 @@ const NewEbook = () => {
     setUploadedFiles(prev => prev.filter(f => f.id !== id));
   };
 
-  // Click outside to deselect title (only when not clicking on buttons)
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      // Don't deselect if clicking a button (Continue, Regenerate, etc.)
-      if (target.closest('button')) {
-        return;
-      }
-      if (
-        activeTab === 'generate' &&
-        bookData.selectedTitle &&
-        titleCardsRef.current &&
-        !titleCardsRef.current.contains(target)
-      ) {
-        setBookData(prev => ({ ...prev, selectedTitle: '' }));
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [activeTab, bookData.selectedTitle]);
+  // Note: Removed click-outside-to-deselect behavior as it was causing issues
+  // with button clicks (Continue, Regenerate, etc.) due to event timing.
+  // Users can change their selection by clicking a different title.
 
   const stripTrailingPunctuation = (value: string) =>
     value.trim().replace(/[\p{P}\s]+$/gu, '');
