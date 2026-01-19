@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Sparkles, Download, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import ImageModelSelector, { ImageModelValue } from '@/components/design/ImageModelSelector';
 
 const BannerCreator = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const BannerCreator = () => {
   const [description, setDescription] = useState('');
   const [platform, setPlatform] = useState('facebook');
   const [style, setStyle] = useState('modern');
+  const [model, setModel] = useState<ImageModelValue>('auto');
   const [generatedBanner, setGeneratedBanner] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -43,7 +45,7 @@ const BannerCreator = () => {
       const prompt = `Create a ${style} social media banner for ${platform}. Title: "${title}". ${description ? `Description: ${description}` : ''} Professional design with modern typography and engaging visuals.`;
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt, model: 'flux-kontext-pro', aspectRatio: platformSizes[platform] }
+        body: { prompt, model, aspectRatio: platformSizes[platform] }
       });
 
       if (error) throw error;
@@ -157,7 +159,9 @@ const BannerCreator = () => {
                     </Select>
                   </div>
 
-                  <Button 
+                  <ImageModelSelector value={model} onChange={setModel} />
+
+                  <Button
                     onClick={handleGenerate} 
                     disabled={isGenerating}
                     className="w-full"

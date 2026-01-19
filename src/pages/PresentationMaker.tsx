@@ -4,7 +4,6 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Sparkles, Download, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import ImageModelSelector, { ImageModelValue } from '@/components/design/ImageModelSelector';
 
 interface Slide {
   id: string;
@@ -27,6 +27,7 @@ const PresentationMaker = () => {
   const [presentationTitle, setPresentationTitle] = useState('');
   const [topic, setTopic] = useState('');
   const [style, setStyle] = useState('corporate');
+  const [model, setModel] = useState<ImageModelValue>('auto');
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -44,7 +45,7 @@ const PresentationMaker = () => {
         const prompt = `Create a ${style} presentation slide background for "${topic}" - ${slideType} slide. Professional, clean design with subtle graphics, suitable for business presentation.`;
         
         const { data, error } = await supabase.functions.invoke('generate-image', {
-          body: { prompt, model: 'flux-kontext-pro', aspectRatio: '16:9' }
+          body: { prompt, model, aspectRatio: '16:9' }
         });
 
         if (error) throw error;
@@ -160,7 +161,9 @@ const PresentationMaker = () => {
                     </Select>
                   </div>
 
-                  <Button 
+                  <ImageModelSelector value={model} onChange={setModel} />
+
+                  <Button
                     onClick={handleGenerateSlides} 
                     disabled={isGenerating}
                     className="w-full"
