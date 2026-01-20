@@ -71,18 +71,46 @@ Make it look like a premium, executive-level business report infographic that wo
     const data = await response.json();
     console.log('AI Response received');
 
-    // Extract the generated image
-    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    // Extract the generated image (base64 data URL)
+    const base64ImageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     const textContent = data.choices?.[0]?.message?.content;
 
-    if (!imageUrl) {
+    if (!base64ImageUrl) {
+      console.error('No image in response:', JSON.stringify(data).substring(0, 500));
       throw new Error('No image was generated');
     }
 
-    console.log('Report image generated successfully');
+    console.log('Base64 image received, uploading to Cloudinary...');
+
+    // Upload base64 image to Cloudinary
+    const cloudinaryFormData = new FormData();
+    cloudinaryFormData.append('file', base64ImageUrl);
+    cloudinaryFormData.append('upload_preset', 'revven');
+    cloudinaryFormData.append('folder', 'generated_reports');
+
+    const cloudinaryResponse = await fetch(
+      'https://api.cloudinary.com/v1_1/dszt275xv/image/upload',
+      {
+        method: 'POST',
+        body: cloudinaryFormData,
+      }
+    );
+
+    if (!cloudinaryResponse.ok) {
+      const errorText = await cloudinaryResponse.text();
+      console.error('Cloudinary upload failed:', errorText);
+      throw new Error('Failed to upload image to Cloudinary');
+    }
+
+    const cloudinaryData = await cloudinaryResponse.json();
+    const imageUrl = cloudinaryData.secure_url;
+    const publicId = cloudinaryData.public_id;
+
+    console.log('Report image uploaded to Cloudinary:', imageUrl);
 
     return new Response(JSON.stringify({ 
       imageUrl,
+      publicId,
       description: textContent || 'Professional report generated successfully'
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
