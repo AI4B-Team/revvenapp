@@ -97,6 +97,28 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         console.error('Error fetching proposals:', proposalsError);
       }
 
+      // Fetch case studies
+      const { data: caseStudiesData, error: caseStudiesError } = await supabase
+        .from('case_studies')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (caseStudiesError) {
+        console.error('Error fetching case studies:', caseStudiesError);
+      }
+
+      // Fetch cover letters
+      const { data: coverLettersData, error: coverLettersError } = await supabase
+        .from('cover_letters')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (coverLettersError) {
+        console.error('Error fetching cover letters:', coverLettersError);
+      }
+
       const getResolutionFromAspectRatio = (aspectRatio: string | null): string => {
         switch (aspectRatio) {
           case '1:1': return '1024x1024 px';
@@ -226,8 +248,50 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         content: proposal.content
       })) || [];
 
+      const mappedCaseStudies: GalleryItem[] = caseStudiesData?.map((caseStudy: any) => ({
+        id: caseStudy.id,
+        title: caseStudy.title,
+        thumbnail: '/placeholder.svg',
+        type: 'document' as const,
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: caseStudy.created_at || new Date().toISOString(),
+        status: caseStudy.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: caseStudy.prompt,
+        model: 'GPT-4.1',
+        timestamp: formatTimestamp(caseStudy.created_at),
+        documentType: 'Case Study',
+        content: caseStudy.content
+      })) || [];
+
+      const mappedCoverLetters: GalleryItem[] = coverLettersData?.map((coverLetter: any) => ({
+        id: coverLetter.id,
+        title: coverLetter.title,
+        thumbnail: '/placeholder.svg',
+        type: 'document' as const,
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: coverLetter.created_at || new Date().toISOString(),
+        status: coverLetter.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: coverLetter.prompt,
+        model: 'GPT-4.1',
+        timestamp: formatTimestamp(coverLetter.created_at),
+        documentType: 'Cover Letter',
+        content: coverLetter.content
+      })) || [];
+
       // Combine and sort by creation date
-      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals].sort((a, b) => 
+      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals, ...mappedCaseStudies, ...mappedCoverLetters].sort((a, b) => 
         new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
       );
       
@@ -304,6 +368,40 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       )
       .subscribe();
 
+    // Real-time subscription for case studies
+    const caseStudiesChannel = supabase
+      .channel('case_studies_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'case_studies'
+        },
+        (payload) => {
+          console.log('Case studies update:', payload);
+          fetchGeneratedContent();
+        }
+      )
+      .subscribe();
+
+    // Real-time subscription for cover letters
+    const coverLettersChannel = supabase
+      .channel('cover_letters_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cover_letters'
+        },
+        (payload) => {
+          console.log('Cover letters update:', payload);
+          fetchGeneratedContent();
+        }
+      )
+      .subscribe();
+
     // Poll for stuck processing videos every 30 seconds
     const checkStuckVideos = async () => {
       const { data: session } = await supabase.auth.getSession();
@@ -345,6 +443,8 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       supabase.removeChannel(videosChannel);
       supabase.removeChannel(businessPlansChannel);
       supabase.removeChannel(proposalsChannel);
+      supabase.removeChannel(caseStudiesChannel);
+      supabase.removeChannel(coverLettersChannel);
       clearInterval(pollInterval);
     };
   }, []);

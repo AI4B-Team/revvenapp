@@ -161,3 +161,9 @@ verify_jwt = true
 
 [functions.generate-proposal]
 verify_jwt = true
+
+[functions.generate-case-study]
+verify_jwt = true
+
+[functions.generate-cover-letter]
+verify_jwt = true
