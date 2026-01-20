@@ -530,6 +530,22 @@ RULES:
 3. Include industry-relevant keywords
 4. Make it professional yet personable
 5. Return the enhanced cover letter concept ready for generation`;
+      } else if (docType === 'handbook') {
+        systemPrompt = `You are a professional handbook writer and organizational documentation expert. Enhance the handbook topic into a comprehensive concept.
+
+MUST INCLUDE:
+- Clear organizational structure with sections
+- Specific policies and procedures to cover
+- Practical examples and templates
+- Checklists and quick reference guides
+- FAQs and troubleshooting sections
+
+RULES:
+1. Keep the user's domain and audience focus
+2. Add relevant compliance and best practice elements
+3. Include practical, actionable guidance
+4. Make it comprehensive yet accessible
+5. Return the enhanced handbook concept ready for generation`;
       } else if (docType === 'ebook') {
         systemPrompt = `You are an ebook content strategist. Generate comprehensive ebook content based on the topic.
 

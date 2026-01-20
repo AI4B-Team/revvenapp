@@ -2440,6 +2440,122 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
 
+      // Generate Handbook using GPT-4.1 via OpenRouter - save to database and show in gallery
+      if (documentType === 'Handbook') {
+        onGenerationStart?.();
+
+        try {
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            toast({
+              title: "Authentication required",
+              description: "Please sign in to generate handbooks",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Extract title from prompt or use default
+          const handbookTitle = prompt.trim().substring(0, 100) || 'Handbook';
+
+          // Insert a "processing" record FIRST so it shows in the gallery immediately
+          const { data: insertedHandbook, error: insertError } = await supabase
+            .from('handbooks')
+            .insert({
+              user_id: user.id,
+              title: handbookTitle,
+              content: '',
+              prompt: prompt.trim(),
+              status: 'processing'
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error creating handbook record:', insertError);
+            toast({
+              title: "Error",
+              description: "Failed to start handbook generation.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const handbookId = insertedHandbook.id;
+
+          toast({
+            title: "Generating handbook...",
+            description: "Creating your comprehensive handbook. This may take a moment.",
+          });
+
+          // Generate the handbook
+          console.log('Calling generate-handbook with:', { topic: prompt.trim() });
+          const { data, error } = await supabase.functions.invoke('generate-handbook', {
+            body: {
+              topic: prompt.trim(),
+              handbookType: 'General',
+              targetAudience: '',
+            }
+          });
+
+          console.log('Edge function response:', { data, error });
+
+          if (error) {
+            console.error('Edge function error:', error);
+            // Update the record to error status
+            await supabase
+              .from('handbooks')
+              .update({ status: 'error' })
+              .eq('id', handbookId);
+            throw error;
+          }
+
+          if (data?.content) {
+            console.log('Handbook generated. Content length:', data.content.length);
+            
+            // Update the record with content and completed status
+            const { error: updateError } = await supabase
+              .from('handbooks')
+              .update({
+                content: data.content,
+                status: 'completed'
+              })
+              .eq('id', handbookId);
+
+            if (updateError) {
+              console.error('Error updating handbook:', updateError);
+            }
+
+            console.log('Handbook saved successfully!');
+            toast({
+              title: "Handbook generated!",
+              description: "Your handbook is ready to view in your creations.",
+            });
+          } else {
+            console.error('No content in response:', data);
+            // Update the record to error status
+            await supabase
+              .from('handbooks')
+              .update({ status: 'error' })
+              .eq('id', handbookId);
+            toast({
+              title: "Generation failed",
+              description: data?.error || "No content was generated. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } catch (error: any) {
+          console.error('Handbook generation error:', error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate handbook. Please try again.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
       // Other document types - placeholder for now
       toast({
         title: "Coming soon",
