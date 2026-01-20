@@ -1902,6 +1902,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           if (insertError) throw insertError;
 
           // Generate the report image
+          console.log('Calling generate-report-image with:', { topic: prompt.trim(), reportType: documentType });
           const { data, error } = await supabase.functions.invoke('generate-report-image', {
             body: {
               topic: prompt.trim(),
@@ -1909,28 +1910,52 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             }
           });
 
-          if (error) throw error;
+          console.log('Edge function response:', { data, error });
+
+          if (error) {
+            console.error('Edge function error:', error);
+            await supabase
+              .from('generated_images')
+              .update({ status: 'error', error_message: error.message || 'Edge function error' })
+              .eq('id', insertedImage.id);
+            throw error;
+          }
 
           if (data?.imageUrl) {
+            console.log('Updating database with image URL:', data.imageUrl);
             // Update the record with the generated image
-            await supabase
+            const { error: updateError } = await supabase
               .from('generated_images')
               .update({
                 image_url: data.imageUrl,
+                cloudinary_public_id: data.publicId || null,
                 status: 'completed',
               })
               .eq('id', insertedImage.id);
 
+            if (updateError) {
+              console.error('Database update error:', updateError);
+              throw updateError;
+            }
+
+            console.log('Report saved successfully!');
             toast({
               title: "Report generated!",
               description: "Your visual report is now in your creations",
             });
           } else {
+            console.error('No imageUrl in response:', data);
             // Mark as failed if no image returned
             await supabase
               .from('generated_images')
-              .update({ status: 'error', error_message: 'No image generated' })
+              .update({ status: 'error', error_message: data?.error || 'No image generated' })
               .eq('id', insertedImage.id);
+            
+            toast({
+              title: "Generation failed",
+              description: data?.error || "No image was generated. Please try again.",
+              variant: "destructive",
+            });
           }
         } catch (error: any) {
           console.error('Report generation error:', error);
