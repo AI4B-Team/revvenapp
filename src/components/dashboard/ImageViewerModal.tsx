@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   X, ChevronLeft, ChevronRight, Bookmark, Heart, Download, 
   RefreshCw, Share2, Copy, Check, Maximize, Globe, Printer, Edit, Play
@@ -9,7 +9,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import ReactMarkdown from 'react-markdown';
 
 interface StoryScene {
   scene: string;
@@ -212,11 +211,22 @@ const ImageViewerModal = ({
             >
               {image.type === 'document' ? (
                 <div className="w-full h-full overflow-y-auto bg-white rounded-lg p-6">
-                  <div className="prose prose-sm md:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700">
-                    <ReactMarkdown>
-                      {image.content || 'No content available'}
-                    </ReactMarkdown>
-                  </div>
+                  <div 
+                    className="prose prose-sm md:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700"
+                    dangerouslySetInnerHTML={{ 
+                      __html: (image.content || 'No content available')
+                        .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold text-gray-900 mt-6 mb-2">$1</h3>')
+                        .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold text-gray-900 mt-8 mb-3">$1</h2>')
+                        .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h1>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
+                        .replace(/^\d+\. (.*$)/gim, '<li class="ml-4 list-decimal">$1</li>')
+                        .replace(/\n\n/g, '</p><p class="my-4 text-gray-700">')
+                        .replace(/\n/g, '<br/>')
+                        .replace(/^---$/gim, '<hr class="my-6 border-gray-200"/>')
+                    }}
+                  />
                 </div>
               ) : image.type === 'video' && imageData.url?.includes('.mp4') ? (
                 <video
