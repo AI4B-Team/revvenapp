@@ -37,6 +37,12 @@ serve(async (req) => {
     console.log('Industry:', industry);
 
     // Step 1: Generate comprehensive business plan text using GPT-4.1 via OpenRouter
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString('en-US', { 
+      month: 'long', 
+      year: 'numeric' 
+    });
+    
     const systemPrompt = `You are an expert business consultant and plan writer with decades of experience creating successful business plans for startups and established companies. Generate professional, comprehensive business plans that are ready for investors and stakeholders.
 
 Your business plans should include:
@@ -54,9 +60,9 @@ Include specific numbers, percentages, and data points to make it realistic.
 Make it professional, detailed, and suitable for investor presentations.
 
 IMPORTANT: At the end of the business plan, include a footer that says:
-"Prepared by: Revven Team | 2026"
+"Prepared by: Revven Team | ${formattedDate}"
 
-Do NOT use any other team name or date. Always use "Revven Team" and "2026".`;
+Do NOT use any other team name or date.`;
 
     const userPrompt = `Create a comprehensive business plan for: "${topic}"
 ${businessType ? `Business Type: ${businessType}` : ''}
