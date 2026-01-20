@@ -7914,20 +7914,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <PopoverContent className="w-56 bg-background border-border z-50">
                     <div className="space-y-1">
                       {[
-                        { label: 'Ebook', icon: BookOpen, color: 'text-brand-blue' },
-                        { label: 'Whitepaper', icon: FileText, color: 'text-brand-purple' },
-                        { label: 'Report', icon: LayoutList, color: 'text-brand-green' },
-                        { label: 'Business Plan', icon: Presentation, color: 'text-brand-yellow' },
-                        { label: 'Handbook', icon: Package, color: 'text-brand-red' },
-                        { label: 'Proposal', icon: FileText, color: 'text-brand-blue' },
-                        { label: 'Case Study', icon: LayoutList, color: 'text-brand-pink' },
-                        { label: 'Cover Letter', icon: FileText, color: 'text-brand-green' },
+                        { label: 'Ebook', icon: BookOpen, color: 'text-brand-blue', path: '/ebook-creator' },
+                        { label: 'Whitepaper', icon: FileText, color: 'text-brand-purple', path: '/document/whitepaper' },
+                        { label: 'Report', icon: LayoutList, color: 'text-brand-green', path: '/document/report' },
+                        { label: 'Business Plan', icon: Presentation, color: 'text-brand-yellow', path: '/document/business-plan' },
+                        { label: 'Handbook', icon: Package, color: 'text-brand-red', path: '/document/handbook' },
+                        { label: 'Proposal', icon: FileText, color: 'text-brand-blue', path: '/document/proposal' },
+                        { label: 'Case Study', icon: LayoutList, color: 'text-brand-pink', path: '/document/case-study' },
+                        { label: 'Cover Letter', icon: FileText, color: 'text-brand-green', path: '/document/cover-letter' },
                       ].map((item) => (
                         <button 
                           key={item.label}
                           onClick={() => {
                             setDocumentType(item.label);
                             setIsDocumentTypeDropdownOpen(false);
+                            navigate(item.path);
                           }}
                           className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${
                             documentType === item.label ? 'bg-secondary' : ''
