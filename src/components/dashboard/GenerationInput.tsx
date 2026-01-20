@@ -1300,6 +1300,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           'newsletter': 'Newsletter',
           'script': 'Script',
           'course': 'Course',
+          'proposal': 'Proposal',
+          'business-plan': 'Business Plan',
+          'whitepaper': 'Whitepaper',
+          'report': 'Report',
+          'case-study': 'Case Study',
+          'handbook': 'Handbook',
+          'cover-letter': 'Cover Letter',
+          'presentation': 'Presentation',
         };
         if (documentSubTypeMap[subTypeId]) {
           console.log('Setting documentType to:', documentSubTypeMap[subTypeId]);
