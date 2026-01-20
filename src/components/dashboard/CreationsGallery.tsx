@@ -119,6 +119,17 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         console.error('Error fetching cover letters:', coverLettersError);
       }
 
+      // Fetch handbooks
+      const { data: handbooksData, error: handbooksError } = await supabase
+        .from('handbooks')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (handbooksError) {
+        console.error('Error fetching handbooks:', handbooksError);
+      }
+
       const getResolutionFromAspectRatio = (aspectRatio: string | null): string => {
         switch (aspectRatio) {
           case '1:1': return '1024x1024 px';
@@ -290,8 +301,29 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         content: coverLetter.content
       })) || [];
 
+      const mappedHandbooks: GalleryItem[] = handbooksData?.map((handbook: any) => ({
+        id: handbook.id,
+        title: handbook.title,
+        thumbnail: '/placeholder.svg',
+        type: 'document' as const,
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: handbook.created_at || new Date().toISOString(),
+        status: handbook.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: handbook.prompt,
+        model: 'GPT-4.1',
+        timestamp: formatTimestamp(handbook.created_at),
+        documentType: 'Handbook',
+        content: handbook.content
+      })) || [];
+
       // Combine and sort by creation date
-      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals, ...mappedCaseStudies, ...mappedCoverLetters].sort((a, b) => 
+      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals, ...mappedCaseStudies, ...mappedCoverLetters, ...mappedHandbooks].sort((a, b) => 
         new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
       );
       
@@ -402,6 +434,23 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       )
       .subscribe();
 
+    // Real-time subscription for handbooks
+    const handbooksChannel = supabase
+      .channel('handbooks_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'handbooks'
+        },
+        (payload) => {
+          console.log('Handbooks update:', payload);
+          fetchGeneratedContent();
+        }
+      )
+      .subscribe();
+
     // Poll for stuck processing videos every 30 seconds
     const checkStuckVideos = async () => {
       const { data: session } = await supabase.auth.getSession();
@@ -445,6 +494,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       supabase.removeChannel(proposalsChannel);
       supabase.removeChannel(caseStudiesChannel);
       supabase.removeChannel(coverLettersChannel);
+      supabase.removeChannel(handbooksChannel);
       clearInterval(pollInterval);
     };
   }, []);

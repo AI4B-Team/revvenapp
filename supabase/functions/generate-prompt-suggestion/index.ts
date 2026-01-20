@@ -528,6 +528,28 @@ Return ONLY the cover letter scenario. Be specific about role and context.`,
               example: "Data Science Lead position at a climate tech startup revolutionizing renewable energy",
               type: "cover_letter_document"
             };
+          case 'handbook':
+            return {
+              guidance: `Generate a compelling HANDBOOK topic.
+
+Generate ONE handbook topic that would serve as a comprehensive reference guide for an organization.
+
+MUST INCLUDE:
+- Specific domain or department focus
+- Target audience (employees, managers, new hires, etc.)
+- Clear organizational context
+
+GOOD EXAMPLES:
+- "Employee Onboarding Handbook for Tech Startups"
+- "Remote Work Policy and Best Practices Handbook"
+- "Customer Service Excellence Handbook for Retail Teams"
+- "Safety and Compliance Handbook for Manufacturing"
+- "Brand Guidelines and Style Handbook for Marketing Teams"
+
+Return ONLY the handbook topic. Be specific about the domain and audience.`,
+              example: "New Manager Leadership Development Handbook for Growing Organizations",
+              type: "handbook_document"
+            };
           default:
             return {
               guidance: `Generate a professional DOCUMENT topic.
