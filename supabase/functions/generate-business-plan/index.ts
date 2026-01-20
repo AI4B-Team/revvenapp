@@ -51,7 +51,12 @@ Your business plans should include:
 
 Format the output as clean markdown with proper headers, bullet points, and sections.
 Include specific numbers, percentages, and data points to make it realistic.
-Make it professional, detailed, and suitable for investor presentations.`;
+Make it professional, detailed, and suitable for investor presentations.
+
+IMPORTANT: At the end of the business plan, include a footer that says:
+"Prepared by: Revven Team | 2026"
+
+Do NOT use any other team name or date. Always use "Revven Team" and "2026".`;
 
     const userPrompt = `Create a comprehensive business plan for: "${topic}"
 ${businessType ? `Business Type: ${businessType}` : ''}
