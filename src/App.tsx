@@ -98,6 +98,7 @@ const FlyerMaker = lazy(() => import("./pages/FlyerMaker"));
 const PosterDesigner = lazy(() => import("./pages/PosterDesigner"));
 const InfographicBuilder = lazy(() => import("./pages/InfographicBuilder"));
 const PresentationMaker = lazy(() => import("./pages/PresentationMaker"));
+const DocumentCreator = lazy(() => import("./pages/DocumentCreator"));
 
 
 const queryClient = new QueryClient();
@@ -166,6 +167,7 @@ const App = () => (
                           <Route path="/seo-optimizer" element={<SEOOptimizer />} />
                           <Route path="/ebook-creator" element={<EbookCreator />} />
                           <Route path="/ebook-creator/new" element={<NewEbook />} />
+                          <Route path="/document/:type" element={<DocumentCreator />} />
                           <Route path="/explainer-video" element={<ExplainerVideo />} />
                           <Route path="/viral-shorts" element={<ViralShorts />} />
                           <Route path="/ai-story" element={<AIStory />} />
