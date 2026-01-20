@@ -307,6 +307,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
     if (filters?.contentType && filters.contentType !== 'All') {
       if (filters.contentType === 'Image' && item.type !== 'image') return false;
       if (filters.contentType === 'Video' && item.type !== 'video') return false;
+      if (filters.contentType === 'Document' && item.type !== 'document') return false;
     }
 
     // Likes filter
@@ -615,10 +616,10 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                   </div>
                   <div className="text-center">
                     <p className="text-white font-semibold text-lg mb-1">
-                      {item.type === 'video' ? 'Generating Video' : 'Generating Image'}
+                      {item.type === 'video' ? 'Generating Video' : item.type === 'document' ? 'Generating Document' : 'Generating Image'}
                     </p>
                     <p className="text-white/70 text-sm">
-                      {item.type === 'video' ? 'This may take a few minutes...' : 'This may take a few moments...'}
+                      {item.type === 'video' ? 'This may take a few minutes...' : item.type === 'document' ? 'Creating your business plan...' : 'This may take a few moments...'}
                     </p>
                   </div>
                 </div>
