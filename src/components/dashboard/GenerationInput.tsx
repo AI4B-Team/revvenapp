@@ -171,6 +171,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isDocumentTypeDropdownOpen, setIsDocumentTypeDropdownOpen] = useState(false);
   const [documentModel, setDocumentModel] = useState<'auto' | 'gemini-pro'>('auto');
   const [isDocumentModelDropdownOpen, setIsDocumentModelDropdownOpen] = useState(false);
+  const [generatedReportImage, setGeneratedReportImage] = useState<string | null>(null);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   
   // Ebook source modal state
   const [ebookSourceModalOpen, setEbookSourceModalOpen] = useState(false);
@@ -1847,6 +1849,69 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         setIsGeneratingContent(false);
       }
       
+      return;
+    }
+
+    // Handle Document mode - generate visual reports using Nano Banana Pro
+    if (isDocumentMode) {
+      if (!documentType) {
+        toast({
+          title: "Document type required",
+          description: "Please select a document type (Report, Whitepaper, etc.)",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!prompt.trim()) {
+        toast({
+          title: "Prompt required",
+          description: "Please describe the document you want to create",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Generate visual report using Nano Banana Pro
+      if (documentType === 'Report') {
+        setIsGeneratingReport(true);
+        onGenerationStart?.();
+
+        try {
+          const { data, error } = await supabase.functions.invoke('generate-report-image', {
+            body: {
+              topic: prompt.trim(),
+              reportType: documentType,
+            }
+          });
+
+          if (error) throw error;
+
+          if (data?.imageUrl) {
+            setGeneratedReportImage(data.imageUrl);
+            toast({
+              title: "Report generated!",
+              description: "Your visual report infographic is ready",
+            });
+          }
+        } catch (error: any) {
+          console.error('Report generation error:', error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate report. Please try again.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsGeneratingReport(false);
+        }
+        return;
+      }
+
+      // Other document types - placeholder for now
+      toast({
+        title: "Coming soon",
+        description: `${documentType} generation will be available soon`,
+      });
       return;
     }
 
@@ -9716,6 +9781,69 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </div>
             </button>
           </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report Preview - Only visible when Report is selected in Document mode */}
+      {isDocumentMode && documentType === 'Report' && (
+        <div className="flex justify-center mt-6 w-full max-w-[900px] mx-auto">
+          <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border w-full">
+            {isGeneratingReport ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="w-12 h-12 text-brand-green animate-spin mb-4" />
+                <p className="text-foreground font-medium">Generating your report infographic...</p>
+                <p className="text-sm text-muted-foreground mt-1">Using Nano Banana Pro AI</p>
+              </div>
+            ) : generatedReportImage ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-foreground">Generated Report</h3>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = generatedReportImage;
+                        link.download = 'report-infographic.png';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                    >
+                      <Upload className="w-4 h-4 mr-2 rotate-180" />
+                      Download
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGeneratedReportImage(null)}
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Generate New
+                    </Button>
+                  </div>
+                </div>
+                <div className="rounded-xl overflow-hidden border border-border">
+                  <img 
+                    src={generatedReportImage} 
+                    alt="Generated Report Infographic" 
+                    className="w-full h-auto"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center mb-4">
+                  <LayoutList className="w-8 h-8 text-brand-green" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Create Visual Reports</h3>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  Describe your report topic above and click Generate to create a professional infographic with charts, metrics, and data visualizations.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
