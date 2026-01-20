@@ -1984,6 +1984,34 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             return;
           }
 
+          // Extract title from prompt or use default
+          const planTitle = prompt.trim().substring(0, 100) || 'Business Plan';
+
+          // Insert a "processing" record FIRST so it shows in the gallery immediately
+          const { data: insertedPlan, error: insertError } = await supabase
+            .from('business_plans')
+            .insert({
+              user_id: user.id,
+              title: planTitle,
+              content: '',
+              prompt: prompt.trim(),
+              status: 'processing'
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error creating business plan record:', insertError);
+            toast({
+              title: "Error",
+              description: "Failed to start business plan generation.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const planId = insertedPlan.id;
+
           toast({
             title: "Generating business plan...",
             description: "Creating your comprehensive business plan. This may take a moment.",
@@ -2003,48 +2031,42 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
           if (error) {
             console.error('Edge function error:', error);
+            // Update the record to error status
+            await supabase
+              .from('business_plans')
+              .update({ status: 'error' })
+              .eq('id', planId);
             throw error;
           }
 
           if (data?.content) {
             console.log('Business plan generated. Content length:', data.content.length);
             
-            // Extract title from prompt or use default
-            const planTitle = prompt.trim().substring(0, 100) || 'Business Plan';
-            
-            // Save to database
-            const { error: insertError } = await supabase
+            // Update the record with content and completed status
+            const { error: updateError } = await supabase
               .from('business_plans')
-              .insert({
-                user_id: user.id,
-                title: planTitle,
+              .update({
                 content: data.content,
-                prompt: prompt.trim(),
                 status: 'completed'
-              });
+              })
+              .eq('id', planId);
 
-            if (insertError) {
-              console.error('Error saving business plan:', insertError);
+            if (updateError) {
+              console.error('Error updating business plan:', updateError);
             }
 
-            // Also download the business plan content as a file
-            const blob = new Blob([data.content], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `business-plan-${Date.now()}.md`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            console.log('Business plan saved and downloaded successfully!');
+            console.log('Business plan saved successfully!');
             toast({
               title: "Business plan generated!",
-              description: "Your business plan has been saved and downloaded.",
+              description: "Your business plan is ready to view in your creations.",
             });
           } else {
             console.error('No content in response:', data);
+            // Update the record to error status
+            await supabase
+              .from('business_plans')
+              .update({ status: 'error' })
+              .eq('id', planId);
             toast({
               title: "Generation failed",
               description: data?.error || "No content was generated. Please try again.",
