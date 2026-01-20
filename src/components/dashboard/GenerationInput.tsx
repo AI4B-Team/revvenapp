@@ -171,8 +171,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isDocumentTypeDropdownOpen, setIsDocumentTypeDropdownOpen] = useState(false);
   const [documentModel, setDocumentModel] = useState<'auto' | 'gemini-pro'>('auto');
   const [isDocumentModelDropdownOpen, setIsDocumentModelDropdownOpen] = useState(false);
-  const [generatedReportImage, setGeneratedReportImage] = useState<string | null>(null);
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   
   // Ebook source modal state
   const [ebookSourceModalOpen, setEbookSourceModalOpen] = useState(false);
@@ -1872,12 +1870,38 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
 
-      // Generate visual report using Nano Banana Pro
+      // Generate visual report using Nano Banana Pro - save to generated_images table
       if (documentType === 'Report') {
-        setIsGeneratingReport(true);
         onGenerationStart?.();
 
         try {
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            toast({
+              title: "Authentication required",
+              description: "Please sign in to generate reports",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Insert pending record to show in gallery
+          const { data: insertedImage, error: insertError } = await supabase
+            .from('generated_images')
+            .insert({
+              user_id: user.id,
+              prompt: prompt.trim(),
+              status: 'processing',
+              model: 'nano-banana-pro',
+              category: 'Report',
+            })
+            .select()
+            .single();
+
+          if (insertError) throw insertError;
+
+          // Generate the report image
           const { data, error } = await supabase.functions.invoke('generate-report-image', {
             body: {
               topic: prompt.trim(),
@@ -1888,11 +1912,25 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           if (error) throw error;
 
           if (data?.imageUrl) {
-            setGeneratedReportImage(data.imageUrl);
+            // Update the record with the generated image
+            await supabase
+              .from('generated_images')
+              .update({
+                image_url: data.imageUrl,
+                status: 'completed',
+              })
+              .eq('id', insertedImage.id);
+
             toast({
               title: "Report generated!",
-              description: "Your visual report infographic is ready",
+              description: "Your visual report is now in your creations",
             });
+          } else {
+            // Mark as failed if no image returned
+            await supabase
+              .from('generated_images')
+              .update({ status: 'error', error_message: 'No image generated' })
+              .eq('id', insertedImage.id);
           }
         } catch (error: any) {
           console.error('Report generation error:', error);
@@ -1901,8 +1939,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             description: error.message || "Failed to generate report. Please try again.",
             variant: "destructive",
           });
-        } finally {
-          setIsGeneratingReport(false);
         }
         return;
       }
@@ -9788,58 +9824,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         </div>
       )}
 
-      {/* Report Preview - Only visible when generating or when report is generated */}
-      {isDocumentMode && documentType === 'Report' && (isGeneratingReport || generatedReportImage) && (
-        <div className="flex justify-center mt-6 w-full max-w-[900px] mx-auto">
-          <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border w-full">
-            {isGeneratingReport ? (
-              <div className="flex flex-col items-center justify-center py-16">
-                <Loader2 className="w-12 h-12 text-brand-green animate-spin mb-4" />
-                <p className="text-foreground font-medium">Generating your report infographic...</p>
-                <p className="text-sm text-muted-foreground mt-1">Using Nano Banana Pro AI</p>
-              </div>
-            ) : generatedReportImage && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-foreground">Generated Report</h3>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = generatedReportImage;
-                        link.download = 'report-infographic.png';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
-                    >
-                      <Upload className="w-4 h-4 mr-2 rotate-180" />
-                      Download
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setGeneratedReportImage(null)}
-                    >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Generate New
-                    </Button>
-                  </div>
-                </div>
-                <div className="rounded-xl overflow-hidden border border-border">
-                  <img 
-                    src={generatedReportImage} 
-                    alt="Generated Report Infographic" 
-                    className="w-full h-auto"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Ebook Source Modal - Upload */}
       {ebookSourceModalOpen && ebookSourceModalType === 'upload' && (
