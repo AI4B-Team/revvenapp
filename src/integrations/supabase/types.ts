@@ -220,6 +220,51 @@ export type Database = {
         }
         Relationships: []
       }
+      app_tools: {
+        Row: {
+          bg_color: string
+          category: string
+          created_at: string
+          description: string
+          icon_url: string | null
+          id: string
+          is_active: boolean
+          is_new: boolean
+          name: string
+          route: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          bg_color?: string
+          category?: string
+          created_at?: string
+          description: string
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean
+          is_new?: boolean
+          name: string
+          route?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          bg_color?: string
+          category?: string
+          created_at?: string
+          description?: string
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean
+          is_new?: boolean
+          name?: string
+          route?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audio_app_usage: {
         Row: {
           app_name: string
