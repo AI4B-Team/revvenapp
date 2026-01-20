@@ -1968,6 +1968,121 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
 
+      // Generate Business Plan using GPT-4.1 via OpenRouter
+      if (documentType === 'Business Plan') {
+        onGenerationStart?.();
+
+        try {
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            toast({
+              title: "Authentication required",
+              description: "Please sign in to generate business plans",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Insert pending record to show in gallery
+          const { data: insertedImage, error: insertError } = await supabase
+            .from('generated_images')
+            .insert({
+              user_id: user.id,
+              prompt: prompt.trim(),
+              status: 'processing',
+              model: 'gpt-4.1',
+              category: 'Business Plan',
+            })
+            .select()
+            .single();
+
+          if (insertError) throw insertError;
+
+          toast({
+            title: "Generating business plan...",
+            description: "Creating your comprehensive business plan with graphics",
+          });
+
+          // Generate the business plan
+          console.log('Calling generate-business-plan with:', { topic: prompt.trim() });
+          const { data, error } = await supabase.functions.invoke('generate-business-plan', {
+            body: {
+              topic: prompt.trim(),
+              businessType: 'Startup',
+              industry: '',
+            }
+          });
+
+          console.log('Edge function response:', { data, error });
+
+          if (error) {
+            console.error('Edge function error:', error);
+            await supabase
+              .from('generated_images')
+              .update({ status: 'error', error_message: error.message || 'Edge function error' })
+              .eq('id', insertedImage.id);
+            throw error;
+          }
+
+          if (data?.content) {
+            console.log('Business plan generated. Content length:', data.content.length);
+            
+            // Update the record with the generated content and image
+            const { error: updateError } = await supabase
+              .from('generated_images')
+              .update({
+                image_url: data.imageUrl || null,
+                cloudinary_public_id: data.publicId || null,
+                status: 'completed',
+              })
+              .eq('id', insertedImage.id);
+
+            if (updateError) {
+              console.error('Database update error:', updateError);
+              throw updateError;
+            }
+
+            // Also download the business plan content as a file
+            const blob = new Blob([data.content], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `business-plan-${Date.now()}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            console.log('Business plan saved successfully!');
+            toast({
+              title: "Business plan generated!",
+              description: "Your business plan has been downloaded and the cover image saved to your creations",
+            });
+          } else {
+            console.error('No content in response:', data);
+            await supabase
+              .from('generated_images')
+              .update({ status: 'error', error_message: data?.error || 'No content generated' })
+              .eq('id', insertedImage.id);
+            
+            toast({
+              title: "Generation failed",
+              description: data?.error || "No content was generated. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } catch (error: any) {
+          console.error('Business plan generation error:', error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate business plan. Please try again.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
       // Other document types - placeholder for now
       toast({
         title: "Coming soon",
