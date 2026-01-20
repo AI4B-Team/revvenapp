@@ -69,12 +69,12 @@ export default function ContentPromptChips({
   return (
     <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
       <Badge variant="secondary" className={cn(chipClassName)}>
-        <PostIcon size={14} className="mr-1 text-muted-foreground" />
+        <PostIcon size={14} className="mr-1 text-gray-400" />
         <span className="text-muted-foreground">Post:</span> {postType}
       </Badge>
 
       <Badge variant="secondary" className={cn(chipClassName)}>
-        <Flag size={14} className="mr-1 text-muted-foreground" />
+        <Flag size={14} className="mr-1 text-gray-400" />
         <span className="text-muted-foreground">Goal:</span> {goal}
       </Badge>
 
@@ -83,22 +83,22 @@ export default function ContentPromptChips({
       </Badge>
 
       <Badge variant="secondary" className={cn(chipClassName)}>
-        <CalendarDays size={14} className="mr-1 text-muted-foreground" />
+        <CalendarDays size={14} className="mr-1 text-gray-400" />
         <span className="text-muted-foreground">Freq:</span> {days}d
       </Badge>
 
       <Badge variant="secondary" className={cn(chipClassName)}>
-        <TimeIcon size={14} className="mr-1 text-muted-foreground" />
+        <TimeIcon size={14} className="mr-1 text-gray-400" />
         <span className="text-muted-foreground">Time:</span> {time}
       </Badge>
 
       <Badge variant="secondary" className={cn(chipClassName)}>
-        <StyleIcon size={14} className="mr-1 text-muted-foreground" />
+        <StyleIcon size={14} className="mr-1 text-gray-400" />
         <span className="text-muted-foreground">Style:</span> {style}
       </Badge>
 
       <Badge variant="secondary" className={cn(chipClassName)}>
-        <BadgeCheck size={14} className="mr-1 text-muted-foreground" />
+        <BadgeCheck size={14} className="mr-1 text-gray-400" />
         <span className="text-muted-foreground">Brand:</span> {brandEnabled ? "On" : "Off"}
       </Badge>
     </div>
