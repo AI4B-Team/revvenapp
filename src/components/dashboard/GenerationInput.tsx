@@ -9788,8 +9788,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         </div>
       )}
 
-      {/* Report Preview - Only visible when Report is selected in Document mode */}
-      {isDocumentMode && documentType === 'Report' && (
+      {/* Report Preview - Only visible when generating or when report is generated */}
+      {isDocumentMode && documentType === 'Report' && (isGeneratingReport || generatedReportImage) && (
         <div className="flex justify-center mt-6 w-full max-w-[900px] mx-auto">
           <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border w-full">
             {isGeneratingReport ? (
@@ -9798,7 +9798,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <p className="text-foreground font-medium">Generating your report infographic...</p>
                 <p className="text-sm text-muted-foreground mt-1">Using Nano Banana Pro AI</p>
               </div>
-            ) : generatedReportImage ? (
+            ) : generatedReportImage && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-foreground">Generated Report</h3>
@@ -9835,16 +9835,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     className="w-full h-auto"
                   />
                 </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center mb-4">
-                  <LayoutList className="w-8 h-8 text-brand-green" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Create Visual Reports</h3>
-                <p className="text-sm text-muted-foreground max-w-md">
-                  Describe your report topic above and click Generate to create a professional infographic with charts, metrics, and data visualizations.
-                </p>
               </div>
             )}
           </div>
