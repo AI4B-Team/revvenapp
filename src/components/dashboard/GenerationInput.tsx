@@ -2208,6 +2208,238 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
 
+      // Generate Case Study using GPT-4.1 via OpenRouter - save to database and show in gallery
+      if (documentType === 'Case Study') {
+        onGenerationStart?.();
+
+        try {
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            toast({
+              title: "Authentication required",
+              description: "Please sign in to generate case studies",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Extract title from prompt or use default
+          const caseStudyTitle = prompt.trim().substring(0, 100) || 'Case Study';
+
+          // Insert a "processing" record FIRST so it shows in the gallery immediately
+          const { data: insertedCaseStudy, error: insertError } = await supabase
+            .from('case_studies')
+            .insert({
+              user_id: user.id,
+              title: caseStudyTitle,
+              content: '',
+              prompt: prompt.trim(),
+              status: 'processing'
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error creating case study record:', insertError);
+            toast({
+              title: "Error",
+              description: "Failed to start case study generation.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const caseStudyId = insertedCaseStudy.id;
+
+          toast({
+            title: "Generating case study...",
+            description: "Creating your professional case study. This may take a moment.",
+          });
+
+          // Generate the case study
+          console.log('Calling generate-case-study with:', { topic: prompt.trim() });
+          const { data, error } = await supabase.functions.invoke('generate-case-study', {
+            body: {
+              topic: prompt.trim(),
+              caseStudyType: 'Business',
+              clientName: '',
+            }
+          });
+
+          console.log('Edge function response:', { data, error });
+
+          if (error) {
+            console.error('Edge function error:', error);
+            // Update the record to error status
+            await supabase
+              .from('case_studies')
+              .update({ status: 'error' })
+              .eq('id', caseStudyId);
+            throw error;
+          }
+
+          if (data?.content) {
+            console.log('Case study generated. Content length:', data.content.length);
+            
+            // Update the record with content and completed status
+            const { error: updateError } = await supabase
+              .from('case_studies')
+              .update({
+                content: data.content,
+                status: 'completed'
+              })
+              .eq('id', caseStudyId);
+
+            if (updateError) {
+              console.error('Error updating case study:', updateError);
+            }
+
+            console.log('Case study saved successfully!');
+            toast({
+              title: "Case study generated!",
+              description: "Your case study is ready to view in your creations.",
+            });
+          } else {
+            console.error('No content in response:', data);
+            // Update the record to error status
+            await supabase
+              .from('case_studies')
+              .update({ status: 'error' })
+              .eq('id', caseStudyId);
+            toast({
+              title: "Generation failed",
+              description: data?.error || "No content was generated. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } catch (error: any) {
+          console.error('Case study generation error:', error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate case study. Please try again.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      // Generate Cover Letter using GPT-4.1 via OpenRouter - save to database and show in gallery
+      if (documentType === 'Cover Letter') {
+        onGenerationStart?.();
+
+        try {
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            toast({
+              title: "Authentication required",
+              description: "Please sign in to generate cover letters",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Extract title from prompt or use default
+          const coverLetterTitle = prompt.trim().substring(0, 100) || 'Cover Letter';
+
+          // Insert a "processing" record FIRST so it shows in the gallery immediately
+          const { data: insertedCoverLetter, error: insertError } = await supabase
+            .from('cover_letters')
+            .insert({
+              user_id: user.id,
+              title: coverLetterTitle,
+              content: '',
+              prompt: prompt.trim(),
+              status: 'processing'
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error creating cover letter record:', insertError);
+            toast({
+              title: "Error",
+              description: "Failed to start cover letter generation.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const coverLetterId = insertedCoverLetter.id;
+
+          toast({
+            title: "Generating cover letter...",
+            description: "Creating your professional cover letter. This may take a moment.",
+          });
+
+          // Generate the cover letter
+          console.log('Calling generate-cover-letter with:', { topic: prompt.trim() });
+          const { data, error } = await supabase.functions.invoke('generate-cover-letter', {
+            body: {
+              topic: prompt.trim(),
+              jobTitle: '',
+              companyName: '',
+            }
+          });
+
+          console.log('Edge function response:', { data, error });
+
+          if (error) {
+            console.error('Edge function error:', error);
+            // Update the record to error status
+            await supabase
+              .from('cover_letters')
+              .update({ status: 'error' })
+              .eq('id', coverLetterId);
+            throw error;
+          }
+
+          if (data?.content) {
+            console.log('Cover letter generated. Content length:', data.content.length);
+            
+            // Update the record with content and completed status
+            const { error: updateError } = await supabase
+              .from('cover_letters')
+              .update({
+                content: data.content,
+                status: 'completed'
+              })
+              .eq('id', coverLetterId);
+
+            if (updateError) {
+              console.error('Error updating cover letter:', updateError);
+            }
+
+            console.log('Cover letter saved successfully!');
+            toast({
+              title: "Cover letter generated!",
+              description: "Your cover letter is ready to view in your creations.",
+            });
+          } else {
+            console.error('No content in response:', data);
+            // Update the record to error status
+            await supabase
+              .from('cover_letters')
+              .update({ status: 'error' })
+              .eq('id', coverLetterId);
+            toast({
+              title: "Generation failed",
+              description: data?.error || "No content was generated. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } catch (error: any) {
+          console.error('Cover letter generation error:', error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate cover letter. Please try again.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
       // Other document types - placeholder for now
       toast({
         title: "Coming soon",
