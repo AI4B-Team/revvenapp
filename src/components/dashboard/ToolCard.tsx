@@ -2,11 +2,12 @@ interface ToolCardProps {
   name: string;
   description: string;
   bgColor: string;
-  emoji: string;
+  emoji?: string;
+  icon?: string;
   onClick?: () => void;
 }
 
-const ToolCard = ({ name, description, bgColor, emoji, onClick }: ToolCardProps) => {
+const ToolCard = ({ name, description, bgColor, emoji, icon, onClick }: ToolCardProps) => {
   return (
     <div 
       className={`${bgColor} rounded-xl p-4 hover:shadow-lg transition cursor-pointer relative group`}
@@ -16,7 +17,11 @@ const ToolCard = ({ name, description, bgColor, emoji, onClick }: ToolCardProps)
         AI
       </div>
       <div className="aspect-square flex items-center justify-center text-4xl mb-3">
-        {emoji}
+        {icon ? (
+          <img src={icon} alt={name} className="w-16 h-16 object-contain" />
+        ) : (
+          emoji
+        )}
       </div>
       <h3 className="text-sm font-semibold text-foreground">{name}</h3>
     </div>
