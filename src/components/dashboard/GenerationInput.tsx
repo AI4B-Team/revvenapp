@@ -3396,6 +3396,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         specificMode = selectedDesignType || '';
       } else if (selectedType === 'Content') {
         contentType = 'content';
+      } else if (selectedType === 'Document') {
+        contentType = 'document';
+        specificMode = documentType || 'Report';
       }
 
       // Check if music mode with vocals enabled
