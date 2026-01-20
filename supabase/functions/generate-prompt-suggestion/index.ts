@@ -506,6 +506,28 @@ Return ONLY the proposal topic. Be professional and solution-focused.`,
               example: "Brand Identity Refresh Proposal for Established Financial Services Firm",
               type: "proposal_document"
             };
+          case 'cover letter':
+            return {
+              guidance: `Generate a compelling COVER LETTER scenario.
+
+Generate ONE job application scenario that requires a professional cover letter.
+
+MUST INCLUDE:
+- Specific job title/role
+- Industry or company type
+- Key qualifications or experience angle
+
+GOOD EXAMPLES:
+- "Senior Product Manager role at a fast-growing fintech startup"
+- "Marketing Director position at a Fortune 500 consumer goods company"
+- "Software Engineer applying to AI research team at tech giant"
+- "UX Designer role at a healthcare innovation company"
+- "Sales Executive position at enterprise software company"
+
+Return ONLY the cover letter scenario. Be specific about role and context.`,
+              example: "Data Science Lead position at a climate tech startup revolutionizing renewable energy",
+              type: "cover_letter_document"
+            };
           default:
             return {
               guidance: `Generate a professional DOCUMENT topic.

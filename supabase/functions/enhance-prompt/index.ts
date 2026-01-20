@@ -514,6 +514,22 @@ RULES:
 2. Include value propositions
 3. Add professional presentation elements
 4. Return the enhanced proposal concept`;
+      } else if (docType === 'cover letter') {
+        systemPrompt = `You are a professional career coach and cover letter writer. Enhance the job application details into a compelling cover letter concept.
+
+MUST INCLUDE:
+- Strong opening hook that captures attention
+- Relevant experience and achievements with specific metrics
+- Company/role-specific alignment points
+- Unique value proposition
+- Confident call-to-action closing
+
+RULES:
+1. Keep the user's target role and experience focus
+2. Add specific, quantifiable achievements where possible
+3. Include industry-relevant keywords
+4. Make it professional yet personable
+5. Return the enhanced cover letter concept ready for generation`;
       } else if (docType === 'ebook') {
         systemPrompt = `You are an ebook content strategist. Generate comprehensive ebook content based on the topic.
 
