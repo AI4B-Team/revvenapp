@@ -3011,6 +3011,31 @@ ${content.map((item, index) => {
                               </div>
                             </PopoverContent>
                           </Popover>
+                          
+                          {/* Download Media Button */}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = resolvedAudioUrl;
+                                    const fileName = (editedTitle || title || 'media').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                                    link.download = `${fileName}.${isVideo ? 'mp4' : 'mp3'}`;
+                                    link.target = '_blank';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    toast.success(`${isVideo ? 'Video' : 'Audio'} download started!`);
+                                  }}
+                                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors flex-shrink-0"
+                                >
+                                  <Download className="w-4 h-4 text-gray-600" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>Download {isVideo ? 'Video' : 'Audio'}</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       </div>
                     )}
