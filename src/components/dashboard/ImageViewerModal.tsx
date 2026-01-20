@@ -195,10 +195,10 @@ const ImageViewerModal = ({
           {/* Modal Content */}
           <div className="w-full h-full bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
             
-            {/* Left Side - Image */}
+            {/* Left Side - Image/Video/Document Content */}
             <div className="flex-1 relative bg-black flex items-center justify-center">
 
-            {/* Image/Video Container */}
+            {/* Content Container */}
             <div 
               className="relative w-full h-full group p-4 overflow-hidden flex items-center justify-center"
               onMouseDown={handleMouseDown}
@@ -206,10 +206,17 @@ const ImageViewerModal = ({
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseLeave}
               style={{ 
-                cursor: zoom > 100 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                cursor: image.type !== 'document' && zoom > 100 ? (isDragging ? 'grabbing' : 'grab') : 'default'
               }}
             >
-              {image.type === 'video' && imageData.url?.includes('.mp4') ? (
+              {image.type === 'document' ? (
+                <div className="w-full h-full overflow-y-auto bg-white rounded-lg p-6">
+                  <h1 className="text-2xl font-bold text-gray-900 mb-4">{image.title}</h1>
+                  <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
+                    {image.content || 'No content available'}
+                  </div>
+                </div>
+              ) : image.type === 'video' && imageData.url?.includes('.mp4') ? (
                 <video
                   src={imageData.url}
                   className="rounded-lg max-w-full max-h-full object-contain select-none"
