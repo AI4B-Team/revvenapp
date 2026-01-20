@@ -3115,6 +3115,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         specificMode = selectedDesignType || '';
       } else if (selectedType === 'Content') {
         enhanceMode = 'content';
+      } else if (selectedType === 'Document') {
+        enhanceMode = 'document';
+        specificMode = documentType || 'report';
       } else if (selectedType === 'Image') {
         enhanceMode = 'image';
         specificMode = selectedCreateMode || 'Create';
