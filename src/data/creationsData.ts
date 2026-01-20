@@ -5,7 +5,7 @@ export interface StoryScene {
 
 export interface GalleryItem {
   id: number | string;
-  type: 'image' | 'video';
+  type: 'image' | 'video' | 'document';
   thumbnail: string;
   title: string;
   creator: {
@@ -25,6 +25,8 @@ export interface GalleryItem {
   referenceImage?: string;
   referenceImages?: string[];
   scenes?: StoryScene[];
+  documentType?: string;
+  content?: string;
 }
 
 export const creationsData: GalleryItem[] = [
