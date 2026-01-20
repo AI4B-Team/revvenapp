@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { 
   Play, Bookmark, Heart, Download, Edit, RefreshCw, 
   Share2, X, Copy, Check, Image as ImageIcon, Trash2,
-  Video, Film, Mic, Users
+  Video, Film, Mic, Users, FileText
 } from 'lucide-react';
 import {
   Tooltip,
@@ -47,7 +47,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
   const [generatedItems, setGeneratedItems] = useState<GalleryItem[]>([]);
   const { toast } = useToast();
 
-  // Fetch generated images and videos from Supabase with real-time subscriptions
+  // Fetch generated images, videos, and documents from Supabase with real-time subscriptions
   useEffect(() => {
     const fetchGeneratedContent = async () => {
       const { data: session } = await supabase.auth.getSession();
@@ -73,6 +73,17 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
 
       if (videosError) {
         console.error('Error fetching generated videos:', videosError);
+      }
+
+      // Fetch business plans
+      const { data: businessPlansData, error: businessPlansError } = await supabase
+        .from('business_plans')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (businessPlansError) {
+        console.error('Error fetching business plans:', businessPlansError);
       }
 
       const getResolutionFromAspectRatio = (aspectRatio: string | null): string => {
@@ -107,7 +118,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
         thumbnail: img.image_url || '/placeholder.svg',
         url: img.image_url || undefined,
-        type: 'image',
+        type: 'image' as const,
         creator: {
           name: 'You',
           avatar: '/placeholder.svg'
@@ -141,7 +152,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
           // Use character image as thumbnail, video_url for playback
           thumbnail: video.character_image_url || '/placeholder.svg',
           url: video.video_url || undefined,
-          type: 'video',
+          type: 'video' as const,
           creator: {
             name: 'You',
             avatar: '/placeholder.svg'
@@ -162,9 +173,30 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         };
       }) || [];
 
+      const mappedBusinessPlans: GalleryItem[] = businessPlansData?.map((plan: any) => ({
+        id: plan.id,
+        title: plan.title,
+        thumbnail: '/placeholder.svg',
+        type: 'document' as const,
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: plan.created_at || new Date().toISOString(),
+        status: plan.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: plan.prompt,
+        model: 'GPT-4.1',
+        timestamp: formatTimestamp(plan.created_at),
+        documentType: 'Business Plan',
+        content: plan.content
+      })) || [];
+
       // Combine and sort by creation date
-      const allItems = [...mappedImages, ...mappedVideos].sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans].sort((a, b) => 
+        new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
       );
       
       setGeneratedItems(allItems);
@@ -201,6 +233,23 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         },
         (payload) => {
           console.log('AI videos update:', payload);
+          fetchGeneratedContent();
+        }
+      )
+      .subscribe();
+
+    // Real-time subscription for business plans
+    const businessPlansChannel = supabase
+      .channel('business_plans_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'business_plans'
+        },
+        (payload) => {
+          console.log('Business plans update:', payload);
           fetchGeneratedContent();
         }
       )
@@ -245,6 +294,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
     return () => {
       supabase.removeChannel(imagesChannel);
       supabase.removeChannel(videosChannel);
+      supabase.removeChannel(businessPlansChannel);
       clearInterval(pollInterval);
     };
   }, []);
@@ -323,10 +373,29 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
   };
 
   const handleDownload = async (item: GalleryItem) => {
+    // Handle document downloads
+    if (item.type === 'document' && item.content) {
+      const blob = new Blob([item.content], { type: 'text/markdown' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${item.title || 'document'}.md`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Downloaded",
+        description: "Document downloaded successfully",
+      });
+      return;
+    }
+
     if (!item.url) {
       toast({
         title: "Download failed",
-        description: "Image URL not available",
+        description: "File URL not available",
         variant: "destructive",
       });
       return;
@@ -351,7 +420,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
     } catch (error) {
       toast({
         title: "Download failed",
-        description: "Unable to download image",
+        description: "Unable to download file",
         variant: "destructive",
       });
     }
@@ -359,7 +428,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
 
   const handleDelete = async (item: GalleryItem) => {
     try {
-      const tableName = item.type === 'video' ? 'ai_videos' : 'generated_images';
+      const tableName = item.type === 'video' ? 'ai_videos' : item.type === 'document' ? 'business_plans' : 'generated_images';
       const { error } = await supabase
         .from(tableName)
         .delete()
@@ -369,14 +438,16 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
 
       setGeneratedItems(prev => prev.filter(i => i.id !== item.id));
       
+      const typeLabel = item.type === 'video' ? 'Video' : item.type === 'document' ? 'Document' : 'Image';
       toast({
         title: "Deleted",
-        description: `${item.type === 'video' ? 'Video' : 'Image'} deleted successfully`,
+        description: `${typeLabel} deleted successfully`,
       });
     } catch (error) {
+      const typeLabel = item.type === 'video' ? 'video' : item.type === 'document' ? 'document' : 'image';
       toast({
         title: "Delete failed",
-        description: `Unable to delete ${item.type === 'video' ? 'video' : 'image'}`,
+        description: `Unable to delete ${typeLabel}`,
         variant: "destructive",
       });
     }
@@ -502,13 +573,23 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
             key={item.id}
             className="relative group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
           >
-            {/* Image/Video */}
+            {/* Image/Video/Document */}
             <div 
               className="relative aspect-[4/3] overflow-hidden cursor-pointer"
               onClick={() => handleImageClick(index)}
             >
-              {/* For completed videos, show video element; otherwise show image */}
-              {item.type === 'video' && item.status === 'completed' && item.url ? (
+              {/* Document type card */}
+              {item.type === 'document' ? (
+                <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600 flex flex-col items-center justify-center p-4">
+                  <FileText size={48} className="text-white mb-3" />
+                  <span className="text-white text-xs font-medium uppercase tracking-wide bg-white/20 px-2 py-1 rounded">
+                    {item.documentType || 'Document'}
+                  </span>
+                  <p className="text-white/90 text-sm mt-3 text-center line-clamp-2 px-2">
+                    {item.title}
+                  </p>
+                </div>
+              ) : item.type === 'video' && item.status === 'completed' && item.url ? (
                 <video
                   src={item.url}
                   className="w-full h-full object-cover"
@@ -564,6 +645,11 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                   <>
                     <Play size={sizes.badgeIcon} className="text-white" fill="white" />
                     <span className={`text-white ${sizes.text} font-semibold uppercase`}>Video</span>
+                  </>
+                ) : item.type === 'document' ? (
+                  <>
+                    <FileText size={sizes.badgeIcon} className="text-white" />
+                    <span className={`text-white ${sizes.text} font-semibold uppercase`}>{item.documentType || 'Document'}</span>
                   </>
                 ) : (
                   <>

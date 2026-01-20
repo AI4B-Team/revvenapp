@@ -1968,7 +1968,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
 
-      // Generate Business Plan using GPT-4.1 via OpenRouter - no image gallery, just download
+      // Generate Business Plan using GPT-4.1 via OpenRouter - save to database and show in gallery
       if (documentType === 'Business Plan') {
         onGenerationStart?.();
 
@@ -2009,7 +2009,25 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           if (data?.content) {
             console.log('Business plan generated. Content length:', data.content.length);
             
-            // Download the business plan content as a file
+            // Extract title from prompt or use default
+            const planTitle = prompt.trim().substring(0, 100) || 'Business Plan';
+            
+            // Save to database
+            const { error: insertError } = await supabase
+              .from('business_plans')
+              .insert({
+                user_id: user.id,
+                title: planTitle,
+                content: data.content,
+                prompt: prompt.trim(),
+                status: 'completed'
+              });
+
+            if (insertError) {
+              console.error('Error saving business plan:', insertError);
+            }
+
+            // Also download the business plan content as a file
             const blob = new Blob([data.content], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2020,10 +2038,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            console.log('Business plan downloaded successfully!');
+            console.log('Business plan saved and downloaded successfully!');
             toast({
               title: "Business plan generated!",
-              description: "Your business plan has been downloaded to your computer.",
+              description: "Your business plan has been saved and downloaded.",
             });
           } else {
             console.error('No content in response:', data);
