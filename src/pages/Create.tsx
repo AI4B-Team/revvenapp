@@ -106,6 +106,7 @@ import toolScriptWriter from '@/assets/icons/tool-script-writer.png';
 import toolSeoOptimizer from '@/assets/icons/tool-seo-optimizer.png';
 import toolEbookCreator from '@/assets/icons/tool-ebook-creator.png';
 import toolJobNewsletter from '@/assets/icons/tool-job-newsletter.png';
+import toolMasterCloser from '@/assets/icons/tool-master-closer.png';
 
 const Create = () => {
   const location = useLocation();
@@ -838,6 +839,13 @@ const Create = () => {
       bgColor: 'bg-tool-green',
       icon: toolLeadGeneration,
       onClick: () => navigate('/lead-generation')
+    },
+    { 
+      name: 'Master Closer', 
+      description: 'AI sales co-pilot',
+      bgColor: 'bg-tool-purple',
+      icon: toolMasterCloser,
+      onClick: () => navigate('/master-closer')
     },
   ];
 
