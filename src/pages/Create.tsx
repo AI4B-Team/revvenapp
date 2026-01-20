@@ -61,6 +61,52 @@ import toolAutomationFlow from '@/assets/icons/tool-automation-flow.png';
 import toolAiStory from '@/assets/icons/tool-ai-story.png';
 import toolLeadGeneration from '@/assets/icons/tool-lead-generation.png';
 
+// Import image tool icons
+import toolArtBlocks from '@/assets/icons/tool-art-blocks.png';
+import toolEdit from '@/assets/icons/tool-edit.png';
+import toolBackgroundRemover from '@/assets/icons/tool-background-remover.png';
+import toolImageEraser from '@/assets/icons/tool-image-eraser.png';
+import toolImageUpscaler from '@/assets/icons/tool-image-upscaler.png';
+import toolImageEnhancer from '@/assets/icons/tool-image-enhancer.png';
+import toolImageColorizer from '@/assets/icons/tool-image-colorizer.png';
+
+// Import video tool icons
+import toolSessions from '@/assets/icons/tool-sessions.png';
+import toolVideoDownloader from '@/assets/icons/tool-video-downloader.png';
+import toolVideoResizer from '@/assets/icons/tool-video-resizer.png';
+import toolMotionSync from '@/assets/icons/tool-motion-sync.png';
+import toolExplainerVideo from '@/assets/icons/tool-explainer-video.png';
+import toolAiInfluencer from '@/assets/icons/tool-ai-influencer.png';
+import toolViralShorts from '@/assets/icons/tool-viral-shorts.png';
+import toolAutoPost from '@/assets/icons/tool-auto-post.png';
+import toolInfinityTalk from '@/assets/icons/tool-infinity-talk.png';
+
+// Import audio tool icons
+import toolVoiceCloner from '@/assets/icons/tool-voice-cloner.png';
+import toolTranscribe from '@/assets/icons/tool-transcribe.png';
+import toolVoiceChanger from '@/assets/icons/tool-voice-changer.png';
+import toolVoiceovers from '@/assets/icons/tool-voiceovers.png';
+import toolAudioDubber from '@/assets/icons/tool-audio-dubber.png';
+import toolNoiseRemover from '@/assets/icons/tool-noise-remover.png';
+
+// Import design tool icons
+import toolLogoDesigner from '@/assets/icons/tool-logo-designer.png';
+import toolBannerCreator from '@/assets/icons/tool-banner-creator.png';
+import toolFlyerMaker from '@/assets/icons/tool-flyer-maker.png';
+import toolPosterDesigner from '@/assets/icons/tool-poster-designer.png';
+import toolInfographicBuilder from '@/assets/icons/tool-infographic-builder.png';
+import toolPresentationMaker from '@/assets/icons/tool-presentation-maker.png';
+
+// Import content tool icons
+import toolBlogWriter from '@/assets/icons/tool-blog-writer.png';
+import toolSocialPosts from '@/assets/icons/tool-social-posts.png';
+import toolEmailGenerator from '@/assets/icons/tool-email-generator.png';
+import toolAdCopyWriter from '@/assets/icons/tool-ad-copy-writer.png';
+import toolScriptWriter from '@/assets/icons/tool-script-writer.png';
+import toolSeoOptimizer from '@/assets/icons/tool-seo-optimizer.png';
+import toolEbookCreator from '@/assets/icons/tool-ebook-creator.png';
+import toolJobNewsletter from '@/assets/icons/tool-job-newsletter.png';
+
 const Create = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -480,13 +526,13 @@ const Create = () => {
       name: 'Art Blocks', 
       description: 'AI create some art works',
       bgColor: 'bg-tool-blue',
-      emoji: '🎨'
+      icon: toolArtBlocks
     },
     { 
       name: 'Edit', 
       description: 'Edit images with AI',
       bgColor: 'bg-tool-green',
-      emoji: '✏️',
+      icon: toolEdit,
       onClick: () => {
         setIsEditMode(true);
         setEditingImage('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1024&h=1024&fit=crop');
@@ -496,34 +542,34 @@ const Create = () => {
       name: 'Background Remover', 
       description: 'Remove backgrounds',
       bgColor: 'bg-tool-yellow',
-      emoji: '✂️',
+      icon: toolBackgroundRemover,
       onClick: () => navigate('/background-remover')
     },
     { 
       name: 'Image Eraser', 
       description: 'Erase parts of images',
       bgColor: 'bg-tool-blue',
-      emoji: '🖼️'
+      icon: toolImageEraser
     },
     { 
       name: 'Image Upscaler', 
       description: 'Enhance image quality',
       bgColor: 'bg-tool-yellow',
-      emoji: '📸',
+      icon: toolImageUpscaler,
       onClick: () => navigate('/image-upscaler')
     },
     { 
       name: 'Image Enhancer', 
       description: 'Improve image details',
       bgColor: 'bg-tool-blue',
-      emoji: '❤️',
+      icon: toolImageEnhancer,
       onClick: () => navigate('/image-enhancer')
     },
     { 
       name: 'Image Colorizer', 
       description: 'Add color to images',
       bgColor: 'bg-tool-gray',
-      emoji: '🌹'
+      icon: toolImageColorizer
     },
   ];
 
@@ -532,61 +578,61 @@ const Create = () => {
       name: 'Sessions', 
       description: 'Video conferencing',
       bgColor: 'bg-tool-green',
-      emoji: '📹',
+      icon: toolSessions,
       onClick: () => navigate('/sessions')
     },
     { 
       name: 'Video Downloader', 
       description: 'Download videos',
       bgColor: 'bg-tool-blue',
-      emoji: '📥',
+      icon: toolVideoDownloader,
       onClick: () => navigate('/video-downloader')
     },
     { 
       name: 'Video Resizer', 
       description: 'Resize video dimensions',
       bgColor: 'bg-tool-pink',
-      emoji: '📐'
+      icon: toolVideoResizer
     },
     { 
       name: 'Motion-Sync', 
       description: 'Sync video motion',
       bgColor: 'bg-tool-yellow',
-      emoji: '🎬'
+      icon: toolMotionSync
     },
     { 
       name: 'Explainer Video', 
       description: 'Create educational videos',
       bgColor: 'bg-tool-blue',
-      emoji: '🎬',
+      icon: toolExplainerVideo,
       onClick: () => navigate('/explainer-video')
     },
     { 
       name: 'AI Influencer', 
       description: 'Create AI-powered influencer content',
       bgColor: 'bg-tool-green',
-      emoji: '🤖',
+      icon: toolAiInfluencer,
       onClick: () => navigate('/ai-influencer')
     },
     { 
       name: 'Viral Shorts', 
       description: 'Create viral short-form videos',
       bgColor: 'bg-tool-purple',
-      emoji: '🔥',
+      icon: toolViralShorts,
       onClick: () => navigate('/viral-shorts')
     },
     { 
       name: 'Auto Post', 
       description: 'Generate & publish videos',
       bgColor: 'bg-tool-red',
-      emoji: '▶️',
+      icon: toolAutoPost,
       onClick: () => navigate('/autoyt')
     },
     { 
       name: 'Infinity Talk', 
       description: 'Make images talk with audio',
       bgColor: 'bg-tool-purple',
-      emoji: '🗣️',
+      icon: toolInfinityTalk,
       onClick: () => navigate('/infinity-talk')
     },
   ];
@@ -596,42 +642,42 @@ const Create = () => {
       name: 'AI Voice Cloner', 
       description: 'Clone any voice',
       bgColor: 'bg-tool-blue',
-      emoji: '🎤',
+      icon: toolVoiceCloner,
       onClick: () => navigate('/voice-cloner')
     },
     { 
       name: 'Transcribe', 
       description: 'Transcribe audio to text',
       bgColor: 'bg-tool-pink',
-      emoji: '📝',
+      icon: toolTranscribe,
       onClick: () => navigate('/transcribe')
     },
     { 
       name: 'AI Voice Changer', 
       description: 'Transform voice style',
       bgColor: 'bg-tool-blue',
-      emoji: '🎵',
+      icon: toolVoiceChanger,
       onClick: () => navigate('/voice-changer')
     },
     { 
       name: 'AI Voiceovers', 
       description: 'Generate voiceovers',
       bgColor: 'bg-tool-yellow',
-      emoji: '🎬',
+      icon: toolVoiceovers,
       onClick: () => navigate('/voiceovers')
     },
     { 
       name: 'AI Audio Dubber', 
       description: 'Dub audio tracks',
       bgColor: 'bg-tool-blue',
-      emoji: '🎧',
+      icon: toolAudioDubber,
       onClick: () => navigate('/audio-dubber')
     },
     { 
       name: 'AI Noise Remover', 
       description: 'Remove background noise',
       bgColor: 'bg-tool-yellow',
-      emoji: '🔇',
+      icon: toolNoiseRemover,
       onClick: () => navigate('/noise-remover')
     },
   ];
@@ -641,42 +687,42 @@ const Create = () => {
       name: 'Logo Designer', 
       description: 'Create brand logos',
       bgColor: 'bg-tool-blue',
-      emoji: '🎨',
+      icon: toolLogoDesigner,
       onClick: () => navigate('/logo-designer')
     },
     { 
       name: 'Banner Creator', 
       description: 'Design social banners',
       bgColor: 'bg-tool-yellow',
-      emoji: '🖼️',
+      icon: toolBannerCreator,
       onClick: () => navigate('/banner-creator')
     },
     { 
       name: 'Flyer Maker', 
       description: 'Create marketing flyers',
       bgColor: 'bg-tool-green',
-      emoji: '📄',
+      icon: toolFlyerMaker,
       onClick: () => navigate('/flyer-maker')
     },
     { 
       name: 'Poster Designer', 
       description: 'Design custom posters',
       bgColor: 'bg-tool-blue',
-      emoji: '🎭',
+      icon: toolPosterDesigner,
       onClick: () => navigate('/poster-designer')
     },
     { 
       name: 'Infographic Builder', 
       description: 'Create infographics',
       bgColor: 'bg-tool-pink',
-      emoji: '📊',
+      icon: toolInfographicBuilder,
       onClick: () => navigate('/infographic-builder')
     },
     { 
       name: 'Presentation Maker', 
       description: 'Design presentations',
       bgColor: 'bg-tool-yellow',
-      emoji: '📺',
+      icon: toolPresentationMaker,
       onClick: () => navigate('/presentation-maker')
     },
   ];
@@ -686,56 +732,56 @@ const Create = () => {
       name: 'Blog Writer', 
       description: 'Generate blog posts',
       bgColor: 'bg-tool-green',
-      emoji: '✍️',
+      icon: toolBlogWriter,
       onClick: () => navigate('/blog-writer')
     },
     { 
       name: 'Social Posts', 
       description: 'Create social content',
       bgColor: 'bg-tool-blue',
-      emoji: '📱',
+      icon: toolSocialPosts,
       onClick: () => navigate('/social-posts')
     },
     { 
       name: 'Email Generator', 
       description: 'Write email campaigns',
       bgColor: 'bg-tool-yellow',
-      emoji: '📧',
+      icon: toolEmailGenerator,
       onClick: () => navigate('/email-generator')
     },
     { 
       name: 'Ad Copy Writer', 
       description: 'Generate ad copy',
       bgColor: 'bg-tool-pink',
-      emoji: '💡',
+      icon: toolAdCopyWriter,
       onClick: () => navigate('/ad-copy-writer')
     },
     { 
       name: 'Script Writer', 
       description: 'Create video scripts',
       bgColor: 'bg-tool-blue',
-      emoji: '🎬',
+      icon: toolScriptWriter,
       onClick: () => navigate('/script-writer')
     },
     { 
       name: 'SEO Optimizer', 
       description: 'Optimize for search',
       bgColor: 'bg-tool-green',
-      emoji: '🔍',
+      icon: toolSeoOptimizer,
       onClick: () => navigate('/seo-optimizer')
     },
     { 
       name: 'Ebook Creator', 
       description: 'Create complete ebooks',
       bgColor: 'bg-tool-purple',
-      emoji: '📚',
+      icon: toolEbookCreator,
       onClick: () => navigate('/ebook-creator')
     },
     { 
       name: 'Job Newsletter', 
       description: 'Build & manage job newsletters',
       bgColor: 'bg-tool-pink',
-      emoji: '📰',
+      icon: toolJobNewsletter,
       onClick: () => navigate('/newsletter')
     },
   ];
