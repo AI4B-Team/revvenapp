@@ -7926,9 +7926,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <button 
                           key={item.label}
                           onClick={() => {
-                            setDocumentType(item.label);
-                            setIsDocumentTypeDropdownOpen(false);
-                            navigate(item.path);
+                            if (item.label === 'Ebook') {
+                              navigate(item.path);
+                            } else {
+                              setDocumentType(item.label);
+                              setIsDocumentTypeDropdownOpen(false);
+                            }
                           }}
                           className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${
                             documentType === item.label ? 'bg-secondary' : ''
