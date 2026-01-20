@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ReactMarkdown from 'react-markdown';
 
 interface StoryScene {
   scene: string;
@@ -211,9 +212,10 @@ const ImageViewerModal = ({
             >
               {image.type === 'document' ? (
                 <div className="w-full h-full overflow-y-auto bg-white rounded-lg p-6">
-                  <h1 className="text-2xl font-bold text-gray-900 mb-4">{image.title}</h1>
-                  <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
-                    {image.content || 'No content available'}
+                  <div className="prose prose-sm md:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700">
+                    <ReactMarkdown>
+                      {image.content || 'No content available'}
+                    </ReactMarkdown>
                   </div>
                 </div>
               ) : image.type === 'video' && imageData.url?.includes('.mp4') ? (
