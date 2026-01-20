@@ -86,6 +86,17 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         console.error('Error fetching business plans:', businessPlansError);
       }
 
+      // Fetch proposals
+      const { data: proposalsData, error: proposalsError } = await supabase
+        .from('proposals')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (proposalsError) {
+        console.error('Error fetching proposals:', proposalsError);
+      }
+
       const getResolutionFromAspectRatio = (aspectRatio: string | null): string => {
         switch (aspectRatio) {
           case '1:1': return '1024x1024 px';
@@ -194,8 +205,29 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         content: plan.content
       })) || [];
 
+      const mappedProposals: GalleryItem[] = proposalsData?.map((proposal: any) => ({
+        id: proposal.id,
+        title: proposal.title,
+        thumbnail: '/placeholder.svg',
+        type: 'document' as const,
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: proposal.created_at || new Date().toISOString(),
+        status: proposal.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: proposal.prompt,
+        model: 'GPT-4.1',
+        timestamp: formatTimestamp(proposal.created_at),
+        documentType: 'Proposal',
+        content: proposal.content
+      })) || [];
+
       // Combine and sort by creation date
-      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans].sort((a, b) => 
+      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals].sort((a, b) => 
         new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
       );
       
@@ -255,6 +287,23 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       )
       .subscribe();
 
+    // Real-time subscription for proposals
+    const proposalsChannel = supabase
+      .channel('proposals_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'proposals'
+        },
+        (payload) => {
+          console.log('Proposals update:', payload);
+          fetchGeneratedContent();
+        }
+      )
+      .subscribe();
+
     // Poll for stuck processing videos every 30 seconds
     const checkStuckVideos = async () => {
       const { data: session } = await supabase.auth.getSession();
@@ -295,6 +344,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       supabase.removeChannel(imagesChannel);
       supabase.removeChannel(videosChannel);
       supabase.removeChannel(businessPlansChannel);
+      supabase.removeChannel(proposalsChannel);
       clearInterval(pollInterval);
     };
   }, []);

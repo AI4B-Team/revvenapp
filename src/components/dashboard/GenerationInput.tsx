@@ -2084,6 +2084,122 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
 
+      // Generate Proposal using GPT-4.1 via OpenRouter - save to database and show in gallery
+      if (documentType === 'Proposal') {
+        onGenerationStart?.();
+
+        try {
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            toast({
+              title: "Authentication required",
+              description: "Please sign in to generate proposals",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Extract title from prompt or use default
+          const proposalTitle = prompt.trim().substring(0, 100) || 'Proposal';
+
+          // Insert a "processing" record FIRST so it shows in the gallery immediately
+          const { data: insertedProposal, error: insertError } = await supabase
+            .from('proposals')
+            .insert({
+              user_id: user.id,
+              title: proposalTitle,
+              content: '',
+              prompt: prompt.trim(),
+              status: 'processing'
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error creating proposal record:', insertError);
+            toast({
+              title: "Error",
+              description: "Failed to start proposal generation.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const proposalId = insertedProposal.id;
+
+          toast({
+            title: "Generating proposal...",
+            description: "Creating your professional proposal. This may take a moment.",
+          });
+
+          // Generate the proposal
+          console.log('Calling generate-proposal with:', { topic: prompt.trim() });
+          const { data, error } = await supabase.functions.invoke('generate-proposal', {
+            body: {
+              topic: prompt.trim(),
+              proposalType: 'Business',
+              clientName: '',
+            }
+          });
+
+          console.log('Edge function response:', { data, error });
+
+          if (error) {
+            console.error('Edge function error:', error);
+            // Update the record to error status
+            await supabase
+              .from('proposals')
+              .update({ status: 'error' })
+              .eq('id', proposalId);
+            throw error;
+          }
+
+          if (data?.content) {
+            console.log('Proposal generated. Content length:', data.content.length);
+            
+            // Update the record with content and completed status
+            const { error: updateError } = await supabase
+              .from('proposals')
+              .update({
+                content: data.content,
+                status: 'completed'
+              })
+              .eq('id', proposalId);
+
+            if (updateError) {
+              console.error('Error updating proposal:', updateError);
+            }
+
+            console.log('Proposal saved successfully!');
+            toast({
+              title: "Proposal generated!",
+              description: "Your proposal is ready to view in your creations.",
+            });
+          } else {
+            console.error('No content in response:', data);
+            // Update the record to error status
+            await supabase
+              .from('proposals')
+              .update({ status: 'error' })
+              .eq('id', proposalId);
+            toast({
+              title: "Generation failed",
+              description: data?.error || "No content was generated. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } catch (error: any) {
+          console.error('Proposal generation error:', error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate proposal. Please try again.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
       // Other document types - placeholder for now
       toast({
         title: "Coming soon",

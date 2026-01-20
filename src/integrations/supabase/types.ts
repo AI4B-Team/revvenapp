@@ -763,6 +763,39 @@ export type Database = {
         }
         Relationships: []
       }
+      proposals: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          prompt: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          prompt: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          prompt?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reference_images: {
         Row: {
           cloudinary_public_id: string | null
