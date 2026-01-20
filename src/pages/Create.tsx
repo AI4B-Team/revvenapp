@@ -51,6 +51,16 @@ import corporate from '@/assets/collections/corporate.jpg';
 import activewear from '@/assets/collections/activewear.jpg';
 import beachwear from '@/assets/collections/beachwear.jpg';
 
+// Import app tool icons
+import toolWebsiteBuilder from '@/assets/icons/tool-website-builder.png';
+import toolLandingPage from '@/assets/icons/tool-landing-page.png';
+import toolFormBuilder from '@/assets/icons/tool-form-builder.png';
+import toolChatbot from '@/assets/icons/tool-chatbot.png';
+import toolApiBuilder from '@/assets/icons/tool-api-builder.png';
+import toolAutomationFlow from '@/assets/icons/tool-automation-flow.png';
+import toolAiStory from '@/assets/icons/tool-ai-story.png';
+import toolLeadGeneration from '@/assets/icons/tool-lead-generation.png';
+
 const Create = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -735,52 +745,52 @@ const Create = () => {
       name: 'Website Builder', 
       description: 'Build custom websites',
       bgColor: 'bg-tool-blue',
-      emoji: '🌐',
+      icon: toolWebsiteBuilder,
       onClick: () => navigate('/websites')
     },
     { 
       name: 'Landing Page', 
       description: 'Create landing pages',
       bgColor: 'bg-tool-yellow',
-      emoji: '📄',
+      icon: toolLandingPage,
       onClick: () => navigate('/websites')
     },
     { 
       name: 'Form Builder', 
       description: 'Design custom forms',
       bgColor: 'bg-tool-green',
-      emoji: '📋'
+      icon: toolFormBuilder
     },
     { 
       name: 'Chat Bot', 
       description: 'Build AI chatbots',
       bgColor: 'bg-tool-blue',
-      emoji: '🤖'
+      icon: toolChatbot
     },
     { 
       name: 'API Builder', 
       description: 'Create custom APIs',
       bgColor: 'bg-tool-pink',
-      emoji: '⚡'
+      icon: toolApiBuilder
     },
     { 
       name: 'Automation Flow', 
       description: 'Build workflows',
       bgColor: 'bg-tool-yellow',
-      emoji: '🔄'
+      icon: toolAutomationFlow
     },
     { 
       name: 'AI Story', 
       description: 'Generate AI stories',
       bgColor: 'bg-tool-purple',
-      emoji: '📖',
+      icon: toolAiStory,
       onClick: () => navigate('/ai-story')
     },
     { 
       name: 'Lead Generation', 
       description: 'Generate leads from platforms',
       bgColor: 'bg-tool-green',
-      emoji: '👥',
+      icon: toolLeadGeneration,
       onClick: () => navigate('/lead-generation')
     },
   ];
