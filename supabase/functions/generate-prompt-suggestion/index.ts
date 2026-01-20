@@ -27,6 +27,7 @@ serve(async (req) => {
     const isAudio = contentType?.toLowerCase() === 'audio';
     const isDesign = contentType?.toLowerCase() === 'design';
     const isContent = contentType?.toLowerCase() === 'content';
+    const isDocument = contentType?.toLowerCase() === 'document';
     const isEbook = contentType?.toLowerCase() === 'ebook';
 
     // Mode-specific prompt guidance with examples
@@ -386,6 +387,141 @@ Return ONLY the topic/niche description in 1-2 sentences. Be specific about the 
           example: "30-day home organization challenge with room-by-room decluttering tips, storage hacks, and satisfying before/after transformations",
           type: "social_content"
         };
+      }
+
+      // DOCUMENT MODE
+      if (isDocument) {
+        switch (mode) {
+          case 'business plan':
+            return {
+              guidance: `Generate a compelling BUSINESS IDEA for a business plan.
+
+Generate ONE innovative, realistic business concept that would make an excellent business plan.
+
+MUST INCLUDE:
+- Specific business type and industry
+- Unique value proposition hint
+- Target market indication
+
+DIVERSE CATEGORIES:
+- Technology & SaaS
+- E-commerce & Retail
+- Health & Wellness
+- Food & Beverage
+- Professional Services
+- Education & Training
+- Entertainment & Media
+- Sustainability & Green Tech
+
+GOOD EXAMPLES:
+- "AI-powered personal shopping assistant for sustainable fashion brands"
+- "Subscription meal kit service for busy professionals with dietary restrictions"
+- "Mobile app connecting local farmers directly with urban consumers"
+- "Virtual reality fitness platform for home workouts"
+- "On-demand tutoring marketplace for K-12 STEM subjects"
+- "Eco-friendly packaging solutions for e-commerce businesses"
+
+Return ONLY the business idea in 1-2 sentences. Be specific and commercially viable.`,
+              example: "Subscription-based plant care service with AI diagnosis and expert consultations for urban apartment dwellers",
+              type: "business_plan_document"
+            };
+          case 'report':
+            return {
+              guidance: `Generate a professional BUSINESS REPORT topic.
+
+Generate ONE specific business or industry report topic that includes data-rich content.
+
+MUST INCLUDE:
+- Specific industry or business focus
+- Time period or comparison angle
+- Metric/KPI focus area
+
+GOOD EXAMPLES:
+- "Q4 2024 E-commerce Performance Analysis with YoY Growth Metrics"
+- "Customer Acquisition Cost Trends in SaaS Industry"
+- "Monthly Marketing ROI Report: Social Media vs Paid Advertising"
+- "Employee Productivity Analysis: Remote vs Hybrid Work Models"
+
+Return ONLY the report topic. Be specific and data-focused.`,
+              example: "Annual Revenue Performance Report with Regional Breakdown and Growth Projections",
+              type: "report_document"
+            };
+          case 'whitepaper':
+            return {
+              guidance: `Generate a thought-leadership WHITEPAPER topic.
+
+Generate ONE authoritative whitepaper topic that establishes expertise.
+
+MUST INCLUDE:
+- Specific industry challenge or opportunity
+- Research or data-backed angle
+- Forward-looking insights
+
+GOOD EXAMPLES:
+- "The Future of Generative AI in Enterprise Software Development"
+- "Sustainable Supply Chain Management: A Framework for 2025"
+- "Digital Transformation in Healthcare: Lessons from Top Performing Systems"
+
+Return ONLY the whitepaper topic. Be authoritative and research-focused.`,
+              example: "Zero-Trust Security Architecture: Implementation Strategies for Mid-Market Enterprises",
+              type: "whitepaper_document"
+            };
+          case 'case study':
+            return {
+              guidance: `Generate a compelling CASE STUDY scenario.
+
+Generate ONE success story scenario that demonstrates measurable results.
+
+MUST INCLUDE:
+- Company type or industry
+- Challenge or problem faced
+- Hint at solution area
+
+GOOD EXAMPLES:
+- "How a Regional Retailer Increased Online Sales 340% Through Omnichannel Strategy"
+- "Reducing Customer Churn by 65% Using Predictive Analytics"
+- "Manufacturing Startup Cuts Production Costs 40% with IoT Implementation"
+
+Return ONLY the case study title/topic. Focus on transformation and results.`,
+              example: "E-commerce Brand Achieves 5x ROAS Through AI-Powered Personalization",
+              type: "case_study_document"
+            };
+          case 'proposal':
+            return {
+              guidance: `Generate a professional BUSINESS PROPOSAL topic.
+
+Generate ONE compelling proposal scenario for a business engagement.
+
+MUST INCLUDE:
+- Service or solution being proposed
+- Target client type
+- Value proposition hint
+
+GOOD EXAMPLES:
+- "Digital Marketing Strategy Proposal for B2B SaaS Company"
+- "Office Space Redesign Proposal for Hybrid Workforce"
+- "Enterprise Software Implementation Proposal for Healthcare Provider"
+
+Return ONLY the proposal topic. Be professional and solution-focused.`,
+              example: "Brand Identity Refresh Proposal for Established Financial Services Firm",
+              type: "proposal_document"
+            };
+          default:
+            return {
+              guidance: `Generate a professional DOCUMENT topic.
+
+Generate ONE compelling document topic based on common business needs.
+
+GOOD EXAMPLES:
+- "Quarterly Business Review with Performance Metrics"
+- "Product Launch Strategy Document"
+- "Market Research Summary Report"
+
+Return ONLY the document topic.`,
+              example: "Annual Strategic Planning Document for Growth-Stage Startup",
+              type: "general_document"
+            };
+        }
       }
 
       // EBOOK MODE
