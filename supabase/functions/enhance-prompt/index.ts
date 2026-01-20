@@ -418,6 +418,135 @@ RULES:
 2. Add technical audio details
 3. Be specific about timing and intensity
 4. Return ONLY the enhanced prompt`;
+    } else if (mode === 'document') {
+      // Document mode enhancement based on specific document type
+      const docType = specificMode?.toLowerCase() || 'report';
+      
+      if (docType === 'report') {
+        systemPrompt = `You are a business report content generator. Generate comprehensive, realistic data and content for a professional business report infographic.
+
+MUST INCLUDE:
+- A compelling report title related to the topic
+- 3-4 key performance metrics with specific numbers (revenue, growth %, user counts, etc.)
+- 2-3 trend descriptions with percentage changes (e.g., "Revenue up 23% YoY")
+- Quarterly or monthly comparison data points
+- 2-3 key insights or findings
+- Action items or next steps
+
+OUTPUT FORMAT (as a structured prompt for image generation):
+"Professional business report infographic titled '[TITLE]'. 
+Key Metrics: [Metric 1: $X.XXM], [Metric 2: XX%], [Metric 3: XXK users].
+Trends: [Trend 1 with % change], [Trend 2 with comparison].
+Charts showing: [Chart 1 description], [Chart 2 description].
+Key Insights: [Insight 1], [Insight 2].
+Next Steps section with action items.
+Executive-level design, clean corporate aesthetic, data visualization focused."
+
+RULES:
+1. Generate realistic, plausible data based on the user's topic
+2. Use specific numbers and percentages (not placeholders)
+3. Make metrics relevant to the industry/topic
+4. Include both positive and improvement-needed metrics for realism
+5. Return ONLY the enhanced prompt for image generation`;
+      } else if (docType === 'whitepaper') {
+        systemPrompt = `You are a whitepaper content strategist. Enhance the topic into a comprehensive whitepaper outline with key data points.
+
+MUST INCLUDE:
+- Executive summary hook
+- 4-5 main chapter/section titles
+- Key statistics and research findings (with specific numbers)
+- Industry insights and trends
+- Expert quote suggestions
+- Call-to-action conclusion
+
+RULES:
+1. Make it authoritative and research-backed
+2. Include specific data points and percentages
+3. Add thought leadership angles
+4. Return the enhanced whitepaper concept`;
+      } else if (docType === 'business plan') {
+        systemPrompt = `You are a business plan strategist. Generate comprehensive business plan content based on the topic.
+
+MUST INCLUDE:
+- Executive summary with value proposition
+- Market size and opportunity (with $ figures)
+- Target customer segments with demographics
+- Revenue model with projections (Year 1-3)
+- Competitive advantages
+- Funding requirements if applicable
+- Key milestones and timeline
+
+RULES:
+1. Use realistic market data relevant to the industry
+2. Include specific financial projections
+3. Add competitive analysis points
+4. Return the enhanced business plan concept`;
+      } else if (docType === 'case study') {
+        systemPrompt = `You are a case study writer. Generate compelling case study content based on the topic.
+
+MUST INCLUDE:
+- Client/subject overview
+- The challenge or problem (with specifics)
+- The solution implemented
+- Key results with metrics (% improvements, $ savings, time reduced)
+- Testimonial/quote suggestions
+- Lessons learned
+
+RULES:
+1. Use specific, realistic metrics for results
+2. Create a compelling before/after narrative
+3. Include quantifiable outcomes
+4. Return the enhanced case study concept`;
+      } else if (docType === 'proposal') {
+        systemPrompt = `You are a proposal writer. Generate professional proposal content based on the topic.
+
+MUST INCLUDE:
+- Problem statement
+- Proposed solution overview
+- Scope of work with deliverables
+- Timeline with milestones
+- Investment/pricing structure
+- Expected outcomes and ROI
+- Terms and next steps
+
+RULES:
+1. Be specific about deliverables and timelines
+2. Include value propositions
+3. Add professional presentation elements
+4. Return the enhanced proposal concept`;
+      } else if (docType === 'ebook') {
+        systemPrompt = `You are an ebook content strategist. Generate comprehensive ebook content based on the topic.
+
+MUST INCLUDE:
+- Compelling title and subtitle
+- Chapter outline (8-12 chapters)
+- Key takeaways per chapter
+- Data points and statistics to include
+- Expert insights or quotes
+- Interactive elements suggestions
+
+RULES:
+1. Create a logical learning progression
+2. Include actionable content per chapter
+3. Add engagement hooks
+4. Return the enhanced ebook concept`;
+      } else {
+        // Default document enhancement
+        systemPrompt = `You are a document content strategist. Enhance the topic into comprehensive document content.
+
+MUST INCLUDE:
+- Clear structure and sections
+- Key data points with specific numbers
+- Visual element suggestions
+- Professional formatting hints
+- Call-to-action conclusion
+
+RULES:
+1. Generate relevant, realistic content
+2. Add specific metrics and data
+3. Keep professional tone
+4. Return the enhanced document concept`;
+      }
     } else if (fast) {
       systemPrompt = "You are a prompt refiner. Improve clarity and fix grammar of the user's prompt. Do NOT add new concepts, objects, or ideas that weren't mentioned. Keep the exact same subject matter. Return ONLY the refined prompt.";
     } else {
@@ -486,6 +615,8 @@ Bad: "A sunset on beach with people walking, seagulls flying, boats in distance"
       userMessage = `Enhance this voiceover script: "${prompt}"`;
     } else if (mode === 'sound_effects') {
       userMessage = `Enhance this sound effect description: "${prompt}"`;
+    } else if (mode === 'document') {
+      userMessage = `Generate comprehensive ${specificMode || 'document'} content for: "${prompt}"`;
     } else {
       userMessage = `Enhance this image generation prompt: "${prompt}"`;
     }
