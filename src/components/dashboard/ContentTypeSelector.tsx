@@ -29,9 +29,9 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
       key: 'Image',
       accentText: 'text-brand-blue',
       accentBg: 'bg-brand-blue/15',
-      accentBorder: 'border-brand-blue/25',
-      accentHover: 'hover:bg-brand-blue/15',
-      accentHoverBorder: 'hover:border-brand-blue/25',
+      accentBorder: 'border-brand-blue/50',
+      accentHover: 'hover:bg-brand-blue/10',
+      accentHoverBorder: 'hover:border-brand-blue/40',
     },
     {
       icon: Video,
@@ -39,9 +39,9 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
       key: 'Video',
       accentText: 'text-brand-red',
       accentBg: 'bg-brand-red/15',
-      accentBorder: 'border-brand-red/25',
-      accentHover: 'hover:bg-brand-red/15',
-      accentHoverBorder: 'hover:border-brand-red/25',
+      accentBorder: 'border-brand-red/50',
+      accentHover: 'hover:bg-brand-red/10',
+      accentHoverBorder: 'hover:border-brand-red/40',
     },
     {
       icon: Music,
@@ -49,9 +49,9 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
       key: 'Audio',
       accentText: 'text-brand-green',
       accentBg: 'bg-brand-green/15',
-      accentBorder: 'border-brand-green/25',
-      accentHover: 'hover:bg-brand-green/15',
-      accentHoverBorder: 'hover:border-brand-green/25',
+      accentBorder: 'border-brand-green/50',
+      accentHover: 'hover:bg-brand-green/10',
+      accentHoverBorder: 'hover:border-brand-green/40',
     },
     {
       icon: Palette,
@@ -59,9 +59,9 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
       key: 'Design',
       accentText: 'text-brand-yellow',
       accentBg: 'bg-brand-yellow/15',
-      accentBorder: 'border-brand-yellow/25',
-      accentHover: 'hover:bg-brand-yellow/15',
-      accentHoverBorder: 'hover:border-brand-yellow/25',
+      accentBorder: 'border-brand-yellow/50',
+      accentHover: 'hover:bg-brand-yellow/10',
+      accentHoverBorder: 'hover:border-brand-yellow/40',
     },
     {
       icon: Calendar,
@@ -69,9 +69,9 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
       key: 'Content',
       accentText: 'text-brand-purple',
       accentBg: 'bg-brand-purple/15',
-      accentBorder: 'border-brand-purple/25',
-      accentHover: 'hover:bg-brand-purple/15',
-      accentHoverBorder: 'hover:border-brand-purple/25',
+      accentBorder: 'border-brand-purple/50',
+      accentHover: 'hover:bg-brand-purple/10',
+      accentHoverBorder: 'hover:border-brand-purple/40',
     },
     {
       icon: FileText,
@@ -79,9 +79,9 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
       key: 'Document',
       accentText: 'text-brand-blue',
       accentBg: 'bg-brand-blue/15',
-      accentBorder: 'border-brand-blue/25',
-      accentHover: 'hover:bg-brand-blue/15',
-      accentHoverBorder: 'hover:border-brand-blue/25',
+      accentBorder: 'border-brand-blue/50',
+      accentHover: 'hover:bg-brand-blue/10',
+      accentHoverBorder: 'hover:border-brand-blue/40',
     },
     {
       icon: Code,
@@ -89,9 +89,9 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
       key: 'Apps',
       accentText: 'text-brand-red',
       accentBg: 'bg-brand-red/15',
-      accentBorder: 'border-brand-red/25',
-      accentHover: 'hover:bg-brand-red/15',
-      accentHoverBorder: 'hover:border-brand-red/25',
+      accentBorder: 'border-brand-red/50',
+      accentHover: 'hover:bg-brand-red/10',
+      accentHoverBorder: 'hover:border-brand-red/40',
     },
   ];
 
@@ -111,7 +111,7 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
                 'px-5 py-3 rounded-xl transition-colors flex items-center gap-2 border text-sm font-medium text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
                 isSelected
                   ? cn(type.accentBg, type.accentBorder)
-                  : cn('bg-white dark:bg-card border-border', type.accentHover, type.accentHoverBorder)
+                  : cn('bg-white dark:bg-card border-slate-300 dark:border-border', type.accentHover, type.accentHoverBorder)
               )}
             >
               <type.icon size={18} className={type.accentText} />
