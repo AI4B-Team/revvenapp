@@ -1740,7 +1740,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 </div>
                 
                 {/* Labels Filters */}
-                <div className="px-6 py-4 min-w-[180px]">
+                <div className="px-6 py-4 min-w-[220px]">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-sm font-medium text-foreground">Labels</h4>
                     <button 
