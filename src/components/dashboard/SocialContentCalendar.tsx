@@ -154,11 +154,11 @@ const STATUS_OPTIONS = [
 ];
 
 const LABEL_OPTIONS = [
-  { id: 'influencer', label: 'INFLUENCER', color: 'bg-slate-800 dark:bg-slate-700', dotColor: 'bg-slate-800 dark:bg-slate-400', bgColor: 'bg-slate-100 dark:bg-slate-800/50' },
-  { id: 'educational', label: 'EDUCATIONAL', color: 'bg-blue-600', dotColor: 'bg-blue-600 dark:bg-blue-400', bgColor: 'bg-blue-100 dark:bg-blue-900/50' },
-  { id: 'promotional', label: 'PROMOTIONAL', color: 'bg-purple-600', dotColor: 'bg-purple-600 dark:bg-purple-400', bgColor: 'bg-purple-100 dark:bg-purple-900/50' },
-  { id: 'engagement', label: 'ENGAGEMENT', color: 'bg-pink-600', dotColor: 'bg-pink-600 dark:bg-pink-400', bgColor: 'bg-pink-100 dark:bg-pink-900/50' },
-  { id: 'behind-scenes', label: 'BEHIND THE SCENES', color: 'bg-amber-600', dotColor: 'bg-amber-600 dark:bg-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-900/50' },
+  { id: 'influencer', label: 'INFLUENCER', color: 'bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600', dotColor: 'bg-slate-800 dark:bg-slate-400', bgColor: 'bg-slate-100 dark:bg-slate-800/50' },
+  { id: 'educational', label: 'EDUCATIONAL', color: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700', dotColor: 'bg-blue-600 dark:bg-blue-400', bgColor: 'bg-blue-100 dark:bg-blue-900/50' },
+  { id: 'promotional', label: 'PROMOTIONAL', color: 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700', dotColor: 'bg-purple-600 dark:bg-purple-400', bgColor: 'bg-purple-100 dark:bg-purple-900/50' },
+  { id: 'engagement', label: 'ENGAGEMENT', color: 'bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-700', dotColor: 'bg-pink-600 dark:bg-pink-400', bgColor: 'bg-pink-100 dark:bg-pink-900/50' },
+  { id: 'behind-scenes', label: 'BEHIND THE SCENES', color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700', dotColor: 'bg-amber-600 dark:bg-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-900/50' },
 ];
 
 const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({ 
@@ -1757,7 +1757,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                           checked={filters.labels.includes(label.id)}
                           onCheckedChange={() => toggleLabelFilter(label.id)}
                         />
-                        <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${label.color} text-white`}>
+                        <span className={`text-[10px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${label.color}`}>
                           {label.label}
                         </span>
                       </label>
