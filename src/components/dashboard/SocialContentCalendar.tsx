@@ -1562,9 +1562,9 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="bottom" className="bg-popover border-border z-50">
-              <DropdownMenuItem onClick={() => setTimeRange('day')}>Day</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimeRange('week')}>Week</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimeRange('month')}>Month</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimeRange('day')} className={timeRange === 'day' ? 'bg-secondary font-medium' : ''}>Day</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimeRange('week')} className={timeRange === 'week' ? 'bg-secondary font-medium' : ''}>Week</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimeRange('month')} className={timeRange === 'month' ? 'bg-secondary font-medium' : ''}>Month</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
