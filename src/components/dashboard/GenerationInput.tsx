@@ -188,6 +188,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isEbookLanguagePopoverOpen, setIsEbookLanguagePopoverOpen] = useState(false);
   const [isEbookTonePopoverOpen, setIsEbookTonePopoverOpen] = useState(false);
   const [isEbookChaptersPopoverOpen, setIsEbookChaptersPopoverOpen] = useState(false);
+  const [isEbookReferenceActive, setIsEbookReferenceActive] = useState(false);
 
   // Design mode state
   const [selectedDesignType, setSelectedDesignType] = useState('');
@@ -1885,6 +1886,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           description: "Please describe the document you want to create",
           variant: "destructive",
         });
+        return;
+      }
+
+      // Handle Ebook - redirect to ebook creator with prompt
+      if (documentType === 'Ebook') {
+        // Navigate to ebook creator with prompt and settings as query params
+        const params = new URLSearchParams({
+          source: 'ai-generate',
+          prompt: prompt.trim(),
+          language: ebookLanguage,
+          tone: ebookTone,
+          chapters: ebookChapters.toString(),
+        });
+        navigate(`/ebook-creator/new?${params.toString()}`);
         return;
       }
 
@@ -8684,13 +8699,30 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                {/* Ebook-specific controls - Language, Tone, Chapters */}
+                {/* Ebook-specific controls - Reference, Language, Tone, Chapters */}
                 {documentType === 'Ebook' && (
                   <>
                     {/* Separator */}
                     <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
 
-                    {/* Language Dropdown */}
+                    {/* Reference Button */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setIsEbookReferenceActive(!isEbookReferenceActive)}
+                          className={`p-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                            isEbookReferenceActive 
+                              ? 'bg-brand-green/15 text-foreground' 
+                              : 'bg-secondary text-muted-foreground'
+                          }`}
+                        >
+                          <ReferenceLinkIcon size={16} className="text-muted-foreground" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Reference</TooltipContent>
+                    </Tooltip>
+
+                    {/* Language Dropdown with Flags */}
                     <Popover open={isEbookLanguagePopoverOpen} onOpenChange={setIsEbookLanguagePopoverOpen}>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -8700,7 +8732,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 ? 'bg-brand-blue/15 text-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}>
-                              <Globe size={16} className="text-muted-foreground" />
+                              <span className="text-base">{
+                                { 'English': '🇺🇸', 'Spanish': '🇪🇸', 'French': '🇫🇷', 'German': '🇩🇪', 'Italian': '🇮🇹', 'Portuguese': '🇵🇹', 'Dutch': '🇳🇱', 'Russian': '🇷🇺', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷', 'Arabic': '🇸🇦', 'Hindi': '🇮🇳' }[ebookLanguage] || '🌐'
+                              }</span>
                               {ebookLanguage}
                               {ebookLanguage !== 'English' && (
                                 <X 
@@ -8720,14 +8754,29 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <PopoverContent className="w-48 bg-background border-border z-50">
                         <div className="space-y-1">
                           <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Language</p>
-                          {['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Dutch', 'Russian', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'].map((lang) => (
+                          {[
+                            { name: 'English', flag: '🇺🇸' },
+                            { name: 'Spanish', flag: '🇪🇸' },
+                            { name: 'French', flag: '🇫🇷' },
+                            { name: 'German', flag: '🇩🇪' },
+                            { name: 'Italian', flag: '🇮🇹' },
+                            { name: 'Portuguese', flag: '🇵🇹' },
+                            { name: 'Dutch', flag: '🇳🇱' },
+                            { name: 'Russian', flag: '🇷🇺' },
+                            { name: 'Chinese', flag: '🇨🇳' },
+                            { name: 'Japanese', flag: '🇯🇵' },
+                            { name: 'Korean', flag: '🇰🇷' },
+                            { name: 'Arabic', flag: '🇸🇦' },
+                            { name: 'Hindi', flag: '🇮🇳' }
+                          ].map((lang) => (
                             <button 
-                              key={lang}
-                              onClick={() => { setEbookLanguage(lang); setIsEbookLanguagePopoverOpen(false); }}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${ebookLanguage === lang ? 'bg-secondary' : ''}`}
+                              key={lang.name}
+                              onClick={() => { setEbookLanguage(lang.name); setIsEbookLanguagePopoverOpen(false); }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${ebookLanguage === lang.name ? 'bg-secondary' : ''}`}
                             >
-                              {lang}
-                              {ebookLanguage === lang && <Check size={14} className="ml-auto text-brand-green" />}
+                              <span>{lang.flag}</span>
+                              {lang.name}
+                              {ebookLanguage === lang.name && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                           ))}
                         </div>
@@ -8744,7 +8793,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 ? 'bg-brand-purple/15 text-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}>
-                              <Wand2 size={16} className="text-muted-foreground" />
+                              <MessageCircle size={16} className="text-muted-foreground" />
                               {ebookTone}
                               {ebookTone !== 'Professional' && (
                                 <X 
@@ -10524,23 +10573,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         </div>
       )}
 
-      {/* Ebook Source Options - Only visible when Ebook is selected in Document mode */}
-      {isDocumentMode && documentType === 'Ebook' && (
+      {/* Ebook Source Options - Only visible when Reference button is active */}
+      {isDocumentMode && documentType === 'Ebook' && isEbookReferenceActive && (
         <div className="flex justify-center mt-6 w-full max-w-[900px] mx-auto">
           <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border w-full">
             <div className="flex items-center justify-center gap-4">
-            {/* Start With AI */}
-            <button
-              onClick={() => navigate('/ebook-creator/new?source=ai-generate')}
-              className="group flex flex-col items-center gap-2 px-6 py-4 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50 hover:bg-emerald-100 transition-all duration-200 min-w-[140px]"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 group-hover:from-emerald-200 group-hover:to-emerald-300 flex items-center justify-center transition-all">
-                <Sparkles className="w-6 h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
-              </div>
-              <span className="text-sm font-medium text-gray-900">Start With AI</span>
-              <span className="text-[10px] px-2 py-0.5 bg-emerald-200 text-emerald-700 rounded-full font-medium">Recommended</span>
-            </button>
-
             {/* Upload File */}
             <button
               onClick={() => {
