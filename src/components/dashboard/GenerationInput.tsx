@@ -5438,17 +5438,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Type Dropdown for Video */}
                   <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-90 transition ${
+                      <button className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition border ${
                         selectedAnimateMode 
-                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                          : 'bg-secondary text-foreground'
+                          ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                          : 'bg-white dark:bg-card text-foreground border-gray-200 dark:border-border'
                       }`}>
                         {(() => {
                           const currentMode = animateModes.find(m => m.value === selectedAnimateMode);
                           const IconComponent = currentMode?.icon || LayoutGrid;
                           return <IconComponent size={16} className={selectedAnimateMode ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'} />;
                         })()}
-{selectedAnimateMode ? (
+                        {selectedAnimateMode ? (
                           <>
                             {animateModes.find(m => m.value === selectedAnimateMode)?.label}
                             <span 
@@ -5473,7 +5473,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             </span>
                           </>
                         ) : (
-                          'Type'
+                          <>
+                            <span>Type</span>
+                            <ChevronDown size={14} className="text-muted-foreground" />
+                          </>
                         )}
                       </button>
                     </DropdownMenuTrigger>
@@ -9219,16 +9222,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <button
                   onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
                   aria-expanded={isCreateModeDropdownOpen}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 border ${
                     selectedCreateMode 
-                      ? 'bg-brand-green/15 text-foreground'
-                      : 'bg-secondary text-foreground'
+                      ? 'bg-brand-green/10 text-foreground border-brand-green/30'
+                      : 'bg-white dark:bg-card text-foreground border-gray-200 dark:border-border'
                   }`}
                 >
                   {(() => {
                     const currentMode = createModes.find(m => m.value === selectedCreateMode);
                     const IconComponent = currentMode?.icon || LayoutGrid;
-                    return <IconComponent size={16} className="text-muted-foreground" />;
+                    return <IconComponent size={16} className={selectedCreateMode ? 'text-brand-green' : 'text-muted-foreground'} />;
                   })()}
                   {selectedCreateMode ? (
                     <>
@@ -9243,7 +9246,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       />
                     </>
                   ) : (
-                    <span>Type</span>
+                    <>
+                      <span>Type</span>
+                      <ChevronDown size={14} className="text-muted-foreground" />
+                    </>
                   )}
                 </button>
 

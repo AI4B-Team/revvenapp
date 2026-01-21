@@ -71,24 +71,23 @@ interface IntentSelectorProps {
 
 const IntentSelector = ({ selectedIntent, onIntentChange }: IntentSelectorProps) => {
   return (
-    <div className="flex flex-wrap justify-center gap-4">
+    <div className="flex flex-wrap justify-center gap-3">
       {intents.map((intent) => {
         const isSelected = selectedIntent === intent.label;
-        const isResearchSelected = isSelected && intent.label === 'Research';
         
         return (
           <button
             key={intent.label}
             onClick={() => onIntentChange(isSelected ? null : intent.label)}
             className={cn(
-              "flex items-center gap-2.5 px-7 py-3.5 text-[15px] font-medium rounded-xl border transition-all duration-200",
+              "flex items-center gap-2.5 px-6 py-2.5 text-sm font-medium rounded-full border transition-all duration-200",
               isSelected
                 ? cn(intent.selectedBg, intent.selectedBorder, intent.selectedTextColor)
-                : cn("bg-white border-gray-200 text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.04)]", intent.hoverBg, intent.hoverBorder)
+                : cn("bg-white border-gray-200 text-slate-600 hover:border-gray-300", intent.hoverBg)
             )}
           >
             <intent.icon 
-              size={18} 
+              size={16} 
               className={isSelected ? intent.selectedIconColor : intent.iconColor} 
             />
             <span>{intent.label}</span>
