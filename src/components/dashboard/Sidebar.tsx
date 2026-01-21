@@ -128,15 +128,9 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     { icon: <UserCircle size={18} />, label: 'Voices', color: 'text-brand-blue' },
   ];
 
-  const designNavItems = [
-    { icon: <Sparkles size={18} />, label: 'Create', color: 'text-brand-green' },
-    { icon: <Edit size={18} />, label: 'Edit', color: 'text-brand-blue' },
-  ];
+  const designNavItems: Array<{ icon: JSX.Element; label: string; color: string }> = [];
 
-  const contentNavItems = [
-    { icon: <FileText size={18} />, label: 'Create', color: 'text-brand-green' },
-    { icon: <Edit size={18} />, label: 'Edit', color: 'text-brand-blue' },
-  ];
+  const contentNavItems: Array<{ icon: JSX.Element; label: string; color: string }> = [];
 
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
 
