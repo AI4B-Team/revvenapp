@@ -8699,11 +8699,41 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                {/* Ebook-specific controls - Reference, Language, Tone, Chapters */}
+                {/* Ebook-specific controls - Model, Reference, Language, Tone, Chapters */}
                 {documentType === 'Ebook' && (
                   <>
                     {/* Separator */}
                     <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+
+                    {/* Model Dropdown */}
+                    <Popover>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 bg-secondary text-muted-foreground">
+                              <Box size={16} className="text-muted-foreground" />
+                              Auto
+                              <ChevronDown size={14} className="text-muted-foreground" />
+                            </button>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>Model</TooltipContent>
+                      </Tooltip>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Model</p>
+                          {['Auto', 'GPT-5', 'Gemini Pro', 'Claude'].map((model) => (
+                            <button 
+                              key={model}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 bg-secondary"
+                            >
+                              {model}
+                              {model === 'Auto' && <Check size={14} className="ml-auto text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
                     {/* Reference Button */}
                     <Tooltip>
@@ -8837,8 +8867,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 ? 'bg-brand-green/15 text-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}>
-                              <Hash size={16} className="text-muted-foreground" />
-                              {ebookChapters} Chapters
+                              <BookOpen size={16} className="text-muted-foreground" />
+                              Chapters
                               {ebookChapters !== 10 && (
                                 <X 
                                   size={14} 
@@ -8856,7 +8886,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Tooltip>
                       <PopoverContent className="w-48 bg-background border-border z-50">
                         <div className="space-y-1">
-                          <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Chapters</p>
+                          <p className="text-xs font-medium text-muted-foreground px-3 py-1.5"># Of Chapters</p>
                           {[5, 7, 10, 12, 15, 20].map((num) => (
                             <button 
                               key={num}
