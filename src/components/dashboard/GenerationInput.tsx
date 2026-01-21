@@ -178,6 +178,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [ebookLinkInput, setEbookLinkInput] = useState('');
   const [ebookIsRecording, setEbookIsRecording] = useState(false);
   const ebookFileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Ebook-specific settings state
+  const [ebookLanguage, setEbookLanguage] = useState('English');
+  const [ebookTone, setEbookTone] = useState('Professional');
+  const [ebookChapters, setEbookChapters] = useState(10);
+  const [isEbookLanguagePopoverOpen, setIsEbookLanguagePopoverOpen] = useState(false);
+  const [isEbookTonePopoverOpen, setIsEbookTonePopoverOpen] = useState(false);
+  const [isEbookChaptersPopoverOpen, setIsEbookChaptersPopoverOpen] = useState(false);
 
   // Design mode state
   const [selectedDesignType, setSelectedDesignType] = useState('');
@@ -8634,24 +8642,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <PopoverContent className="w-56 bg-background border-border z-50">
                     <div className="space-y-1">
                       {[
-                        { label: 'Ebook', icon: BookOpen, color: 'text-brand-blue', path: '/ebook-creator' },
-                        { label: 'Whitepaper', icon: FileText, color: 'text-brand-purple', path: '/document/whitepaper' },
-                        { label: 'Report', icon: LayoutList, color: 'text-brand-green', path: '/document/report' },
-                        { label: 'Business Plan', icon: Presentation, color: 'text-brand-yellow', path: '/document/business-plan' },
-                        { label: 'Handbook', icon: Package, color: 'text-brand-red', path: '/document/handbook' },
-                        { label: 'Proposal', icon: FileText, color: 'text-brand-blue', path: '/document/proposal' },
-                        { label: 'Case Study', icon: LayoutList, color: 'text-brand-pink', path: '/document/case-study' },
-                        { label: 'Cover Letter', icon: FileText, color: 'text-brand-green', path: '/document/cover-letter' },
+                        { label: 'Ebook', icon: BookOpen, color: 'text-brand-blue' },
+                        { label: 'Whitepaper', icon: FileText, color: 'text-brand-purple' },
+                        { label: 'Report', icon: LayoutList, color: 'text-brand-green' },
+                        { label: 'Business Plan', icon: Presentation, color: 'text-brand-yellow' },
+                        { label: 'Handbook', icon: Package, color: 'text-brand-red' },
+                        { label: 'Proposal', icon: FileText, color: 'text-brand-blue' },
+                        { label: 'Case Study', icon: LayoutList, color: 'text-brand-pink' },
+                        { label: 'Cover Letter', icon: FileText, color: 'text-brand-green' },
                       ].map((item) => (
                         <button 
                           key={item.label}
                           onClick={() => {
-                            if (item.label === 'Ebook') {
-                              navigate(item.path);
-                            } else {
-                              setDocumentType(item.label);
-                              setIsDocumentTypeDropdownOpen(false);
-                            }
+                            setDocumentType(item.label);
+                            setIsDocumentTypeDropdownOpen(false);
                           }}
                           className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${
                             documentType === item.label ? 'bg-secondary' : ''
@@ -8664,6 +8668,146 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </div>
                   </PopoverContent>
                 </Popover>
+
+                {/* Ebook-specific controls - Language, Tone, Chapters */}
+                {documentType === 'Ebook' && (
+                  <>
+                    {/* Separator */}
+                    <div className="w-px h-8 bg-slate-200 mx-2 flex-shrink-0" />
+
+                    {/* Language Dropdown */}
+                    <Popover open={isEbookLanguagePopoverOpen} onOpenChange={setIsEbookLanguagePopoverOpen}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                              ebookLanguage !== 'English' 
+                                ? 'bg-brand-blue/15 text-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}>
+                              <Globe size={16} className="text-muted-foreground" />
+                              {ebookLanguage}
+                              {ebookLanguage !== 'English' && (
+                                <X 
+                                  size={14} 
+                                  className="text-muted-foreground hover:text-foreground cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEbookLanguage('English');
+                                  }}
+                                />
+                              )}
+                            </button>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>Language</TooltipContent>
+                      </Tooltip>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Language</p>
+                          {['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Dutch', 'Russian', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'].map((lang) => (
+                            <button 
+                              key={lang}
+                              onClick={() => { setEbookLanguage(lang); setIsEbookLanguagePopoverOpen(false); }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${ebookLanguage === lang ? 'bg-secondary' : ''}`}
+                            >
+                              {lang}
+                              {ebookLanguage === lang && <Check size={14} className="ml-auto text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Tone Dropdown */}
+                    <Popover open={isEbookTonePopoverOpen} onOpenChange={setIsEbookTonePopoverOpen}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                              ebookTone !== 'Professional' 
+                                ? 'bg-brand-purple/15 text-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}>
+                              <Wand2 size={16} className="text-muted-foreground" />
+                              {ebookTone}
+                              {ebookTone !== 'Professional' && (
+                                <X 
+                                  size={14} 
+                                  className="text-muted-foreground hover:text-foreground cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEbookTone('Professional');
+                                  }}
+                                />
+                              )}
+                            </button>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>Tone</TooltipContent>
+                      </Tooltip>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Tone</p>
+                          {['Professional', 'Casual', 'Academic', 'Conversational', 'Authoritative', 'Inspirational', 'Humorous', 'Storytelling'].map((tone) => (
+                            <button 
+                              key={tone}
+                              onClick={() => { setEbookTone(tone); setIsEbookTonePopoverOpen(false); }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${ebookTone === tone ? 'bg-secondary' : ''}`}
+                            >
+                              {tone}
+                              {ebookTone === tone && <Check size={14} className="ml-auto text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Chapters Dropdown */}
+                    <Popover open={isEbookChaptersPopoverOpen} onOpenChange={setIsEbookChaptersPopoverOpen}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                              ebookChapters !== 10 
+                                ? 'bg-brand-green/15 text-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}>
+                              <Hash size={16} className="text-muted-foreground" />
+                              {ebookChapters} Chapters
+                              {ebookChapters !== 10 && (
+                                <X 
+                                  size={14} 
+                                  className="text-muted-foreground hover:text-foreground cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEbookChapters(10);
+                                  }}
+                                />
+                              )}
+                            </button>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>Number of Chapters</TooltipContent>
+                      </Tooltip>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Chapters</p>
+                          {[5, 7, 10, 12, 15, 20].map((num) => (
+                            <button 
+                              key={num}
+                              onClick={() => { setEbookChapters(num); setIsEbookChaptersPopoverOpen(false); }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${ebookChapters === num ? 'bg-secondary' : ''}`}
+                            >
+                              {num} Chapters
+                              {ebookChapters === num && <Check size={14} className="ml-auto text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </>
+                )}
 
               </>
             ) : isAppsMode ? (
