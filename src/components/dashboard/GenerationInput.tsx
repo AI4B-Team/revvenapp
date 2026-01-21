@@ -184,7 +184,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Ebook-specific settings state
   const [ebookLanguage, setEbookLanguage] = useState('English');
   const [ebookTone, setEbookTone] = useState('Professional');
-  const [ebookChapters, setEbookChapters] = useState(10);
+  const [ebookChapters, setEbookChapters] = useState<number | null>(null);
   const [isEbookLanguagePopoverOpen, setIsEbookLanguagePopoverOpen] = useState(false);
   const [isEbookTonePopoverOpen, setIsEbookTonePopoverOpen] = useState(false);
   const [isEbookChaptersPopoverOpen, setIsEbookChaptersPopoverOpen] = useState(false);
@@ -1897,7 +1897,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           prompt: prompt.trim(),
           language: ebookLanguage,
           tone: ebookTone,
-          chapters: ebookChapters.toString(),
+          chapters: (ebookChapters ?? 10).toString(),
         });
         navigate(`/ebook-creator/new?${params.toString()}`);
         return;
@@ -8742,7 +8742,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           onClick={() => setIsEbookReferenceActive(!isEbookReferenceActive)}
                           className={`p-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
                             isEbookReferenceActive 
-                              ? 'bg-brand-green/15 text-foreground' 
+                              ? 'bg-secondary text-foreground' 
                               : 'bg-secondary text-muted-foreground'
                           }`}
                         >
@@ -8863,19 +8863,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <PopoverTrigger asChild>
                             <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
-                              ebookChapters !== 10 
+                              ebookChapters !== null 
                                 ? 'bg-brand-green/15 text-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}>
                               <BookOpen size={16} className="text-muted-foreground" />
-                              Chapters
-                              {ebookChapters !== 10 && (
+                              {ebookChapters !== null ? `${ebookChapters} Chapters` : 'Chapters'}
+                              {ebookChapters !== null && (
                                 <X 
                                   size={14} 
                                   className="text-muted-foreground hover:text-foreground cursor-pointer"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setEbookChapters(10);
+                                    setEbookChapters(null);
                                   }}
                                 />
                               )}
