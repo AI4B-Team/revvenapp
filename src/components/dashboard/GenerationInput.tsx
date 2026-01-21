@@ -145,6 +145,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [showSocialButtons, setShowSocialButtons] = useState(true);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [contentType, setContentType] = useState('');
+  const [isContentTypePopoverOpen, setIsContentTypePopoverOpen] = useState(false);
   const [contentGoal, setContentGoal] = useState('Engagement');
   const [contentLanguage, setContentLanguage] = useState('English');
   const [contentTabView, setContentTabView] = useState<'calendar' | 'plan'>('calendar');
@@ -8214,7 +8215,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               <>
                 {/* Content Mode Controls */}
                 {/* Type Dropdown - Only show icon when selected */}
-                <Popover>
+                <Popover open={isContentTypePopoverOpen} onOpenChange={setIsContentTypePopoverOpen}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
@@ -8247,21 +8248,31 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <PopoverContent className="w-48 bg-background border-border z-50">
                     <div className="space-y-1">
                       <button 
-                        onClick={() => { setContentType(contentType === 'Article' ? '' : 'Article'); }}
+                        onClick={() => { 
+                          setContentType(contentType === 'Article' ? '' : 'Article'); 
+                          setIsContentTypePopoverOpen(false);
+                        }}
                         className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30' : ''}`}
                       >
                         <FileText size={16} className="text-blue-600 dark:text-blue-400" />
                         Article
                       </button>
                       <button 
-                        onClick={() => { setContentType(contentType === 'Newsletter' ? '' : 'Newsletter'); }}
+                        onClick={() => { 
+                          setContentType(contentType === 'Newsletter' ? '' : 'Newsletter'); 
+                          setIsContentTypePopoverOpen(false);
+                        }}
                         className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Newsletter' ? 'bg-purple-100 dark:bg-purple-900/30' : ''}`}
                       >
                         <Send size={16} className="text-purple-600 dark:text-purple-400" />
                         Newsletter
                       </button>
                       <button 
-                        onClick={() => { setContentType(contentType === 'Social' ? '' : 'Social'); setShowSocialButtons(true); }}
+                        onClick={() => { 
+                          setContentType(contentType === 'Social' ? '' : 'Social'); 
+                          setShowSocialButtons(true); 
+                          setIsContentTypePopoverOpen(false);
+                        }}
                         className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30' : ''}`}
                       >
                         <Share2 size={16} className="text-green-600 dark:text-green-400" />
