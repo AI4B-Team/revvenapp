@@ -2009,11 +2009,11 @@ const AIVAPromptBox = ({
                               onClick={() => toggleDropdown('content-post-type')}
                               className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
                             >
-                              {contentPostType === 'Single Image' && <ImageIcon size={16} className="text-emerald-500" />}
-                              {contentPostType === 'Carousel' && <GalleryHorizontal size={16} className="text-blue-500" />}
-                              {contentPostType === 'Videos' && <Video size={16} className="text-purple-500" />}
-                              {contentPostType === 'Voiceover Videos' && <Mic size={16} className="text-rose-500" />}
-                              {contentPostType === 'Avatar Videos' && <UserCircle size={16} className="text-violet-500" />}
+                              {contentPostType === 'Single Image' && <ImageIcon size={16} className="text-muted-foreground" />}
+                              {contentPostType === 'Carousel' && <GalleryHorizontal size={16} className="text-muted-foreground" />}
+                              {contentPostType === 'Videos' && <Video size={16} className="text-muted-foreground" />}
+                              {contentPostType === 'Voiceover Videos' && <Mic size={16} className="text-muted-foreground" />}
+                              {contentPostType === 'Avatar Videos' && <UserCircle size={16} className="text-muted-foreground" />}
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>Post Type</TooltipContent>
@@ -2021,11 +2021,11 @@ const AIVAPromptBox = ({
                         {activeDropdown === 'content-post-type' && (
                           <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px]">
                             {[
-                              { value: 'Single Image', icon: ImageIcon, color: 'text-emerald-500' },
-                              { value: 'Carousel', icon: GalleryHorizontal, color: 'text-blue-500' },
-                              { value: 'Videos', icon: Video, color: 'text-purple-500' },
-                              { value: 'Voiceover Videos', icon: Mic, color: 'text-rose-500' },
-                              { value: 'Avatar Videos', icon: UserCircle, color: 'text-violet-500' },
+                              { value: 'Single Image', icon: ImageIcon, color: 'text-muted-foreground' },
+                              { value: 'Carousel', icon: GalleryHorizontal, color: 'text-muted-foreground' },
+                              { value: 'Videos', icon: Video, color: 'text-muted-foreground' },
+                              { value: 'Voiceover Videos', icon: Mic, color: 'text-muted-foreground' },
+                              { value: 'Avatar Videos', icon: UserCircle, color: 'text-muted-foreground' },
                             ].map((type) => (
                               <button 
                                 key={type.value}
@@ -2037,7 +2037,7 @@ const AIVAPromptBox = ({
                               >
                                 <type.icon size={16} className={type.color} />
                                 {type.value}
-                                {contentPostType === type.value && <Check size={14} className="ml-auto text-emerald-500" />}
+                                {contentPostType === type.value && <Check size={14} className="ml-auto text-brand-green" />}
                               </button>
                             ))}
                           </div>
@@ -2052,7 +2052,7 @@ const AIVAPromptBox = ({
                               onClick={() => toggleDropdown('content-goal')}
                               className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
                             >
-                              <Flag size={16} className="text-orange-500" />
+                              <Flag size={16} className="text-muted-foreground" />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>Goal</TooltipContent>
@@ -2069,7 +2069,7 @@ const AIVAPromptBox = ({
                                 )}
                               >
                                 {goal}
-                                {contentGoal === goal && <Check size={14} className="text-emerald-500" />}
+                                {contentGoal === goal && <Check size={14} className="text-brand-green" />}
                               </button>
                             ))}
                           </div>
@@ -2084,7 +2084,7 @@ const AIVAPromptBox = ({
                               onClick={() => toggleDropdown('content-language')}
                               className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
                             >
-                              <Languages size={16} className="text-blue-500" />
+                              <Languages size={16} className="text-muted-foreground" />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>Language</TooltipContent>
@@ -2184,7 +2184,7 @@ const AIVAPromptBox = ({
                                 <span className="font-medium">Auto</span>
                                 <p className="text-xs text-slate-400">AI picks best times</p>
                               </div>
-                              {contentTime === 'Auto' && <Check size={14} className="text-emerald-500" />}
+                              {contentTime === 'Auto' && <Check size={14} className="text-brand-green" />}
                             </button>
                             <div className="border-t border-slate-100 pt-2 mt-2">
                               {['9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '8:00 PM'].map((time) => (
@@ -2200,7 +2200,7 @@ const AIVAPromptBox = ({
                                     <Clock size={14} className="text-slate-400" />
                                     {time}
                                   </span>
-                                  {contentTime === time && <Check size={14} className="text-emerald-500" />}
+                                    {contentTime === time && <Check size={14} className="text-brand-green" />}
                                 </button>
                               ))}
                             </div>
@@ -2216,7 +2216,7 @@ const AIVAPromptBox = ({
                               onClick={() => toggleDropdown('content-style')}
                               className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
                             >
-                              <Brush size={16} className="text-purple-500" />
+                              <Brush size={16} className="text-muted-foreground" />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>Style</TooltipContent>
@@ -2230,9 +2230,9 @@ const AIVAPromptBox = ({
                                 contentStyle === 'AI Generated' && "bg-emerald-50 text-emerald-700"
                               )}
                             >
-                              <Sparkles size={16} className="text-violet-500" />
+                              <Sparkles size={16} className="text-muted-foreground" />
                               AI Generated
-                              {contentStyle === 'AI Generated' && <Check size={14} className="ml-auto text-emerald-500" />}
+                              {contentStyle === 'AI Generated' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                             <button 
                               onClick={() => { setContentStyle('Stock'); setActiveDropdown(null); }}
@@ -2241,9 +2241,9 @@ const AIVAPromptBox = ({
                                 contentStyle === 'Stock' && "bg-emerald-50 text-emerald-700"
                               )}
                             >
-                              <ImageIcon size={16} className="text-blue-500" />
+                              <ImageIcon size={16} className="text-muted-foreground" />
                               Stock
-                              {contentStyle === 'Stock' && <Check size={14} className="ml-auto text-emerald-500" />}
+                              {contentStyle === 'Stock' && <Check size={14} className="ml-auto text-brand-green" />}
                             </button>
                           </div>
                         )}
@@ -2254,7 +2254,7 @@ const AIVAPromptBox = ({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center gap-2">
-                              <BadgeCheck size={16} className="text-amber-500" />
+                              <BadgeCheck size={16} className="text-muted-foreground" />
                               <span className="text-xs text-slate-500 whitespace-nowrap">Brand</span>
                               <Switch 
                                 checked={brandDistillsEnabled} 

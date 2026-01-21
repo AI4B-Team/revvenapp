@@ -8269,11 +8269,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          {contentPostType === 'Single Image' && <ImageIcon size={16} className="text-emerald-500" />}
-                          {contentPostType === 'Carousel' && <GalleryHorizontal size={16} className="text-blue-500" />}
-                          {contentPostType === 'Videos' && <Video size={16} className="text-purple-500" />}
-                          {contentPostType === 'Voiceover Videos' && <Mic size={16} className="text-rose-500" />}
-                          {contentPostType === 'Avatar Videos' && <UserCircle size={16} className="text-violet-500" />}
+                          {contentPostType === 'Single Image' && <ImageIcon size={16} className="text-muted-foreground" />}
+                          {contentPostType === 'Carousel' && <GalleryHorizontal size={16} className="text-muted-foreground" />}
+                          {contentPostType === 'Videos' && <Video size={16} className="text-muted-foreground" />}
+                          {contentPostType === 'Voiceover Videos' && <Mic size={16} className="text-muted-foreground" />}
+                          {contentPostType === 'Avatar Videos' && <UserCircle size={16} className="text-muted-foreground" />}
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -8309,7 +8309,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <Flag size={16} className="text-orange-500" />
+                          <Flag size={16} className="text-muted-foreground" />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -8337,7 +8337,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <Languages size={16} className="text-blue-500" />
+                          <Languages size={16} className="text-muted-foreground" />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -8495,7 +8495,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <Clock size={16} className="text-amber-500" />
+                          <Clock size={16} className="text-muted-foreground" />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -8541,7 +8541,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          <Brush size={16} className="text-purple-500" />
+                          <Brush size={16} className="text-muted-foreground" />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
@@ -8575,7 +8575,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2">
-                        <BadgeCheck size={16} className="text-amber-500" />
+                        <BadgeCheck size={16} className="text-muted-foreground" />
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Brand</span>
                         <Switch 
                           checked={brandDistillsEnabled} 
