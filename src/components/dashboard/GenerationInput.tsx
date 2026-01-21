@@ -152,6 +152,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const [contentDays, setContentDays] = useState(7);
   const [contentPostType, setContentPostType] = useState('Single Image');
+  const [isContentPostTypePopoverOpen, setIsContentPostTypePopoverOpen] = useState(false);
   const [contentTime, setContentTime] = useState('Auto');
   const [contentStyle, setContentStyle] = useState('AI Generated');
   
@@ -8276,7 +8277,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <div className="w-px h-8 bg-slate-200 mx-1" />
 
                 {/* Type Dropdown */}
-                <Popover>
+                <Popover open={isContentPostTypePopoverOpen} onOpenChange={setIsContentPostTypePopoverOpen}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
@@ -8299,7 +8300,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       ].map((type) => (
                         <button 
                           key={type.value}
-                          onClick={() => setContentPostType(type.value)}
+                          onClick={() => {
+                            setContentPostType(type.value);
+                            setIsContentPostTypePopoverOpen(false);
+                          }}
                           className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${contentPostType === type.value ? 'bg-secondary' : ''}`}
                         >
                           <type.icon size={16} className={type.color} />
