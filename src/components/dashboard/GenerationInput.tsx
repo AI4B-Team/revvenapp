@@ -8275,25 +8275,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <>
                     <div className="w-px h-8 bg-slate-200 mx-1" />
 
-                {/* Post Type Dropdown */}
+                {/* Type Dropdown */}
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <button className="p-2 rounded-lg text-sm transition flex items-center justify-center hover:brightness-90 bg-secondary text-muted-foreground">
-                          {contentPostType === 'Single Image' && <ImageIcon size={16} className="text-muted-foreground" />}
-                          {contentPostType === 'Carousel' && <GalleryHorizontal size={16} className="text-muted-foreground" />}
-                          {contentPostType === 'Videos' && <Video size={16} className="text-muted-foreground" />}
-                          {contentPostType === 'Voiceover Videos' && <Mic size={16} className="text-muted-foreground" />}
-                          {contentPostType === 'Avatar Videos' && <UserCircle size={16} className="text-muted-foreground" />}
+                          <LayoutGrid size={16} className="text-muted-foreground" />
                         </button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>Post Type</TooltipContent>
+                    <TooltipContent>Type</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-52 bg-background border-border z-[100]">
                     <div className="space-y-1">
-                      <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Post Type</p>
+                      <p className="text-xs font-medium text-muted-foreground px-3 py-1.5">Type</p>
                       {[
                         { value: 'Single Image', icon: ImageIcon, color: 'text-emerald-500' },
                         { value: 'Carousel', icon: GalleryHorizontal, color: 'text-blue-500' },
