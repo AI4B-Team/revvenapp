@@ -4535,7 +4535,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   const totalPromptBoxHeight = promptHeight + 96;
 
     return (
-      <div className="w-full"><div className="mx-auto mb-12 transition-all duration-300 w-fit min-w-[340px] sm:min-w-[520px] md:min-w-[800px]">
+      <div className="w-full px-4"><div className="mx-auto mb-12 transition-all duration-300 w-full max-w-[920px]">
         <div ref={promptBoxRef} className="relative bg-white dark:bg-card border-2 border-emerald-500 rounded-xl p-6 shadow-lg w-fit min-w-full" style={{ minHeight: totalPromptBoxHeight }}>
           <div className="flex items-start gap-3">
             <div className="flex flex-col gap-2">
