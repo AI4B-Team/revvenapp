@@ -5438,10 +5438,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {/* Type Dropdown for Video */}
                   <DropdownMenu open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition border ${
+                      <button className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium hover:opacity-90 transition border ${
                         selectedAnimateMode 
                           ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
-                          : 'bg-white dark:bg-card text-foreground border-gray-200 dark:border-border'
+                          : 'bg-slate-50 dark:bg-card text-foreground border-slate-200 dark:border-border'
                       }`}>
                         {(() => {
                           const currentMode = animateModes.find(m => m.value === selectedAnimateMode);
@@ -6697,9 +6697,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {!selectedAudioMode ? (
                     <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                       <PopoverTrigger asChild>
-                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-muted-foreground text-sm font-medium hover:bg-secondary/80 transition">
-                          <LayoutGrid size={16} />
+                        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 dark:bg-card border border-slate-200 dark:border-border text-foreground text-sm font-medium hover:opacity-90 transition">
+                          <LayoutGrid size={16} className="text-muted-foreground" />
                           Type
+                          <ChevronDown size={14} className="text-muted-foreground" />
                         </button>
                       </PopoverTrigger>
                       <PopoverContent 
@@ -6727,7 +6728,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   ) : (
                     <Popover open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                       <PopoverTrigger asChild>
-                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:opacity-90 transition">
+                        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 text-sm font-medium hover:opacity-90 transition">
                           {(() => {
                             const currentMode = audioModes.find(m => m.value === selectedAudioMode);
                             const Icon = currentMode?.icon || Mic;
@@ -7994,10 +7995,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown - Always accessible */}
                 <Popover open={isDesignTypeDropdownOpen} onOpenChange={setIsDesignTypeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
+                    <button className={`px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 border ${
                       selectedDesignType 
-                        ? 'bg-brand-green/15 text-foreground' 
-                        : 'bg-secondary text-foreground'
+                        ? 'bg-brand-green/10 text-foreground border-brand-green/30' 
+                        : 'bg-slate-50 dark:bg-card text-foreground border-slate-200 dark:border-border'
                     }`}>
                       {(() => {
                         if (selectedDesignType) {
@@ -8216,11 +8217,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
-                        <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 ${
-                          contentType === 'Article' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                          contentType === 'Newsletter' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' :
-                          contentType === 'Social' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                          'bg-secondary text-foreground'
+                        <button className={`px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 border ${
+                          contentType === 'Article' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800' :
+                          contentType === 'Newsletter' ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800' :
+                          contentType === 'Social' ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800' :
+                          'bg-slate-50 dark:bg-card text-foreground border-slate-200 dark:border-border'
                         }`}>
                           {contentType === 'Article' && <FileText size={16} className="text-blue-600 dark:text-blue-400" />}
                           {contentType === 'Newsletter' && <Send size={16} className="text-purple-600 dark:text-purple-400" />}
@@ -8609,10 +8610,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown - always visible */}
                 <Popover open={isDocumentTypeDropdownOpen} onOpenChange={setIsDocumentTypeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                    <button className={`px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 whitespace-nowrap border ${
                       documentType 
-                        ? 'bg-brand-green/15 text-foreground' 
-                        : 'bg-secondary hover:opacity-90 text-foreground'
+                        ? 'bg-brand-green/10 text-foreground border-brand-green/30' 
+                        : 'bg-slate-50 dark:bg-card hover:opacity-90 text-foreground border-slate-200 dark:border-border'
                     }`}>
                       {(() => {
                         const documentTypeIcons = {
@@ -8819,10 +8820,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Type Dropdown */}
                 <Popover open={isAppTypeDropdownOpen} onOpenChange={setIsAppTypeDropdownOpen}>
                   <PopoverTrigger asChild>
-                    <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 text-primary ${
+                    <button className={`px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 border ${
                       selectedAppType 
-                        ? 'bg-brand-green/15' 
-                        : 'bg-secondary'
+                        ? 'bg-brand-green/10 text-foreground border-brand-green/30' 
+                        : 'bg-slate-50 dark:bg-card text-foreground border-slate-200 dark:border-border'
                     }`}>
                       {(() => {
                         const appTypeIcons = {
@@ -8885,10 +8886,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {selectedAppType === 'Website' && (
                   <Popover open={isWebsiteBuildDropdownOpen} onOpenChange={setIsWebsiteBuildDropdownOpen}>
                     <PopoverTrigger asChild>
-                      <button className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 text-primary ${
+                      <button className={`px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 border ${
                         selectedWebsiteBuildType 
-                          ? 'bg-brand-blue/15' 
-                          : 'bg-secondary'
+                          ? 'bg-brand-blue/10 text-foreground border-brand-blue/30' 
+                          : 'bg-slate-50 dark:bg-card text-foreground border-slate-200 dark:border-border'
                       }`}>
                         <Layers size={16} className="text-muted-foreground" />
                         {selectedWebsiteBuildType || 'Build'}
@@ -9222,10 +9223,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <button
                   onClick={() => setIsCreateModeDropdownOpen((v) => !v)}
                   aria-expanded={isCreateModeDropdownOpen}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 border ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap hover:opacity-90 border ${
                     selectedCreateMode 
                       ? 'bg-brand-green/10 text-foreground border-brand-green/30'
-                      : 'bg-white dark:bg-card text-foreground border-gray-200 dark:border-border'
+                      : 'bg-slate-50 dark:bg-card text-foreground border-slate-200 dark:border-border'
                   }`}
                 >
                   {(() => {
