@@ -8,6 +8,7 @@ import toolAutomationFlow from '@/assets/icons/tool-automation-flow.png';
 import toolAiStory from '@/assets/icons/tool-ai-story.png';
 import toolLeadGeneration from '@/assets/icons/tool-lead-generation.png';
 import toolMasterCloser from '@/assets/icons/tool-master-closer.png';
+import toolAiResponder from '@/assets/icons/tool-ai-responder.png';
 
 // Import image tool icons
 import toolArtBlocks from '@/assets/icons/tool-art-blocks.png';
@@ -62,8 +63,7 @@ export const appIconMapping: Record<string, string> = {
   'Landing Page': toolLandingPage,
   'Form Builder': toolFormBuilder,
   'Chat Bot': toolChatbot,
-  // Reuse the Chat Bot icon for now (premium icon pass can swap later)
-  'AI Responder': toolChatbot,
+  'AI Responder': toolAiResponder,
   'API Builder': toolApiBuilder,
   'Automation Flow': toolAutomationFlow,
   'AI Story': toolAiStory,
