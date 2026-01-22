@@ -356,6 +356,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Story mode scene mode (Auto vs Manual)
   const [storySceneMode, setStorySceneMode] = useState<'Auto' | 'Manual'>('Auto');
   const [isStorySceneModeDropdownOpen, setIsStorySceneModeDropdownOpen] = useState(false);
+  const [manualScenesAllFilled, setManualScenesAllFilled] = useState(false);
   
   // UGC audio URL for speech-to-video generation (optional - backend can auto-generate)
   const [ugcAudioUrl, setUgcAudioUrl] = useState<string | null>(null);
@@ -10405,7 +10406,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   : isVideoMode && selectedAnimateMode === 'Story'
                                     ? (storySceneMode === 'Auto' 
                                         ? !prompt.trim() // Auto mode just needs a prompt
-                                        : (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && selectedReferences.length === 0) || Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5))
+                                        : !manualScenesAllFilled) // Manual mode needs all scenes filled (min 10 chars each)
                                     : !prompt.trim()
                       )
                     }
@@ -10723,7 +10724,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       {/* Storyboard Scene Editor - Only visible when Story is selected in Video mode AND Manual mode */}
       {isVideoMode && selectedAnimateMode === 'Story' && storySceneMode === 'Manual' && (
         <div className="w-full mt-4">
-          <StoryboardSceneEditor />
+          <StoryboardSceneEditor 
+            onScenesChange={(scenes, allFilled) => setManualScenesAllFilled(allFilled)}
+            isGenerating={isGenerating}
+          />
         </div>
       )}
 

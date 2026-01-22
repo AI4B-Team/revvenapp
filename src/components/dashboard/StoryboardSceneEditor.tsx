@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Plus, Trash2, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 
-interface Scene {
+export interface Scene {
   id: number;
   content: string;
   duration: number;
@@ -10,6 +10,7 @@ interface Scene {
 interface StoryboardSceneEditorProps {
   onGenerate?: () => void;
   isGenerating?: boolean;
+  onScenesChange?: (scenes: Scene[], allFilled: boolean) => void;
 }
 
 const MAX_SCENES = 8;
@@ -17,7 +18,7 @@ const DEFAULT_DURATION = 5;
 const MAX_TOTAL_DURATION = 25;
 const INITIAL_VISIBLE_SCENES = 4;
 
-const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerate, isGenerating }) => {
+const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerate, isGenerating, onScenesChange }) => {
   const [scenes, setScenes] = useState<Scene[]>([
     { id: 1, content: '', duration: DEFAULT_DURATION },
   ]);
@@ -32,6 +33,12 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
   const totalDuration = useMemo(() => {
     return scenes.reduce((sum, scene) => sum + scene.duration, 0);
   }, [scenes]);
+
+  // Notify parent when scenes change
+  useEffect(() => {
+    const allFilled = scenes.every(s => s.content.trim().length >= 10);
+    onScenesChange?.(scenes, allFilled);
+  }, [scenes, onScenesChange]);
 
   const visibleScenes = showAllScenes ? scenes : scenes.slice(0, INITIAL_VISIBLE_SCENES);
   const hiddenScenesCount = scenes.length - INITIAL_VISIBLE_SCENES;
