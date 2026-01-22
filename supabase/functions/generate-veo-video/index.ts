@@ -754,9 +754,16 @@ serve(async (req) => {
       // Use the Veo API for veo3 and veo3_fast models
       console.log("Using Veo API");
 
+      // Force veo3_fast when using reference images (KIE.AI requirement)
+      let veoModel = effectiveModel;
+      if (imageUrls && imageUrls.length > 0 && effectiveModel !== 'veo3_fast') {
+        console.log(`Forcing veo3_fast for image reference (was ${effectiveModel})`);
+        veoModel = 'veo3_fast';
+      }
+
       const veoPayload: any = {
         prompt,
-        model: effectiveModel,
+        model: veoModel,
         aspectRatio,
         callBackUrl: callbackUrl,
         enableTranslation: true
