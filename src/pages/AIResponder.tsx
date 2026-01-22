@@ -81,6 +81,12 @@ const defaultResponders: AutoResponder[] = [
   }
 ];
 
+interface InstagramAccount {
+  id: string;
+  instagram_id: string;
+  instagram_username: string;
+}
+
 const AIResponder = () => {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -89,6 +95,7 @@ const AIResponder = () => {
   const [testMessage, setTestMessage] = useState('');
   const [testResponse, setTestResponse] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [instagramAccounts, setInstagramAccounts] = useState<InstagramAccount[]>([]);
   
   // New responder form
   const [showNewForm, setShowNewForm] = useState(false);
@@ -101,8 +108,11 @@ const AIResponder = () => {
   });
 
   useEffect(() => {
+    loadInstagramAccounts();
+    
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'INSTAGRAM_AUTH_SUCCESS') {
+        loadInstagramAccounts();
         toast.success('Instagram connected successfully!');
       }
       if (event.data?.type === 'INSTAGRAM_AUTH_ERROR') {
@@ -113,6 +123,20 @@ const AIResponder = () => {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
+
+  const loadInstagramAccounts = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('instagram_accounts')
+      .select('id, instagram_id, instagram_username')
+      .eq('user_id', user.id);
+
+    if (!error && data) {
+      setInstagramAccounts(data);
+    }
+  };
 
   const handleConnectInstagram = async () => {
     try {
@@ -714,18 +738,39 @@ Only output the improved response, nothing else.`
                     </div>
 
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-background border border-border flex items-center justify-center">
-                            <Instagram className="text-foreground" size={18} />
+                      {/* Instagram - Show connected or connect button */}
+                      {instagramAccounts.length > 0 ? (
+                        instagramAccounts.map(account => (
+                          <div key={account.id} className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 p-4">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center">
+                                <Instagram className="text-white" size={18} />
+                              </div>
+                              <div>
+                                <p className="font-medium">@{account.instagram_username}</p>
+                                <p className="text-xs text-primary">Connected</p>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="border-primary text-primary">
+                              <CheckCircle size={12} className="mr-1" />
+                              Active
+                            </Badge>
                           </div>
-                          <div>
-                            <p className="font-medium">Instagram</p>
-                            <p className="text-xs text-muted-foreground">Connect DMs</p>
+                        ))
+                      ) : (
+                        <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-lg bg-background border border-border flex items-center justify-center">
+                              <Instagram className="text-foreground" size={18} />
+                            </div>
+                            <div>
+                              <p className="font-medium">Instagram</p>
+                              <p className="text-xs text-muted-foreground">Connect DMs</p>
+                            </div>
                           </div>
+                          <Button onClick={handleConnectInstagram}>Connect</Button>
                         </div>
-                        <Button onClick={handleConnectInstagram}>Connect</Button>
-                      </div>
+                      )}
 
                       <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-4">
                         <div className="flex items-center gap-3">
