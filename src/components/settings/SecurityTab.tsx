@@ -115,12 +115,12 @@ export default function SecurityTab() {
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded bg-red-500 hover:bg-red-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showCurrentPassword ? (
-                    <EyeOff className="w-4 h-4 text-white" />
+                    <EyeOff className="w-5 h-5" />
                   ) : (
-                    <Eye className="w-4 h-4 text-white" />
+                    <Eye className="w-5 h-5" />
                   )}
                 </button>
               </div>
@@ -143,12 +143,12 @@ export default function SecurityTab() {
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded bg-red-500 hover:bg-red-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showNewPassword ? (
-                    <EyeOff className="w-4 h-4 text-white" />
+                    <EyeOff className="w-5 h-5" />
                   ) : (
-                    <Eye className="w-4 h-4 text-white" />
+                    <Eye className="w-5 h-5" />
                   )}
                 </button>
               </div>
