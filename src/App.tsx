@@ -100,6 +100,7 @@ const InfographicBuilder = lazy(() => import("./pages/InfographicBuilder"));
 const PresentationMaker = lazy(() => import("./pages/PresentationMaker"));
 const DocumentCreator = lazy(() => import("./pages/DocumentCreator"));
 const AIResponder = lazy(() => import("./pages/AIResponder"));
+const Inbox = lazy(() => import("./pages/Inbox"));
 
 
 const queryClient = new QueryClient();
@@ -205,6 +206,7 @@ const App = () => (
                           <Route path="/infographic-builder" element={<InfographicBuilder />} />
                           <Route path="/presentation-maker" element={<PresentationMaker />} />
                           <Route path="/ai-responder" element={<AIResponder />} />
+                          <Route path="/inbox" element={<Inbox />} />
                           {/* Admin is now accessible via /account?tab=admin */}
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
