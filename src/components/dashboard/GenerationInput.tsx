@@ -6296,30 +6296,44 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Character button - disabled if reference is selected (Story mode: only 1 image allowed) */}
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => {
-                              const hasReference = storyReferenceImage || videoModeState.references.length > 0;
-                              if (hasReference) {
-                                toast({
-                                  title: "Clear reference first",
-                                  description: "You can use either a character OR a reference image, not both.",
-                                  variant: "destructive",
-                                });
-                                return;
-                              }
-                              onCharactersClick?.();
-                            }}
-                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                              videoModeState.characters.length > 0 
-                                ? 'bg-brand-blue/15 text-muted-foreground' 
-                                : (storyReferenceImage || videoModeState.references.length > 0)
-                                  ? 'bg-secondary/50 text-muted-foreground/50 cursor-not-allowed'
-                                  : 'bg-secondary text-muted-foreground'
-                            }`}
-                          >
-                            <User size={16} />
-                            {videoModeState.characters.length > 0 && <span>{videoModeState.characters[0].name}</span>}
-                          </button>
+                          <div className="relative">
+                            <button 
+                              onClick={() => {
+                                const hasReference = storyReferenceImage || selectedReferences.length > 0;
+                                if (hasReference) {
+                                  toast({
+                                    title: "Clear reference first",
+                                    description: "You can use either a character OR a reference image, not both.",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                onCharactersClick?.();
+                              }}
+                              className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                videoModeState.characters.length > 0 
+                                  ? 'bg-brand-blue/15 text-muted-foreground pr-7' 
+                                  : (storyReferenceImage || selectedReferences.length > 0)
+                                    ? 'bg-secondary/50 text-muted-foreground/50 cursor-not-allowed'
+                                    : 'bg-secondary text-muted-foreground'
+                              }`}
+                            >
+                              <User size={16} />
+                              {videoModeState.characters.length > 0 && <span>{videoModeState.characters[0].name}</span>}
+                            </button>
+                            {/* X button to clear character */}
+                            {videoModeState.characters.length > 0 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onCharactersSelect?.([]);
+                                }}
+                                className="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted-foreground/20 hover:bg-destructive hover:text-destructive-foreground flex items-center justify-center transition"
+                              >
+                                <X size={12} />
+                              </button>
+                            )}
+                          </div>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>Character</p>
