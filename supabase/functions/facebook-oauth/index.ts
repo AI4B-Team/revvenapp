@@ -429,7 +429,7 @@ serve(async (req) => {
             if (!responseMessage) {
               const { data: aiReplies } = await supabase
                 .from('ai_auto_replies')
-                .select('id, system_prompt, knowledge_base')
+                .select('id, system_prompt, knowledge_base, response_count')
                 .eq('user_id', userId)
                 .eq('is_active', true)
                 .limit(1);
@@ -499,13 +499,15 @@ User's custom instructions: ${aiReply.system_prompt}`;
                   console.log('AI generated response:', responseMessage);
                   
                   // Update response count
+                  const currentCount = (aiReply as any).response_count || 0;
                   await supabase
                     .from('ai_auto_replies')
                     .update({ 
-                      response_count: (aiReply as any).response_count + 1,
+                      response_count: currentCount + 1,
                       last_triggered_at: new Date().toISOString()
                     })
                     .eq('id', aiReply.id);
+                  console.log('Updated response count to:', currentCount + 1);
                 } catch (aiError) {
                   console.error('AI generation failed:', aiError);
                 }
