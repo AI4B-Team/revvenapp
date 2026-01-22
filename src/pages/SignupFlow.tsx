@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers, RefreshCw, User, Loader2, PenLine } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers, RefreshCw, User, Loader2, PenLine, Search, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -239,6 +240,8 @@ const [phoneNumber, setPhoneNumber] = useState('');
   const [timezone, setTimezone] = useState('');
   const [emailUpdates, setEmailUpdates] = useState(true);
   const [preferredLanguage, setPreferredLanguage] = useState('English');
+  const [languageSearch, setLanguageSearch] = useState('');
+  const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   
   const languages = [
     { name: 'English', flag: '🇺🇸' },
@@ -260,6 +263,10 @@ const [phoneNumber, setPhoneNumber] = useState('');
     const lang = languages.find(l => l.name === langName);
     return lang?.flag || '🌐';
   };
+
+  const filteredLanguages = languages.filter(lang =>
+    lang.name.toLowerCase().includes(languageSearch.toLowerCase())
+  );
   
   // Generate random agent names
   const [suggestedAgents, setSuggestedAgents] = useState<Array<{ name: string; email: string }>>([]);
@@ -441,26 +448,68 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
                       Preferred Language
                     </label>
-                    <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
-                      <SelectTrigger className="h-14 text-lg border-slate-200 focus:border-green-500 focus:ring-green-500">
-                        <SelectValue>
+                    <Popover open={languageDropdownOpen} onOpenChange={(open) => {
+                      setLanguageDropdownOpen(open);
+                      if (!open) setLanguageSearch('');
+                    }}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="flex h-14 w-full items-center justify-between rounded-md border border-slate-200 bg-background px-3 py-2 text-lg ring-offset-background focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        >
                           <span className="flex items-center gap-2">
                             <span className="text-xl">{getLanguageFlag(preferredLanguage)}</span>
                             <span>{preferredLanguage}</span>
                           </span>
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="bg-white z-50">
-                        {languages.map((lang) => (
-                          <SelectItem key={lang.name} value={lang.name}>
-                            <span className="flex items-center gap-2">
-                              <span className="text-xl">{lang.flag}</span>
-                              <span>{lang.name}</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[300px] p-0 bg-white z-50" align="start">
+                        <div className="p-3 border-b border-slate-100">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <input
+                              type="text"
+                              placeholder="Search languages..."
+                              value={languageSearch}
+                              onChange={(e) => setLanguageSearch(e.target.value)}
+                              className="w-full h-10 pl-9 pr-3 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                              autoFocus
+                            />
+                          </div>
+                        </div>
+                        <div className="max-h-[250px] overflow-y-auto p-1">
+                          {filteredLanguages.length > 0 ? (
+                            filteredLanguages.map((lang) => (
+                              <button
+                                key={lang.name}
+                                type="button"
+                                onClick={() => {
+                                  setPreferredLanguage(lang.name);
+                                  setLanguageDropdownOpen(false);
+                                  setLanguageSearch('');
+                                }}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${
+                                  preferredLanguage === lang.name 
+                                    ? 'bg-green-50 text-green-700' 
+                                    : 'hover:bg-slate-50'
+                                }`}
+                              >
+                                <span className="text-xl">{lang.flag}</span>
+                                <span className="text-sm font-medium">{lang.name}</span>
+                                {preferredLanguage === lang.name && (
+                                  <Check className="ml-auto h-4 w-4 text-green-600" />
+                                )}
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-3 py-6 text-center text-sm text-slate-500">
+                              No languages found
+                            </div>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   <Button 
