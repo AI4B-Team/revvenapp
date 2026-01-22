@@ -1,0 +1,982 @@
+import { useState, useRef } from 'react';
+import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
+
+// Types
+interface MAOData {
+  arv: string;
+  rehabCosts: string;
+  profitMargin: number;
+  assignmentFee: string;
+}
+
+interface WMAOData {
+  arv: string;
+  rehabCosts: string;
+  wholesaleFee: string;
+  buyerProfit: number;
+  holdingCosts: string;
+}
+
+interface FlipData {
+  purchasePrice: string;
+  rehabCosts: string;
+  arv: string;
+  holdingTime: number;
+  sellingCosts: number;
+  loanAmount: string;
+  interestRate: number;
+  closingCosts: number;
+  utilities: string;
+  insurance: string;
+  taxes: string;
+  contingency: number;
+}
+
+interface BRRRRData {
+  purchasePrice: string;
+  rehabCosts: string;
+  arv: string;
+  rentAmount: string;
+  refinanceLTV: number;
+  interestRate: number;
+  propertyTax: string;
+  insurance: string;
+  maintenance: number;
+  vacancy: number;
+  propertyMgmt: number;
+  closingCosts: number;
+}
+
+interface CreativeData {
+  purchasePrice: string;
+  downPayment: string;
+  interestRate: string;
+  term: number;
+  balloonTerm: string;
+  rentAmount: string;
+  propertyTax: string;
+  insurance: string;
+  maintenance: string;
+  sellerCarryback: string;
+}
+
+interface RentalData {
+  purchasePrice: string;
+  downPayment: number;
+  interestRate: number;
+  term: number;
+  rentAmount: string;
+  propertyTax: string;
+  insurance: string;
+  hoa: string;
+  maintenance: number;
+  vacancy: number;
+  propertyMgmt: number;
+  capex: number;
+  utilities: string;
+}
+
+interface WholesaleData {
+  contractPrice: string;
+  arv: string;
+  rehabCosts: string;
+  assignmentFee: string;
+  marketingCosts: string;
+  earnestMoney: string;
+}
+
+interface ExchangeData {
+  salePrice: string;
+  originalPurchase: string;
+  currentBasis: string;
+  depreciation: string;
+  federalRate: number;
+  stateRate: number;
+  recaptureRate: number;
+  purchasePriceNew: string;
+}
+
+interface SavedDeal {
+  id: number;
+  type: string;
+  date: string;
+  data: unknown;
+  results: unknown;
+}
+
+const InvestorCalculator = () => {
+  const navigate = useNavigate();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeCalc, setActiveCalc] = useState('mao');
+  const [savedDeals, setSavedDeals] = useState<SavedDeal[]>([]);
+  const printRef = useRef<HTMLDivElement>(null);
+
+  // Calculator States
+  const [maoData, setMaoData] = useState<MAOData>({
+    arv: '',
+    rehabCosts: '',
+    profitMargin: 70,
+    assignmentFee: ''
+  });
+
+  const [wmaoData, setWmaoData] = useState<WMAOData>({
+    arv: '',
+    rehabCosts: '',
+    wholesaleFee: '',
+    buyerProfit: 70,
+    holdingCosts: ''
+  });
+
+  const [flipData, setFlipData] = useState<FlipData>({
+    purchasePrice: '',
+    rehabCosts: '',
+    arv: '',
+    holdingTime: 6,
+    sellingCosts: 6,
+    loanAmount: '',
+    interestRate: 10,
+    closingCosts: 3,
+    utilities: '',
+    insurance: '',
+    taxes: '',
+    contingency: 10
+  });
+
+  const [brrrData, setBrrrrData] = useState<BRRRRData>({
+    purchasePrice: '',
+    rehabCosts: '',
+    arv: '',
+    rentAmount: '',
+    refinanceLTV: 75,
+    interestRate: 7,
+    propertyTax: '',
+    insurance: '',
+    maintenance: 10,
+    vacancy: 8,
+    propertyMgmt: 10,
+    closingCosts: 3
+  });
+
+  const [creativeData, setCreativeData] = useState<CreativeData>({
+    purchasePrice: '',
+    downPayment: '',
+    interestRate: '',
+    term: 360,
+    balloonTerm: '',
+    rentAmount: '',
+    propertyTax: '',
+    insurance: '',
+    maintenance: '',
+    sellerCarryback: 'yes'
+  });
+
+  const [rentalData, setRentalData] = useState<RentalData>({
+    purchasePrice: '',
+    downPayment: 20,
+    interestRate: 7,
+    term: 360,
+    rentAmount: '',
+    propertyTax: '',
+    insurance: '',
+    hoa: '',
+    maintenance: 8,
+    vacancy: 5,
+    propertyMgmt: 10,
+    capex: 5,
+    utilities: ''
+  });
+
+  const [wholesaleData, setWholesaleData] = useState<WholesaleData>({
+    contractPrice: '',
+    arv: '',
+    rehabCosts: '',
+    assignmentFee: '',
+    marketingCosts: '',
+    earnestMoney: ''
+  });
+
+  const [exchangeData, setExchangeData] = useState<ExchangeData>({
+    salePrice: '',
+    originalPurchase: '',
+    currentBasis: '',
+    depreciation: '',
+    federalRate: 20,
+    stateRate: 5,
+    recaptureRate: 25,
+    purchasePriceNew: ''
+  });
+
+  // Calculation Functions
+  const calculateMAO = () => {
+    const arv = parseFloat(maoData.arv) || 0;
+    const rehab = parseFloat(maoData.rehabCosts) || 0;
+    const margin = maoData.profitMargin || 70;
+    const assignment = parseFloat(maoData.assignmentFee) || 0;
+
+    const mao = (arv * (margin / 100)) - rehab - assignment;
+    const equity = arv - (mao + rehab);
+    const roi = rehab > 0 ? ((equity / rehab) * 100) : 0;
+
+    return { mao, equity, roi };
+  };
+
+  const calculateWMAO = () => {
+    const arv = parseFloat(wmaoData.arv) || 0;
+    const rehab = parseFloat(wmaoData.rehabCosts) || 0;
+    const fee = parseFloat(wmaoData.wholesaleFee) || 0;
+    const buyerProfit = wmaoData.buyerProfit || 70;
+    const holding = parseFloat(wmaoData.holdingCosts) || 0;
+
+    const buyerMAO = (arv * (buyerProfit / 100)) - rehab;
+    const wmao = buyerMAO - fee - holding;
+    const totalProfit = fee;
+    const roi = wmao > 0 ? ((totalProfit / wmao) * 100) : 0;
+
+    return { wmao, buyerMAO, totalProfit, roi };
+  };
+
+  const calculateFlip = () => {
+    const purchase = parseFloat(flipData.purchasePrice) || 0;
+    const rehab = parseFloat(flipData.rehabCosts) || 0;
+    const arv = parseFloat(flipData.arv) || 0;
+    const months = flipData.holdingTime || 6;
+    const sellingCostPercent = flipData.sellingCosts || 6;
+    const loanAmount = parseFloat(flipData.loanAmount) || purchase;
+    const rate = flipData.interestRate || 10;
+    const closingPercent = flipData.closingCosts || 3;
+    const utilities = parseFloat(flipData.utilities) || 0;
+    const insurance = parseFloat(flipData.insurance) || 0;
+    const taxes = parseFloat(flipData.taxes) || 0;
+    const contingencyPercent = flipData.contingency || 10;
+
+    const closingCosts = purchase * (closingPercent / 100);
+    const contingency = rehab * (contingencyPercent / 100);
+    const interestCost = (loanAmount * (rate / 100) * months) / 12;
+    const holdingCosts = (utilities + insurance + taxes) * months;
+    const sellingCosts = arv * (sellingCostPercent / 100);
+    
+    const totalCosts = purchase + rehab + contingency + closingCosts + interestCost + holdingCosts + sellingCosts;
+    const profit = arv - totalCosts;
+    const roi = purchase > 0 ? ((profit / purchase) * 100) : 0;
+    const annualizedROI = months > 0 ? (roi * (12 / months)) : 0;
+    const cashOnCash = (purchase - loanAmount) > 0 ? ((profit / (purchase - loanAmount)) * 100) : 0;
+
+    return { profit, roi, annualizedROI, cashOnCash, totalCosts, sellingCosts, holdingCosts, interestCost, contingency };
+  };
+
+  const calculateBRRRR = () => {
+    const purchase = parseFloat(brrrData.purchasePrice) || 0;
+    const rehab = parseFloat(brrrData.rehabCosts) || 0;
+    const arv = parseFloat(brrrData.arv) || 0;
+    const rent = parseFloat(brrrData.rentAmount) || 0;
+    const ltv = brrrData.refinanceLTV || 75;
+    const rate = brrrData.interestRate || 7;
+    const tax = parseFloat(brrrData.propertyTax) || 0;
+    const insurance = parseFloat(brrrData.insurance) || 0;
+    const maintenancePercent = brrrData.maintenance || 10;
+    const vacancyPercent = brrrData.vacancy || 8;
+    const pmPercent = brrrData.propertyMgmt || 10;
+    const closingPercent = brrrData.closingCosts || 3;
+
+    const totalInvested = purchase + rehab + (purchase * (closingPercent / 100));
+    const refinanceAmount = arv * (ltv / 100);
+    const cashRecovered = refinanceAmount - totalInvested;
+    const monthlyPayment = (refinanceAmount * (rate / 100 / 12) * Math.pow(1 + rate / 100 / 12, 360)) / (Math.pow(1 + rate / 100 / 12, 360) - 1);
+    
+    const maintenance = rent * (maintenancePercent / 100);
+    const vacancy = rent * (vacancyPercent / 100);
+    const propertyMgmt = rent * (pmPercent / 100);
+    const monthlyTax = tax / 12;
+    const monthlyInsurance = insurance / 12;
+    
+    const totalExpenses = monthlyPayment + monthlyTax + monthlyInsurance + maintenance + vacancy + propertyMgmt;
+    const monthlyCashFlow = rent - totalExpenses;
+    const annualCashFlow = monthlyCashFlow * 12;
+    const cashLeftIn = totalInvested - cashRecovered;
+    const cashOnCash = cashLeftIn > 0 ? ((annualCashFlow / cashLeftIn) * 100) : 0;
+
+    return { 
+      cashRecovered, 
+      cashLeftIn, 
+      monthlyCashFlow, 
+      annualCashFlow, 
+      cashOnCash, 
+      refinanceAmount,
+      monthlyPayment,
+      totalExpenses 
+    };
+  };
+
+  const calculateCreative = () => {
+    const purchase = parseFloat(creativeData.purchasePrice) || 0;
+    const down = parseFloat(creativeData.downPayment) || 0;
+    const rate = parseFloat(creativeData.interestRate) || 0;
+    const term = creativeData.term || 360;
+    const balloon = parseFloat(creativeData.balloonTerm) || 0;
+    const rent = parseFloat(creativeData.rentAmount) || 0;
+    const tax = parseFloat(creativeData.propertyTax) || 0;
+    const insurance = parseFloat(creativeData.insurance) || 0;
+    const maintenance = parseFloat(creativeData.maintenance) || 0;
+
+    const financed = purchase - down;
+    const monthlyRate = rate / 100 / 12;
+    const monthlyPayment = financed > 0 && rate > 0 ? 
+      (financed * monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1) : 0;
+    
+    const monthlyTax = tax / 12;
+    const monthlyInsurance = insurance / 12;
+    const totalMonthlyExpense = monthlyPayment + monthlyTax + monthlyInsurance + maintenance;
+    const monthlyCashFlow = rent - totalMonthlyExpense;
+    const annualCashFlow = monthlyCashFlow * 12;
+    const cashOnCash = down > 0 ? ((annualCashFlow / down) * 100) : 0;
+
+    let balloonPayment = 0;
+    if (balloon > 0 && balloon < term) {
+      balloonPayment = financed * Math.pow(1 + monthlyRate, balloon) - 
+        (monthlyPayment * (Math.pow(1 + monthlyRate, balloon) - 1) / monthlyRate);
+    }
+
+    return { 
+      monthlyPayment, 
+      monthlyCashFlow, 
+      annualCashFlow, 
+      cashOnCash, 
+      balloonPayment,
+      totalMonthlyExpense 
+    };
+  };
+
+  const calculateRental = () => {
+    const purchase = parseFloat(rentalData.purchasePrice) || 0;
+    const downPercent = rentalData.downPayment || 20;
+    const rate = rentalData.interestRate || 7;
+    const term = rentalData.term || 360;
+    const rent = parseFloat(rentalData.rentAmount) || 0;
+    const tax = parseFloat(rentalData.propertyTax) || 0;
+    const insurance = parseFloat(rentalData.insurance) || 0;
+    const hoa = parseFloat(rentalData.hoa) || 0;
+    const maintenancePercent = rentalData.maintenance || 8;
+    const vacancyPercent = rentalData.vacancy || 5;
+    const pmPercent = rentalData.propertyMgmt || 10;
+    const capexPercent = rentalData.capex || 5;
+    const utilities = parseFloat(rentalData.utilities) || 0;
+
+    const downPayment = purchase * (downPercent / 100);
+    const loanAmount = purchase - downPayment;
+    const monthlyRate = rate / 100 / 12;
+    const monthlyPayment = loanAmount > 0 ? 
+      (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1) : 0;
+
+    const maintenance = rent * (maintenancePercent / 100);
+    const vacancy = rent * (vacancyPercent / 100);
+    const propertyMgmt = rent * (pmPercent / 100);
+    const capex = rent * (capexPercent / 100);
+    const monthlyTax = tax / 12;
+    const monthlyInsurance = insurance / 12;
+
+    const totalExpenses = monthlyPayment + monthlyTax + monthlyInsurance + hoa + 
+                          maintenance + vacancy + propertyMgmt + capex + utilities;
+    const noi = rent - (monthlyTax + monthlyInsurance + hoa + maintenance + vacancy + 
+                        propertyMgmt + capex + utilities);
+    const monthlyCashFlow = rent - totalExpenses;
+    const annualCashFlow = monthlyCashFlow * 12;
+    const cashOnCash = downPayment > 0 ? ((annualCashFlow / downPayment) * 100) : 0;
+    const capRate = purchase > 0 ? ((noi * 12) / purchase * 100) : 0;
+    const rentRatio = purchase > 0 ? ((rent / purchase) * 100) : 0;
+
+    return { 
+      monthlyCashFlow, 
+      annualCashFlow, 
+      cashOnCash, 
+      capRate, 
+      rentRatio,
+      monthlyPayment,
+      totalExpenses,
+      noi
+    };
+  };
+
+  const calculateWholesale = () => {
+    const contract = parseFloat(wholesaleData.contractPrice) || 0;
+    const arv = parseFloat(wholesaleData.arv) || 0;
+    const rehab = parseFloat(wholesaleData.rehabCosts) || 0;
+    const fee = parseFloat(wholesaleData.assignmentFee) || 0;
+    const marketing = parseFloat(wholesaleData.marketingCosts) || 0;
+    const earnest = parseFloat(wholesaleData.earnestMoney) || 0;
+
+    const buyerMAO = (arv * 0.70) - rehab;
+    const spread = buyerMAO - contract;
+    const netProfit = fee - marketing;
+    const roi = (earnest + marketing) > 0 ? ((netProfit / (earnest + marketing)) * 100) : 0;
+    const buyerEquity = arv - (contract + fee + rehab);
+
+    return { buyerMAO, spread, netProfit, roi, buyerEquity };
+  };
+
+  const calculateExchange = () => {
+    const sale = parseFloat(exchangeData.salePrice) || 0;
+    const original = parseFloat(exchangeData.originalPurchase) || 0;
+    const basis = parseFloat(exchangeData.currentBasis) || original;
+    const depreciation = parseFloat(exchangeData.depreciation) || 0;
+    const federalRate = exchangeData.federalRate || 20;
+    const stateRate = exchangeData.stateRate || 5;
+    const recaptureRate = exchangeData.recaptureRate || 25;
+    const newPurchase = parseFloat(exchangeData.purchasePriceNew) || 0;
+
+    const capitalGain = sale - basis;
+    const depreciationRecapture = depreciation;
+    
+    const federalCapGainTax = capitalGain * (federalRate / 100);
+    const stateCapGainTax = capitalGain * (stateRate / 100);
+    const recaptureTax = depreciationRecapture * (recaptureRate / 100);
+    const totalTaxWithout1031 = federalCapGainTax + stateCapGainTax + recaptureTax;
+    
+    const taxDeferred = newPurchase >= sale ? totalTaxWithout1031 : 0;
+    const boot = sale > newPurchase ? sale - newPurchase : 0;
+    const taxOnBoot = boot * ((federalRate + stateRate) / 100);
+
+    return { 
+      capitalGain, 
+      totalTaxWithout1031, 
+      taxDeferred, 
+      boot, 
+      taxOnBoot,
+      federalCapGainTax,
+      stateCapGainTax,
+      recaptureTax 
+    };
+  };
+
+  // Helper Functions
+  const formatCurrency = (value: number) => {
+    if (isNaN(value) || value === null || value === undefined) return '$0';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+  };
+
+  const formatPercent = (value: number) => {
+    if (isNaN(value) || value === null || value === undefined) return '0%';
+    return `${value.toFixed(2)}%`;
+  };
+
+  const getCurrentData = () => {
+    const dataMap: Record<string, unknown> = {
+      mao: maoData,
+      wmao: wmaoData,
+      flip: flipData,
+      brrrr: brrrData,
+      creative: creativeData,
+      rental: rentalData,
+      wholesale: wholesaleData,
+      exchange: exchangeData
+    };
+    return dataMap[activeCalc];
+  };
+
+  const getCurrentResults = () => {
+    const resultsMap: Record<string, unknown> = {
+      mao: calculateMAO(),
+      wmao: calculateWMAO(),
+      flip: calculateFlip(),
+      brrrr: calculateBRRRR(),
+      creative: calculateCreative(),
+      rental: calculateRental(),
+      wholesale: calculateWholesale(),
+      exchange: calculateExchange()
+    };
+    return resultsMap[activeCalc];
+  };
+
+  const saveDeal = () => {
+    const deal: SavedDeal = {
+      id: Date.now(),
+      type: activeCalc,
+      date: new Date().toLocaleDateString(),
+      data: getCurrentData(),
+      results: getCurrentResults()
+    };
+    setSavedDeals([...savedDeals, deal]);
+    toast({
+      title: "Deal Saved",
+      description: "Your deal has been saved successfully!"
+    });
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const exportToPDF = () => {
+    toast({
+      title: "Export PDF",
+      description: "PDF export functionality coming soon!"
+    });
+  };
+
+  // Calculator Configurations
+  const calculators = [
+    { id: 'mao', name: 'MAO Calculator', icon: Calculator, color: 'emerald' },
+    { id: 'wmao', name: 'Wholesale MAO', icon: DollarSign, color: 'blue' },
+    { id: 'flip', name: 'Fix & Flip', icon: Home, color: 'purple' },
+    { id: 'brrrr', name: 'BRRRR Method', icon: Repeat, color: 'orange' },
+    { id: 'rental', name: 'Rental Analysis', icon: Building2, color: 'green' },
+    { id: 'creative', name: 'Creative Finance', icon: TrendingUp, color: 'pink' },
+    { id: 'wholesale', name: 'Wholesale Deal', icon: ArrowRightLeft, color: 'cyan' },
+    { id: 'exchange', name: '1031 Exchange', icon: RefreshCw, color: 'yellow' }
+  ];
+
+  // Get current results based on active calculator
+  const getActiveResults = () => {
+    switch(activeCalc) {
+      case 'mao': return calculateMAO();
+      case 'wmao': return calculateWMAO();
+      case 'flip': return calculateFlip();
+      case 'brrrr': return calculateBRRRR();
+      case 'creative': return calculateCreative();
+      case 'rental': return calculateRental();
+      case 'wholesale': return calculateWholesale();
+      case 'exchange': return calculateExchange();
+      default: return {};
+    }
+  };
+
+  const results = getActiveResults();
+
+  return (
+    <div className="flex min-h-screen bg-white">
+      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+        <Header />
+        <main className="flex-1 overflow-y-auto bg-white">
+          {/* Back Button */}
+          <div className="px-8 pt-6">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/apps')}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft size={16} />
+              Back to Apps
+            </Button>
+          </div>
+
+          <div className="p-4 md:p-8">
+            {/* Header */}
+            <div className="max-w-7xl mx-auto mb-8">
+              <div className="text-center mb-6">
+                <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                  Pro Investor Calculator Suite
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  Analyze deals like a pro — MAO, Fix & Flip, BRRRR, Creative Finance & More
+                </p>
+              </div>
+
+              {/* Calculator Selector */}
+              <div className="bg-muted/30 rounded-xl p-6 border border-border mb-6">
+                <label className="block text-sm font-medium text-muted-foreground mb-3">
+                  Select Calculator Type
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {calculators.map((calc) => {
+                    const Icon = calc.icon;
+                    const isActive = activeCalc === calc.id;
+                    return (
+                      <button
+                        key={calc.id}
+                        onClick={() => setActiveCalc(calc.id)}
+                        className={`p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+                          isActive
+                            ? 'border-primary bg-primary/10 shadow-lg'
+                            : 'border-border bg-card hover:border-muted-foreground'
+                        }`}
+                      >
+                        <Icon className={`w-6 h-6 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className="text-sm font-medium text-center">{calc.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-3 justify-center mb-6">
+                <Button onClick={saveDeal} className="bg-emerald-600 hover:bg-emerald-700">
+                  <Save className="w-5 h-5 mr-2" />
+                  Save Deal
+                </Button>
+                <Button onClick={handlePrint} variant="outline">
+                  <Printer className="w-5 h-5 mr-2" />
+                  Print Report
+                </Button>
+                <Button onClick={exportToPDF} variant="outline">
+                  <Download className="w-5 h-5 mr-2" />
+                  Export PDF
+                </Button>
+              </div>
+            </div>
+
+            {/* Calculator Content */}
+            <div className="max-w-7xl mx-auto" ref={printRef}>
+              {/* MAO Calculator */}
+              {activeCalc === 'mao' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Calculator className="w-5 h-5 text-emerald-600" />
+                      Deal Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="After Repair Value (ARV)" value={maoData.arv} onChange={(val) => setMaoData({...maoData, arv: val})} />
+                      <InputField label="Estimated Rehab Costs" value={maoData.rehabCosts} onChange={(val) => setMaoData({...maoData, rehabCosts: val})} />
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">Profit Margin (%)</label>
+                        <input
+                          type="range"
+                          min="50"
+                          max="90"
+                          value={maoData.profitMargin}
+                          onChange={(e) => setMaoData({...maoData, profitMargin: Number(e.target.value)})}
+                          className="w-full accent-emerald-600"
+                        />
+                        <div className="text-right text-emerald-600 font-medium mt-1">{maoData.profitMargin}%</div>
+                      </div>
+                      <InputField label="Assignment Fee (Optional)" value={maoData.assignmentFee} onChange={(val) => setMaoData({...maoData, assignmentFee: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-emerald-800">
+                      <BarChart3 className="w-5 h-5" />
+                      Analysis Results
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Maximum Allowable Offer" value={formatCurrency((results as ReturnType<typeof calculateMAO>).mao)} highlight />
+                      <ResultCard label="Potential Equity" value={formatCurrency((results as ReturnType<typeof calculateMAO>).equity)} positive={(results as ReturnType<typeof calculateMAO>).equity > 0} />
+                      <ResultCard label="Return on Investment" value={formatPercent((results as ReturnType<typeof calculateMAO>).roi)} positive={(results as ReturnType<typeof calculateMAO>).roi > 0} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* WMAO Calculator */}
+              {activeCalc === 'wmao' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-blue-600" />
+                      Wholesale Deal Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="After Repair Value (ARV)" value={wmaoData.arv} onChange={(val) => setWmaoData({...wmaoData, arv: val})} />
+                      <InputField label="Estimated Rehab Costs" value={wmaoData.rehabCosts} onChange={(val) => setWmaoData({...wmaoData, rehabCosts: val})} />
+                      <InputField label="Your Wholesale Fee" value={wmaoData.wholesaleFee} onChange={(val) => setWmaoData({...wmaoData, wholesaleFee: val})} />
+                      <InputField label="Holding Costs" value={wmaoData.holdingCosts} onChange={(val) => setWmaoData({...wmaoData, holdingCosts: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-blue-800">
+                      <BarChart3 className="w-5 h-5" />
+                      Wholesale Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Your Maximum Offer (WMAO)" value={formatCurrency((results as ReturnType<typeof calculateWMAO>).wmao)} highlight />
+                      <ResultCard label="Buyer's MAO" value={formatCurrency((results as ReturnType<typeof calculateWMAO>).buyerMAO)} />
+                      <ResultCard label="Your Wholesale Profit" value={formatCurrency((results as ReturnType<typeof calculateWMAO>).totalProfit)} positive={(results as ReturnType<typeof calculateWMAO>).totalProfit > 0} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Flip Calculator */}
+              {activeCalc === 'flip' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Home className="w-5 h-5 text-purple-600" />
+                      Fix & Flip Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Purchase Price" value={flipData.purchasePrice} onChange={(val) => setFlipData({...flipData, purchasePrice: val})} />
+                      <InputField label="Rehab Costs" value={flipData.rehabCosts} onChange={(val) => setFlipData({...flipData, rehabCosts: val})} />
+                      <InputField label="After Repair Value (ARV)" value={flipData.arv} onChange={(val) => setFlipData({...flipData, arv: val})} />
+                      <InputField label="Loan Amount" value={flipData.loanAmount} onChange={(val) => setFlipData({...flipData, loanAmount: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-purple-800">
+                      <TrendingUp className="w-5 h-5" />
+                      Flip Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Estimated Profit" value={formatCurrency((results as ReturnType<typeof calculateFlip>).profit)} highlight positive={(results as ReturnType<typeof calculateFlip>).profit > 0} />
+                      <ResultCard label="ROI" value={formatPercent((results as ReturnType<typeof calculateFlip>).roi)} positive={(results as ReturnType<typeof calculateFlip>).roi > 0} />
+                      <ResultCard label="Annualized ROI" value={formatPercent((results as ReturnType<typeof calculateFlip>).annualizedROI)} positive={(results as ReturnType<typeof calculateFlip>).annualizedROI > 0} />
+                      <ResultCard label="Total Costs" value={formatCurrency((results as ReturnType<typeof calculateFlip>).totalCosts)} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* BRRRR Calculator */}
+              {activeCalc === 'brrrr' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Repeat className="w-5 h-5 text-orange-600" />
+                      BRRRR Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Purchase Price" value={brrrData.purchasePrice} onChange={(val) => setBrrrrData({...brrrData, purchasePrice: val})} />
+                      <InputField label="Rehab Costs" value={brrrData.rehabCosts} onChange={(val) => setBrrrrData({...brrrData, rehabCosts: val})} />
+                      <InputField label="After Repair Value (ARV)" value={brrrData.arv} onChange={(val) => setBrrrrData({...brrrData, arv: val})} />
+                      <InputField label="Monthly Rent" value={brrrData.rentAmount} onChange={(val) => setBrrrrData({...brrrData, rentAmount: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-orange-800">
+                      <PiggyBank className="w-5 h-5" />
+                      BRRRR Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Cash Recovered" value={formatCurrency((results as ReturnType<typeof calculateBRRRR>).cashRecovered)} highlight />
+                      <ResultCard label="Cash Left In Deal" value={formatCurrency((results as ReturnType<typeof calculateBRRRR>).cashLeftIn)} />
+                      <ResultCard label="Monthly Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateBRRRR>).monthlyCashFlow)} positive={(results as ReturnType<typeof calculateBRRRR>).monthlyCashFlow > 0} />
+                      <ResultCard label="Cash on Cash Return" value={formatPercent((results as ReturnType<typeof calculateBRRRR>).cashOnCash)} positive={(results as ReturnType<typeof calculateBRRRR>).cashOnCash > 0} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Rental Calculator */}
+              {activeCalc === 'rental' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-green-600" />
+                      Rental Property Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Purchase Price" value={rentalData.purchasePrice} onChange={(val) => setRentalData({...rentalData, purchasePrice: val})} />
+                      <InputField label="Monthly Rent" value={rentalData.rentAmount} onChange={(val) => setRentalData({...rentalData, rentAmount: val})} />
+                      <InputField label="Annual Property Tax" value={rentalData.propertyTax} onChange={(val) => setRentalData({...rentalData, propertyTax: val})} />
+                      <InputField label="Annual Insurance" value={rentalData.insurance} onChange={(val) => setRentalData({...rentalData, insurance: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-green-800">
+                      <BarChart3 className="w-5 h-5" />
+                      Rental Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Monthly Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateRental>).monthlyCashFlow)} highlight positive={(results as ReturnType<typeof calculateRental>).monthlyCashFlow > 0} />
+                      <ResultCard label="Annual Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateRental>).annualCashFlow)} positive={(results as ReturnType<typeof calculateRental>).annualCashFlow > 0} />
+                      <ResultCard label="Cash on Cash Return" value={formatPercent((results as ReturnType<typeof calculateRental>).cashOnCash)} positive={(results as ReturnType<typeof calculateRental>).cashOnCash > 8} />
+                      <ResultCard label="Cap Rate" value={formatPercent((results as ReturnType<typeof calculateRental>).capRate)} positive={(results as ReturnType<typeof calculateRental>).capRate > 6} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Creative Finance Calculator */}
+              {activeCalc === 'creative' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-pink-600" />
+                      Creative Finance Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Purchase Price" value={creativeData.purchasePrice} onChange={(val) => setCreativeData({...creativeData, purchasePrice: val})} />
+                      <InputField label="Down Payment" value={creativeData.downPayment} onChange={(val) => setCreativeData({...creativeData, downPayment: val})} />
+                      <InputField label="Interest Rate (%)" value={creativeData.interestRate} onChange={(val) => setCreativeData({...creativeData, interestRate: val})} />
+                      <InputField label="Expected Monthly Rent" value={creativeData.rentAmount} onChange={(val) => setCreativeData({...creativeData, rentAmount: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 border border-pink-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-pink-800">
+                      <PiggyBank className="w-5 h-5" />
+                      Creative Finance Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Monthly Payment" value={formatCurrency((results as ReturnType<typeof calculateCreative>).monthlyPayment)} />
+                      <ResultCard label="Monthly Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateCreative>).monthlyCashFlow)} highlight positive={(results as ReturnType<typeof calculateCreative>).monthlyCashFlow > 0} />
+                      <ResultCard label="Annual Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateCreative>).annualCashFlow)} positive={(results as ReturnType<typeof calculateCreative>).annualCashFlow > 0} />
+                      <ResultCard label="Cash on Cash Return" value={formatPercent((results as ReturnType<typeof calculateCreative>).cashOnCash)} positive={(results as ReturnType<typeof calculateCreative>).cashOnCash > 10} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Wholesale Deal Calculator */}
+              {activeCalc === 'wholesale' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <ArrowRightLeft className="w-5 h-5 text-cyan-600" />
+                      Wholesale Deal Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Your Contract Price" value={wholesaleData.contractPrice} onChange={(val) => setWholesaleData({...wholesaleData, contractPrice: val})} />
+                      <InputField label="After Repair Value (ARV)" value={wholesaleData.arv} onChange={(val) => setWholesaleData({...wholesaleData, arv: val})} />
+                      <InputField label="Estimated Rehab Costs" value={wholesaleData.rehabCosts} onChange={(val) => setWholesaleData({...wholesaleData, rehabCosts: val})} />
+                      <InputField label="Your Assignment Fee" value={wholesaleData.assignmentFee} onChange={(val) => setWholesaleData({...wholesaleData, assignmentFee: val})} />
+                      <InputField label="Marketing Costs" value={wholesaleData.marketingCosts} onChange={(val) => setWholesaleData({...wholesaleData, marketingCosts: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-6 border border-cyan-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-cyan-800">
+                      <DollarSign className="w-5 h-5" />
+                      Wholesale Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Your Net Profit" value={formatCurrency((results as ReturnType<typeof calculateWholesale>).netProfit)} highlight positive={(results as ReturnType<typeof calculateWholesale>).netProfit > 0} />
+                      <ResultCard label="Buyer's Maximum Offer" value={formatCurrency((results as ReturnType<typeof calculateWholesale>).buyerMAO)} />
+                      <ResultCard label="Deal Spread" value={formatCurrency((results as ReturnType<typeof calculateWholesale>).spread)} positive={(results as ReturnType<typeof calculateWholesale>).spread > 0} />
+                      <ResultCard label="Your ROI" value={formatPercent((results as ReturnType<typeof calculateWholesale>).roi)} positive={(results as ReturnType<typeof calculateWholesale>).roi > 100} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 1031 Exchange Calculator */}
+              {activeCalc === 'exchange' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <RefreshCw className="w-5 h-5 text-yellow-600" />
+                      1031 Exchange Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Sale Price of Property" value={exchangeData.salePrice} onChange={(val) => setExchangeData({...exchangeData, salePrice: val})} />
+                      <InputField label="Original Purchase Price" value={exchangeData.originalPurchase} onChange={(val) => setExchangeData({...exchangeData, originalPurchase: val})} />
+                      <InputField label="Current Tax Basis" value={exchangeData.currentBasis} onChange={(val) => setExchangeData({...exchangeData, currentBasis: val})} />
+                      <InputField label="Total Depreciation Taken" value={exchangeData.depreciation} onChange={(val) => setExchangeData({...exchangeData, depreciation: val})} />
+                      <InputField label="Purchase Price of New Property" value={exchangeData.purchasePriceNew} onChange={(val) => setExchangeData({...exchangeData, purchasePriceNew: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-yellow-800">
+                      <PiggyBank className="w-5 h-5" />
+                      1031 Exchange Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Capital Gain" value={formatCurrency((results as ReturnType<typeof calculateExchange>).capitalGain)} />
+                      <ResultCard label="Total Tax Without 1031" value={formatCurrency((results as ReturnType<typeof calculateExchange>).totalTaxWithout1031)} highlight />
+                      <ResultCard label="Tax Deferred with 1031" value={formatCurrency((results as ReturnType<typeof calculateExchange>).taxDeferred)} positive={(results as ReturnType<typeof calculateExchange>).taxDeferred > 0} />
+                      {(results as ReturnType<typeof calculateExchange>).boot > 0 && (
+                        <ResultCard label="Tax on Boot" value={formatCurrency((results as ReturnType<typeof calculateExchange>).taxOnBoot)} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Saved Deals */}
+            {savedDeals.length > 0 && (
+              <div className="max-w-7xl mx-auto mt-8">
+                <div className="bg-card rounded-xl p-6 border border-border">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-emerald-600" />
+                    Saved Deals ({savedDeals.length})
+                  </h3>
+                  <div className="grid gap-3">
+                    {savedDeals.slice(-5).reverse().map(deal => (
+                      <div key={deal.id} className="bg-muted/50 p-4 rounded-lg border border-border">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <span className="font-medium text-emerald-600">{deal.type.toUpperCase()}</span>
+                            <span className="text-muted-foreground ml-3">{deal.date}</span>
+                          </div>
+                          <Button variant="ghost" size="sm" className="text-primary">
+                            View Details
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Helper Components
+interface InputFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  tooltip?: string;
+}
+
+const InputField = ({ label, value, onChange, tooltip }: InputFieldProps) => (
+  <div>
+    <label className="block text-sm font-medium text-muted-foreground mb-2">
+      {label}
+      {tooltip && (
+        <span className="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-xs cursor-help" title={tooltip}>
+          <Info className="w-3 h-3" />
+        </span>
+      )}
+    </label>
+    <div className="relative">
+      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full pl-10 pr-4 py-3 bg-muted/50 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+        placeholder="0"
+      />
+    </div>
+  </div>
+);
+
+interface ResultCardProps {
+  label: string;
+  value: string;
+  highlight?: boolean;
+  positive?: boolean;
+  description?: string;
+}
+
+const ResultCard = ({ label, value, highlight, positive, description }: ResultCardProps) => (
+  <div className={`p-4 rounded-lg border ${
+    highlight 
+      ? 'bg-emerald-100 border-emerald-300' 
+      : 'bg-white border-border'
+  }`}>
+    <div className="flex justify-between items-start mb-1">
+      <span className="text-sm text-muted-foreground">{label}</span>
+    </div>
+    <div className={`text-2xl font-bold ${
+      highlight 
+        ? 'text-emerald-700' 
+        : positive === true 
+          ? 'text-green-600' 
+          : positive === false 
+            ? 'text-red-600' 
+            : 'text-foreground'
+    }`}>
+      {value}
+    </div>
+    {description && (
+      <div className="text-xs text-muted-foreground mt-1">{description}</div>
+    )}
+  </div>
+);
+
+export default InvestorCalculator;

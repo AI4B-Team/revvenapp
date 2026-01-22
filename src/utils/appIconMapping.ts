@@ -9,6 +9,8 @@ import toolAiStory from '@/assets/icons/tool-ai-story.png';
 import toolLeadGeneration from '@/assets/icons/tool-lead-generation.png';
 import toolMasterCloser from '@/assets/icons/tool-master-closer.png';
 import toolAiResponder from '@/assets/icons/tool-ai-responder.png';
+import toolInbox from '@/assets/icons/tool-inbox.png';
+import toolInvestorCalculator from '@/assets/icons/investor-calculator-icon.png';
 
 // Import image tool icons
 import toolArtBlocks from '@/assets/icons/tool-art-blocks.png';
@@ -69,6 +71,8 @@ export const appIconMapping: Record<string, string> = {
   'AI Story': toolAiStory,
   'Lead Generation': toolLeadGeneration,
   'Master Closer': toolMasterCloser,
+  'Inbox': toolInbox,
+  'Investor Calculator': toolInvestorCalculator,
   
   // Image
   'Art Blocks': toolArtBlocks,
