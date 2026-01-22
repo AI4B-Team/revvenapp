@@ -62,6 +62,8 @@ export const appIconMapping: Record<string, string> = {
   'Landing Page': toolLandingPage,
   'Form Builder': toolFormBuilder,
   'Chat Bot': toolChatbot,
+  // Reuse the Chat Bot icon for now (premium icon pass can swap later)
+  'AI Responder': toolChatbot,
   'API Builder': toolApiBuilder,
   'Automation Flow': toolAutomationFlow,
   'AI Story': toolAiStory,
