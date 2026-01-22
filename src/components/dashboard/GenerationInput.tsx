@@ -6328,9 +6328,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   e.stopPropagation();
                                   onCharactersSelect?.([]);
                                 }}
-                                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-slate-500/80 hover:bg-destructive text-white hover:text-destructive-foreground flex items-center justify-center transition z-10"
+                                className="absolute -right-1 -top-1 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition z-20 shadow-md"
                               >
-                                <X size={10} />
+                                <X size={12} />
                               </button>
                             )}
                           </div>
