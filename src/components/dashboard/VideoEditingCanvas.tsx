@@ -58,6 +58,7 @@ import {
   Minus,
   Star,
   Box,
+  Cpu,
   Scan,
   LayoutGrid,
   ImageIcon,
@@ -2339,7 +2340,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                                  <Box className="w-4 h-4" />
+                                  <Cpu className="w-4 h-4" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent><p>Model</p></TooltipContent>
@@ -2385,7 +2386,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                                  <Box className="w-4 h-4" />
+                                  <Cpu className="w-4 h-4" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent><p>Model</p></TooltipContent>

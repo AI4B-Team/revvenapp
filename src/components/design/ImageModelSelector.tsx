@@ -1,5 +1,6 @@
-import { Label } from '@/components/ui/label';
+import { Cpu } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const IMAGE_MODELS = [
   { value: 'auto', label: 'Auto (Flux Pro)' },
@@ -23,11 +24,22 @@ interface ImageModelSelectorProps {
 }
 
 const ImageModelSelector = ({ value, onChange }: ImageModelSelectorProps) => {
+  const selectedModel = IMAGE_MODELS.find(m => m.value === value);
+  
   return (
     <div className="space-y-2">
-      <Label htmlFor="model">AI Model</Label>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Cpu className="w-4 h-4" />
+            <span className="font-medium">Model</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>Select AI Model</TooltipContent>
+      </Tooltip>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger className="flex items-center gap-2">
+          <Cpu className="w-4 h-4 text-muted-foreground" />
           <SelectValue placeholder="Select model" />
         </SelectTrigger>
         <SelectContent>
