@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, HelpCircle, Play, Trash2, RefreshCw, AlertTriangle, Check } from 'lucide-react';
+import { ArrowRight, HelpCircle, Play, Trash2, RefreshCw, AlertTriangle, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +26,7 @@ interface SocialPlatform {
   Icon: React.FC<{ className?: string }>;
   available: boolean;
   hasWatchVideos?: boolean;
+  videoUrl?: string;
   faqs?: { question: string; answer: string }[];
 }
 
@@ -53,6 +54,7 @@ const platforms: SocialPlatform[] = [
     Icon: InstagramIcon,
     available: true,
     hasWatchVideos: true,
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     faqs: [
       { question: "I am trying to Link Instagram but a Facebook Popup Opens up?", answer: "Instagram Business accounts are linked through Facebook. You need to connect your Facebook page that is linked to your Instagram Business account." },
       { question: "I don't have a Facebook page. How can I link Instagram?", answer: "You need to create a Facebook Page and connect it to your Instagram Business or Creator account first." },
@@ -68,6 +70,7 @@ const platforms: SocialPlatform[] = [
     Icon: FacebookIcon,
     available: true,
     hasWatchVideos: true,
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     faqs: [
       { question: "How do I connect my Facebook Page?", answer: "Click the Add button and sign in with Facebook. Make sure you have admin access to the Page you want to connect." },
       { question: "I can't see my Facebook Page in the list.", answer: "Ensure you have admin access to the Page and that you've granted all necessary permissions during the connection process." },
@@ -80,6 +83,7 @@ const platforms: SocialPlatform[] = [
     Icon: LinkedInIcon,
     available: true,
     hasWatchVideos: true,
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     faqs: [
       { question: "Can I connect both personal profile and company page?", answer: "Yes, you can connect both your personal LinkedIn profile and any company pages you manage." },
     ]
@@ -124,6 +128,7 @@ const platforms: SocialPlatform[] = [
     Icon: XIcon,
     available: true,
     hasWatchVideos: true,
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     faqs: [
       { question: "Why is it called Twitter here?", answer: "We support posting to X (formerly Twitter). The connection process remains the same." },
     ]
@@ -149,6 +154,8 @@ export default function SocialTab() {
   const [faqModalOpen, setFaqModalOpen] = useState(false);
   const [selectedPlatformFaqs, setSelectedPlatformFaqs] = useState<{ name: string; faqs: { question: string; answer: string }[] } | null>(null);
   const [selectedAccounts, setSelectedAccounts] = useState<Record<string, string[]>>({});
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<{ name: string; url: string } | null>(null);
 
   useEffect(() => {
     loadConnectedPages();
@@ -314,6 +321,13 @@ export default function SocialTab() {
     }
   };
 
+  const openVideoModal = (platform: SocialPlatform) => {
+    if (platform.videoUrl) {
+      setSelectedVideo({ name: platform.name, url: platform.videoUrl });
+      setVideoModalOpen(true);
+    }
+  };
+
   const totalConnected = connectedPages.length + youtubeChannels.length;
   const maxChannels = 20;
 
@@ -407,11 +421,12 @@ export default function SocialTab() {
                       FAQ
                     </Button>
                   )}
-                  {platform.hasWatchVideos && (
+                  {platform.hasWatchVideos && platform.videoUrl && (
                     <Button
                       size="sm"
                       variant="ghost"
                       className="text-gray-500 gap-1"
+                      onClick={() => openVideoModal(platform)}
                     >
                       <Play className="w-4 h-4" />
                       Watch Videos
@@ -553,6 +568,26 @@ export default function SocialTab() {
               </AccordionItem>
             ))}
           </Accordion>
+        </DialogContent>
+      </Dialog>
+
+      {/* Video Modal */}
+      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle>How to connect {selectedVideo?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video w-full">
+            {selectedVideo?.url && (
+              <iframe
+                src={selectedVideo.url}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={`${selectedVideo.name} tutorial video`}
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
