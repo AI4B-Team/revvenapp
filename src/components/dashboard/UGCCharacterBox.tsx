@@ -59,6 +59,8 @@ interface UGCCharacterBoxProps {
   onDelete: () => void;
   onAudioGenerated?: (audioUrl: string) => void;
   onVoiceSettingsChange?: (settings: { voice: string; stability: number; similarity_boost: number; style: number; speed: number; use_speaker_boost: boolean }) => void;
+  /** When true, only show the character avatar and delete button (no voice controls) */
+  simpleMode?: boolean;
 }
 
 // ============================================
@@ -675,6 +677,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
   onDelete,
   onAudioGenerated,
   onVoiceSettingsChange,
+  simpleMode = false,
 }) => {
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [showVoiceLibrary, setShowVoiceLibrary] = useState(false);
@@ -781,7 +784,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
   return (
     <>
       <div className="flex items-center gap-2 mt-4 mb-2">
-        <div className="relative flex items-center gap-3 px-3 py-2.5 bg-background border-2 border-slate-400 dark:border-slate-500 rounded-xl min-w-[280px]">
+        <div className={`relative flex items-center gap-3 px-3 py-2.5 bg-background border-2 border-slate-400 dark:border-slate-500 rounded-xl ${simpleMode ? 'min-w-fit' : 'min-w-[280px]'}`}>
           {/* Avatar */}
           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-teal-100 to-cyan-100 dark:from-teal-900 dark:to-cyan-900 flex items-center justify-center overflow-hidden flex-shrink-0">
             {characterImage ? (
@@ -791,24 +794,34 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
             )}
           </div>
 
-          {/* Voice Selector with darker background */}
-          <button
-            onClick={() => setShowVoiceLibrary(true)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-muted/70 hover:bg-muted rounded-md transition-colors"
-          >
-            <AudioLines className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">{selectedVoice.name}</span>
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-          </button>
+          {/* Character Name - Show in simple mode */}
+          {simpleMode && (
+            <span className="text-sm font-medium text-foreground">{character.name}</span>
+          )}
+
+          {/* Voice Selector with darker background - Hide in simple mode */}
+          {!simpleMode && (
+            <button
+              onClick={() => setShowVoiceLibrary(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-muted/70 hover:bg-muted rounded-md transition-colors"
+            >
+              <AudioLines className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">{selectedVoice.name}</span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </button>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setShowVoiceSettings(!showVoiceSettings)}
-              className="p-2 hover:bg-muted rounded-md transition-colors"
-            >
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
-            </button>
+            {/* Voice Settings - Hide in simple mode */}
+            {!simpleMode && (
+              <button
+                onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+                className="p-2 hover:bg-muted rounded-md transition-colors"
+              >
+                <MoreVertical className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
             <button
               onClick={onDelete}
               className="p-2 hover:bg-destructive/10 rounded-md transition-colors group"
@@ -817,69 +830,75 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
             </button>
           </div>
 
-          {/* Voice Settings Popup */}
-          <AnimatePresence>
-            {showVoiceSettings && (
-              <VoiceSettingsPopup
-                settings={voiceSettings}
-                onChange={setVoiceSettings}
-                onClose={() => setShowVoiceSettings(false)}
-              />
-            )}
-          </AnimatePresence>
+          {/* Voice Settings Popup - Only in full mode */}
+          {!simpleMode && (
+            <AnimatePresence>
+              {showVoiceSettings && (
+                <VoiceSettingsPopup
+                  settings={voiceSettings}
+                  onChange={setVoiceSettings}
+                  onClose={() => setShowVoiceSettings(false)}
+                />
+              )}
+            </AnimatePresence>
+          )}
         </div>
 
-        {/* Play Button - Shows when script has content */}
-        <AnimatePresence>
-          {script.trim() && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              onClick={handlePlayAudio}
-              disabled={isGeneratingAudio}
-              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all flex-shrink-0 ${
-                isGeneratingAudio || isPlayingPreview
-                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
-                  : 'bg-emerald-500 hover:bg-emerald-600 text-white'
-              }`}
-            >
-              {isGeneratingAudio ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  className="w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full"
-                />
-              ) : isPlayingPreview ? (
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3].map((i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ height: [4, 12, 4] }}
-                      transition={{ duration: 0.4, repeat: Infinity, delay: i * 0.1 }}
-                      className="w-1 bg-emerald-600 rounded-full"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <Play className="w-5 h-5 ml-0.5" />
-              )}
-            </motion.button>
-          )}
-        </AnimatePresence>
+        {/* Play Button - Shows when script has content and not in simple mode */}
+        {!simpleMode && (
+          <AnimatePresence>
+            {script.trim() && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={handlePlayAudio}
+                disabled={isGeneratingAudio}
+                className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all flex-shrink-0 ${
+                  isGeneratingAudio || isPlayingPreview
+                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
+                    : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                }`}
+              >
+                {isGeneratingAudio ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full"
+                  />
+                ) : isPlayingPreview ? (
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3].map((i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ height: [4, 12, 4] }}
+                        transition={{ duration: 0.4, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-1 bg-emerald-600 rounded-full"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <Play className="w-5 h-5 ml-0.5" />
+                )}
+              </motion.button>
+            )}
+          </AnimatePresence>
+        )}
       </div>
 
-      {/* Voice Library Modal */}
-      <VoiceLibraryModal
-        isOpen={showVoiceLibrary}
-        onClose={() => setShowVoiceLibrary(false)}
-        currentVoice={selectedVoice}
-        onSelectVoice={handleVoiceSelect}
-        characterAvatar={characterImage}
-      />
+      {/* Voice Library Modal - Only in full mode */}
+      {!simpleMode && (
+        <VoiceLibraryModal
+          isOpen={showVoiceLibrary}
+          onClose={() => setShowVoiceLibrary(false)}
+          currentVoice={selectedVoice}
+          onSelectVoice={handleVoiceSelect}
+          characterAvatar={characterImage}
+        />
+      )}
 
-      {/* Click outside to close settings */}
-      {showVoiceSettings && (
+      {/* Click outside to close settings - Only in full mode */}
+      {!simpleMode && showVoiceSettings && (
         <div
           className="fixed inset-0 z-40"
           onClick={() => setShowVoiceSettings(false)}
