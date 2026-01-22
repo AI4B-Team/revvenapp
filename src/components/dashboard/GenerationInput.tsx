@@ -5371,8 +5371,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </div>
             ))}
             
-            {/* Add Reference Image Button - Show only when character or reference is already selected */}
-            {shouldShowReferences && (activeCharacters.length > 0 || activeReferences.length > 0) && (
+            {/* Add Reference Image Button - Show only when character or reference is already selected, hidden in Story mode (only 1 image allowed) */}
+            {shouldShowReferences && (activeCharacters.length > 0 || activeReferences.length > 0) && !(isVideoMode && selectedAnimateMode === 'Story') && (
               <div className="relative group">
                 <button
                   onClick={onReferencesClick}
@@ -6287,12 +6287,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      {/* Character button - disabled if reference is selected */}
+                      {/* Character button - disabled if reference is selected (Story mode: only 1 image allowed) */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => {
-                              if (storyReferenceImage) {
+                              const hasReference = storyReferenceImage || videoModeState.references.length > 0;
+                              if (hasReference) {
                                 toast({
                                   title: "Clear reference first",
                                   description: "You can use either a character OR a reference image, not both.",
@@ -6305,7 +6306,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
                               videoModeState.characters.length > 0 
                                 ? 'bg-brand-blue/15 text-muted-foreground' 
-                                : storyReferenceImage
+                                : (storyReferenceImage || videoModeState.references.length > 0)
                                   ? 'bg-secondary/50 text-muted-foreground/50 cursor-not-allowed'
                                   : 'bg-secondary text-muted-foreground'
                             }`}
@@ -6319,7 +6320,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      {/* Reference button - opens modal like image section */}
+                      {/* Reference button - opens modal like image section (Story mode: only 1 image allowed) */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
@@ -6327,7 +6328,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               if (videoModeState.characters.length > 0) {
                                 toast({
                                   title: "Clear character first",
-                                  description: "You can use either a character OR reference images, not both.",
+                                  description: "You can use either a character OR a reference image, not both.",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              // Story mode only allows 1 reference image
+                              if (videoModeState.references.length > 0) {
+                                toast({
+                                  title: "Only 1 image allowed",
+                                  description: "Story mode supports only one reference image. Remove the current one to add a different image.",
                                   variant: "destructive",
                                 });
                                 return;
@@ -6343,7 +6353,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             }`}
                           >
                             <ReferenceLinkIcon size={16} />
-                            {selectedReferences.length > 0 && <span>Reference ({selectedReferences.length})</span>}
+                            {selectedReferences.length > 0 && <span>Reference (1)</span>}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
