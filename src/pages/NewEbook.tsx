@@ -8,7 +8,7 @@ import {
   Briefcase, Coffee, GraduationCap, Heart, Shield, Flame, Search, ChevronDown,
   Check, Pencil, Eye, UserPlus, MoreVertical, Loader2, Wand2, RefreshCw,
   ArrowRight, PenLine, Target, Zap, Award, Undo2, Redo2, ZoomIn, ZoomOut, Replace, Minus,
-  Share2, Lock as LockIcon, Cloud, Calendar, Copy, Code, Monitor, Rss, MoreHorizontal, Shuffle
+  Share2, Lock as LockIcon, Cloud, Calendar, Copy, Code, Monitor, Rss, MoreHorizontal, Shuffle, Cpu
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -86,6 +86,7 @@ interface NewBookData {
   wordsPerChapter: number;
   includeImages: boolean;
   selectedTitle: string;
+  model: string;
 }
 
 const PLATFORMS = [
@@ -165,6 +166,16 @@ const TONES = [
   { id: 'friendly', name: 'Friendly', icon: Heart },
   { id: 'authoritative', name: 'Authoritative', icon: Shield },
   { id: 'inspirational', name: 'Inspirational', icon: Flame },
+];
+
+// AI Models available through Lovable AI
+const AI_MODELS = [
+  { id: 'auto', name: 'Auto', description: 'Automatically selects the best model' },
+  { id: 'google/gemini-3-flash-preview', name: 'Gemini 3 Flash', description: 'Fast & balanced' },
+  { id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', description: 'Top-tier reasoning' },
+  { id: 'openai/gpt-5', name: 'GPT-5', description: 'Powerful all-rounder' },
+  { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini', description: 'Fast & efficient' },
+  { id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', description: 'Excellent writing' },
 ];
 
 const CREATIVES = [
@@ -466,6 +477,7 @@ const NewEbook = () => {
     wordsPerChapter: 2000,
     includeImages: true,
     selectedTitle: '',
+    model: 'auto',
   });
   const [contentTypeSelected, setContentTypeSelected] = useState(initialTab === 'design');
 
@@ -843,6 +855,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
   const currentTone = TONES.find(t => t.id === bookData.tone);
   const currentContentType = CONTENT_TYPES.find(t => t.id === bookData.contentType);
   const currentSource = SOURCE_OPTIONS.find(s => s.id === bookData.sourceType);
+  const currentModel = AI_MODELS.find(m => m.id === bookData.model);
 
   // Track which tabs are completed
   const isIdeaComplete = bookData.prompt.trim().length > 0 && titleSuggestions.length > 0;
@@ -1772,6 +1785,34 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                             >
                               <type.icon className="w-4 h-4" />
                               {type.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/* Model Dropdown */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                            <Cpu className="w-4 h-4 text-muted-foreground" />
+                            <span>Model{currentModel ? `: ${currentModel.name}` : ''}</span>
+                            <ChevronDown className="w-3 h-3 ml-1" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-56">
+                          {AI_MODELS.map(model => (
+                            <DropdownMenuItem
+                              key={model.id}
+                              onClick={() => setBookData(prev => ({ ...prev, model: model.id }))}
+                              className="flex flex-col items-start gap-0.5"
+                            >
+                              <div className="flex items-center gap-2 w-full">
+                                <span className="font-medium">{model.name}</span>
+                                {bookData.model === model.id && (
+                                  <Check className="w-4 h-4 ml-auto text-emerald-500" />
+                                )}
+                              </div>
+                              <span className="text-xs text-muted-foreground">{model.description}</span>
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuContent>
