@@ -11,12 +11,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Progress sidebar component
 const SignupProgress = ({ currentStep }: { currentStep: number }) => {
   const steps = [
-    { id: 1, label: 'Account Setup', description: 'Create your account' },
-    { id: 2, label: 'Space Configuration', description: 'Name your workspace' },
-    { id: 3, label: 'Agent Identity', description: 'Define your AI assistant' },
-    { id: 4, label: 'Your Profile', description: 'Tell us about yourself' },
-    { id: 5, label: 'Capabilities', description: 'Explore AI features' },
-    { id: 6, label: 'Launch', description: 'Start your journey' },
+    { id: 1, label: 'Account' },
+    { id: 2, label: 'Space' },
+    { id: 3, label: 'Agent' },
+    { id: 4, label: 'Identity' },
+    { id: 5, label: 'Capabilities' },
+    { id: 6, label: 'Launch' },
   ];
 
   const getCurrentDisplayStep = () => {
@@ -37,11 +37,6 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-brand-green/20 rounded-full blur-3xl" />
         <div className="absolute top-1/4 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 420 120" className="w-full h-auto fill-brand-green/30">
-            <path d="M0,60 C100,120 200,0 320,80 C380,120 420,90 420,90 L420,120 L0,120 Z" />
-          </svg>
-        </div>
       </div>
 
       <div className="relative z-10 p-10 flex flex-col h-full">
@@ -58,7 +53,7 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
             Welcome to REVVEN! 👋
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed">
-            Let's get your account set up in just a few quick steps. You can always go back and change your answers later.
+            We'll guide you through a quick setup to personalize your AI-powered workspace. Don't worry—you can update everything later.
           </p>
         </div>
 
@@ -95,7 +90,7 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
                       )}
                     </div>
                     
-                    {/* Step label & description */}
+                    {/* Step label */}
                     <div className="flex-1 min-w-0">
                       <span className={`block text-sm font-medium transition-all ${
                         isActive 
@@ -108,7 +103,7 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
                       </span>
                       {isActive && (
                         <span className="text-xs text-brand-green font-medium">
-                          Current step
+                          Current Step
                         </span>
                       )}
                     </div>
