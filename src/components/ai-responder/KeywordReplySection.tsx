@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,8 @@ import {
   MessageSquare,
   Clock,
   X,
-  Save
+  Save,
+  Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -210,29 +212,44 @@ const KeywordReplySection = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Tag className="text-primary" size={20} />
-            Keyword Reply
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Set keywords and auto-reply with predefined messages
-          </p>
+        <div className="flex items-center gap-3">
+          <motion.div 
+            className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg"
+            whileHover={{ scale: 1.05, rotate: 5 }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            <Tag className="text-white" size={20} />
+          </motion.div>
+          <div>
+            <h3 className="text-lg font-semibold">Keyword Reply</h3>
+            <p className="text-sm text-muted-foreground">
+              Set keywords and auto-reply with predefined messages
+            </p>
+          </div>
         </div>
-        <Button onClick={() => setShowForm(true)} className="gap-2">
+        <Button onClick={() => setShowForm(true)} className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-500/20 transition-all duration-200">
           <Plus size={16} />
           Add Keyword Reply
         </Button>
       </div>
 
       {/* Form */}
-      {showForm && (
-        <Card className="border-primary/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">
-              {editingId ? 'Edit Keyword Reply' : 'New Keyword Reply'}
-            </CardTitle>
-          </CardHeader>
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -20 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+          >
+            <Card className="border-amber-500/50 overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Sparkles className="text-amber-500" size={16} />
+                  {editingId ? 'Edit Keyword Reply' : 'New Keyword Reply'}
+                </CardTitle>
+              </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Name</Label>
@@ -262,87 +279,127 @@ const KeywordReplySection = () => {
                 rows={4}
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={resetForm}>
-                <X size={16} className="mr-1" />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={resetForm} className="gap-1 hover:bg-muted transition-colors">
+                <X size={16} />
                 Cancel
               </Button>
-              <Button onClick={handleSave}>
-                <Save size={16} className="mr-1" />
+              <Button 
+                onClick={handleSave} 
+                className="gap-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+              >
+                <Save size={16} />
                 {editingId ? 'Update' : 'Create'}
               </Button>
             </div>
           </CardContent>
         </Card>
-      )}
+      </motion.div>
+    )}
+  </AnimatePresence>
 
       {/* List */}
       {replies.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="py-8 text-center">
-            <Tag className="mx-auto mb-3 text-muted-foreground" size={32} />
-            <p className="text-muted-foreground">No keyword replies yet</p>
-            <p className="text-sm text-muted-foreground">Create your first keyword reply to get started</p>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="border-dashed border-2 bg-gradient-to-br from-muted/30 to-muted/10">
+            <CardContent className="py-12 text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
+                className="mx-auto w-16 h-16 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center mb-4"
+              >
+                <Tag className="text-amber-500" size={32} />
+              </motion.div>
+              <p className="text-foreground font-medium">No keyword replies yet</p>
+              <p className="text-sm text-muted-foreground mt-1">Create your first keyword reply to get started</p>
+            </CardContent>
+          </Card>
+        </motion.div>
       ) : (
         <div className="space-y-3">
-          {replies.map((reply) => (
-            <Card key={reply.id} className={`${!reply.is_active ? 'opacity-60' : ''}`}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-medium">{reply.name}</h4>
-                      <Badge variant={reply.is_active ? 'default' : 'secondary'}>
-                        {reply.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
+          <AnimatePresence>
+            {replies.map((reply, index) => (
+              <motion.div
+                key={reply.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20, height: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                layout
+              >
+                <Card className={`group hover:shadow-md transition-all duration-300 ${!reply.is_active ? 'opacity-60' : ''}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-medium">{reply.name}</h4>
+                          <Badge 
+                            variant={reply.is_active ? 'default' : 'secondary'}
+                            className={reply.is_active ? 'bg-emerald-500 hover:bg-emerald-600' : ''}
+                          >
+                            {reply.is_active ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {reply.keywords.map((keyword, idx) => (
+                            <motion.div
+                              key={idx}
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ delay: idx * 0.03 }}
+                            >
+                              <Badge variant="outline" className="text-xs bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400">
+                                {keyword}
+                              </Badge>
+                            </motion.div>
+                          ))}
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                          {reply.response_message}
+                        </p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <MessageSquare size={12} className="text-primary" />
+                            <span className="font-medium">{reply.response_count}</span> responses
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} />
+                            Last: {formatDate(reply.last_triggered_at)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Switch
+                          checked={reply.is_active}
+                          onCheckedChange={() => handleToggle(reply.id, reply.is_active)}
+                          className="data-[state=checked]:bg-emerald-500"
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => handleDuplicate(reply)} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Copy size={16} />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(reply)} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Edit size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(reply.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {reply.keywords.map((keyword, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {keyword}
-                        </Badge>
-                      ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                      {reply.response_message}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <MessageSquare size={12} />
-                        {reply.response_count} responses
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock size={12} />
-                        Last: {formatDate(reply.last_triggered_at)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={reply.is_active}
-                      onCheckedChange={() => handleToggle(reply.id, reply.is_active)}
-                    />
-                    <Button variant="ghost" size="icon" onClick={() => handleDuplicate(reply)}>
-                      <Copy size={16} />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(reply)}>
-                      <Edit size={16} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(reply.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
     </div>
