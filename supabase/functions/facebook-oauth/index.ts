@@ -109,86 +109,92 @@ serve(async (req) => {
       if (isInstagram) {
         const userId = state.replace(/^ig:/, '');
 
-        const tokenUrl = `https://graph.facebook.com/v21.0/oauth/access_token?client_id=${instagramClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${instagramClientSecret}&code=${code}`;
-        const tokenResponse = await fetch(tokenUrl);
+        // Use Instagram-specific token exchange endpoint (not Graph API)
+        const tokenUrl = 'https://api.instagram.com/oauth/access_token';
+        const tokenBody = new URLSearchParams({
+          client_id: instagramClientId,
+          client_secret: instagramClientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: redirectUri,
+          code: code,
+        });
+
+        const tokenResponse = await fetch(tokenUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: tokenBody.toString(),
+        });
         const tokenData = await tokenResponse.json();
 
-        if (tokenData.error) {
-          console.error('Error exchanging IG code:', tokenData.error);
-          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(tokenData.error.message)}&provider=Instagram`;
+        console.log('Instagram token exchange response:', JSON.stringify(tokenData));
+
+        if (tokenData.error_type || tokenData.error_message) {
+          console.error('Error exchanging IG code:', tokenData);
+          const errorMsg = tokenData.error_message || tokenData.error_type || 'Unknown error';
+          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(errorMsg)}&provider=Instagram`;
           return Response.redirect(redirectUrl, 302);
         }
 
-        const userAccessToken = tokenData.access_token as string;
-        console.log('Got Instagram user access token');
+        const shortLivedToken = tokenData.access_token as string;
+        const igUserId = tokenData.user_id;
+        console.log('Got Instagram short-lived token for user:', igUserId);
 
-        // Fetch user's pages and their connected Instagram business account
-        const pagesUrl = `https://graph.facebook.com/v21.0/me/accounts?access_token=${userAccessToken}&fields=id,name,access_token,instagram_business_account{id,username}`;
-        const pagesResponse = await fetch(pagesUrl);
-        const pagesData = await pagesResponse.json();
+        // Exchange short-lived token for long-lived token (60 days)
+        const longLivedUrl = `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${instagramClientSecret}&access_token=${shortLivedToken}`;
+        const longLivedResponse = await fetch(longLivedUrl);
+        const longLivedData = await longLivedResponse.json();
 
-        if (pagesData.error) {
-          console.error('Error fetching pages for IG:', pagesData.error);
-          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(pagesData.error.message)}&provider=Instagram`;
+        let userAccessToken = shortLivedToken;
+        let tokenExpiresIn = 3600; // 1 hour for short-lived
+
+        if (longLivedData.access_token) {
+          userAccessToken = longLivedData.access_token;
+          tokenExpiresIn = longLivedData.expires_in || (60 * 24 * 60 * 60); // ~60 days
+          console.log('Got Instagram long-lived token, expires in', tokenExpiresIn, 'seconds');
+        } else {
+          console.warn('Failed to get long-lived token, using short-lived:', longLivedData);
+        }
+
+        // Get Instagram user info
+        const igUserUrl = `https://graph.instagram.com/v21.0/me?fields=id,username&access_token=${userAccessToken}`;
+        const igUserResponse = await fetch(igUserUrl);
+        const igUserData = await igUserResponse.json();
+
+        if (igUserData.error) {
+          console.error('Error fetching IG user info:', igUserData.error);
+          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(igUserData.error.message)}&provider=Instagram`;
           return Response.redirect(redirectUrl, 302);
         }
 
-        const entries: any[] = pagesData.data || [];
-        const withIg = entries.filter((p) => p.instagram_business_account?.id);
-
-        if (withIg.length === 0) {
-          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent('No Instagram Business account found on your connected Facebook Pages. Ensure your IG Professional account is linked to a Facebook Page.')}&provider=Instagram`;
-          return Response.redirect(redirectUrl, 302);
-        }
+        const instagramId = igUserData.id;
+        const instagramUsername = igUserData.username;
+        console.log('Instagram user:', instagramUsername, 'ID:', instagramId);
 
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        // Page access tokens are generally long-lived; store with a safety expiration.
-        const pageTokenExpiresAt = new Date(Date.now() + (60 * 24 * 60 * 60 * 1000));
+        // Store with token expiration
+        const tokenExpiresAt = new Date(Date.now() + (tokenExpiresIn * 1000));
 
-        let savedUsername = '';
-        for (const page of withIg) {
-          const ig = page.instagram_business_account;
+        // Store Instagram account directly (no Facebook Page needed for IG Business Login)
+        const { error: upsertIgError } = await supabase
+          .from('instagram_accounts')
+          .upsert({
+            user_id: userId,
+            facebook_page_id: instagramId, // Use IG ID as placeholder since no FB Page
+            instagram_id: instagramId,
+            instagram_username: instagramUsername || null,
+          }, {
+            onConflict: 'user_id,instagram_id'
+          });
 
-          // Store page access token (used for IG Messaging sends as well)
-          const { error: upsertPageError } = await supabase
-            .from('facebook_pages')
-            .upsert({
-              user_id: userId,
-              page_id: page.id,
-              page_name: page.name,
-              page_access_token: page.access_token,
-              page_picture: null,
-              token_expires_at: pageTokenExpiresAt.toISOString(),
-              token_type: 'long_lived',
-            }, {
-              onConflict: 'user_id,page_id'
-            });
-
-          if (upsertPageError) {
-            console.error('Error saving page for IG:', upsertPageError);
-          }
-
-          // Store IG mapping
-          const { error: upsertIgError } = await supabase
-            .from('instagram_accounts')
-            .upsert({
-              user_id: userId,
-              facebook_page_id: page.id,
-              instagram_id: ig.id,
-              instagram_username: ig.username || null,
-            }, {
-              onConflict: 'user_id,instagram_id'
-            });
-
-          if (upsertIgError) {
-            console.error('Error saving instagram account mapping:', upsertIgError);
-          } else {
-            savedUsername = ig.username || savedUsername;
-          }
+        if (upsertIgError) {
+          console.error('Error saving instagram account:', upsertIgError);
+          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent('Failed to save Instagram account')}&provider=Instagram`;
+          return Response.redirect(redirectUrl, 302);
         }
 
-        const channel = encodeURIComponent(savedUsername || withIg[0].instagram_business_account?.username || 'Instagram');
+        console.log('Successfully saved Instagram account:', instagramUsername);
+        const channel = encodeURIComponent(instagramUsername || 'Instagram');
         const redirectUrl = `${APP_URL}/oauth/callback?success=true&channel=${channel}&provider=Instagram`;
         return Response.redirect(redirectUrl, 302);
       }
