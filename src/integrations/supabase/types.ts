@@ -708,29 +708,38 @@ export type Database = {
       }
       instagram_accounts: {
         Row: {
+          access_token: string | null
           created_at: string
           facebook_page_id: string
           id: string
           instagram_id: string
           instagram_username: string | null
+          profile_picture_url: string | null
+          token_expires_at: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          access_token?: string | null
           created_at?: string
           facebook_page_id: string
           id?: string
           instagram_id: string
           instagram_username?: string | null
+          profile_picture_url?: string | null
+          token_expires_at?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          access_token?: string | null
           created_at?: string
           facebook_page_id?: string
           id?: string
           instagram_id?: string
           instagram_username?: string | null
+          profile_picture_url?: string | null
+          token_expires_at?: string | null
           updated_at?: string
           user_id?: string
         }

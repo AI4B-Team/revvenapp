@@ -155,8 +155,8 @@ serve(async (req) => {
           console.warn('Failed to get long-lived token, using short-lived:', longLivedData);
         }
 
-        // Get Instagram user info
-        const igUserUrl = `https://graph.instagram.com/v21.0/me?fields=id,username&access_token=${userAccessToken}`;
+        // Get Instagram user info including profile picture
+        const igUserUrl = `https://graph.instagram.com/v21.0/me?fields=id,username,profile_picture_url&access_token=${userAccessToken}`;
         const igUserResponse = await fetch(igUserUrl);
         const igUserData = await igUserResponse.json();
 
@@ -168,14 +168,15 @@ serve(async (req) => {
 
         const instagramId = igUserData.id;
         const instagramUsername = igUserData.username;
-        console.log('Instagram user:', instagramUsername, 'ID:', instagramId);
+        const profilePictureUrl = igUserData.profile_picture_url || null;
+        console.log('Instagram user:', instagramUsername, 'ID:', instagramId, 'Profile pic:', profilePictureUrl ? 'yes' : 'no');
 
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
         // Store with token expiration
         const tokenExpiresAt = new Date(Date.now() + (tokenExpiresIn * 1000));
 
-        // Store Instagram account directly (no Facebook Page needed for IG Business Login)
+        // Store Instagram account with profile picture and token
         const { error: upsertIgError } = await supabase
           .from('instagram_accounts')
           .upsert({
@@ -183,6 +184,9 @@ serve(async (req) => {
             facebook_page_id: instagramId, // Use IG ID as placeholder since no FB Page
             instagram_id: instagramId,
             instagram_username: instagramUsername || null,
+            profile_picture_url: profilePictureUrl,
+            access_token: userAccessToken,
+            token_expires_at: tokenExpiresAt.toISOString(),
           }, {
             onConflict: 'user_id,instagram_id'
           });
