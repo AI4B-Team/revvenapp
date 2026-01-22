@@ -161,21 +161,26 @@ const AIResponder = () => {
     }
 
     setIsGenerating(true);
+    setTestResponse('');
     
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('Please log in');
+        toast.error('Please log in to test responders');
         setIsGenerating(false);
         return;
       }
 
       // Check keyword replies first
-      const { data: keywordReplies } = await supabase
+      const { data: keywordReplies, error: keywordError } = await supabase
         .from('keyword_replies')
         .select('*')
         .eq('user_id', user.id)
         .eq('is_active', true);
+
+      if (keywordError) {
+        console.error('Error fetching keyword replies:', keywordError);
+      }
 
       const matchingKeyword = keywordReplies?.find(r =>
         r.keywords.some((keyword: string) =>
@@ -184,18 +189,24 @@ const AIResponder = () => {
       );
 
       if (matchingKeyword) {
-        setTestResponse(matchingKeyword.response_message);
+        setTestResponse(`🏷️ Keyword Match: "${matchingKeyword.keywords.find((k: string) => testMessage.toLowerCase().includes(k.toLowerCase()))}"\n\n${matchingKeyword.response_message}`);
+        toast.success('Matched keyword reply!');
         setIsGenerating(false);
         return;
       }
 
       // Check AI auto replies
-      const { data: aiReplies } = await supabase
+      const { data: aiReplies, error: aiError } = await supabase
         .from('ai_auto_replies')
         .select('*')
         .eq('user_id', user.id)
         .eq('is_active', true)
         .limit(1);
+
+      if (aiError) {
+        console.error('Error fetching AI replies:', aiError);
+        throw aiError;
+      }
 
       if (aiReplies && aiReplies.length > 0) {
         const aiReply = aiReplies[0];
@@ -212,8 +223,10 @@ const AIResponder = () => {
         ].filter(Boolean).join('\n\n');
 
         const systemPrompt = knowledgeBase 
-          ? `${aiReply.system_prompt}\n\nKnowledge Base:\n${knowledgeBase}`
+          ? `${aiReply.system_prompt}\n\nUse this knowledge to answer questions:\n${knowledgeBase.slice(0, 8000)}`
           : aiReply.system_prompt;
+
+        console.log('Testing AI auto reply:', aiReply.name);
 
         const { data, error } = await supabase.functions.invoke('aiva-chat', {
           body: {
@@ -226,14 +239,33 @@ const AIResponder = () => {
           }
         });
 
-        if (error) throw error;
-        setTestResponse(data.message || 'Unable to generate response');
+        if (error) {
+          console.error('AI chat error:', error);
+          if (error.message?.includes('429')) {
+            setTestResponse('⚠️ Rate limit exceeded. Please wait a moment and try again.');
+          } else if (error.message?.includes('402')) {
+            setTestResponse('⚠️ AI credits exhausted. Please add credits to continue.');
+          } else {
+            throw error;
+          }
+          return;
+        }
+
+        if (data?.error) {
+          setTestResponse(`⚠️ ${data.error}`);
+          return;
+        }
+        
+        setTestResponse(`🤖 AI Response (${aiReply.name}):\n\n${data.message || 'Unable to generate response'}`);
+        toast.success('AI response generated!');
       } else {
-        setTestResponse('No active responders found. Please create and enable a keyword or AI auto reply.');
+        setTestResponse('ℹ️ No active responders found.\n\nTo test responses:\n1. Create a Keyword Reply or AI Auto Reply\n2. Make sure it\'s enabled (toggle on)\n3. Try your test message again');
       }
     } catch (error) {
       console.error('Error generating response:', error);
-      setTestResponse('Failed to generate response. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      setTestResponse(`❌ Failed to generate response: ${errorMsg}\n\nPlease check your responder settings and try again.`);
+      toast.error('Failed to generate response');
     } finally {
       setIsGenerating(false);
     }
