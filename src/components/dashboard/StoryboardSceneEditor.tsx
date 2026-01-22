@@ -14,7 +14,7 @@ interface StoryboardSceneEditorProps {
 
 const MAX_SCENES = 8;
 const DEFAULT_DURATION = 5;
-const MAX_TOTAL_DURATION = 60;
+const MAX_TOTAL_DURATION = 25;
 const INITIAL_VISIBLE_SCENES = 4;
 
 const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerate, isGenerating }) => {
@@ -70,7 +70,7 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
   };
 
   const updateSceneDuration = (id: number, duration: number) => {
-    const clampedDuration = Math.max(1, Math.min(30, duration));
+    const clampedDuration = Math.max(1, Math.min(25, duration));
     setScenes(scenes.map(scene => 
       scene.id === id ? { ...scene, duration: clampedDuration } : scene
     ));
@@ -286,7 +286,7 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
                       value={scene.duration}
                       onChange={(e) => updateSceneDuration(scene.id, parseInt(e.target.value) || 1)}
                       min={1}
-                      max={30}
+                      max={25}
                       className="w-16 px-2 py-1 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm outline-none focus:border-green-300 focus:bg-white transition-colors text-center"
                     />
                     <span className="text-sm text-gray-500">sec</span>
