@@ -11,14 +11,15 @@ interface StoryboardSceneEditorProps {
   onGenerate?: () => void;
   isGenerating?: boolean;
   onScenesChange?: (scenes: Scene[], allFilled: boolean) => void;
+  maxDuration?: number;
 }
 
 const MAX_SCENES = 8;
 const DEFAULT_DURATION = 5;
-const MAX_TOTAL_DURATION = 25;
 const INITIAL_VISIBLE_SCENES = 4;
+const MIN_SCENE_CHARS = 5; // Minimum characters per scene
 
-const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerate, isGenerating, onScenesChange }) => {
+const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerate, isGenerating, onScenesChange, maxDuration = 25 }) => {
   const [scenes, setScenes] = useState<Scene[]>([
     { id: 1, content: '', duration: DEFAULT_DURATION },
   ]);
@@ -36,7 +37,7 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
 
   // Notify parent when scenes change
   useEffect(() => {
-    const allFilled = scenes.every(s => s.content.trim().length >= 10);
+    const allFilled = scenes.every(s => s.content.trim().length >= MIN_SCENE_CHARS);
     onScenesChange?.(scenes, allFilled);
   }, [scenes, onScenesChange]);
 
@@ -199,9 +200,9 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
           {/* Total Duration - Right */}
           <div className="ml-auto flex items-center gap-2">
             <span className={`text-sm font-medium ${
-              totalDuration > MAX_TOTAL_DURATION ? 'text-red-500' : 'text-gray-600'
+              totalDuration > maxDuration ? 'text-red-500' : 'text-gray-600'
             }`}>
-              Total: {totalDuration}s / {MAX_TOTAL_DURATION}s
+              Total: {totalDuration}s / {maxDuration}s
             </span>
           </div>
         </div>
