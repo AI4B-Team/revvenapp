@@ -12,12 +12,21 @@ import {
   Headphones,
   ChevronLeft,
   ChevronRight,
-  Sliders,
   Phone,
   PhoneCall,
   TrendingUp,
   Database,
-  Palette
+  Palette,
+  Mail,
+  Calendar,
+  Volume2,
+  FileText,
+  Building2,
+  Scroll,
+  Sparkles,
+  Gamepad2,
+  EyeOff,
+  Search
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -36,9 +45,20 @@ import MCCRMPipeline from '@/components/master-closer/MCCRMPipeline';
 import MCSMSAutomation from '@/components/master-closer/MCSMSAutomation';
 import MCNumberManagement from '@/components/master-closer/MCNumberManagement';
 import MCWhiteLabel from '@/components/master-closer/MCWhiteLabel';
+import MCSmartFollowups from '@/components/master-closer/MCSmartFollowups';
+import MCCalendarSync from '@/components/master-closer/MCCalendarSync';
+import MCCallPlayback from '@/components/master-closer/MCCallPlayback';
+import MCInstantFeedback from '@/components/master-closer/MCInstantFeedback';
+import MCLiveTranscribe from '@/components/master-closer/MCLiveTranscribe';
+import MCCompanyInfo from '@/components/master-closer/MCCompanyInfo';
+import MCSalesScript from '@/components/master-closer/MCSalesScript';
+import MCAINotes from '@/components/master-closer/MCAINotes';
+import MCPractice from '@/components/master-closer/MCPractice';
+import MCDiscreetRecording from '@/components/master-closer/MCDiscreetRecording';
+import MCDeepResearch from '@/components/master-closer/MCDeepResearch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'agent-settings' | 'knowledge-base' | 'power-dialer' | 'crm-pipeline' | 'sms-automation' | 'number-management' | 'white-label';
+type View = 'dashboard' | 'live-call' | 'objections' | 'planner' | 'analytics' | 'team' | 'settings' | 'agent-settings' | 'knowledge-base' | 'power-dialer' | 'crm-pipeline' | 'sms-automation' | 'number-management' | 'white-label' | 'smart-followups' | 'calendar-sync' | 'call-playback' | 'instant-feedback' | 'live-transcribe' | 'company-info' | 'sales-script' | 'ai-notes' | 'practice' | 'discreet-recording' | 'deep-research';
 export type CallMode = 'start-call' | 'voice-agent' | 'listen';
 
 const MasterCloser = () => {
@@ -57,30 +77,47 @@ const MasterCloser = () => {
     { id: 'live-call', name: 'Calls', icon: Mic, view: 'live-call', highlight: true, section: 'core' },
     { id: 'agent-settings', name: 'Agent', icon: Bot, view: 'agent-settings', section: 'core' },
     
+    // Call Tools
+    { id: 'live-transcribe', name: 'Transcribe', icon: FileText, view: 'live-transcribe', section: 'call-tools', badge: 'NEW' },
+    { id: 'instant-feedback', name: 'Feedback', icon: Zap, view: 'instant-feedback', section: 'call-tools', badge: 'NEW' },
+    { id: 'call-playback', name: 'Playback', icon: Volume2, view: 'call-playback', section: 'call-tools', badge: 'NEW' },
+    { id: 'discreet-recording', name: 'Recording', icon: EyeOff, view: 'discreet-recording', section: 'call-tools', badge: 'NEW' },
+    
     // Dialer & Communication
-    { id: 'power-dialer', name: 'Power Dialer', icon: PhoneCall, view: 'power-dialer', section: 'dialer', badge: 'NEW' },
-    { id: 'sms-automation', name: 'SMS', icon: MessageSquare, view: 'sms-automation', section: 'dialer', badge: 'NEW' },
-    { id: 'number-management', name: 'Numbers', icon: Phone, view: 'number-management', section: 'dialer', badge: 'NEW' },
+    { id: 'power-dialer', name: 'Power Dialer', icon: PhoneCall, view: 'power-dialer', section: 'dialer' },
+    { id: 'sms-automation', name: 'SMS', icon: MessageSquare, view: 'sms-automation', section: 'dialer' },
+    { id: 'smart-followups', name: 'Follow-ups', icon: Mail, view: 'smart-followups', section: 'dialer', badge: 'NEW' },
+    { id: 'number-management', name: 'Numbers', icon: Phone, view: 'number-management', section: 'dialer' },
     
     // Sales Tools
+    { id: 'sales-script', name: 'Scripts', icon: Scroll, view: 'sales-script', section: 'sales', badge: 'NEW' },
     { id: 'objections', name: 'Objections', icon: MessageSquare, view: 'objections', section: 'sales' },
     { id: 'planner', name: 'Prep', icon: BookOpen, view: 'planner', section: 'sales' },
-    { id: 'crm-pipeline', name: 'CRM', icon: TrendingUp, view: 'crm-pipeline', section: 'sales', badge: 'NEW' },
+    { id: 'crm-pipeline', name: 'CRM', icon: TrendingUp, view: 'crm-pipeline', section: 'sales' },
     
-    // Knowledge & Training
-    { id: 'knowledge-base', name: 'Knowledge', icon: Database, view: 'knowledge-base', section: 'training', badge: 'NEW' },
+    // Research & Intelligence
+    { id: 'company-info', name: 'Company', icon: Building2, view: 'company-info', section: 'research', badge: 'NEW' },
+    { id: 'deep-research', name: 'Research', icon: Search, view: 'deep-research', section: 'research', badge: 'NEW' },
+    { id: 'ai-notes', name: 'AI Notes', icon: Sparkles, view: 'ai-notes', section: 'research', badge: 'NEW' },
+    
+    // Training
+    { id: 'knowledge-base', name: 'Knowledge', icon: Database, view: 'knowledge-base', section: 'training' },
+    { id: 'practice', name: 'Practice', icon: Gamepad2, view: 'practice', section: 'training', badge: 'NEW' },
     
     // Management
+    { id: 'calendar-sync', name: 'Calendar', icon: Calendar, view: 'calendar-sync', section: 'manage', badge: 'NEW' },
     { id: 'analytics', name: 'Performance', icon: BarChart3, view: 'analytics', section: 'manage' },
     { id: 'team', name: 'Team', icon: Users, view: 'team', section: 'manage' },
-    { id: 'white-label', name: 'Branding', icon: Palette, view: 'white-label', section: 'manage', badge: 'NEW' },
+    { id: 'white-label', name: 'Branding', icon: Palette, view: 'white-label', section: 'manage' },
     { id: 'settings', name: 'Settings', icon: Settings, view: 'settings', section: 'manage' }
   ];
 
   const sectionTitles: Record<string, string> = {
     core: 'Core',
+    'call-tools': 'Call Tools',
     dialer: 'Dialer & SMS',
     sales: 'Sales Tools',
+    research: 'Research & Intel',
     training: 'Training',
     manage: 'Management'
   };
@@ -150,6 +187,28 @@ const MasterCloser = () => {
         return <MCNumberManagement />;
       case 'white-label':
         return <MCWhiteLabel />;
+      case 'smart-followups':
+        return <MCSmartFollowups />;
+      case 'calendar-sync':
+        return <MCCalendarSync />;
+      case 'call-playback':
+        return <MCCallPlayback />;
+      case 'instant-feedback':
+        return <MCInstantFeedback />;
+      case 'live-transcribe':
+        return <MCLiveTranscribe />;
+      case 'company-info':
+        return <MCCompanyInfo />;
+      case 'sales-script':
+        return <MCSalesScript />;
+      case 'ai-notes':
+        return <MCAINotes />;
+      case 'practice':
+        return <MCPractice />;
+      case 'discreet-recording':
+        return <MCDiscreetRecording />;
+      case 'deep-research':
+        return <MCDeepResearch />;
       default:
         return <MCDashboard onStartCall={handleStartCall} />;
     }
