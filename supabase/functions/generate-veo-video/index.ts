@@ -49,10 +49,16 @@ serve(async (req) => {
     }
 
     // For UGC mode, we now just pass the prompt directly to Veo 3
-    // Redirect UGC models to use veo3_fast
+    // Redirect UGC models and 'auto' to use veo3_fast
     let effectiveModel = model;
     if (model === 'wan-speech-to-video' || model === 'kling-ai-avatar' || model === 'infinitalk') {
       console.log(`UGC mode: Redirecting ${model} to veo3_fast with prompt`);
+      effectiveModel = 'veo3_fast';
+    }
+    
+    // Map 'auto' to veo3_fast for the Veo API (Veo API doesn't accept 'auto')
+    if (effectiveModel === 'auto') {
+      console.log("Auto model: Using veo3_fast as default video model");
       effectiveModel = 'veo3_fast';
     }
 
