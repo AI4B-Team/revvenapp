@@ -706,6 +706,36 @@ export type Database = {
         }
         Relationships: []
       }
+      instagram_accounts: {
+        Row: {
+          created_at: string
+          facebook_page_id: string
+          id: string
+          instagram_id: string
+          instagram_username: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          facebook_page_id: string
+          id?: string
+          instagram_id: string
+          instagram_username?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          facebook_page_id?: string
+          id?: string
+          instagram_id?: string
+          instagram_username?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invite_codes: {
         Row: {
           code: string
