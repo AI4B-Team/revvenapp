@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, 
   Trash2, 
@@ -18,7 +17,9 @@ import {
   Save,
   Upload,
   FileText,
-  Sparkles
+  Sparkles,
+  Zap,
+  Brain
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -58,7 +59,6 @@ const AIAutoReplySection = () => {
   useEffect(() => {
     loadReplies();
 
-    // Subscribe to real-time updates
     const channel = supabase
       .channel('ai_auto_replies_changes')
       .on(
@@ -240,17 +240,14 @@ const AIAutoReplySection = () => {
         return;
       }
 
-      // Read file content
       let content = '';
       if (file.type === 'text/plain' || fileExtension === '.txt') {
         content = await file.text();
       } else {
-        // For PDF, we'll just store the file name and notify user
         content = `[PDF File: ${file.name}] - Content will be parsed when processing messages.`;
         toast.info('PDF content will be parsed when processing messages');
       }
 
-      // If editing, save to database
       if (editingId) {
         const { error } = await supabase
           .from('knowledge_files')
@@ -267,7 +264,6 @@ const AIAutoReplySection = () => {
         await loadKnowledgeFiles(editingId);
         toast.success('File uploaded successfully');
       } else {
-        // Append to knowledge base text
         setFormData(prev => ({
           ...prev,
           knowledge_base: prev.knowledge_base 
@@ -331,25 +327,41 @@ const AIAutoReplySection = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+      <div className="flex items-center justify-center py-12">
+        <div className="relative">
+          <div className="w-12 h-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+          <Bot className="absolute inset-0 m-auto text-primary" size={20} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Bot className="text-primary" size={20} />
-            AI Auto Reply
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            AI responds based on your system prompt and knowledge base
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
+              <Brain className="text-white" size={24} />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-background flex items-center justify-center">
+              <Zap size={8} className="text-white" />
+            </div>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+              AI Auto Reply
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Intelligent responses powered by your knowledge
+            </p>
+          </div>
         </div>
-        <Button onClick={() => setShowForm(true)} className="gap-2">
+        <Button 
+          onClick={() => setShowForm(true)} 
+          className="gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:shadow-purple-500/40 hover:scale-105"
+        >
           <Plus size={16} />
           Add AI Reply
         </Button>
@@ -357,39 +369,46 @@ const AIAutoReplySection = () => {
 
       {/* Form */}
       {showForm && (
-        <Card className="border-primary/50">
-          <CardHeader className="pb-3">
+        <Card className="border-0 bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 backdrop-blur-xl shadow-2xl shadow-purple-500/10 animate-scale-in overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-fuchsia-500/5 pointer-events-none" />
+          <CardHeader className="pb-4 relative">
             <CardTitle className="text-base flex items-center gap-2">
-              <Sparkles className="text-primary" size={18} />
-              {editingId ? 'Edit AI Auto Reply' : 'New AI Auto Reply'}
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
+                <Sparkles className="text-white" size={16} />
+              </div>
+              <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+                {editingId ? 'Edit AI Auto Reply' : 'New AI Auto Reply'}
+              </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5 relative">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label className="text-sm font-medium text-slate-300">Name</Label>
               <Input
                 placeholder="e.g., Customer Support AI"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="bg-slate-800/50 border-slate-700/50 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all"
               />
             </div>
             
             <div className="space-y-2">
-              <Label>System Prompt</Label>
+              <Label className="text-sm font-medium text-slate-300">System Prompt</Label>
               <Textarea
-                placeholder="You are a helpful customer support assistant. Be friendly, concise, and helpful. Answer questions based on the knowledge base provided..."
+                placeholder="You are a helpful customer support assistant. Be friendly, concise, and helpful..."
                 value={formData.system_prompt}
                 onChange={(e) => setFormData(prev => ({ ...prev, system_prompt: e.target.value }))}
                 rows={4}
+                className="bg-slate-800/50 border-slate-700/50 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all resize-none"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-500">
                 This defines how the AI will behave and respond to messages
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Knowledge Base (Optional)</Label>
+                <Label className="text-sm font-medium text-slate-300">Knowledge Base</Label>
                 <div className="flex items-center gap-2">
                   <input
                     type="file"
@@ -403,9 +422,10 @@ const AIAutoReplySection = () => {
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingFile}
+                    className="border-slate-700 hover:bg-slate-800 hover:border-violet-500/50 transition-all"
                   >
                     {uploadingFile ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent mr-1" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-violet-500 border-t-transparent mr-1" />
                     ) : (
                       <Upload size={14} className="mr-1" />
                     )}
@@ -414,40 +434,41 @@ const AIAutoReplySection = () => {
                 </div>
               </div>
               <Textarea
-                placeholder="Enter knowledge base information here, or upload a file. This will help the AI provide accurate responses..."
+                placeholder="Enter knowledge base information here, or upload a file..."
                 value={formData.knowledge_base}
                 onChange={(e) => setFormData(prev => ({ ...prev, knowledge_base: e.target.value }))}
-                rows={6}
+                rows={5}
+                className="bg-slate-800/50 border-slate-700/50 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all resize-none"
               />
-              <p className="text-xs text-muted-foreground">
-                Add FAQs, product info, policies, or any information the AI should know
-              </p>
             </div>
 
-            {/* Uploaded Files */}
             {knowledgeFiles.length > 0 && (
               <div className="space-y-2">
-                <Label>Uploaded Files</Label>
+                <Label className="text-sm font-medium text-slate-300">Uploaded Files</Label>
                 <div className="space-y-2">
                   {knowledgeFiles.map(file => (
                     <div
                       key={file.id}
-                      className="flex items-center justify-between p-2 bg-secondary rounded-lg"
+                      className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50 hover:border-violet-500/30 transition-all group"
                     >
-                      <div className="flex items-center gap-2">
-                        <FileText size={16} className="text-muted-foreground" />
-                        <span className="text-sm">{file.file_name}</span>
-                        {file.file_size && (
-                          <span className="text-xs text-muted-foreground">
-                            ({formatFileSize(file.file_size)})
-                          </span>
-                        )}
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                          <FileText size={16} className="text-violet-400" />
+                        </div>
+                        <div>
+                          <span className="text-sm text-slate-200">{file.file_name}</span>
+                          {file.file_size && (
+                            <span className="text-xs text-slate-500 ml-2">
+                              {formatFileSize(file.file_size)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteFile(file.id)}
-                        className="h-6 w-6 p-0 text-destructive"
+                        className="h-8 w-8 p-0 text-slate-400 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
                       >
                         <X size={14} />
                       </Button>
@@ -457,13 +478,19 @@ const AIAutoReplySection = () => {
               </div>
             )}
 
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={resetForm}>
-                <X size={16} className="mr-1" />
+            <div className="flex justify-end gap-3 pt-2">
+              <Button 
+                variant="ghost" 
+                onClick={resetForm}
+                className="hover:bg-slate-800"
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSave}>
-                <Save size={16} className="mr-1" />
+              <Button 
+                onClick={handleSave}
+                className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-purple-500/25"
+              >
+                <Save size={16} className="mr-2" />
                 {editingId ? 'Update' : 'Create'}
               </Button>
             </div>
@@ -471,61 +498,126 @@ const AIAutoReplySection = () => {
         </Card>
       )}
 
-      {/* List */}
+      {/* Empty State */}
       {replies.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="py-8 text-center">
-            <Bot className="mx-auto mb-3 text-muted-foreground" size={32} />
-            <p className="text-muted-foreground">No AI auto replies yet</p>
-            <p className="text-sm text-muted-foreground">Create your first AI auto reply to get started</p>
+        <Card className="border-dashed border-2 border-slate-700/50 bg-slate-900/30 backdrop-blur">
+          <CardContent className="py-12 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center">
+              <Bot className="text-violet-400" size={32} />
+            </div>
+            <p className="text-slate-300 font-medium mb-1">No AI auto replies yet</p>
+            <p className="text-sm text-slate-500">Create your first AI auto reply to get started</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {replies.map((reply) => (
-            <Card key={reply.id} className={`${!reply.is_active ? 'opacity-60' : ''}`}>
-              <CardContent className="p-4">
+        <div className="grid gap-4">
+          {replies.map((reply, index) => (
+            <Card 
+              key={reply.id} 
+              className={`
+                group relative border-0 bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 
+                backdrop-blur-xl overflow-hidden transition-all duration-500 hover:shadow-xl
+                ${reply.is_active ? 'hover:shadow-violet-500/20' : 'opacity-60 hover:opacity-80'}
+              `}
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              {/* Gradient overlay */}
+              <div className={`
+                absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                bg-gradient-to-br from-violet-500/5 via-transparent to-fuchsia-500/5 pointer-events-none
+              `} />
+              
+              {/* Active indicator */}
+              {reply.is_active && (
+                <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-500 opacity-60" />
+              )}
+
+              <CardContent className="p-5 relative">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-medium">{reply.name}</h4>
-                      <Badge variant={reply.is_active ? 'default' : 'secondary'}>
-                        {reply.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
-                      {reply.knowledge_base && (
-                        <Badge variant="outline" className="text-xs">
-                          <FileText size={10} className="mr-1" />
-                          Has Knowledge
-                        </Badge>
-                      )}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`
+                        w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        ${reply.is_active 
+                          ? 'bg-gradient-to-br from-violet-500 to-fuchsia-500 shadow-lg shadow-purple-500/25' 
+                          : 'bg-slate-800'
+                        }
+                      `}>
+                        <Bot className="text-white" size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-100">{reply.name}</h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge 
+                            variant={reply.is_active ? 'default' : 'secondary'}
+                            className={`
+                              text-[10px] px-2 py-0 h-5 font-medium
+                              ${reply.is_active 
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                                : 'bg-slate-800 text-slate-400 border border-slate-700'
+                              }
+                            `}
+                          >
+                            {reply.is_active ? '● Active' : 'Inactive'}
+                          </Badge>
+                          {reply.knowledge_base && (
+                            <Badge 
+                              variant="outline" 
+                              className="text-[10px] px-2 py-0 h-5 border-violet-500/30 text-violet-400 bg-violet-500/10"
+                            >
+                              <FileText size={10} className="mr-1" />
+                              Knowledge
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                    
+                    <p className="text-sm text-slate-400 line-clamp-2 mb-4 pl-[52px]">
                       {reply.system_prompt}
                     </p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <MessageSquare size={12} />
-                        {reply.response_count} responses
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock size={12} />
-                        Last: {formatDate(reply.last_triggered_at)}
-                      </span>
+                    
+                    <div className="flex items-center gap-6 pl-[52px]">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                          <MessageSquare size={14} className="text-violet-400" />
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold text-slate-100">{reply.response_count}</p>
+                          <p className="text-[10px] text-slate-500 -mt-0.5">responses</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-fuchsia-500/10 flex items-center justify-center">
+                          <Clock size={14} className="text-fuchsia-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-200">{formatDate(reply.last_triggered_at)}</p>
+                          <p className="text-[10px] text-slate-500 -mt-0.5">last active</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={reply.is_active}
                       onCheckedChange={() => handleToggle(reply.id, reply.is_active)}
+                      className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-violet-500 data-[state=checked]:to-fuchsia-500"
                     />
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(reply)}>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleEdit(reply)}
+                      className="h-9 w-9 hover:bg-slate-800 hover:text-violet-400 transition-colors"
+                    >
                       <Edit size={16} />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(reply.id)}
-                      className="text-destructive hover:text-destructive"
+                      className="h-9 w-9 hover:bg-red-500/10 hover:text-red-400 transition-colors"
                     >
                       <Trash2 size={16} />
                     </Button>
