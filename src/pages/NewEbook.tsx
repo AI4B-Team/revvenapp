@@ -1791,32 +1791,37 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       </DropdownMenu>
 
                       {/* Model Dropdown */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <Cpu className="w-4 h-4 text-muted-foreground" />
-                            <span>Model{currentModel ? `: ${currentModel.name}` : ''}</span>
-                            <ChevronDown className="w-3 h-3 ml-1" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-56">
-                          {AI_MODELS.map(model => (
-                            <DropdownMenuItem
-                              key={model.id}
-                              onClick={() => setBookData(prev => ({ ...prev, model: model.id }))}
-                              className="flex flex-col items-start gap-0.5"
-                            >
-                              <div className="flex items-center gap-2 w-full">
-                                <span className="font-medium">{model.name}</span>
-                                {bookData.model === model.id && (
-                                  <Check className="w-4 h-4 ml-auto text-emerald-500" />
-                                )}
-                              </div>
-                              <span className="text-xs text-muted-foreground">{model.description}</span>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                                <Cpu className="w-4 h-4 text-muted-foreground" />
+                                <span>{currentModel?.name || 'Auto'}</span>
+                                <ChevronDown className="w-3 h-3 ml-1" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-56">
+                              {AI_MODELS.map(model => (
+                                <DropdownMenuItem
+                                  key={model.id}
+                                  onClick={() => setBookData(prev => ({ ...prev, model: model.id }))}
+                                  className="flex flex-col items-start gap-0.5"
+                                >
+                                  <div className="flex items-center gap-2 w-full">
+                                    <span className="font-medium">{model.name}</span>
+                                    {bookData.model === model.id && (
+                                      <Check className="w-4 h-4 ml-auto text-emerald-500" />
+                                    )}
+                                  </div>
+                                  <span className="text-xs text-muted-foreground">{model.description}</span>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TooltipTrigger>
+                        <TooltipContent>Model</TooltipContent>
+                      </Tooltip>
 
                       {/* Language Dropdown with Search */}
                       <Popover open={languageOpen} onOpenChange={setLanguageOpen}>
