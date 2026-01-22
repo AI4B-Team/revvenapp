@@ -5103,7 +5103,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     );
                     if (desiredHeight !== promptHeight) setPromptHeight(desiredHeight);
                   }}
-                  disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && selectedStoryButton !== 'Scene')}
+                  disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && storySceneMode === 'Manual')}
                   maxLength={isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' ? 180 : undefined}
                   className={`w-full h-full text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8 ${isTranscribedText && prompt ? 'text-violet-400' : 'text-foreground'}`}
                   placeholder={
