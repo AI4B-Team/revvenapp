@@ -721,6 +721,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [isVideoMode, externalVideoCharacters]);
 
+  // Story mode: Auto-trim references to 1 when switching to Story mode
+  useEffect(() => {
+    if (isVideoMode && selectedAnimateMode === 'Story' && selectedReferences.length > 1) {
+      console.log('Story mode: Trimming references to 1');
+      onReferencesSelect?.([selectedReferences[0]]);
+      toast({
+        title: "References trimmed",
+        description: "Story mode only allows 1 reference image. Keeping the first one.",
+      });
+    }
+  }, [selectedAnimateMode, isVideoMode]); // Only run when mode changes, not on every reference change
+
   // Fetch saved products on mount
   useEffect(() => {
     const fetchSavedProducts = async () => {
@@ -1455,11 +1467,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     if (externalReferences && externalReferences.length > 0) {
       console.log('Applying external references:', externalReferences);
       if (onReferencesSelect) {
-        // Merge with existing references, avoiding duplicates
-        const existingIds = selectedReferences.map((r: any) => r.id);
-        const newRefs = externalReferences.filter(r => !existingIds.includes(r.id));
-        if (newRefs.length > 0) {
-          onReferencesSelect([...selectedReferences, ...newRefs]);
+        // Story mode: only allow 1 reference
+        if (isVideoMode && selectedAnimateMode === 'Story') {
+          onReferencesSelect([externalReferences[0]]);
+        } else {
+          // Merge with existing references, avoiding duplicates
+          const existingIds = selectedReferences.map((r: any) => r.id);
+          const newRefs = externalReferences.filter(r => !existingIds.includes(r.id));
+          if (newRefs.length > 0) {
+            onReferencesSelect([...selectedReferences, ...newRefs]);
+          }
         }
       }
       onExternalReferencesUsed?.();
@@ -4110,9 +4127,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         });
 
         // Append the uploaded reference to existing references
+        // Story mode: only allow 1 reference
         if (onReferencesSelect && data?.referenceImage) {
           const currentRefs = selectedReferences || [];
-          onReferencesSelect([...currentRefs, data.referenceImage]);
+          if (isVideoMode && selectedAnimateMode === 'Story') {
+            // Story mode: replace existing reference instead of appending
+            onReferencesSelect([data.referenceImage]);
+          } else {
+            onReferencesSelect([...currentRefs, data.referenceImage]);
+          }
         }
       };
 
