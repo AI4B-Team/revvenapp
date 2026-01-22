@@ -11,6 +11,13 @@ import qwenLogo from '@/assets/model-logos/qwen.png';
 import seedreamLogo from '@/assets/model-logos/seedream.png';
 import nanoBananaLogo from '@/assets/model-logos/nano-banana.png';
 import zImageLogo from '@/assets/model-logos/z-image.png';
+// Video model logos
+import veoLogo from '@/assets/model-logos/veo.png';
+import soraLogo from '@/assets/model-logos/sora.png';
+import klingLogo from '@/assets/model-logos/kling.png';
+import wanLogo from '@/assets/model-logos/wan.png';
+import hailuoLogo from '@/assets/model-logos/hailuo.png';
+import bytedanceLogo from '@/assets/model-logos/bytedance.png';
 import ReferenceLinkIcon from '@/components/icons/ReferenceLinkIcon';
 import VideoStyleIcon from '@/components/icons/VideoStyleIcon';
 import UGCCharacterBox from './UGCCharacterBox';
@@ -540,18 +547,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Video model options
   const videoModels = [
-    { value: 'auto', label: 'Auto', description: 'AI picks what\'s best' },
-    { value: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation' },
-    { value: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output' },
-    { value: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard (no people photos)' },
-    { value: 'sora-2-i2v', label: 'Sora 2', description: 'Image-to-video, 10-15s duration' },
-    { value: 'kling-2.1', label: 'Kling 2.1', description: 'Image-to-video, supports people' },
-    { value: 'kling-2.5', label: 'Kling 2.5', description: 'Text or image-to-video, turbo' },
-    { value: 'kling-2.6', label: 'Kling 2.6', description: 'Image-to-video with sound' },
-    { value: 'wan-2.5', label: 'Wan 2.5', description: 'Image-to-video (800 char limit)' },
-    { value: 'wan-2.2', label: 'Wan 2.2', description: 'Text or image-to-video, turbo' },
-    { value: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Image-to-video, high quality' },
-    { value: 'bytedance-v1', label: 'Bytedance V1', description: 'Image-to-video, fast' },
+    { value: 'auto', label: 'Auto', description: 'AI picks what\'s best', logo: autoLogo },
+    { value: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation', logo: veoLogo },
+    { value: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output', logo: veoLogo },
+    { value: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard (no people photos)', logo: soraLogo },
+    { value: 'sora-2-i2v', label: 'Sora 2', description: 'Image-to-video, 10-15s duration', logo: soraLogo },
+    { value: 'kling-2.1', label: 'Kling 2.1', description: 'Image-to-video, supports people', logo: klingLogo },
+    { value: 'kling-2.5', label: 'Kling 2.5', description: 'Text or image-to-video, turbo', logo: klingLogo },
+    { value: 'kling-2.6', label: 'Kling 2.6', description: 'Image-to-video with sound', logo: klingLogo },
+    { value: 'wan-2.5', label: 'Wan 2.5', description: 'Image-to-video (800 char limit)', logo: wanLogo },
+    { value: 'wan-2.2', label: 'Wan 2.2', description: 'Text or image-to-video, turbo', logo: wanLogo },
+    { value: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Image-to-video, high quality', logo: hailuoLogo },
+    { value: 'bytedance-v1', label: 'Bytedance V1', description: 'Image-to-video, fast', logo: bytedanceLogo },
   ];
   
   const { toast } = useToast();
@@ -5703,7 +5710,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
                               <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                                <Video size={16} />
+                                <img 
+                                  src={videoModel === 'veo3' ? veoLogo : videoModel === 'kling-2.6' ? klingLogo : veoLogo} 
+                                  alt="Model" 
+                                  className="w-4 h-4 rounded object-contain" 
+                                />
                                 <span>
                                   {videoModel === 'veo3'
                                     ? 'Veo 3.1Q'
@@ -5718,37 +5729,46 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <p>Model</p>
                           </TooltipContent>
                         </Tooltip>
-                        <PopoverContent className="w-56 bg-background border-border z-50">
+                        <PopoverContent className="w-64 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
                               onClick={() => setVideoModel('veo3_fast')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                videoModel === 'veo3_fast' ? 'bg-secondary' : ''
+                              className={`w-full px-3 py-2.5 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-3 ${
+                                videoModel === 'veo3_fast' || videoModel === 'auto' ? 'bg-secondary' : ''
                               }`}
                             >
-                              <div className="font-medium">Veo 3.1 Fast</div>
-                              <div className="text-xs text-muted-foreground">Quick video generation</div>
-                              {videoModel === 'veo3_fast' && <Check size={14} className="text-brand-green mt-1" />}
+                              <img src={veoLogo} alt="Veo" className="w-5 h-5 rounded object-contain flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Veo 3.1 Fast</div>
+                                <div className="text-xs text-muted-foreground">Quick video generation</div>
+                              </div>
+                              {(videoModel === 'veo3_fast' || videoModel === 'auto') && <Check size={14} className="text-brand-green flex-shrink-0" />}
                             </button>
                             <button 
                               onClick={() => setVideoModel('veo3')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                              className={`w-full px-3 py-2.5 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-3 ${
                                 videoModel === 'veo3' ? 'bg-secondary' : ''
                               }`}
                             >
-                              <div className="font-medium">Veo 3.1 Quality</div>
-                              <div className="text-xs text-muted-foreground">Higher quality output</div>
-                              {videoModel === 'veo3' && <Check size={14} className="text-brand-green mt-1" />}
+                              <img src={veoLogo} alt="Veo" className="w-5 h-5 rounded object-contain flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Veo 3.1 Quality</div>
+                                <div className="text-xs text-muted-foreground">Higher quality output</div>
+                              </div>
+                              {videoModel === 'veo3' && <Check size={14} className="text-brand-green flex-shrink-0" />}
                             </button>
                             <button 
                               onClick={() => setVideoModel('kling-2.6')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                              className={`w-full px-3 py-2.5 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-3 ${
                                 videoModel === 'kling-2.6' ? 'bg-secondary' : ''
                               }`}
                             >
-                              <div className="font-medium">Kling 2.6</div>
-                              <div className="text-xs text-muted-foreground">Image-to-video with sound</div>
-                              {videoModel === 'kling-2.6' && <Check size={14} className="text-brand-green mt-1" />}
+                              <img src={klingLogo} alt="Kling" className="w-5 h-5 rounded object-contain flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Kling 2.6</div>
+                                <div className="text-xs text-muted-foreground">Image-to-video with sound</div>
+                              </div>
+                              {videoModel === 'kling-2.6' && <Check size={14} className="text-brand-green flex-shrink-0" />}
                             </button>
                           </div>
                         </PopoverContent>
@@ -6370,7 +6390,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   ? 'bg-purple-100 text-purple-600' 
                                   : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                               }`}>
-                                <Box size={18} />
+                                <img 
+                                  src={videoModels.find(m => m.value === videoModel)?.logo || autoLogo} 
+                                  alt="Model" 
+                                  className="w-4 h-4 rounded object-contain" 
+                                />
                                 <span className="text-xs font-medium">
                                   {videoModel === 'auto' ? 'Auto' :
                                    videoModel === 'veo3_fast' ? 'Veo 3.1' : 
@@ -6418,12 +6442,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               <button 
                                 key={model.value}
                                 onClick={() => setVideoModel(model.value)}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                className={`w-full px-3 py-2.5 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-3 ${
                                   videoModel === model.value ? 'bg-secondary' : ''
                                 }`}
                               >
-                                <div className="font-medium">{model.label}</div>
-                                <div className="text-xs text-muted-foreground">{model.description}</div>
+                                <img src={model.logo} alt={model.label} className="w-5 h-5 rounded object-contain flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium">{model.label}</div>
+                                  <div className="text-xs text-muted-foreground">{model.description}</div>
+                                </div>
+                                {videoModel === model.value && <Check size={14} className="text-brand-green flex-shrink-0" />}
                               </button>
                             ))}
                           </div>
