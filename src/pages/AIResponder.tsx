@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -99,6 +99,44 @@ const AIResponder = () => {
     tone: 'friendly' as const,
     platform: 'all' as const
   });
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'INSTAGRAM_AUTH_SUCCESS') {
+        toast.success('Instagram connected successfully!');
+      }
+      if (event.data?.type === 'INSTAGRAM_AUTH_ERROR') {
+        toast.error(event.data?.error || 'Failed to connect Instagram');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleConnectInstagram = async () => {
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const userId = sessionData.session?.user.id;
+      if (!userId) {
+        toast.error('Please log in to connect Instagram');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('facebook-oauth', {
+        body: { action: 'get_instagram_auth_url', userId },
+      });
+
+      if (error) throw error;
+      if (!data?.auth_url) throw new Error('No auth URL returned');
+
+      window.open(data.auth_url, 'Instagram Login', 'width=600,height=700');
+    } catch (err) {
+      console.error('Error connecting Instagram:', err);
+      toast.error('Failed to connect Instagram');
+    }
+  };
 
   const handleToggleResponder = (id: string) => {
     setResponders(prev => 
@@ -686,7 +724,7 @@ Only output the improved response, nothing else.`
                             <p className="text-xs text-muted-foreground">Connect DMs</p>
                           </div>
                         </div>
-                        <Button onClick={() => navigate('/account?tab=social')}>Connect</Button>
+                        <Button onClick={handleConnectInstagram}>Connect</Button>
                       </div>
 
                       <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-4">

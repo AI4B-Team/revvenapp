@@ -59,6 +59,8 @@ serve(async (req) => {
   const facebookAppId = Deno.env.get('FACEBOOK_APP_ID')!;
   const facebookAppSecret = Deno.env.get('FACEBOOK_APP_SECRET')!;
   const instagramVerifyToken = Deno.env.get('INSTAGRAM_VERIFY_TOKEN')!;
+  const instagramClientId = Deno.env.get('INSTAGRAM_CLIENT_ID')!;
+  const instagramClientSecret = Deno.env.get('INSTAGRAM_CLIENT_SECRET')!;
 
   const url = new URL(req.url);
   const redirectUri = `${supabaseUrl}/functions/v1/facebook-oauth`;
@@ -98,10 +100,99 @@ serve(async (req) => {
   if (url.searchParams.has('code')) {
     const code = url.searchParams.get('code')!;
     const state = url.searchParams.get('state') || '';
+    const isInstagram = state.startsWith('ig:');
     
-    console.log('Facebook OAuth callback received with code');
+    console.log(`${isInstagram ? 'Instagram' : 'Facebook'} OAuth callback received with code`);
 
     try {
+      // --- Instagram OAuth Callback (for IG DMs / Messaging API) ---
+      if (isInstagram) {
+        const userId = state.replace(/^ig:/, '');
+
+        const tokenUrl = `https://graph.facebook.com/v21.0/oauth/access_token?client_id=${instagramClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${instagramClientSecret}&code=${code}`;
+        const tokenResponse = await fetch(tokenUrl);
+        const tokenData = await tokenResponse.json();
+
+        if (tokenData.error) {
+          console.error('Error exchanging IG code:', tokenData.error);
+          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(tokenData.error.message)}&provider=Instagram`;
+          return Response.redirect(redirectUrl, 302);
+        }
+
+        const userAccessToken = tokenData.access_token as string;
+        console.log('Got Instagram user access token');
+
+        // Fetch user's pages and their connected Instagram business account
+        const pagesUrl = `https://graph.facebook.com/v21.0/me/accounts?access_token=${userAccessToken}&fields=id,name,access_token,instagram_business_account{id,username}`;
+        const pagesResponse = await fetch(pagesUrl);
+        const pagesData = await pagesResponse.json();
+
+        if (pagesData.error) {
+          console.error('Error fetching pages for IG:', pagesData.error);
+          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent(pagesData.error.message)}&provider=Instagram`;
+          return Response.redirect(redirectUrl, 302);
+        }
+
+        const entries: any[] = pagesData.data || [];
+        const withIg = entries.filter((p) => p.instagram_business_account?.id);
+
+        if (withIg.length === 0) {
+          const redirectUrl = `${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent('No Instagram Business account found on your connected Facebook Pages. Ensure your IG Professional account is linked to a Facebook Page.')}&provider=Instagram`;
+          return Response.redirect(redirectUrl, 302);
+        }
+
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        // Page access tokens are generally long-lived; store with a safety expiration.
+        const pageTokenExpiresAt = new Date(Date.now() + (60 * 24 * 60 * 60 * 1000));
+
+        let savedUsername = '';
+        for (const page of withIg) {
+          const ig = page.instagram_business_account;
+
+          // Store page access token (used for IG Messaging sends as well)
+          const { error: upsertPageError } = await supabase
+            .from('facebook_pages')
+            .upsert({
+              user_id: userId,
+              page_id: page.id,
+              page_name: page.name,
+              page_access_token: page.access_token,
+              page_picture: null,
+              token_expires_at: pageTokenExpiresAt.toISOString(),
+              token_type: 'long_lived',
+            }, {
+              onConflict: 'user_id,page_id'
+            });
+
+          if (upsertPageError) {
+            console.error('Error saving page for IG:', upsertPageError);
+          }
+
+          // Store IG mapping
+          const { error: upsertIgError } = await supabase
+            .from('instagram_accounts')
+            .upsert({
+              user_id: userId,
+              facebook_page_id: page.id,
+              instagram_id: ig.id,
+              instagram_username: ig.username || null,
+            }, {
+              onConflict: 'user_id,instagram_id'
+            });
+
+          if (upsertIgError) {
+            console.error('Error saving instagram account mapping:', upsertIgError);
+          } else {
+            savedUsername = ig.username || savedUsername;
+          }
+        }
+
+        const channel = encodeURIComponent(savedUsername || withIg[0].instagram_business_account?.username || 'Instagram');
+        const redirectUrl = `${APP_URL}/oauth/callback?success=true&channel=${channel}&provider=Instagram`;
+        return Response.redirect(redirectUrl, 302);
+      }
+
       // Exchange code for short-lived user access token
       const tokenUrl = `https://graph.facebook.com/v19.0/oauth/access_token?client_id=${facebookAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${facebookAppSecret}&code=${code}`;
       
@@ -231,6 +322,31 @@ serve(async (req) => {
       
       console.log('Generated Facebook auth URL');
       
+      return new Response(JSON.stringify({ auth_url: authUrl }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (action === 'get_instagram_auth_url') {
+      if (!userId) {
+        return new Response(JSON.stringify({ error: 'Missing userId' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const scopes = [
+        'instagram_business_basic',
+        'instagram_business_manage_messages',
+        'instagram_business_manage_comments',
+        'instagram_business_content_publish',
+        'instagram_business_manage_insights',
+      ].join(',');
+
+      const authUrl = `https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=${instagramClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(`ig:${userId}`)}`;
+
+      console.log('Generated Instagram auth URL');
+
       return new Response(JSON.stringify({ auth_url: authUrl }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
