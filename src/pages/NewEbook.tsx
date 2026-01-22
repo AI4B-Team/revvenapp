@@ -1744,26 +1744,66 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
                     <div className="flex items-center gap-2">
                       {/* Source Dropdown */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <button className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200 transition-colors">
                             {currentSource && <currentSource.icon className="w-4 h-4" />}
                             <span>Source: {currentSource?.label}</span>
+                            <ChevronDown className="w-3 h-3" />
                           </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-48">
-                          {SOURCE_OPTIONS.map(source => (
-                            <DropdownMenuItem
-                              key={source.id}
-                              onClick={() => handleSourceSelect(source.id)}
-                              className="flex items-center gap-2"
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-auto p-4 bg-white border border-gray-200 rounded-2xl shadow-lg z-50">
+                          <div className="flex gap-4">
+                            {/* Upload File Card */}
+                            <button
+                              onClick={() => handleSourceSelect('upload')}
+                              className="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-amber-300 hover:bg-amber-50/50 transition-all min-w-[140px]"
                             >
-                              <source.icon className="w-4 h-4" />
-                              {source.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              <div className="w-14 h-14 rounded-xl bg-amber-100 flex items-center justify-center">
+                                <Upload className="w-7 h-7 text-amber-500" />
+                              </div>
+                              <span className="font-medium text-gray-900 text-sm">Upload File</span>
+                              <div className="flex items-center gap-1">
+                                <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">PDF</span>
+                                <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">DOCX</span>
+                                <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">+</span>
+                              </div>
+                            </button>
+
+                            {/* Insert Link Card */}
+                            <button
+                              onClick={() => handleSourceSelect('link')}
+                              className="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-all min-w-[140px]"
+                            >
+                              <div className="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center">
+                                <Link2 className="w-7 h-7 text-blue-500" />
+                              </div>
+                              <span className="font-medium text-gray-900 text-sm">Insert Link</span>
+                              <div className="flex items-center gap-1.5">
+                                <FaYoutube className="w-4 h-4 text-red-500" />
+                                <FaTiktok className="w-3.5 h-3.5 text-black" />
+                                <FaInstagram className="w-4 h-4 text-pink-500" />
+                                <span className="text-xs text-gray-400">+45</span>
+                              </div>
+                            </button>
+
+                            {/* Record Audio Card */}
+                            <button
+                              onClick={() => handleSourceSelect('record')}
+                              className="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-rose-300 hover:bg-rose-50/50 transition-all min-w-[140px]"
+                            >
+                              <div className="w-14 h-14 rounded-xl bg-rose-100 flex items-center justify-center">
+                                <Mic className="w-7 h-7 text-rose-500" />
+                              </div>
+                              <span className="font-medium text-gray-900 text-sm">Record Audio</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                                <span className="px-2 py-0.5 bg-rose-100 text-rose-600 text-xs font-medium rounded">LIVE</span>
+                              </div>
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
                       {/* Type Dropdown */}
                       <DropdownMenu>
