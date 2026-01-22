@@ -561,6 +561,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'bytedance-v1', label: 'Bytedance V1', description: 'Image-to-video, fast', logo: bytedanceLogo },
   ];
   
+  // Define video models that support image references (image-to-video)
+  const videoImg2VideoModels = [
+    'auto',
+    'veo3_fast',
+    'sora-2-i2v',
+    'kling-2.1',
+    'kling-2.5',
+    'kling-2.6',
+    'wan-2.5',
+    'wan-2.2',
+    'hailuo-2.3',
+    'bytedance-v1',
+  ];
+  
   const { toast } = useToast();
   
   // Define models that support image-to-image generation (only these show when ref/character selected)
@@ -586,6 +600,31 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       });
     }
   }, [hasImageReference, selectedReferences.length, selectedCharacters.length]);
+
+  const isVideoMode = selectedType === 'Video';
+  const isAudioMode = selectedType === 'Audio';
+  const isDesignMode = selectedType === 'Design';
+  const isContentMode = selectedType === 'Content';
+  const isAppsMode = selectedType === 'Apps';
+  const isDocumentMode = selectedType === 'Document';
+
+  // Check if video mode has reference images or characters
+  const hasVideoReference = videoModeState.references.length > 0 || 
+    videoModeState.characters.length > 0 || 
+    videoModeState.startingFrame !== null ||
+    videoModeState.endingFrame !== null;
+
+  // Auto-switch video model to veo3_fast when user selects ref/character and current model doesn't support img2video
+  useEffect(() => {
+    if (isVideoMode && hasVideoReference && !videoImg2VideoModels.includes(videoModel)) {
+      const previousModel = videoModels.find(m => m.value === videoModel)?.label || videoModel;
+      setVideoModel('veo3_fast');
+      toast({
+        title: "Model switched",
+        description: `${previousModel} doesn't support image references. Switched to Veo 3.1 Fast.`,
+      });
+    }
+  }, [hasVideoReference, videoModeState.references.length, videoModeState.characters.length, videoModeState.startingFrame, videoModeState.endingFrame, isVideoMode]);
 
   const getModelLabel = (modelId: string) => {
     if (modelId === 'auto') return 'Auto';
@@ -634,13 +673,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       });
     }
   };
-  
-  const isVideoMode = selectedType === 'Video';
-  const isAudioMode = selectedType === 'Audio';
-  const isDesignMode = selectedType === 'Design';
-  const isContentMode = selectedType === 'Content';
-  const isAppsMode = selectedType === 'Apps';
-  const isDocumentMode = selectedType === 'Document';
   
   // Get current state based on content type
   const getCurrentCharacters = () => {
@@ -6418,6 +6450,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <div className="space-y-1">
                             {videoModels
                               .filter((model) => {
+                                // If has reference images, only show supported models
+                                if (hasVideoReference) {
+                                  return videoImg2VideoModels.includes(model.value);
+                                }
                                 if (selectedAnimateMode === 'Podcast') {
                                   return ['auto', 'veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
                                 }
