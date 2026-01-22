@@ -444,7 +444,17 @@ serve(async (req) => {
                   .select('file_content')
                   .eq('ai_auto_reply_id', aiReply.id);
                 
-                let systemPrompt = aiReply.system_prompt;
+                let systemPrompt = `You are responding to Instagram DMs. Keep your responses SHORT, friendly, and natural - like a real person texting.
+
+CRITICAL RULES:
+- NEVER mention you are an AI, language model, or assistant
+- NEVER use bullet points or markdown formatting
+- Keep responses under 2-3 sentences
+- Be conversational and casual
+- Answer questions directly without explaining yourself
+
+User's custom instructions: ${aiReply.system_prompt}`;
+
                 if (aiReply.knowledge_base) {
                   systemPrompt += `\n\nKnowledge Base:\n${aiReply.knowledge_base}`;
                 }
@@ -453,21 +463,21 @@ serve(async (req) => {
                   systemPrompt += `\n\nAdditional Knowledge:\n${fileContents}`;
                 }
                 
-                // Call AI to generate response
+                // Call Lovable AI to generate response
                 try {
-                  const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                  const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${Deno.env.get('OPENROUTER_API_KEY')}`,
+                      'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
                     },
                     body: JSON.stringify({
-                      model: 'google/gemini-2.5-flash',
+                      model: 'google/gemini-3-flash-preview',
                       messages: [
                         { role: 'system', content: systemPrompt },
                         { role: 'user', content: messageText }
                       ],
-                      max_tokens: 500,
+                      max_tokens: 150,
                     }),
                   });
                   
