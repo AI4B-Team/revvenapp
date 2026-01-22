@@ -3013,7 +3013,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
         // Build request body
         const requestBody: any = { 
-          prompt: selectedAnimateMode === 'Avatar Video' ? ugcScriptText.trim() : prompt.trim(),
+          prompt: (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') ? ugcScriptText.trim() : prompt.trim(),
           imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
           model: effectiveModel,
           aspectRatio: videoAspectRatio,
