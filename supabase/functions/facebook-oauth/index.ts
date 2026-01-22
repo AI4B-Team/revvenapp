@@ -336,10 +336,11 @@ serve(async (req) => {
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
         
         for (const entry of body.entry || []) {
-          const igScopedId = entry.id; // This is the Instagram-scoped ID from webhook
+          const igScopedId = entry.id; // This is the Instagram-scoped ID of the receiving account
           
           for (const messagingEvent of entry.messaging || []) {
             const senderId = messagingEvent.sender?.id;
+            const recipientId = messagingEvent.recipient?.id; // This is also the scoped ID
             const messageText = messagingEvent.message?.text;
             
             // Skip if no message text or if it's an echo
@@ -347,46 +348,75 @@ serve(async (req) => {
               continue;
             }
             
-            console.log(`Instagram DM received from ${senderId}: ${messageText}`);
+            console.log(`Instagram DM received from ${senderId} to ${recipientId}: ${messageText}`);
             
-            // Try to find the Instagram account by scoped ID first, then by instagram_id
+            // Try to find the Instagram account - use recipientId which is the account receiving the DM
+            const lookupId = recipientId || igScopedId;
             let igAccount = null;
             
             // First try: lookup by instagram_scoped_id
             const { data: scopedAccount } = await supabase
               .from('instagram_accounts')
               .select('id, user_id, access_token, instagram_username, instagram_id')
-              .eq('instagram_scoped_id', igScopedId)
+              .eq('instagram_scoped_id', lookupId)
               .single();
             
             if (scopedAccount) {
               igAccount = scopedAccount;
+              console.log(`Found account by scoped_id: ${scopedAccount.instagram_username}`);
             } else {
               // Second try: lookup by instagram_id
               const { data: idAccount } = await supabase
                 .from('instagram_accounts')
                 .select('id, user_id, access_token, instagram_username, instagram_id')
-                .eq('instagram_id', igScopedId)
+                .eq('instagram_id', lookupId)
                 .single();
               
               if (idAccount) {
                 igAccount = idAccount;
+                // Update the scoped ID for future lookups
+                await supabase
+                  .from('instagram_accounts')
+                  .update({ instagram_scoped_id: lookupId })
+                  .eq('id', idAccount.id);
+                console.log(`Found account by instagram_id and updated scoped_id: ${idAccount.instagram_username}`);
               } else {
-                // Third try: get any account (for single-account users) and update scoped ID
-                const { data: anyAccount } = await supabase
+                // Third try: For accounts that haven't received DMs yet, 
+                // check ALL accounts without scoped_id and try to match via Instagram API
+                const { data: accountsWithoutScopedId } = await supabase
                   .from('instagram_accounts')
                   .select('id, user_id, access_token, instagram_username, instagram_id')
-                  .limit(1)
-                  .single();
+                  .is('instagram_scoped_id', null);
                 
-                if (anyAccount) {
-                  igAccount = anyAccount;
-                  // Store the scoped ID for future lookups
-                  await supabase
-                    .from('instagram_accounts')
-                    .update({ instagram_scoped_id: igScopedId })
-                    .eq('id', anyAccount.id);
-                  console.log(`Updated account ${anyAccount.instagram_username} with scoped ID: ${igScopedId}`);
+                if (accountsWithoutScopedId && accountsWithoutScopedId.length > 0) {
+                  // Try each account to find which one corresponds to this scoped ID
+                  for (const acc of accountsWithoutScopedId) {
+                    try {
+                      // Call Instagram API to get the account's own info
+                      const meResponse = await fetch(
+                        `https://graph.instagram.com/v21.0/me?fields=id,username&access_token=${acc.access_token}`
+                      );
+                      const meData = await meResponse.json();
+                      
+                      if (meData.id === lookupId) {
+                        igAccount = acc;
+                        // Store the scoped ID for future lookups
+                        await supabase
+                          .from('instagram_accounts')
+                          .update({ instagram_scoped_id: lookupId })
+                          .eq('id', acc.id);
+                        console.log(`Discovered and updated scoped_id for: ${acc.instagram_username}`);
+                        break;
+                      }
+                    } catch (apiError) {
+                      console.error(`Error checking account ${acc.instagram_username}:`, apiError);
+                    }
+                  }
+                }
+                
+                if (!igAccount) {
+                  console.error(`No Instagram account found for scoped_id: ${lookupId}`);
+                  continue;
                 }
               }
             }
