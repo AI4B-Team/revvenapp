@@ -85,6 +85,8 @@ interface InstagramAccount {
   id: string;
   instagram_id: string;
   instagram_username: string;
+  profile_picture_url: string | null;
+  token_expires_at: string | null;
 }
 
 const AIResponder = () => {
@@ -130,7 +132,7 @@ const AIResponder = () => {
 
     const { data, error } = await supabase
       .from('instagram_accounts')
-      .select('id, instagram_id, instagram_username')
+      .select('id, instagram_id, instagram_username, profile_picture_url, token_expires_at')
       .eq('user_id', user.id);
 
     if (!error && data) {
@@ -159,6 +161,23 @@ const AIResponder = () => {
     } catch (err) {
       console.error('Error connecting Instagram:', err);
       toast.error('Failed to connect Instagram');
+    }
+  };
+
+  const handleDisconnectInstagram = async (accountId: string) => {
+    try {
+      const { error } = await supabase
+        .from('instagram_accounts')
+        .delete()
+        .eq('id', accountId);
+
+      if (error) throw error;
+
+      setInstagramAccounts(prev => prev.filter(a => a.id !== accountId));
+      toast.success('Instagram disconnected');
+    } catch (err) {
+      console.error('Error disconnecting Instagram:', err);
+      toast.error('Failed to disconnect Instagram');
     }
   };
 
@@ -743,7 +762,18 @@ Only output the improved response, nothing else.`
                         instagramAccounts.map(account => (
                           <div key={account.id} className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 p-4">
                             <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center">
+                              {account.profile_picture_url ? (
+                                <img 
+                                  src={account.profile_picture_url} 
+                                  alt={account.instagram_username}
+                                  className="h-10 w-10 rounded-lg object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                  }}
+                                />
+                              ) : null}
+                              <div className={`h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center ${account.profile_picture_url ? 'hidden' : ''}`}>
                                 <Instagram className="text-white" size={18} />
                               </div>
                               <div>
@@ -751,10 +781,29 @@ Only output the improved response, nothing else.`
                                 <p className="text-xs text-primary">Connected</p>
                               </div>
                             </div>
-                            <Badge variant="outline" className="border-primary text-primary">
-                              <CheckCircle size={12} className="mr-1" />
-                              Active
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="border-primary text-primary">
+                                <CheckCircle size={12} className="mr-1" />
+                                Active
+                              </Badge>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={handleConnectInstagram}
+                                title="Reconnect"
+                              >
+                                <Zap size={14} />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDisconnectInstagram(account.id)}
+                                className="text-destructive hover:text-destructive"
+                                title="Disconnect"
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
                           </div>
                         ))
                       ) : (
