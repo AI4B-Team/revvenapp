@@ -241,11 +241,42 @@ const AIAutoReplySection = () => {
       }
 
       let content = '';
-      if (file.type === 'text/plain' || fileExtension === '.txt') {
-        content = await file.text();
+      const isPdf = file.type === 'application/pdf' || fileExtension === '.pdf';
+      
+      if (isPdf) {
+        // Convert PDF to base64 and send to parsing function
+        toast.info('Extracting text from PDF...');
+        
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = btoa(binary);
+        
+        // Call the PDF parser edge function
+        const { data: parseResult, error: parseError } = await supabase.functions.invoke('parse-pdf', {
+          body: { 
+            pdfBase64: base64,
+            fileName: file.name 
+          }
+        });
+        
+        if (parseError) {
+          console.error('PDF parsing error:', parseError);
+          toast.error('Failed to extract text from PDF');
+          content = `[PDF File: ${file.name}] - Text extraction failed. Please try a different file format.`;
+        } else if (parseResult?.text) {
+          content = `=== ${file.name} ===\n\n${parseResult.text}`;
+          toast.success(`Extracted ${parseResult.charCount} characters from PDF`);
+        } else {
+          content = `[PDF File: ${file.name}] - No text could be extracted.`;
+          toast.warning('PDF appears to be image-based. Consider using a text file.');
+        }
       } else {
-        content = `[PDF File: ${file.name}] - Content will be parsed when processing messages.`;
-        toast.info('PDF content will be parsed when processing messages');
+        // Plain text file
+        content = await file.text();
       }
 
       if (editingId) {
@@ -262,7 +293,7 @@ const AIAutoReplySection = () => {
 
         if (error) throw error;
         await loadKnowledgeFiles(editingId);
-        toast.success('File uploaded successfully');
+        toast.success('Knowledge file uploaded and processed!');
       } else {
         setFormData(prev => ({
           ...prev,
