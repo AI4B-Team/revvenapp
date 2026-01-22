@@ -469,7 +469,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                     <div className="mb-4">
                       <Upload className="h-16 w-16 text-gray-400 mx-auto mb-3" />
                     </div>
-                    <p className="text-gray-600 mb-2">No reference images yet</p>
+                    <p className="text-gray-600 mb-2">No Reference Images Yet</p>
                     <p className="text-sm text-gray-400">Upload your first reference image to get started</p>
                   </div>
                 ) : (
