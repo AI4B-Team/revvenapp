@@ -1,4 +1,3 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -18,9 +17,9 @@ serve(async (req) => {
       throw new Error('Messages array is required');
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
-    if (!OPENROUTER_API_KEY) {
-      throw new Error('OPENROUTER_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
 
     console.log('AIVA chat request with', messages.length, 'messages, context:', context);
@@ -52,6 +51,12 @@ Be precise and helpful with text-related tasks.`,
 - Engaging titles and introductions
 - Content ideas and research
 Be creative and SEO-aware in your suggestions.`,
+      '/ai-responder': `You are an AI auto-responder assistant. Your role is to:
+- Respond naturally and conversationally to messages
+- Be helpful, friendly, and professional
+- Keep responses concise and to the point
+- Use the knowledge base information provided to give accurate answers
+Answer as if you're texting - keep it natural and brief.`,
       default: `You are AIVA, a versatile AI assistant for the Revven creative platform. You help users with:
 - Content creation across all media types
 - Creative ideas and inspiration
@@ -78,16 +83,14 @@ Be friendly, helpful, and creative in all responses.`
           }))
         ];
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://revvenapp.lovable.app',
-        'X-Title': 'AIVA Assistant',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-001',
+        model: 'google/gemini-3-flash-preview',
         messages: aiMessages,
         max_tokens: 2048,
         temperature: 0.7,
@@ -97,7 +100,7 @@ Be friendly, helpful, and creative in all responses.`
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter API error:', response.status, errorText);
+      console.error('Lovable AI Gateway error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
@@ -105,7 +108,13 @@ Be friendly, helpful, and creative in all responses.`
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: 'Payment required. Please add credits to continue.' }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw new Error(`AI Gateway error: ${response.status}`);
     }
 
     if (stream) {
