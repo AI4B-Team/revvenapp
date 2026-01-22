@@ -106,6 +106,11 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
                           Current Step
                         </span>
                       )}
+                      {isCompleted && (
+                        <span className="text-xs text-slate-500 font-medium">
+                          Completed
+                        </span>
+                      )}
                     </div>
                   </div>
                   
