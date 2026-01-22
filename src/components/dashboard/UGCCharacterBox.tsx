@@ -38,6 +38,8 @@ interface Voice {
   age: 'Adult' | 'Young' | 'Child';
   accent: string;
   avatar?: string;
+  elevenlabs_voice_id?: string;
+  preview_url?: string;
 }
 
 interface VoiceSettings {
@@ -64,31 +66,13 @@ interface UGCCharacterBoxProps {
 }
 
 // ============================================
-// SAMPLE DATA
+// FALLBACK VOICE DATA (used while loading from DB)
 // ============================================
 
-const voiceLibrary: Voice[] = [
+const fallbackVoiceLibrary: Voice[] = [
   { id: 'Rachel', name: 'Rachel', gender: 'Female', age: 'Adult', accent: 'American English accent' },
   { id: 'Aria', name: 'Aria', gender: 'Female', age: 'Adult', accent: 'American English accent' },
   { id: 'Roger', name: 'Roger', gender: 'Male', age: 'Adult', accent: 'American English accent' },
-  { id: 'Sarah', name: 'Sarah', gender: 'Female', age: 'Adult', accent: 'American English accent' },
-  { id: 'Laura', name: 'Laura', gender: 'Female', age: 'Adult', accent: 'American English accent' },
-  { id: 'Charlie', name: 'Charlie', gender: 'Male', age: 'Adult', accent: 'British English accent' },
-  { id: 'George', name: 'George', gender: 'Male', age: 'Adult', accent: 'British English accent' },
-  { id: 'Callum', name: 'Callum', gender: 'Male', age: 'Adult', accent: 'British English accent' },
-  { id: 'River', name: 'River', gender: 'Female', age: 'Young', accent: 'American English accent' },
-  { id: 'Liam', name: 'Liam', gender: 'Male', age: 'Adult', accent: 'American English accent' },
-  { id: 'Charlotte', name: 'Charlotte', gender: 'Female', age: 'Adult', accent: 'British English accent' },
-  { id: 'Alice', name: 'Alice', gender: 'Female', age: 'Adult', accent: 'British English accent' },
-  { id: 'Matilda', name: 'Matilda', gender: 'Female', age: 'Adult', accent: 'Australian English accent' },
-  { id: 'Will', name: 'Will', gender: 'Male', age: 'Adult', accent: 'American English accent' },
-  { id: 'Jessica', name: 'Jessica', gender: 'Female', age: 'Adult', accent: 'American English accent' },
-  { id: 'Eric', name: 'Eric', gender: 'Male', age: 'Adult', accent: 'American English accent' },
-  { id: 'Chris', name: 'Chris', gender: 'Male', age: 'Adult', accent: 'American English accent' },
-  { id: 'Brian', name: 'Brian', gender: 'Male', age: 'Adult', accent: 'American English accent' },
-  { id: 'Daniel', name: 'Daniel', gender: 'Male', age: 'Adult', accent: 'British English accent' },
-  { id: 'Lily', name: 'Lily', gender: 'Female', age: 'Adult', accent: 'British English accent' },
-  { id: 'Bill', name: 'Bill', gender: 'Male', age: 'Adult', accent: 'American English accent' },
 ];
 
 const LANGUAGE_OPTIONS = ['All', 'English'];
@@ -307,8 +291,48 @@ const VoiceLibraryModal: React.FC<{
   const [accentFilter, setAccentFilter] = useState('All');
   const [genderFilter, setGenderFilter] = useState('All');
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
-  const [isLoadingVoice, setIsLoadingVoice] = useState<string | null>(null);
+  const [voiceLibrary, setVoiceLibrary] = useState<Voice[]>(fallbackVoiceLibrary);
+  const [isLoadingVoices, setIsLoadingVoices] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Fetch voices from database
+  useEffect(() => {
+    const fetchVoices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('preset_voices')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order');
+
+        if (error) {
+          console.error('Error fetching voices:', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const mappedVoices: Voice[] = data.map((v) => ({
+            id: v.elevenlabs_voice_id,
+            name: v.name,
+            gender: v.gender as 'Female' | 'Male',
+            age: v.age as 'Adult' | 'Young' | 'Child',
+            accent: v.accent,
+            elevenlabs_voice_id: v.elevenlabs_voice_id,
+            preview_url: v.preview_url,
+          }));
+          setVoiceLibrary(mappedVoices);
+        }
+      } catch (err) {
+        console.error('Failed to fetch voices:', err);
+      } finally {
+        setIsLoadingVoices(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchVoices();
+    }
+  }, [isOpen]);
 
   const filteredVoices = voiceLibrary.filter((voice) => {
     if (searchQuery && !voice.name.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -370,30 +394,13 @@ const VoiceLibraryModal: React.FC<{
     }
     setIsPlaying(null);
 
-    setIsLoadingVoice(voiceId);
-
-    try {
-      // Find the voice name from the voice library
-      const voice = voiceLibrary.find(v => v.id === voiceId);
-      const voiceName = voice?.name || voiceId;
-      const previewText = `Hi, I am ${voiceName}, welcome to Revven.`;
-      
-      const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
-        body: {
-          text: previewText,
-          voice: voiceId,
-          stability: 0.5,
-          similarity_boost: 0.75,
-          style: 0,
-          speed: 1,
-          use_speaker_boost: true,
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.audioUrl) {
-        const audio = new Audio(data.audioUrl);
+    // Find the voice and use pre-generated preview URL for instant playback
+    const voice = voiceLibrary.find(v => v.id === voiceId);
+    
+    if (voice?.preview_url) {
+      // Use pre-generated preview URL - INSTANT playback!
+      try {
+        const audio = new Audio(voice.preview_url);
         audioRef.current = audio;
 
         audio.onended = () => {
@@ -408,11 +415,10 @@ const VoiceLibraryModal: React.FC<{
 
         await audio.play();
         setIsPlaying(voiceId);
+      } catch (error) {
+        console.error('Error playing voice preview:', error);
+        setIsPlaying(null);
       }
-    } catch (error) {
-      console.error('Error generating voice preview:', error);
-    } finally {
-      setIsLoadingVoice(null);
     }
   };
 
@@ -594,12 +600,9 @@ const VoiceLibraryModal: React.FC<{
                             e.stopPropagation();
                             playVoicePreview(voice.id);
                           }}
-                          className={`flex-shrink-0 w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 transition-colors ${isLoadingVoice === voice.id ? 'opacity-50 cursor-wait' : ''}`}
-                          disabled={isLoadingVoice !== null}
+                          className="flex-shrink-0 w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 transition-colors"
                         >
-                          {isLoadingVoice === voice.id ? (
-                            <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-                          ) : isPlaying === voice.id ? (
+                          {isPlaying === voice.id ? (
                             <div className="flex items-center gap-0.5">
                               {[1, 2, 3].map((i) => (
                                 <motion.div
@@ -683,7 +686,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
   const [showVoiceLibrary, setShowVoiceLibrary] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState<Voice>(voiceLibrary[0]);
+  const [selectedVoice, setSelectedVoice] = useState<Voice>(fallbackVoiceLibrary[0]);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
     speed: 50,
     stability: 60,
