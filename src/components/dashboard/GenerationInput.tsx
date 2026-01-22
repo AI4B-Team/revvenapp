@@ -412,10 +412,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [voiceoverCharacter, setVoiceoverCharacter] = useState<{ id: string; name: string; image?: string } | null>(null);
   const [isVoiceoverCharacterPopoverOpen, setIsVoiceoverCharacterPopoverOpen] = useState(false);
   
-  // Lip-Sync voice selection (simple voice selector, no audio upload)
-  const [lipsyncVoice, setLipsyncVoice] = useState('Rachel');
-  const [isLipsyncVoicePopoverOpen, setIsLipsyncVoicePopoverOpen] = useState(false);
-  
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
     { value: 'Draw', label: 'Draw', icon: Pencil },
@@ -5577,112 +5573,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <>
                       <div className="w-px h-8 bg-slate-200 mx-1" />
 
-                  {selectedAnimateMode === 'Lip-Sync' ? (
+                  {(selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') ? (
                     <>
-                      {/* Lip-Sync Mode Controls - Simple voice selector only, no audio upload or prompt */}
-                      
-                      {/* Character Selection */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => onCharactersClick?.()}
-                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                              videoModeState.characters.length > 0 
-                                ? 'bg-brand-blue/15 text-muted-foreground' 
-                                : 'bg-secondary text-muted-foreground'
-                            }`}
-                          >
-                            <User size={16} />
-                            {videoModeState.characters.length > 0 && <span>{videoModeState.characters[0].name}</span>}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Character</p>
-                        </TooltipContent>
-                      </Tooltip>
-
-                      {/* Voice Selector - Simple dropdown like the screenshot */}
-                      <Popover open={isLipsyncVoicePopoverOpen} onOpenChange={setIsLipsyncVoicePopoverOpen}>
-                        <PopoverTrigger asChild>
-                          <button className="px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90 border border-border">
-                            <AudioLines size={16} />
-                            <span>{lipsyncVoice}</span>
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-48 bg-background border-border z-50 max-h-64 overflow-y-auto">
-                          <div className="space-y-1">
-                            {voiceoverLibrary.map((voice) => (
-                              <button 
-                                key={voice.id}
-                                onClick={() => {
-                                  setLipsyncVoice(voice.name);
-                                  setIsLipsyncVoicePopoverOpen(false);
-                                }}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${
-                                  lipsyncVoice === voice.name ? 'bg-secondary' : ''
-                                }`}
-                              >
-                                <span>{voice.name}</span>
-                                {lipsyncVoice === voice.name && <Check size={14} className="text-brand-green" />}
-                              </button>
-                            ))}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-
-                      {/* Aspect Ratio */}
-                      <Popover>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <PopoverTrigger asChild>
-                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                                videoAspectRatio !== '16:9' 
-                                  ? 'bg-brand-yellow/15 text-muted-foreground' 
-                                  : 'bg-secondary text-muted-foreground'
-                              }`}>
-                                <RatioIcon size={16} />
-                                {videoAspectRatio !== '16:9' && <span>{videoAspectRatio}</span>}
-                              </button>
-                            </PopoverTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Ratio</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <PopoverContent className="w-48 bg-background border-border z-50">
-                          <div className="space-y-1">
-                            <button 
-                              onClick={() => setVideoAspectRatio('16:9')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === '16:9' ? 'bg-secondary' : ''}`}
-                            >
-                              <div className="w-5 h-3 border-2 border-current"></div>
-                              16:9 Landscape
-                              {videoAspectRatio === '16:9' && <Check size={14} className="ml-auto text-brand-green" />}
-                            </button>
-                            <button 
-                              onClick={() => setVideoAspectRatio('9:16')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === '9:16' ? 'bg-secondary' : ''}`}
-                            >
-                              <div className="w-3 h-5 border-2 border-current"></div>
-                              9:16 Portrait
-                              {videoAspectRatio === '9:16' && <Check size={14} className="ml-auto text-brand-green" />}
-                            </button>
-                            <button 
-                              onClick={() => setVideoAspectRatio('Auto')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === 'Auto' ? 'bg-secondary' : ''}`}
-                            >
-                              <div className="w-4 h-4 border-2 border-current"></div>
-                              Auto
-                              {videoAspectRatio === 'Auto' && <Check size={14} className="ml-auto text-brand-green" />}
-                            </button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </>
-                  ) : selectedAnimateMode === 'Avatar Video' ? (
-                    <>
-                      {/* Avatar Video Mode Controls - with audio upload */}
+                      {/* Avatar Video / Lip-Sync Mode Controls - Same model dropdown for both */}
                       <Popover>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -5726,7 +5619,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      {/* Audio duration warning for Avatar Video models */}
+                      {/* Audio duration warning for all Avatar Video models */}
                       {uploadedAudio?.duration && uploadedAudio.duration > 15 && (
                         <span className="text-red-500 text-xs font-medium">
                           ⚠️ Audio too long ({Math.round(uploadedAudio.duration)}s &gt; 15s)
@@ -5793,7 +5686,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      {/* Audio Button for Avatar Video */}
+                      {/* Audio Button for Lip-Sync/Avatar Video */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
