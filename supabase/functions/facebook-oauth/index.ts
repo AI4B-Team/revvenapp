@@ -305,22 +305,183 @@ serve(async (req) => {
 
     // --- Meta Webhook Events ---
     // Meta sends webhook POSTs with headers like: x-hub-signature-256
-    // and bodies like: { object: 'page', entry: [...] }
+    // and bodies like: { object: 'instagram', entry: [...] }
     if (!body?.action && body?.object) {
       const signatureHeader = req.headers.get('x-hub-signature-256');
-      const isValid = await verifyMetaSignature({
-        appSecret: facebookAppSecret,
+      
+      // Try Instagram secret first, then Facebook secret for backwards compatibility
+      let isValid = await verifyMetaSignature({
+        appSecret: instagramClientSecret,
         rawBody,
         signatureHeader,
       });
+      
+      if (!isValid) {
+        isValid = await verifyMetaSignature({
+          appSecret: facebookAppSecret,
+          rawBody,
+          signatureHeader,
+        });
+      }
 
       if (!isValid) {
         console.error('Invalid Meta webhook signature');
         return new Response('Invalid signature', { status: 401 });
       }
 
-      // For now we only acknowledge and log; AI Responder processing will be wired separately.
       console.log('Received Meta webhook event:', JSON.stringify(body));
+
+      // Process Instagram messaging events
+      if (body.object === 'instagram') {
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        
+        for (const entry of body.entry || []) {
+          const igAccountId = entry.id;
+          
+          for (const messagingEvent of entry.messaging || []) {
+            const senderId = messagingEvent.sender?.id;
+            const messageText = messagingEvent.message?.text;
+            
+            // Skip if no message text or if it's an echo
+            if (!messageText || messagingEvent.message?.is_echo) {
+              continue;
+            }
+            
+            console.log(`Instagram DM received from ${senderId}: ${messageText}`);
+            
+            // Find the Instagram account and user
+            const { data: igAccount, error: igError } = await supabase
+              .from('instagram_accounts')
+              .select('user_id, access_token, instagram_username')
+              .eq('instagram_id', igAccountId)
+              .single();
+            
+            if (igError || !igAccount) {
+              console.error('Instagram account not found for:', igAccountId);
+              continue;
+            }
+            
+            const userId = igAccount.user_id;
+            const accessToken = igAccount.access_token;
+            
+            // Check for keyword replies first
+            const { data: keywordReplies } = await supabase
+              .from('keyword_replies')
+              .select('keywords, response_message')
+              .eq('user_id', userId)
+              .eq('is_active', true);
+            
+            let responseMessage: string | null = null;
+            let matchedKeywordReplyId: string | null = null;
+            
+            // Check keyword matches
+            const lowerMessage = messageText.toLowerCase();
+            for (const reply of keywordReplies || []) {
+              const keywords = reply.keywords || [];
+              const matched = keywords.some((kw: string) => 
+                lowerMessage.includes(kw.toLowerCase())
+              );
+              if (matched) {
+                responseMessage = reply.response_message;
+                console.log('Keyword match found, using response:', responseMessage);
+                break;
+              }
+            }
+            
+            // If no keyword match, try AI auto-reply
+            if (!responseMessage) {
+              const { data: aiReplies } = await supabase
+                .from('ai_auto_replies')
+                .select('id, system_prompt, knowledge_base')
+                .eq('user_id', userId)
+                .eq('is_active', true)
+                .limit(1);
+              
+              if (aiReplies && aiReplies.length > 0) {
+                const aiReply = aiReplies[0];
+                console.log('Using AI auto-reply:', aiReply.id);
+                
+                // Get knowledge files
+                const { data: knowledgeFiles } = await supabase
+                  .from('knowledge_files')
+                  .select('file_content')
+                  .eq('ai_auto_reply_id', aiReply.id);
+                
+                let systemPrompt = aiReply.system_prompt;
+                if (aiReply.knowledge_base) {
+                  systemPrompt += `\n\nKnowledge Base:\n${aiReply.knowledge_base}`;
+                }
+                if (knowledgeFiles && knowledgeFiles.length > 0) {
+                  const fileContents = knowledgeFiles.map(f => f.file_content).join('\n\n');
+                  systemPrompt += `\n\nAdditional Knowledge:\n${fileContents}`;
+                }
+                
+                // Call AI to generate response
+                try {
+                  const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${Deno.env.get('OPENROUTER_API_KEY')}`,
+                    },
+                    body: JSON.stringify({
+                      model: 'google/gemini-2.5-flash',
+                      messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: messageText }
+                      ],
+                      max_tokens: 500,
+                    }),
+                  });
+                  
+                  const aiData = await aiResponse.json();
+                  responseMessage = aiData.choices?.[0]?.message?.content;
+                  console.log('AI generated response:', responseMessage);
+                  
+                  // Update response count
+                  await supabase
+                    .from('ai_auto_replies')
+                    .update({ 
+                      response_count: (aiReply as any).response_count + 1,
+                      last_triggered_at: new Date().toISOString()
+                    })
+                    .eq('id', aiReply.id);
+                } catch (aiError) {
+                  console.error('AI generation failed:', aiError);
+                }
+              }
+            }
+            
+            // Send response to Instagram
+            if (responseMessage && accessToken) {
+              try {
+                const sendUrl = `https://graph.instagram.com/v21.0/me/messages`;
+                const sendResponse = await fetch(sendUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                  },
+                  body: JSON.stringify({
+                    recipient: { id: senderId },
+                    message: { text: responseMessage },
+                  }),
+                });
+                
+                const sendResult = await sendResponse.json();
+                if (sendResult.error) {
+                  console.error('Failed to send Instagram message:', sendResult.error);
+                } else {
+                  console.log('Instagram message sent successfully:', sendResult);
+                }
+              } catch (sendError) {
+                console.error('Error sending Instagram message:', sendError);
+              }
+            }
+          }
+        }
+      }
+
       return new Response('OK', { status: 200 });
     }
 
