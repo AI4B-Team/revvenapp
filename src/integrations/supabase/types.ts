@@ -1008,6 +1008,45 @@ export type Database = {
         }
         Relationships: []
       }
+      preset_voices: {
+        Row: {
+          accent: string
+          age: string
+          created_at: string
+          elevenlabs_voice_id: string
+          gender: string
+          id: string
+          is_active: boolean
+          name: string
+          preview_url: string | null
+          sort_order: number
+        }
+        Insert: {
+          accent: string
+          age: string
+          created_at?: string
+          elevenlabs_voice_id: string
+          gender: string
+          id?: string
+          is_active?: boolean
+          name: string
+          preview_url?: string | null
+          sort_order?: number
+        }
+        Update: {
+          accent?: string
+          age?: string
+          created_at?: string
+          elevenlabs_voice_id?: string
+          gender?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          preview_url?: string | null
+          sort_order?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_status: string
