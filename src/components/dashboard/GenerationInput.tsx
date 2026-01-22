@@ -3008,8 +3008,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
         const primaryCharacter = currentCharacters.length > 0 ? currentCharacters[0] : null;
         
-        // Use selected UGC model for Avatar Video mode
-        const effectiveModel = selectedAnimateMode === 'Avatar Video' ? ugcModel : videoModel;
+        // Use selected UGC model for Avatar Video and Lip-Sync modes
+        // Map frontend model IDs to backend model identifiers
+        let effectiveModel: string = videoModel;
+        if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') {
+          const selectedUgcModel = ugcModel as string;
+          // Map model IDs to backend identifiers
+          if (selectedUgcModel === 'wan-avatar') {
+            effectiveModel = 'wan-speech-to-video';
+          } else if (selectedUgcModel === 'kling-avatar') {
+            effectiveModel = 'kling-ai-avatar';
+          } else {
+            effectiveModel = selectedUgcModel;
+          }
+        }
 
         // Build request body
         const requestBody: any = { 
