@@ -18,8 +18,7 @@ import {
   Upload,
   FileText,
   Sparkles,
-  Zap,
-  Brain
+  Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,7 +68,6 @@ const AIAutoReplySection = () => {
           table: 'ai_auto_replies'
         },
         (payload) => {
-          console.log('Real-time update:', payload);
           if (payload.eventType === 'UPDATE') {
             setReplies(prev => prev.map(r => 
               r.id === payload.new.id ? { ...r, ...payload.new } as AIAutoReply : r
@@ -328,149 +326,129 @@ const AIAutoReplySection = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="relative">
-          <div className="w-12 h-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-          <Bot className="absolute inset-0 m-auto text-primary" size={20} />
-        </div>
+        <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
-              <Brain className="text-white" size={24} />
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-background flex items-center justify-center">
-              <Zap size={8} className="text-white" />
-            </div>
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Bot className="text-primary" size={20} />
           </div>
           <div>
-            <h3 className="text-lg font-semibold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-              AI Auto Reply
-            </h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="text-base font-semibold text-foreground">AI Auto Reply</h3>
+            <p className="text-xs text-muted-foreground">
               Intelligent responses powered by your knowledge
             </p>
           </div>
         </div>
         <Button 
           onClick={() => setShowForm(true)} 
-          className="gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:shadow-purple-500/40 hover:scale-105"
+          size="sm"
+          className="gap-1.5"
         >
-          <Plus size={16} />
+          <Plus size={14} />
           Add AI Reply
         </Button>
       </div>
 
       {/* Form */}
       {showForm && (
-        <Card className="border-0 bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 backdrop-blur-xl shadow-2xl shadow-purple-500/10 animate-scale-in overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-fuchsia-500/5 pointer-events-none" />
-          <CardHeader className="pb-4 relative">
-            <CardTitle className="text-base flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-                <Sparkles className="text-white" size={16} />
-              </div>
-              <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-                {editingId ? 'Edit AI Auto Reply' : 'New AI Auto Reply'}
-              </span>
+        <Card className="border border-border bg-card shadow-sm animate-fade-in">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2 font-medium">
+              <Sparkles className="text-primary" size={16} />
+              {editingId ? 'Edit AI Auto Reply' : 'New AI Auto Reply'}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-5 relative">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-300">Name</Label>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Name</Label>
               <Input
                 placeholder="e.g., Customer Support AI"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="bg-slate-800/50 border-slate-700/50 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all"
+                className="h-9 text-sm"
               />
             </div>
             
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-300">System Prompt</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">System Prompt</Label>
               <Textarea
-                placeholder="You are a helpful customer support assistant. Be friendly, concise, and helpful..."
+                placeholder="You are a helpful customer support assistant..."
                 value={formData.system_prompt}
                 onChange={(e) => setFormData(prev => ({ ...prev, system_prompt: e.target.value }))}
-                rows={4}
-                className="bg-slate-800/50 border-slate-700/50 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all resize-none"
+                rows={3}
+                className="text-sm resize-none"
               />
-              <p className="text-xs text-slate-500">
-                This defines how the AI will behave and respond to messages
+              <p className="text-[10px] text-muted-foreground">
+                This defines how the AI will behave and respond
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium text-slate-300">Knowledge Base</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileUpload}
-                    accept=".txt,.pdf"
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadingFile}
-                    className="border-slate-700 hover:bg-slate-800 hover:border-violet-500/50 transition-all"
-                  >
-                    {uploadingFile ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-violet-500 border-t-transparent mr-1" />
-                    ) : (
-                      <Upload size={14} className="mr-1" />
-                    )}
-                    Upload File
-                  </Button>
-                </div>
+                <Label className="text-xs font-medium">Knowledge Base</Label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".txt,.pdf"
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingFile}
+                  className="h-7 text-xs px-2"
+                >
+                  {uploadingFile ? (
+                    <div className="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent mr-1" />
+                  ) : (
+                    <Upload size={12} className="mr-1" />
+                  )}
+                  Upload
+                </Button>
               </div>
               <Textarea
-                placeholder="Enter knowledge base information here, or upload a file..."
+                placeholder="Enter knowledge base information..."
                 value={formData.knowledge_base}
                 onChange={(e) => setFormData(prev => ({ ...prev, knowledge_base: e.target.value }))}
-                rows={5}
-                className="bg-slate-800/50 border-slate-700/50 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all resize-none"
+                rows={4}
+                className="text-sm resize-none"
               />
             </div>
 
             {knowledgeFiles.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-300">Uploaded Files</Label>
-                <div className="space-y-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Uploaded Files</Label>
+                <div className="space-y-1.5">
                   {knowledgeFiles.map(file => (
                     <div
                       key={file.id}
-                      className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50 hover:border-violet-500/30 transition-all group"
+                      className="flex items-center justify-between p-2 bg-muted/50 rounded-md group"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                          <FileText size={16} className="text-violet-400" />
-                        </div>
-                        <div>
-                          <span className="text-sm text-slate-200">{file.file_name}</span>
-                          {file.file_size && (
-                            <span className="text-xs text-slate-500 ml-2">
-                              {formatFileSize(file.file_size)}
-                            </span>
-                          )}
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <FileText size={14} className="text-muted-foreground" />
+                        <span className="text-xs">{file.file_name}</span>
+                        {file.file_size && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {formatFileSize(file.file_size)}
+                          </span>
+                        )}
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteFile(file.id)}
-                        className="h-8 w-8 p-0 text-slate-400 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
+                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:text-destructive"
                       >
-                        <X size={14} />
+                        <X size={12} />
                       </Button>
                     </div>
                   ))}
@@ -478,19 +456,12 @@ const AIAutoReplySection = () => {
               </div>
             )}
 
-            <div className="flex justify-end gap-3 pt-2">
-              <Button 
-                variant="ghost" 
-                onClick={resetForm}
-                className="hover:bg-slate-800"
-              >
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" size="sm" onClick={resetForm}>
                 Cancel
               </Button>
-              <Button 
-                onClick={handleSave}
-                className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-purple-500/25"
-              >
-                <Save size={16} className="mr-2" />
+              <Button size="sm" onClick={handleSave} className="gap-1.5">
+                <Save size={12} />
                 {editingId ? 'Update' : 'Create'}
               </Button>
             </div>
@@ -500,126 +471,96 @@ const AIAutoReplySection = () => {
 
       {/* Empty State */}
       {replies.length === 0 ? (
-        <Card className="border-dashed border-2 border-slate-700/50 bg-slate-900/30 backdrop-blur">
-          <CardContent className="py-12 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center">
-              <Bot className="text-violet-400" size={32} />
+        <Card className="border-dashed">
+          <CardContent className="py-10 text-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-muted flex items-center justify-center">
+              <Bot className="text-muted-foreground" size={24} />
             </div>
-            <p className="text-slate-300 font-medium mb-1">No AI auto replies yet</p>
-            <p className="text-sm text-slate-500">Create your first AI auto reply to get started</p>
+            <p className="text-sm text-foreground font-medium mb-0.5">No AI auto replies yet</p>
+            <p className="text-xs text-muted-foreground">Create your first AI auto reply to get started</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {replies.map((reply, index) => (
+        <div className="space-y-3">
+          {replies.map((reply) => (
             <Card 
               key={reply.id} 
               className={`
-                group relative border-0 bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 
-                backdrop-blur-xl overflow-hidden transition-all duration-500 hover:shadow-xl
-                ${reply.is_active ? 'hover:shadow-violet-500/20' : 'opacity-60 hover:opacity-80'}
+                border bg-card transition-all duration-200 hover:shadow-md
+                ${!reply.is_active && 'opacity-50'}
               `}
-              style={{ animationDelay: `${index * 100}ms` }}
             >
-              {/* Gradient overlay */}
-              <div className={`
-                absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-                bg-gradient-to-br from-violet-500/5 via-transparent to-fuchsia-500/5 pointer-events-none
-              `} />
-              
-              {/* Active indicator */}
-              {reply.is_active && (
-                <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-500 opacity-60" />
-              )}
-
-              <CardContent className="p-5 relative">
+              <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-2.5 mb-2">
                       <div className={`
-                        w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
-                        ${reply.is_active 
-                          ? 'bg-gradient-to-br from-violet-500 to-fuchsia-500 shadow-lg shadow-purple-500/25' 
-                          : 'bg-slate-800'
-                        }
+                        w-8 h-8 rounded-lg flex items-center justify-center
+                        ${reply.is_active ? 'bg-primary/10' : 'bg-muted'}
                       `}>
-                        <Bot className="text-white" size={20} />
+                        <Bot size={16} className={reply.is_active ? 'text-primary' : 'text-muted-foreground'} />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-slate-100">{reply.name}</h4>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <Badge 
-                            variant={reply.is_active ? 'default' : 'secondary'}
-                            className={`
-                              text-[10px] px-2 py-0 h-5 font-medium
-                              ${reply.is_active 
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                                : 'bg-slate-800 text-slate-400 border border-slate-700'
-                              }
-                            `}
-                          >
-                            {reply.is_active ? '● Active' : 'Inactive'}
-                          </Badge>
+                        <h4 className="text-sm font-medium text-foreground">{reply.name}</h4>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {reply.is_active ? (
+                            <Badge className="h-4 px-1.5 text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-medium">
+                              <span className="w-1 h-1 rounded-full bg-emerald-500 mr-1" />
+                              Active
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="h-4 px-1.5 text-[9px] font-medium">
+                              Inactive
+                            </Badge>
+                          )}
                           {reply.knowledge_base && (
-                            <Badge 
-                              variant="outline" 
-                              className="text-[10px] px-2 py-0 h-5 border-violet-500/30 text-violet-400 bg-violet-500/10"
-                            >
-                              <FileText size={10} className="mr-1" />
-                              Knowledge
+                            <Badge variant="outline" className="h-4 px-1.5 text-[9px]">
+                              <FileText size={8} className="mr-0.5" />
+                              KB
                             </Badge>
                           )}
                         </div>
                       </div>
                     </div>
                     
-                    <p className="text-sm text-slate-400 line-clamp-2 mb-4 pl-[52px]">
+                    <p className="text-xs text-muted-foreground line-clamp-1 mb-3 ml-[42px]">
                       {reply.system_prompt}
                     </p>
                     
-                    <div className="flex items-center gap-6 pl-[52px]">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                          <MessageSquare size={14} className="text-violet-400" />
-                        </div>
-                        <div>
-                          <p className="text-lg font-bold text-slate-100">{reply.response_count}</p>
-                          <p className="text-[10px] text-slate-500 -mt-0.5">responses</p>
-                        </div>
+                    <div className="flex items-center gap-4 ml-[42px]">
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <MessageSquare size={12} className="text-primary" />
+                        <span className="font-medium text-foreground">{reply.response_count}</span>
+                        <span className="text-muted-foreground">responses</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-fuchsia-500/10 flex items-center justify-center">
-                          <Clock size={14} className="text-fuchsia-400" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-slate-200">{formatDate(reply.last_triggered_at)}</p>
-                          <p className="text-[10px] text-slate-500 -mt-0.5">last active</p>
-                        </div>
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <Clock size={12} className="text-muted-foreground" />
+                        <span className="text-muted-foreground">{formatDate(reply.last_triggered_at)}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <Switch
                       checked={reply.is_active}
                       onCheckedChange={() => handleToggle(reply.id, reply.is_active)}
-                      className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-violet-500 data-[state=checked]:to-fuchsia-500"
+                      className="scale-90"
                     />
                     <Button 
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleEdit(reply)}
-                      className="h-9 w-9 hover:bg-slate-800 hover:text-violet-400 transition-colors"
+                      className="h-8 w-8"
                     >
-                      <Edit size={16} />
+                      <Edit size={14} />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(reply.id)}
-                      className="h-9 w-9 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                      className="h-8 w-8 hover:text-destructive"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                     </Button>
                   </div>
                 </div>
