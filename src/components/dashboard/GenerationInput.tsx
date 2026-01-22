@@ -5211,6 +5211,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             onVoiceSettingsChange={(settings) => {
               setUgcVoiceSettings(settings);
             }}
+            simpleMode={selectedAnimateMode === 'Lip-Sync'}
           />
         )}
 
