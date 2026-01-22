@@ -70,7 +70,19 @@ serve(async (req) => {
     const token = url.searchParams.get('hub.verify_token');
     const challenge = url.searchParams.get('hub.challenge');
 
-    if (mode === 'subscribe' && token === instagramVerifyToken && challenge) {
+    const provided = (token ?? '').trim();
+    const expected = (instagramVerifyToken ?? '').trim();
+    const tokenMatches = mode === 'subscribe' && provided.length > 0 && provided === expected;
+
+    console.log('Meta webhook verification request:', {
+      mode,
+      hasChallenge: Boolean(challenge),
+      tokenMatches,
+      providedTokenLength: provided.length,
+      expectedTokenLength: expected.length,
+    });
+
+    if (tokenMatches && challenge) {
       console.log('Meta webhook verified successfully');
       return new Response(challenge, {
         status: 200,
