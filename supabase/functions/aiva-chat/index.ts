@@ -60,15 +60,23 @@ Be creative and SEO-aware in your suggestions.`,
 Be friendly, helpful, and creative in all responses.`
     };
 
+    // Check if a custom system prompt is already provided in messages
+    const hasCustomSystemPrompt = messages.some((msg: { role: string }) => msg.role === 'system');
+    
     const systemPrompt = contextPrompts[context] || contextPrompts.default;
 
-    const aiMessages = [
-      { role: 'system', content: systemPrompt },
-      ...messages.map((msg: { role: string; content: string }) => ({
-        role: msg.role,
-        content: msg.content
-      }))
-    ];
+    const aiMessages = hasCustomSystemPrompt 
+      ? messages.map((msg: { role: string; content: string }) => ({
+          role: msg.role,
+          content: msg.content
+        }))
+      : [
+          { role: 'system', content: systemPrompt },
+          ...messages.map((msg: { role: string; content: string }) => ({
+            role: msg.role,
+            content: msg.content
+          }))
+        ];
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
