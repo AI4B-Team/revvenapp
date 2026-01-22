@@ -688,7 +688,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Use isolated state instead of props when in specific modes
   const activeCharacters = isVideoMode ? videoModeState.characters : (isAudioMode || isDesignMode || isContentMode || isAppsMode || isDocumentMode ? [] : selectedCharacters);
-  const activeReferences = isVideoMode ? (selectedAnimateMode === 'Story' ? selectedReferences : videoModeState.references) : (isAudioMode || isDesignMode || isContentMode || isAppsMode || isDocumentMode ? [] : selectedReferences);
+  // Story mode: limit to only 1 reference image (take first one if multiple exist)
+  const storyReferences = selectedReferences.length > 0 ? [selectedReferences[0]] : [];
+  const activeReferences = isVideoMode 
+    ? (selectedAnimateMode === 'Story' ? storyReferences : videoModeState.references) 
+    : (isAudioMode || isDesignMode || isContentMode || isAppsMode || isDocumentMode ? [] : selectedReferences);
   
   // Determine if we should show character and reference displays
   const shouldHideCharacterAndReference = isDesignMode || isContentMode || isAppsMode || isDocumentMode;
@@ -1250,19 +1254,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     if (isVideoMode && selectedAnimateMode === 'Story') {
       const hasValidScene = storyScenes.some(s => s.scene.trim().length >= 10);
       const hasCharacter = videoModeState.characters.length > 0;
-      const hasRefImage = !!storyReferenceImage || videoModeState.references.length > 0 || !!videoModeState.startingFrame;
+      // Story mode uses selectedReferences (limited to 1 via storyReferences)
+      const hasRefImage = !!storyReferenceImage || selectedReferences.length > 0 || !!videoModeState.startingFrame;
       console.log('Story Mode Debug:', {
         storyScenes: storyScenes.map(s => ({ scene: s.scene, length: s.scene.trim().length })),
         hasValidScene,
         hasCharacter,
         hasRefImage,
         storyReferenceImage,
-        videoModeReferences: videoModeState.references.length,
+        selectedReferencesCount: selectedReferences.length,
         videoModeCharacters: videoModeState.characters,
         isDisabled: !hasValidScene || (!hasCharacter && !hasRefImage)
       });
     }
-  }, [isVideoMode, selectedAnimateMode, storyScenes, videoModeState.characters, videoModeState.references, videoModeState.startingFrame, storyReferenceImage]);
+  }, [isVideoMode, selectedAnimateMode, storyScenes, videoModeState.characters, selectedReferences, videoModeState.startingFrame, storyReferenceImage]);
 
   // Handle external animate mode
   useEffect(() => {
@@ -2644,7 +2649,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     const effectivePrompt = isAvatarOrLipSync ? ugcScriptText : prompt;
     // Story mode: requires image (character OR reference) + (scenes OR prompt)
     const hasValidStoryScenes = storyScenes.some(s => s.scene.trim().length > 0);
-    const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || storyReferenceImage || videoModeState.startingFrame || videoModeState.references.length > 0);
+    // Story mode uses selectedReferences (limited to 1 via storyReferences display)
+    const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || storyReferenceImage || videoModeState.startingFrame || selectedReferences.length > 0);
     const hasStoryContent = hasValidStoryScenes || prompt.trim().length > 0;
     const isStoryModeValid = selectedAnimateMode === 'Story' && hasStoryImage && hasStoryContent;
     
@@ -2905,7 +2911,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           const storyImageUrl = currentCharacters.length > 0 
             ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
             : storyReferenceImage?.url 
-              || (videoModeState.references.length > 0 ? (videoModeState.references[0].image_url || videoModeState.references[0].thumbnail_url || videoModeState.references[0].preview) : null)
+              || (selectedReferences.length > 0 ? (selectedReferences[0].image_url || selectedReferences[0].thumbnail_url || selectedReferences[0].preview) : null)
               || videoModeState.startingFrame?.preview 
               || null;
 
@@ -6334,7 +6340,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 return;
                               }
                               // Story mode only allows 1 reference image
-                              if (videoModeState.references.length > 0) {
+                              if (selectedReferences.length > 0) {
                                 toast({
                                   title: "Only 1 image allowed",
                                   description: "Story mode supports only one reference image. Remove the current one to add a different image.",
@@ -10420,7 +10426,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   : isVideoMode && selectedAnimateMode === 'Story'
                                     ? (
                                         // Story mode requires image (character OR reference) + content
-                                        (videoModeState.characters.length === 0 && videoModeState.references.length === 0 && !storyReferenceImage && !videoModeState.startingFrame) ||
+                                        (videoModeState.characters.length === 0 && selectedReferences.length === 0 && !storyReferenceImage && !videoModeState.startingFrame) ||
                                         (storySceneMode === 'Auto' 
                                           ? !prompt.trim() // Auto mode needs a prompt
                                           : !manualScenesAllFilled) // Manual mode needs all scenes filled
