@@ -556,8 +556,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   const { toast } = useToast();
   
-  // Define models that support image-to-image generation
-  // All models should be available when references/characters are selected
+  // Define models that support image-to-image generation (only these show when ref/character selected)
   const img2imgModels = [
     'auto',
     'flux-pro',
@@ -565,15 +564,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     'gpt-4o-image',
     'seedream-4',
     'seedream-4.5',
-    'seedream',
     'nano-banana',
     'nano-banana-pro',
-    'ideogram',
     'ideogram-character',
-    'grok',
-    'qwen',
     'imagen-ultra',
-    'z-image',
   ];
 
   const hasImageReference = selectedReferences.length > 0 || selectedCharacters.length > 0 || !!isCharacterReference;
