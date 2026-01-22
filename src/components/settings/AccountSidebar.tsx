@@ -19,7 +19,10 @@ import {
   Bot,
   Share2,
   Lock,
-  Bell
+  Bell,
+  Check,
+  Search,
+  Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -31,6 +34,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
 import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,11 +50,13 @@ interface AccountSidebarProps {
 
 const languages = [
   { value: 'en', label: 'English', flag: '🇺🇸' },
-  { value: 'es', label: 'Español', flag: '🇪🇸' },
-  { value: 'fr', label: 'Français', flag: '🇫🇷' },
-  { value: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { value: 'pt', label: 'Português', flag: '🇵🇹' },
-  { value: 'bn', label: 'বাংলা', flag: '🇧🇩' },
+  { value: 'es', label: 'Spanish', flag: '🇪🇸' },
+  { value: 'fr', label: 'French', flag: '🇫🇷' },
+  { value: 'de', label: 'German', flag: '🇩🇪' },
+  { value: 'pt', label: 'Portuguese', flag: '🇵🇹' },
+  { value: 'it', label: 'Italian', flag: '🇮🇹' },
+  { value: 'zh', label: 'Chinese', flag: '🇨🇳' },
+  { value: 'ja', label: 'Japanese', flag: '🇯🇵' },
 ];
 
 export default function AccountSidebar({
@@ -65,6 +72,12 @@ export default function AccountSidebar({
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userAvatar, setUserAvatar] = useState('');
+  const [languageSearchQuery, setLanguageSearchQuery] = useState('');
+  const [languagePopoverOpen, setLanguagePopoverOpen] = useState(false);
+
+  const filteredLanguages = languages.filter(lang =>
+    lang.label.toLowerCase().includes(languageSearchQuery.toLowerCase())
+  );
 
   const menuItems = [
     { id: 'my-details', label: t('settings.account'), icon: Settings },
@@ -78,6 +91,7 @@ export default function AccountSidebar({
     { id: 'members', label: 'Members', icon: Users },
     { id: 'invites', label: t('settings.invites'), icon: Mail },
     { id: 'integrations', label: t('settings.integrations'), icon: Plug },
+    { id: 'white-label', label: 'White Label', icon: LayoutGrid },
   ];
 
   // Fetch user data on mount
@@ -226,28 +240,54 @@ export default function AccountSidebar({
             <Languages className="w-5 h-5 text-muted-foreground" />
             <span className="text-sm font-medium text-muted-foreground">{t('settings.language')}:</span>
           </div>
-          <Select value={language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-auto border-none bg-transparent p-0 h-auto gap-1 focus:ring-0">
-              <SelectValue>
-                {languages.find(l => l.value === language)?.label || 'English'}
-              </SelectValue>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-border">
-              {languages.map((lang) => (
-                <SelectItem 
-                  key={lang.value} 
-                  value={lang.value} 
-                  className="hover:bg-accent focus:bg-accent"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>{lang.flag}</span>
-                    <span>{lang.label}</span>
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={languagePopoverOpen} onOpenChange={setLanguagePopoverOpen}>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-foreground/80 transition-colors">
+                <span>{languages.find(l => l.value === language)?.label || 'English'}</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-0 bg-white border border-border shadow-lg z-50" align="end">
+              <div className="p-2 border-b border-border">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search languages..."
+                    value={languageSearchQuery}
+                    onChange={(e) => setLanguageSearchQuery(e.target.value)}
+                    className="pl-8 h-9 bg-gray-50 border-gray-200"
+                  />
+                </div>
+              </div>
+              <div className="max-h-[200px] overflow-y-auto py-1">
+                {filteredLanguages.length > 0 ? (
+                  filteredLanguages.map((lang) => (
+                    <button
+                      key={lang.value}
+                      onClick={() => {
+                        handleLanguageChange(lang.value);
+                        setLanguagePopoverOpen(false);
+                        setLanguageSearchQuery('');
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-accent transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>{lang.flag}</span>
+                        <span>{lang.label}</span>
+                      </span>
+                      {language === lang.value && (
+                        <Check className="w-4 h-4 text-emerald-500" />
+                      )}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-muted-foreground text-center">
+                    No languages found
+                  </div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Theme Selector */}
