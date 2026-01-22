@@ -35,8 +35,8 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
     <div className="w-[420px] min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-brand-green/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/4 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-2xl" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-slate-700/30 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 -right-24 w-64 h-64 bg-slate-600/20 rounded-full blur-2xl" />
       </div>
 
       <div className="relative z-10 p-10 flex flex-col h-full">
