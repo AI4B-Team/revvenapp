@@ -8,7 +8,6 @@ import { ThemeProvider } from "next-themes";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useTrackVisitor } from "@/hooks/useLiveVisitors";
 import { useRouteTracker } from "@/hooks/useRouteTracker";
-import { usePageZoom } from "@/hooks/usePageZoom";
 import { EbookProvider } from "@/contexts/EbookContext";
 import { ArticleProvider } from "@/contexts/ArticleContext";
 import { BrandProvider } from "@/contexts/BrandContext";
@@ -21,7 +20,6 @@ import Create from "./pages/Create";
 const VisitorTracker = ({ children }: { children: ReactNode }) => {
   useTrackVisitor();
   useRouteTracker();
-  usePageZoom();
   return <>{children}</>;
 };
 
