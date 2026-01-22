@@ -9,10 +9,10 @@ const corsHeaders = {
 // Model mapping: All real KIE.AI models
 const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: string; apiType: string; owner?: string }> = {
   'auto': {
-    model: 'flux-kontext-pro',
-    name: 'Auto (Flux Pro)',
-    endpoint: '/api/v1/flux/kontext/generate',
-    apiType: 'flux'
+    model: 'nano-banana-pro',
+    name: 'Auto (Nano Banana Pro)',
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'nano-banana-pro'
   },
   'grok': {
     model: 'grok-imagine/text-to-image',
