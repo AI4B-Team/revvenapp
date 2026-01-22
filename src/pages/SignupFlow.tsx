@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Check, ChevronRight, Mail, Phone, Globe, Code, Image, FileText, Bell, Sparkles, ArrowRight, ArrowLeft, Zap, Clock, Target, Shield, Rocket, Brain, MessageSquare, Video, BarChart3, Layers, RefreshCw, User, Loader2, PenLine } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -186,6 +187,28 @@ const [phoneNumber, setPhoneNumber] = useState('');
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [timezone, setTimezone] = useState('');
   const [emailUpdates, setEmailUpdates] = useState(true);
+  const [preferredLanguage, setPreferredLanguage] = useState('English');
+  
+  const languages = [
+    { name: 'English', flag: '🇺🇸' },
+    { name: 'Spanish', flag: '🇪🇸' },
+    { name: 'French', flag: '🇫🇷' },
+    { name: 'German', flag: '🇩🇪' },
+    { name: 'Portuguese', flag: '🇵🇹' },
+    { name: 'Italian', flag: '🇮🇹' },
+    { name: 'Dutch', flag: '🇳🇱' },
+    { name: 'Russian', flag: '🇷🇺' },
+    { name: 'Chinese', flag: '🇨🇳' },
+    { name: 'Japanese', flag: '🇯🇵' },
+    { name: 'Korean', flag: '🇰🇷' },
+    { name: 'Arabic', flag: '🇸🇦' },
+    { name: 'Hindi', flag: '🇮🇳' },
+  ];
+  
+  const getLanguageFlag = (langName: string) => {
+    const lang = languages.find(l => l.name === langName);
+    return lang?.flag || '🌐';
+  };
   
   // Generate random agent names
   const [suggestedAgents, setSuggestedAgents] = useState<Array<{ name: string; email: string }>>([]);
@@ -361,6 +384,32 @@ const [phoneNumber, setPhoneNumber] = useState('');
                     <p className="text-sm text-slate-500 mt-2">
                       You can always change this later in settings.
                     </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Preferred Language
+                    </label>
+                    <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+                      <SelectTrigger className="h-14 text-lg border-slate-200 focus:border-green-500 focus:ring-green-500">
+                        <SelectValue>
+                          <span className="flex items-center gap-2">
+                            <span className="text-xl">{getLanguageFlag(preferredLanguage)}</span>
+                            <span>{preferredLanguage}</span>
+                          </span>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white z-50">
+                        {languages.map((lang) => (
+                          <SelectItem key={lang.name} value={lang.name}>
+                            <span className="flex items-center gap-2">
+                              <span className="text-xl">{lang.flag}</span>
+                              <span>{lang.name}</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <Button 
