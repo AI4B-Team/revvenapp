@@ -10727,6 +10727,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           <StoryboardSceneEditor 
             onScenesChange={(scenes, allFilled) => setManualScenesAllFilled(allFilled)}
             isGenerating={isGenerating}
+            maxDuration={parseInt(storyDuration)}
           />
         </div>
       )}
