@@ -559,15 +559,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Define models that support image-to-image generation (only these show when ref/character selected)
   const img2imgModels = [
     'auto',
-    'flux-pro',
-    'flux-max',
     'gpt-4o-image',
     'seedream-4',
     'seedream-4.5',
     'nano-banana',
     'nano-banana-pro',
     'ideogram-character',
-    'imagen-ultra',
   ];
 
   const hasImageReference = selectedReferences.length > 0 || selectedCharacters.length > 0 || !!isCharacterReference;
