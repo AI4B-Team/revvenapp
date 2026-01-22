@@ -21,11 +21,16 @@ const OAuthCallback = () => {
       setMessage(`Your ${provider} account has been linked successfully.`);
       
       // Notify opener window
-      if (window.opener) {
-        window.opener.postMessage({ 
-          type: provider === 'Facebook' ? 'FACEBOOK_AUTH_SUCCESS' : 'youtube_oauth_success' 
-        }, '*');
-      }
+       if (window.opener) {
+         window.opener.postMessage({
+           type:
+             provider === 'Facebook'
+               ? 'FACEBOOK_AUTH_SUCCESS'
+               : provider === 'Instagram'
+                 ? 'INSTAGRAM_AUTH_SUCCESS'
+                 : 'YOUTUBE_AUTH_SUCCESS',
+         }, '*');
+       }
       
       // Auto-close after 2 seconds
       setTimeout(() => {
@@ -36,12 +41,17 @@ const OAuthCallback = () => {
       setMessage(decodeURIComponent(error));
       
       // Notify opener window
-      if (window.opener) {
-        window.opener.postMessage({ 
-          type: provider === 'Facebook' ? 'FACEBOOK_AUTH_ERROR' : 'youtube_oauth_error',
-          error: decodeURIComponent(error)
-        }, '*');
-      }
+       if (window.opener) {
+         window.opener.postMessage({
+           type:
+             provider === 'Facebook'
+               ? 'FACEBOOK_AUTH_ERROR'
+               : provider === 'Instagram'
+                 ? 'INSTAGRAM_AUTH_ERROR'
+                 : 'YOUTUBE_AUTH_ERROR',
+           error: decodeURIComponent(error),
+         }, '*');
+       }
       
       // Auto-close after 3 seconds
       setTimeout(() => {
