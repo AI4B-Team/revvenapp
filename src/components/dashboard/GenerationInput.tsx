@@ -5680,64 +5680,69 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
-                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                              ugcSceneText.trim().length > 0 
-                                ? 'bg-brand-green/15 text-muted-foreground' 
-                                : 'bg-secondary text-muted-foreground'
-                            }`}
-                          >
-                            <Clapperboard size={16} />
-                            {ugcSceneText.trim().length > 0 && <span>Scene</span>}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Scene</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      {/* Scene button - only show for Lip-Sync, not Avatar Video */}
+                      {selectedAnimateMode === 'Lip-Sync' && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
+                              className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                ugcSceneText.trim().length > 0 
+                                  ? 'bg-brand-green/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}
+                            >
+                              <Clapperboard size={16} />
+                              {ugcSceneText.trim().length > 0 && <span>Scene</span>}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Scene</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
 
-                      {/* Audio Button for Lip-Sync/Avatar Video */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setIsAudioUploadModalOpen(true)}
-                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                              uploadedAudio 
-                                ? 'bg-brand-green/15 text-muted-foreground' 
-                                : 'bg-secondary text-muted-foreground'
-                            }`}
-                          >
-                            <FileAudio size={16} />
-                            {uploadedAudio && (
-                              <>
-                                <span className="max-w-[80px] truncate">{uploadedAudio.name}</span>
-                                <span 
-                                  role="button"
-                                  tabIndex={0}
-                                  className="inline-flex items-center justify-center cursor-pointer"
-                                  onPointerDown={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                  }}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setUploadedAudio(null);
-                                  }}
-                                >
-                                  <X size={12} className="text-muted-foreground hover:text-foreground" />
-                                </span>
-                              </>
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{uploadedAudio ? `Audio: ${Math.round(uploadedAudio.duration)}s` : 'Upload Audio'}</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      {/* Audio Button - only show for Lip-Sync, not Avatar Video */}
+                      {selectedAnimateMode === 'Lip-Sync' && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => setIsAudioUploadModalOpen(true)}
+                              className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                uploadedAudio 
+                                  ? 'bg-brand-green/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}
+                            >
+                              <FileAudio size={16} />
+                              {uploadedAudio && (
+                                <>
+                                  <span className="max-w-[80px] truncate">{uploadedAudio.name}</span>
+                                  <span 
+                                    role="button"
+                                    tabIndex={0}
+                                    className="inline-flex items-center justify-center cursor-pointer"
+                                    onPointerDown={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                    }}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setUploadedAudio(null);
+                                    }}
+                                  >
+                                    <X size={12} className="text-muted-foreground hover:text-foreground" />
+                                  </span>
+                                </>
+                              )}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{uploadedAudio ? `Audio: ${Math.round(uploadedAudio.duration)}s` : 'Upload Audio'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
 
                       <Popover>
                         <Tooltip>
