@@ -4650,7 +4650,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </TooltipContent>
                     </Tooltip>
                     {/* Additional Video Mode Icons */}
-                    {(selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && (
+                    {selectedAnimateMode === 'Avatar Video' && (
                       <>
                         <Tooltip>
                           <TooltipTrigger asChild>
