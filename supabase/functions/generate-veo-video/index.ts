@@ -62,14 +62,22 @@ serve(async (req) => {
     }
 
     // Handle audio generation from voice settings if no audioUrl provided
+    // For Avatar Video mode, auto-generate audio from script text using ElevenLabs
     let effectiveAudioUrl = audioUrl;
-    if (!effectiveAudioUrl && voiceSettings && voiceSettings.text) {
-      console.log("Generating audio from voice settings...");
+    const isSpeechToVideoModel = model === 'kling-ai-avatar' || model === 'wan-speech-to-video';
+    const scriptText = voiceSettings?.text || (isSpeechToVideoModel ? prompt : null);
+    
+    if (!effectiveAudioUrl && scriptText && isSpeechToVideoModel) {
+      console.log("Auto-generating audio for Avatar Video mode from script text...");
       const elevenLabsApiKey = Deno.env.get("ELEVENLABS_API_KEY");
-      if (elevenLabsApiKey && voiceSettings.voiceId) {
+      
+      if (elevenLabsApiKey) {
         try {
+          // Use provided voice ID or default to Roger (male voice)
+          const voiceId = voiceSettings?.voiceId || "CwhRBWXzGAHq8TQ4Fs17";
+          
           const ttsResponse = await fetch(
-            `https://api.elevenlabs.io/v1/text-to-speech/${voiceSettings.voiceId}`,
+            `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
             {
               method: "POST",
               headers: {
@@ -77,13 +85,13 @@ serve(async (req) => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                text: voiceSettings.text.substring(0, 600), // Limit to ~15 seconds
-                model_id: voiceSettings.modelId || "eleven_multilingual_v2",
+                text: scriptText.substring(0, 600), // Limit to ~15 seconds
+                model_id: voiceSettings?.modelId || "eleven_multilingual_v2",
                 voice_settings: {
-                  stability: voiceSettings.stability ?? 0.5,
-                  similarity_boost: voiceSettings.similarity_boost ?? 0.75,
-                  style: voiceSettings.style ?? 0,
-                  use_speaker_boost: voiceSettings.use_speaker_boost ?? true
+                  stability: voiceSettings?.stability ?? 0.5,
+                  similarity_boost: voiceSettings?.similarity_boost ?? 0.75,
+                  style: voiceSettings?.style ?? 0,
+                  use_speaker_boost: voiceSettings?.use_speaker_boost ?? true
                 }
               }),
             }
@@ -91,7 +99,16 @@ serve(async (req) => {
 
           if (ttsResponse.ok) {
             const audioBuffer = await ttsResponse.arrayBuffer();
-            const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+            
+            // Use Deno's encoding for base64 to avoid stack overflow
+            const uint8Array = new Uint8Array(audioBuffer);
+            let audioBase64 = '';
+            const chunkSize = 32768;
+            for (let i = 0; i < uint8Array.length; i += chunkSize) {
+              const chunk = uint8Array.subarray(i, i + chunkSize);
+              audioBase64 += String.fromCharCode.apply(null, Array.from(chunk));
+            }
+            audioBase64 = btoa(audioBase64);
             
             // Upload to Cloudinary
             const cloudinaryCloudName = Deno.env.get("CLOUDINARY_CLOUD_NAME") || "dszt275xv";
@@ -109,9 +126,9 @@ serve(async (req) => {
             if (cloudinaryResponse.ok) {
               const cloudinaryData = await cloudinaryResponse.json();
               effectiveAudioUrl = cloudinaryData.secure_url;
-              console.log("Audio generated and uploaded:", effectiveAudioUrl);
+              console.log("Audio auto-generated and uploaded for Avatar Video:", effectiveAudioUrl);
             } else {
-              console.error("Failed to upload audio to Cloudinary");
+              console.error("Failed to upload audio to Cloudinary:", await cloudinaryResponse.text());
             }
           } else {
             console.error("Failed to generate audio from ElevenLabs:", await ttsResponse.text());
@@ -119,6 +136,8 @@ serve(async (req) => {
         } catch (audioError) {
           console.error("Audio generation error:", audioError);
         }
+      } else {
+        console.error("ELEVENLABS_API_KEY not configured for Avatar Video mode");
       }
     }
 
