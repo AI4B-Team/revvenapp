@@ -10725,7 +10725,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       {isVideoMode && selectedAnimateMode === 'Story' && storySceneMode === 'Manual' && (
         <div className="w-full mt-4">
           <StoryboardSceneEditor 
-            onScenesChange={(scenes, allFilled) => setManualScenesAllFilled(allFilled)}
+            onScenesChange={(scenes, allFilled) => {
+              setManualScenesAllFilled(allFilled);
+              // Sync manual scenes to storyScenes state for validation and generation
+              setStoryScenes(scenes.map(s => ({ scene: s.content, duration: s.duration })));
+            }}
             isGenerating={isGenerating}
             maxDuration={parseInt(storyDuration)}
           />
