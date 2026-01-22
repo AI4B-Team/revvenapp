@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, Sparkles, Inbox, CheckCheck, MoreVertical, BellOff, Settings, FolderOpen, Check } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const NotificationBell = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('whats-new'); // 'whats-new' or 'inbox'
   const [unreadCount, setUnreadCount] = useState(2); // Number of unread notifications
@@ -115,7 +117,13 @@ const NotificationBell = () => {
                       <BellOff className="mr-2 h-4 w-4" />
                       <span>Do Not Disturb</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate('/account?tab=notifications');
+                      }}
+                      className="cursor-pointer"
+                    >
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
