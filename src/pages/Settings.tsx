@@ -17,6 +17,7 @@ import InvitesTab from '@/components/settings/InvitesTab';
 import WorkspaceTab from '@/components/settings/WorkspaceTab';
 import MembersTab from '@/components/settings/MembersTab';
 import AgentTab from '@/components/settings/AgentTab';
+import SocialTab from '@/components/settings/SocialTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
 import AdminPanel from '@/components/admin/AdminPanel';
 import CancellationFlow from '@/components/settings/CancellationFlow';
@@ -335,6 +336,12 @@ export default function Settings() {
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
                   >
                     Members
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="social"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3 whitespace-nowrap text-sm"
+                  >
+                    Social
                   </TabsTrigger>
                 </TabsList>
 
@@ -1407,6 +1414,10 @@ export default function Settings() {
 
           <TabsContent value="admin" className="mt-0 lg:mt-0">
             <AdminPanel />
+          </TabsContent>
+
+          <TabsContent value="social" className="mt-0 lg:mt-0">
+            <SocialTab />
           </TabsContent>
               </Tabs>
             </div>
