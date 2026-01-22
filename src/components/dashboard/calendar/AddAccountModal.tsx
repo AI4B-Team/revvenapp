@@ -44,6 +44,12 @@ interface YouTubeChannel {
   token_expires_at: string;
 }
 
+interface InstagramAccount {
+  id: string;
+  instagram_id: string;
+  instagram_username: string;
+}
+
 interface AddAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -139,6 +145,7 @@ const platforms: SocialPlatform[] = [
 const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) => {
   const [connectedPages, setConnectedPages] = useState<ConnectedPage[]>([]);
   const [youtubeChannels, setYoutubeChannels] = useState<YouTubeChannel[]>([]);
+  const [instagramAccounts, setInstagramAccounts] = useState<InstagramAccount[]>([]);
   const [loading, setLoading] = useState(false);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
 
@@ -146,6 +153,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
     if (isOpen) {
       loadConnectedPages();
       loadYouTubeChannels();
+      loadInstagramAccounts();
       
       // Listen for OAuth callbacks
       const handleMessage = (event: MessageEvent) => {
@@ -155,6 +163,9 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
         } else if (event.data?.type === 'YOUTUBE_AUTH_SUCCESS') {
           loadYouTubeChannels();
           toast.success('YouTube channel connected successfully!');
+        } else if (event.data?.type === 'INSTAGRAM_AUTH_SUCCESS') {
+          loadInstagramAccounts();
+          toast.success('Instagram account connected successfully!');
         }
       };
       
@@ -188,6 +199,20 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
 
     if (!error && data) {
       setYoutubeChannels(data);
+    }
+  };
+
+  const loadInstagramAccounts = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('instagram_accounts')
+      .select('id, instagram_id, instagram_username')
+      .eq('user_id', user.id);
+
+    if (!error && data) {
+      setInstagramAccounts(data);
     }
   };
 
@@ -252,6 +277,26 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
     }
   };
 
+  const handleDisconnectInstagram = async (accountId: string, username: string) => {
+    setDisconnecting(accountId);
+    try {
+      const { error } = await supabase
+        .from('instagram_accounts')
+        .delete()
+        .eq('id', accountId);
+
+      if (error) throw error;
+
+      setInstagramAccounts(prev => prev.filter(a => a.id !== accountId));
+      toast.success(`Disconnected @${username}`);
+    } catch (err) {
+      console.error('Error disconnecting Instagram:', err);
+      toast.error('Failed to disconnect Instagram');
+    } finally {
+      setDisconnecting(null);
+    }
+  };
+
   const handleDisconnect = async (pageId: string, pageName: string) => {
     setDisconnecting(pageId);
     try {
@@ -311,10 +356,41 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) =>
         </DialogHeader>
 
         {/* Connected Accounts Section */}
-        {(connectedPages.length > 0 || youtubeChannels.length > 0) && (
+        {(connectedPages.length > 0 || youtubeChannels.length > 0 || instagramAccounts.length > 0) && (
           <div className="pb-4 border-b border-border">
             <h3 className="text-sm font-medium text-muted-foreground mb-3">Connected Accounts</h3>
             <div className="space-y-2">
+              {/* Instagram Accounts */}
+              {instagramAccounts.map(account => (
+                <div
+                  key={account.id}
+                  className="flex items-center justify-between p-3 rounded-xl border border-border bg-card"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center overflow-hidden">
+                      <InstagramIcon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">@{account.instagram_username}</p>
+                      <span className="text-xs text-muted-foreground">Instagram Business</span>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDisconnectInstagram(account.id, account.instagram_username)}
+                    disabled={disconnecting === account.id}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    {disconnecting === account.id ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              ))}
+
               {/* Facebook Pages */}
               {connectedPages.map(page => (
                 <div
