@@ -482,7 +482,20 @@ User's custom instructions: ${aiReply.system_prompt}`;
                   });
                   
                   const aiData = await aiResponse.json();
-                  responseMessage = aiData.choices?.[0]?.message?.content;
+                  let aiContent = aiData.choices?.[0]?.message?.content || '';
+                  
+                  // Strip ALL markdown formatting for clean Instagram DM
+                  aiContent = aiContent
+                    .replace(/\*\*/g, '')       // Remove bold **
+                    .replace(/\*/g, '')         // Remove italic *
+                    .replace(/##/g, '')         // Remove headers ##
+                    .replace(/#/g, '')          // Remove single #
+                    .replace(/`/g, '')          // Remove code backticks
+                    .replace(/_{2,}/g, '')      // Remove underscores __
+                    .replace(/\n{3,}/g, '\n\n') // Max 2 newlines
+                    .trim();
+                  
+                  responseMessage = aiContent;
                   console.log('AI generated response:', responseMessage);
                   
                   // Update response count
