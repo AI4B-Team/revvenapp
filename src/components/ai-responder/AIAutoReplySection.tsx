@@ -57,6 +57,35 @@ const AIAutoReplySection = () => {
 
   useEffect(() => {
     loadReplies();
+
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('ai_auto_replies_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ai_auto_replies'
+        },
+        (payload) => {
+          console.log('Real-time update:', payload);
+          if (payload.eventType === 'UPDATE') {
+            setReplies(prev => prev.map(r => 
+              r.id === payload.new.id ? { ...r, ...payload.new } as AIAutoReply : r
+            ));
+          } else if (payload.eventType === 'INSERT') {
+            setReplies(prev => [payload.new as AIAutoReply, ...prev]);
+          } else if (payload.eventType === 'DELETE') {
+            setReplies(prev => prev.filter(r => r.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadReplies = async () => {
