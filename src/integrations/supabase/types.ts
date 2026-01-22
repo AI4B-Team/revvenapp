@@ -38,6 +38,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_auto_replies: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          knowledge_base: string | null
+          last_triggered_at: string | null
+          name: string
+          response_count: number
+          system_prompt: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          knowledge_base?: string | null
+          last_triggered_at?: string | null
+          name: string
+          response_count?: number
+          system_prompt: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          knowledge_base?: string | null
+          last_triggered_at?: string | null
+          name?: string
+          response_count?: number
+          system_prompt?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_characters: {
         Row: {
           bio: string
@@ -780,6 +819,86 @@ export type Database = {
           used_by_user_id?: string | null
         }
         Relationships: []
+      }
+      keyword_replies: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          last_triggered_at: string | null
+          name: string
+          response_count: number
+          response_message: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          last_triggered_at?: string | null
+          name: string
+          response_count?: number
+          response_message: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          last_triggered_at?: string | null
+          name?: string
+          response_count?: number
+          response_message?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      knowledge_files: {
+        Row: {
+          ai_auto_reply_id: string | null
+          created_at: string
+          file_content: string
+          file_name: string
+          file_size: number | null
+          file_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          ai_auto_reply_id?: string | null
+          created_at?: string
+          file_content: string
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          ai_auto_reply_id?: string | null
+          created_at?: string
+          file_content?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_files_ai_auto_reply_id_fkey"
+            columns: ["ai_auto_reply_id"]
+            isOneToOne: false
+            referencedRelation: "ai_auto_replies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_generation_history: {
         Row: {
