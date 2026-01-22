@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const IMAGE_MODELS = [
-  { value: 'auto', label: 'Auto (Flux Pro)' },
+  { value: 'auto', label: 'Auto (Nano Banana Pro)' },
   { value: 'flux-pro', label: 'Flux Pro' },
   { value: 'flux-max', label: 'Flux Max' },
   { value: 'gpt-4o-image', label: 'GPT-4o Image' },
