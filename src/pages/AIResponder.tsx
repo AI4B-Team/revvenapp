@@ -313,7 +313,7 @@ const AIResponder = () => {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <Card className="bg-card border-border overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
                   <CardContent className="p-4 relative">
                     <div className="flex items-center justify-between">
                       <div>
