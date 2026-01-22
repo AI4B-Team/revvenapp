@@ -1250,18 +1250,19 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     if (isVideoMode && selectedAnimateMode === 'Story') {
       const hasValidScene = storyScenes.some(s => s.scene.trim().length >= 10);
       const hasCharacter = videoModeState.characters.length > 0;
-      const hasRefImage = !!storyReferenceImage;
+      const hasRefImage = !!storyReferenceImage || videoModeState.references.length > 0 || !!videoModeState.startingFrame;
       console.log('Story Mode Debug:', {
         storyScenes: storyScenes.map(s => ({ scene: s.scene, length: s.scene.trim().length })),
         hasValidScene,
         hasCharacter,
         hasRefImage,
         storyReferenceImage,
+        videoModeReferences: videoModeState.references.length,
         videoModeCharacters: videoModeState.characters,
         isDisabled: !hasValidScene || (!hasCharacter && !hasRefImage)
       });
     }
-  }, [isVideoMode, selectedAnimateMode, storyScenes, videoModeState.characters, storyReferenceImage]);
+  }, [isVideoMode, selectedAnimateMode, storyScenes, videoModeState.characters, videoModeState.references, videoModeState.startingFrame, storyReferenceImage]);
 
   // Handle external animate mode
   useEffect(() => {
@@ -2643,7 +2644,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     const effectivePrompt = isAvatarOrLipSync ? ugcScriptText : prompt;
     // Story mode: requires image (character OR reference) + (scenes OR prompt)
     const hasValidStoryScenes = storyScenes.some(s => s.scene.trim().length > 0);
-    const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || storyReferenceImage || videoModeState.startingFrame);
+    const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || storyReferenceImage || videoModeState.startingFrame || videoModeState.references.length > 0);
     const hasStoryContent = hasValidStoryScenes || prompt.trim().length > 0;
     const isStoryModeValid = selectedAnimateMode === 'Story' && hasStoryImage && hasStoryContent;
     
@@ -2900,10 +2901,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             throw new Error("User not authenticated");
           }
 
-          // Get image URL: character OR reference image (mutually exclusive)
+          // Get image URL: character OR reference image (supports multiple sources)
           const storyImageUrl = currentCharacters.length > 0 
             ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
-            : storyReferenceImage?.url || videoModeState.startingFrame?.preview || null;
+            : storyReferenceImage?.url 
+              || (videoModeState.references.length > 0 ? (videoModeState.references[0].image_url || videoModeState.references[0].thumbnail_url || videoModeState.references[0].preview) : null)
+              || videoModeState.startingFrame?.preview 
+              || null;
 
           // Build shots array from scene inputs or prompt
           let shots: { Scene: string; duration: number }[] = [];
