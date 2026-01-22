@@ -359,13 +359,13 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm">
+              <DropdownMenuItem asChild className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 cursor-pointer text-gray-700 text-sm group">
                 <Link to="/account?tab=billing" className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-3">
                     <CreditCard size={18} className="text-gray-500" />
                     <span>{t('settings.subscription')}</span>
                   </div>
-                  <span className="text-sm text-gray-400">Pro</span>
+                  <span className="text-sm text-gray-400 group-hover:text-emerald-500 transition-colors">Pro</span>
                 </Link>
               </DropdownMenuItem>
 
