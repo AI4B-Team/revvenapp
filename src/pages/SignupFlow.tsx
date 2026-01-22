@@ -136,14 +136,14 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
         </div>
 
         {/* Help text */}
-        <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="mt-6 p-4 rounded-xl bg-slate-800/50 border border-white/10">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-brand-green/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center flex-shrink-0">
               <Sparkles className="w-4 h-4 text-brand-green" />
             </div>
             <div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                <span className="text-white font-medium">Pro tip:</span> Take your time to customize your AI agent. The more details you provide, the better it will perform.
+                <span className="text-white font-medium">Pro Tip:</span> This only takes a minute, and you can always adjust your settings anytime from your dashboard.
               </p>
             </div>
           </div>
