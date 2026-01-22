@@ -168,6 +168,16 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const allowedTypes = ['text/plain', 'application/pdf'];
+      const allowedExtensions = ['.txt', '.pdf'];
+      const fileExtension = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+      
+      if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+        alert('Only PDF and TXT files are supported');
+        e.target.value = '';
+        return;
+      }
+      
       setUploadedFile(file);
       if (!sourceName) {
         setSourceName(file.name);
@@ -482,6 +492,7 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
                             Change File
                             <input 
                               type="file" 
+                              accept=".pdf,.txt"
                               onChange={handleFileUpload}
                               className="hidden"
                             />
@@ -494,10 +505,11 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
                             Click to upload or drag and drop
                           </p>
                           <p className="text-xs text-gray-500">
-                            PDF, DOC, TXT (Max 10MB)
+                            PDF, TXT only (Max 10MB)
                           </p>
                           <input 
                             type="file" 
+                            accept=".pdf,.txt"
                             onChange={handleFileUpload}
                             className="hidden"
                           />
