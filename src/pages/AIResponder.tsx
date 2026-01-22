@@ -26,7 +26,9 @@ import {
   CheckCircle,
   Clock,
   Tag,
-  ArrowLeft
+  ArrowLeft,
+  Instagram,
+  Facebook
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -655,6 +657,51 @@ Only output the improved response, nothing else.`
                       </p>
                     </div>
                     <Switch defaultChecked />
+                  </div>
+
+                  <div className="pt-2 border-t border-border">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-medium">Integrations</p>
+                        <p className="text-sm text-muted-foreground">
+                          Connect your channels so AI Responder can manage conversations.
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => navigate('/account?tab=social')}
+                      >
+                        Manage Connections
+                      </Button>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-background border border-border flex items-center justify-center">
+                            <Instagram className="text-foreground" size={18} />
+                          </div>
+                          <div>
+                            <p className="font-medium">Instagram</p>
+                            <p className="text-xs text-muted-foreground">Connect DMs</p>
+                          </div>
+                        </div>
+                        <Button onClick={() => navigate('/account?tab=social')}>Connect</Button>
+                      </div>
+
+                      <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-background border border-border flex items-center justify-center">
+                            <Facebook className="text-foreground" size={18} />
+                          </div>
+                          <div>
+                            <p className="font-medium">Facebook</p>
+                            <p className="text-xs text-muted-foreground">Connect Pages + Messenger</p>
+                          </div>
+                        </div>
+                        <Button onClick={() => navigate('/account?tab=social')}>Connect</Button>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
