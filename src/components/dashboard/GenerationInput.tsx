@@ -10382,7 +10382,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             : isAudioMode && selectedAudioMode === 'Music' && !musicInstrumental
                               ? !musicLyrics.trim() // Lyrics required for With Vocals mode
                               : isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
-                                ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
+                                ? (!ugcScriptText.trim() || videoModeState.characters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
                                 : isVideoMode && selectedAnimateMode === 'UGC'
                                   ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
                                   : isVideoMode && selectedAnimateMode === 'Story'
