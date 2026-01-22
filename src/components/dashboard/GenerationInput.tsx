@@ -10418,9 +10418,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 : isVideoMode && selectedAnimateMode === 'UGC'
                                   ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
                                   : isVideoMode && selectedAnimateMode === 'Story'
-                                    ? (storySceneMode === 'Auto' 
-                                        ? !prompt.trim() // Auto mode just needs a prompt
-                                        : !manualScenesAllFilled) // Manual mode needs all scenes filled (min 10 chars each)
+                                    ? (
+                                        // Story mode requires image (character OR reference) + content
+                                        (videoModeState.characters.length === 0 && videoModeState.references.length === 0 && !storyReferenceImage && !videoModeState.startingFrame) ||
+                                        (storySceneMode === 'Auto' 
+                                          ? !prompt.trim() // Auto mode needs a prompt
+                                          : !manualScenesAllFilled) // Manual mode needs all scenes filled
+                                      )
                                     : !prompt.trim()
                       )
                     }
