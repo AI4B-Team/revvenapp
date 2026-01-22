@@ -569,6 +569,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
   const hasImageReference = selectedReferences.length > 0 || selectedCharacters.length > 0 || !!isCharacterReference;
 
+  // Auto-switch to nano-banana-pro when user selects a ref/character and current model doesn't support img2img
+  useEffect(() => {
+    if (hasImageReference && !img2imgModels.includes(selectedModel)) {
+      setSelectedModel('nano-banana-pro');
+      toast({
+        title: "Model switched",
+        description: `${getModelLabel(selectedModel)} doesn't support image references. Switched to Nano Banana Pro.`,
+      });
+    }
+  }, [hasImageReference, selectedReferences.length, selectedCharacters.length]);
+
   const getModelLabel = (modelId: string) => {
     if (modelId === 'auto') return 'Auto';
     if (modelId === 'nano-banana-pro') return 'Nano Banana Pro';
