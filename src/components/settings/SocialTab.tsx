@@ -375,7 +375,7 @@ export default function SocialTab() {
 
       {/* Channels Connected Counter */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm font-medium text-blue-600">{totalConnected}/{maxChannels} Channels connected</span>
+        <span className="text-sm font-medium text-blue-600">{totalConnected}/{maxChannels} Channels Connected</span>
         <ArrowRight className="w-4 h-4 text-blue-600" />
       </div>
       <p className="text-sm text-gray-500 mb-6">You are on the Rise Plan and can connect up to {maxChannels} channels</p>
