@@ -90,10 +90,7 @@ export default function SecurityTab() {
       {/* Password Section */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-gray-900">Password</h3>
-            <div className="h-0.5 w-16 bg-blue-500 rounded-full" />
-          </div>
+          <h3 className="text-base font-semibold text-gray-900">Password</h3>
         </div>
         
         <div className="p-6">
@@ -170,13 +167,11 @@ export default function SecurityTab() {
       {/* Setup 2FA Section */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-gray-900">Setup Two Factor Authentication (2FA)</h3>
-            <div className="h-0.5 w-16 bg-blue-500 rounded-full" />
-          </div>
+          <h3 className="text-base font-semibold text-gray-900">Setup Two Factor Authentication (2FA)</h3>
           <Switch
             checked={setup2FAEnabled}
             onCheckedChange={handleSetup2FAToggle}
+            className="data-[state=checked]:bg-emerald-500"
           />
         </div>
         
@@ -199,13 +194,11 @@ export default function SecurityTab() {
       {/* Enforce 2FA Section */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-gray-900">Enforce Two Factor Authentication (2FA)</h3>
-            <div className="h-0.5 w-16 bg-blue-500 rounded-full" />
-          </div>
+          <h3 className="text-base font-semibold text-gray-900">Enforce Two Factor Authentication (2FA)</h3>
           <Switch
             checked={enforce2FAEnabled}
             onCheckedChange={handleEnforce2FAToggle}
+            className="data-[state=checked]:bg-emerald-500"
           />
         </div>
         
