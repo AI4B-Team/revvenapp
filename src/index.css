@@ -142,6 +142,17 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Global zoom adjustment - 80% for all pages except landing and assistant */
+  #root {
+    zoom: 0.8;
+  }
+
+  /* Exclude landing and assistant pages from zoom */
+  body.page-landing #root,
+  body.page-assistant #root {
+    zoom: 1;
+  }
 }
 
 @layer utilities {
