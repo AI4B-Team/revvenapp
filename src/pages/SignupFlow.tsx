@@ -9,31 +9,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Progress sidebar component
 const SignupProgress = ({ currentStep }: { currentStep: number }) => {
-  const getStepStatus = (stepId: number) => {
-    const stepMappings: { [key: number]: number[] } = {
-      1: [1],
-      2: [2],
-      3: [3],
-      4: [4, 5, 6],
-      5: [7, 8],
-      6: [9, 10],
-    };
-
-    for (const [displayStep, actualSteps] of Object.entries(stepMappings)) {
-      if (actualSteps.includes(stepId)) {
-        return { displayStep: parseInt(displayStep), isActive: actualSteps.includes(currentStep) };
-      }
-    }
-    return { displayStep: 0, isActive: false };
-  };
-
   const steps = [
-    { id: 1, label: 'Account', completed: currentStep > 1 },
-    { id: 2, label: 'Space', completed: currentStep > 2 },
-    { id: 3, label: 'Agent', completed: currentStep > 3 },
-    { id: 4, label: 'Identity', completed: currentStep > 4 },
-    { id: 5, label: 'Capabilities', completed: currentStep > 7 },
-    { id: 6, label: 'Launch', completed: currentStep > 10 },
+    { id: 1, label: 'Account Setup', description: 'Create your account' },
+    { id: 2, label: 'Space Configuration', description: 'Name your workspace' },
+    { id: 3, label: 'Agent Identity', description: 'Define your AI assistant' },
+    { id: 4, label: 'Your Profile', description: 'Tell us about yourself' },
+    { id: 5, label: 'Capabilities', description: 'Explore AI features' },
+    { id: 6, label: 'Launch', description: 'Start your journey' },
   ];
 
   const getCurrentDisplayStep = () => {
@@ -46,62 +28,131 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
   };
 
   const currentDisplayStep = getCurrentDisplayStep();
+  const progressPercentage = ((currentDisplayStep - 1) / (steps.length - 1)) * 100;
 
   return (
-    <div className="w-80 bg-gradient-to-b from-slate-50 to-white p-8 min-h-screen border-r border-slate-200">
-      <div className="mb-10">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-gradient-to-br from-brand-green to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-brand-green/20">
-            <span className="text-white font-bold text-sm">R</span>
+    <div className="w-[420px] min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-brand-green/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-2xl" />
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 420 120" className="w-full h-auto fill-brand-green/30">
+            <path d="M0,60 C100,120 200,0 320,80 C380,120 420,90 420,90 L420,120 L0,120 Z" />
+          </svg>
+        </div>
+      </div>
+
+      <div className="relative z-10 p-10 flex flex-col h-full">
+        {/* Logo & Welcome */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-11 h-11 bg-gradient-to-br from-brand-green to-emerald-400 rounded-xl flex items-center justify-center shadow-lg shadow-brand-green/30">
+              <span className="text-white font-bold text-lg">R</span>
+            </div>
+            <span className="text-2xl font-bold text-white tracking-tight">REVVEN</span>
           </div>
-          <span className="text-xl font-bold text-slate-900 tracking-tight">REVVEN</span>
+          
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Welcome to REVVEN! 👋
+          </h2>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Let's get your account set up in just a few quick steps. You can always go back and change your answers later.
+          </p>
         </div>
-      </div>
 
-      <div>
-        <h3 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-5">
-          Your Journey
-        </h3>
-        <div className="space-y-1">
-          {steps.map((step, index) => {
-            const isActive = step.id === currentDisplayStep;
-            const isCompleted = step.completed || step.id < currentDisplayStep;
+        {/* Setup Progress */}
+        <div className="flex-1">
+          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-5">
+            Setup Progress
+          </h3>
+          
+          <div className="space-y-1">
+            {steps.map((step, index) => {
+              const isActive = step.id === currentDisplayStep;
+              const isCompleted = step.id < currentDisplayStep;
 
-            return (
-              <div key={step.id} className="relative">
-                <div className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${isActive ? 'bg-brand-green/10' : ''}`}>
-                  {isCompleted && !isActive ? (
-                    <div className="w-6 h-6 rounded-full bg-brand-green flex items-center justify-center flex-shrink-0 shadow-sm">
-                      <Check className="w-3.5 h-3.5 text-white" />
+              return (
+                <div key={step.id} className="relative">
+                  <div className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-all duration-300 ${
+                    isActive 
+                      ? 'bg-white/10 backdrop-blur-sm border border-white/10' 
+                      : ''
+                  }`}>
+                    {/* Step number circle */}
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-sm transition-all duration-300 ${
+                      isCompleted 
+                        ? 'bg-brand-green text-white shadow-lg shadow-brand-green/30' 
+                        : isActive 
+                          ? 'bg-brand-green text-white shadow-lg shadow-brand-green/30 ring-4 ring-brand-green/20' 
+                          : 'bg-slate-700/50 text-slate-500 border border-slate-600'
+                    }`}>
+                      {isCompleted ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        step.id
+                      )}
                     </div>
-                  ) : isActive ? (
-                    <div className="w-6 h-6 rounded-full bg-brand-green flex items-center justify-center flex-shrink-0 shadow-sm ring-4 ring-brand-green/20">
-                      <div className="w-2 h-2 rounded-full bg-white" />
+                    
+                    {/* Step label & description */}
+                    <div className="flex-1 min-w-0">
+                      <span className={`block text-sm font-medium transition-all ${
+                        isActive 
+                          ? 'text-white' 
+                          : isCompleted 
+                            ? 'text-slate-300' 
+                            : 'text-slate-500'
+                      }`}>
+                        {step.label}
+                      </span>
+                      {isActive && (
+                        <span className="text-xs text-brand-green font-medium">
+                          Current step
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <div className="w-6 h-6 rounded-full border-2 border-slate-200 flex-shrink-0 bg-white" />
+                  </div>
+                  
+                  {/* Connector line */}
+                  {index < steps.length - 1 && (
+                    <div className={`absolute left-[31px] top-[52px] w-0.5 h-4 transition-colors duration-300 ${
+                      isCompleted ? 'bg-brand-green' : 'bg-slate-700'
+                    }`} />
                   )}
-                  <span
-                    className={`text-sm transition-all ${
-                      isActive
-                        ? 'text-brand-green font-semibold'
-                        : isCompleted
-                        ? 'text-slate-600 font-medium'
-                        : 'text-slate-400'
-                    }`}
-                  >
-                    {step.label}
-                  </span>
                 </div>
-                {index < steps.length - 1 && (
-                  <div className={`absolute left-[19px] top-[38px] w-0.5 h-3 ${isCompleted ? 'bg-brand-green' : 'bg-slate-200'}`} />
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mt-8 pt-6 border-t border-slate-700/50">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-slate-400">Progress</span>
+            <span className="text-xs font-semibold text-white">{currentDisplayStep} of {steps.length}</span>
+          </div>
+          <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-brand-green to-emerald-400 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Help text */}
+        <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-brand-green/20 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-brand-green" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                <span className="text-white font-medium">Pro tip:</span> Take your time to customize your AI agent. The more details you provide, the better it will perform.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-
     </div>
   );
 };
