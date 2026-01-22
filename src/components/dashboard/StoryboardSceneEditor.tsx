@@ -21,7 +21,7 @@ const MIN_SCENE_CHARS = 5; // Minimum characters per scene
 
 const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerate, isGenerating, onScenesChange, maxDuration = 25 }) => {
   const [scenes, setScenes] = useState<Scene[]>([
-    { id: 1, content: '', duration: DEFAULT_DURATION },
+    { id: 1, content: '', duration: maxDuration },
   ]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(true);
   const [showAllScenes, setShowAllScenes] = useState(false);
@@ -30,6 +30,12 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [dropPosition, setDropPosition] = useState<'above' | 'below' | null>(null);
+
+  // Update scene durations when maxDuration changes
+  useEffect(() => {
+    const durationPerScene = Math.round((maxDuration / scenes.length) * 10) / 10;
+    setScenes(prev => prev.map(scene => ({ ...scene, duration: durationPerScene })));
+  }, [maxDuration]);
 
   const totalDuration = useMemo(() => {
     return scenes.reduce((sum, scene) => sum + scene.duration, 0);
@@ -44,28 +50,38 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
   const visibleScenes = showAllScenes ? scenes : scenes.slice(0, INITIAL_VISIBLE_SCENES);
   const hiddenScenesCount = scenes.length - INITIAL_VISIBLE_SCENES;
 
+  // Helper to distribute duration equally across scenes
+  const distributeDuration = (sceneCount: number): number => {
+    return Math.round((maxDuration / sceneCount) * 10) / 10;
+  };
+
   // Update scene count when dropdown selection changes
   const handleSceneCountChange = (count: number) => {
     setSelectedSceneCount(count);
     setIsSceneCountDropdownOpen(false);
     
+    const durationPerScene = distributeDuration(count);
+    
     if (count > scenes.length) {
-      // Add scenes
-      const newScenes = [...scenes];
+      // Add scenes with distributed duration
+      const newScenes = scenes.map(s => ({ ...s, duration: durationPerScene }));
       for (let i = scenes.length; i < count; i++) {
         const newId = newScenes.length > 0 ? Math.max(...newScenes.map(s => s.id)) + 1 : 1;
-        newScenes.push({ id: newId, content: '', duration: DEFAULT_DURATION });
+        newScenes.push({ id: newId, content: '', duration: durationPerScene });
       }
       setScenes(newScenes);
     } else if (count < scenes.length) {
-      // Remove scenes from the end
-      setScenes(scenes.slice(0, count));
+      // Remove scenes from the end and redistribute duration
+      const newScenes = scenes.slice(0, count).map(s => ({ ...s, duration: durationPerScene }));
+      setScenes(newScenes);
     }
   };
 
   const deleteScene = (id: number) => {
     if (scenes.length > 1) {
-      const newScenes = scenes.filter(scene => scene.id !== id);
+      const remainingScenes = scenes.filter(scene => scene.id !== id);
+      const durationPerScene = distributeDuration(remainingScenes.length);
+      const newScenes = remainingScenes.map(s => ({ ...s, duration: durationPerScene }));
       setScenes(newScenes);
       setSelectedSceneCount(newScenes.length);
     }
