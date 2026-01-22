@@ -17,7 +17,8 @@ import {
   LayoutGrid,
   Users,
   Bot,
-  Share2
+  Share2,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -67,6 +68,7 @@ export default function AccountSidebar({
   const menuItems = [
     { id: 'my-details', label: t('settings.account'), icon: Settings },
     ...(isAdminOrModerator ? [{ id: 'admin', label: 'Admin', icon: Shield }] : []),
+    { id: 'security', label: 'Security', icon: Lock },
     { id: 'billing', label: t('settings.subscription'), icon: CreditCard, badge: 'Pro' },
     { id: 'social', label: 'Social', icon: Share2 },
     { id: 'workspace', label: 'Spaces', icon: LayoutGrid },

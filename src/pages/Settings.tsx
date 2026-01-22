@@ -18,6 +18,7 @@ import WorkspaceTab from '@/components/settings/WorkspaceTab';
 import MembersTab from '@/components/settings/MembersTab';
 import AgentTab from '@/components/settings/AgentTab';
 import SocialTab from '@/components/settings/SocialTab';
+import SecurityTab from '@/components/settings/SecurityTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
 import AdminPanel from '@/components/admin/AdminPanel';
 import CancellationFlow from '@/components/settings/CancellationFlow';
@@ -1418,6 +1419,10 @@ export default function Settings() {
 
           <TabsContent value="social" className="mt-0 lg:mt-0">
             <SocialTab />
+          </TabsContent>
+
+          <TabsContent value="security" className="mt-0 lg:mt-0">
+            <SecurityTab />
           </TabsContent>
               </Tabs>
             </div>
