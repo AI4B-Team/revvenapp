@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,9 @@ import {
   ArrowLeft,
   Instagram,
   Facebook,
-  Sparkles
+  Sparkles,
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -273,75 +276,89 @@ const AIResponder = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card className="bg-card border-border">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-muted-foreground text-sm">Keyword Replies</p>
-                    <p className="text-2xl font-bold">{stats.activeKeywordReplies}</p>
-                  </div>
-                  <div className="p-3 bg-accent/20 rounded-lg">
-                    <Tag className="text-accent-foreground" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card border-border">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-muted-foreground text-sm">AI Auto Replies</p>
-                    <p className="text-2xl font-bold">{stats.activeAIReplies}</p>
-                  </div>
-                  <div className="p-3 bg-primary/20 rounded-lg">
-                    <Sparkles className="text-primary" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card border-border">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-muted-foreground text-sm">Total Responses</p>
-                    <p className="text-2xl font-bold">{stats.totalResponses}</p>
-                  </div>
-                  <div className="p-3 bg-secondary rounded-lg">
-                    <MessageSquare className="text-secondary-foreground" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card border-border">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-muted-foreground text-sm">Keywords Tracked</p>
-                    <p className="text-2xl font-bold">{stats.keywordsTracked}</p>
-                  </div>
-                  <div className="p-3 bg-muted rounded-lg">
-                    <Zap className="text-foreground" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {[
+              { 
+                label: 'Keyword Replies', 
+                value: stats.activeKeywordReplies, 
+                icon: Tag, 
+                gradient: 'from-amber-500 to-orange-500',
+                bgGradient: 'from-amber-500/10 to-orange-500/10'
+              },
+              { 
+                label: 'AI Auto Replies', 
+                value: stats.activeAIReplies, 
+                icon: Sparkles, 
+                gradient: 'from-purple-500 to-pink-500',
+                bgGradient: 'from-purple-500/10 to-pink-500/10'
+              },
+              { 
+                label: 'Total Responses', 
+                value: stats.totalResponses, 
+                icon: TrendingUp, 
+                gradient: 'from-emerald-500 to-teal-500',
+                bgGradient: 'from-emerald-500/10 to-teal-500/10'
+              },
+              { 
+                label: 'Keywords Tracked', 
+                value: stats.keywordsTracked, 
+                icon: Activity, 
+                gradient: 'from-blue-500 to-cyan-500',
+                bgGradient: 'from-blue-500/10 to-cyan-500/10'
+              }
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+              >
+                <Card className="bg-card border-border overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  <CardContent className="p-4 relative">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-muted-foreground text-sm">{stat.label}</p>
+                        <motion.p 
+                          className="text-2xl font-bold"
+                          key={stat.value}
+                          initial={{ scale: 1.2, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: 'spring', stiffness: 300 }}
+                        >
+                          {stat.value}
+                        </motion.p>
+                      </div>
+                      <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                        <stat.icon className="text-white" size={24} />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="bg-secondary">
-              <TabsTrigger value="responders" className="gap-2">
+            <TabsList className="bg-secondary p-1 rounded-xl">
+              <TabsTrigger 
+                value="responders" 
+                className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all duration-200"
+              >
                 <MessageSquare size={16} />
                 Responders
               </TabsTrigger>
-              <TabsTrigger value="test" className="gap-2">
+              <TabsTrigger 
+                value="test" 
+                className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all duration-200"
+              >
                 <Play size={16} />
                 Test
               </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-2">
+              <TabsTrigger 
+                value="settings" 
+                className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all duration-200"
+              >
                 <Settings size={16} />
                 Settings
               </TabsTrigger>
@@ -349,66 +366,114 @@ const AIResponder = () => {
 
             {/* Responders Tab */}
             <TabsContent value="responders" className="space-y-6">
-              <KeywordReplySection />
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <KeywordReplySection />
+              </motion.div>
               <div className="border-t border-border pt-6">
-                <AIAutoReplySection />
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                >
+                  <AIAutoReplySection />
+                </motion.div>
               </div>
             </TabsContent>
 
             {/* Test Tab */}
             <TabsContent value="test" className="space-y-4">
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle>Test Your Responders</CardTitle>
-                  <CardDescription>
-                    Enter a test message to see how your responders will react
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Test Message</Label>
-                    <div className="flex gap-2">
-                      <Input 
-                        placeholder="Type a message to test... e.g., 'Hello, I need help with pricing'"
-                        value={testMessage}
-                        onChange={(e) => setTestMessage(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleTestResponse()}
-                      />
-                      <Button 
-                        onClick={handleTestResponse} 
-                        disabled={isGenerating}
-                        className="gap-2"
-                      >
-                        {isGenerating ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                            Generating...
-                          </>
-                        ) : (
-                          <>
-                            <Send size={16} />
-                            Test
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {testResponse && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="bg-card border-border overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-primary via-purple-500 to-pink-500" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Play className="text-primary" size={20} />
+                      Test Your Responders
+                    </CardTitle>
+                    <CardDescription>
+                      Enter a test message to see how your responders will react
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Response</Label>
-                      <div className="p-4 bg-secondary rounded-lg border border-border">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/20 rounded-lg">
-                            <Bot className="text-primary" size={20} />
-                          </div>
-                          <p className="text-foreground flex-1">{testResponse}</p>
-                        </div>
+                      <Label>Test Message</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="Type a message to test... e.g., 'Hello, I need help with pricing'"
+                          value={testMessage}
+                          onChange={(e) => setTestMessage(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleTestResponse()}
+                          className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                        />
+                        <Button 
+                          onClick={handleTestResponse} 
+                          disabled={isGenerating}
+                          className="gap-2 min-w-[100px] bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-200"
+                        >
+                          {isGenerating ? (
+                            <>
+                              <motion.div 
+                                className="h-4 w-4 border-2 border-white border-t-transparent rounded-full"
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                              />
+                              Testing...
+                            </>
+                          ) : (
+                            <>
+                              <Send size={16} />
+                              Test
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                    
+                    <AnimatePresence mode="wait">
+                      {testResponse && (
+                        <motion.div 
+                          className="space-y-2"
+                          initial={{ opacity: 0, y: 10, height: 0 }}
+                          animate={{ opacity: 1, y: 0, height: 'auto' }}
+                          exit={{ opacity: 0, y: -10, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Label className="flex items-center gap-2">
+                            <CheckCircle className="text-emerald-500" size={14} />
+                            Response
+                          </Label>
+                          <motion.div 
+                            className="p-4 bg-gradient-to-br from-secondary to-muted rounded-xl border border-border shadow-inner"
+                            initial={{ scale: 0.95 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: 'spring', stiffness: 300 }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <motion.div 
+                                className="p-2 bg-gradient-to-br from-primary to-purple-600 rounded-lg shadow-lg"
+                                initial={{ rotate: -10 }}
+                                animate={{ rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 200 }}
+                              >
+                                <Bot className="text-white" size={20} />
+                              </motion.div>
+                              <p className="text-foreground flex-1 leading-relaxed">{testResponse}</p>
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </TabsContent>
 
             {/* Settings Tab */}

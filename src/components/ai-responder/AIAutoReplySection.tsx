@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +19,8 @@ import {
   Upload,
   FileText,
   Sparkles,
-  Zap
+  Zap,
+  Brain
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -326,7 +328,11 @@ const AIAutoReplySection = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+        <motion.div 
+          className="w-10 h-10 rounded-full border-2 border-purple-500/30 border-t-purple-500"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+        />
       </div>
     );
   }
@@ -336,237 +342,286 @@ const AIAutoReplySection = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Bot className="text-primary" size={20} />
-          </div>
+          <motion.div 
+            className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg"
+            whileHover={{ scale: 1.05, rotate: -5 }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            <Brain className="text-white" size={20} />
+          </motion.div>
           <div>
-            <h3 className="text-base font-semibold text-foreground">AI Auto Reply</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="text-lg font-semibold">AI Auto Reply</h3>
+            <p className="text-sm text-muted-foreground">
               Intelligent responses powered by your knowledge
             </p>
           </div>
         </div>
         <Button 
           onClick={() => setShowForm(true)} 
-          size="sm"
-          className="gap-1.5"
+          className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg shadow-purple-500/20 transition-all duration-200"
         >
-          <Plus size={14} />
+          <Plus size={16} />
           Add AI Reply
         </Button>
       </div>
 
       {/* Form */}
-      {showForm && (
-        <Card className="border border-border bg-card shadow-sm animate-fade-in">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2 font-medium">
-              <Sparkles className="text-primary" size={16} />
-              {editingId ? 'Edit AI Auto Reply' : 'New AI Auto Reply'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Name</Label>
-              <Input
-                placeholder="e.g., Customer Support AI"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="h-9 text-sm"
-              />
-            </div>
-            
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">System Prompt</Label>
-              <Textarea
-                placeholder="You are a helpful customer support assistant..."
-                value={formData.system_prompt}
-                onChange={(e) => setFormData(prev => ({ ...prev, system_prompt: e.target.value }))}
-                rows={3}
-                className="text-sm resize-none"
-              />
-              <p className="text-[10px] text-muted-foreground">
-                This defines how the AI will behave and respond
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-medium">Knowledge Base</Label>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  accept=".txt,.pdf"
-                  className="hidden"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingFile}
-                  className="h-7 text-xs px-2"
-                >
-                  {uploadingFile ? (
-                    <div className="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent mr-1" />
-                  ) : (
-                    <Upload size={12} className="mr-1" />
-                  )}
-                  Upload
-                </Button>
-              </div>
-              <Textarea
-                placeholder="Enter knowledge base information..."
-                value={formData.knowledge_base}
-                onChange={(e) => setFormData(prev => ({ ...prev, knowledge_base: e.target.value }))}
-                rows={4}
-                className="text-sm resize-none"
-              />
-            </div>
-
-            {knowledgeFiles.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Uploaded Files</Label>
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -20 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+          >
+            <Card className="border-purple-500/50 overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Sparkles className="text-purple-500" size={16} />
+                  {editingId ? 'Edit AI Auto Reply' : 'New AI Auto Reply'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-1.5">
-                  {knowledgeFiles.map(file => (
-                    <div
-                      key={file.id}
-                      className="flex items-center justify-between p-2 bg-muted/50 rounded-md group"
-                    >
-                      <div className="flex items-center gap-2">
-                        <FileText size={14} className="text-muted-foreground" />
-                        <span className="text-xs">{file.file_name}</span>
-                        {file.file_size && (
-                          <span className="text-[10px] text-muted-foreground">
-                            {formatFileSize(file.file_size)}
-                          </span>
-                        )}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteFile(file.id)}
-                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:text-destructive"
-                      >
-                        <X size={12} />
-                      </Button>
-                    </div>
-                  ))}
+                  <Label className="text-sm font-medium">Name</Label>
+                  <Input
+                    placeholder="e.g., Customer Support AI"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
+                  />
                 </div>
-              </div>
-            )}
+                
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium">System Prompt</Label>
+                  <Textarea
+                    placeholder="You are a helpful customer support assistant..."
+                    value={formData.system_prompt}
+                    onChange={(e) => setFormData(prev => ({ ...prev, system_prompt: e.target.value }))}
+                    rows={3}
+                    className="resize-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This defines how the AI will behave and respond
+                  </p>
+                </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" size="sm" onClick={resetForm}>
-                Cancel
-              </Button>
-              <Button size="sm" onClick={handleSave} className="gap-1.5">
-                <Save size={12} />
-                {editingId ? 'Update' : 'Create'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Empty State */}
-      {replies.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="py-10 text-center">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-muted flex items-center justify-center">
-              <Bot className="text-muted-foreground" size={24} />
-            </div>
-            <p className="text-sm text-foreground font-medium mb-0.5">No AI auto replies yet</p>
-            <p className="text-xs text-muted-foreground">Create your first AI auto reply to get started</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {replies.map((reply) => (
-            <Card 
-              key={reply.id} 
-              className={`
-                border bg-card transition-all duration-200 hover:shadow-md
-                ${!reply.is_active && 'opacity-50'}
-              `}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5 mb-2">
-                      <div className={`
-                        w-8 h-8 rounded-lg flex items-center justify-center
-                        ${reply.is_active ? 'bg-primary/10' : 'bg-muted'}
-                      `}>
-                        <Bot size={16} className={reply.is_active ? 'text-primary' : 'text-muted-foreground'} />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-foreground">{reply.name}</h4>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          {reply.is_active ? (
-                            <Badge className="h-4 px-1.5 text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-medium">
-                              <span className="w-1 h-1 rounded-full bg-emerald-500 mr-1" />
-                              Active
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="h-4 px-1.5 text-[9px] font-medium">
-                              Inactive
-                            </Badge>
-                          )}
-                          {reply.knowledge_base && (
-                            <Badge variant="outline" className="h-4 px-1.5 text-[9px]">
-                              <FileText size={8} className="mr-0.5" />
-                              KB
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <p className="text-xs text-muted-foreground line-clamp-1 mb-3 ml-[42px]">
-                      {reply.system_prompt}
-                    </p>
-                    
-                    <div className="flex items-center gap-4 ml-[42px]">
-                      <div className="flex items-center gap-1.5 text-xs">
-                        <MessageSquare size={12} className="text-primary" />
-                        <span className="font-medium text-foreground">{reply.response_count}</span>
-                        <span className="text-muted-foreground">responses</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs">
-                        <Clock size={12} className="text-muted-foreground" />
-                        <span className="text-muted-foreground">{formatDate(reply.last_triggered_at)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <Switch
-                      checked={reply.is_active}
-                      onCheckedChange={() => handleToggle(reply.id, reply.is_active)}
-                      className="scale-90"
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Knowledge Base</Label>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                      accept=".txt,.pdf"
+                      className="hidden"
                     />
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleEdit(reply)}
-                      className="h-8 w-8"
-                    >
-                      <Edit size={14} />
-                    </Button>
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(reply.id)}
-                      className="h-8 w-8 hover:text-destructive"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingFile}
+                      className="gap-1.5 hover:bg-purple-500/10 hover:border-purple-500/30 transition-colors"
                     >
-                      <Trash2 size={14} />
+                      {uploadingFile ? (
+                        <motion.div 
+                          className="h-3 w-3 border-2 border-purple-500 border-t-transparent rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        />
+                      ) : (
+                        <Upload size={14} />
+                      )}
+                      Upload
                     </Button>
                   </div>
+                  <Textarea
+                    placeholder="Enter knowledge base information..."
+                    value={formData.knowledge_base}
+                    onChange={(e) => setFormData(prev => ({ ...prev, knowledge_base: e.target.value }))}
+                    rows={4}
+                    className="resize-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
+                  />
+                </div>
+
+                {knowledgeFiles.length > 0 && (
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <Label className="text-sm font-medium">Uploaded Files</Label>
+                    <div className="space-y-2">
+                      {knowledgeFiles.map((file, index) => (
+                        <motion.div
+                          key={file.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-lg border border-purple-500/20 group hover:border-purple-500/40 transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileText size={16} className="text-purple-500" />
+                            <span className="text-sm">{file.file_name}</span>
+                            {file.file_size && (
+                              <span className="text-xs text-muted-foreground">
+                                {formatFileSize(file.file_size)}
+                              </span>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteFile(file.id)}
+                            className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
+                          >
+                            <X size={14} />
+                          </Button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="ghost" onClick={resetForm} className="gap-1 hover:bg-muted transition-colors">
+                    <X size={16} />
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleSave} 
+                    className="gap-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  >
+                    <Save size={16} />
+                    {editingId ? 'Update' : 'Create'}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Empty State */}
+      {replies.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="border-dashed border-2 bg-gradient-to-br from-muted/30 to-muted/10">
+            <CardContent className="py-12 text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
+                className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center mb-4"
+              >
+                <Brain className="text-purple-500" size={32} />
+              </motion.div>
+              <p className="text-foreground font-medium">No AI auto replies yet</p>
+              <p className="text-sm text-muted-foreground mt-1">Create your first AI auto reply to get started</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <div className="space-y-3">
+          <AnimatePresence>
+            {replies.map((reply, index) => (
+              <motion.div
+                key={reply.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20, height: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                layout
+              >
+                <Card className={`group hover:shadow-md transition-all duration-300 overflow-hidden ${!reply.is_active ? 'opacity-50' : ''}`}>
+                  <div className={`h-0.5 ${reply.is_active ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-muted'}`} />
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2.5 mb-2">
+                          <motion.div 
+                            className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                              reply.is_active 
+                                ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20' 
+                                : 'bg-muted'
+                            }`}
+                            whileHover={{ scale: 1.05 }}
+                          >
+                            <Bot size={18} className={reply.is_active ? 'text-purple-500' : 'text-muted-foreground'} />
+                          </motion.div>
+                          <div>
+                            <h4 className="text-sm font-medium">{reply.name}</h4>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              {reply.is_active ? (
+                                <Badge className="h-5 px-2 text-xs bg-emerald-500 hover:bg-emerald-600">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-white mr-1.5 animate-pulse" />
+                                  Active
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary" className="h-5 px-2 text-xs">
+                                  Inactive
+                                </Badge>
+                              )}
+                              {reply.knowledge_base && (
+                                <Badge variant="outline" className="h-5 px-2 text-xs bg-purple-500/10 border-purple-500/30">
+                                  <FileText size={10} className="mr-1" />
+                                  KB
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground line-clamp-1 mb-3 ml-[46px]">
+                          {reply.system_prompt}
+                        </p>
+                        
+                        <div className="flex items-center gap-4 ml-[46px]">
+                          <div className="flex items-center gap-1.5 text-sm">
+                            <MessageSquare size={14} className="text-purple-500" />
+                            <span className="font-medium">{reply.response_count}</span>
+                            <span className="text-muted-foreground">responses</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-sm">
+                            <Clock size={14} className="text-muted-foreground" />
+                            <span className="text-muted-foreground">{formatDate(reply.last_triggered_at)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <Switch
+                          checked={reply.is_active}
+                          onCheckedChange={() => handleToggle(reply.id, reply.is_active)}
+                          className="data-[state=checked]:bg-emerald-500"
+                        />
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleEdit(reply)}
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Edit size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(reply.id)}
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
     </div>
