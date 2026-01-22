@@ -318,15 +318,9 @@ const AIResponder = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-muted-foreground text-sm">{stat.label}</p>
-                        <motion.p 
-                          className="text-2xl font-bold"
-                          key={stat.value}
-                          initial={{ scale: 1.2, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ type: 'spring', stiffness: 300 }}
-                        >
+                        <p className="text-2xl font-bold">
                           {stat.value}
-                        </motion.p>
+                        </p>
                       </div>
                       <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
                         <stat.icon className="text-white" size={24} />
@@ -450,24 +444,14 @@ const AIResponder = () => {
                             <CheckCircle className="text-emerald-500" size={14} />
                             Response
                           </Label>
-                          <motion.div 
-                            className="p-4 bg-gradient-to-br from-secondary to-muted rounded-xl border border-border shadow-inner"
-                            initial={{ scale: 0.95 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: 'spring', stiffness: 300 }}
-                          >
+                          <div className="p-4 bg-gradient-to-br from-secondary to-muted rounded-xl border border-border shadow-inner">
                             <div className="flex items-start gap-3">
-                              <motion.div 
-                                className="p-2 bg-gradient-to-br from-primary to-purple-600 rounded-lg shadow-lg"
-                                initial={{ rotate: -10 }}
-                                animate={{ rotate: 0 }}
-                                transition={{ type: 'spring', stiffness: 200 }}
-                              >
+                              <div className="p-2 bg-gradient-to-br from-primary to-purple-600 rounded-lg shadow-lg">
                                 <Bot className="text-white" size={20} />
-                              </motion.div>
+                              </div>
                               <p className="text-foreground flex-1 leading-relaxed">{testResponse}</p>
                             </div>
-                          </motion.div>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
