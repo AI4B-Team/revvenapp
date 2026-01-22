@@ -270,13 +270,17 @@ Only output the improved response, nothing else.`
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <Sidebar 
         collapsed={sidebarCollapsed} 
         onCollapseChange={setSidebarCollapsed} 
       />
       
-      <div className="flex-1 flex flex-col min-w-0">
+      <div
+        className={`flex-1 flex flex-col min-w-0 overflow-hidden transition-all duration-300 ${
+          sidebarCollapsed ? 'ml-16' : 'ml-64'
+        }`}
+      >
         <Header />
         
         <main className="flex-1 overflow-auto p-6">
