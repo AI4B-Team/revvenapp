@@ -2781,7 +2781,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         )}
       </div>
       <Dialog open={sourceModalOpen} onOpenChange={setSourceModalOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl bg-white z-50">
           <DialogHeader>
             <DialogTitle>
               {sourceModalType === 'upload' && 'Upload Files'}
