@@ -207,7 +207,7 @@ export default function AccountSidebar({
                 <span className="text-sm font-medium">{item.label}</span>
               </div>
               {item.badge && (
-                <Badge className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 border-0">
+                <Badge className="bg-gray-200 text-gray-600 hover:bg-emerald-500 hover:text-white text-xs px-2 py-0.5 border-0 transition-colors">
                   {item.badge}
                 </Badge>
               )}
