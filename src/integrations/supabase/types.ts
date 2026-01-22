@@ -752,6 +752,7 @@ export type Database = {
           facebook_page_id: string
           id: string
           instagram_id: string
+          instagram_scoped_id: string | null
           instagram_username: string | null
           profile_picture_url: string | null
           token_expires_at: string | null
@@ -764,6 +765,7 @@ export type Database = {
           facebook_page_id: string
           id?: string
           instagram_id: string
+          instagram_scoped_id?: string | null
           instagram_username?: string | null
           profile_picture_url?: string | null
           token_expires_at?: string | null
@@ -776,6 +778,7 @@ export type Database = {
           facebook_page_id?: string
           id?: string
           instagram_id?: string
+          instagram_scoped_id?: string | null
           instagram_username?: string | null
           profile_picture_url?: string | null
           token_expires_at?: string | null
