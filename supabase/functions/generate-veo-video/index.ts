@@ -48,11 +48,10 @@ serve(async (req) => {
       throw new Error("prompt and userId are required");
     }
 
-    // For UGC mode, we now just pass the prompt directly to Veo 3
-    // Redirect UGC models and 'auto' to use veo3_fast
+    // Keep speech-to-video models as-is, only redirect 'auto' and 'infinitalk'
     let effectiveModel = model;
-    if (model === 'wan-speech-to-video' || model === 'kling-ai-avatar' || model === 'infinitalk') {
-      console.log(`UGC mode: Redirecting ${model} to veo3_fast with prompt`);
+    if (model === 'infinitalk') {
+      console.log(`Redirecting ${model} to veo3_fast with prompt`);
       effectiveModel = 'veo3_fast';
     }
     
@@ -60,6 +59,67 @@ serve(async (req) => {
     if (effectiveModel === 'auto') {
       console.log("Auto model: Using veo3_fast as default video model");
       effectiveModel = 'veo3_fast';
+    }
+
+    // Handle audio generation from voice settings if no audioUrl provided
+    let effectiveAudioUrl = audioUrl;
+    if (!effectiveAudioUrl && voiceSettings && voiceSettings.text) {
+      console.log("Generating audio from voice settings...");
+      const elevenLabsApiKey = Deno.env.get("ELEVENLABS_API_KEY");
+      if (elevenLabsApiKey && voiceSettings.voiceId) {
+        try {
+          const ttsResponse = await fetch(
+            `https://api.elevenlabs.io/v1/text-to-speech/${voiceSettings.voiceId}`,
+            {
+              method: "POST",
+              headers: {
+                "xi-api-key": elevenLabsApiKey,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                text: voiceSettings.text.substring(0, 600), // Limit to ~15 seconds
+                model_id: voiceSettings.modelId || "eleven_multilingual_v2",
+                voice_settings: {
+                  stability: voiceSettings.stability ?? 0.5,
+                  similarity_boost: voiceSettings.similarity_boost ?? 0.75,
+                  style: voiceSettings.style ?? 0,
+                  use_speaker_boost: voiceSettings.use_speaker_boost ?? true
+                }
+              }),
+            }
+          );
+
+          if (ttsResponse.ok) {
+            const audioBuffer = await ttsResponse.arrayBuffer();
+            const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+            
+            // Upload to Cloudinary
+            const cloudinaryCloudName = Deno.env.get("CLOUDINARY_CLOUD_NAME") || "dszt275xv";
+            const cloudinaryFormData = new FormData();
+            cloudinaryFormData.append("file", `data:audio/mpeg;base64,${audioBase64}`);
+            cloudinaryFormData.append("upload_preset", "revven");
+            cloudinaryFormData.append("folder", "voice_audio");
+            cloudinaryFormData.append("resource_type", "video");
+
+            const cloudinaryResponse = await fetch(
+              `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/video/upload`,
+              { method: "POST", body: cloudinaryFormData }
+            );
+
+            if (cloudinaryResponse.ok) {
+              const cloudinaryData = await cloudinaryResponse.json();
+              effectiveAudioUrl = cloudinaryData.secure_url;
+              console.log("Audio generated and uploaded:", effectiveAudioUrl);
+            } else {
+              console.error("Failed to upload audio to Cloudinary");
+            }
+          } else {
+            console.error("Failed to generate audio from ElevenLabs:", await ttsResponse.text());
+          }
+        } catch (audioError) {
+          console.error("Audio generation error:", audioError);
+        }
+      }
     }
 
     console.log("Creating ai_videos record...");
@@ -748,6 +808,76 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(bytedancePayload),
+      });
+
+    } else if (effectiveModel === 'kling-ai-avatar') {
+      // Kling AI Avatar - Speech-to-Video with character image and audio
+      console.log("Using Kling AI Avatar API");
+
+      if (!effectiveAudioUrl) {
+        throw new Error("Audio URL is required for Kling AI Avatar mode");
+      }
+
+      const klingAvatarPayload: any = {
+        model: 'kling/ai-avatar-v1-pro',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt.substring(0, 1000),
+          audio_url: effectiveAudioUrl,
+          resolution: '1080p'
+        }
+      };
+
+      // Add character image if provided
+      if (imageUrls && imageUrls.length > 0) {
+        klingAvatarPayload.input.image_url = imageUrls[0];
+        console.log("Using character image for Kling Avatar:", imageUrls[0]);
+      }
+
+      console.log("Kling AI Avatar API payload:", JSON.stringify(klingAvatarPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(klingAvatarPayload),
+      });
+
+    } else if (effectiveModel === 'wan-speech-to-video') {
+      // Wan Speech-to-Video - Avatar mode with audio
+      console.log("Using Wan Speech-to-Video API");
+
+      if (!effectiveAudioUrl) {
+        throw new Error("Audio URL is required for Wan Speech-to-Video mode");
+      }
+
+      const wanSpeechPayload: any = {
+        model: 'wan/2-2-a14b-speech-to-video-turbo',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt.substring(0, 800),
+          audio_url: effectiveAudioUrl,
+          resolution: '720p'
+        }
+      };
+
+      // Add character image if provided
+      if (imageUrls && imageUrls.length > 0) {
+        wanSpeechPayload.input.image_url = imageUrls[0];
+        console.log("Using character image for Wan Speech-to-Video:", imageUrls[0]);
+      }
+
+      console.log("Wan Speech-to-Video API payload:", JSON.stringify(wanSpeechPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(wanSpeechPayload),
       });
 
     } else {
