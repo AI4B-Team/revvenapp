@@ -323,17 +323,6 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
                 </button>
               </div>
             )}
-
-            {/* Generate Button */}
-            <div className="flex justify-center py-4 border-t border-gray-100">
-              <button
-                onClick={onGenerate}
-                disabled={isGenerating || !scenes.some(s => s.content.trim().length > 0)}
-                className="px-8 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isGenerating ? 'Generating...' : 'Generate'}
-              </button>
-            </div>
           </div>
         )}
       </div>
