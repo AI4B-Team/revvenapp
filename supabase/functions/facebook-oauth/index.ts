@@ -9,6 +9,45 @@ const corsHeaders = {
 // Get the app URL for redirects - use published URL
 const APP_URL = 'https://revvenapp.lovable.app';
 
+function timingSafeEqual(a: Uint8Array, b: Uint8Array) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+async function verifyMetaSignature({
+  appSecret,
+  rawBody,
+  signatureHeader,
+}: {
+  appSecret: string;
+  rawBody: string;
+  signatureHeader: string | null;
+}) {
+  if (!signatureHeader) return false;
+  const [algo, sigHex] = signatureHeader.split('=');
+  if (algo !== 'sha256' || !sigHex) return false;
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(appSecret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(rawBody));
+  const macBytes = new Uint8Array(mac);
+
+  // Convert provided hex signature to bytes
+  const sigBytes = new Uint8Array(sigHex.length / 2);
+  for (let i = 0; i < sigHex.length; i += 2) {
+    sigBytes[i / 2] = parseInt(sigHex.slice(i, i + 2), 16);
+  }
+
+  return timingSafeEqual(macBytes, sigBytes);
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -19,9 +58,29 @@ serve(async (req) => {
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const facebookAppId = Deno.env.get('FACEBOOK_APP_ID')!;
   const facebookAppSecret = Deno.env.get('FACEBOOK_APP_SECRET')!;
+  const instagramVerifyToken = Deno.env.get('INSTAGRAM_VERIFY_TOKEN')!;
 
   const url = new URL(req.url);
   const redirectUri = `${supabaseUrl}/functions/v1/facebook-oauth`;
+
+  // --- Meta (Facebook/Instagram) Webhook Verification ---
+  // GET ?hub.mode=subscribe&hub.verify_token=...&hub.challenge=...
+  if (req.method === 'GET' && url.searchParams.has('hub.mode')) {
+    const mode = url.searchParams.get('hub.mode');
+    const token = url.searchParams.get('hub.verify_token');
+    const challenge = url.searchParams.get('hub.challenge');
+
+    if (mode === 'subscribe' && token === instagramVerifyToken && challenge) {
+      console.log('Meta webhook verified successfully');
+      return new Response(challenge, {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain' },
+      });
+    }
+
+    console.warn('Meta webhook verification failed');
+    return new Response('Forbidden', { status: 403 });
+  }
 
   // Handle OAuth callback from Facebook
   if (url.searchParams.has('code')) {
@@ -128,7 +187,30 @@ serve(async (req) => {
 
   // Handle POST request to get auth URL, post to Facebook, or refresh token
   if (req.method === 'POST') {
-    const body = await req.json();
+    const rawBody = await req.text();
+    const body = rawBody ? JSON.parse(rawBody) : {};
+
+    // --- Meta Webhook Events ---
+    // Meta sends webhook POSTs with headers like: x-hub-signature-256
+    // and bodies like: { object: 'page', entry: [...] }
+    if (!body?.action && body?.object) {
+      const signatureHeader = req.headers.get('x-hub-signature-256');
+      const isValid = await verifyMetaSignature({
+        appSecret: facebookAppSecret,
+        rawBody,
+        signatureHeader,
+      });
+
+      if (!isValid) {
+        console.error('Invalid Meta webhook signature');
+        return new Response('Invalid signature', { status: 401 });
+      }
+
+      // For now we only acknowledge and log; AI Responder processing will be wired separately.
+      console.log('Received Meta webhook event:', JSON.stringify(body));
+      return new Response('OK', { status: 200 });
+    }
+
     const { action, userId, pageId, message, link, videoUrl } = body;
 
     if (action === 'get_auth_url') {
