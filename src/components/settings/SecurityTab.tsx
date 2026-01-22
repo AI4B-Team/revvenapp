@@ -109,7 +109,7 @@ export default function SecurityTab() {
                   type={showCurrentPassword ? 'text' : 'password'}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Enter current password"
+                  placeholder="Enter Current Password"
                   className="pr-12 bg-gray-50 border-gray-200"
                 />
                 <button
@@ -137,7 +137,7 @@ export default function SecurityTab() {
                   type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
+                  placeholder="Enter New Password"
                   className="pr-12 bg-gray-50 border-gray-200"
                 />
                 <button
@@ -171,7 +171,7 @@ export default function SecurityTab() {
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-gray-900">Setup two factor authentication (2FA)</h3>
+            <h3 className="text-base font-semibold text-gray-900">Setup Two Factor Authentication (2FA)</h3>
             <div className="h-0.5 w-16 bg-blue-500 rounded-full" />
           </div>
           <Switch
@@ -184,7 +184,7 @@ export default function SecurityTab() {
           <div className="flex items-start gap-2">
             <Shield className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
             <div>
-              <h4 className="text-sm font-medium text-gray-900">Setup 2FA for My Account</h4>
+              <h4 className="text-sm font-medium text-gray-900">Setup 2FA For My Account</h4>
               <p className="text-sm text-gray-500 mt-1">
                 Protect your account with the additional layer of security by activating two-factor authentication{' '}
                 <button className="text-blue-500 hover:text-blue-600 font-medium">
@@ -200,7 +200,7 @@ export default function SecurityTab() {
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-gray-900">Enforce two factor authentication (2FA)</h3>
+            <h3 className="text-base font-semibold text-gray-900">Enforce Two Factor Authentication (2FA)</h3>
             <div className="h-0.5 w-16 bg-blue-500 rounded-full" />
           </div>
           <Switch
@@ -211,7 +211,7 @@ export default function SecurityTab() {
         
         <div className="px-6 pb-6">
           <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-900">Enforce 2FA for</h4>
+            <h4 className="text-sm font-medium text-gray-900">Enforce 2FA For</h4>
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox
