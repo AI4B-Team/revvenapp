@@ -6801,7 +6801,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <TooltipTrigger asChild>
                               <PopoverTrigger asChild>
                                 <button className="p-2 rounded-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90 transition">
-                                  <Box size={16} />
+                                  <Cpu size={16} />
                                 </button>
                               </PopoverTrigger>
                             </TooltipTrigger>
@@ -7615,7 +7615,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
                               <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
-                                <Box size={16} />
+                                <Cpu size={16} />
                                 {selectedAudioModel ? (selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2') : 'Auto'}
                               </button>
                             </PopoverTrigger>
@@ -7982,7 +7982,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
                               <button className="p-2 rounded-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90 transition">
-                                <Box size={16} />
+                                <Cpu size={16} />
                               </button>
                             </PopoverTrigger>
                           </TooltipTrigger>
@@ -8108,7 +8108,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 ? 'bg-brand-green/15 text-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}>
-                              <Box size={16} className="text-muted-foreground" />
+                              <Cpu size={16} className="text-muted-foreground" />
                               {designModels.find(m => m.value === designModel)?.label || 'Auto'}
                               {designModel !== 'auto' && (
                                 <X 
@@ -8711,7 +8711,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <PopoverTrigger asChild>
                             <button className="px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-90 bg-secondary text-muted-foreground">
-                              <Box size={16} className="text-muted-foreground" />
+                              <Cpu size={16} className="text-muted-foreground" />
                               Auto
                               <ChevronDown size={14} className="text-muted-foreground" />
                             </button>
@@ -9061,7 +9061,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 ? 'bg-brand-purple/15 text-foreground' 
                                 : 'bg-secondary text-muted-foreground'
                             }`}>
-                              <Box size={16} className="text-muted-foreground" />
+                              <Cpu size={16} className="text-muted-foreground" />
                               {selectedAppModel || 'Auto'}
                             </button>
                           </PopoverTrigger>
@@ -9369,7 +9369,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         ? 'bg-brand-green/15'
                         : 'bg-secondary hover:bg-brand-green/15'
                     }`}>
-                      <Box size={16} className="text-muted-foreground" />
+                      <Cpu size={16} className="text-muted-foreground" />
                       <span>{getModelLabel(selectedModel)}</span>
                     </button>
                   </PopoverTrigger>
