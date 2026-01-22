@@ -211,7 +211,8 @@ serve(async (req) => {
         // Add reference image if provided (img-to-img)
         if (effectiveReferenceImage) {
           requestBody.imageUrl = effectiveReferenceImage;
-          requestBody.strength = 0.8; // Control how much to transform (0-1, lower = closer to original)
+          requestBody.strength = 0.35; // Lower = closer to reference (0.35 preserves character/subject well)
+          console.log(`Flux: Using reference image with strength 0.35 for better subject preservation`);
         }
       } else if (modelConfig.apiType === 'gpt4o') {
         // GPT-4o Image API format - size must be "1:1", "3:2", or "2:3"
@@ -285,7 +286,8 @@ serve(async (req) => {
         // Add reference image if provided (img-to-img)
         if (effectiveReferenceImage) {
           requestBody.input.image_url = effectiveReferenceImage;
-          requestBody.input.strength = 0.8; // 0.0-1.0 transformation strength
+          requestBody.input.strength = 0.35; // Lower = closer to reference
+          console.log(`Qwen: Using reference image with strength 0.35`);
         }
       } else if (modelConfig.apiType === 'imagen') {
         // Google Imagen 4 Ultra / Grok Imagine API format - supports img-to-img
