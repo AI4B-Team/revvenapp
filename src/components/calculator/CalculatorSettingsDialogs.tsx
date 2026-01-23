@@ -393,7 +393,8 @@ const SettingInput = ({ field, value, onChange }: SettingInputProps) => {
           <select
             value={value as string | number}
             onChange={(e) => onChange(field.key, Number(e.target.value))}
-            className="w-full px-3 py-2 bg-muted/50 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
+            className="w-full px-3 py-2 bg-card border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm appearance-none cursor-pointer pr-8"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
           >
             {field.options?.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -412,7 +413,7 @@ const SettingInput = ({ field, value, onChange }: SettingInputProps) => {
         );
       case 'percentage':
         return (
-          <div className="relative">
+          <div className="flex items-center gap-1 bg-muted/50 border border-border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary">
             <input
               type="number"
               value={value as number}
@@ -420,26 +421,26 @@ const SettingInput = ({ field, value, onChange }: SettingInputProps) => {
               min={field.min}
               max={field.max}
               step={field.step || 1}
-              className="w-full px-3 py-2 pr-8 bg-muted/50 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
+              className="w-full px-3 py-2 bg-transparent outline-none text-sm text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+            <span className="pr-3 text-muted-foreground text-sm flex-shrink-0">%</span>
           </div>
         );
       case 'currency':
         return (
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+          <div className="flex items-center gap-1 bg-muted/50 border border-border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary">
+            <span className="pl-3 text-muted-foreground text-sm flex-shrink-0">$</span>
             <input
               type="number"
               value={value as number}
               onChange={(e) => onChange(field.key, Number(e.target.value))}
-              className="w-full px-3 py-2 pl-7 bg-muted/50 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
+              className="w-full px-1 py-2 bg-transparent outline-none text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
         );
       default:
         return (
-          <div className="relative">
+          <div className="flex items-center gap-1 bg-muted/50 border border-border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary">
             <input
               type="number"
               value={value as number}
@@ -447,10 +448,10 @@ const SettingInput = ({ field, value, onChange }: SettingInputProps) => {
               min={field.min}
               max={field.max}
               step={field.step || 1}
-              className="w-full px-3 py-2 bg-muted/50 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
+              className={`w-full px-3 py-2 bg-transparent outline-none text-sm ${field.suffix ? 'text-right' : ''} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
             />
             {field.suffix && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">{field.suffix}</span>
+              <span className="pr-3 text-muted-foreground text-xs flex-shrink-0">{field.suffix}</span>
             )}
           </div>
         );
@@ -467,7 +468,7 @@ const SettingInput = ({ field, value, onChange }: SettingInputProps) => {
           </IconTooltip>
         )}
       </div>
-      <div className="w-32">{renderInput()}</div>
+      <div className="w-36">{renderInput()}</div>
     </div>
   );
 };
