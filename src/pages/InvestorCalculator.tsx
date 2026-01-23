@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, ArrowLeft } from 'lucide-react';
+import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, ArrowLeft, Wallet, Percent, Target, Landmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -99,6 +99,56 @@ interface ExchangeData {
   stateRate: number;
   recaptureRate: number;
   purchasePriceNew: string;
+}
+
+interface CashFlowData {
+  monthlyRent: string;
+  mortgage: string;
+  propertyTax: string;
+  insurance: string;
+  maintenance: string;
+  vacancy: number;
+  propertyMgmt: number;
+  hoa: string;
+  utilities: string;
+}
+
+interface ROIData {
+  purchasePrice: string;
+  currentValue: string;
+  totalCashInvested: string;
+  annualCashFlow: string;
+  appreciationGain: string;
+  principalPaydown: string;
+}
+
+interface CapRateData {
+  purchasePrice: string;
+  grossRent: string;
+  vacancy: number;
+  operatingExpenses: string;
+  propertyTax: string;
+  insurance: string;
+  maintenance: string;
+  propertyMgmt: string;
+}
+
+interface SeventyRuleData {
+  arv: string;
+  rehabCosts: string;
+  closingCosts: string;
+  holdingCosts: string;
+  wholesaleFee: string;
+}
+
+interface MortgageData {
+  loanAmount: string;
+  interestRate: number;
+  loanTerm: number;
+  propertyTax: string;
+  insurance: string;
+  pmi: string;
+  hoa: string;
 }
 
 interface SavedDeal {
@@ -209,6 +259,56 @@ const InvestorCalculator = () => {
     stateRate: 5,
     recaptureRate: 25,
     purchasePriceNew: ''
+  });
+
+  const [cashFlowData, setCashFlowData] = useState<CashFlowData>({
+    monthlyRent: '',
+    mortgage: '',
+    propertyTax: '',
+    insurance: '',
+    maintenance: '',
+    vacancy: 5,
+    propertyMgmt: 10,
+    hoa: '',
+    utilities: ''
+  });
+
+  const [roiData, setRoiData] = useState<ROIData>({
+    purchasePrice: '',
+    currentValue: '',
+    totalCashInvested: '',
+    annualCashFlow: '',
+    appreciationGain: '',
+    principalPaydown: ''
+  });
+
+  const [capRateData, setCapRateData] = useState<CapRateData>({
+    purchasePrice: '',
+    grossRent: '',
+    vacancy: 5,
+    operatingExpenses: '',
+    propertyTax: '',
+    insurance: '',
+    maintenance: '',
+    propertyMgmt: ''
+  });
+
+  const [seventyRuleData, setSeventyRuleData] = useState<SeventyRuleData>({
+    arv: '',
+    rehabCosts: '',
+    closingCosts: '',
+    holdingCosts: '',
+    wholesaleFee: ''
+  });
+
+  const [mortgageData, setMortgageData] = useState<MortgageData>({
+    loanAmount: '',
+    interestRate: 7,
+    loanTerm: 30,
+    propertyTax: '',
+    insurance: '',
+    pmi: '',
+    hoa: ''
   });
 
   // Calculation Functions
@@ -452,6 +552,136 @@ const InvestorCalculator = () => {
     };
   };
 
+  const calculateCashFlow = () => {
+    const rent = parseFloat(cashFlowData.monthlyRent) || 0;
+    const mortgage = parseFloat(cashFlowData.mortgage) || 0;
+    const tax = parseFloat(cashFlowData.propertyTax) || 0;
+    const insurance = parseFloat(cashFlowData.insurance) || 0;
+    const maintenance = parseFloat(cashFlowData.maintenance) || 0;
+    const vacancyPercent = cashFlowData.vacancy || 5;
+    const pmPercent = cashFlowData.propertyMgmt || 10;
+    const hoa = parseFloat(cashFlowData.hoa) || 0;
+    const utilities = parseFloat(cashFlowData.utilities) || 0;
+
+    const vacancy = rent * (vacancyPercent / 100);
+    const propertyMgmt = rent * (pmPercent / 100);
+    const monthlyTax = tax / 12;
+    const monthlyInsurance = insurance / 12;
+
+    const totalExpenses = mortgage + monthlyTax + monthlyInsurance + maintenance + vacancy + propertyMgmt + hoa + utilities;
+    const monthlyCashFlow = rent - totalExpenses;
+    const annualCashFlow = monthlyCashFlow * 12;
+    const effectiveGrossIncome = rent - vacancy;
+
+    return { 
+      monthlyCashFlow, 
+      annualCashFlow, 
+      totalExpenses,
+      effectiveGrossIncome,
+      vacancy,
+      propertyMgmt
+    };
+  };
+
+  const calculateROI = () => {
+    const purchase = parseFloat(roiData.purchasePrice) || 0;
+    const currentValue = parseFloat(roiData.currentValue) || 0;
+    const cashInvested = parseFloat(roiData.totalCashInvested) || 0;
+    const annualCashFlow = parseFloat(roiData.annualCashFlow) || 0;
+    const appreciation = parseFloat(roiData.appreciationGain) || (currentValue - purchase);
+    const principalPaydown = parseFloat(roiData.principalPaydown) || 0;
+
+    const totalReturn = annualCashFlow + appreciation + principalPaydown;
+    const cashOnCashROI = cashInvested > 0 ? (annualCashFlow / cashInvested) * 100 : 0;
+    const totalROI = cashInvested > 0 ? (totalReturn / cashInvested) * 100 : 0;
+    const equity = currentValue - (purchase - principalPaydown);
+
+    return { 
+      totalReturn, 
+      cashOnCashROI, 
+      totalROI, 
+      equity,
+      appreciation
+    };
+  };
+
+  const calculateCapRate = () => {
+    const purchase = parseFloat(capRateData.purchasePrice) || 0;
+    const grossRent = parseFloat(capRateData.grossRent) || 0;
+    const vacancyPercent = capRateData.vacancy || 5;
+    const opExpenses = parseFloat(capRateData.operatingExpenses) || 0;
+    const tax = parseFloat(capRateData.propertyTax) || 0;
+    const insurance = parseFloat(capRateData.insurance) || 0;
+    const maintenance = parseFloat(capRateData.maintenance) || 0;
+    const pm = parseFloat(capRateData.propertyMgmt) || 0;
+
+    const vacancy = grossRent * (vacancyPercent / 100);
+    const effectiveGrossIncome = grossRent - vacancy;
+    const totalExpenses = opExpenses + tax + insurance + maintenance + pm;
+    const noi = effectiveGrossIncome - totalExpenses;
+    const capRate = purchase > 0 ? (noi / purchase) * 100 : 0;
+    const grm = grossRent > 0 ? purchase / grossRent : 0;
+
+    return { 
+      noi, 
+      capRate, 
+      effectiveGrossIncome,
+      totalExpenses,
+      grm
+    };
+  };
+
+  const calculateSeventyRule = () => {
+    const arv = parseFloat(seventyRuleData.arv) || 0;
+    const rehab = parseFloat(seventyRuleData.rehabCosts) || 0;
+    const closing = parseFloat(seventyRuleData.closingCosts) || 0;
+    const holding = parseFloat(seventyRuleData.holdingCosts) || 0;
+    const wholesale = parseFloat(seventyRuleData.wholesaleFee) || 0;
+
+    const maxOffer = (arv * 0.70) - rehab - closing - holding - wholesale;
+    const potentialProfit = arv - maxOffer - rehab - closing - holding;
+    const profitMargin = arv > 0 ? (potentialProfit / arv) * 100 : 0;
+    const totalCosts = rehab + closing + holding + wholesale;
+
+    return { 
+      maxOffer, 
+      potentialProfit, 
+      profitMargin,
+      totalCosts
+    };
+  };
+
+  const calculateMortgage = () => {
+    const principal = parseFloat(mortgageData.loanAmount) || 0;
+    const rate = mortgageData.interestRate || 7;
+    const years = mortgageData.loanTerm || 30;
+    const tax = parseFloat(mortgageData.propertyTax) || 0;
+    const insurance = parseFloat(mortgageData.insurance) || 0;
+    const pmi = parseFloat(mortgageData.pmi) || 0;
+    const hoa = parseFloat(mortgageData.hoa) || 0;
+
+    const monthlyRate = rate / 100 / 12;
+    const numPayments = years * 12;
+    const monthlyPI = principal > 0 && rate > 0 ? 
+      (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+      (Math.pow(1 + monthlyRate, numPayments) - 1) : 0;
+
+    const monthlyTax = tax / 12;
+    const monthlyInsurance = insurance / 12;
+    const totalMonthlyPayment = monthlyPI + monthlyTax + monthlyInsurance + pmi + hoa;
+    const totalInterest = (monthlyPI * numPayments) - principal;
+    const totalCost = totalMonthlyPayment * numPayments;
+
+    return { 
+      monthlyPI, 
+      totalMonthlyPayment, 
+      totalInterest,
+      totalCost,
+      monthlyTax,
+      monthlyInsurance
+    };
+  };
+
   // Helper Functions
   const formatCurrency = (value: number) => {
     if (isNaN(value) || value === null || value === undefined) return '$0';
@@ -477,7 +707,12 @@ const InvestorCalculator = () => {
       creative: creativeData,
       rental: rentalData,
       wholesale: wholesaleData,
-      exchange: exchangeData
+      exchange: exchangeData,
+      cashflow: cashFlowData,
+      roi: roiData,
+      caprate: capRateData,
+      seventyrule: seventyRuleData,
+      mortgage: mortgageData
     };
     return dataMap[activeCalc];
   };
@@ -491,7 +726,12 @@ const InvestorCalculator = () => {
       creative: calculateCreative(),
       rental: calculateRental(),
       wholesale: calculateWholesale(),
-      exchange: calculateExchange()
+      exchange: calculateExchange(),
+      cashflow: calculateCashFlow(),
+      roi: calculateROI(),
+      caprate: calculateCapRate(),
+      seventyrule: calculateSeventyRule(),
+      mortgage: calculateMortgage()
     };
     return resultsMap[activeCalc];
   };
@@ -531,7 +771,12 @@ const InvestorCalculator = () => {
     { id: 'rental', name: 'Rental Analysis', icon: Building2, color: 'green' },
     { id: 'creative', name: 'Creative Finance', icon: TrendingUp, color: 'pink' },
     { id: 'wholesale', name: 'Wholesale Deal', icon: ArrowRightLeft, color: 'cyan' },
-    { id: 'exchange', name: '1031 Exchange', icon: RefreshCw, color: 'yellow' }
+    { id: 'exchange', name: '1031 Exchange', icon: RefreshCw, color: 'yellow' },
+    { id: 'cashflow', name: 'Cash Flow', icon: Wallet, color: 'teal' },
+    { id: 'roi', name: 'ROI Calculator', icon: Percent, color: 'indigo' },
+    { id: 'caprate', name: 'Cap Rate', icon: Target, color: 'violet' },
+    { id: 'seventyrule', name: '70% Rule', icon: Calculator, color: 'red' },
+    { id: 'mortgage', name: 'Mortgage', icon: Landmark, color: 'sky' }
   ];
 
   // Get current results based on active calculator
@@ -545,6 +790,11 @@ const InvestorCalculator = () => {
       case 'rental': return calculateRental();
       case 'wholesale': return calculateWholesale();
       case 'exchange': return calculateExchange();
+      case 'cashflow': return calculateCashFlow();
+      case 'roi': return calculateROI();
+      case 'caprate': return calculateCapRate();
+      case 'seventyrule': return calculateSeventyRule();
+      case 'mortgage': return calculateMortgage();
       default: return {};
     }
   };
@@ -875,6 +1125,189 @@ const InvestorCalculator = () => {
                       {(results as ReturnType<typeof calculateExchange>).boot > 0 && (
                         <ResultCard label="Tax on Boot" value={formatCurrency((results as ReturnType<typeof calculateExchange>).taxOnBoot)} />
                       )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Cash Flow Calculator */}
+              {activeCalc === 'cashflow' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Wallet className="w-5 h-5 text-teal-600" />
+                      Cash Flow Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Monthly Rent" value={cashFlowData.monthlyRent} onChange={(val) => setCashFlowData({...cashFlowData, monthlyRent: val})} />
+                      <InputField label="Monthly Mortgage (P&I)" value={cashFlowData.mortgage} onChange={(val) => setCashFlowData({...cashFlowData, mortgage: val})} />
+                      <InputField label="Annual Property Tax" value={cashFlowData.propertyTax} onChange={(val) => setCashFlowData({...cashFlowData, propertyTax: val})} />
+                      <InputField label="Annual Insurance" value={cashFlowData.insurance} onChange={(val) => setCashFlowData({...cashFlowData, insurance: val})} />
+                      <InputField label="Monthly Maintenance" value={cashFlowData.maintenance} onChange={(val) => setCashFlowData({...cashFlowData, maintenance: val})} />
+                      <InputField label="Monthly HOA" value={cashFlowData.hoa} onChange={(val) => setCashFlowData({...cashFlowData, hoa: val})} />
+                      <InputField label="Monthly Utilities" value={cashFlowData.utilities} onChange={(val) => setCashFlowData({...cashFlowData, utilities: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-6 border border-teal-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-teal-800">
+                      <BarChart3 className="w-5 h-5" />
+                      Cash Flow Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Monthly Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateCashFlow>).monthlyCashFlow)} highlight positive={(results as ReturnType<typeof calculateCashFlow>).monthlyCashFlow > 0} />
+                      <ResultCard label="Annual Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateCashFlow>).annualCashFlow)} positive={(results as ReturnType<typeof calculateCashFlow>).annualCashFlow > 0} />
+                      <ResultCard label="Total Monthly Expenses" value={formatCurrency((results as ReturnType<typeof calculateCashFlow>).totalExpenses)} />
+                      <ResultCard label="Effective Gross Income" value={formatCurrency((results as ReturnType<typeof calculateCashFlow>).effectiveGrossIncome)} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ROI Calculator */}
+              {activeCalc === 'roi' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Percent className="w-5 h-5 text-indigo-600" />
+                      ROI Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Purchase Price" value={roiData.purchasePrice} onChange={(val) => setRoiData({...roiData, purchasePrice: val})} />
+                      <InputField label="Current Property Value" value={roiData.currentValue} onChange={(val) => setRoiData({...roiData, currentValue: val})} />
+                      <InputField label="Total Cash Invested" value={roiData.totalCashInvested} onChange={(val) => setRoiData({...roiData, totalCashInvested: val})} />
+                      <InputField label="Annual Cash Flow" value={roiData.annualCashFlow} onChange={(val) => setRoiData({...roiData, annualCashFlow: val})} />
+                      <InputField label="Appreciation Gain" value={roiData.appreciationGain} onChange={(val) => setRoiData({...roiData, appreciationGain: val})} />
+                      <InputField label="Principal Paydown (Annual)" value={roiData.principalPaydown} onChange={(val) => setRoiData({...roiData, principalPaydown: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 border border-indigo-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-indigo-800">
+                      <TrendingUp className="w-5 h-5" />
+                      ROI Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Total ROI" value={formatPercent((results as ReturnType<typeof calculateROI>).totalROI)} highlight positive={(results as ReturnType<typeof calculateROI>).totalROI > 0} />
+                      <ResultCard label="Cash-on-Cash ROI" value={formatPercent((results as ReturnType<typeof calculateROI>).cashOnCashROI)} positive={(results as ReturnType<typeof calculateROI>).cashOnCashROI > 8} />
+                      <ResultCard label="Total Annual Return" value={formatCurrency((results as ReturnType<typeof calculateROI>).totalReturn)} positive={(results as ReturnType<typeof calculateROI>).totalReturn > 0} />
+                      <ResultCard label="Total Equity" value={formatCurrency((results as ReturnType<typeof calculateROI>).equity)} positive={(results as ReturnType<typeof calculateROI>).equity > 0} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Cap Rate Calculator */}
+              {activeCalc === 'caprate' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-violet-600" />
+                      Cap Rate Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Purchase Price" value={capRateData.purchasePrice} onChange={(val) => setCapRateData({...capRateData, purchasePrice: val})} />
+                      <InputField label="Annual Gross Rent" value={capRateData.grossRent} onChange={(val) => setCapRateData({...capRateData, grossRent: val})} />
+                      <InputField label="Annual Property Tax" value={capRateData.propertyTax} onChange={(val) => setCapRateData({...capRateData, propertyTax: val})} />
+                      <InputField label="Annual Insurance" value={capRateData.insurance} onChange={(val) => setCapRateData({...capRateData, insurance: val})} />
+                      <InputField label="Annual Maintenance" value={capRateData.maintenance} onChange={(val) => setCapRateData({...capRateData, maintenance: val})} />
+                      <InputField label="Annual Property Mgmt" value={capRateData.propertyMgmt} onChange={(val) => setCapRateData({...capRateData, propertyMgmt: val})} />
+                      <InputField label="Other Operating Expenses" value={capRateData.operatingExpenses} onChange={(val) => setCapRateData({...capRateData, operatingExpenses: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-violet-50 to-violet-100 rounded-xl p-6 border border-violet-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-violet-800">
+                      <BarChart3 className="w-5 h-5" />
+                      Cap Rate Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Cap Rate" value={formatPercent((results as ReturnType<typeof calculateCapRate>).capRate)} highlight positive={(results as ReturnType<typeof calculateCapRate>).capRate > 6} />
+                      <ResultCard label="Net Operating Income (NOI)" value={formatCurrency((results as ReturnType<typeof calculateCapRate>).noi)} positive={(results as ReturnType<typeof calculateCapRate>).noi > 0} />
+                      <ResultCard label="Effective Gross Income" value={formatCurrency((results as ReturnType<typeof calculateCapRate>).effectiveGrossIncome)} />
+                      <ResultCard label="Gross Rent Multiplier" value={(results as ReturnType<typeof calculateCapRate>).grm.toFixed(2)} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 70% Rule Calculator */}
+              {activeCalc === 'seventyrule' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Calculator className="w-5 h-5 text-red-600" />
+                      70% Rule Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="After Repair Value (ARV)" value={seventyRuleData.arv} onChange={(val) => setSeventyRuleData({...seventyRuleData, arv: val})} />
+                      <InputField label="Estimated Rehab Costs" value={seventyRuleData.rehabCosts} onChange={(val) => setSeventyRuleData({...seventyRuleData, rehabCosts: val})} />
+                      <InputField label="Closing Costs" value={seventyRuleData.closingCosts} onChange={(val) => setSeventyRuleData({...seventyRuleData, closingCosts: val})} />
+                      <InputField label="Holding Costs" value={seventyRuleData.holdingCosts} onChange={(val) => setSeventyRuleData({...seventyRuleData, holdingCosts: val})} />
+                      <InputField label="Wholesale Fee (if applicable)" value={seventyRuleData.wholesaleFee} onChange={(val) => setSeventyRuleData({...seventyRuleData, wholesaleFee: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-red-800">
+                      <BarChart3 className="w-5 h-5" />
+                      70% Rule Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Maximum Offer Price" value={formatCurrency((results as ReturnType<typeof calculateSeventyRule>).maxOffer)} highlight positive={(results as ReturnType<typeof calculateSeventyRule>).maxOffer > 0} />
+                      <ResultCard label="Potential Profit" value={formatCurrency((results as ReturnType<typeof calculateSeventyRule>).potentialProfit)} positive={(results as ReturnType<typeof calculateSeventyRule>).potentialProfit > 0} />
+                      <ResultCard label="Profit Margin" value={formatPercent((results as ReturnType<typeof calculateSeventyRule>).profitMargin)} positive={(results as ReturnType<typeof calculateSeventyRule>).profitMargin > 20} />
+                      <ResultCard label="Total Costs" value={formatCurrency((results as ReturnType<typeof calculateSeventyRule>).totalCosts)} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Mortgage Calculator */}
+              {activeCalc === 'mortgage' && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Landmark className="w-5 h-5 text-sky-600" />
+                      Mortgage Inputs
+                    </h3>
+                    <div className="space-y-4">
+                      <InputField label="Loan Amount" value={mortgageData.loanAmount} onChange={(val) => setMortgageData({...mortgageData, loanAmount: val})} />
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">Interest Rate (%)</label>
+                        <input
+                          type="number"
+                          step="0.125"
+                          value={mortgageData.interestRate}
+                          onChange={(e) => setMortgageData({...mortgageData, interestRate: Number(e.target.value)})}
+                          className="w-full px-4 py-3 bg-muted/50 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                          placeholder="7"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">Loan Term (Years)</label>
+                        <select
+                          value={mortgageData.loanTerm}
+                          onChange={(e) => setMortgageData({...mortgageData, loanTerm: Number(e.target.value)})}
+                          className="w-full px-4 py-3 bg-muted/50 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                        >
+                          <option value={15}>15 Years</option>
+                          <option value={20}>20 Years</option>
+                          <option value={30}>30 Years</option>
+                        </select>
+                      </div>
+                      <InputField label="Annual Property Tax" value={mortgageData.propertyTax} onChange={(val) => setMortgageData({...mortgageData, propertyTax: val})} />
+                      <InputField label="Annual Insurance" value={mortgageData.insurance} onChange={(val) => setMortgageData({...mortgageData, insurance: val})} />
+                      <InputField label="Monthly PMI" value={mortgageData.pmi} onChange={(val) => setMortgageData({...mortgageData, pmi: val})} />
+                      <InputField label="Monthly HOA" value={mortgageData.hoa} onChange={(val) => setMortgageData({...mortgageData, hoa: val})} />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-sky-50 to-sky-100 rounded-xl p-6 border border-sky-200">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-sky-800">
+                      <BarChart3 className="w-5 h-5" />
+                      Mortgage Analysis
+                    </h3>
+                    <div className="space-y-4">
+                      <ResultCard label="Total Monthly Payment" value={formatCurrency((results as ReturnType<typeof calculateMortgage>).totalMonthlyPayment)} highlight />
+                      <ResultCard label="Principal & Interest" value={formatCurrency((results as ReturnType<typeof calculateMortgage>).monthlyPI)} />
+                      <ResultCard label="Total Interest Over Life" value={formatCurrency((results as ReturnType<typeof calculateMortgage>).totalInterest)} />
+                      <ResultCard label="Total Cost of Loan" value={formatCurrency((results as ReturnType<typeof calculateMortgage>).totalCost)} />
                     </div>
                   </div>
                 </div>
