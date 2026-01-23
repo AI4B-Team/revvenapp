@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, ArrowLeft, Wallet, Percent, Target, Landmark, Settings, X, RotateCcw, LayoutGrid, List, GripVertical } from 'lucide-react';
+import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, Wallet, Percent, Target, Landmark, Settings, X, RotateCcw, LayoutGrid, List, GripVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -1012,18 +1012,6 @@ const InvestorCalculator = () => {
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         <main className="flex-1 overflow-y-auto bg-white">
-          {/* Back Button */}
-          <div className="px-8 pt-6">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/apps')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft size={16} />
-              Back to Apps
-            </Button>
-          </div>
-
           <div className="p-4 md:p-8">
             {/* Header */}
             <div className="max-w-7xl mx-auto mb-8">
