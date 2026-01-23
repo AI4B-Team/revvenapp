@@ -787,6 +787,182 @@ export type Database = {
         }
         Relationships: []
       }
+      investor_benchmarks: {
+        Row: {
+          avg_arv_per_sqft: number | null
+          avg_closing_cost_pct: number | null
+          avg_days_on_market: number | null
+          avg_rehab_per_sqft: number | null
+          avg_wholesale_fee_pct: number | null
+          id: string
+          sample_count: number | null
+          state: string | null
+          updated_at: string
+          zip_code: string | null
+        }
+        Insert: {
+          avg_arv_per_sqft?: number | null
+          avg_closing_cost_pct?: number | null
+          avg_days_on_market?: number | null
+          avg_rehab_per_sqft?: number | null
+          avg_wholesale_fee_pct?: number | null
+          id?: string
+          sample_count?: number | null
+          state?: string | null
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Update: {
+          avg_arv_per_sqft?: number | null
+          avg_closing_cost_pct?: number | null
+          avg_days_on_market?: number | null
+          avg_rehab_per_sqft?: number | null
+          avg_wholesale_fee_pct?: number | null
+          id?: string
+          sample_count?: number | null
+          state?: string | null
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
+      investor_buy_boxes: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean | null
+          max_price: number | null
+          max_rehab: number | null
+          min_arv: number | null
+          min_cash_flow: number | null
+          min_price: number | null
+          min_profit: number | null
+          name: string
+          notes: string | null
+          preferred_strategies: string[] | null
+          target_markets: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          max_price?: number | null
+          max_rehab?: number | null
+          min_arv?: number | null
+          min_cash_flow?: number | null
+          min_price?: number | null
+          min_profit?: number | null
+          name?: string
+          notes?: string | null
+          preferred_strategies?: string[] | null
+          target_markets?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          max_price?: number | null
+          max_rehab?: number | null
+          min_arv?: number | null
+          min_cash_flow?: number | null
+          min_price?: number | null
+          min_profit?: number | null
+          name?: string
+          notes?: string | null
+          preferred_strategies?: string[] | null
+          target_markets?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      investor_deals: {
+        Row: {
+          address: string | null
+          ai_analysis: string | null
+          arv: number | null
+          asking_price: number | null
+          calculator_type: string
+          created_at: string
+          deal_score: number | null
+          deal_verdict: string | null
+          id: string
+          inputs: Json
+          is_archived: boolean | null
+          notes: string | null
+          parent_deal_id: string | null
+          rehab_cost: number | null
+          results: Json
+          risk_flags: Json | null
+          settings: Json
+          share_token: string | null
+          strategy: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          address?: string | null
+          ai_analysis?: string | null
+          arv?: number | null
+          asking_price?: number | null
+          calculator_type: string
+          created_at?: string
+          deal_score?: number | null
+          deal_verdict?: string | null
+          id?: string
+          inputs?: Json
+          is_archived?: boolean | null
+          notes?: string | null
+          parent_deal_id?: string | null
+          rehab_cost?: number | null
+          results?: Json
+          risk_flags?: Json | null
+          settings?: Json
+          share_token?: string | null
+          strategy?: string
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          address?: string | null
+          ai_analysis?: string | null
+          arv?: number | null
+          asking_price?: number | null
+          calculator_type?: string
+          created_at?: string
+          deal_score?: number | null
+          deal_verdict?: string | null
+          id?: string
+          inputs?: Json
+          is_archived?: boolean | null
+          notes?: string | null
+          parent_deal_id?: string | null
+          rehab_cost?: number | null
+          results?: Json
+          risk_flags?: Json | null
+          settings?: Json
+          share_token?: string | null
+          strategy?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investor_deals_parent_deal_id_fkey"
+            columns: ["parent_deal_id"]
+            isOneToOne: false
+            referencedRelation: "investor_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invite_codes: {
         Row: {
           code: string
