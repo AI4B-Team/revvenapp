@@ -226,13 +226,6 @@ interface CapRateData {
   propertyMgmt: string;
 }
 
-interface SeventyRuleData {
-  arv: string;
-  rehabCosts: string;
-  closingCosts: string;
-  holdingCosts: string;
-  wholesaleFee: string;
-}
 
 interface MortgageData {
   loanAmount: string;
@@ -255,15 +248,17 @@ interface SavedDeal {
 const InvestorCalculator = () => {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [activeCalc, setActiveCalc] = useState('mao');
+  const [activeCalc, setActiveCalc] = useState<string | null>(null);
   const [savedDeals, setSavedDeals] = useState<SavedDeal[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [draggedCalc, setDraggedCalc] = useState<string | null>(null);
   const [dropPosition, setDropPosition] = useState<{ id: string; position: 'before' | 'after' } | null>(null);
+  const [hoveredCalc, setHoveredCalc] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+  const calculatorSectionRef = useRef<HTMLDivElement>(null);
 
-  // Default calculator order
+  // Default calculator order (removed 70% Rule as it's same as Fix & Flip)
   const defaultCalculators: CalculatorItem[] = [
     { id: 'mao', name: 'MAO Calculator', icon: Calculator, color: 'emerald' },
     { id: 'wmao', name: 'Wholesale MAO', icon: DollarSign, color: 'blue' },
@@ -276,7 +271,6 @@ const InvestorCalculator = () => {
     { id: 'cashflow', name: 'Cash Flow', icon: Wallet, color: 'teal' },
     { id: 'roi', name: 'ROI Calculator', icon: Percent, color: 'indigo' },
     { id: 'caprate', name: 'Cap Rate', icon: Target, color: 'violet' },
-    { id: 'seventyrule', name: '70% Rule', icon: Calculator, color: 'red' },
     { id: 'mortgage', name: 'Mortgage', icon: Landmark, color: 'sky' }
   ];
 
@@ -355,6 +349,31 @@ const InvestorCalculator = () => {
   const handleDragEnd = () => {
     setDraggedCalc(null);
     setDropPosition(null);
+  };
+
+  // Click outside handler to close calculator section
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Check if click is inside calculator section or calculator buttons
+      const isInsideCalculatorSection = calculatorSectionRef.current?.contains(target);
+      const isCalculatorButton = target.closest('[data-calculator-button]');
+      const isSettingsDialog = target.closest('[role="dialog"]');
+      
+      if (!isInsideCalculatorSection && !isCalculatorButton && !isSettingsDialog) {
+        setActiveCalc(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Open settings for specific calculator
+  const openCalculatorSettings = (e: React.MouseEvent, calcId: string) => {
+    e.stopPropagation();
+    setActiveCalc(calcId);
+    setShowSettings(true);
   };
 
   // Load saved config from localStorage
@@ -514,13 +533,6 @@ const InvestorCalculator = () => {
     propertyMgmt: ''
   });
 
-  const [seventyRuleData, setSeventyRuleData] = useState<SeventyRuleData>({
-    arv: '',
-    rehabCosts: '',
-    closingCosts: '',
-    holdingCosts: '',
-    wholesaleFee: ''
-  });
 
   const [mortgageData, setMortgageData] = useState<MortgageData>({
     loanAmount: '',
@@ -852,25 +864,6 @@ const InvestorCalculator = () => {
     };
   };
 
-  const calculateSeventyRule = () => {
-    const arv = parseFloat(seventyRuleData.arv) || 0;
-    const rehab = parseFloat(seventyRuleData.rehabCosts) || 0;
-    const closing = parseFloat(seventyRuleData.closingCosts) || 0;
-    const holding = parseFloat(seventyRuleData.holdingCosts) || 0;
-    const wholesale = parseFloat(seventyRuleData.wholesaleFee) || 0;
-
-    const maxOffer = (arv * 0.70) - rehab - closing - holding - wholesale;
-    const potentialProfit = arv - maxOffer - rehab - closing - holding;
-    const profitMargin = arv > 0 ? (potentialProfit / arv) * 100 : 0;
-    const totalCosts = rehab + closing + holding + wholesale;
-
-    return { 
-      maxOffer, 
-      potentialProfit, 
-      profitMargin,
-      totalCosts
-    };
-  };
 
   const calculateMortgage = () => {
     const principal = parseFloat(mortgageData.loanAmount) || 0;
@@ -932,7 +925,6 @@ const InvestorCalculator = () => {
       cashflow: cashFlowData,
       roi: roiData,
       caprate: capRateData,
-      seventyrule: seventyRuleData,
       mortgage: mortgageData
     };
     return dataMap[activeCalc];
@@ -951,7 +943,6 @@ const InvestorCalculator = () => {
       cashflow: calculateCashFlow(),
       roi: calculateROI(),
       caprate: calculateCapRate(),
-      seventyrule: calculateSeventyRule(),
       mortgage: calculateMortgage()
     };
     return resultsMap[activeCalc];
@@ -998,7 +989,6 @@ const InvestorCalculator = () => {
       case 'cashflow': return calculateCashFlow();
       case 'roi': return calculateROI();
       case 'caprate': return calculateCapRate();
-      case 'seventyrule': return calculateSeventyRule();
       case 'mortgage': return calculateMortgage();
       default: return {};
     }
@@ -1051,11 +1041,17 @@ const InvestorCalculator = () => {
                     const Icon = calc.icon;
                     const isActive = activeCalc === calc.id;
                     const isDragging = draggedCalc === calc.id;
+                    const isHovered = hoveredCalc === calc.id;
                     const showDropBefore = dropPosition?.id === calc.id && dropPosition?.position === 'before';
                     const showDropAfter = dropPosition?.id === calc.id && dropPosition?.position === 'after';
                     
                     return (
-                      <div key={calc.id} className="relative">
+                      <div 
+                        key={calc.id} 
+                        className="relative"
+                        onMouseEnter={() => setHoveredCalc(calc.id)}
+                        onMouseLeave={() => setHoveredCalc(null)}
+                      >
                         {showDropBefore && (
                           <div className={`absolute ${viewMode === 'list' ? 'top-0 left-0 right-0 h-0.5' : 'left-0 top-0 bottom-0 w-0.5'} bg-emerald-500 z-10`}>
                             <div className={`absolute ${viewMode === 'list' ? '-left-1 -top-1' : '-top-1 -left-1'} w-2 h-2 rounded-full bg-emerald-500`} />
@@ -1064,6 +1060,7 @@ const InvestorCalculator = () => {
                         )}
                         
                         <button
+                          data-calculator-button
                           draggable
                           onDragStart={(e) => handleDragStart(e, calc.id)}
                           onDragOver={(e) => handleDragOver(e, calc.id)}
@@ -1071,7 +1068,7 @@ const InvestorCalculator = () => {
                           onDrop={(e) => handleDrop(e, calc.id)}
                           onDragEnd={handleDragEnd}
                           onClick={() => setActiveCalc(calc.id)}
-                          className={`w-full ${viewMode === 'grid' ? 'p-4 flex-col' : 'p-3 flex-row justify-start'} rounded-lg border-2 transition-all duration-200 flex items-center gap-2 ${
+                          className={`w-full ${viewMode === 'grid' ? 'p-4 flex-col' : 'p-3 flex-row justify-start'} rounded-lg border-2 transition-all duration-200 flex items-center gap-2 relative ${
                             isDragging ? 'opacity-50' : ''
                           } ${
                             isActive
@@ -1079,7 +1076,19 @@ const InvestorCalculator = () => {
                               : 'border-border bg-card hover:border-muted-foreground'
                           }`}
                         >
-                          <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab" />
+                          {/* Drag handle - only visible on hover */}
+                          <div className={`absolute ${viewMode === 'grid' ? 'top-2 left-2' : 'left-2'} transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+                            <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab" />
+                          </div>
+                          
+                          {/* Settings icon - only visible on hover */}
+                          <div 
+                            className={`absolute ${viewMode === 'grid' ? 'top-2 right-2' : 'right-2'} transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+                            onClick={(e) => openCalculatorSettings(e, calc.id)}
+                          >
+                            <Settings className="w-4 h-4 text-muted-foreground/50 hover:text-muted-foreground cursor-pointer" />
+                          </div>
+                          
                           <Icon className={`w-6 h-6 ${isActive ? 'text-emerald-600' : 'text-muted-foreground'}`} />
                           <span className={`text-sm font-medium ${viewMode === 'grid' ? 'text-center' : ''}`}>{calc.name}</span>
                         </button>
@@ -1231,11 +1240,14 @@ const InvestorCalculator = () => {
               </DialogContent>
             </Dialog>
 
-            {/* Calculator Content */}
-            <div className="max-w-7xl mx-auto" ref={printRef}>
-              {/* MAO Calculator */}
-              {activeCalc === 'mao' && (
-                <div className="grid md:grid-cols-2 gap-6">
+            {/* Calculator Content - Only show when a calculator is selected */}
+            {activeCalc && (
+              <div className="max-w-7xl mx-auto" ref={printRef}>
+                {/* Wrapper div for click outside detection */}
+                <div ref={calculatorSectionRef}>
+                  {/* MAO Calculator */}
+                  {activeCalc === 'mao' && (
+                    <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-card rounded-xl p-6 border border-border">
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                       <Calculator className="w-5 h-5 text-emerald-600" />
@@ -1584,36 +1596,6 @@ const InvestorCalculator = () => {
                 </div>
               )}
 
-              {/* 70% Rule Calculator */}
-              {activeCalc === 'seventyrule' && (
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-card rounded-xl p-6 border border-border">
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                      <Calculator className="w-5 h-5 text-red-600" />
-                      70% Rule Inputs
-                    </h3>
-                    <div className="space-y-4">
-                      <InputField label="After Repair Value (ARV)" value={seventyRuleData.arv} onChange={(val) => setSeventyRuleData({...seventyRuleData, arv: val})} />
-                      <InputField label="Estimated Rehab Costs" value={seventyRuleData.rehabCosts} onChange={(val) => setSeventyRuleData({...seventyRuleData, rehabCosts: val})} />
-                      <InputField label="Closing Costs" value={seventyRuleData.closingCosts} onChange={(val) => setSeventyRuleData({...seventyRuleData, closingCosts: val})} />
-                      <InputField label="Holding Costs" value={seventyRuleData.holdingCosts} onChange={(val) => setSeventyRuleData({...seventyRuleData, holdingCosts: val})} />
-                      <InputField label="Wholesale Fee (if applicable)" value={seventyRuleData.wholesaleFee} onChange={(val) => setSeventyRuleData({...seventyRuleData, wholesaleFee: val})} />
-                    </div>
-                  </div>
-                  <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-red-800">
-                      <BarChart3 className="w-5 h-5" />
-                      70% Rule Analysis
-                    </h3>
-                    <div className="space-y-4">
-                      <ResultCard label="Maximum Offer Price" value={formatCurrency((results as ReturnType<typeof calculateSeventyRule>).maxOffer)} highlight positive={(results as ReturnType<typeof calculateSeventyRule>).maxOffer > 0} />
-                      <ResultCard label="Potential Profit" value={formatCurrency((results as ReturnType<typeof calculateSeventyRule>).potentialProfit)} positive={(results as ReturnType<typeof calculateSeventyRule>).potentialProfit > 0} />
-                      <ResultCard label="Profit Margin" value={formatPercent((results as ReturnType<typeof calculateSeventyRule>).profitMargin)} positive={(results as ReturnType<typeof calculateSeventyRule>).profitMargin > 20} />
-                      <ResultCard label="Total Costs" value={formatCurrency((results as ReturnType<typeof calculateSeventyRule>).totalCosts)} />
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Mortgage Calculator */}
               {activeCalc === 'mortgage' && (
@@ -1668,10 +1650,12 @@ const InvestorCalculator = () => {
                   </div>
                 </div>
               )}
-            </div>
+                </div>
+              </div>
+            )}
 
             {/* Saved Deals */}
-            {savedDeals.length > 0 && (
+            {activeCalc && savedDeals.length > 0 && (
               <div className="max-w-7xl mx-auto mt-8">
                 <div className="bg-card rounded-xl p-6 border border-border">
                   <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
