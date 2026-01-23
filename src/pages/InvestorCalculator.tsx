@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, Wallet, Percent, Target, Landmark, Settings, X, RotateCcw, LayoutGrid, List, GripVertical } from 'lucide-react';
+import DealAnalysisPanel from '@/components/calculator/DealAnalysisPanel';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -1307,9 +1308,11 @@ const InvestorCalculator = () => {
 
             {/* Calculator Content - Only show when a calculator is selected */}
             {activeCalc && (
-              <div className="max-w-7xl mx-auto" ref={printRef}>
+              <div className="max-w-[1600px] mx-auto" ref={printRef}>
                 {/* Wrapper div for click outside detection */}
-                <div ref={calculatorSectionRef}>
+                <div ref={calculatorSectionRef} className="flex flex-col xl:flex-row gap-6">
+                  {/* Calculator Section */}
+                  <div className="flex-1 min-w-0">
                   {/* MAO Calculator */}
                   {activeCalc === 'mao' && (
                     <div className="grid md:grid-cols-2 gap-6">
@@ -1715,6 +1718,18 @@ const InvestorCalculator = () => {
                   </div>
                 </div>
               )}
+                  </div>
+                  
+                  {/* AI Deal Analysis Panel */}
+                  <div className="w-full xl:w-[420px] flex-shrink-0">
+                    <div className="sticky top-6">
+                      <DealAnalysisPanel
+                        activeCalc={activeCalc}
+                        currentInputs={getCurrentData() as Record<string, unknown>}
+                        currentResults={getCurrentResults() as Record<string, unknown>}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
