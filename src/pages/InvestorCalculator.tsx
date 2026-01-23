@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, Wallet, Percent, Target, Landmark, Settings, X, RotateCcw, LayoutGrid, List, GripVertical } from 'lucide-react';
 import DealAnalysisPanel from '@/components/calculator/DealAnalysisPanel';
+import CreativeFinanceCalculator from '@/components/calculator/CreativeFinanceCalculator';
+import NovationCalculator from '@/components/calculator/NovationCalculator';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -290,6 +292,7 @@ const InvestorCalculator = () => {
     { id: 'brrrr', name: 'BRRRR Method', icon: Repeat, color: 'orange' },
     { id: 'rental', name: 'Rental Analysis', icon: Building2, color: 'green' },
     { id: 'creative', name: 'Creative Finance', icon: TrendingUp, color: 'pink' },
+    { id: 'novation', name: 'Novation', icon: FileText, color: 'amber' },
     { id: 'wholesale', name: 'Wholesale Deal', icon: ArrowRightLeft, color: 'cyan' },
     { id: 'exchange', name: '1031 Exchange', icon: RefreshCw, color: 'yellow' },
     { id: 'cashflow', name: 'Cash Flow', icon: Wallet, color: 'teal' },
@@ -1474,32 +1477,12 @@ const InvestorCalculator = () => {
 
               {/* Creative Finance Calculator */}
               {activeCalc === 'creative' && (
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-card rounded-xl p-6 border border-border">
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-pink-600" />
-                      Creative Finance Inputs
-                    </h3>
-                    <div className="space-y-4">
-                      <InputField label="Purchase Price" value={creativeData.purchasePrice} onChange={(val) => setCreativeData({...creativeData, purchasePrice: val})} />
-                      <InputField label="Down Payment" value={creativeData.downPayment} onChange={(val) => setCreativeData({...creativeData, downPayment: val})} />
-                      <InputField label="Interest Rate (%)" value={creativeData.interestRate} onChange={(val) => setCreativeData({...creativeData, interestRate: val})} />
-                      <InputField label="Expected Monthly Rent" value={creativeData.rentAmount} onChange={(val) => setCreativeData({...creativeData, rentAmount: val})} />
-                    </div>
-                  </div>
-                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 border border-pink-200">
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-pink-800">
-                      <PiggyBank className="w-5 h-5" />
-                      Creative Finance Analysis
-                    </h3>
-                    <div className="space-y-4">
-                      <ResultCard label="Monthly Payment" value={formatCurrency((results as ReturnType<typeof calculateCreative>).monthlyPayment)} />
-                      <ResultCard label="Monthly Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateCreative>).monthlyCashFlow)} highlight positive={(results as ReturnType<typeof calculateCreative>).monthlyCashFlow > 0} />
-                      <ResultCard label="Annual Cash Flow" value={formatCurrency((results as ReturnType<typeof calculateCreative>).annualCashFlow)} positive={(results as ReturnType<typeof calculateCreative>).annualCashFlow > 0} />
-                      <ResultCard label="Cash on Cash Return" value={formatPercent((results as ReturnType<typeof calculateCreative>).cashOnCash)} positive={(results as ReturnType<typeof calculateCreative>).cashOnCash > 10} />
-                    </div>
-                  </div>
-                </div>
+                <CreativeFinanceCalculator />
+              )}
+
+              {/* Novation Calculator */}
+              {activeCalc === 'novation' && (
+                <NovationCalculator />
               )}
 
               {/* Wholesale Deal Calculator */}
