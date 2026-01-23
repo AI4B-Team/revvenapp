@@ -1,10 +1,94 @@
-import { useState, useRef } from 'react';
-import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, ArrowLeft, Wallet, Percent, Target, Landmark } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, ArrowLeft, Wallet, Percent, Target, Landmark, Settings, X, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+
+// Default Configuration Interface
+interface DefaultConfig {
+  // MAO
+  mao_profitMargin: number;
+  // WMAO
+  wmao_buyerProfit: number;
+  // Flip
+  flip_holdingTime: number;
+  flip_sellingCosts: number;
+  flip_interestRate: number;
+  flip_closingCosts: number;
+  flip_contingency: number;
+  // BRRRR
+  brrrr_refinanceLTV: number;
+  brrrr_interestRate: number;
+  brrrr_maintenance: number;
+  brrrr_vacancy: number;
+  brrrr_propertyMgmt: number;
+  brrrr_closingCosts: number;
+  // Creative
+  creative_term: number;
+  // Rental
+  rental_downPayment: number;
+  rental_interestRate: number;
+  rental_term: number;
+  rental_maintenance: number;
+  rental_vacancy: number;
+  rental_propertyMgmt: number;
+  rental_capex: number;
+  // Exchange
+  exchange_federalRate: number;
+  exchange_stateRate: number;
+  exchange_recaptureRate: number;
+  // Cash Flow
+  cashflow_vacancy: number;
+  cashflow_propertyMgmt: number;
+  // Cap Rate
+  caprate_vacancy: number;
+  // Mortgage
+  mortgage_interestRate: number;
+  mortgage_loanTerm: number;
+}
+
+const DEFAULT_CONFIG: DefaultConfig = {
+  mao_profitMargin: 70,
+  wmao_buyerProfit: 70,
+  flip_holdingTime: 6,
+  flip_sellingCosts: 6,
+  flip_interestRate: 10,
+  flip_closingCosts: 3,
+  flip_contingency: 10,
+  brrrr_refinanceLTV: 75,
+  brrrr_interestRate: 7,
+  brrrr_maintenance: 10,
+  brrrr_vacancy: 8,
+  brrrr_propertyMgmt: 10,
+  brrrr_closingCosts: 3,
+  creative_term: 360,
+  rental_downPayment: 20,
+  rental_interestRate: 7,
+  rental_term: 360,
+  rental_maintenance: 8,
+  rental_vacancy: 5,
+  rental_propertyMgmt: 10,
+  rental_capex: 5,
+  exchange_federalRate: 20,
+  exchange_stateRate: 5,
+  exchange_recaptureRate: 25,
+  cashflow_vacancy: 5,
+  cashflow_propertyMgmt: 10,
+  caprate_vacancy: 5,
+  mortgage_interestRate: 7,
+  mortgage_loanTerm: 30,
+};
+
+const CONFIG_STORAGE_KEY = 'investor_calculator_defaults';
 
 // Types
 interface MAOData {
@@ -164,13 +248,44 @@ const InvestorCalculator = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeCalc, setActiveCalc] = useState('mao');
   const [savedDeals, setSavedDeals] = useState<SavedDeal[]>([]);
+  const [showSettings, setShowSettings] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Calculator States
+  // Load saved config from localStorage
+  const [config, setConfig] = useState<DefaultConfig>(() => {
+    const saved = localStorage.getItem(CONFIG_STORAGE_KEY);
+    if (saved) {
+      try {
+        return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+      } catch {
+        return DEFAULT_CONFIG;
+      }
+    }
+    return DEFAULT_CONFIG;
+  });
+
+  // Save config to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+  }, [config]);
+
+  const resetToDefaults = () => {
+    setConfig(DEFAULT_CONFIG);
+    toast({
+      title: "Settings Reset",
+      description: "All defaults have been restored."
+    });
+  };
+
+  const updateConfig = (key: keyof DefaultConfig, value: number) => {
+    setConfig(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Calculator States - use config defaults
   const [maoData, setMaoData] = useState<MAOData>({
     arv: '',
     rehabCosts: '',
-    profitMargin: 70,
+    profitMargin: config.mao_profitMargin,
     assignmentFee: ''
   });
 
@@ -178,7 +293,7 @@ const InvestorCalculator = () => {
     arv: '',
     rehabCosts: '',
     wholesaleFee: '',
-    buyerProfit: 70,
+    buyerProfit: config.wmao_buyerProfit,
     holdingCosts: ''
   });
 
@@ -186,15 +301,15 @@ const InvestorCalculator = () => {
     purchasePrice: '',
     rehabCosts: '',
     arv: '',
-    holdingTime: 6,
-    sellingCosts: 6,
+    holdingTime: config.flip_holdingTime,
+    sellingCosts: config.flip_sellingCosts,
     loanAmount: '',
-    interestRate: 10,
-    closingCosts: 3,
+    interestRate: config.flip_interestRate,
+    closingCosts: config.flip_closingCosts,
     utilities: '',
     insurance: '',
     taxes: '',
-    contingency: 10
+    contingency: config.flip_contingency
   });
 
   const [brrrData, setBrrrrData] = useState<BRRRRData>({
@@ -202,21 +317,21 @@ const InvestorCalculator = () => {
     rehabCosts: '',
     arv: '',
     rentAmount: '',
-    refinanceLTV: 75,
-    interestRate: 7,
+    refinanceLTV: config.brrrr_refinanceLTV,
+    interestRate: config.brrrr_interestRate,
     propertyTax: '',
     insurance: '',
-    maintenance: 10,
-    vacancy: 8,
-    propertyMgmt: 10,
-    closingCosts: 3
+    maintenance: config.brrrr_maintenance,
+    vacancy: config.brrrr_vacancy,
+    propertyMgmt: config.brrrr_propertyMgmt,
+    closingCosts: config.brrrr_closingCosts
   });
 
   const [creativeData, setCreativeData] = useState<CreativeData>({
     purchasePrice: '',
     downPayment: '',
     interestRate: '',
-    term: 360,
+    term: config.creative_term,
     balloonTerm: '',
     rentAmount: '',
     propertyTax: '',
@@ -227,17 +342,17 @@ const InvestorCalculator = () => {
 
   const [rentalData, setRentalData] = useState<RentalData>({
     purchasePrice: '',
-    downPayment: 20,
-    interestRate: 7,
-    term: 360,
+    downPayment: config.rental_downPayment,
+    interestRate: config.rental_interestRate,
+    term: config.rental_term,
     rentAmount: '',
     propertyTax: '',
     insurance: '',
     hoa: '',
-    maintenance: 8,
-    vacancy: 5,
-    propertyMgmt: 10,
-    capex: 5,
+    maintenance: config.rental_maintenance,
+    vacancy: config.rental_vacancy,
+    propertyMgmt: config.rental_propertyMgmt,
+    capex: config.rental_capex,
     utilities: ''
   });
 
@@ -255,9 +370,9 @@ const InvestorCalculator = () => {
     originalPurchase: '',
     currentBasis: '',
     depreciation: '',
-    federalRate: 20,
-    stateRate: 5,
-    recaptureRate: 25,
+    federalRate: config.exchange_federalRate,
+    stateRate: config.exchange_stateRate,
+    recaptureRate: config.exchange_recaptureRate,
     purchasePriceNew: ''
   });
 
@@ -267,8 +382,8 @@ const InvestorCalculator = () => {
     propertyTax: '',
     insurance: '',
     maintenance: '',
-    vacancy: 5,
-    propertyMgmt: 10,
+    vacancy: config.cashflow_vacancy,
+    propertyMgmt: config.cashflow_propertyMgmt,
     hoa: '',
     utilities: ''
   });
@@ -285,7 +400,7 @@ const InvestorCalculator = () => {
   const [capRateData, setCapRateData] = useState<CapRateData>({
     purchasePrice: '',
     grossRent: '',
-    vacancy: 5,
+    vacancy: config.caprate_vacancy,
     operatingExpenses: '',
     propertyTax: '',
     insurance: '',
@@ -303,8 +418,8 @@ const InvestorCalculator = () => {
 
   const [mortgageData, setMortgageData] = useState<MortgageData>({
     loanAmount: '',
-    interestRate: 7,
-    loanTerm: 30,
+    interestRate: config.mortgage_interestRate,
+    loanTerm: config.mortgage_loanTerm,
     propertyTax: '',
     insurance: '',
     pmi: '',
@@ -872,8 +987,126 @@ const InvestorCalculator = () => {
                   <Download className="w-5 h-5 mr-2" />
                   Export PDF
                 </Button>
+                <Button onClick={() => setShowSettings(true)} variant="outline">
+                  <Settings className="w-5 h-5 mr-2" />
+                  Defaults
+                </Button>
               </div>
             </div>
+
+            {/* Settings Dialog */}
+            <Dialog open={showSettings} onOpenChange={setShowSettings}>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-card">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    Default Calculator Settings
+                  </DialogTitle>
+                  <DialogDescription>
+                    Configure default values for all calculators. Changes are saved automatically.
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="space-y-6 py-4">
+                  {/* MAO & WMAO Defaults */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">MAO Calculators</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ConfigSlider label="MAO Profit Margin (%)" value={config.mao_profitMargin} min={50} max={90} onChange={(v) => updateConfig('mao_profitMargin', v)} />
+                      <ConfigSlider label="WMAO Buyer Profit (%)" value={config.wmao_buyerProfit} min={50} max={90} onChange={(v) => updateConfig('wmao_buyerProfit', v)} />
+                    </div>
+                  </div>
+
+                  {/* Flip Defaults */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Fix & Flip</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ConfigSlider label="Holding Time (months)" value={config.flip_holdingTime} min={1} max={24} onChange={(v) => updateConfig('flip_holdingTime', v)} />
+                      <ConfigSlider label="Selling Costs (%)" value={config.flip_sellingCosts} min={3} max={12} onChange={(v) => updateConfig('flip_sellingCosts', v)} />
+                      <ConfigSlider label="Interest Rate (%)" value={config.flip_interestRate} min={5} max={20} step={0.5} onChange={(v) => updateConfig('flip_interestRate', v)} />
+                      <ConfigSlider label="Closing Costs (%)" value={config.flip_closingCosts} min={1} max={10} onChange={(v) => updateConfig('flip_closingCosts', v)} />
+                      <ConfigSlider label="Contingency (%)" value={config.flip_contingency} min={5} max={25} onChange={(v) => updateConfig('flip_contingency', v)} />
+                    </div>
+                  </div>
+
+                  {/* BRRRR Defaults */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">BRRRR Method</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ConfigSlider label="Refinance LTV (%)" value={config.brrrr_refinanceLTV} min={60} max={85} onChange={(v) => updateConfig('brrrr_refinanceLTV', v)} />
+                      <ConfigSlider label="Interest Rate (%)" value={config.brrrr_interestRate} min={4} max={12} step={0.25} onChange={(v) => updateConfig('brrrr_interestRate', v)} />
+                      <ConfigSlider label="Maintenance (%)" value={config.brrrr_maintenance} min={5} max={20} onChange={(v) => updateConfig('brrrr_maintenance', v)} />
+                      <ConfigSlider label="Vacancy (%)" value={config.brrrr_vacancy} min={3} max={15} onChange={(v) => updateConfig('brrrr_vacancy', v)} />
+                      <ConfigSlider label="Property Mgmt (%)" value={config.brrrr_propertyMgmt} min={0} max={15} onChange={(v) => updateConfig('brrrr_propertyMgmt', v)} />
+                      <ConfigSlider label="Closing Costs (%)" value={config.brrrr_closingCosts} min={1} max={8} onChange={(v) => updateConfig('brrrr_closingCosts', v)} />
+                    </div>
+                  </div>
+
+                  {/* Rental Defaults */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Rental Analysis</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ConfigSlider label="Down Payment (%)" value={config.rental_downPayment} min={5} max={50} onChange={(v) => updateConfig('rental_downPayment', v)} />
+                      <ConfigSlider label="Interest Rate (%)" value={config.rental_interestRate} min={4} max={12} step={0.25} onChange={(v) => updateConfig('rental_interestRate', v)} />
+                      <ConfigSlider label="Maintenance (%)" value={config.rental_maintenance} min={3} max={15} onChange={(v) => updateConfig('rental_maintenance', v)} />
+                      <ConfigSlider label="Vacancy (%)" value={config.rental_vacancy} min={3} max={15} onChange={(v) => updateConfig('rental_vacancy', v)} />
+                      <ConfigSlider label="Property Mgmt (%)" value={config.rental_propertyMgmt} min={0} max={15} onChange={(v) => updateConfig('rental_propertyMgmt', v)} />
+                      <ConfigSlider label="CapEx (%)" value={config.rental_capex} min={3} max={15} onChange={(v) => updateConfig('rental_capex', v)} />
+                    </div>
+                  </div>
+
+                  {/* Cash Flow & Cap Rate Defaults */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Cash Flow & Cap Rate</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ConfigSlider label="Cash Flow Vacancy (%)" value={config.cashflow_vacancy} min={3} max={15} onChange={(v) => updateConfig('cashflow_vacancy', v)} />
+                      <ConfigSlider label="Cash Flow Property Mgmt (%)" value={config.cashflow_propertyMgmt} min={0} max={15} onChange={(v) => updateConfig('cashflow_propertyMgmt', v)} />
+                      <ConfigSlider label="Cap Rate Vacancy (%)" value={config.caprate_vacancy} min={3} max={15} onChange={(v) => updateConfig('caprate_vacancy', v)} />
+                    </div>
+                  </div>
+
+                  {/* 1031 Exchange Defaults */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">1031 Exchange</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ConfigSlider label="Federal Tax Rate (%)" value={config.exchange_federalRate} min={10} max={35} onChange={(v) => updateConfig('exchange_federalRate', v)} />
+                      <ConfigSlider label="State Tax Rate (%)" value={config.exchange_stateRate} min={0} max={15} onChange={(v) => updateConfig('exchange_stateRate', v)} />
+                      <ConfigSlider label="Recapture Rate (%)" value={config.exchange_recaptureRate} min={15} max={35} onChange={(v) => updateConfig('exchange_recaptureRate', v)} />
+                    </div>
+                  </div>
+
+                  {/* Mortgage Defaults */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Mortgage</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ConfigSlider label="Interest Rate (%)" value={config.mortgage_interestRate} min={4} max={12} step={0.125} onChange={(v) => updateConfig('mortgage_interestRate', v)} />
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">Loan Term (Years)</label>
+                        <select
+                          value={config.mortgage_loanTerm}
+                          onChange={(e) => updateConfig('mortgage_loanTerm', Number(e.target.value))}
+                          className="w-full px-3 py-2 bg-muted/50 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                        >
+                          <option value={15}>15 Years</option>
+                          <option value={20}>20 Years</option>
+                          <option value={30}>30 Years</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between pt-4 border-t border-border">
+                  <Button variant="outline" onClick={resetToDefaults} className="text-destructive hover:text-destructive">
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Reset to Defaults
+                  </Button>
+                  <Button onClick={() => setShowSettings(false)}>
+                    Done
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             {/* Calculator Content */}
             <div className="max-w-7xl mx-auto" ref={printRef}>
@@ -1409,6 +1642,35 @@ const ResultCard = ({ label, value, highlight, positive, description }: ResultCa
     {description && (
       <div className="text-xs text-muted-foreground mt-1">{description}</div>
     )}
+  </div>
+);
+
+interface ConfigSliderProps {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+}
+
+const ConfigSlider = ({ label, value, min, max, step = 1, onChange }: ConfigSliderProps) => (
+  <div>
+    <label className="block text-sm font-medium text-muted-foreground mb-2">
+      {label}
+    </label>
+    <div className="flex items-center gap-3">
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="flex-1 accent-primary"
+      />
+      <span className="text-sm font-medium w-12 text-right">{value}</span>
+    </div>
   </div>
 );
 
