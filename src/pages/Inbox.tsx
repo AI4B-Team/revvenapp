@@ -172,19 +172,19 @@ const Inbox: React.FC = () => {
 
   const getSentimentColor = (sentiment?: string) => {
     switch (sentiment) {
-      case 'positive': return 'text-green-400';
-      case 'negative': return 'text-red-400';
-      default: return 'text-gray-400';
+      case 'positive': return 'text-green-600';
+      case 'negative': return 'text-red-600';
+      default: return 'text-gray-500';
     }
   };
 
   const getStatusBadge = (status: string) => {
     const styles = {
-      new: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-      open: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      pending: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-      resolved: 'bg-green-500/20 text-green-400 border-green-500/30',
-      closed: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+      new: 'bg-blue-100 text-blue-600 border-blue-200',
+      open: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+      pending: 'bg-orange-100 text-orange-600 border-orange-200',
+      resolved: 'bg-green-100 text-green-600 border-green-200',
+      closed: 'bg-gray-100 text-gray-600 border-gray-200',
     };
     return styles[status as keyof typeof styles] || styles.new;
   };
@@ -196,16 +196,16 @@ const Inbox: React.FC = () => {
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
-        <div className="flex-1 flex overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+        <div className="flex-1 flex overflow-hidden bg-white text-gray-900">
           {/* Inbox Sidebar */}
-          <div className="w-64 bg-gray-800/30 border-r border-gray-700/50 flex flex-col">
+          <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
             {/* Views */}
-            <div className="p-4 border-b border-gray-700/50">
+            <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Views</h3>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Views</h3>
                 <button
                   onClick={() => setShowCompose(true)}
-                  className="flex items-center gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  className="flex items-center gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-white"
                 >
                   <Plus className="w-3 h-3" />
                   Compose
@@ -225,8 +225,8 @@ const Inbox: React.FC = () => {
                     onClick={() => setActiveView(view.id as any)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all ${
                       activeView === view.id
-                        ? 'bg-emerald-500/20 text-emerald-400'
-                        : 'hover:bg-gray-700/30 text-gray-300'
+                        ? 'bg-emerald-500/20 text-emerald-600'
+                        : 'hover:bg-gray-100 text-gray-700'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -234,7 +234,7 @@ const Inbox: React.FC = () => {
                       <span className="text-sm font-medium">{view.name}</span>
                     </div>
                     {view.count > 0 && (
-                      <span className="text-xs bg-gray-700/50 px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full text-gray-600">
                         {view.count}
                       </span>
                     )}
@@ -245,7 +245,7 @@ const Inbox: React.FC = () => {
 
             {/* Channels */}
             <div className="p-4 flex-1 overflow-y-auto">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Channels</h3>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Channels</h3>
               <div className="space-y-1">
                 {channels.map((channel) => {
                   const Icon = channel.icon;
@@ -262,8 +262,8 @@ const Inbox: React.FC = () => {
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all ${
                         isSelected
-                          ? 'bg-gray-700/50'
-                          : 'hover:bg-gray-700/30'
+                          ? 'bg-gray-200'
+                          : 'hover:bg-gray-100'
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -272,9 +272,9 @@ const Inbox: React.FC = () => {
                           style={{ backgroundColor: channel.color }}
                         />
                         <Icon className="w-4 h-4" style={{ color: channel.color }} />
-                        <span className="text-sm text-gray-300">{channel.name}</span>
+                        <span className="text-sm text-gray-700">{channel.name}</span>
                       </div>
-                      <span className="text-xs bg-gray-700/50 px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full text-gray-600">
                         {channel.count}
                       </span>
                     </button>
@@ -284,16 +284,16 @@ const Inbox: React.FC = () => {
             </div>
 
             {/* AI Insights */}
-            <div className="p-4 border-t border-gray-700/50">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Sparkles className="w-3 h-3 text-emerald-400" />
+            <div className="p-4 border-t border-gray-200">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Sparkles className="w-3 h-3 text-emerald-500" />
                 AI Insights
               </h3>
               <div className="space-y-2">
                 {aiInsights.slice(0, 2).map((insight, idx) => {
                   const Icon = insight.icon;
                   return (
-                    <div key={idx} className="flex items-start gap-2 text-xs text-gray-400">
+                    <div key={idx} className="flex items-start gap-2 text-xs text-gray-600">
                       <Icon className="w-3 h-3 mt-0.5 flex-shrink-0" />
                       <span>{insight.message}</span>
                     </div>
@@ -304,20 +304,20 @@ const Inbox: React.FC = () => {
           </div>
 
           {/* Message List */}
-          <div className="w-96 bg-gray-800/20 border-r border-gray-700/50 flex flex-col">
-            <div className="p-4 border-b border-gray-700/50">
+          <div className="w-96 bg-white border-r border-gray-200 flex flex-col">
+            <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-lg">
+                <h2 className="font-semibold text-lg text-gray-900">
                   {activeView.charAt(0).toUpperCase() + activeView.slice(1)}
                 </h2>
                 <div className="flex items-center gap-2">
-                  <button className="p-1.5 hover:bg-gray-700/50 rounded transition-colors">
+                  <button className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600">
                     <CheckCircle className="w-4 h-4" />
                   </button>
-                  <button className="p-1.5 hover:bg-gray-700/50 rounded transition-colors">
+                  <button className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600">
                     <Archive className="w-4 h-4" />
                   </button>
-                  <button className="p-1.5 hover:bg-gray-700/50 rounded transition-colors">
+                  <button className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -331,7 +331,7 @@ const Inbox: React.FC = () => {
                   placeholder="Search messages..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-gray-100 border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500 text-gray-900"
                 />
               </div>
 
@@ -340,7 +340,7 @@ const Inbox: React.FC = () => {
                 {['All', 'Unread', 'Flagged', 'With Attachments'].map((filter) => (
                   <button
                     key={filter}
-                    className="px-3 py-1 text-xs bg-gray-700/30 hover:bg-gray-700/50 rounded-full transition-colors"
+                    className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full transition-colors text-gray-700"
                   >
                     {filter}
                   </button>
@@ -357,17 +357,17 @@ const Inbox: React.FC = () => {
                   <button
                     key={message.id}
                     onClick={() => setSelectedMessage(message)}
-                    className={`w-full p-4 border-b border-gray-700/30 hover:bg-gray-700/30 transition-all text-left ${
-                      selectedMessage?.id === message.id ? 'bg-gray-700/50' : ''
-                    } ${!message.isRead ? 'bg-gray-700/10' : ''}`}
+                    className={`w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-all text-left ${
+                      selectedMessage?.id === message.id ? 'bg-gray-100' : ''
+                    } ${!message.isRead ? 'bg-emerald-50/50' : ''}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="relative">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-sm font-medium">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-sm font-medium text-white">
                           {message.sender.name.charAt(0)}
                         </div>
                         <div
-                          className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-800"
+                          className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
                           style={{ backgroundColor: channelColor }}
                         >
                           <ChannelIcon className="w-3 h-3 text-white" />
@@ -377,11 +377,11 @@ const Inbox: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <span className={`font-semibold truncate ${!message.isRead ? 'text-white' : 'text-gray-300'}`}>
+                            <span className={`font-semibold truncate ${!message.isRead ? 'text-gray-900' : 'text-gray-700'}`}>
                               {message.sender.name}
                             </span>
                             {message.isPriority && (
-                              <Flag className="w-3 h-3 text-red-400 flex-shrink-0" />
+                              <Flag className="w-3 h-3 text-red-500 flex-shrink-0" />
                             )}
                           </div>
                           <span className="text-xs text-gray-500 flex-shrink-0">
@@ -389,7 +389,7 @@ const Inbox: React.FC = () => {
                           </span>
                         </div>
 
-                        <div className={`text-sm mb-1 truncate ${!message.isRead ? 'font-medium text-gray-200' : 'text-gray-400'}`}>
+                        <div className={`text-sm mb-1 truncate ${!message.isRead ? 'font-medium text-gray-800' : 'text-gray-600'}`}>
                           {message.subject}
                         </div>
 
@@ -402,7 +402,7 @@ const Inbox: React.FC = () => {
                             {message.status}
                           </span>
                           {message.tags.slice(0, 2).map((tag) => (
-                            <span key={tag} className="text-xs bg-gray-700/50 px-2 py-0.5 rounded-full text-gray-400">
+                            <span key={tag} className="text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-600">
                               #{tag}
                             </span>
                           ))}
@@ -411,10 +411,10 @@ const Inbox: React.FC = () => {
 
                       <div className="flex flex-col items-end gap-2">
                         {message.isStarred && (
-                          <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                         )}
                         {!message.isRead && (
-                          <div className="w-2 h-2 bg-emerald-400 rounded-full" />
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full" />
                         )}
                       </div>
                     </div>
@@ -425,19 +425,19 @@ const Inbox: React.FC = () => {
           </div>
 
           {/* Message Detail */}
-          <div className="flex-1 flex flex-col bg-gray-800/10">
+          <div className="flex-1 flex flex-col bg-white">
             {selectedMessage ? (
               <>
                 {/* Message Header */}
-                <div className="bg-gray-800/30 border-b border-gray-700/50 p-6">
+                <div className="bg-gray-50 border-b border-gray-200 p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4">
                       <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-lg font-medium">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-lg font-medium text-white">
                           {selectedMessage.sender.name.charAt(0)}
                         </div>
                         <div
-                          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-gray-800"
+                          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white"
                           style={{ backgroundColor: getChannelColor(selectedMessage.channel) }}
                         >
                           {React.createElement(getChannelIcon(selectedMessage.channel), { className: 'w-3 h-3 text-white' })}
@@ -445,8 +445,8 @@ const Inbox: React.FC = () => {
                       </div>
 
                       <div>
-                        <h3 className="text-lg font-semibold mb-1">{selectedMessage.sender.name}</h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                        <h3 className="text-lg font-semibold mb-1 text-gray-900">{selectedMessage.sender.name}</h3>
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
                           <span>{selectedMessage.sender.email}</span>
                           <span>•</span>
                           <span>{new Date(selectedMessage.timestamp).toLocaleString()}</span>
@@ -463,38 +463,38 @@ const Inbox: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <button className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors">
+                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600">
                         <Reply className="w-5 h-5" />
                       </button>
-                      <button className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors">
+                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600">
                         <Forward className="w-5 h-5" />
                       </button>
-                      <button className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors">
-                        <Star className={`w-5 h-5 ${selectedMessage.isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600">
+                        <Star className={`w-5 h-5 ${selectedMessage.isStarred ? 'fill-yellow-500 text-yellow-500' : ''}`} />
                       </button>
-                      <button className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors">
+                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600">
                         <Archive className="w-5 h-5" />
                       </button>
-                      <button className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors">
+                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600">
                         <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-700/50 pt-4">
-                    <h2 className="text-xl font-semibold mb-2">{selectedMessage.subject}</h2>
+                  <div className="border-t border-gray-200 pt-4">
+                    <h2 className="text-xl font-semibold mb-2 text-gray-900">{selectedMessage.subject}</h2>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`text-xs px-2 py-1 rounded-full border ${getStatusBadge(selectedMessage.status)}`}>
                         {selectedMessage.status}
                       </span>
                       {selectedMessage.assignee && (
-                        <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full flex items-center gap-1">
+                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full flex items-center gap-1">
                           <User className="w-3 h-3" />
                           {selectedMessage.assignee}
                         </span>
                       )}
                       {selectedMessage.tags.map((tag) => (
-                        <span key={tag} className="text-xs bg-gray-700/50 px-2 py-1 rounded-full text-gray-400">
+                        <span key={tag} className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600">
                           #{tag}
                         </span>
                       ))}
@@ -504,27 +504,27 @@ const Inbox: React.FC = () => {
 
                 {/* Message Body */}
                 <div className="flex-1 overflow-y-auto p-6">
-                  <div className="prose prose-invert max-w-none">
-                    <p className="text-gray-300 leading-relaxed whitespace-pre-line">{selectedMessage.body}</p>
+                  <div className="prose max-w-none">
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">{selectedMessage.body}</p>
                   </div>
 
                   {selectedMessage.attachments && selectedMessage.attachments.length > 0 && (
-                    <div className="mt-6 border-t border-gray-700/50 pt-6">
-                      <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <div className="mt-6 border-t border-gray-200 pt-6">
+                      <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-gray-900">
                         <Paperclip className="w-4 h-4" />
                         Attachments ({selectedMessage.attachments.length})
                       </h4>
                       <div className="grid grid-cols-2 gap-3">
                         {selectedMessage.attachments.map((file, idx) => (
-                          <div key={idx} className="bg-gray-700/30 rounded-lg p-3 flex items-center gap-3 hover:bg-gray-700/50 transition-colors cursor-pointer">
-                            <div className="w-10 h-10 bg-emerald-500/20 rounded flex items-center justify-center">
-                              <Paperclip className="w-5 h-5 text-emerald-400" />
+                          <div key={idx} className="bg-gray-50 rounded-lg p-3 flex items-center gap-3 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200">
+                            <div className="w-10 h-10 bg-emerald-100 rounded flex items-center justify-center">
+                              <Paperclip className="w-5 h-5 text-emerald-600" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium truncate">{file.name}</div>
+                              <div className="text-sm font-medium truncate text-gray-900">{file.name}</div>
                               <div className="text-xs text-gray-500">{file.size}</div>
                             </div>
-                            <button className="p-1.5 hover:bg-gray-600/50 rounded">
+                            <button className="p-1.5 hover:bg-gray-200 rounded text-gray-600">
                               <Download className="w-4 h-4" />
                             </button>
                           </div>
@@ -535,16 +535,16 @@ const Inbox: React.FC = () => {
 
                   {/* AI Suggestions */}
                   {selectedMessage.aiSuggestions && selectedMessage.aiSuggestions.length > 0 && (
-                    <div className="mt-6 border-t border-gray-700/50 pt-6">
-                      <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-emerald-400" />
+                    <div className="mt-6 border-t border-gray-200 pt-6">
+                      <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-gray-900">
+                        <Sparkles className="w-4 h-4 text-emerald-500" />
                         AI Suggestions
                       </h4>
                       <div className="space-y-2">
                         {selectedMessage.aiSuggestions.map((suggestion, idx) => (
                           <button
                             key={idx}
-                            className="w-full text-left p-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg transition-all text-sm text-emerald-400"
+                            className="w-full text-left p-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-all text-sm text-emerald-700"
                           >
                             <Zap className="w-4 h-4 inline mr-2" />
                             {suggestion}
@@ -556,16 +556,16 @@ const Inbox: React.FC = () => {
                 </div>
 
                 {/* Reply Section */}
-                <div className="bg-gray-800/30 border-t border-gray-700/50 p-6">
+                <div className="bg-gray-50 border-t border-gray-200 p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <button
                       onClick={() => setShowTemplates(!showTemplates)}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors text-sm"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors text-sm text-gray-700"
                     >
                       <FolderOpen className="w-4 h-4" />
                       Templates
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg transition-colors text-sm">
+                    <button className="flex items-center gap-2 px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg transition-colors text-sm">
                       <Sparkles className="w-4 h-4" />
                       AI Assist
                     </button>
@@ -575,28 +575,28 @@ const Inbox: React.FC = () => {
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Type your reply..."
-                    className="w-full bg-gray-700/30 border border-gray-600/50 rounded-lg p-4 text-sm focus:outline-none focus:border-emerald-500/50 resize-none"
+                    className="w-full bg-white border border-gray-200 rounded-lg p-4 text-sm focus:outline-none focus:border-emerald-500 resize-none text-gray-900"
                     rows={4}
                   />
 
                   <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center gap-2">
-                      <button className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors">
+                      <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600">
                         <Paperclip className="w-5 h-5" />
                       </button>
-                      <button className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors">
+                      <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600">
                         <Tag className="w-5 h-5" />
                       </button>
-                      <button className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors">
+                      <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600">
                         <Users className="w-5 h-5" />
                       </button>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <button className="px-4 py-2 bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors text-sm">
+                      <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors text-sm text-gray-700">
                         Save Draft
                       </button>
-                      <button className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-lg transition-all text-sm font-medium flex items-center gap-2">
+                      <button className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-lg transition-all text-sm font-medium flex items-center gap-2 text-white">
                         <Send className="w-4 h-4" />
                         Send
                       </button>
@@ -608,8 +608,8 @@ const Inbox: React.FC = () => {
               <div className="flex-1 flex items-center justify-center text-gray-500">
                 <div className="text-center">
                   <Mail className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-medium">Select a message to view</p>
-                  <p className="text-sm mt-2">Choose a conversation from the list to get started</p>
+                  <p className="text-lg font-medium text-gray-700">Select a message to view</p>
+                  <p className="text-sm mt-2 text-gray-500">Choose a conversation from the list to get started</p>
                 </div>
               </div>
             )}
@@ -617,13 +617,13 @@ const Inbox: React.FC = () => {
 
           {/* AI Panel */}
           {showAIPanel && (
-            <div className="w-80 bg-gray-800/30 border-l border-gray-700/50 p-6 overflow-y-auto">
+            <div className="w-80 bg-gray-50 border-l border-gray-200 p-6 overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
+                  <Sparkles className="w-5 h-5 text-emerald-500" />
                   AI Assistant
                 </h3>
-                <button onClick={() => setShowAIPanel(false)} className="p-1 hover:bg-gray-700/50 rounded">
+                <button onClick={() => setShowAIPanel(false)} className="p-1 hover:bg-gray-200 rounded text-gray-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -631,15 +631,15 @@ const Inbox: React.FC = () => {
               <div className="space-y-6">
                 {/* Insights */}
                 <div>
-                  <h4 className="text-sm font-semibold mb-3 text-gray-400">Insights</h4>
+                  <h4 className="text-sm font-semibold mb-3 text-gray-500">Insights</h4>
                   <div className="space-y-3">
                     {aiInsights.map((insight, idx) => {
                       const Icon = insight.icon;
                       return (
-                        <div key={idx} className="bg-gray-700/30 rounded-lg p-3">
+                        <div key={idx} className="bg-white rounded-lg p-3 border border-gray-200">
                           <div className="flex items-start gap-2">
-                            <Icon className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                            <span className="text-sm text-gray-300">{insight.message}</span>
+                            <Icon className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-gray-700">{insight.message}</span>
                           </div>
                         </div>
                       );
@@ -649,7 +649,7 @@ const Inbox: React.FC = () => {
 
                 {/* Quick Actions */}
                 <div>
-                  <h4 className="text-sm font-semibold mb-3 text-gray-400">Quick Actions</h4>
+                  <h4 className="text-sm font-semibold mb-3 text-gray-500">Quick Actions</h4>
                   <div className="space-y-2">
                     {[
                       { name: 'Mark all as read', icon: Eye },
@@ -659,7 +659,7 @@ const Inbox: React.FC = () => {
                     ].map((action) => (
                       <button
                         key={action.name}
-                        className="w-full flex items-center gap-2 p-2 bg-gray-700/30 hover:bg-gray-700/50 rounded-lg transition-colors text-sm text-left"
+                        className="w-full flex items-center gap-2 p-2 bg-white hover:bg-gray-100 rounded-lg transition-colors text-sm text-left border border-gray-200 text-gray-700"
                       >
                         <action.icon className="w-4 h-4" />
                         {action.name}
@@ -670,32 +670,32 @@ const Inbox: React.FC = () => {
 
                 {/* Analytics */}
                 <div>
-                  <h4 className="text-sm font-semibold mb-3 text-gray-400">Today's Stats</h4>
+                  <h4 className="text-sm font-semibold mb-3 text-gray-500">Today's Stats</h4>
                   <div className="space-y-3">
-                    <div className="bg-gray-700/30 rounded-lg p-3">
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-400">Response Rate</span>
-                        <span className="text-sm font-semibold text-emerald-400">94%</span>
+                        <span className="text-xs text-gray-500">Response Rate</span>
+                        <span className="text-sm font-semibold text-emerald-600">94%</span>
                       </div>
-                      <div className="w-full bg-gray-600/30 rounded-full h-1.5">
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
                         <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-1.5 rounded-full" style={{ width: '94%' }} />
                       </div>
                     </div>
 
-                    <div className="bg-gray-700/30 rounded-lg p-3">
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-400">Resolution Time</span>
-                        <span className="text-sm font-semibold">2.3h</span>
+                        <span className="text-xs text-gray-500">Resolution Time</span>
+                        <span className="text-sm font-semibold text-gray-900">2.3h</span>
                       </div>
-                      <div className="text-xs text-green-400">↓ 15% from yesterday</div>
+                      <div className="text-xs text-green-600">↓ 15% from yesterday</div>
                     </div>
 
-                    <div className="bg-gray-700/30 rounded-lg p-3">
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-400">Messages Handled</span>
-                        <span className="text-sm font-semibold">147</span>
+                        <span className="text-xs text-gray-500">Messages Handled</span>
+                        <span className="text-sm font-semibold text-gray-900">147</span>
                       </div>
-                      <div className="text-xs text-emerald-400">↑ 23% from yesterday</div>
+                      <div className="text-xs text-emerald-600">↑ 23% from yesterday</div>
                     </div>
                   </div>
                 </div>
