@@ -1105,25 +1105,27 @@ const InvestorCalculator = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3 justify-center mb-6">
-                <Button onClick={saveDeal} className="bg-emerald-600 hover:bg-emerald-700">
-                  <Save className="w-5 h-5 mr-2" />
-                  Save
-                </Button>
-                <Button onClick={handlePrint} variant="outline">
-                  <Printer className="w-5 h-5 mr-2" />
-                  Print
-                </Button>
-                <Button onClick={exportToPDF} variant="outline">
-                  <Download className="w-5 h-5 mr-2" />
-                  Export
-                </Button>
-                <Button onClick={() => setShowSettings(true)} variant="outline">
-                  <Settings className="w-5 h-5 mr-2" />
-                  Settings
-                </Button>
-              </div>
+              {/* Action Buttons - only show when a calculator is selected */}
+              {activeCalc && (
+                <div className="flex flex-wrap gap-3 justify-center mb-6">
+                  <Button onClick={saveDeal} className="bg-emerald-600 hover:bg-emerald-700">
+                    <Save className="w-5 h-5 mr-2" />
+                    Save
+                  </Button>
+                  <Button onClick={handlePrint} variant="outline">
+                    <Printer className="w-5 h-5 mr-2" />
+                    Print
+                  </Button>
+                  <Button onClick={exportToPDF} variant="outline">
+                    <Download className="w-5 h-5 mr-2" />
+                    Export
+                  </Button>
+                  <Button onClick={() => setShowSettings(true)} variant="outline">
+                    <Settings className="w-5 h-5 mr-2" />
+                    Settings
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Settings Dialog */}
