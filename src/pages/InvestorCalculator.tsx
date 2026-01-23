@@ -12,8 +12,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { IconTooltip } from '@/components/ui/IconTooltip';
+import { CalculatorSettingsDialog, getDefaultCalculatorSettings, CalculatorSettings } from '@/components/calculator/CalculatorSettingsDialogs';
 
 const CALCULATOR_ORDER_KEY = 'investor_calculator_order';
+const CALCULATOR_SETTINGS_KEY = 'investor_calculator_settings';
 
 interface CalculatorItem {
   id: string;
@@ -251,12 +254,32 @@ const InvestorCalculator = () => {
   const [activeCalc, setActiveCalc] = useState<string | null>(null);
   const [savedDeals, setSavedDeals] = useState<SavedDeal[]>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCalcSettings, setShowCalcSettings] = useState(false);
+  const [calcSettingsTarget, setCalcSettingsTarget] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [draggedCalc, setDraggedCalc] = useState<string | null>(null);
   const [dropPosition, setDropPosition] = useState<{ id: string; position: 'before' | 'after' } | null>(null);
   const [hoveredCalc, setHoveredCalc] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const calculatorSectionRef = useRef<HTMLDivElement>(null);
+  
+  // Per-calculator settings
+  const [calculatorSettings, setCalculatorSettings] = useState<CalculatorSettings>(() => {
+    const saved = localStorage.getItem(CALCULATOR_SETTINGS_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
+  
+  // Save calculator settings to localStorage
+  useEffect(() => {
+    localStorage.setItem(CALCULATOR_SETTINGS_KEY, JSON.stringify(calculatorSettings));
+  }, [calculatorSettings]);
 
   // Default calculator order (removed 70% Rule as it's same as Fix & Flip)
   const defaultCalculators: CalculatorItem[] = [
@@ -372,8 +395,27 @@ const InvestorCalculator = () => {
   // Open settings for specific calculator
   const openCalculatorSettings = (e: React.MouseEvent, calcId: string) => {
     e.stopPropagation();
-    setActiveCalc(calcId);
-    setShowSettings(true);
+    setCalcSettingsTarget(calcId);
+    setShowCalcSettings(true);
+  };
+  
+  // Handle per-calculator settings change
+  const handleCalcSettingsChange = (calcId: string, settings: Record<string, number | string | boolean>) => {
+    setCalculatorSettings(prev => ({ ...prev, [calcId]: settings }));
+  };
+  
+  // Reset per-calculator settings to defaults
+  const resetCalcSettings = (calcId: string) => {
+    setCalculatorSettings(prev => ({ ...prev, [calcId]: getDefaultCalculatorSettings(calcId) }));
+    toast({
+      title: "Settings Reset",
+      description: `${calculators.find(c => c.id === calcId)?.name || 'Calculator'} settings restored to defaults.`
+    });
+  };
+  
+  // Get settings for a specific calculator
+  const getCalcSettings = (calcId: string) => {
+    return calculatorSettings[calcId] || getDefaultCalculatorSettings(calcId);
   };
 
   // Load saved config from localStorage
@@ -1078,7 +1120,11 @@ const InvestorCalculator = () => {
                         >
                           {/* Drag handle - only visible on hover */}
                           <div className={`absolute ${viewMode === 'grid' ? 'top-2 left-2' : 'left-2'} transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-                            <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab" />
+                            <IconTooltip label="Drag to reorder" side="top">
+                              <div>
+                                <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab" />
+                              </div>
+                            </IconTooltip>
                           </div>
                           
                           {/* Settings icon - only visible on hover */}
@@ -1086,7 +1132,11 @@ const InvestorCalculator = () => {
                             className={`absolute ${viewMode === 'grid' ? 'top-2 right-2' : 'right-2'} transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
                             onClick={(e) => openCalculatorSettings(e, calc.id)}
                           >
-                            <Settings className="w-4 h-4 text-muted-foreground/50 hover:text-muted-foreground cursor-pointer" />
+                            <IconTooltip label="Calculator settings" side="top">
+                              <div>
+                                <Settings className="w-4 h-4 text-muted-foreground/50 hover:text-muted-foreground cursor-pointer" />
+                              </div>
+                            </IconTooltip>
                           </div>
                           
                           <Icon className={`w-6 h-6 ${isActive ? 'text-emerald-600' : 'text-muted-foreground'}`} />
@@ -1241,6 +1291,19 @@ const InvestorCalculator = () => {
                 </div>
               </DialogContent>
             </Dialog>
+
+            {/* Per-Calculator Settings Dialog */}
+            {calcSettingsTarget && (
+              <CalculatorSettingsDialog
+                open={showCalcSettings}
+                onOpenChange={setShowCalcSettings}
+                calculatorId={calcSettingsTarget}
+                calculatorName={calculators.find(c => c.id === calcSettingsTarget)?.name || 'Calculator'}
+                settings={getCalcSettings(calcSettingsTarget)}
+                onSettingsChange={handleCalcSettingsChange}
+                onReset={resetCalcSettings}
+              />
+            )}
 
             {/* Calculator Content - Only show when a calculator is selected */}
             {activeCalc && (
