@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, ArrowLeft, Wallet, Percent, Target, Landmark, Settings, X, RotateCcw } from 'lucide-react';
+import { Calculator, DollarSign, Home, TrendingUp, Repeat, FileText, Download, Printer, Save, Info, BarChart3, PiggyBank, RefreshCw, Building2, ArrowRightLeft, ArrowLeft, Wallet, Percent, Target, Landmark, Settings, X, RotateCcw, LayoutGrid, List, GripVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -12,6 +12,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+
+const CALCULATOR_ORDER_KEY = 'investor_calculator_order';
+
+interface CalculatorItem {
+  id: string;
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+}
 
 // Default Configuration Interface
 interface DefaultConfig {
@@ -249,7 +258,104 @@ const InvestorCalculator = () => {
   const [activeCalc, setActiveCalc] = useState('mao');
   const [savedDeals, setSavedDeals] = useState<SavedDeal[]>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [draggedCalc, setDraggedCalc] = useState<string | null>(null);
+  const [dropPosition, setDropPosition] = useState<{ id: string; position: 'before' | 'after' } | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+
+  // Default calculator order
+  const defaultCalculators: CalculatorItem[] = [
+    { id: 'mao', name: 'MAO Calculator', icon: Calculator, color: 'emerald' },
+    { id: 'wmao', name: 'Wholesale MAO', icon: DollarSign, color: 'blue' },
+    { id: 'flip', name: 'Fix & Flip', icon: Home, color: 'purple' },
+    { id: 'brrrr', name: 'BRRRR Method', icon: Repeat, color: 'orange' },
+    { id: 'rental', name: 'Rental Analysis', icon: Building2, color: 'green' },
+    { id: 'creative', name: 'Creative Finance', icon: TrendingUp, color: 'pink' },
+    { id: 'wholesale', name: 'Wholesale Deal', icon: ArrowRightLeft, color: 'cyan' },
+    { id: 'exchange', name: '1031 Exchange', icon: RefreshCw, color: 'yellow' },
+    { id: 'cashflow', name: 'Cash Flow', icon: Wallet, color: 'teal' },
+    { id: 'roi', name: 'ROI Calculator', icon: Percent, color: 'indigo' },
+    { id: 'caprate', name: 'Cap Rate', icon: Target, color: 'violet' },
+    { id: 'seventyrule', name: '70% Rule', icon: Calculator, color: 'red' },
+    { id: 'mortgage', name: 'Mortgage', icon: Landmark, color: 'sky' }
+  ];
+
+  // Load calculator order from localStorage
+  const [calculators, setCalculators] = useState<CalculatorItem[]>(() => {
+    const savedOrder = localStorage.getItem(CALCULATOR_ORDER_KEY);
+    if (savedOrder) {
+      try {
+        const orderIds = JSON.parse(savedOrder) as string[];
+        const ordered = orderIds
+          .map(id => defaultCalculators.find(c => c.id === id))
+          .filter((c): c is CalculatorItem => c !== undefined);
+        // Add any new calculators that might not be in saved order
+        defaultCalculators.forEach(calc => {
+          if (!ordered.find(c => c.id === calc.id)) {
+            ordered.push(calc);
+          }
+        });
+        return ordered;
+      } catch {
+        return defaultCalculators;
+      }
+    }
+    return defaultCalculators;
+  });
+
+  // Save calculator order to localStorage
+  useEffect(() => {
+    localStorage.setItem(CALCULATOR_ORDER_KEY, JSON.stringify(calculators.map(c => c.id)));
+  }, [calculators]);
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, calcId: string) => {
+    setDraggedCalc(calcId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, calcId: string) => {
+    e.preventDefault();
+    if (draggedCalc && draggedCalc !== calcId) {
+      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      const midPoint = viewMode === 'list' ? rect.top + rect.height / 2 : rect.left + rect.width / 2;
+      const mousePos = viewMode === 'list' ? e.clientY : e.clientX;
+      const position = mousePos < midPoint ? 'before' : 'after';
+      setDropPosition({ id: calcId, position });
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDropPosition(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedCalc || draggedCalc === targetId) {
+      setDraggedCalc(null);
+      setDropPosition(null);
+      return;
+    }
+
+    const newCalculators = [...calculators];
+    const draggedIndex = newCalculators.findIndex(c => c.id === draggedCalc);
+    const targetIndex = newCalculators.findIndex(c => c.id === targetId);
+    
+    if (draggedIndex !== -1 && targetIndex !== -1) {
+      const [removed] = newCalculators.splice(draggedIndex, 1);
+      const insertIndex = dropPosition?.position === 'after' ? targetIndex + (draggedIndex < targetIndex ? 0 : 1) : targetIndex + (draggedIndex < targetIndex ? -1 : 0);
+      newCalculators.splice(Math.max(0, insertIndex), 0, removed);
+      setCalculators(newCalculators);
+    }
+
+    setDraggedCalc(null);
+    setDropPosition(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCalc(null);
+    setDropPosition(null);
+  };
 
   // Load saved config from localStorage
   const [config, setConfig] = useState<DefaultConfig>(() => {
@@ -877,22 +983,6 @@ const InvestorCalculator = () => {
     });
   };
 
-  // Calculator Configurations
-  const calculators = [
-    { id: 'mao', name: 'MAO Calculator', icon: Calculator, color: 'emerald' },
-    { id: 'wmao', name: 'Wholesale MAO', icon: DollarSign, color: 'blue' },
-    { id: 'flip', name: 'Fix & Flip', icon: Home, color: 'purple' },
-    { id: 'brrrr', name: 'BRRRR Method', icon: Repeat, color: 'orange' },
-    { id: 'rental', name: 'Rental Analysis', icon: Building2, color: 'green' },
-    { id: 'creative', name: 'Creative Finance', icon: TrendingUp, color: 'pink' },
-    { id: 'wholesale', name: 'Wholesale Deal', icon: ArrowRightLeft, color: 'cyan' },
-    { id: 'exchange', name: '1031 Exchange', icon: RefreshCw, color: 'yellow' },
-    { id: 'cashflow', name: 'Cash Flow', icon: Wallet, color: 'teal' },
-    { id: 'roi', name: 'ROI Calculator', icon: Percent, color: 'indigo' },
-    { id: 'caprate', name: 'Cap Rate', icon: Target, color: 'violet' },
-    { id: 'seventyrule', name: '70% Rule', icon: Calculator, color: 'red' },
-    { id: 'mortgage', name: 'Mortgage', icon: Landmark, color: 'sky' }
-  ];
 
   // Get current results based on active calculator
   const getActiveResults = () => {
@@ -938,36 +1028,81 @@ const InvestorCalculator = () => {
             {/* Header */}
             <div className="max-w-7xl mx-auto mb-8">
               <div className="text-center mb-6">
-                <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
-                  Pro Investor Calculator Suite
+                <h1 className="text-4xl md:text-5xl font-bold mb-2 text-foreground">
+                  Analyze Deals Like A Pro
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  Analyze deals like a pro — MAO, Fix & Flip, BRRRR, Creative Finance & More
+                  MAO, Fix & Flip, BRRRR, Creative Finance & More
                 </p>
               </div>
 
               {/* Calculator Selector */}
               <div className="bg-muted/30 rounded-xl p-6 border border-border mb-6">
-                <label className="block text-sm font-medium text-muted-foreground mb-3">
-                  Select Calculator Type
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-muted-foreground">
+                    Select Calculator Type <span className="text-xs">(drag to reorder)</span>
+                  </label>
+                  <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-card shadow-sm' : 'hover:bg-card/50'}`}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-card shadow-sm' : 'hover:bg-card/50'}`}
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-4 gap-3' : 'flex flex-col gap-2'}>
                   {calculators.map((calc) => {
                     const Icon = calc.icon;
                     const isActive = activeCalc === calc.id;
+                    const isDragging = draggedCalc === calc.id;
+                    const showDropBefore = dropPosition?.id === calc.id && dropPosition?.position === 'before';
+                    const showDropAfter = dropPosition?.id === calc.id && dropPosition?.position === 'after';
+                    
                     return (
-                      <button
-                        key={calc.id}
-                        onClick={() => setActiveCalc(calc.id)}
-                        className={`p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
-                          isActive
-                            ? 'border-primary bg-primary/10 shadow-lg'
-                            : 'border-border bg-card hover:border-muted-foreground'
-                        }`}
-                      >
-                        <Icon className={`w-6 h-6 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <span className="text-sm font-medium text-center">{calc.name}</span>
-                      </button>
+                      <div key={calc.id} className="relative">
+                        {showDropBefore && (
+                          <div className={`absolute ${viewMode === 'list' ? 'top-0 left-0 right-0 h-0.5' : 'left-0 top-0 bottom-0 w-0.5'} bg-emerald-500 z-10`}>
+                            <div className={`absolute ${viewMode === 'list' ? '-left-1 -top-1' : '-top-1 -left-1'} w-2 h-2 rounded-full bg-emerald-500`} />
+                            <div className={`absolute ${viewMode === 'list' ? '-right-1 -top-1' : '-bottom-1 -left-1'} w-2 h-2 rounded-full bg-emerald-500`} />
+                          </div>
+                        )}
+                        
+                        <button
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, calc.id)}
+                          onDragOver={(e) => handleDragOver(e, calc.id)}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, calc.id)}
+                          onDragEnd={handleDragEnd}
+                          onClick={() => setActiveCalc(calc.id)}
+                          className={`w-full ${viewMode === 'grid' ? 'p-4 flex-col' : 'p-3 flex-row justify-start'} rounded-lg border-2 transition-all duration-200 flex items-center gap-2 ${
+                            isDragging ? 'opacity-50' : ''
+                          } ${
+                            isActive
+                              ? 'border-emerald-500 bg-emerald-50 shadow-lg'
+                              : 'border-border bg-card hover:border-muted-foreground'
+                          }`}
+                        >
+                          <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab" />
+                          <Icon className={`w-6 h-6 ${isActive ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                          <span className={`text-sm font-medium ${viewMode === 'grid' ? 'text-center' : ''}`}>{calc.name}</span>
+                        </button>
+                        
+                        {showDropAfter && (
+                          <div className={`absolute ${viewMode === 'list' ? 'bottom-0 left-0 right-0 h-0.5' : 'right-0 top-0 bottom-0 w-0.5'} bg-emerald-500 z-10`}>
+                            <div className={`absolute ${viewMode === 'list' ? '-left-1 -bottom-1' : '-top-1 -right-1'} w-2 h-2 rounded-full bg-emerald-500`} />
+                            <div className={`absolute ${viewMode === 'list' ? '-right-1 -bottom-1' : '-bottom-1 -right-1'} w-2 h-2 rounded-full bg-emerald-500`} />
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -977,19 +1112,19 @@ const InvestorCalculator = () => {
               <div className="flex flex-wrap gap-3 justify-center mb-6">
                 <Button onClick={saveDeal} className="bg-emerald-600 hover:bg-emerald-700">
                   <Save className="w-5 h-5 mr-2" />
-                  Save Deal
+                  Save
                 </Button>
                 <Button onClick={handlePrint} variant="outline">
                   <Printer className="w-5 h-5 mr-2" />
-                  Print Report
+                  Print
                 </Button>
                 <Button onClick={exportToPDF} variant="outline">
                   <Download className="w-5 h-5 mr-2" />
-                  Export PDF
+                  Export
                 </Button>
                 <Button onClick={() => setShowSettings(true)} variant="outline">
                   <Settings className="w-5 h-5 mr-2" />
-                  Defaults
+                  Settings
                 </Button>
               </div>
             </div>
