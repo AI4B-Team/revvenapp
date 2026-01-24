@@ -120,11 +120,11 @@ export default function LoginPage() {
     strong: 'bg-green-500',
   };
 
-  const strengthLabels = {
-    weak: 'Weak',
-    medium: 'Medium',
-    strong: 'Strong',
-  };
+  const strengthLabels = useMemo(() => ({
+    weak: t('password.weak', 'Weak'),
+    medium: t('password.medium', 'Medium'),
+    strong: t('password.strong', 'Strong'),
+  }), [t]);
 
   useEffect(() => {
     const checkInviteCodeValidation = async (userId: string): Promise<boolean> => {
@@ -398,7 +398,7 @@ export default function LoginPage() {
                       : 'bg-gray-50 text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Login
+                  {t('auth.login', 'Login')}
                 </button>
                 <button
                   type="button"
@@ -409,7 +409,7 @@ export default function LoginPage() {
                       : 'bg-gray-50 text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Sign Up
+                  {t('auth.signUp', 'Sign Up')}
                 </button>
               </div>
 
@@ -437,7 +437,7 @@ export default function LoginPage() {
                       <input
                         ref={languageSearchRef}
                         type="text"
-                        placeholder="Search Languages..."
+                        placeholder={t('auth.searchLanguages', 'Search Languages...')}
                         value={languageSearch}
                         onChange={(e) => setLanguageSearch(e.target.value)}
                         className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent"
@@ -470,7 +470,7 @@ export default function LoginPage() {
                       ))
                     ) : (
                       <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                        No languages found
+                        {t('auth.noLanguagesFound', 'No languages found')}
                       </div>
                     )}
                   </div>
@@ -488,13 +488,13 @@ export default function LoginPage() {
           {/* Logout Button - Shows when user is logged in */}
           {session && (
             <div className="mb-8 flex flex-col items-center gap-4">
-              <p className="text-gray-600">You are already logged in</p>
+              <p className="text-gray-600">{t('auth.alreadyLoggedIn', 'You are already logged in')}</p>
               <Button
                 onClick={handleSignOut}
                 variant="destructive"
                 className="w-full max-w-xs"
               >
-                Log Out
+                {t('auth.logOut', 'Log Out')}
               </Button>
             </div>
           )}
@@ -502,10 +502,10 @@ export default function LoginPage() {
           {/* Welcome Text */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {isSignUp ? 'Create Account' : 'Welcome'}
+              {isSignUp ? t('auth.createAccount', 'Create Account') : t('auth.welcome', 'Welcome')}
             </h1>
             <p className="text-gray-600">
-              {isSignUp ? 'Start Automating Your Business In Under 10 Minutes' : 'Please Enter Your Details'}
+              {isSignUp ? t('auth.startAutomating', 'Start Automating Your Business In Under 10 Minutes') : t('auth.pleaseEnterDetails', 'Please Enter Your Details')}
             </p>
           </div>
 
@@ -516,7 +516,7 @@ export default function LoginPage() {
               <div>
                 <Input
                   type="text"
-                  placeholder="Full Name"
+                  placeholder={t('auth.fullName', 'Full Name')}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
@@ -529,24 +529,24 @@ export default function LoginPage() {
             {isSignUp && (
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                  Exclusive Invite Code
-                  <span className="text-cyan-500">✨ Required</span>
+                  {t('auth.exclusiveInviteCode', 'Exclusive Invite Code')}
+                  <span className="text-cyan-500">✨ {t('auth.required', 'Required')}</span>
                 </label>
                 <Input
                   type="text"
-                  placeholder="ENTER YOUR INVITE CODE"
+                  placeholder={t('auth.enterInviteCode', 'ENTER YOUR INVITE CODE')}
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                   className="h-12 bg-white text-gray-900 placeholder:text-gray-500 border-2 border-gray-400 focus:border-cyan-500"
                   required
                 />
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-600">Access Is By Invitation Only</p>
+                  <p className="text-xs text-gray-600">{t('auth.accessByInvitation', 'Access Is By Invitation Only')}</p>
                   <a 
                     href="#waitlist" 
                     className="text-xs text-cyan-500 hover:text-cyan-600 font-medium"
                   >
-                    No Code? Join Waitlist
+                    {t('auth.noCodeJoinWaitlist', 'No Code? Join Waitlist')}
                   </a>
                 </div>
               </div>
@@ -556,7 +556,7 @@ export default function LoginPage() {
             <div>
               <Input
                 type="email"
-                placeholder="Enter Email"
+                placeholder={t('auth.enterEmail', 'Enter Email')}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -571,13 +571,13 @@ export default function LoginPage() {
               />
               {emailNotFound && !isSignUp && (
                 <p className="mt-1.5 text-sm text-red-500">
-                  Email Not Found,{' '}
+                  {t('auth.emailNotFound', 'Email Not Found,')}{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(true)}
                     className="text-amber-500 hover:text-amber-600 font-medium"
                   >
-                    Join Us
+                    {t('auth.joinUs', 'Join Us')}
                   </button>
                 </p>
               )}
@@ -588,7 +588,7 @@ export default function LoginPage() {
               <div className="relative">
                 <Input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter Password"
+                  placeholder={t('auth.enterPassword', 'Enter Password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setIsPasswordFocused(true)}
@@ -625,9 +625,9 @@ export default function LoginPage() {
                   <div className="space-y-3">
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">
-                        {passwordStrength.strength === 'weak' ? 'Weak Password' :
-                         passwordStrength.strength === 'medium' ? 'Medium Password' :
-                         'Strong Password'}
+                        {passwordStrength.strength === 'weak' ? t('password.weakPassword', 'Weak Password') :
+                         passwordStrength.strength === 'medium' ? t('password.mediumPassword', 'Medium Password') :
+                         t('password.strongPassword', 'Strong Password')}
                       </h4>
                       {/* Strength Bar */}
                       <div className="flex gap-1">
@@ -637,7 +637,7 @@ export default function LoginPage() {
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 mb-2">Password Must Include:</p>
+                      <p className="text-sm text-gray-600 mb-2">{t('password.mustInclude', 'Password Must Include:')}</p>
                       <ul className="space-y-1.5">
                         <li className="flex items-center gap-2 text-sm">
                           {passwordStrength.checks.length ? (
@@ -646,7 +646,7 @@ export default function LoginPage() {
                             <Circle size={14} className="text-gray-300" />
                           )}
                           <span className={passwordStrength.checks.length ? 'text-gray-700' : 'text-gray-500'}>
-                            At Least 8 Characters
+                            {t('password.atLeast8Chars', 'At Least 8 Characters')}
                           </span>
                         </li>
                         <li className="flex items-center gap-2 text-sm">
@@ -656,7 +656,7 @@ export default function LoginPage() {
                             <Circle size={14} className="text-gray-300" />
                           )}
                           <span className={passwordStrength.checks.upperLower ? 'text-gray-700' : 'text-gray-500'}>
-                            Upper & Lower Case Letters
+                            {t('password.upperLowerCase', 'Upper & Lower Case Letters')}
                           </span>
                         </li>
                         <li className="flex items-center gap-2 text-sm">
@@ -666,7 +666,7 @@ export default function LoginPage() {
                             <Circle size={14} className="text-gray-300" />
                           )}
                           <span className={passwordStrength.checks.symbol ? 'text-gray-700' : 'text-gray-500'}>
-                            A Symbol (#$&)
+                            {t('password.aSymbol', 'A Symbol (#$&)')}
                           </span>
                         </li>
                       </ul>
@@ -680,7 +680,7 @@ export default function LoginPage() {
             {!isSignUp && (
               <div className="flex justify-end">
                 <a href="#" className="text-sm text-brand-green hover:opacity-80">
-                  Forgot Password?
+                  {t('auth.forgotPassword', 'Forgot Password?')}
                 </a>
               </div>
             )}
@@ -691,7 +691,7 @@ export default function LoginPage() {
               className="w-full h-12 bg-brand-green hover:opacity-90 text-white font-medium rounded-xl"
               disabled={isLoading}
             >
-              {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+              {isLoading ? t('auth.loading', 'Loading...') : (isSignUp ? t('auth.signUp', 'Sign Up') : t('auth.signIn', 'Sign In'))}
             </Button>
 
             {/* Divider */}
@@ -700,7 +700,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">OR</span>
+                <span className="px-4 bg-white text-gray-500">{t('auth.or', 'OR')}</span>
               </div>
             </div>
 
@@ -729,40 +729,40 @@ export default function LoginPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Sign In With Google
+              {t('auth.signInWithGoogle', 'Sign In With Google')}
             </Button>
 
             {/* Toggle Sign In/Sign Up */}
             <div className="text-center text-sm text-gray-600 mt-6">
-              {isSignUp ? 'Already Have An Account?' : "Don't Have An Account?"}{' '}
+              {isSignUp ? t('auth.alreadyHaveAccount', 'Already Have An Account?') : t('auth.dontHaveAccount', "Don't Have An Account?")}{' '}
               <button
                 type="button"
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-brand-green hover:opacity-80 font-medium"
               >
-                {isSignUp ? 'Sign In' : 'Create Your Account'}
+                {isSignUp ? t('auth.signIn', 'Sign In') : t('auth.createYourAccount', 'Create Your Account')}
               </button>
             </div>
 
             {/* Terms & Privacy */}
             <p className="text-center text-xs text-gray-500 mt-6">
-              By continuing, you agree to our{' '}
+              {t('auth.byContinuing', 'By continuing, you agree to our')}{' '}
               <Link 
                 to="/terms-of-service" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-brand-green hover:opacity-80 underline"
               >
-                Terms of Service
+                {t('auth.termsOfService', 'Terms of Service')}
               </Link>
-              {' & '}
+              {' '}{t('auth.and', '&')}{' '}
               <Link 
                 to="/privacy-policy" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-brand-green hover:opacity-80 underline"
               >
-                Privacy Policy
+                {t('auth.privacyPolicy', 'Privacy Policy')}
               </Link>
               .
             </p>
