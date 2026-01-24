@@ -55,7 +55,9 @@ interface Transcript {
   thumbnail: string | null;
   summary: string | null;
   audioUrl?: string;
+  videoUrl?: string;
   fileSize?: string;
+  isVideo?: boolean;
 }
 
 const LANGUAGES = [
@@ -158,6 +160,7 @@ export default function TranscribeApp() {
     url?: string;
     base64?: string;
     contentType?: string;
+    isVideo?: boolean;
   } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   
@@ -249,21 +252,39 @@ export default function TranscribeApp() {
             // Fallback to 1
           }
           
+          // Parse video URL from source field if it's stored as JSON
+          let videoUrl: string | undefined;
+          let isVideo = false;
+          const sourceField = (record as any).source || 'upload';
+          try {
+            if (typeof sourceField === 'string' && sourceField.startsWith('{')) {
+              const sourceData = JSON.parse(sourceField);
+              if (sourceData.type === 'video' && sourceData.videoUrl) {
+                videoUrl = sourceData.videoUrl;
+                isVideo = true;
+              }
+            }
+          } catch (e) {
+            // Not JSON, use as-is
+          }
+          
           return {
             id: record.id,
             title: record.name || 'Untitled',
             duration: formatTime(Math.floor(record.duration || 0)),
             date: new Date(record.created_at).toISOString().split('T')[0],
-            source: (record as any).source || 'upload',
+            source: sourceField,
             status: record.status || 'completed',
             speakers: speakerCount,
             language: 'English',
             words: record.prompt?.split(' ').length || null,
             starred: false,
-            tags: [],
+            tags: isVideo ? ['Video'] : [],
             thumbnail: null,
             summary: record.prompt || null,
             audioUrl: record.url,
+            videoUrl,
+            isVideo,
           };
         });
 
@@ -320,7 +341,8 @@ export default function TranscribeApp() {
 
   // Handle audio selection from AudioLibraryModal
   const handleAudioSelect = (file: { name: string; duration: number; url?: string; base64?: string; contentType?: string }) => {
-    setPendingAudioFile(file);
+    const isVideo = file.contentType?.startsWith('video/') || /\.(mp4|mov|avi|webm|mkv|m4v)$/i.test(file.name);
+    setPendingAudioFile({ ...file, isVideo });
     setShowAudioLibraryModal(false);
     setShowTranscribeConfirmModal(true);
   };
@@ -332,6 +354,7 @@ export default function TranscribeApp() {
     setIsTranscribing(true);
     const newTranscriptId = crypto.randomUUID();
     const title = fileName || pendingAudioFile.name.replace(/\.[^/.]+$/, '');
+    const isVideoFile = pendingAudioFile.isVideo;
     
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -344,31 +367,59 @@ export default function TranscribeApp() {
 
       // Ensure we have a playable URL (upload if we only have base64)
       let finalAudioUrl = pendingAudioFile.url || '';
+      let finalVideoUrl = '';
       let finalDuration = durationNum;
 
       if (!finalAudioUrl) {
-        if (!pendingAudioFile.base64) throw new Error('Missing audio data');
+        if (!pendingAudioFile.base64) throw new Error('Missing media data');
 
-        const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
-          body: {
-            audioData: pendingAudioFile.base64,
-            filename: pendingAudioFile.name,
-            contentType: pendingAudioFile.contentType,
-          },
-        });
+        // Use video upload function for video files, audio upload for audio
+        if (isVideoFile) {
+          const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-video', {
+            body: {
+              videoData: pendingAudioFile.base64,
+              filename: pendingAudioFile.name,
+              contentType: pendingAudioFile.contentType,
+            },
+          });
 
-        if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-        finalAudioUrl = uploadData?.url || '';
-        if (!finalAudioUrl) throw new Error('Audio upload did not return a URL');
+          finalVideoUrl = uploadData?.url || '';
+          finalAudioUrl = uploadData?.url || ''; // Use video URL for transcription
+          if (!finalVideoUrl) throw new Error('Video upload did not return a URL');
 
-        if (typeof uploadData?.duration === 'number' && Number.isFinite(uploadData.duration)) {
-          finalDuration = uploadData.duration;
-          durationNum = uploadData.duration;
+          if (typeof uploadData?.duration === 'number' && Number.isFinite(uploadData.duration)) {
+            finalDuration = uploadData.duration;
+            durationNum = uploadData.duration;
+          }
+        } else {
+          const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
+            body: {
+              audioData: pendingAudioFile.base64,
+              filename: pendingAudioFile.name,
+              contentType: pendingAudioFile.contentType,
+            },
+          });
+
+          if (uploadError) throw uploadError;
+
+          finalAudioUrl = uploadData?.url || '';
+          if (!finalAudioUrl) throw new Error('Audio upload did not return a URL');
+
+          if (typeof uploadData?.duration === 'number' && Number.isFinite(uploadData.duration)) {
+            finalDuration = uploadData.duration;
+            durationNum = uploadData.duration;
+          }
         }
+      } else if (isVideoFile) {
+        // If we have a URL and it's a video, store it as video URL
+        finalVideoUrl = pendingAudioFile.url || '';
       }
       
-      // Create a record in the database
+      // Create a record in the database - store video URL in source field as JSON if video
+      const sourceData = isVideoFile ? JSON.stringify({ type: 'video', videoUrl: finalVideoUrl }) : 'upload';
+      
       const { error: insertError } = await supabase.from('user_voices').insert({
         id: newTranscriptId,
         user_id: user.id,
@@ -377,7 +428,7 @@ export default function TranscribeApp() {
         duration: durationNum,
         status: 'processing',
         type: 'transcription',
-        source: 'upload',
+        source: sourceData,
       } as any);
       
       if (insertError) throw insertError;
@@ -394,10 +445,12 @@ export default function TranscribeApp() {
         language: 'Detecting...',
         words: null,
         starred: false,
-        tags: ['Upload'],
+        tags: isVideoFile ? ['Video'] : ['Upload'],
         thumbnail: null,
         summary: null,
         audioUrl: finalAudioUrl,
+        videoUrl: finalVideoUrl || undefined,
+        isVideo: isVideoFile,
       };
       
       setTranscripts(prev => [newTranscript, ...prev]);
@@ -440,7 +493,7 @@ export default function TranscribeApp() {
       
       toast({
         title: "Transcription complete",
-        description: "Your audio has been transcribed successfully.",
+        description: isVideoFile ? "Your video has been transcribed successfully." : "Your audio has been transcribed successfully.",
       });
       
     } catch (err) {
@@ -458,7 +511,7 @@ export default function TranscribeApp() {
       ));
       toast({
         title: "Transcription failed",
-        description: "There was an error transcribing your audio.",
+        description: "There was an error transcribing your media.",
         variant: "destructive",
       });
     } finally {
@@ -2434,7 +2487,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
 }
 
 // Download Modal Component
-type DownloadFormat = 'pdf' | 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'audio';
+type DownloadFormat = 'pdf' | 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'audio' | 'video';
 
 function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClose: () => void }) {
   const [format, setFormat] = useState<DownloadFormat>('pdf');
@@ -2450,6 +2503,7 @@ function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClos
     { id: 'xml' as DownloadFormat, label: 'Premiere', ext: '.xml', icon: FileDown },
     { id: 'fcpxml' as DownloadFormat, label: 'Final Cut', ext: '.fcpxml', icon: FileDown },
     { id: 'audio' as DownloadFormat, label: 'Audio', ext: '.mp3', icon: Volume2 },
+    ...(transcript.videoUrl ? [{ id: 'video' as DownloadFormat, label: 'Video', ext: '.mp4', icon: Video }] : []),
   ];
 
   const parseTimeToSeconds = (timeStr: string): number => {
@@ -2663,6 +2717,22 @@ ${content.map((item, index) => {
           return;
         }
         
+      case 'video':
+        if (transcript.videoUrl) {
+          const link = document.createElement('a');
+          link.href = transcript.videoUrl;
+          link.download = `${fileName}.mp4`;
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          onClose();
+          return;
+        } else {
+          alert('No video file available for this transcript');
+          return;
+        }
+        
       default:
         fileContent = content.map(item => `[${item.time}] ${item.speaker}: ${item.text}`).join('\n\n');
     }
@@ -2681,7 +2751,7 @@ ${content.map((item, index) => {
     onClose();
   };
 
-  const isMediaFormat = format === 'audio';
+  const isMediaFormat = format === 'audio' || format === 'video';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -2780,6 +2850,20 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Handle video download
+  const handleDownloadVideo = () => {
+    if (transcript.videoUrl) {
+      const link = document.createElement('a');
+      link.href = transcript.videoUrl;
+      link.download = `${transcript.title}.mp4`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   // Handle play/pause
   const togglePlayPause = useCallback(() => {
@@ -2823,8 +2907,16 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center">
-              <FileText className="w-6 h-6 text-emerald-400" />
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+              transcript.videoUrl 
+                ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/20' 
+                : 'bg-gradient-to-br from-emerald-500/20 to-emerald-600/20'
+            }`}>
+              {transcript.videoUrl ? (
+                <Video className="w-6 h-6 text-blue-400" />
+              ) : (
+                <FileText className="w-6 h-6 text-emerald-400" />
+              )}
             </div>
             <div>
               <h2 className="text-xl font-semibold text-white">{transcript.title}</h2>
@@ -2888,9 +2980,59 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
           </div>
         </div>
 
-        {/* Audio Player */}
+        {/* Video/Audio Player */}
         <div className="p-4 border-b border-white/10 bg-white/[0.02]">
-          {transcript.audioUrl ? (
+          {transcript.videoUrl ? (
+            <div className="space-y-4">
+              {/* Video Player */}
+              <div className="relative rounded-xl overflow-hidden bg-black aspect-video max-h-[300px]">
+                <video
+                  ref={videoRef}
+                  src={transcript.videoUrl}
+                  className="w-full h-full object-contain"
+                  onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                  onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+                  onEnded={() => setIsPlaying(false)}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  controls
+                />
+              </div>
+              {/* Video Controls */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-400">
+                    <Video className="w-4 h-4 inline mr-1" />
+                    Video Transcript
+                  </span>
+                  <select 
+                    value={playbackSpeed}
+                    onChange={(e) => {
+                      setPlaybackSpeed(parseFloat(e.target.value));
+                      if (videoRef.current) {
+                        videoRef.current.playbackRate = parseFloat(e.target.value);
+                      }
+                    }}
+                    className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 focus:outline-none"
+                  >
+                    <option value={0.5}>0.5x</option>
+                    <option value={0.75}>0.75x</option>
+                    <option value={1}>1x</option>
+                    <option value={1.25}>1.25x</option>
+                    <option value={1.5}>1.5x</option>
+                    <option value={2}>2x</option>
+                  </select>
+                </div>
+                <button 
+                  onClick={handleDownloadVideo}
+                  className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-white text-sm font-medium flex items-center gap-2 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download Video
+                </button>
+              </div>
+            </div>
+          ) : transcript.audioUrl ? (
             <>
               <audio
                 ref={audioRef}
@@ -2959,7 +3101,7 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
               <div className="w-12 h-12 rounded-xl bg-gray-700/50 flex items-center justify-center">
                 <VolumeX className="w-5 h-5" />
               </div>
-              <p className="text-sm">Audio not available for this transcript</p>
+              <p className="text-sm">Media not available for this transcript</p>
             </div>
           )}
         </div>
