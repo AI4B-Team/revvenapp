@@ -9,8 +9,9 @@ import RevvenLogo from '@/components/RevvenLogo';
 import AuthShowcase from '@/components/auth/AuthShowcase';
 import { Eye, EyeOff, Check, Circle, ChevronDown, Search } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const LANGUAGES = [
+export const LANGUAGES = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'es', name: 'Spanish', flag: '🇪🇸' },
   { code: 'fr', name: 'French', flag: '🇫🇷' },
@@ -68,13 +69,18 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [emailNotFound, setEmailNotFound] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
   const [languageSearch, setLanguageSearch] = useState('');
   const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const languageSearchRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, language, setLanguage } = useTranslation();
+  
+  // Find the selected language object based on current language code
+  const selectedLanguage = useMemo(() => {
+    return LANGUAGES.find(lang => lang.code === language) || LANGUAGES[0];
+  }, [language]);
 
   const filteredLanguages = useMemo(() => {
     if (!languageSearch.trim()) return LANGUAGES;
@@ -447,7 +453,7 @@ export default function LoginPage() {
                           key={lang.code}
                           type="button"
                           onClick={() => {
-                            setSelectedLanguage(lang);
+                            setLanguage(lang.code);
                             setLanguageDropdownOpen(false);
                             setLanguageSearch('');
                           }}
