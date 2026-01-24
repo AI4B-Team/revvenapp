@@ -135,73 +135,152 @@ serve(async (req) => {
           }
           
         } else {
-          // Use Snap Video API for other platforms (YouTube, TikTok, etc.)
-          console.log("[BG-TRANSCRIBE] Using Snap Video API for non-Instagram URL...");
+          // Check if it's a YouTube URL - use dedicated YouTube API
+          const isYouTubeUrl = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be');
           
-          const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              "x-rapidapi-host": "snap-video3.p.rapidapi.com",
-              "x-rapidapi-key": RAPIDAPI_KEY,
-            },
-            body: `url=${encodeURIComponent(cleanUrl)}`,
-          });
-
-          const responseText = await downloadResponse.text();
-          console.log("[BG-TRANSCRIBE] Snap Video API raw response:", responseText.substring(0, 500));
-          
-          if (!downloadResponse.ok) {
-            console.error("[BG-TRANSCRIBE] Snap Video API error:", downloadResponse.status, responseText);
-            throw new Error(`Failed to extract from URL: ${downloadResponse.status} - ${responseText.substring(0, 100)}`);
-          }
-
-          let downloadData;
-          try {
-            downloadData = JSON.parse(responseText);
-          } catch (parseError) {
-            console.error("[BG-TRANSCRIBE] Failed to parse API response as JSON:", responseText.substring(0, 200));
-            throw new Error(`API returned invalid JSON response. Platform may not be supported.`);
-          }
-          
-          console.log("[BG-TRANSCRIBE] Snap Video API parsed response:", JSON.stringify(downloadData).substring(0, 1000));
-
-          title = downloadData.title || downloadData.meta?.title || "media_audio";
-
-          // Try multiple extraction strategies
-          // 1. medias array (most common)
-          if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
-            const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
-            if (media?.url) {
-              downloadUrl = media.url;
+          if (isYouTubeUrl) {
+            // Extract video ID from YouTube URL
+            let videoId: string | null = null;
+            
+            if (cleanUrl.includes('youtube.com/watch')) {
+              const urlObj = new URL(cleanUrl);
+              videoId = urlObj.searchParams.get('v');
+            } else if (cleanUrl.includes('youtu.be/')) {
+              const match = cleanUrl.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+              videoId = match ? match[1] : null;
+            } else if (cleanUrl.includes('youtube.com/shorts/')) {
+              const match = cleanUrl.match(/shorts\/([a-zA-Z0-9_-]+)/);
+              videoId = match ? match[1] : null;
             }
-          }
+            
+            if (!videoId) {
+              throw new Error("Could not extract YouTube video ID from URL");
+            }
+            
+            console.log(`[BG-TRANSCRIBE] Extracted YouTube video ID: ${videoId}`);
+            console.log("[BG-TRANSCRIBE] Using YouTube Search Download3 API...");
+            
+            // Use YouTube Search Download3 API
+            const downloadResponse = await fetch(`https://youtube-search-download3.p.rapidapi.com/download?video=${videoId}`, {
+              method: "GET",
+              headers: {
+                "x-rapidapi-host": "youtube-search-download3.p.rapidapi.com",
+                "x-rapidapi-key": RAPIDAPI_KEY,
+              },
+            });
 
-          // 2. Direct url field
-          if (!downloadUrl && downloadData.url) {
-            downloadUrl = downloadData.url;
-          }
+            const responseText = await downloadResponse.text();
+            console.log("[BG-TRANSCRIBE] YouTube API raw response:", responseText.substring(0, 500));
+            
+            if (!downloadResponse.ok) {
+              console.error("[BG-TRANSCRIBE] YouTube API error:", downloadResponse.status, responseText);
+              throw new Error(`Failed to extract from YouTube: ${downloadResponse.status} - ${responseText.substring(0, 100)}`);
+            }
 
-          // 3. download_url field
-          if (!downloadUrl && downloadData.download_url) {
-            downloadUrl = downloadData.download_url;
-          }
+            let downloadData;
+            try {
+              downloadData = JSON.parse(responseText);
+            } catch (parseError) {
+              console.error("[BG-TRANSCRIBE] Failed to parse YouTube API response:", responseText.substring(0, 200));
+              throw new Error(`YouTube API returned invalid JSON response`);
+            }
+            
+            console.log("[BG-TRANSCRIBE] YouTube API parsed response:", JSON.stringify(downloadData).substring(0, 1000));
 
-          // 4. video_url or audio_url field
-          if (!downloadUrl && (downloadData.video_url || downloadData.audio_url)) {
-            downloadUrl = downloadData.video_url || downloadData.audio_url;
-          }
+            title = downloadData.title || "youtube_video";
 
-          // 5. result object
-          if (!downloadUrl && downloadData.result) {
-            downloadUrl = downloadData.result.url || downloadData.result.download_url || downloadData.result.video_url;
-          }
+            // Extract download URL from response
+            // Try multiple extraction strategies for this API
+            if (downloadData.url) {
+              downloadUrl = downloadData.url;
+            } else if (downloadData.download_url) {
+              downloadUrl = downloadData.download_url;
+            } else if (downloadData.video_url) {
+              downloadUrl = downloadData.video_url;
+            } else if (downloadData.link) {
+              downloadUrl = downloadData.link;
+            } else if (downloadData.formats && Array.isArray(downloadData.formats) && downloadData.formats.length > 0) {
+              // Find the best quality video format
+              const videoFormat = downloadData.formats.find((f: any) => f.url && (f.quality || f.itag));
+              if (videoFormat?.url) {
+                downloadUrl = videoFormat.url;
+              }
+            } else if (downloadData.adaptiveFormats && Array.isArray(downloadData.adaptiveFormats)) {
+              const videoFormat = downloadData.adaptiveFormats.find((f: any) => f.url && f.mimeType?.includes('video'));
+              if (videoFormat?.url) {
+                downloadUrl = videoFormat.url;
+              }
+            }
+            
+          } else {
+            // Use Snap Video API for other platforms (TikTok, etc.)
+            console.log("[BG-TRANSCRIBE] Using Snap Video API for non-YouTube/Instagram URL...");
+            
+            const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "x-rapidapi-host": "snap-video3.p.rapidapi.com",
+                "x-rapidapi-key": RAPIDAPI_KEY,
+              },
+              body: `url=${encodeURIComponent(cleanUrl)}`,
+            });
 
-          // 6. data object
-          if (!downloadUrl && downloadData.data) {
-            downloadUrl = downloadData.data.url || downloadData.data.download_url;
-            if (!downloadUrl && downloadData.data.medias && downloadData.data.medias.length > 0) {
-              downloadUrl = downloadData.data.medias[0].url;
+            const responseText = await downloadResponse.text();
+            console.log("[BG-TRANSCRIBE] Snap Video API raw response:", responseText.substring(0, 500));
+            
+            if (!downloadResponse.ok) {
+              console.error("[BG-TRANSCRIBE] Snap Video API error:", downloadResponse.status, responseText);
+              throw new Error(`Failed to extract from URL: ${downloadResponse.status} - ${responseText.substring(0, 100)}`);
+            }
+
+            let downloadData;
+            try {
+              downloadData = JSON.parse(responseText);
+            } catch (parseError) {
+              console.error("[BG-TRANSCRIBE] Failed to parse API response as JSON:", responseText.substring(0, 200));
+              throw new Error(`API returned invalid JSON response. Platform may not be supported.`);
+            }
+            
+            console.log("[BG-TRANSCRIBE] Snap Video API parsed response:", JSON.stringify(downloadData).substring(0, 1000));
+
+            title = downloadData.title || downloadData.meta?.title || "media_audio";
+
+            // Try multiple extraction strategies
+            // 1. medias array (most common)
+            if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
+              const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
+              if (media?.url) {
+                downloadUrl = media.url;
+              }
+            }
+
+            // 2. Direct url field
+            if (!downloadUrl && downloadData.url) {
+              downloadUrl = downloadData.url;
+            }
+
+            // 3. download_url field
+            if (!downloadUrl && downloadData.download_url) {
+              downloadUrl = downloadData.download_url;
+            }
+
+            // 4. video_url or audio_url field
+            if (!downloadUrl && (downloadData.video_url || downloadData.audio_url)) {
+              downloadUrl = downloadData.video_url || downloadData.audio_url;
+            }
+
+            // 5. result object
+            if (!downloadUrl && downloadData.result) {
+              downloadUrl = downloadData.result.url || downloadData.result.download_url || downloadData.result.video_url;
+            }
+
+            // 6. data object
+            if (!downloadUrl && downloadData.data) {
+              downloadUrl = downloadData.data.url || downloadData.data.download_url;
+              if (!downloadUrl && downloadData.data.medias && downloadData.data.medias.length > 0) {
+                downloadUrl = downloadData.data.medias[0].url;
+              }
             }
           }
         }
