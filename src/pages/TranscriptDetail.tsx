@@ -14,7 +14,7 @@ import {
   Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize,
   ArrowDownToLine, Briefcase, FileText as FileTextIcon, List, MinusCircle,
   ThumbsUp, ThumbsDown, ChevronLeft, RotateCw as RefreshCwIcon, Umbrella,
-  Undo2, Redo2, ImageIcon
+  Undo2, Redo2, ImageIcon, Video
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -140,7 +140,7 @@ const TranscriptDetail = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
-  const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'audio'>('pdf');
+  const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'audio' | 'video'>('pdf');
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
   const [includeSummary, setIncludeSummary] = useState(true);
   const [volume, setVolume] = useState(80);
@@ -521,8 +521,11 @@ const TranscriptDetail = () => {
 
   // Audio URL: prefer URL params (when present), otherwise load from DB
   const audioUrlParam = searchParams.get('audioUrl');
+  const videoUrlParam = searchParams.get('videoUrl');
   const initialAudioUrl = audioUrlParam && audioUrlParam !== '.' ? audioUrlParam : '';
+  const initialVideoUrl = videoUrlParam && videoUrlParam !== '.' ? videoUrlParam : '';
   const [resolvedAudioUrl, setResolvedAudioUrl] = useState(initialAudioUrl);
+  const [resolvedVideoUrl, setResolvedVideoUrl] = useState(initialVideoUrl);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Helper to detect if the URL is a video file
@@ -533,7 +536,10 @@ const TranscriptDetail = () => {
     return videoExtensions.some(ext => lowerUrl.endsWith(ext)) || lowerUrl.includes('/video/');
   };
 
-  const isVideo = isVideoUrl(resolvedAudioUrl);
+  // Check if we have a video: either explicit videoUrl param or audio URL that's a video file
+  const hasVideo = !!resolvedVideoUrl || isVideoUrl(resolvedAudioUrl);
+  const isVideo = hasVideo;
+  const videoSrc = resolvedVideoUrl || (isVideoUrl(resolvedAudioUrl) ? resolvedAudioUrl : '');
 
   // Parse time string (MM:SS) to seconds
   const parseTimeToSeconds = (timeStr: string): number => {
@@ -2038,6 +2044,24 @@ ${content.map((item, index) => {
           return;
         }
         
+      case 'video':
+        // Download the video file directly
+        if (videoSrc) {
+          const link = document.createElement('a');
+          link.href = videoSrc;
+          link.download = `${fileName}.mp4`;
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setShowDownloadModal(false);
+          toast.success('Video download started');
+          return;
+        } else {
+          toast.error('No video file available');
+          return;
+        }
+        
       default:
         fileContent = content.map(item => `[${item.time}] ${item.speaker}: ${item.text}`).join('\n\n');
     }
@@ -2804,12 +2828,12 @@ ${content.map((item, index) => {
                   <div className="waveform-container rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
                     {/* Media Display Area - Video or Waveform */}
                     <div className="relative aspect-[4/3] flex items-center justify-center group/waveform bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
-                      {isVideo && resolvedAudioUrl ? (
+                      {isVideo && videoSrc ? (
                         <>
                           {/* Video Player */}
                           <video
                             ref={videoRef}
-                            src={resolvedAudioUrl}
+                            src={videoSrc}
                             className="absolute inset-0 w-full h-full object-contain bg-black"
                             playsInline
                             onClick={togglePlayPause}
@@ -4653,6 +4677,7 @@ ${content.map((item, index) => {
                 { id: 'xml' as const, label: 'Premiere', ext: '.xml', icon: FileDown },
                 { id: 'fcpxml' as const, label: 'Final Cut', ext: '.fcpxml', icon: FileDown },
                 { id: 'audio' as const, label: 'Audio', ext: '.mp3', icon: Volume2 },
+                ...(videoSrc ? [{ id: 'video' as const, label: 'Video', ext: '.mp4', icon: Video }] : []),
               ].map((opt) => (
                 <button
                   key={opt.id}
@@ -4671,7 +4696,7 @@ ${content.map((item, index) => {
             </div>
 
             {/* Options - only show for transcript formats */}
-            {downloadFormat !== 'audio' && (
+            {downloadFormat !== 'audio' && downloadFormat !== 'video' && (
               <div className="space-y-4 mb-6 p-4 rounded-xl bg-gray-50 border border-gray-100">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
