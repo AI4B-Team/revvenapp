@@ -7,8 +7,53 @@ import { useToast } from '@/components/ui/use-toast';
 import { Session } from '@supabase/supabase-js';
 import RevvenLogo from '@/components/RevvenLogo';
 import AuthShowcase from '@/components/auth/AuthShowcase';
-import { Eye, EyeOff, Check, Circle } from 'lucide-react';
+import { Eye, EyeOff, Check, Circle, ChevronDown, Search } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+const LANGUAGES = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+  { code: 'fr', name: 'French', flag: '🇫🇷' },
+  { code: 'de', name: 'German', flag: '🇩🇪' },
+  { code: 'it', name: 'Italian', flag: '🇮🇹' },
+  { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
+  { code: 'pt-br', name: 'Portuguese (Brazil)', flag: '🇧🇷' },
+  { code: 'nl', name: 'Dutch', flag: '🇳🇱' },
+  { code: 'ru', name: 'Russian', flag: '🇷🇺' },
+  { code: 'zh', name: 'Chinese (Simplified)', flag: '🇨🇳' },
+  { code: 'zh-tw', name: 'Chinese (Traditional)', flag: '🇹🇼' },
+  { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
+  { code: 'ko', name: 'Korean', flag: '🇰🇷' },
+  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
+  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
+  { code: 'bn', name: 'Bengali', flag: '🇧🇩' },
+  { code: 'tr', name: 'Turkish', flag: '🇹🇷' },
+  { code: 'pl', name: 'Polish', flag: '🇵🇱' },
+  { code: 'uk', name: 'Ukrainian', flag: '🇺🇦' },
+  { code: 'vi', name: 'Vietnamese', flag: '🇻🇳' },
+  { code: 'th', name: 'Thai', flag: '🇹🇭' },
+  { code: 'id', name: 'Indonesian', flag: '🇮🇩' },
+  { code: 'ms', name: 'Malay', flag: '🇲🇾' },
+  { code: 'sv', name: 'Swedish', flag: '🇸🇪' },
+  { code: 'no', name: 'Norwegian', flag: '🇳🇴' },
+  { code: 'da', name: 'Danish', flag: '🇩🇰' },
+  { code: 'fi', name: 'Finnish', flag: '🇫🇮' },
+  { code: 'el', name: 'Greek', flag: '🇬🇷' },
+  { code: 'he', name: 'Hebrew', flag: '🇮🇱' },
+  { code: 'cs', name: 'Czech', flag: '🇨🇿' },
+  { code: 'ro', name: 'Romanian', flag: '🇷🇴' },
+  { code: 'hu', name: 'Hungarian', flag: '🇭🇺' },
+  { code: 'sk', name: 'Slovak', flag: '🇸🇰' },
+  { code: 'bg', name: 'Bulgarian', flag: '🇧🇬' },
+  { code: 'hr', name: 'Croatian', flag: '🇭🇷' },
+  { code: 'sr', name: 'Serbian', flag: '🇷🇸' },
+  { code: 'sl', name: 'Slovenian', flag: '🇸🇮' },
+  { code: 'et', name: 'Estonian', flag: '🇪🇪' },
+  { code: 'lv', name: 'Latvian', flag: '🇱🇻' },
+  { code: 'lt', name: 'Lithuanian', flag: '🇱🇹' },
+  { code: 'fil', name: 'Filipino', flag: '🇵🇭' },
+  { code: 'sw', name: 'Swahili', flag: '🇰🇪' },
+];
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -23,9 +68,28 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [emailNotFound, setEmailNotFound] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
+  const [languageSearch, setLanguageSearch] = useState('');
+  const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const languageSearchRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const filteredLanguages = useMemo(() => {
+    if (!languageSearch.trim()) return LANGUAGES;
+    const search = languageSearch.toLowerCase();
+    return LANGUAGES.filter(lang => 
+      lang.name.toLowerCase().includes(search) || 
+      lang.code.toLowerCase().includes(search)
+    );
+  }, [languageSearch]);
+
+  useEffect(() => {
+    if (languageDropdownOpen && languageSearchRef.current) {
+      languageSearchRef.current.focus();
+    }
+  }, [languageDropdownOpen]);
 
   // Password strength calculation
   const passwordStrength = useMemo(() => {
@@ -313,32 +377,99 @@ export default function LoginPage() {
 
       {/* Right Side - Login Form */}
       <div className="flex-1 min-h-0 bg-white flex flex-col">
-        {/* Fixed Login / Sign Up Toggle Tabs */}
+        {/* Fixed Login / Sign Up Toggle Tabs + Language Selector */}
         <div className="flex-shrink-0 p-8 pb-0">
-          <div className="max-w-md mx-auto">
-            <div className="flex border border-gray-200 rounded-lg overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setIsSignUp(false)}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  !isSignUp 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'bg-gray-50 text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Login
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsSignUp(true)}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  isSignUp 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'bg-gray-50 text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Sign Up
-              </button>
+          <div className="max-w-lg mx-auto">
+            <div className="flex items-center justify-between gap-4">
+              {/* Login/SignUp Tabs - Left side */}
+              <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(false)}
+                  className={`px-6 py-3 text-sm font-medium transition-colors ${
+                    !isSignUp 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'bg-gray-50 text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(true)}
+                  className={`px-6 py-3 text-sm font-medium transition-colors ${
+                    isSignUp 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'bg-gray-50 text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Sign Up
+                </button>
+              </div>
+
+              {/* Language Dropdown - Right side */}
+              <Popover open={languageDropdownOpen} onOpenChange={setLanguageDropdownOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 px-3 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-lg">{selectedLanguage.flag}</span>
+                    <span className="text-sm font-medium text-gray-700">{selectedLanguage.name}</span>
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="w-64 p-0 bg-white border border-gray-200 shadow-lg z-50" 
+                  align="end"
+                  sideOffset={8}
+                >
+                  {/* Search Input */}
+                  <div className="p-3 border-b border-gray-100">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <input
+                        ref={languageSearchRef}
+                        type="text"
+                        placeholder="Search Languages..."
+                        value={languageSearch}
+                        onChange={(e) => setLanguageSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Language List */}
+                  <div className="max-h-64 overflow-y-auto">
+                    {filteredLanguages.length > 0 ? (
+                      filteredLanguages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLanguage(lang);
+                            setLanguageDropdownOpen(false);
+                            setLanguageSearch('');
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50 transition-colors ${
+                            selectedLanguage.code === lang.code ? 'bg-gray-50' : ''
+                          }`}
+                        >
+                          <span className="text-lg">{lang.flag}</span>
+                          <span className="text-sm text-gray-700">{lang.name}</span>
+                          {selectedLanguage.code === lang.code && (
+                            <Check className="ml-auto h-4 w-4 text-brand-green" />
+                          )}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                        No languages found
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>
