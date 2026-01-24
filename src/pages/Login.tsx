@@ -22,6 +22,7 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+  const [emailNotFound, setEmailNotFound] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -121,6 +122,7 @@ export default function LoginPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setEmailNotFound(false);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -130,6 +132,12 @@ export default function LoginPage() {
     setIsLoading(false);
 
     if (error) {
+      // Check if error indicates user not found
+      if (error.message.toLowerCase().includes('invalid login credentials') || 
+          error.message.toLowerCase().includes('user not found') ||
+          error.message.toLowerCase().includes('no user found')) {
+        setEmailNotFound(true);
+      }
       toast({
         title: "Error signing in",
         description: error.message,
@@ -413,10 +421,29 @@ export default function LoginPage() {
                 type="email"
                 placeholder="Enter Email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailNotFound(false);
+                }}
+                className={`h-12 bg-white border-2 ${
+                  emailNotFound && !isSignUp
+                    ? 'border-red-500 focus:border-red-500' 
+                    : 'border-gray-400 focus:border-green-600'
+                }`}
                 required
               />
+              {emailNotFound && !isSignUp && (
+                <p className="mt-1.5 text-sm text-red-500">
+                  Email not found,{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsSignUp(true)}
+                    className="text-amber-500 hover:text-amber-600 font-medium"
+                  >
+                    Join us
+                  </button>
+                </p>
+              )}
             </div>
 
             {/* Password Input with Strength Indicator */}
