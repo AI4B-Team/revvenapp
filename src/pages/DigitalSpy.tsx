@@ -22,6 +22,14 @@ const DigitalSpy = () => {
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState('7d');
+  const [discoverTimeline, setDiscoverTimeline] = useState('7D');
+  const [favorites, setFavorites] = useState<number[]>([]);
+
+  const toggleFavorite = (id: number) => {
+    setFavorites(prev => 
+      prev.includes(id) ? prev.filter(fId => fId !== id) : [...prev, id]
+    );
+  };
   
   // Script generator state
   const [scriptStep, setScriptStep] = useState(1);
@@ -214,6 +222,23 @@ const DigitalSpy = () => {
               </option>
             ))}
           </select>
+
+          {/* Timeline Filter */}
+          <div className="flex items-center gap-1 border border-gray-300 rounded-lg p-1 bg-white">
+            {['7D', '30D', '90D'].map(timeline => (
+              <button
+                key={timeline}
+                onClick={() => setDiscoverTimeline(timeline)}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  discoverTimeline === timeline
+                    ? 'bg-emerald-500 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {timeline}
+              </button>
+            ))}
+          </div>
           
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -284,8 +309,15 @@ const DigitalSpy = () => {
                   </h3>
                   <p className="text-sm text-gray-600">{content.channel}</p>
                 </div>
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Star className="w-5 h-5 text-gray-400 hover:text-amber-500" />
+                <button 
+                  onClick={() => toggleFavorite(content.id)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <Star className={`w-5 h-5 transition-colors ${
+                    favorites.includes(content.id) 
+                      ? 'text-amber-500 fill-amber-500' 
+                      : 'text-gray-400 hover:text-amber-500'
+                  }`} />
                 </button>
               </div>
 
