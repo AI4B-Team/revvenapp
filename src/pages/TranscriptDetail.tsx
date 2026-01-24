@@ -528,12 +528,20 @@ const TranscriptDetail = () => {
   const [resolvedVideoUrl, setResolvedVideoUrl] = useState(initialVideoUrl);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Helper to detect if the URL is a video file
+  // Helper to detect if the URL is a video file (not audio like .mp3)
   const isVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.m4v', '.ogg'];
     const lowerUrl = url.toLowerCase().split('?')[0]; // Remove query params
-    return videoExtensions.some(ext => lowerUrl.endsWith(ext)) || lowerUrl.includes('/video/');
+    
+    // Audio extensions should NOT be treated as video, even if served from /video/ path
+    const audioExtensions = ['.mp3', '.wav', '.aac', '.flac', '.m4a', '.wma', '.ogg'];
+    if (audioExtensions.some(ext => lowerUrl.endsWith(ext))) {
+      return false;
+    }
+    
+    // Check for actual video file extensions
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.m4v'];
+    return videoExtensions.some(ext => lowerUrl.endsWith(ext));
   };
 
   // Check if we have a video: either explicit videoUrl param or audio URL that's a video file
