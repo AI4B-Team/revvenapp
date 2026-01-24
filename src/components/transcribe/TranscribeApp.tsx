@@ -1001,7 +1001,8 @@ export default function TranscribeApp() {
       speakers: String(transcript.speakers),
       language: transcript.language,
       summary: transcript.summary || '',
-      audioUrl: transcript.audioUrl || ''
+      audioUrl: transcript.audioUrl || '',
+      ...(transcript.videoUrl && { videoUrl: transcript.videoUrl })
     });
     navigate(`/transcribe/${transcript.id}?${params.toString()}`);
   };
