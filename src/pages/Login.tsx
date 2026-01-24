@@ -434,7 +434,7 @@ export default function LoginPage() {
               />
               {emailNotFound && !isSignUp && (
                 <p className="mt-1.5 text-sm text-red-500">
-                  Email not found,{' '}
+                  Email Not Found,{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(true)}
