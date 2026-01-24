@@ -369,11 +369,12 @@ serve(async (req) => {
         console.log(`[BG-TRANSCRIBE] Cloudinary upload complete: ${audioUrl}`);
         console.log(`[BG-TRANSCRIBE] Duration: ${duration}s`);
 
-        // Update record with URL and duration
+        // Update record with URL, duration, and original source URL for video embedding
         await supabase.from('user_voices').update({
           url: audioUrl,
           duration: duration,
           name: title,
+          original_url: cleanUrl, // Store original URL for YouTube/Vimeo embedding
         }).eq('id', recordId);
 
         // Step 3: Transcribe using ElevenLabs Scribe
@@ -445,6 +446,7 @@ serve(async (req) => {
           url: audioUrl,
           duration: duration,
           name: title,
+          original_url: cleanUrl, // Preserve original URL for video embedding
         }).eq('id', recordId);
 
         if (updateError) {

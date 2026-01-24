@@ -58,6 +58,7 @@ interface Transcript {
   videoUrl?: string;
   fileSize?: string;
   isVideo?: boolean;
+  originalUrl?: string; // For YouTube/Vimeo embedding
 }
 
 const LANGUAGES = [
@@ -285,6 +286,7 @@ export default function TranscribeApp() {
             audioUrl: record.url,
             videoUrl,
             isVideo,
+            originalUrl: (record as any).original_url || undefined, // For YouTube/Vimeo embedding
           };
         });
 
@@ -1002,7 +1004,8 @@ export default function TranscribeApp() {
       language: transcript.language,
       summary: transcript.summary || '',
       audioUrl: transcript.audioUrl || '',
-      ...(transcript.videoUrl && { videoUrl: transcript.videoUrl })
+      ...(transcript.videoUrl && { videoUrl: transcript.videoUrl }),
+      ...(transcript.originalUrl && { originalUrl: transcript.originalUrl })
     });
     navigate(`/transcribe/${transcript.id}?${params.toString()}`);
   };

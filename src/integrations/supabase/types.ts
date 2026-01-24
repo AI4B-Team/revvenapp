@@ -1723,6 +1723,7 @@ export type Database = {
           elevenlabs_voice_id: string | null
           id: string
           name: string
+          original_url: string | null
           prompt: string | null
           source: string | null
           status: string
@@ -1737,6 +1738,7 @@ export type Database = {
           elevenlabs_voice_id?: string | null
           id?: string
           name: string
+          original_url?: string | null
           prompt?: string | null
           source?: string | null
           status?: string
@@ -1751,6 +1753,7 @@ export type Database = {
           elevenlabs_voice_id?: string | null
           id?: string
           name?: string
+          original_url?: string | null
           prompt?: string | null
           source?: string | null
           status?: string
