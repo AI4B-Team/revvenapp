@@ -440,7 +440,7 @@ export default function LoginPage() {
                     onClick={() => setIsSignUp(true)}
                     className="text-amber-500 hover:text-amber-600 font-medium"
                   >
-                    Join us
+                    Join Us
                   </button>
                 </p>
               )}
