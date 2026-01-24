@@ -153,6 +153,7 @@ const Apps = () => {
   ];
 
   const toolsApps = [
+    { name: 'Digital Spy', category: 'Content Intelligence', thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/digital-spy') },
     { name: 'Inbox', category: 'Communication', thumbnail: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/inbox') },
     { name: 'Investor Calculator', category: 'Real Estate', thumbnail: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/investor-calculator') },
     { name: 'AI Responder', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/ai-responder') },
