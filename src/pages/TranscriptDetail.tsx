@@ -522,10 +522,13 @@ const TranscriptDetail = () => {
   // Audio URL: prefer URL params (when present), otherwise load from DB
   const audioUrlParam = searchParams.get('audioUrl');
   const videoUrlParam = searchParams.get('videoUrl');
+  const originalUrlParam = searchParams.get('originalUrl');
   const initialAudioUrl = audioUrlParam && audioUrlParam !== '.' ? audioUrlParam : '';
   const initialVideoUrl = videoUrlParam && videoUrlParam !== '.' ? videoUrlParam : '';
+  const initialOriginalUrl = originalUrlParam && originalUrlParam !== '.' ? originalUrlParam : '';
   const [resolvedAudioUrl, setResolvedAudioUrl] = useState(initialAudioUrl);
   const [resolvedVideoUrl, setResolvedVideoUrl] = useState(initialVideoUrl);
+  const [originalUrl, setOriginalUrl] = useState(initialOriginalUrl);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Helper to detect if the URL is a video file (not audio like .mp3)
@@ -544,8 +547,39 @@ const TranscriptDetail = () => {
     return videoExtensions.some(ext => lowerUrl.endsWith(ext));
   };
 
-  // Check if we have a video: either explicit videoUrl param or audio URL that's a video file
-  const hasVideo = !!resolvedVideoUrl || isVideoUrl(resolvedAudioUrl);
+  // Helper to detect YouTube URLs and extract video ID
+  const getYouTubeEmbedUrl = (url: string): string | null => {
+    if (!url) return null;
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return `https://www.youtube.com/embed/${match[1]}?rel=0`;
+      }
+    }
+    return null;
+  };
+
+  // Helper to detect Vimeo URLs and extract video ID
+  const getVimeoEmbedUrl = (url: string): string | null => {
+    if (!url) return null;
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    if (match && match[1]) {
+      return `https://player.vimeo.com/video/${match[1]}`;
+    }
+    return null;
+  };
+
+  // Determine if we have an embeddable video (YouTube/Vimeo)
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(originalUrl);
+  const vimeoEmbedUrl = getVimeoEmbedUrl(originalUrl);
+  const hasEmbeddableVideo = !!(youtubeEmbedUrl || vimeoEmbedUrl);
+  const embedUrl = youtubeEmbedUrl || vimeoEmbedUrl || '';
+
+  // Check if we have a video: embeddable URL, explicit videoUrl param, or audio URL that's a video file
+  const hasVideo = hasEmbeddableVideo || !!resolvedVideoUrl || isVideoUrl(resolvedAudioUrl);
   const isVideo = hasVideo;
   const videoSrc = resolvedVideoUrl || (isVideoUrl(resolvedAudioUrl) ? resolvedAudioUrl : '');
 
@@ -1385,6 +1419,11 @@ const TranscriptDetail = () => {
         // Backfill audio URL from DB if it wasn't present in the URL
         if (voice.url && !resolvedAudioUrl) {
           setResolvedAudioUrl(voice.url);
+        }
+
+        // Backfill original URL from DB for YouTube/Vimeo embedding
+        if ((voice as any).original_url && !originalUrl) {
+          setOriginalUrl((voice as any).original_url);
         }
 
         const mapSegmentsToLines = (segments: any[]): TranscriptLine[] => {
@@ -2834,9 +2873,20 @@ ${content.map((item, index) => {
                 <div className="sticky top-0">
                   {/* Media Player Card */}
                   <div className="waveform-container rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
-                    {/* Media Display Area - Video or Waveform */}
+                    {/* Media Display Area - Video, Embedded Video, or Waveform */}
                     <div className="relative aspect-[4/3] flex items-center justify-center group/waveform bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
-                      {isVideo && videoSrc ? (
+                      {hasEmbeddableVideo && embedUrl ? (
+                        <>
+                          {/* YouTube/Vimeo Embedded Player */}
+                          <iframe
+                            src={embedUrl}
+                            className="absolute inset-0 w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            title="Embedded video player"
+                          />
+                        </>
+                      ) : isVideo && videoSrc ? (
                         <>
                           {/* Video Player */}
                           <video
