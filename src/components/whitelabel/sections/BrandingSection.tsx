@@ -8,9 +8,7 @@ import {
   Upload, 
   Palette, 
   Image as ImageIcon,
-  RefreshCw,
   Check,
-  Eye,
   Sparkles,
   Loader2,
   X
@@ -92,8 +90,13 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
   const [useCustomLogo, setUseCustomLogo] = useState(!!license?.brandSettings?.logo);
   const [selectedIcon, setSelectedIcon] = useState('🚀');
   const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
+  const [isGeneratingFavicon, setIsGeneratingFavicon] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
+  
+  // Generated options
+  const [generatedLogos, setGeneratedLogos] = useState<string[]>([]);
+  const [generatedFavicons, setGeneratedFavicons] = useState<string[]>([]);
   
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
@@ -205,41 +208,98 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     }
   };
 
-  const handleGenerateLogo = async () => {
+  const handleGenerateLogos = async () => {
     const appName = license?.brandSettings?.appName || 'My App';
     
     setIsGeneratingLogo(true);
+    setGeneratedLogos([]);
+    
     try {
-      const { data, error } = await supabase.functions.invoke('editor-generate-image', {
-        body: {
-          prompt: `Create a modern, minimal, professional logo icon for a brand called "${appName}". The logo should be simple, memorable, and work well at small sizes. Use bold shapes and clean lines. Square aspect ratio, centered design, solid background. No text in the logo.`
-        }
-      });
+      // Generate 3 logos in parallel
+      const promises = Array(3).fill(null).map((_, index) => 
+        supabase.functions.invoke('editor-generate-image', {
+          body: {
+            prompt: `Create a modern, minimal, professional logo icon #${index + 1} for a brand called "${appName}". The logo should be simple, memorable, and work well at small sizes. Use bold shapes and clean lines. Square aspect ratio, centered design, solid background. No text in the logo. Style variation ${index + 1}.`
+          }
+        })
+      );
 
-      if (error) throw error;
+      const results = await Promise.all(promises);
+      const logos = results
+        .filter(r => !r.error && r.data?.imageUrl)
+        .map(r => r.data.imageUrl);
 
-      if (data?.imageUrl) {
-        setLogoUrl(data.imageUrl);
-        setUseCustomLogo(true);
-        toast.success('Logo generated successfully!');
-      } else {
-        throw new Error('No image generated');
+      if (logos.length === 0) {
+        throw new Error('No logos generated');
       }
+
+      setGeneratedLogos(logos);
+      toast.success(`Generated ${logos.length} logo options!`);
     } catch (error) {
       console.error('Logo generation error:', error);
-      toast.error('Failed to generate logo. Please try again.');
+      toast.error('Failed to generate logos. Please try again.');
     } finally {
       setIsGeneratingLogo(false);
     }
   };
 
+  const handleGenerateFavicons = async () => {
+    const appName = license?.brandSettings?.appName || 'My App';
+    
+    setIsGeneratingFavicon(true);
+    setGeneratedFavicons([]);
+    
+    try {
+      // Generate 3 favicons in parallel
+      const promises = Array(3).fill(null).map((_, index) => 
+        supabase.functions.invoke('editor-generate-image', {
+          body: {
+            prompt: `Create a tiny favicon icon #${index + 1} for "${appName}". Must be extremely simple - just 1-2 bold shapes or a single letter. High contrast colors, centered, square format, solid background. Works at 16x16 pixels. Style variation ${index + 1}.`
+          }
+        })
+      );
+
+      const results = await Promise.all(promises);
+      const favicons = results
+        .filter(r => !r.error && r.data?.imageUrl)
+        .map(r => r.data.imageUrl);
+
+      if (favicons.length === 0) {
+        throw new Error('No favicons generated');
+      }
+
+      setGeneratedFavicons(favicons);
+      toast.success(`Generated ${favicons.length} favicon options!`);
+    } catch (error) {
+      console.error('Favicon generation error:', error);
+      toast.error('Failed to generate favicons. Please try again.');
+    } finally {
+      setIsGeneratingFavicon(false);
+    }
+  };
+
+  const selectGeneratedLogo = (url: string) => {
+    setLogoUrl(url);
+    setUseCustomLogo(true);
+    setGeneratedLogos([]);
+    toast.success('Logo selected!');
+  };
+
+  const selectGeneratedFavicon = (url: string) => {
+    setFaviconUrl(url);
+    setGeneratedFavicons([]);
+    toast.success('Favicon selected!');
+  };
+
   const clearLogo = () => {
     setLogoUrl('');
+    setGeneratedLogos([]);
     if (logoInputRef.current) logoInputRef.current.value = '';
   };
 
   const clearFavicon = () => {
     setFaviconUrl('');
+    setGeneratedFavicons([]);
     if (faviconInputRef.current) faviconInputRef.current.value = '';
   };
 
@@ -261,44 +321,6 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
         </p>
       </div>
 
-      {/* Brand Snapshot Preview */}
-      <div className="p-6 rounded-xl border-2 border-border bg-gradient-to-br from-muted/30 to-muted/10">
-        <div className="flex items-center gap-2 mb-4">
-          <Eye className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-foreground">Brand Snapshot</h3>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Quick view of how your identity comes together.
-        </p>
-        
-        <div className="flex items-center gap-4 p-4 rounded-lg bg-background border border-border">
-          <div 
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl overflow-hidden"
-            style={{ backgroundColor: `${primaryColor}20`, border: `2px solid ${primaryColor}` }}
-          >
-            {useCustomLogo && logoUrl ? (
-              <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
-            ) : (
-              selectedIcon
-            )}
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">{license?.brandSettings?.appName || 'Your Product'}</p>
-            <p className="text-sm text-muted-foreground">White-Label App</p>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            {faviconUrl && (
-              <div className="w-6 h-6 rounded overflow-hidden border border-border">
-                <img src={faviconUrl} alt="Favicon" className="w-full h-full object-cover" />
-              </div>
-            )}
-            <div 
-              className="w-8 h-8 rounded-full"
-              style={{ backgroundColor: primaryColor }}
-            />
-          </div>
-        </div>
-      </div>
 
       {/* Logo & Icon */}
       <div className="p-6 rounded-xl border-2 border-border bg-card space-y-6">
@@ -435,29 +457,88 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
               </div>
             </div>
 
-            {/* AI Logo Generation */}
-            <div className="pt-4 border-t border-border">
-              <Button
-                onClick={handleGenerateLogo}
-                disabled={isGeneratingLogo}
-                variant="outline"
-                className="w-full border-dashed border-2 h-12"
-              >
-                {isGeneratingLogo ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generating Logo...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Generate Logo With AI
-                  </>
-                )}
-              </Button>
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                AI will create a unique logo based on your product name
+            {/* AI Generation Section */}
+            <div className="pt-4 border-t border-border space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Generate Logo Button */}
+                <Button
+                  onClick={handleGenerateLogos}
+                  disabled={isGeneratingLogo}
+                  variant="outline"
+                  className="border-dashed border-2 h-12"
+                >
+                  {isGeneratingLogo ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate Logos
+                    </>
+                  )}
+                </Button>
+
+                {/* Generate Favicon Button */}
+                <Button
+                  onClick={handleGenerateFavicons}
+                  disabled={isGeneratingFavicon}
+                  variant="outline"
+                  className="border-dashed border-2 h-12"
+                >
+                  {isGeneratingFavicon ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate Favicons
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                AI will generate 3 options for you to choose from
               </p>
+
+              {/* Generated Logo Options */}
+              {generatedLogos.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Select A Logo</Label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {generatedLogos.map((url, index) => (
+                      <button
+                        key={index}
+                        onClick={() => selectGeneratedLogo(url)}
+                        className="aspect-square rounded-xl border-2 border-border hover:border-emerald-500 overflow-hidden transition-all hover:scale-105"
+                      >
+                        <img src={url} alt={`Logo option ${index + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Generated Favicon Options */}
+              {generatedFavicons.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Select A Favicon</Label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {generatedFavicons.map((url, index) => (
+                      <button
+                        key={index}
+                        onClick={() => selectGeneratedFavicon(url)}
+                        className="aspect-square rounded-xl border-2 border-border hover:border-emerald-500 overflow-hidden transition-all hover:scale-105"
+                      >
+                        <img src={url} alt={`Favicon option ${index + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
