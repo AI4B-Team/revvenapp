@@ -14,6 +14,12 @@ import {
   Shield,
   ArrowRight
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface LivePreviewProps {
   app?: MarketplaceApp;
@@ -56,47 +62,79 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
         
         <div className="flex items-center gap-1">
           {/* Device Toggle */}
-          <div className="flex items-center bg-muted rounded-lg p-1 mr-2">
-            <button
-              onClick={() => setViewMode('desktop')}
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === 'desktop' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Monitor size={14} />
-            </button>
-            <button
-              onClick={() => setViewMode('tablet')}
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === 'tablet' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Tablet size={14} />
-            </button>
-            <button
-              onClick={() => setViewMode('mobile')}
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === 'mobile' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Smartphone size={14} />
-            </button>
-          </div>
+          <TooltipProvider>
+            <div className="flex items-center bg-muted rounded-lg p-1 mr-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setViewMode('desktop')}
+                    className={`p-1.5 rounded transition-colors ${
+                      viewMode === 'desktop' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Monitor size={14} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Desktop View</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setViewMode('tablet')}
+                    className={`p-1.5 rounded transition-colors ${
+                      viewMode === 'tablet' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Tablet size={14} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Tablet View</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setViewMode('mobile')}
+                    className={`p-1.5 rounded transition-colors ${
+                      viewMode === 'mobile' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Smartphone size={14} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Mobile View</TooltipContent>
+              </Tooltip>
+            </div>
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleRefresh}
-            className="h-8 w-8 p-0"
-          >
-            <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
-          </Button>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <Maximize2 size={14} />
-          </Button>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <ExternalLink size={14} />
-          </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleRefresh}
+                  className="h-8 w-8 p-0"
+                >
+                  <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Refresh Preview</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Maximize2 size={14} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Fullscreen</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <ExternalLink size={14} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Open In New Tab</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
