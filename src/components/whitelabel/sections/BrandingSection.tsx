@@ -223,7 +223,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
       try {
         const result = await supabase.functions.invoke('editor-generate-image', {
           body: {
-            prompt: `Design a premium app logo for "${appName}". ${productContext} Style: ${style}. Requirements: Modern, minimal, professional. Must work at small sizes. Square format, centered, transparent or solid color background. NO text, only icon/symbol. High quality, tech-forward aesthetic. Color palette should feel professional and trustworthy.`
+            prompt: `Create a simple, modern app icon. ${productContext} Style: ${style}. CRITICAL RULES: 1) ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS - only abstract shapes or symbols. 2) Solid dark navy blue background (#1a1a2e). 3) Use bright gradients (teal, cyan, emerald). 4) Single centered icon. 5) Flat design, no 3D effects. 6) Must be recognizable at 32x32 pixels. Square format.`
           }
         });
         if (!result.error && result.data?.imageUrl) {
@@ -233,7 +233,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
         console.error(`Logo generation attempt ${attempt + 1} failed:`, e);
       }
       if (attempt < retries) {
-        await new Promise(r => setTimeout(r, 500)); // Small delay before retry
+        await new Promise(r => setTimeout(r, 500));
       }
     }
     return null;
@@ -243,16 +243,16 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     const appName = license?.brandSettings?.appName || 'My App';
     const tagline = license?.brandSettings?.tagline || '';
     const description = license?.brandSettings?.description || '';
-    const productContext = tagline || description ? `The product is about: ${tagline || description}.` : '';
+    const productContext = tagline ? `Represents: ${tagline}.` : (description ? `Represents: ${description}.` : 'Represents innovation and growth.');
     
     setIsGeneratingLogo(true);
     setGeneratedLogos([]);
     
     try {
       const styleVariations = [
-        'abstract geometric shapes with gradients',
-        'bold lettermark or monogram style',
-        'iconic symbol with clean silhouette'
+        'upward arrow or rocket symbolizing growth',
+        'abstract circular or hexagonal tech pattern',
+        'lightning bolt or spark representing speed and energy'
       ];
       
       // Generate 3 logos in parallel with retry logic
@@ -282,7 +282,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
       try {
         const result = await supabase.functions.invoke('editor-generate-image', {
           body: {
-            prompt: `Create a favicon: ${style}. Must be extremely simple, high contrast, perfectly centered, square format, solid background. Optimized to look crisp at 32x32 pixels. No fine details - only bold, clear shapes.`
+            prompt: `Create a tiny favicon icon. ${style}. CRITICAL RULES: 1) EXTREMELY simple - maximum 2 shapes. 2) Solid dark background (#1a1a2e). 3) Bright single color icon (white, cyan, or emerald). 4) NO text, NO letters. 5) Must be clear at 16x16 pixels. 6) Flat design only. Square format, centered.`
           }
         });
         if (!result.error && result.data?.imageUrl) {
@@ -298,18 +298,15 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     return null;
   };
 
-  const handleGenerateFavicons = async () => {
-    const appName = license?.brandSettings?.appName || 'My App';
-    const firstLetter = appName.charAt(0).toUpperCase();
-    
+  const handleGenerateFavicons = async () => {    
     setIsGeneratingFavicon(true);
     setGeneratedFavicons([]);
     
     try {
       const faviconStyles = [
-        `A single bold letter "${firstLetter}" in a modern sans-serif font on solid color background`,
-        `A simple abstract geometric shape representing growth or innovation`,
-        `A minimal icon symbol that represents the brand "${appName}"`
+        'Simple upward arrow or chevron',
+        'Small diamond or hexagon shape',
+        'Tiny star or spark symbol'
       ];
       
       // Generate 3 favicons in parallel with retry logic
