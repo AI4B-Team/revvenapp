@@ -41,7 +41,7 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
   // Get brand colors from license or use defaults
   const primaryColor = license?.brandSettings?.primaryColor || '#10b981';
   const productName = license?.brandSettings?.appName || app?.name || 'Your Product';
-  const tagline = 'Transform Your Business Today';
+  const tagline = license?.brandSettings?.tagline || 'Transform Your Business Today';
 
   return (
     <div className="h-full flex flex-col bg-muted/30">

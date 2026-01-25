@@ -28,8 +28,8 @@ const suggestedNames = [
 
 export function ProductSection({ app, license, onUpdate }: ProductSectionProps) {
   const [productName, setProductName] = useState(license?.brandSettings?.appName || '');
-  const [tagline, setTagline] = useState('');
-  const [description, setDescription] = useState('');
+  const [tagline, setTagline] = useState(license?.brandSettings?.tagline || '');
+  const [description, setDescription] = useState(license?.brandSettings?.description || '');
   const [isGeneratingNames, setIsGeneratingNames] = useState(false);
   const [generatedNames, setGeneratedNames] = useState<string[]>([]);
 
@@ -59,7 +59,20 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
     const generatedDescription = "Unlock the full potential of your business with our cutting-edge platform. Streamline workflows, boost productivity, and drive growth with intelligent automation tools designed for modern entrepreneurs.";
     setTagline(generatedTagline);
     setDescription(generatedDescription);
+    onUpdate({ tagline: generatedTagline, description: generatedDescription });
     toast.success('AI messaging generated!');
+  };
+
+  const handleTaglineChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTagline = e.target.value;
+    setTagline(newTagline);
+    onUpdate({ tagline: newTagline });
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newDescription = e.target.value;
+    setDescription(newDescription);
+    onUpdate({ description: newDescription });
   };
 
   const handleSave = () => {
@@ -143,7 +156,7 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
           <Input
             id="tagline"
             value={tagline}
-            onChange={(e) => setTagline(e.target.value)}
+            onChange={handleTaglineChange}
             placeholder="Enter a catchy tagline (e.g., 'Where Success Happens')"
             maxLength={60}
           />
@@ -155,7 +168,7 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
           <Textarea
             id="description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={handleDescriptionChange}
             placeholder="Describe your product's capabilities and value proposition..."
             rows={4}
             maxLength={300}
