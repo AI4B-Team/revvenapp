@@ -528,7 +528,7 @@ const Apps = () => {
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-2xl font-bold mb-1">RECOMMENDED FOR YOU</h2>
-                      <p className="text-muted-foreground text-sm">Handpicked Apps Just For You - Ready To Use</p>
+                      <p className="text-muted-foreground">Handpicked Apps Just For You - Ready To Use</p>
                     </div>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, recommended: !expandedSections.recommended })}
