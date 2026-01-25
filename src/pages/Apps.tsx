@@ -299,10 +299,19 @@ const Apps = () => {
           <div className="px-8 py-12 border-b border-border">
             <div className="w-full">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-4">
-                  <h1 className="text-3xl font-bold">
-                    <span className="text-primary">APPS</span>
-                  </h1>
+                <h1 className="text-3xl font-bold">
+                  <span className="text-primary">APPS</span>
+                </h1>
+                
+                {/* Filter Controls + View Toggle */}
+                <div className="flex items-center gap-3">
+                  <AppsFilterToolbar 
+                    zoom={zoom}
+                    onZoomChange={setZoom}
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={setSelectedCategory}
+                    onFiltersChange={setAppFilters}
+                  />
                   
                   {/* View Toggle */}
                   <div className="flex items-center border border-border rounded-lg overflow-hidden">
@@ -338,15 +347,6 @@ const Apps = () => {
                     </TooltipProvider>
                   </div>
                 </div>
-                
-                {/* Filter Controls */}
-                <AppsFilterToolbar 
-                  zoom={zoom}
-                  onZoomChange={setZoom}
-                  selectedCategory={selectedCategory}
-                  onCategoryChange={setSelectedCategory}
-                  onFiltersChange={setAppFilters}
-                />
               </div>
               
               <p className="text-muted-foreground text-lg mb-6">
