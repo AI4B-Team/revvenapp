@@ -43,7 +43,7 @@ export function PricingSettings({ license, onUpdate }: PricingSettingsProps) {
           onChange={(e) =>
             setSettings({ ...settings, monthlyPrice: parseFloat(e.target.value) || 0 })
           }
-          helperText="Per client per month"
+          helperText="Per Client Per Month"
         />
         <MarketplaceInput
           label="Setup Fee (Optional)"
@@ -52,7 +52,7 @@ export function PricingSettings({ license, onUpdate }: PricingSettingsProps) {
           onChange={(e) =>
             setSettings({ ...settings, setupFee: parseFloat(e.target.value) || undefined })
           }
-          helperText="One-time fee"
+          helperText="One-Time Fee"
         />
       </div>
 

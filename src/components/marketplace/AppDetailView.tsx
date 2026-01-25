@@ -1,5 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MarketplaceApp, AppInstall, AppLicense, MarketplaceWorkspace } from '@/lib/marketplace/types';
+import { appRoutes } from '@/lib/marketplace/catalog';
 import { Button } from '@/components/ui/button';
 import { LicenseActivation } from './LicenseActivation';
 import { BrandControl } from './BrandControl';
@@ -34,8 +36,10 @@ export function AppDetailView({
   onPublish,
   onUpgradePlan
 }: AppDetailViewProps) {
+  const navigate = useNavigate();
   const isLicenseActive = license?.status === 'active';
   const isPublished = license?.publishStatus === 'live';
+  const appRoute = appRoutes[app.id];
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,9 +68,9 @@ export function AppDetailView({
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </Button>
-              <Button>
+              <Button onClick={() => appRoute && navigate(appRoute)}>
                 <ExternalLink className="h-4 w-4 mr-2" />
-                Open App
+                Open
               </Button>
             </div>
           </div>
