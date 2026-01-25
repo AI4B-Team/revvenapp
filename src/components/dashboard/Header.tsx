@@ -262,7 +262,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               ref={searchInputRef}
               type="text"
               placeholder="Search..."
-              className="w-full h-10 px-3 text-sm bg-muted border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring"
+              className="w-full h-10 px-3 text-sm bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring"
               onBlur={() => setIsSearchExpanded(false)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
