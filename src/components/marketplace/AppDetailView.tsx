@@ -67,7 +67,7 @@ export function AppDetailView({
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-background border-b border-border">
+      <div className="bg-background border-b border-border sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-6 py-6">
           <button
             onClick={onBack}
