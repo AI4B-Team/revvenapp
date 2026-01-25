@@ -316,7 +316,7 @@ const Apps = () => {
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
-                      <p className="text-muted-foreground">The hottest AI effects right now</p>
+                      <p className="text-muted-foreground">The hottest AI apps right now</p>
                     </div>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
