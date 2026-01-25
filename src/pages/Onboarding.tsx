@@ -501,7 +501,7 @@ const Onboarding = () => {
                     onClick={() => navigate('/assistant')}
                     className="w-full bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary text-brand-green border border-brand-green py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
                   >
-                    Chat with AIVA
+                    Chat With AIVA
                     <span className="text-lg">→</span>
                   </button>
                 </div>
