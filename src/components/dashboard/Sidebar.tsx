@@ -506,9 +506,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
             className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
           >
-            <div className={`w-8 h-8 ${displaySpace?.bgColor || 'bg-brand-green'} bg-opacity-20 rounded flex items-center justify-center`}>
-              <LayoutGrid size={16} className="text-primary" />
-            </div>
             <span className="flex-1 text-left text-sm text-primary font-medium">
               {displaySpace?.name || 'Select Space'}
             </span>
@@ -626,22 +623,17 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             <span className="text-[10px] font-medium text-sidebar-muted uppercase tracking-wider">Brand</span>
           </div>
           <div className="w-full flex items-center gap-3 px-3 py-2 border-2 border-brand-green rounded-lg hover:bg-sidebar-hover transition">
-            {/* Brand name/icon - navigates to brand profile */}
+            {/* Brand name - navigates to brand profile */}
             <button 
               onClick={() => navigate('/brand')}
-              className="flex items-center gap-3 flex-1 text-left"
+              className="flex flex-col flex-1 text-left"
             >
-              <div className={`w-8 h-8 ${displayBrand?.bgColor || 'bg-brand-green'} rounded flex items-center justify-center`}>
-                <Palette size={16} className="text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium hover:text-brand-green transition">
-                  {displayBrand?.name || 'Create Brand'}
-                </span>
-                {displayBrand && !displayBrand.isComplete && (
-                  <span className="text-xs text-brand-yellow">Profile incomplete</span>
-                )}
-              </div>
+              <span className="text-sm font-medium hover:text-brand-green transition">
+                {displayBrand?.name || 'Create Brand'}
+              </span>
+              {displayBrand && !displayBrand.isComplete && (
+                <span className="text-xs text-brand-yellow">Profile incomplete</span>
+              )}
             </button>
             {/* Caret - toggles dropdown */}
             <button

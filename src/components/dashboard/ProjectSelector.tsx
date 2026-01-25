@@ -106,22 +106,11 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
         className="w-full flex items-center gap-3 px-3 py-2.5 bg-sidebar-hover/50 border border-border rounded-lg hover:bg-sidebar-hover transition group"
       >
         {selectedProject ? (
-          <>
-            <div className={`w-8 h-8 ${selectedProject.color} rounded-lg flex items-center justify-center`}>
-              <FolderKanban size={16} className="text-white" />
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <p className="text-xs text-sidebar-muted">Project</p>
-              <p className="text-sm font-medium text-sidebar-text truncate">{selectedProject.name}</p>
-            </div>
-          </>
+          <div className="flex-1 text-left min-w-0">
+            <p className="text-sm font-medium text-sidebar-text truncate">{selectedProject.name}</p>
+          </div>
         ) : (
-          <>
-            <div className="w-8 h-8 bg-sidebar-muted/30 rounded-lg flex items-center justify-center">
-              <FolderKanban size={16} className="text-sidebar-muted" />
-            </div>
-            <span className="flex-1 text-left text-sm font-medium text-sidebar-text">Projects</span>
-          </>
+          <span className="flex-1 text-left text-sm font-medium text-sidebar-text">Projects</span>
         )}
         <ChevronDown 
           size={16} 
