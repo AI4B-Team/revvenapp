@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AppDetailView } from '@/components/marketplace';
-import { sampleMarketplaceApps, mockMarketplaceWorkspace } from '@/lib/marketplace/data';
+import { mockMarketplaceWorkspace } from '@/lib/marketplace/data';
+import { getCatalogApp } from '@/lib/marketplace/catalog';
 import { useInstalledApps } from '@/hooks/useInstalledApps';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,8 @@ const AppLicense = () => {
     updateLicense 
   } = useInstalledApps();
 
-  const app = sampleMarketplaceApps.find(a => a.id === appId);
+  // Use getCatalogApp to resolve any appId (from catalog or generate a placeholder)
+  const app = appId ? getCatalogApp(appId) : undefined;
   const install = appId ? getInstall(appId) : undefined;
   const license = appId ? getLicense(appId) : undefined;
 
@@ -79,7 +81,7 @@ const AppLicense = () => {
     toast.info('Upgrade flow would open here');
   };
 
-  if (!app || !install) {
+  if (!app) {
     return (
       <div className="flex min-h-screen bg-background">
         <Sidebar onCollapseChange={setIsSidebarCollapsed} />
@@ -87,11 +89,41 @@ const AppLicense = () => {
           <Header />
           <main className="flex-1 overflow-y-auto p-8">
             <div className="flex flex-col items-center justify-center h-full gap-4">
-              <p className="text-muted-foreground text-lg">App not found or not installed</p>
+              <p className="text-muted-foreground text-lg">App not found</p>
               <Button onClick={() => navigate('/apps')} variant="outline">
                 <ArrowLeft size={16} className="mr-2" />
                 Back to Apps
               </Button>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // If app exists but not installed, show a prompt to install first
+  if (!install) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+        <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+          <Header />
+          <main className="flex-1 overflow-y-auto p-8">
+            <div className="flex flex-col items-center justify-center h-full gap-6">
+              <div className="text-6xl">{app.icon}</div>
+              <h2 className="text-2xl font-bold">{app.name}</h2>
+              <p className="text-muted-foreground text-lg text-center max-w-md">
+                You need to install this app before you can access white-label settings.
+              </p>
+              <div className="flex gap-3">
+                <Button onClick={() => navigate('/apps')} variant="outline">
+                  <ArrowLeft size={16} className="mr-2" />
+                  Back to Apps
+                </Button>
+                <Button onClick={() => navigate('/apps')}>
+                  Go to Apps to Install
+                </Button>
+              </div>
             </div>
           </main>
         </div>

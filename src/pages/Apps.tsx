@@ -324,13 +324,13 @@ const Apps = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                     {trendingApps.map((app) => {
-                      const appId = app.name.toLowerCase().replace(/\s+/g, '-');
+                      const appId = resolveAppId(app.name);
                       const favorited = isFavorite(appId);
+                      const installed = isInstalled(appId);
                       return (
                         <div
                           key={app.id}
-                          onClick={app.onClick}
-                          className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer border border-border"
+                          className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all border border-border"
                         >
                           <div className="relative aspect-[4/3]">
                             <img
@@ -341,6 +341,11 @@ const Apps = () => {
                             {app.badge && (
                               <div className={`absolute top-4 left-4 ${app.badgeColor} text-black font-bold text-xs px-3 py-1 rounded-full`}>
                                 {app.badge}
+                              </div>
+                            )}
+                            {installed && (
+                              <div className="absolute top-4 right-4 bg-primary text-primary-foreground font-bold text-xs px-3 py-1 rounded-full">
+                                INSTALLED
                               </div>
                             )}
                             {/* Star Favorite Overlay */}
@@ -361,10 +366,33 @@ const Apps = () => {
                           <div className="p-4">
                             <h3 className="font-bold text-lg mb-2 text-foreground">{app.name}</h3>
                             <p className="text-muted-foreground text-sm mb-4">{app.description}</p>
-                            <button className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                              <Play size={16} fill="currentColor" />
-                              <span>Try Now</span>
-                            </button>
+                            {installed ? (
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="default"
+                                  className="flex-1"
+                                  onClick={() => openInstalledApp(app.name)}
+                                >
+                                  <Play size={14} className="mr-1" />
+                                  Open
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  className="flex-1"
+                                  onClick={() => handleActivateApp(appId)}
+                                >
+                                  Activate
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                className="w-full"
+                                onClick={() => openInstallForAppName(app.name)}
+                              >
+                                <Play size={16} fill="currentColor" className="mr-2" />
+                                Install
+                              </Button>
+                            )}
                           </div>
                         </div>
                       );
