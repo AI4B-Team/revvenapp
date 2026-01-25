@@ -193,7 +193,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   return (
     <>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
-      <header className="px-4 md:px-8 py-4 flex items-center justify-between bg-slate-50">
+      <header className="px-4 md:px-8 py-4 flex items-center justify-between bg-slate-50 sticky top-0 z-50">
         {/* Mobile menu button */}
         <TooltipProvider delayDuration={100}>
           <Tooltip>
