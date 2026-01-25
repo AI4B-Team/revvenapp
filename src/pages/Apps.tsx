@@ -513,15 +513,13 @@ const Apps = () => {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button
-                            variant="default"
-                            size="sm"
-                            className="flex items-center gap-2"
+                          <button
                             onClick={() => navigate('/app-builder')}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
                           >
-                            <Plus size={16} />
+                            <Plus size={14} />
                             Create App
-                          </Button>
+                          </button>
                         </TooltipTrigger>
                         <TooltipContent side="left">
                           <p>Build & Publish Your Own App For Internal Use Or Resale</p>
