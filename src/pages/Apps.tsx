@@ -145,37 +145,51 @@ const Apps = () => {
   const topPicks = [
     {
       id: 1,
+      name: 'Creator Vault',
+      category: 'Content Tools',
+      description: 'Your curated library of premium content collections',
+      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop',
+      badge: 'HOT',
+      onClick: () => navigate('/creator-vault'),
+      preInstalled: true,
+    },
+    {
+      id: 2,
       name: 'Background Remover',
       category: 'Image Tools',
       description: 'Remove backgrounds from images instantly',
       thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop',
       badge: 'HOT',
-      onClick: () => navigate('/background-remover')
+      onClick: () => navigate('/background-remover'),
+      preInstalled: true,
     },
     {
-      id: 2,
+      id: 3,
       name: 'Video Resizer',
       category: 'Video Tools',
       description: 'Resize videos for any social platform',
       thumbnail: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop',
       badge: 'NEW',
+      preInstalled: true,
     },
     {
-      id: 3,
+      id: 4,
       name: 'Logo Designer',
       category: 'Design Tools',
       description: 'Create stunning brand logos with AI',
       thumbnail: 'https://images.unsplash.com/photo-1626785774625-ddcddc3445e9?w=400&h=300&fit=crop',
       badge: 'HOT',
+      preInstalled: true,
     },
     {
-      id: 4,
+      id: 5,
       name: 'Blog Writer',
       category: 'Content Tools',
       description: 'Generate engaging blog posts with AI',
       thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop',
       badge: 'NEW',
-      onClick: () => navigate('/blog-writer')
+      onClick: () => navigate('/blog-writer'),
+      preInstalled: true,
     }
   ];
 
@@ -323,17 +337,19 @@ const Apps = () => {
                       <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
                       <p className="text-muted-foreground">The hottest AI apps right now</p>
                     </div>
-                    <button 
-                      onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
-                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                    >
-                      See All
-                      <ChevronRight size={18} />
-                    </button>
+                    {trendingApps.length > 5 && (
+                      <button 
+                        onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
+                        className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                      >
+                        {expandedSections.trending ? 'Show Less' : 'See All'}
+                        <ChevronRight size={18} className={expandedSections.trending ? 'rotate-90' : ''} />
+                      </button>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    {trendingApps.map((app) => {
+                    {(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -361,21 +377,15 @@ const Apps = () => {
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-2xl font-bold mb-1">TOP PICKS FOR YOU</h2>
-                      <p className="text-muted-foreground text-sm">Handpicked apps just for you</p>
+                      <p className="text-muted-foreground text-sm">Handpicked apps just for you - ready to use</p>
                     </div>
-                    <button 
-                      onClick={() => setExpandedSections({ ...expandedSections, topPicks: !expandedSections.topPicks })}
-                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                    >
-                      See All
-                      <ChevronRight size={18} />
-                    </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {topPicks.map((app) => {
                       const appId = resolveAppId(app.name);
-                      const installed = isInstalled(appId);
+                      // Top picks are pre-installed for new users
+                      const installed = app.preInstalled || isInstalled(appId);
                       return (
                         <AppCard
                           key={app.id}
@@ -387,7 +397,13 @@ const Apps = () => {
                           appId={appId}
                           isInstalled={installed}
                           onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
-                          onOpen={installed ? () => openInstalledApp(app.name) : undefined}
+                          onOpen={installed ? () => {
+                            if (app.onClick) {
+                              app.onClick();
+                            } else {
+                              openInstalledApp(app.name);
+                            }
+                          } : undefined}
                           onActivate={installed ? () => handleActivateApp(appId) : undefined}
                           onClick={app.onClick}
                         />
