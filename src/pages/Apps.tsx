@@ -487,7 +487,7 @@ const Apps = () => {
                       <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
                       <p className="text-muted-foreground">The hottest AI apps right now</p>
                     </div>
-                    {trendingApps.length > 5 && (
+                    {trendingApps.length > 6 && (
                       <button 
                         onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
                         className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
@@ -499,7 +499,7 @@ const Apps = () => {
                   </div>
 
                   <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
-                    {filterApps(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
+                    {filterApps(expandedSections.trending ? trendingApps : trendingApps.slice(0, 6)).map((app) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
