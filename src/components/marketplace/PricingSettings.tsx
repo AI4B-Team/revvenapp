@@ -84,8 +84,9 @@ export function PricingSettings({ license, onUpdate }: PricingSettingsProps) {
                 type="number"
                 value={customClients}
                 onChange={(e) => setCustomClients(parseInt(e.target.value) || 0)}
-                className="w-16 text-center text-sm text-muted-foreground bg-transparent border-b border-muted-foreground/30 focus:border-primary focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-16 text-center text-sm font-medium text-foreground bg-background border border-border rounded-md px-2 py-1 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 min={0}
+                placeholder="25"
               />
               <span className="text-sm text-muted-foreground">clients</span>
             </div>
