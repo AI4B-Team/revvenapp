@@ -282,7 +282,7 @@ export function NameGeneratorWizard({ isOpen, onClose, onSelectName, appContext 
             )}
 
             {generatedNames.length > 0 && (
-              <div className="space-y-6">
+              <div className="space-y-6 pt-4">
                 <h2 className="text-2xl font-bold text-center text-foreground">Pick Your Favorite Name</h2>
                 <p className="text-center text-muted-foreground">Click A Name To Use It</p>
                 
