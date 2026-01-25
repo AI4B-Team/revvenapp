@@ -498,7 +498,7 @@ const Apps = () => {
                     </button>
                   </div>
 
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${expandedSections.trending ? getGridCols() : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'} gap-4`}>
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
                     {filterApps(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -541,7 +541,7 @@ const Apps = () => {
                     </button>
                   </div>
 
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${expandedSections.recommended ? getGridCols() : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'} gap-4`}>
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
                     {filterApps(expandedSections.recommended ? topPicks : topPicks.slice(0, 5)).map((app) => {
                       const appId = resolveAppId(app.name);
                       // Top picks are pre-installed for new users
