@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { 
   ChevronDown, Sliders, Search, ZoomIn, ZoomOut, 
   Layers, Image, Video, Mic, Palette, FileText, Wrench,
-  Flame, Star, Clock
+  Flame, Star, Clock, CalendarDays
 } from 'lucide-react';
 import {
   Tooltip,
@@ -56,8 +56,8 @@ const AppsFilterToolbar = ({
     { name: 'Video', icon: Video, color: 'text-brand-red' },
     { name: 'Audio', icon: Mic, color: 'text-brand-green' },
     { name: 'Design', icon: Palette, color: 'text-brand-yellow' },
-    { name: 'Content', icon: FileText, color: 'text-brand-purple' },
-    { name: 'Document', icon: FileText, color: 'text-brand-purple' },
+    { name: 'Content', icon: CalendarDays, color: 'text-purple-500' },
+    { name: 'Document', icon: FileText, color: 'text-blue-500' },
     { name: 'Tools', icon: Wrench, color: 'text-brand-blue' }
   ];
 
