@@ -23,19 +23,34 @@ interface AppCardProps {
 }
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
+  'Video Tool': <Video size={10} />,
   'Video Tools': <Video size={10} />,
+  'Image Tool': <Image size={10} />,
   'Image Tools': <Image size={10} />,
+  'Audio Tool': <Mic size={10} />,
   'Audio Tools': <Mic size={10} />,
+  'Design Tool': <Palette size={10} />,
   'Design Tools': <Palette size={10} />,
+  'Content Tool': <FileText size={10} />,
   'Content Tools': <FileText size={10} />,
   'Avatar Creator': <User size={10} />,
   'Ad Maker': <Palette size={10} />,
   'LLM Tool': <Wrench size={10} />,
+  'Tool': <Wrench size={10} />,
   'Tools': <Wrench size={10} />,
   'Content Intelligence': <FileText size={10} />,
   'Communication': <FileText size={10} />,
   'Real Estate': <Wrench size={10} />,
+  'Sales Tool': <Wrench size={10} />,
   'Sales Tools': <Wrench size={10} />,
+};
+
+// Convert plural category to singular
+const toSingularCategory = (category: string): string => {
+  if (category.endsWith('Tools')) {
+    return category.replace('Tools', 'Tool');
+  }
+  return category;
 };
 
 // Map app names to descriptions
@@ -174,13 +189,15 @@ const AppCard = ({
     }
   };
 
+  const singularCategory = toSingularCategory(category);
+
   return (
     <div 
-      className="bg-card rounded-2xl overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer border border-border group"
+      className="bg-card rounded-2xl overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer border border-border group flex flex-col h-full"
       onClick={!isInstalled && !onInstall ? onClick : undefined}
     >
       {/* Thumbnail Area */}
-      <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+      <div className="relative aspect-[4/3] bg-muted overflow-hidden flex-shrink-0">
         <img
           src={thumbnail}
           alt={name}
@@ -189,8 +206,8 @@ const AppCard = ({
 
         {/* Category Badge - Bottom Left Overlay */}
         <div className="absolute bottom-3 left-3 bg-black/70 text-white text-[9px] font-medium px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
-          {categoryIcons[category] || <Wrench size={10} />}
-          <span>{category}</span>
+          {categoryIcons[singularCategory] || categoryIcons[category] || <Wrench size={10} />}
+          <span>{singularCategory}</span>
         </div>
 
         {/* Installed Badge - Top Left (green) */}
@@ -231,9 +248,9 @@ const AppCard = ({
       </div>
 
       {/* Content */}
-      <div className="p-3">
+      <div className="p-3 flex flex-col flex-grow">
         <h3 className="font-semibold text-sm text-foreground mb-1">{name}</h3>
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-1">{appDescription}</p>
+        <p className="text-xs text-muted-foreground mb-3 line-clamp-2 flex-grow">{appDescription}</p>
 
         {/* Action Buttons */}
         <div className="flex gap-2">
