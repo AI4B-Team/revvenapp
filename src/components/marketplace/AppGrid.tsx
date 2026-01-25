@@ -7,12 +7,13 @@ interface AppGridProps {
   installs: AppInstall[];
   onInstall: (app: MarketplaceApp) => void;
   onOpen: (app: MarketplaceApp) => void;
+  onResell?: (app: MarketplaceApp) => void;
   hasLicense: boolean;
 }
 
-export function AppGrid({ apps, installs, onInstall, onOpen, hasLicense }: AppGridProps) {
+export function AppGrid({ apps, installs, onInstall, onOpen, onResell, hasLicense }: AppGridProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {apps.map((app) => {
         const install = installs.find(i => i.appId === app.id);
         return (
@@ -22,6 +23,7 @@ export function AppGrid({ apps, installs, onInstall, onOpen, hasLicense }: AppGr
             install={install}
             onInstall={onInstall}
             onOpen={onOpen}
+            onResell={onResell}
             hasLicense={hasLicense}
           />
         );
