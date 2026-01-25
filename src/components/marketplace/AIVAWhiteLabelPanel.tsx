@@ -20,6 +20,7 @@ interface AIVAWhiteLabelPanelProps {
   app: MarketplaceApp;
   license?: AppLicense;
   onApplySuggestion?: (type: string, value: any) => void;
+  sidebarCollapsed?: boolean;
 }
 
 // Suggestions for white-label configuration
@@ -37,7 +38,8 @@ export function AIVAWhiteLabelPanel({
   onClose,
   app,
   license,
-  onApplySuggestion
+  onApplySuggestion,
+  sidebarCollapsed = false
 }: AIVAWhiteLabelPanelProps) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -183,8 +185,11 @@ If suggesting a specific configuration change, format it clearly so the user kno
 
   if (!isOpen) return null;
 
+  // Calculate left position based on sidebar state
+  const leftPosition = sidebarCollapsed ? 'left-16' : 'left-64';
+
   return (
-    <div className="fixed left-0 top-0 bottom-0 w-[400px] bg-background border-r border-border shadow-xl z-50 flex flex-col animate-in slide-in-from-left duration-300">
+    <div className={`fixed ${leftPosition} top-0 bottom-0 w-[400px] bg-background border-r border-border shadow-xl z-40 flex flex-col transition-all duration-300 animate-in slide-in-from-left`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-violet-500/10 to-indigo-500/10">
         <div className="flex items-center gap-3">
