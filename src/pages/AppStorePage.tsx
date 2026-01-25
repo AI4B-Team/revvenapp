@@ -49,29 +49,75 @@ const getAppScreenshots = (appId: string): { src: string; title: string }[] => {
   ];
 };
 
-// Extended features with descriptions
-const getExtendedFeatures = (appId: string) => [
-  {
-    icon: Zap,
-    title: 'Lightning Fast',
-    description: 'Optimized performance with instant load times and smooth interactions.'
-  },
-  {
-    icon: Shield,
-    title: 'Enterprise Security',
-    description: 'Bank-level encryption and compliance with industry standards.'
-  },
-  {
-    icon: Users,
-    title: 'Team Collaboration',
-    description: 'Work together seamlessly with real-time updates and shared workspaces.'
-  },
-  {
-    icon: Clock,
-    title: 'Auto-Save',
-    description: 'Never lose your work with automatic cloud saving and version history.'
-  },
-];
+// App-specific features with descriptions
+const getExtendedFeatures = (appId: string) => {
+  const appFeatures: Record<string, { icon: typeof Zap; title: string; description: string }[]> = {
+    'master-closer': [
+      { icon: Zap, title: 'AI Sales Scripts', description: 'Generate persuasive, customized closing scripts for any product or service in seconds.' },
+      { icon: Shield, title: 'Objection Handling', description: 'Smart responses to common objections with proven techniques that convert hesitant prospects.' },
+      { icon: Users, title: 'CRM Integration', description: 'Seamlessly connect with your existing CRM to track deals and automate follow-ups.' },
+      { icon: Clock, title: 'Real-Time Coaching', description: 'Get live suggestions during calls to improve your pitch and close more deals.' },
+    ],
+    'creator-vault': [
+      { icon: Zap, title: 'Curated Collections', description: 'Access premium, organized content libraries for instant creative inspiration.' },
+      { icon: Shield, title: 'License Management', description: 'Track usage rights and licenses for all your assets in one place.' },
+      { icon: Users, title: 'Team Sharing', description: 'Collaborate with your team by sharing collections and assets securely.' },
+      { icon: Clock, title: 'Quick Search', description: 'Find any asset instantly with powerful tags, filters, and AI-powered search.' },
+    ],
+    'viral-shorts': [
+      { icon: Zap, title: 'Trending Templates', description: 'Use viral-ready templates optimized for TikTok, Reels, and YouTube Shorts.' },
+      { icon: Shield, title: 'Auto-Captions', description: 'Generate engaging captions and hashtags that boost discoverability.' },
+      { icon: Users, title: 'Multi-Platform Export', description: 'Export in perfect dimensions for every major social platform simultaneously.' },
+      { icon: Clock, title: 'AI Script Generator', description: 'Create scroll-stopping hooks and scripts based on trending content patterns.' },
+    ],
+    'digital-influencer': [
+      { icon: Zap, title: 'AI Avatar Creation', description: 'Generate realistic AI influencers with customizable appearance and personality.' },
+      { icon: Shield, title: 'Content Automation', description: 'Schedule and auto-generate posts, stories, and videos for your AI persona.' },
+      { icon: Users, title: 'Audience Analytics', description: 'Track engagement, growth metrics, and audience insights in real-time.' },
+      { icon: Clock, title: 'Voice Cloning', description: 'Create authentic voiceovers that match your AI influencer\'s personality.' },
+    ],
+    'digital-spy': [
+      { icon: Zap, title: 'Competitor Tracking', description: 'Monitor competitor content, engagement, and posting strategies automatically.' },
+      { icon: Shield, title: 'Trend Detection', description: 'Get alerted to emerging trends before they peak so you can capitalize early.' },
+      { icon: Users, title: 'Content Analysis', description: 'Deep-dive into what makes viral content work with AI-powered insights.' },
+      { icon: Clock, title: 'Report Generation', description: 'Create comprehensive competitive intelligence reports in one click.' },
+    ],
+    'transcribe': [
+      { icon: Zap, title: '99% Accuracy', description: 'Industry-leading speech recognition with support for multiple accents and languages.' },
+      { icon: Shield, title: 'Speaker Detection', description: 'Automatically identify and label different speakers in conversations.' },
+      { icon: Users, title: 'Team Annotations', description: 'Add comments, highlights, and notes collaboratively on transcripts.' },
+      { icon: Clock, title: 'Instant Export', description: 'Export to multiple formats including SRT, VTT, PDF, and Word documents.' },
+    ],
+    'editor': [
+      { icon: Zap, title: 'Multi-Track Timeline', description: 'Professional editing with unlimited video, audio, and image tracks.' },
+      { icon: Shield, title: 'AI Enhancements', description: 'One-click color correction, noise removal, and quality upscaling.' },
+      { icon: Users, title: 'Cloud Projects', description: 'Access your projects from anywhere with automatic cloud sync and backup.' },
+      { icon: Clock, title: 'Fast Rendering', description: 'GPU-accelerated exports with support for 4K and higher resolutions.' },
+    ],
+    'ai-responder': [
+      { icon: Zap, title: 'Instant Replies', description: 'Auto-generate contextual responses to messages, comments, and emails.' },
+      { icon: Shield, title: 'Brand Voice', description: 'Train the AI to match your unique tone, style, and messaging guidelines.' },
+      { icon: Users, title: 'Multi-Channel', description: 'Connect to email, social media, and messaging apps from one dashboard.' },
+      { icon: Clock, title: 'Smart Queuing', description: 'Prioritize and schedule responses based on urgency and importance.' },
+    ],
+    'investor-calculator': [
+      { icon: Zap, title: 'Deal Analysis', description: 'Instantly calculate ROI, cash flow, and profitability for any property deal.' },
+      { icon: Shield, title: 'Risk Assessment', description: 'Evaluate market conditions and identify potential risks before investing.' },
+      { icon: Users, title: 'Shareable Reports', description: 'Generate professional investor-ready reports to share with partners.' },
+      { icon: Clock, title: 'Market Comparables', description: 'Access real-time data on comparable properties and market trends.' },
+    ],
+  };
+
+  // Default features for apps without specific features defined
+  const defaultFeatures = [
+    { icon: Zap, title: 'Lightning Fast', description: 'Optimized performance with instant load times and smooth interactions.' },
+    { icon: Shield, title: 'Enterprise Security', description: 'Bank-level encryption and compliance with industry standards.' },
+    { icon: Users, title: 'Team Collaboration', description: 'Work together seamlessly with real-time updates and shared workspaces.' },
+    { icon: Clock, title: 'Auto-Save', description: 'Never lose your work with automatic cloud saving and version history.' },
+  ];
+
+  return appFeatures[appId] || defaultFeatures;
+};
 
 const AppStorePage = () => {
   const { appId } = useParams<{ appId: string }>();
