@@ -220,16 +220,25 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
 
   const handleGenerateLogos = async () => {
     const appName = license?.brandSettings?.appName || 'My App';
+    const tagline = license?.brandSettings?.tagline || '';
+    const description = license?.brandSettings?.description || '';
+    const productContext = tagline || description ? `The product is about: ${tagline || description}.` : '';
     
     setIsGeneratingLogo(true);
     setGeneratedLogos([]);
     
     try {
-      // Generate 3 logos in parallel
-      const promises = Array(3).fill(null).map((_, index) => 
+      const styleVariations = [
+        'abstract geometric shapes with gradients',
+        'bold lettermark or monogram style',
+        'iconic symbol with clean silhouette'
+      ];
+      
+      // Generate 3 logos in parallel with different styles
+      const promises = styleVariations.map((style, index) => 
         supabase.functions.invoke('editor-generate-image', {
           body: {
-            prompt: `Create a modern, minimal, professional logo icon #${index + 1} for a brand called "${appName}". The logo should be simple, memorable, and work well at small sizes. Use bold shapes and clean lines. Square aspect ratio, centered design, solid background. No text in the logo. Style variation ${index + 1}.`
+            prompt: `Design a premium app logo for "${appName}". ${productContext} Style: ${style}. Requirements: Modern, minimal, professional. Must work at small sizes. Square format, centered, transparent or solid color background. NO text, only icon/symbol. High quality, tech-forward aesthetic. Color palette should feel professional and trustworthy.`
           }
         })
       );
@@ -255,16 +264,23 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
 
   const handleGenerateFavicons = async () => {
     const appName = license?.brandSettings?.appName || 'My App';
+    const firstLetter = appName.charAt(0).toUpperCase();
     
     setIsGeneratingFavicon(true);
     setGeneratedFavicons([]);
     
     try {
+      const faviconStyles = [
+        `A single bold letter "${firstLetter}" in a modern sans-serif font on solid color background`,
+        `A simple abstract geometric shape representing growth or innovation`,
+        `A minimal icon symbol that represents the brand "${appName}"`
+      ];
+      
       // Generate 3 favicons in parallel
-      const promises = Array(3).fill(null).map((_, index) => 
+      const promises = faviconStyles.map((style) => 
         supabase.functions.invoke('editor-generate-image', {
           body: {
-            prompt: `Create a tiny favicon icon #${index + 1} for "${appName}". Must be extremely simple - just 1-2 bold shapes or a single letter. High contrast colors, centered, square format, solid background. Works at 16x16 pixels. Style variation ${index + 1}.`
+            prompt: `Create a favicon: ${style}. Must be extremely simple, high contrast, perfectly centered, square format, solid background. Optimized to look crisp at 32x32 pixels. No fine details - only bold, clear shapes.`
           }
         })
       );
