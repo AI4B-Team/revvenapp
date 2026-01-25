@@ -37,7 +37,7 @@ export function BrandControl({ license, onUpdate }: BrandControlProps) {
             ) : (
               <div>
                 <Image className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Click to upload logo</p>
+                <p className="text-sm text-muted-foreground">Click To Upload Logo</p>
                 <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
               </div>
             )}
@@ -55,7 +55,7 @@ export function BrandControl({ license, onUpdate }: BrandControlProps) {
             ) : (
               <div>
                 <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Click to upload favicon</p>
+                <p className="text-sm text-muted-foreground">Click To Upload Favicon</p>
                 <p className="text-xs text-muted-foreground mt-1">ICO, PNG 32x32</p>
               </div>
             )}
