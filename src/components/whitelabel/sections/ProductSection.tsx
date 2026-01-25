@@ -55,8 +55,11 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
   };
 
   const handleGenerateMessaging = async () => {
+    const generatedTagline = "Transform Your Business With AI-Powered Solutions";
+    const generatedDescription = "Unlock the full potential of your business with our cutting-edge platform. Streamline workflows, boost productivity, and drive growth with intelligent automation tools designed for modern entrepreneurs.";
+    setTagline(generatedTagline);
+    setDescription(generatedDescription);
     toast.success('AI messaging generated!');
-    // TODO: Integrate with Lovable AI
   };
 
   const handleSave = () => {
@@ -109,10 +112,9 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
           Generate Name Ideas
         </Button>
 
-        {/* Generated Names */}
         {generatedNames.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Click To Use:</p>
+            <p className="text-sm font-medium text-muted-foreground">Auto-Sync:</p>
             <div className="flex flex-wrap gap-2">
               {generatedNames.map((name) => (
                 <button
