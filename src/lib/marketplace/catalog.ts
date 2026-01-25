@@ -163,7 +163,7 @@ export function getCatalogApp(appId: string): MarketplaceApp {
     catalog[appId] ?? {
       id: appId,
       name: titleCaseFromId(appId),
-      description: 'Install to enable Open + Activate controls.',
+      description: 'Customize And Resell This App Under Your Brand.',
       icon: '🧩',
       category: 'tools',
       isInstallable: true,
