@@ -57,6 +57,7 @@ const AppsFilterToolbar = ({
     { name: 'Audio', icon: Mic, color: 'text-brand-green' },
     { name: 'Design', icon: Palette, color: 'text-brand-yellow' },
     { name: 'Content', icon: FileText, color: 'text-brand-purple' },
+    { name: 'Document', icon: FileText, color: 'text-brand-purple' },
     { name: 'Tools', icon: Wrench, color: 'text-brand-blue' }
   ];
 
@@ -350,7 +351,7 @@ const AppsFilterToolbar = ({
                     });
                   }
                 }}
-                placeholder="Search apps..."
+                placeholder="Search Apps"
                 className="px-3 py-2 w-64 text-sm outline-none"
               />
               <button
