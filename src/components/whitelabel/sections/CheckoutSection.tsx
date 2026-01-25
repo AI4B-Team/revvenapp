@@ -42,9 +42,9 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
   const [enableSpotlightCard, setEnableSpotlightCard] = useState(true);
   const [spotlightTitle, setSpotlightTitle] = useState('What You Get Immediately');
   const [spotlightItems, setSpotlightItems] = useState([
-    'Full platform access in 2 minutes',
-    'Unlimited AI usage included',
-    '14-day money-back guarantee'
+    'Full Platform Access In 2 Minutes',
+    'Unlimited AI Usage Included',
+    '14-Day Money-Back Guarantee'
   ]);
   const [enableBadges, setEnableBadges] = useState(true);
   const [selectedBadges, setSelectedBadges] = useState(['ssl', 'pci', 'stripe', 'gdpr']);
