@@ -404,7 +404,7 @@ const Apps = () => {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4'}>
                     {(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -440,7 +440,7 @@ const Apps = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4'}>
                     {topPicks.map((app) => {
                       const appId = resolveAppId(app.name);
                       // Top picks are pre-installed for new users
@@ -486,7 +486,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
                     {imageApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -517,7 +517,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
                     {videoApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -548,7 +548,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
                     {audioApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -579,7 +579,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
                     {designApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -610,7 +610,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
                     {contentApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -641,7 +641,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
                     {toolsApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -712,7 +712,7 @@ const Apps = () => {
                           {installedApps.length} app{installedApps.length !== 1 ? 's' : ''} installed
                         </p>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className={viewMode === 'list' ? 'flex flex-col gap-3' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'}>
                         {installedApps.map((app, idx) => {
                           const appId = resolveAppId(app.name);
                           const description = 'description' in app ? (app.description as string) : '';
@@ -730,6 +730,7 @@ const Apps = () => {
                               onOpen={() => openInstalledApp(app.name)}
                               onActivate={() => handleActivateApp(appId)}
                               onClick={onClick}
+                              viewMode={viewMode}
                             />
                           );
                         })}
