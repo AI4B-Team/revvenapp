@@ -36,7 +36,7 @@ const Apps = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState<'apps' | 'marketplace'>('apps');
+  const [activeTab, setActiveTab] = useState<'apps' | 'marketplace'>('marketplace');
   const [installModalApp, setInstallModalApp] = useState<MarketplaceApp | null>(null);
   
   const { isFavorite, toggleFavorite } = useFavoriteApps();
@@ -261,9 +261,25 @@ const Apps = () => {
           <div className="px-8 py-12 border-b border-border">
             <div className="w-full">
               <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl font-bold">
-                  <span className="text-primary">APPS</span>
-                </h1>
+                <div className="flex items-center gap-6">
+                  <h1 className="text-3xl font-bold">
+                    <span className="text-primary">APPS</span>
+                  </h1>
+                  
+                  {/* Tabs inline with title */}
+                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'apps' | 'marketplace')}>
+                    <TabsList className="bg-muted">
+                      <TabsTrigger value="marketplace" className="gap-2">
+                        <Store size={14} />
+                        Marketplace
+                      </TabsTrigger>
+                      <TabsTrigger value="apps" className="gap-2">
+                        <Play size={14} />
+                        My Apps
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
                 
                 {/* Filter Controls */}
                 <div className="flex items-center gap-3">
@@ -286,23 +302,9 @@ const Apps = () => {
                 </div>
               </div>
               
-              <p className="text-muted-foreground text-lg mb-6">
-                A full suite of intelligent AI Apps to help you create like a pro.
+              <p className="text-muted-foreground text-lg">
+                A full suite of intelligent AI Apps to help you create, automate, and grow.
               </p>
-
-              {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'apps' | 'marketplace')}>
-                <TabsList className="bg-muted">
-                  <TabsTrigger value="apps" className="gap-2">
-                    <Play size={14} />
-                    My Apps
-                  </TabsTrigger>
-                  <TabsTrigger value="marketplace" className="gap-2">
-                    <Store size={14} />
-                    Marketplace
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
             </div>
           </div>
 
