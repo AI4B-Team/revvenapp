@@ -449,7 +449,7 @@ const Onboarding = () => {
                                   {!isCompleted && task.actionLabel ? (
                                     <button
                                       onClick={() => completeTask(task.id)}
-                                      className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors shrink-0"
+                                      className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors shrink-0"
                                     >
                                       {task.actionLabel}
                                     </button>
