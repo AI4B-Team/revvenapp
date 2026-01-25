@@ -454,8 +454,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           
           {!isCollapsed && (
             <>
-              <Link to="/" className="hover:opacity-80 transition cursor-pointer">
-                <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>
+              <Link to="/" className="hover:opacity-80 transition cursor-pointer flex items-center">
+                <h1 className="text-2xl font-bold tracking-wider leading-none">REVVEN</h1>
               </Link>
               <TooltipProvider>
                 <Tooltip>
