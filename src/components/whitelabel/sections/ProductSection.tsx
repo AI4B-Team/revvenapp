@@ -6,11 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   Sparkles, 
-  RefreshCw, 
   Lightbulb, 
   Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { NameGeneratorWizard } from '../wizards/NameGeneratorWizard';
 
 interface ProductSectionProps {
   app: MarketplaceApp;
@@ -18,20 +18,11 @@ interface ProductSectionProps {
   onUpdate: (settings: Partial<AppLicense['brandSettings']>, showToast?: boolean) => void;
 }
 
-const suggestedNames = [
-  'GrowthHub',
-  'LaunchPad Pro',
-  'ScaleForce',
-  'NextLevel AI',
-  'SmartFlow'
-];
-
 export function ProductSection({ app, license, onUpdate }: ProductSectionProps) {
   const [productName, setProductName] = useState(license?.brandSettings?.appName || '');
   const [tagline, setTagline] = useState(license?.brandSettings?.tagline || '');
   const [description, setDescription] = useState(license?.brandSettings?.description || '');
-  const [isGeneratingNames, setIsGeneratingNames] = useState(false);
-  const [generatedNames, setGeneratedNames] = useState<string[]>([]);
+  const [isNameWizardOpen, setIsNameWizardOpen] = useState(false);
   
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -50,18 +41,9 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
     }, 5000);
   }, [onUpdate]);
 
-  const handleGenerateNames = async () => {
-    setIsGeneratingNames(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setGeneratedNames(suggestedNames);
-    setIsGeneratingNames(false);
-    toast.success('Name ideas generated!');
-  };
-
   const handleSelectName = (name: string) => {
     setProductName(name);
     onUpdate({ appName: name }, false);
-    toast.success(`"${name}" selected as product name`);
   };
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,39 +111,21 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
 
         <Button 
           variant="outline" 
-          onClick={handleGenerateNames}
-          disabled={isGeneratingNames}
+          onClick={() => setIsNameWizardOpen(true)}
           className="gap-2"
         >
-          {isGeneratingNames ? (
-            <RefreshCw className="h-4 w-4 animate-spin" />
-          ) : (
-            <Wand2 className="h-4 w-4" />
-          )}
+          <Wand2 className="h-4 w-4" />
           Generate Name Ideas
         </Button>
-
-        {generatedNames.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Auto-Sync:</p>
-            <div className="flex flex-wrap gap-2">
-              {generatedNames.map((name) => (
-                <button
-                  key={name}
-                  onClick={() => handleSelectName(name)}
-                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                    productName === name
-                      ? 'bg-emerald-500 text-white border-emerald-500'
-                      : 'bg-muted/50 text-foreground border-border hover:border-emerald-500/50'
-                  }`}
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Name Generator Wizard Modal */}
+      <NameGeneratorWizard
+        isOpen={isNameWizardOpen}
+        onClose={() => setIsNameWizardOpen(false)}
+        onSelectName={handleSelectName}
+        appContext={app.description}
+      />
 
       {/* Tagline & Description */}
       <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">

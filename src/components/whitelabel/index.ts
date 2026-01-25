@@ -8,3 +8,4 @@ export { DomainSection } from './sections/DomainSection';
 export { SettingsSection } from './sections/SettingsSection';
 export { LivePreview } from './LivePreview';
 export { LicenseActivation } from './LicenseActivation';
+export { NameGeneratorWizard, LogoGeneratorWizard } from './wizards';

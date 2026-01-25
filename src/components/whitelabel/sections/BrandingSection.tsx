@@ -11,10 +11,12 @@ import {
   Check,
   Sparkles,
   Loader2,
-  X
+  X,
+  Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { LogoGeneratorWizard } from '../wizards/LogoGeneratorWizard';
 
 interface BrandingSectionProps {
   license?: AppLicense;
@@ -100,6 +102,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
   // Generated options
   const [generatedLogos, setGeneratedLogos] = useState<string[]>([]);
   const [generatedFavicons, setGeneratedFavicons] = useState<string[]>([]);
+  const [isLogoWizardOpen, setIsLogoWizardOpen] = useState(false);
   
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
@@ -510,6 +513,24 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
 
             {/* AI Generation Section */}
             <div className="pt-4 border-t border-border space-y-4">
+              {/* Logo Wizard Button - Primary Action */}
+              <Button
+                onClick={() => setIsLogoWizardOpen(true)}
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-12"
+              >
+                <Wand2 className="h-4 w-4 mr-2" />
+                Create Logo with AI Wizard
+              </Button>
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">or quick generate</span>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 {/* Generate Logo Button */}
                 <Button
@@ -526,7 +547,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
                   ) : (
                     <>
                       <Sparkles className="h-4 w-4 mr-2" />
-                      Generate Logos
+                      Quick Logos
                     </>
                   )}
                 </Button>
@@ -546,13 +567,13 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
                   ) : (
                     <>
                       <Sparkles className="h-4 w-4 mr-2" />
-                      Generate Favicons
+                      Quick Favicons
                     </>
                   )}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground text-center">
-                AI will generate 3 options for you to choose from
+                Quick generate creates 3 random options. Use the wizard for more control.
               </p>
 
               {/* Generated Logo Options */}
@@ -591,6 +612,18 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
                 </div>
               )}
             </div>
+
+            {/* Logo Generator Wizard Modal */}
+            <LogoGeneratorWizard
+              isOpen={isLogoWizardOpen}
+              onClose={() => setIsLogoWizardOpen(false)}
+              onSelectLogo={(url) => {
+                setLogoUrl(url);
+                setUseCustomLogo(true);
+                setGeneratedLogos([]);
+              }}
+              productName={license?.brandSettings?.appName}
+            />
           </div>
         )}
       </div>
