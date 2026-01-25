@@ -95,7 +95,7 @@ export function LicenseActivation({ app, onActivate }: LicenseActivationProps) {
             <Zap size={18} className="text-emerald-500" />
             What's Included
           </h3>
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-3">
             {[
               'Full white-label customization',
               'Custom landing page builder',
@@ -103,10 +103,11 @@ export function LicenseActivation({ app, onActivate }: LicenseActivationProps) {
               'Subdomain hosting included',
               'Custom domain support',
               'Integrated checkout system',
-              'Revenue tracking dashboard'
+              'Revenue tracking dashboard',
+              'Priority support access'
             ].map((item, index) => (
               <div key={index} className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                   <Check size={12} className="text-emerald-500" />
                 </div>
                 <span className="text-sm text-muted-foreground">{item}</span>
