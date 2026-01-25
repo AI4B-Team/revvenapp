@@ -97,6 +97,10 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
 
   return (
     <div className="px-4 mb-4 relative flex-shrink-0" ref={dropdownRef}>
+      <div className="flex items-center gap-1.5 mb-1.5 px-1">
+        <FolderKanban size={10} className="text-sidebar-muted" />
+        <span className="text-[10px] font-medium text-sidebar-muted uppercase tracking-wider">Project</span>
+      </div>
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center gap-3 px-3 py-2.5 bg-sidebar-hover/50 border border-border rounded-lg hover:bg-sidebar-hover transition group"
