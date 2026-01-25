@@ -36,6 +36,7 @@ export const appRoutes: Record<string, string> = {
   'investor-calculator': '/investor-calculator',
   'digital-spy': '/digital-spy',
   'master-closer': '/master-closer',
+  'creator-vault': '/creator-vault',
 };
 
 export const appIdByName: Record<string, string> = {
@@ -61,6 +62,7 @@ export const appIdByName: Record<string, string> = {
   'AI Responder': 'ai-responder',
   'Investor Calculator': 'investor-calculator',
   'Digital Spy': 'digital-spy',
+  'Creator Vault': 'creator-vault',
 };
 
 const catalog: Record<string, MarketplaceApp> = {
@@ -133,6 +135,16 @@ const catalog: Record<string, MarketplaceApp> = {
     isInstallable: true,
     isWhitelabelEligible: true,
     features: ['Templates', 'Branding', 'Share'],
+  },
+  'creator-vault': {
+    id: 'creator-vault',
+    name: 'Creator Vault',
+    description: 'Your curated library of premium content collections.',
+    icon: '🗃️',
+    category: 'content',
+    isInstallable: true,
+    isWhitelabelEligible: true,
+    features: ['Collections', 'Styles', 'Locations', 'Seasons'],
   },
 };
 
