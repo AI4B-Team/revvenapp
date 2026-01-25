@@ -17,17 +17,33 @@ export function AppCard({ app, install, onInstall, onOpen, onResell, hasLicense 
   const navigate = useNavigate();
   const isInstalled = !!install;
 
-  const handleResell = () => {
+  const handleCardClick = () => {
+    navigate(`/apps/${app.id}`);
+  };
+
+  const handleResell = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onResell) {
       onResell(app);
     } else {
-      // Navigate to app license page for white-labeling
       navigate(`/app-license/${app.id}`);
     }
   };
 
+  const handleInstallOrOpen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isInstalled) {
+      onOpen(app);
+    } else {
+      onInstall(app);
+    }
+  };
+
   return (
-    <div className="bg-background rounded-xl border border-border p-6 hover:shadow-lg transition-shadow duration-200">
+    <div 
+      className="bg-background rounded-xl border border-border p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+      onClick={handleCardClick}
+    >
       {/* Icon */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-4xl">{app.icon}</div>
@@ -58,7 +74,7 @@ export function AppCard({ app, install, onInstall, onOpen, onResell, hasLicense 
         <Button
           variant={isInstalled ? 'outline' : 'default'}
           className="flex-1"
-          onClick={() => (isInstalled ? onOpen(app) : onInstall(app))}
+          onClick={handleInstallOrOpen}
         >
           {isInstalled ? 'Open' : 'Install'}
         </Button>

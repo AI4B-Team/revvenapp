@@ -114,8 +114,8 @@ export const mockMembers: WorkspaceMember[] = [
     role: 'admin',
     user: {
       id: 'user-2',
-      email: 'admin@revven.com',
-      name: 'Alex Chen',
+      email: 'brian@revven.com',
+      name: 'Brian',
       plan: 'pro'
     }
   },
@@ -126,8 +126,44 @@ export const mockMembers: WorkspaceMember[] = [
     role: 'member',
     user: {
       id: 'user-3',
-      email: 'sarah@revven.com',
-      name: 'Sarah Johnson',
+      email: 'francis@revven.com',
+      name: 'Francis',
+      plan: 'pro'
+    }
+  },
+  {
+    id: 'member-4',
+    workspaceId: 'workspace-1',
+    userId: 'user-4',
+    role: 'member',
+    user: {
+      id: 'user-4',
+      email: 'rich@revven.com',
+      name: 'Rich',
+      plan: 'pro'
+    }
+  },
+  {
+    id: 'member-5',
+    workspaceId: 'workspace-1',
+    userId: 'user-5',
+    role: 'member',
+    user: {
+      id: 'user-5',
+      email: 'damoi@revven.com',
+      name: 'Damoi',
+      plan: 'free'
+    }
+  },
+  {
+    id: 'member-6',
+    workspaceId: 'workspace-1',
+    userId: 'user-6',
+    role: 'member',
+    user: {
+      id: 'user-6',
+      email: 'keisha@revven.com',
+      name: 'Keisha',
       plan: 'free'
     }
   }
@@ -138,12 +174,12 @@ export const mockTeams: Team[] = [
     id: 'team-1',
     workspaceId: 'workspace-1',
     name: 'Engineering',
-    memberIds: ['user-1', 'user-2']
+    memberIds: ['user-1', 'user-2', 'user-3']
   },
   {
     id: 'team-2',
     workspaceId: 'workspace-1',
     name: 'Marketing',
-    memberIds: ['user-2', 'user-3']
+    memberIds: ['user-4', 'user-5', 'user-6']
   }
 ];
