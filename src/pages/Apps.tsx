@@ -303,7 +303,7 @@ const Apps = () => {
               </div>
               
               <p className="text-muted-foreground text-lg">
-                A full suite of intelligent AI Apps to help you create, automate, and grow.
+                A full suite of intelligent AI Apps to help you create, monetize, and automate.
               </p>
             </div>
           </div>
