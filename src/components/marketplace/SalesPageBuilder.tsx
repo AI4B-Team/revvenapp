@@ -27,6 +27,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { getAppThumbnail } from '@/utils/appThumbnails';
+import { IconTooltip } from '@/components/ui/IconTooltip';
 
 // Template definitions
 const SALES_PAGE_TEMPLATES = [
@@ -415,22 +416,24 @@ export function SalesPageBuilder({ app, license, onSave }: SalesPageBuilderProps
             <span className="font-medium capitalize">{section.type}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                regenerateSection(section.id);
-              }}
-              disabled={isRegenerating}
-              className="h-8"
-            >
-              {isRegenerating ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-            </Button>
+            <IconTooltip label="Regenerate">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  regenerateSection(section.id);
+                }}
+                disabled={isRegenerating}
+                className="h-8"
+              >
+                {isRegenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </Button>
+            </IconTooltip>
             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>
         </div>
