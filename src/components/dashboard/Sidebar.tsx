@@ -623,7 +623,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               className="flex flex-col flex-1 text-left"
             >
               <span className="text-sm font-medium hover:text-brand-green transition">
-                {displayBrand?.name || 'Create Brand'}
+                {displayBrand?.name || 'Brands'}
               </span>
               {displayBrand && !displayBrand.isComplete && (
                 <span className="text-xs text-brand-yellow">Profile incomplete</span>
