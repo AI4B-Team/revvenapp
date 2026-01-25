@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ChevronRight, Store, LayoutGrid
+  ChevronRight, Store, LayoutGrid, Grid3X3, List
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -18,6 +18,7 @@ import { appRoutes, getCatalogApp, resolveAppId } from '@/lib/marketplace/catalo
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Helper to add app to open tabs and navigate
 const addToOpenTabs = (appId: string, navigate: ReturnType<typeof useNavigate>) => {
@@ -42,6 +43,7 @@ const Apps = () => {
   const [zoom, setZoom] = useState(50);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [appFilters, setAppFilters] = useState<AppFilterState | undefined>(undefined);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   const { isFavorite, toggleFavorite } = useFavoriteApps();
   const { isInstalled, installApp } = useInstalledApps();
@@ -93,97 +95,119 @@ const Apps = () => {
   const trendingApps = [
     {
       id: 0,
-      name: 'REAL Creator',
-      category: 'Video Tools',
-      description: 'Your all-in-one AI content creation studio',
-      thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop',
+      name: 'Creator Vault',
+      category: 'Content Tools',
+      description: 'Your curated library of premium content collections',
+      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop',
       badge: 'HOT',
-      onClick: () => navigate('/create')
+      icon: '🗃️',
+      rating: 4.9,
+      onClick: () => navigate('/creator-vault')
     },
     {
       id: 1,
-      name: 'Transcribe',
-      category: 'Audio Tools',
-      description: 'Turn speech into text with AI-powered transcription',
-      thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&h=400&fit=crop',
+      name: 'Master Closer',
+      category: 'Sales Tools',
+      description: 'AI-powered sales closing assistant',
+      thumbnail: 'https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=600&h=400&fit=crop',
       badge: 'HOT',
-      onClick: () => navigate('/transcribe')
+      icon: '🎯',
+      rating: 4.8,
+      onClick: () => navigate('/master-closer')
     },
     {
       id: 2,
-      name: 'GhostInk',
-      category: 'Content Tools',
-      description: 'AI ghostwriting for articles, blogs, and more',
-      thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=400&fit=crop',
-      badge: 'NEW',
+      name: 'Viral Shorts',
+      category: 'Video Tools',
+      description: 'Create viral short-form video content',
+      thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=600&h=400&fit=crop',
+      badge: 'HOT',
+      icon: '🎬',
+      rating: 4.7,
+      onClick: () => navigate('/viral-shorts')
     },
     {
       id: 3,
-      name: 'Editor',
-      category: 'Tools',
-      description: 'Create and edit content with pro-grade tools',
-      thumbnail: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=400&fit=crop',
-      badge: 'HOT',
-      onClick: () => navigate('/edit')
+      name: 'Sessions',
+      category: 'Video Tools',
+      description: 'Record and manage video sessions effortlessly',
+      thumbnail: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=600&h=400&fit=crop',
+      badge: 'NEW',
+      icon: '📹',
+      rating: 4.6,
+      onClick: () => navigate('/sessions')
     },
     {
       id: 4,
-      name: 'Digital Spy',
-      category: 'Content Intelligence',
-      description: 'Content intelligence and insights for your campaigns',
-      thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop',
-      badge: 'NEW',
-      onClick: () => navigate('/digital-spy')
+      name: 'Digital Influencer',
+      category: 'Video Tools',
+      description: 'Generate AI-powered influencer content',
+      thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=600&h=400&fit=crop',
+      badge: 'HOT',
+      icon: '👤',
+      rating: 4.9,
+      onClick: () => navigate('/ai-influencer')
     },
   ];
 
   const topPicks = [
     {
       id: 1,
-      name: 'Creator Vault',
-      category: 'Content Tools',
-      description: 'Your curated library of premium content collections',
-      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop',
+      name: 'REAL Creator',
+      category: 'Video Tools',
+      description: 'Your all-in-one AI content creation studio',
+      thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop',
       badge: 'HOT',
-      onClick: () => navigate('/creator-vault'),
+      icon: '✨',
+      rating: 4.9,
+      onClick: () => navigate('/create'),
       preInstalled: true,
     },
     {
       id: 2,
-      name: 'Background Remover',
-      category: 'Image Tools',
-      description: 'Remove backgrounds from images instantly',
-      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop',
-      badge: 'HOT',
-      onClick: () => navigate('/background-remover'),
+      name: 'Transcribe',
+      category: 'Audio Tools',
+      description: 'Convert speech to text with high accuracy',
+      thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop',
+      badge: 'NEW',
+      icon: '🎙️',
+      rating: 4.8,
+      onClick: () => navigate('/transcribe'),
       preInstalled: true,
     },
     {
       id: 3,
-      name: 'Video Resizer',
-      category: 'Video Tools',
-      description: 'Resize videos for any social platform',
-      thumbnail: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop',
+      name: 'Ghost Ink',
+      category: 'Content Tools',
+      description: 'AI ghostwriting for articles, blogs, and more',
+      thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop',
       badge: 'NEW',
+      icon: '✍️',
+      rating: 4.7,
       preInstalled: true,
     },
     {
       id: 4,
-      name: 'Logo Designer',
-      category: 'Design Tools',
-      description: 'Create stunning brand logos with AI',
-      thumbnail: 'https://images.unsplash.com/photo-1626785774625-ddcddc3445e9?w=400&h=300&fit=crop',
+      name: 'Editor',
+      category: 'Tools',
+      description: 'Create and edit content with pro-grade tools',
+      thumbnail: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop',
       badge: 'HOT',
+      icon: '🛠️',
+      rating: 4.8,
+      onClick: () => navigate('/edit'),
       preInstalled: true,
     },
     {
       id: 5,
-      name: 'Blog Writer',
-      category: 'Content Tools',
-      description: 'Generate engaging blog posts with AI',
-      thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop',
+      name: 'Digital Spy',
+      category: 'Content Intelligence',
+      description: 'Content intelligence and insights for your campaigns',
+      thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
       badge: 'NEW',
-      onClick: () => navigate('/blog-writer'),
+      icon: '🕵️',
+      rating: 4.6,
+      onClick: () => navigate('/digital-spy'),
       preInstalled: true,
     }
   ];
@@ -204,8 +228,8 @@ const Apps = () => {
     { name: 'Video Resizer', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop' },
     { name: 'Motion-Sync', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=400&h=300&fit=crop', badge: 'NEW' },
     { name: 'Explainer Video', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=300&fit=crop', onClick: () => navigate('/explainer-video') },
-    { name: 'AI Influencer', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=300&fit=crop', badge: 'HOT', onClick: () => navigate('/ai-influencer') },
-    { name: 'Viral Shorts', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=400&h=300&fit=crop', badge: 'HOT', onClick: () => navigate('/viral-shorts') },
+    { name: 'Digital Influencer', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=300&fit=crop', badge: 'HOT', icon: '👤', rating: 4.9, onClick: () => navigate('/ai-influencer') },
+    { name: 'Viral Shorts', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=400&h=300&fit=crop', badge: 'HOT', icon: '🎬', rating: 4.7, onClick: () => navigate('/viral-shorts') },
   ];
 
   const audioApps = [
@@ -274,9 +298,45 @@ const Apps = () => {
           <div className="px-8 py-12 border-b border-border">
             <div className="w-full">
               <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl font-bold">
-                  <span className="text-primary">APPS</span>
-                </h1>
+                <div className="flex items-center gap-4">
+                  <h1 className="text-3xl font-bold">
+                    <span className="text-primary">APPS</span>
+                  </h1>
+                  
+                  {/* View Toggle */}
+                  <div className="flex items-center border border-border rounded-lg overflow-hidden">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => setViewMode('grid')}
+                            className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}
+                          >
+                            <Grid3X3 size={16} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Grid View</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}
+                          >
+                            <List size={16} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>List View</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
                 
                 {/* Filter Controls */}
                 <AppsFilterToolbar 
@@ -355,12 +415,15 @@ const Apps = () => {
                           thumbnail={app.thumbnail}
                           description={app.description}
                           badge={app.badge}
+                          icon={app.icon}
+                          rating={app.rating}
                           appId={appId}
                           isInstalled={installed}
                           onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
                           onOpen={installed ? () => openInstalledApp(app.name) : undefined}
                           onActivate={installed ? () => handleActivateApp(appId) : undefined}
                           onClick={app.onClick}
+                          viewMode={viewMode}
                         />
                       );
                     })}
@@ -389,6 +452,8 @@ const Apps = () => {
                           thumbnail={app.thumbnail}
                           description={app.description}
                           badge={app.badge}
+                          icon={app.icon}
+                          rating={app.rating}
                           appId={appId}
                           isInstalled={installed}
                           onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
@@ -401,6 +466,7 @@ const Apps = () => {
                           } : undefined}
                           onActivate={installed ? () => handleActivateApp(appId) : undefined}
                           onClick={app.onClick}
+                          viewMode={viewMode}
                         />
                       );
                     })}
