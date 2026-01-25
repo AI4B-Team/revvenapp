@@ -281,7 +281,7 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
       {/* Preview Footer */}
       <div className="px-4 py-2 border-t border-border bg-background">
         <p className="text-xs text-muted-foreground text-center">
-          Preview updates automatically as you make changes
+          Preview Updates Automatically As You Make Changes
         </p>
       </div>
     </div>
