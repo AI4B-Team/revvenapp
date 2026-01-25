@@ -52,6 +52,9 @@ const AppLicense = () => {
     const currentLicense = getLicense(appId);
     if (currentLicense) {
       updateLicense(appId, { brandSettings: { ...currentLicense.brandSettings, ...settings } });
+      if (showToast) {
+        toast.success('Branding settings saved!');
+      }
     }
   };
 
