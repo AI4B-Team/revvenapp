@@ -142,7 +142,7 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
               <div className="space-y-2">
                 <Label>Discount Percentage</Label>
                 <div className="flex gap-2 flex-wrap">
-                  {[10, 15, 20, 25].map((pct) => (
+                  {[10, 15, 20, 25, 50, 75].map((pct) => (
                     <button
                       key={pct}
                       onClick={() => setDiscountPercent(pct)}
