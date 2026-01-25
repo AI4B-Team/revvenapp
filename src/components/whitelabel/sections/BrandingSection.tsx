@@ -223,7 +223,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
       try {
         const result = await supabase.functions.invoke('editor-generate-image', {
           body: {
-            prompt: `Create a simple, modern app icon. ${productContext} Style: ${style}. CRITICAL RULES: 1) ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS - only abstract shapes or symbols. 2) Solid dark navy blue background (#1a1a2e). 3) Use bright gradients (teal, cyan, emerald). 4) Single centered icon. 5) Flat design, no 3D effects. 6) Must be recognizable at 32x32 pixels. Square format.`
+            prompt: `Ultra-minimal app icon: ONE simple ${style} on solid #1a1a2e background. RULES: Only 1-2 basic geometric shapes (circle, square, triangle, line). Single bright color (white, cyan #00d4ff, or green #10b981). NO gradients, NO shadows, NO details, NO text, NO 3D. Flat vector style. Must look perfect at 32x32px. Centered. Square format.`
           }
         });
         if (!result.error && result.data?.imageUrl) {
@@ -250,9 +250,9 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     
     try {
       const styleVariations = [
-        'upward arrow or rocket symbolizing growth',
-        'abstract circular or hexagonal tech pattern',
-        'lightning bolt or spark representing speed and energy'
+        'single upward arrow shape',
+        'simple circle or ring',
+        'basic diamond or square rotated 45 degrees'
       ];
       
       // Generate 3 logos in parallel with retry logic
@@ -282,7 +282,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
       try {
         const result = await supabase.functions.invoke('editor-generate-image', {
           body: {
-            prompt: `Create a tiny favicon icon. ${style}. CRITICAL RULES: 1) EXTREMELY simple - maximum 2 shapes. 2) Solid dark background (#1a1a2e). 3) Bright single color icon (white, cyan, or emerald). 4) NO text, NO letters. 5) Must be clear at 16x16 pixels. 6) Flat design only. Square format, centered.`
+            prompt: `Minimal favicon: ${style} on solid #1a1a2e. ONLY one geometric shape. Single color (white or cyan). NO details, NO gradients. Flat vector. 16x16px optimized. Square, centered.`
           }
         });
         if (!result.error && result.data?.imageUrl) {
