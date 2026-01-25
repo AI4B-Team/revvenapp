@@ -41,7 +41,7 @@ export function MemberSelector({ members, selectedIds, onChange }: MemberSelecto
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <MarketplaceInput
           type="text"
-          placeholder="Search members..."
+          placeholder="Search Members..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
@@ -66,7 +66,7 @@ export function MemberSelector({ members, selectedIds, onChange }: MemberSelecto
             <Check className="h-3 w-3 text-primary-foreground" />
           )}
         </div>
-        Select all ({members.length})
+        Select All ({members.length})
       </button>
 
       {/* Member List */}
@@ -125,7 +125,7 @@ export function MemberSelector({ members, selectedIds, onChange }: MemberSelecto
 
       {/* Selected Count */}
       <div className="text-sm text-muted-foreground">
-        {selectedIds.length} of {members.length} members selected
+        {selectedIds.length} Members Selected
       </div>
     </div>
   );
