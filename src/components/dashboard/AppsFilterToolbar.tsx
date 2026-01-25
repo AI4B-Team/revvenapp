@@ -373,6 +373,9 @@ const AppsFilterToolbar = ({
         </div>
       </TooltipProvider>
 
+      {/* Vertical Divider */}
+      <div className="h-6 w-px bg-border" />
+
       {/* Zoom Slider */}
       <div className="flex items-center gap-3 bg-white border border-gray-300 rounded-lg px-4 py-2">
         <button
