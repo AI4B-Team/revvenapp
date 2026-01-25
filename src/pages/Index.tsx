@@ -86,24 +86,45 @@ const Index = () => {
       videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     },
     {
-      id: 'home',
-      title: 'Tutorial Home',
-      description: 'Get started with your platform and learn the basics of the dashboard.',
+      id: 'aiva',
+      title: 'AIVA Tutorial',
+      description: 'Get started with your AI assistant and learn how to maximize productivity.',
       thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
       videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     },
     {
+      id: 'workspace',
+      title: 'Workspace Tutorial',
+      description: 'Learn how to organize and manage your workspaces effectively.',
+      thumbnail: 'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=800',
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    },
+    {
       id: 'branding',
-      title: 'Tutorial Branding',
+      title: 'Brand Tutorial',
       description: 'Master the art of customizing your platform branding and visual identity.',
       thumbnail: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800',
       videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     },
     {
       id: 'apps',
-      title: 'Tutorial Apps',
+      title: 'Apps Tutorial',
       description: 'Learn how to use and install AI-powered apps from the marketplace.',
       thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    },
+    {
+      id: 'community',
+      title: 'Community Tutorial',
+      description: 'Discover how to engage with the community and share your creations.',
+      thumbnail: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800',
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    },
+    {
+      id: 'whitelabel',
+      title: 'White-Label Tutorial',
+      description: 'Learn how to resell and customize apps with your own branding.',
+      thumbnail: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800',
       videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     }
   ];
