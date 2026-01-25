@@ -17,7 +17,7 @@ const Community = () => {
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
       <Sidebar 
         activeTab="" 
         onTabChange={() => {}}
@@ -26,12 +26,12 @@ const Community = () => {
         onCollapseChange={setIsSidebarCollapsed}
       />
       
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <div className="flex-shrink-0">
           <Header />
         </div>
         
-        <main className="flex-1 overflow-auto bg-white">
+        <main className="flex-1 overflow-y-auto bg-white">
           {/* Header - Sticky */}
           <div className="px-8 py-6 bg-white sticky top-0 z-40 border-b border-border shadow-sm">
             <div className="flex items-center justify-between">
