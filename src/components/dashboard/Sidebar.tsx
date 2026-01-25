@@ -460,7 +460,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                   </button>
                 ) : (
                   <Link
-                    to="/"
+                    to="/dashboard"
                     className="flex-shrink-0 hover:opacity-80 transition"
                   >
                     <RevvenLogo size={40} />
