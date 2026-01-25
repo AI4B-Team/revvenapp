@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ChevronRight, Store, LayoutGrid, Grid3X3, List,
-  FolderOpen, Target, Video, Camera, User, Sparkles, Mic, PenTool, Edit3, Search, Layers, Bot
+  FolderOpen, Target, Video, Camera, User, Sparkles, Mic, PenTool, Edit3, Search, Layers, Bot,
+  ChevronUp, ChevronDown
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -45,6 +46,7 @@ const Apps = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [appFilters, setAppFilters] = useState<AppFilterState | undefined>(undefined);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
   
   const { isFavorite, toggleFavorite } = useFavoriteApps();
   const { isInstalled, installApp } = useInstalledApps();
@@ -405,9 +407,27 @@ const Apps = () => {
           <div className="px-8 py-6 border-b border-border bg-background sticky top-0 z-40 shadow-sm">
             <div className="w-full">
               <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl font-bold">
-                  <span className="text-primary">APPS</span>
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-3xl font-bold">
+                    <span className="text-primary">APPS</span>
+                  </h1>
+                  {/* Collapse/Expand Button */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+                          className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                        >
+                          {isHeaderCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{isHeaderCollapsed ? 'Expand Section' : 'Collapse Section'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 
                 {/* Filter Controls + View Toggle */}
                 <div className="flex items-center gap-3">
@@ -455,35 +475,40 @@ const Apps = () => {
                 </div>
               </div>
               
-              <p className="text-muted-foreground text-lg mb-6">
-                A full suite of intelligent AI Apps to help you create, monetize, and automate.
-              </p>
-              
-              {/* Tab Buttons - Separated */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setActiveTab('marketplace')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                    activeTab === 'marketplace'
-                      ? 'bg-foreground text-background shadow-md'
-                      : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
-                  }`}
-                >
-                  <Store size={14} />
-                  Marketplace
-                </button>
-                <button
-                  onClick={() => setActiveTab('apps')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                    activeTab === 'apps'
-                      ? 'bg-foreground text-background shadow-md'
-                      : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
-                  }`}
-                >
-                  <LayoutGrid size={14} />
-                  My Apps
-                </button>
-              </div>
+              {/* Collapsible content */}
+              {!isHeaderCollapsed && (
+                <>
+                  <p className="text-muted-foreground text-lg mb-6">
+                    A full suite of intelligent AI Apps to help you create, monetize, and automate.
+                  </p>
+                  
+                  {/* Tab Buttons - Separated */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setActiveTab('marketplace')}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                        activeTab === 'marketplace'
+                          ? 'bg-foreground text-background shadow-md'
+                          : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
+                      }`}
+                    >
+                      <Store size={14} />
+                      Marketplace
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('apps')}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                        activeTab === 'apps'
+                          ? 'bg-foreground text-background shadow-md'
+                          : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
+                      }`}
+                    >
+                      <LayoutGrid size={14} />
+                      My Apps
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
