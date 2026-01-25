@@ -386,11 +386,13 @@ const Apps = () => {
       />
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <Header />
+        <div className="flex-shrink-0">
+          <Header />
+        </div>
         
         <main className="flex-1 overflow-auto bg-background">
           {/* Header Section - Sticky */}
-          <div className="px-8 py-6 border-b border-border bg-background sticky top-0 z-40">
+          <div className="px-8 py-6 border-b border-border bg-background sticky top-0 z-40 shadow-sm">
             <div className="w-full">
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold">
