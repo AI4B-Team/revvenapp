@@ -476,13 +476,21 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               <Link to="/" className="hover:opacity-80 transition cursor-pointer">
                 <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>
               </Link>
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-2 hover:bg-sidebar-hover rounded-lg transition ml-auto"
-                title="Collapse sidebar"
-              >
-                <PanelLeftClose size={20} />
-              </button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setIsCollapsed(!isCollapsed)}
+                      className="p-2 hover:bg-sidebar-hover rounded-lg transition ml-auto"
+                    >
+                      <PanelLeftClose size={20} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>Collapse Sidebar</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </>
           )}
         </div>
@@ -798,12 +806,11 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         {sidebarItems.map((item, idx) => {
           // AIVA item: opens panel when inside an app, navigates when not
           if ((item as any).isAIVA && isInsideApp) {
-            return (
+            const button = (
               <button
                 key={idx}
                 onClick={onAIVAPanelToggle}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${isAIVAPanelOpen ? 'bg-sidebar-active' : ''}`}
-                title={item.label}
               >
                 <span className="text-sidebar-muted">
                   {item.icon}
@@ -811,16 +818,26 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
               </button>
             );
+            
+            return isCollapsed ? (
+              <TooltipProvider key={idx}>
+                <Tooltip>
+                  <TooltipTrigger asChild>{button}</TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{item.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : button;
           }
           
-          return (
+          const navLink = (
             <NavLink
               key={idx}
               to={item.link || '/'}
               end
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
               activeClassName="bg-sidebar-active"
-              title={item.label}
             >
               <span className="text-sidebar-muted">
                 {item.icon}
@@ -828,51 +845,125 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
             </NavLink>
           );
+          
+          return isCollapsed ? (
+            <TooltipProvider key={idx}>
+              <Tooltip>
+                <TooltipTrigger asChild>{navLink}</TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>{item.label}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : navLink;
         })}
 
         {/* Library Section */}
         <div className="pt-2">
-          <NavLink
-            to="/assets"
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
-            activeClassName="bg-sidebar-active"
-            title="Assets"
-          >
-            <span className="text-sidebar-muted">
-              <FolderOpen size={18} />
-            </span>
-            {!isCollapsed && <span className="flex-1 text-left text-sm">Assets</span>}
-          </NavLink>
+          {isCollapsed ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <NavLink
+                    to="/assets"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
+                    activeClassName="bg-sidebar-active"
+                  >
+                    <span className="text-sidebar-muted">
+                      <FolderOpen size={18} />
+                    </span>
+                    {!isCollapsed && <span className="flex-1 text-left text-sm">Assets</span>}
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Assets</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <NavLink
+              to="/assets"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
+              activeClassName="bg-sidebar-active"
+            >
+              <span className="text-sidebar-muted">
+                <FolderOpen size={18} />
+              </span>
+              <span className="flex-1 text-left text-sm">Assets</span>
+            </NavLink>
+          )}
         </div>
 
         {/* Apps Link */}
         <div className="pt-2">
-          <NavLink
-            to="/apps"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-            activeClassName="bg-sidebar-active"
-            title="Apps"
-          >
-            <span className="text-sidebar-muted">
-              <AppWindow size={18} />
-            </span>
-            {!isCollapsed && <span className="flex-1 text-left text-sm">Apps</span>}
-          </NavLink>
+          {isCollapsed ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <NavLink
+                    to="/apps"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+                    activeClassName="bg-sidebar-active"
+                  >
+                    <span className="text-sidebar-muted">
+                      <AppWindow size={18} />
+                    </span>
+                    {!isCollapsed && <span className="flex-1 text-left text-sm">Apps</span>}
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Apps</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <NavLink
+              to="/apps"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+              activeClassName="bg-sidebar-active"
+            >
+              <span className="text-sidebar-muted">
+                <AppWindow size={18} />
+              </span>
+              <span className="flex-1 text-left text-sm">Apps</span>
+            </NavLink>
+          )}
         </div>
 
         {/* Community Link */}
         <div className="pt-2">
-          <NavLink
-            to="/community"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-            activeClassName="bg-sidebar-active"
-            title="Community"
-          >
-            <span className="text-sidebar-muted">
-              <Users size={18} />
-            </span>
-            {!isCollapsed && <span className="flex-1 text-left text-sm">Community</span>}
-          </NavLink>
+          {isCollapsed ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <NavLink
+                    to="/community"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+                    activeClassName="bg-sidebar-active"
+                  >
+                    <span className="text-sidebar-muted">
+                      <Users size={18} />
+                    </span>
+                    {!isCollapsed && <span className="flex-1 text-left text-sm">Community</span>}
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Community</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <NavLink
+              to="/community"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+              activeClassName="bg-sidebar-active"
+            >
+              <span className="text-sidebar-muted">
+                <Users size={18} />
+              </span>
+              <span className="flex-1 text-left text-sm">Community</span>
+            </NavLink>
+          )}
         </div>
 
         {/* Separator */}
@@ -881,9 +972,9 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
 
         <div className="space-y-1">
-          {navItems.map((item, idx) => (
-            item.isDropdown ? (
-              <div key={idx}>
+          {navItems.map((item, idx) => {
+            if (item.isDropdown) {
+              const dropdownButton = (
                 <button
                   onClick={() => {
                     if (item.subItems) {
@@ -902,7 +993,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
                     (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'bg-sidebar-active' : ''
                   }`}
-                  title={item.label}
                 >
                   <span className={item.color}>{item.icon}</span>
                   {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
@@ -910,82 +1000,113 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                     (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'rotate-0' : '-rotate-90'
                   }`} />}
                 </button>
-                {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && !isCollapsed && (
-                  <div className="ml-6 mt-2 space-y-1">
-                    {item.subItems ? (
-                      item.subItems.map((subItem: any, subIdx: number) => {
-                        const getSubItemLink = () => {
-                          if (subItem.label === 'Websites') return '/websites';
-                          if (subItem.label === 'Funnels') return '/funnels';
-                          if (subItem.label === 'Stores') return '/store';
-                          return null;
-                        };
-                        
-                        const link = getSubItemLink();
-                        
-                        return link ? (
-                          <NavLink
-                            key={subIdx}
-                            to={link}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
-                            activeClassName="bg-sidebar-active text-sidebar-text"
-                          >
-                            {typeof subItem === 'object' && subItem.icon ? (
-                              <>
-                                {subItem.icon}
-                                <span className="text-sm">{subItem.label}</span>
-                              </>
-                            ) : (
-                              <span className="text-sm">{typeof subItem === 'string' ? subItem : subItem.label}</span>
-                            )}
-                          </NavLink>
-                        ) : (
+              );
+
+              return (
+                <div key={idx}>
+                  {isCollapsed ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>{dropdownButton}</TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p>{item.label}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : dropdownButton}
+                  {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && !isCollapsed && (
+                    <div className="ml-6 mt-2 space-y-1">
+                      {item.subItems ? (
+                        item.subItems.map((subItem: any, subIdx: number) => {
+                          const getSubItemLink = () => {
+                            if (subItem.label === 'Websites') return '/websites';
+                            if (subItem.label === 'Funnels') return '/funnels';
+                            if (subItem.label === 'Stores') return '/store';
+                            return null;
+                          };
+                          
+                          const link = getSubItemLink();
+                          
+                          return link ? (
+                            <NavLink
+                              key={subIdx}
+                              to={link}
+                              className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
+                              activeClassName="bg-sidebar-active text-sidebar-text"
+                            >
+                              {typeof subItem === 'object' && subItem.icon ? (
+                                <>
+                                  {subItem.icon}
+                                  <span className="text-sm">{subItem.label}</span>
+                                </>
+                              ) : (
+                                <span className="text-sm">{typeof subItem === 'string' ? subItem : subItem.label}</span>
+                              )}
+                            </NavLink>
+                          ) : (
+                            <button
+                              key={subIdx}
+                              className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
+                            >
+                              {typeof subItem === 'object' && subItem.icon ? (
+                                <>
+                                  {subItem.icon}
+                                  <span className="text-sm">{subItem.label}</span>
+                                </>
+                              ) : (
+                                <span className="text-sm">{typeof subItem === 'string' ? subItem : subItem.label}</span>
+                              )}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        recentChats.map((chat) => (
                           <button
-                            key={subIdx}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
+                            key={chat.id}
+                            className="w-full flex flex-col gap-1 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
                           >
-                            {typeof subItem === 'object' && subItem.icon ? (
-                              <>
-                                {subItem.icon}
-                                <span className="text-sm">{subItem.label}</span>
-                              </>
-                            ) : (
-                              <span className="text-sm">{typeof subItem === 'string' ? subItem : subItem.label}</span>
-                            )}
+                            <span className="text-sm truncate">{chat.title}</span>
+                            <span className="text-xs opacity-70">{chat.time}</span>
                           </button>
-                        );
-                      })
-                    ) : (
-                      recentChats.map((chat) => (
-                        <button
-                          key={chat.id}
-                          className="w-full flex flex-col gap-1 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
-                        >
-                          <span className="text-sm truncate">{chat.title}</span>
-                          <span className="text-xs opacity-70">{chat.time}</span>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : item.link ? (
-              <button
-                key={idx}
-                onClick={() => {
-                  if ((item as any).editorTab) {
-                    navigate(item.link, { state: { editorTab: (item as any).editorTab } });
-                  } else {
-                    navigate(item.link);
-                  }
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
-                title={item.label}
-              >
-                <span className={item.color}>{item.icon}</span>
-                {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
-              </button>
-            ) : (
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            
+            if (item.link) {
+              const linkButton = (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    if ((item as any).editorTab) {
+                      navigate(item.link, { state: { editorTab: (item as any).editorTab } });
+                    } else {
+                      navigate(item.link);
+                    }
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
+                >
+                  <span className={item.color}>{item.icon}</span>
+                  {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
+                </button>
+              );
+
+              return isCollapsed ? (
+                <TooltipProvider key={idx}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>{linkButton}</TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>{item.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : linkButton;
+            }
+            
+            const actionButton = (
               <button
                 key={idx}
                 onClick={() => {
@@ -999,13 +1120,23 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
                   activeTab === item.label ? 'bg-sidebar-active' : ''
                 }`}
-                title={item.label}
               >
                 <span className={item.color}>{item.icon}</span>
                 {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
               </button>
-            )
-          ))}
+            );
+
+            return isCollapsed ? (
+              <TooltipProvider key={idx}>
+                <Tooltip>
+                  <TooltipTrigger asChild>{actionButton}</TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{item.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : actionButton;
+          })}
         </div>
       </nav>
 
