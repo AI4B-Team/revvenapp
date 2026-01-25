@@ -9,10 +9,7 @@ import {
   RefreshCw, 
   Lightbulb, 
   Image as ImageIcon,
-  Check,
-  Wand2,
-  Target,
-  Users
+  Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -30,29 +27,10 @@ const suggestedNames = [
   'SmartFlow'
 ];
 
-const targetCustomers = [
-  { id: 'freelancers', label: 'Freelancers', icon: Users },
-  { id: 'small_business', label: 'Small Businesses', icon: Target },
-  { id: 'agencies', label: 'Agencies', icon: Users },
-  { id: 'enterprises', label: 'Enterprises', icon: Target },
-  { id: 'creators', label: 'Content Creators', icon: Sparkles },
-];
-
-const benefits = [
-  'Save time',
-  'Make more money',
-  'Reduce costs',
-  'Automate work',
-  'Get insights',
-  'Simplify workflows'
-];
-
 export function ProductSection({ app, license, onUpdate }: ProductSectionProps) {
   const [productName, setProductName] = useState(license?.brandSettings?.appName || '');
   const [tagline, setTagline] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
-  const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const [isGeneratingNames, setIsGeneratingNames] = useState(false);
   const [generatedNames, setGeneratedNames] = useState<string[]>([]);
   const [isGeneratingLogos, setIsGeneratingLogos] = useState(false);
@@ -78,18 +56,6 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
     toast.success('Logo concepts generated! Check the Branding section.');
   };
 
-  const toggleCustomer = (id: string) => {
-    setSelectedCustomers(prev => 
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-    );
-  };
-
-  const toggleBenefit = (benefit: string) => {
-    setSelectedBenefits(prev => 
-      prev.includes(benefit) ? prev.filter(b => b !== benefit) : [...prev, benefit]
-    );
-  };
-
   const handleSave = () => {
     onUpdate({ appName: productName });
     toast.success('Product settings saved!');
@@ -101,7 +67,7 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
       <div>
         <h2 className="text-2xl font-bold text-foreground">Product Setup</h2>
         <p className="text-muted-foreground mt-1">
-          Define your product identity and target audience
+          Customize your product's identity for your audience
         </p>
       </div>
 
@@ -211,66 +177,6 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
           <Sparkles className="h-4 w-4" />
           Generate With AI
         </Button>
-      </div>
-
-      {/* Target Customers */}
-      <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
-        <h3 className="font-semibold text-foreground">Target Customers</h3>
-        <p className="text-sm text-muted-foreground">
-          Who is this for? Clear customers = faster sales.
-        </p>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {targetCustomers.map((customer) => {
-            const Icon = customer.icon;
-            const isSelected = selectedCustomers.includes(customer.id);
-            
-            return (
-              <button
-                key={customer.id}
-                onClick={() => toggleCustomer(customer.id)}
-                className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
-                  isSelected
-                    ? 'bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:text-emerald-300'
-                    : 'bg-muted/30 border-border hover:border-muted-foreground/30'
-                }`}
-              >
-                {isSelected && <Check className="h-4 w-4 text-emerald-500" />}
-                <Icon className="h-4 w-4" />
-                <span className="text-sm font-medium">{customer.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Benefits */}
-      <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
-        <h3 className="font-semibold text-foreground">Key Benefits</h3>
-        <p className="text-sm text-muted-foreground">
-          Select 1-2 benefits that best describe your product.
-        </p>
-        
-        <div className="flex flex-wrap gap-2">
-          {benefits.map((benefit) => {
-            const isSelected = selectedBenefits.includes(benefit);
-            
-            return (
-              <button
-                key={benefit}
-                onClick={() => toggleBenefit(benefit)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
-                  isSelected
-                    ? 'bg-emerald-500 text-white border-emerald-500'
-                    : 'bg-muted/30 text-foreground border-border hover:border-emerald-500/50'
-                }`}
-              >
-                {isSelected && <Check className="h-3 w-3 inline mr-1" />}
-                {benefit}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Save Button */}
