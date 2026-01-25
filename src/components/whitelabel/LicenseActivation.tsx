@@ -62,7 +62,10 @@ export function LicenseActivation({ app, onActivate }: LicenseActivationProps) {
             Activate White-Label License
           </h1>
           <p className="text-muted-foreground text-lg max-w-md mx-auto">
-            Unlock the ability to rebrand and resell <span className="font-semibold text-foreground">{app.name}</span> as your own product.
+            Unlock the ability to rebrand and resell <span className="font-semibold text-foreground">{app.name}</span>
+          </p>
+          <p className="text-muted-foreground text-lg">
+            as your own product.
           </p>
         </div>
 
