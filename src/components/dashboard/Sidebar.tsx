@@ -49,9 +49,10 @@ interface SidebarProps {
   defaultCollapsed?: boolean;
   onAIVAPanelToggle?: () => void;
   isAIVAPanelOpen?: boolean;
+  forceCollapsed?: boolean;
 }
 
-const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange, onEditClick, collapsed, defaultCollapsed, onAIVAPanelToggle, isAIVAPanelOpen }: SidebarProps) => {
+const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange, onEditClick, collapsed, defaultCollapsed, onAIVAPanelToggle, isAIVAPanelOpen, forceCollapsed }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname === '/dashboard';
@@ -204,11 +205,15 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
      activeTab === 'Content' ? contentNavItems :
      createNavItems);
 
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(collapsed ?? defaultCollapsed ?? false);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed ?? collapsed ?? defaultCollapsed ?? false);
 
   useEffect(() => {
-    if (typeof collapsed === "boolean") setIsCollapsed(collapsed);
-  }, [collapsed]);
+    if (forceCollapsed) {
+      setIsCollapsed(true);
+    } else if (typeof collapsed === "boolean") {
+      setIsCollapsed(collapsed);
+    }
+  }, [collapsed, forceCollapsed]);
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandsDropdownOpen, setIsBrandsDropdownOpen] = useState(false);

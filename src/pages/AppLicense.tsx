@@ -17,20 +17,21 @@ import {
   PricingSection,
   CheckoutSection,
   DomainSection,
-  SettingsSection
+  SettingsSection,
+  LivePreview
 } from '@/components/whitelabel';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from '@/components/ui/resizable';
 
 const AppLicense = () => {
   const { appId } = useParams<{ appId: string }>();
   const navigate = useNavigate();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Auto-collapse on white-label page
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<WhiteLabelSection>('product');
-
-  // Auto-collapse sidebar when entering white-label page
-  useEffect(() => {
-    setIsSidebarCollapsed(true);
-  }, []);
 
   const handleAIVAToggle = () => {
     const newState = !isAIVAPanelOpen;
@@ -75,8 +76,8 @@ const AppLicense = () => {
   if (!app) {
     return (
       <div className="flex min-h-screen bg-background">
-        <Sidebar onCollapseChange={setIsSidebarCollapsed} onAIVAPanelToggle={handleAIVAToggle} isAIVAPanelOpen={isAIVAPanelOpen} />
-        <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+        <Sidebar onCollapseChange={setIsSidebarCollapsed} onAIVAPanelToggle={handleAIVAToggle} isAIVAPanelOpen={isAIVAPanelOpen} forceCollapsed />
+        <div className="flex-1 flex flex-col transition-all duration-300 ml-16">
           <Header />
           <main className="flex-1 p-8 flex items-center justify-center">
             <div className="text-center space-y-4">
@@ -103,8 +104,14 @@ const AppLicense = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar onCollapseChange={setIsSidebarCollapsed} onAIVAPanelToggle={handleAIVAToggle} isAIVAPanelOpen={isAIVAPanelOpen} forceCollapsed />
+    <div className="flex h-screen bg-background overflow-hidden">
+      {/* Main Sidebar - Force Collapsed */}
+      <Sidebar 
+        onCollapseChange={setIsSidebarCollapsed} 
+        onAIVAPanelToggle={handleAIVAToggle} 
+        isAIVAPanelOpen={isAIVAPanelOpen} 
+        forceCollapsed 
+      />
       
       {/* White-Label Sidebar */}
       <WhiteLabelSidebar 
@@ -114,12 +121,32 @@ const AppLicense = () => {
         onBack={() => navigate('/apps')} 
       />
       
-      {/* Main Content */}
+      {/* Main Content Area - 2 Resizable Panels */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-8 max-w-4xl">
-          {renderSection()}
-        </main>
+        <div className="flex-1 overflow-hidden">
+          <ResizablePanelGroup direction="horizontal" className="h-full">
+            {/* Content/Form Panel */}
+            <ResizablePanel defaultSize={45} minSize={30} maxSize={60}>
+              <div className="h-full overflow-y-auto p-6 bg-background">
+                <div className="max-w-2xl">
+                  {renderSection()}
+                </div>
+              </div>
+            </ResizablePanel>
+            
+            <ResizableHandle withHandle />
+            
+            {/* Live Preview Panel */}
+            <ResizablePanel defaultSize={55} minSize={40}>
+              <LivePreview 
+                app={app} 
+                license={license} 
+                activeSection={activeSection} 
+              />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
       </div>
     </div>
   );

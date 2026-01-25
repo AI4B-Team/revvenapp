@@ -6,3 +6,4 @@ export { PricingSection } from './sections/PricingSection';
 export { CheckoutSection } from './sections/CheckoutSection';
 export { DomainSection } from './sections/DomainSection';
 export { SettingsSection } from './sections/SettingsSection';
+export { LivePreview } from './LivePreview';
