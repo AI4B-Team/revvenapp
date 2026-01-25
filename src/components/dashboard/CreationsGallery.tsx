@@ -840,25 +840,27 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                 </div>
               )}
 
-              {/* Media Type Badge - Top Left */}
-              <div className={`absolute top-3 left-3 ${sizes.badge} bg-black/70 backdrop-blur-sm rounded-lg flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
-                {item.type === 'video' ? (
-                  <>
-                    <Play size={sizes.badgeIcon} className="text-white" fill="white" />
-                    <span className={`text-white ${sizes.text} font-semibold uppercase`}>Video</span>
-                  </>
-                ) : item.type === 'document' ? (
-                  <>
-                    <FileText size={sizes.badgeIcon} className="text-white" />
-                    <span className={`text-white ${sizes.text} font-semibold uppercase`}>{item.documentType || 'Document'}</span>
-                  </>
-                ) : (
-                  <>
-                    <ImageIcon size={sizes.badgeIcon} className="text-white" />
-                    <span className={`text-white ${sizes.text} font-semibold uppercase`}>Image</span>
-                  </>
-                )}
-              </div>
+              {/* Media Type Badge - Top Left - Hidden when images are large (fewer columns) */}
+              {columnsPerRow >= 4 && (
+                <div className={`absolute top-3 left-3 ${sizes.badge} bg-black/70 backdrop-blur-sm rounded-lg flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                  {item.type === 'video' ? (
+                    <>
+                      <Play size={sizes.badgeIcon} className="text-white" fill="white" />
+                      <span className={`text-white ${sizes.text} font-semibold uppercase`}>Video</span>
+                    </>
+                  ) : item.type === 'document' ? (
+                    <>
+                      <FileText size={sizes.badgeIcon} className="text-white" />
+                      <span className={`text-white ${sizes.text} font-semibold uppercase`}>{item.documentType || 'Document'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ImageIcon size={sizes.badgeIcon} className="text-white" />
+                      <span className={`text-white ${sizes.text} font-semibold uppercase`}>Image</span>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* Top Right Actions - Always visible on hover */}
               <TooltipProvider>
