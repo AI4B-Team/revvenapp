@@ -198,6 +198,11 @@ const AppCard = ({
   const showHotBadge = normalizedBadge === 'HOT';
   const showNewBadge = normalizedBadge === 'NEW' || isNewApp;
 
+  const handleCardClick = () => {
+    // Navigate to app detail page
+    navigate(`/apps/${resolvedAppId}`);
+  };
+
   const handleStarClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleFavorite(resolvedAppId);
@@ -229,7 +234,7 @@ const AppCard = ({
     return (
       <div 
         className="bg-card rounded-xl overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer border border-border group flex items-center gap-4 p-3"
-        onClick={!isInstalled && !onInstall ? onClick : undefined}
+        onClick={handleCardClick}
       >
         {/* Thumbnail */}
         <div className="relative w-20 h-20 bg-muted rounded-lg overflow-hidden flex-shrink-0">
@@ -354,7 +359,7 @@ const AppCard = ({
   return (
     <div 
       className="bg-card rounded-2xl overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer border border-border group flex flex-col h-full"
-      onClick={!isInstalled && !onInstall ? onClick : undefined}
+      onClick={handleCardClick}
     >
       {/* Thumbnail Area */}
       <div className="relative aspect-[4/3] bg-muted overflow-hidden flex-shrink-0">
