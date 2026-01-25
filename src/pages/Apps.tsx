@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   ChevronRight, Store, LayoutGrid, Grid3X3, List,
   FolderOpen, Target, Video, Camera, User, Sparkles, Mic, PenTool, Edit3, Search, Layers, Bot,
-  ChevronUp, ChevronDown
+  ChevronUp, ChevronDown, Plus
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -483,29 +483,51 @@ const Apps = () => {
                   </p>
                   
                   {/* Tab Buttons - Separated */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setActiveTab('marketplace')}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                        activeTab === 'marketplace'
-                          ? 'bg-foreground text-background shadow-md'
-                          : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
-                      }`}
-                    >
-                      <Store size={14} />
-                      Marketplace
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('apps')}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                        activeTab === 'apps'
-                          ? 'bg-foreground text-background shadow-md'
-                          : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
-                      }`}
-                    >
-                      <LayoutGrid size={14} />
-                      My Apps
-                    </button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setActiveTab('marketplace')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                          activeTab === 'marketplace'
+                            ? 'bg-foreground text-background shadow-md'
+                            : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
+                        }`}
+                      >
+                        <Store size={14} />
+                        Marketplace
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('apps')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                          activeTab === 'apps'
+                            ? 'bg-foreground text-background shadow-md'
+                            : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
+                        }`}
+                      >
+                        <LayoutGrid size={14} />
+                        My Apps
+                      </button>
+                    </div>
+                    
+                    {/* Create App Button */}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="flex items-center gap-2"
+                            onClick={() => navigate('/app-builder')}
+                          >
+                            <Plus size={16} />
+                            Create App
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left">
+                          <p>Build & Publish Your Own App For Internal Use Or Resale</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </>
               )}
