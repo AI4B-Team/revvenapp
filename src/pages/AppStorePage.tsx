@@ -8,6 +8,7 @@ import { mockMembers, mockMarketplaceWorkspace, mockMarketplaceUser } from '@/li
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { 
   ArrowLeft, 
   Download, 
@@ -20,19 +21,24 @@ import {
   Users,
   Clock,
   Check,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { appRoutes } from '@/lib/marketplace/catalog';
 
 // Mock screenshots for apps - in production these would come from the catalog
-const getAppScreenshots = (appId: string): string[] => {
+const getAppScreenshots = (appId: string): { src: string; title: string }[] => {
   // Generate placeholder screenshots based on app ID
-  const colors = ['4F46E5', '059669', 'DC2626', 'D97706', '7C3AED', '2563EB'];
+  const colors = ['4F46E5', '059669', 'DC2626', 'D97706', '7C3AED', '2563EB', '0891B2', 'BE185D'];
   return [
-    `https://placehold.co/800x500/${colors[0]}/white?text=${encodeURIComponent('Dashboard View')}`,
-    `https://placehold.co/800x500/${colors[1]}/white?text=${encodeURIComponent('Editor Interface')}`,
-    `https://placehold.co/800x500/${colors[2]}/white?text=${encodeURIComponent('Analytics')}`,
-    `https://placehold.co/800x500/${colors[3]}/white?text=${encodeURIComponent('Settings')}`,
+    { src: `https://placehold.co/800x500/${colors[0]}/white?text=${encodeURIComponent('Dashboard View')}`, title: 'Dashboard View' },
+    { src: `https://placehold.co/800x500/${colors[1]}/white?text=${encodeURIComponent('Editor Interface')}`, title: 'Editor Interface' },
+    { src: `https://placehold.co/800x500/${colors[2]}/white?text=${encodeURIComponent('Analytics')}`, title: 'Analytics' },
+    { src: `https://placehold.co/800x500/${colors[3]}/white?text=${encodeURIComponent('Settings')}`, title: 'Settings' },
+    { src: `https://placehold.co/800x500/${colors[4]}/white?text=${encodeURIComponent('Team View')}`, title: 'Team View' },
+    { src: `https://placehold.co/800x500/${colors[5]}/white?text=${encodeURIComponent('Reports')}`, title: 'Reports' },
+    { src: `https://placehold.co/800x500/${colors[6]}/white?text=${encodeURIComponent('Integrations')}`, title: 'Integrations' },
+    { src: `https://placehold.co/800x500/${colors[7]}/white?text=${encodeURIComponent('Notifications')}`, title: 'Notifications' },
   ];
 };
 
@@ -95,9 +101,11 @@ const AppStorePage = () => {
   const { appId } = useParams<{ appId: string }>();
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [currentScreenshot, setCurrentScreenshot] = useState(0);
+  const [screenshotStartIndex, setScreenshotStartIndex] = useState(0);
   const [showInstallPanel, setShowInstallPanel] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>('all');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   
   const { isInstalled, installApp } = useInstalledApps();
   
@@ -106,6 +114,8 @@ const AppStorePage = () => {
   const extendedFeatures = appId ? getExtendedFeatures(appId) : [];
   const installed = appId ? isInstalled(appId) : false;
   const appRoute = appId ? appRoutes[appId] : undefined;
+  
+  const visibleCount = 4; // Number of screenshots visible at once
 
   // Mock users for access control
   const accessUsers = [
@@ -147,12 +157,32 @@ const AppStorePage = () => {
     }
   };
 
-  const nextScreenshot = () => {
-    setCurrentScreenshot((prev) => (prev + 1) % screenshots.length);
+  const canScrollLeft = screenshotStartIndex > 0;
+  const canScrollRight = screenshotStartIndex + visibleCount < screenshots.length;
+
+  const scrollScreenshotsLeft = () => {
+    if (canScrollLeft) {
+      setScreenshotStartIndex(prev => Math.max(0, prev - 1));
+    }
   };
 
-  const prevScreenshot = () => {
-    setCurrentScreenshot((prev) => (prev - 1 + screenshots.length) % screenshots.length);
+  const scrollScreenshotsRight = () => {
+    if (canScrollRight) {
+      setScreenshotStartIndex(prev => Math.min(screenshots.length - visibleCount, prev + 1));
+    }
+  };
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const lightboxPrev = () => {
+    setLightboxIndex((prev) => (prev - 1 + screenshots.length) % screenshots.length);
+  };
+
+  const lightboxNext = () => {
+    setLightboxIndex((prev) => (prev + 1) % screenshots.length);
   };
 
   if (!app) {
@@ -182,14 +212,47 @@ const AppStorePage = () => {
         <Header />
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-6xl mx-auto px-6 py-8">
-            {/* Back Button */}
-            <button
-              onClick={() => navigate('/apps')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back To Apps
-            </button>
+            {/* Back Button and Action Buttons Header */}
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={() => navigate('/apps')}
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back To Apps
+              </button>
+              
+              {/* Action Buttons - Top Right */}
+              <div className="flex flex-wrap gap-3">
+                {installed ? (
+                  <Button
+                    size="lg"
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                    onClick={handleOpen}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open App
+                  </Button>
+                ) : (
+                  <Button
+                    size="lg"
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                    onClick={() => setShowInstallPanel(true)}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Install
+                  </Button>
+                )}
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handleResell}
+                >
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Resell
+                </Button>
+              </div>
+            </div>
 
             {/* Hero Section */}
             <div className="flex flex-col lg:flex-row gap-8 mb-12">
@@ -202,70 +265,37 @@ const AppStorePage = () => {
 
               {/* App Details */}
               <div className="flex-1">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h1 className="text-3xl font-bold text-foreground mb-2">{app.name}</h1>
-                    <p className="text-lg text-muted-foreground mb-3">{app.description}</p>
-                    
-                    {/* Badges */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="secondary" className="capitalize">{app.category}</Badge>
-                      {app.isWhitelabelEligible && (
-                        <Badge className="bg-primary/10 text-primary border-0">White-Label Ready</Badge>
-                      )}
-                      {installed && (
-                        <Badge className="bg-emerald-500/10 text-emerald-600 border-0">
-                          <Check className="w-3 h-3 mr-1" />
-                          Installed
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-5 h-5 ${star <= 4.5 ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`}
-                          />
-                        ))}
-                        <span className="ml-2 font-semibold text-foreground">4.8</span>
-                      </div>
-                      <span className="text-muted-foreground">2.4K Reviews</span>
-                    </div>
+                <div className="mb-4">
+                  <h1 className="text-3xl font-bold text-foreground mb-2">{app.name}</h1>
+                  <p className="text-lg text-muted-foreground mb-3">{app.description}</p>
+                  
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge variant="secondary" className="capitalize">{app.category}</Badge>
+                    {app.isWhitelabelEligible && (
+                      <Badge className="bg-primary/10 text-primary border-0">White-Label Ready</Badge>
+                    )}
+                    {installed && (
+                      <Badge className="bg-emerald-500/10 text-emerald-600 border-0">
+                        <Check className="w-3 h-3 mr-1" />
+                        Installed
+                      </Badge>
+                    )}
                   </div>
-                </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3 mt-6">
-                  {installed ? (
-                    <Button
-                      size="lg"
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                      onClick={handleOpen}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Open App
-                    </Button>
-                  ) : (
-                    <Button
-                      size="lg"
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                      onClick={() => setShowInstallPanel(true)}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Install
-                    </Button>
-                  )}
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={handleResell}
-                  >
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Resell
-                  </Button>
+                  {/* Rating */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-5 h-5 ${star <= 4.5 ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`}
+                        />
+                      ))}
+                      <span className="ml-2 font-semibold text-foreground">4.8</span>
+                    </div>
+                    <span className="text-muted-foreground">2.4K Reviews</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -320,50 +350,115 @@ const AppStorePage = () => {
               </div>
             )}
 
-            {/* Screenshots Carousel */}
+            {/* Screenshots Carousel - 4 in a row */}
             <div className="mb-12">
               <h2 className="text-xl font-semibold text-foreground mb-4">Screenshots</h2>
               <div className="relative">
-                <div className="overflow-hidden rounded-2xl border border-border bg-muted/30">
-                  <div className="relative aspect-video">
-                    <img
-                      src={screenshots[currentScreenshot]}
-                      alt={`Screenshot ${currentScreenshot + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Navigation Arrows */}
-                    <button
-                      onClick={prevScreenshot}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-colors"
-                    >
-                      <ChevronLeft className="w-5 h-5 text-foreground" />
-                    </button>
-                    <button
-                      onClick={nextScreenshot}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-colors"
-                    >
-                      <ChevronRight className="w-5 h-5 text-foreground" />
-                    </button>
+                {/* Left Arrow */}
+                <button
+                  onClick={scrollScreenshotsLeft}
+                  disabled={!canScrollLeft}
+                  className={`absolute -left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background border border-border shadow-lg transition-all ${
+                    canScrollLeft 
+                      ? 'hover:bg-muted cursor-pointer' 
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  <ChevronLeft className="w-5 h-5 text-foreground" />
+                </button>
+                
+                {/* Screenshots Grid */}
+                <div className="overflow-hidden">
+                  <div className="grid grid-cols-4 gap-4">
+                    {screenshots.slice(screenshotStartIndex, screenshotStartIndex + visibleCount).map((screenshot, index) => (
+                      <div 
+                        key={screenshotStartIndex + index}
+                        onClick={() => openLightbox(screenshotStartIndex + index)}
+                        className="relative aspect-video rounded-xl border border-border overflow-hidden cursor-pointer group hover:shadow-lg transition-all"
+                      >
+                        <img
+                          src={screenshot.src}
+                          alt={screenshot.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-white text-sm font-medium">{screenshot.title}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 
-                {/* Thumbnail Navigation */}
-                <div className="flex gap-2 mt-4 justify-center">
-                  {screenshots.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentScreenshot(index)}
-                      className={`w-3 h-3 rounded-full transition-colors ${
-                        index === currentScreenshot 
-                          ? 'bg-primary' 
-                          : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                      }`}
-                    />
-                  ))}
-                </div>
+                {/* Right Arrow */}
+                <button
+                  onClick={scrollScreenshotsRight}
+                  disabled={!canScrollRight}
+                  className={`absolute -right-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background border border-border shadow-lg transition-all ${
+                    canScrollRight 
+                      ? 'hover:bg-muted cursor-pointer' 
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+              
+              {/* Indicator dots */}
+              <div className="flex gap-2 mt-4 justify-center">
+                {Array.from({ length: screenshots.length - visibleCount + 1 }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setScreenshotStartIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      index === screenshotStartIndex 
+                        ? 'bg-primary' 
+                        : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    }`}
+                  />
+                ))}
               </div>
             </div>
+
+            {/* Lightbox Dialog */}
+            <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+              <DialogContent className="max-w-5xl p-0 bg-black/95 border-none">
+                <div className="relative">
+                  <button
+                    onClick={() => setLightboxOpen(false)}
+                    className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <X className="w-5 h-5 text-white" />
+                  </button>
+                  
+                  <img
+                    src={screenshots[lightboxIndex]?.src}
+                    alt={screenshots[lightboxIndex]?.title}
+                    className="w-full h-auto max-h-[80vh] object-contain"
+                  />
+                  
+                  {/* Lightbox Navigation */}
+                  <button
+                    onClick={lightboxPrev}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                  </button>
+                  <button
+                    onClick={lightboxNext}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                  </button>
+                  
+                  {/* Caption */}
+                  <div className="absolute bottom-4 left-0 right-0 text-center">
+                    <span className="text-white font-medium">{screenshots[lightboxIndex]?.title}</span>
+                    <span className="text-white/60 ml-2">({lightboxIndex + 1} of {screenshots.length})</span>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             {/* Features Grid */}
             <div className="mb-12">
