@@ -12,6 +12,7 @@ interface AppCardProps {
   onClick?: () => void;
   appId?: string;
   isInstalled?: boolean;
+  onInstall?: () => void;
   onOpen?: () => void;
   onActivate?: () => void;
 }
@@ -63,6 +64,7 @@ const AppCard = ({
   onClick, 
   appId,
   isInstalled = false,
+  onInstall,
   onOpen,
   onActivate
 }: AppCardProps) => {
@@ -87,10 +89,15 @@ const AppCard = ({
     onActivate?.();
   };
 
+  const handleInstallClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onInstall?.();
+  };
+
   return (
     <div 
       className="bg-card rounded-2xl overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer border border-border group"
-      onClick={!isInstalled ? onClick : undefined}
+      onClick={!isInstalled && !onInstall ? onClick : undefined}
     >
       {/* Thumbnail Area */}
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
@@ -142,8 +149,8 @@ const AppCard = ({
           <span className="text-xs">{category}</span>
         </div>
 
-        {/* Action Buttons for Installed Apps */}
-        {isInstalled && (
+        {/* Action Buttons */}
+        {isInstalled ? (
           <div className="flex gap-2">
             <Button
               variant="default"
@@ -164,7 +171,16 @@ const AppCard = ({
               Activate
             </Button>
           </div>
-        )}
+        ) : onInstall ? (
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full h-8 text-xs"
+            onClick={handleInstallClick}
+          >
+            Install
+          </Button>
+        ) : null}
       </div>
     </div>
   );
