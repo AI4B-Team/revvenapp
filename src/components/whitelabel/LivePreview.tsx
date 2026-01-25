@@ -270,6 +270,75 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
               </div>
             </div>
 
+            {/* Checkout Section Preview */}
+            {activeSection === 'checkout' && (
+              <div className="px-8 py-12 bg-zinc-50">
+                <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                  Checkout Preview
+                </h2>
+                
+                {/* Conversion Booster */}
+                <div className="max-w-md mx-auto mb-6">
+                  <div 
+                    className="p-4 rounded-xl border-2 text-center"
+                    style={{ borderColor: primaryColor, backgroundColor: `${primaryColor}10` }}
+                  >
+                    <p className="text-sm text-zinc-600 mb-1">Limited Time Offer</p>
+                    <p className="text-2xl font-bold" style={{ color: primaryColor }}>
+                      15% OFF
+                    </p>
+                    <p className="text-xs text-zinc-500">Applied Automatically For 3 Months</p>
+                  </div>
+                </div>
+
+                {/* Spotlight Card */}
+                <div className="max-w-md mx-auto mb-6">
+                  <div 
+                    className="p-4 rounded-xl"
+                    style={{ backgroundColor: `${primaryColor}10`, borderLeft: `4px solid ${primaryColor}` }}
+                  >
+                    <p className="font-semibold text-zinc-900 mb-2">What You Get Immediately</p>
+                    <ul className="space-y-1.5">
+                      {['Full Platform Access In 2 Minutes', 'Unlimited AI Usage Included', '14-Day Money-Back Guarantee'].map((item, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-sm text-zinc-600">
+                          <Check size={14} style={{ color: primaryColor }} />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Trust Badges */}
+                <div className="flex justify-center gap-4 mb-6">
+                  {[
+                    { label: '256-bit SSL', sub: 'Encrypted' },
+                    { label: 'PCI Compliant', sub: 'Secure' },
+                    { label: 'Stripe Powered', sub: 'Trusted' },
+                  ].map((badge, idx) => (
+                    <div key={idx} className="text-center">
+                      <Shield size={20} className="mx-auto mb-1 text-zinc-400" />
+                      <p className="text-xs font-medium text-zinc-700">{badge.label}</p>
+                      <p className="text-xs text-zinc-500">{badge.sub}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Money-Back Guarantee */}
+                <div className="max-w-md mx-auto">
+                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-2 py-0.5 text-xs font-bold bg-amber-200 text-amber-800 rounded uppercase">
+                        Guarantee
+                      </span>
+                      <span className="font-semibold text-zinc-900">14-Day Money-Back Guarantee</span>
+                    </div>
+                    <p className="text-sm text-zinc-600">Try It Risk-Free</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Footer */}
             <div className="px-8 py-6 bg-zinc-900 text-center">
               <p className="text-zinc-400 text-sm">
