@@ -203,7 +203,7 @@ const Apps = () => {
       id: 5,
       name: 'Digital Spy',
       category: 'Content Intelligence',
-      description: 'Content intelligence and insights for your campaigns',
+      description: 'Competitor social intelligence and content insights',
       thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
       badge: 'NEW',
       icon: <Search size={16} className="text-primary" />,
