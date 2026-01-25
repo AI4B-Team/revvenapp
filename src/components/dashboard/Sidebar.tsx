@@ -134,20 +134,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
 
-  const automateNavItems = [
-    { 
-      icon: <AppWindow size={18} />, 
-      label: 'Apps', 
-      color: 'text-brand-yellow',
-      link: '/apps'
-    },
-    { 
-      icon: <Bot size={18} />, 
-      label: 'Agents', 
-      color: 'text-brand-blue',
-      link: '/automate'
-    },
-  ];
+  const automateNavItems: Array<{ icon: JSX.Element; label: string; color: string; link?: string }> = [];
 
   const monetizeNavItems = [
     { 
