@@ -840,8 +840,8 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                 </div>
               )}
 
-              {/* Media Type Badge - Top Left - Hidden when images are large (fewer columns) */}
-              {columnsPerRow >= 4 && (
+              {/* Media Type Badge - Top Left - Hidden when zoomed in (more columns = smaller images) */}
+              {columnsPerRow <= 4 && (
                 <div className={`absolute top-3 left-3 ${sizes.badge} bg-black/70 backdrop-blur-sm rounded-lg flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
                   {item.type === 'video' ? (
                     <>
