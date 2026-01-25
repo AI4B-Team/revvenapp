@@ -33,6 +33,7 @@ interface AppDetailViewProps {
   onPublish: () => void;
   onUpgradePlan: () => void;
   onUpdatePermissions?: (accessMode: string, userIds: string[], teamIds: string[]) => void;
+  sidebarCollapsed?: boolean;
 }
 
 export function AppDetailView({
@@ -47,7 +48,8 @@ export function AppDetailView({
   onUpdatePricing,
   onPublish,
   onUpgradePlan,
-  onUpdatePermissions
+  onUpdatePermissions,
+  sidebarCollapsed = false
 }: AppDetailViewProps) {
   const navigate = useNavigate();
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
@@ -298,6 +300,7 @@ export function AppDetailView({
         onClose={() => setIsAIVAOpen(false)}
         app={app}
         license={license}
+        sidebarCollapsed={sidebarCollapsed}
       />
     </div>
   );

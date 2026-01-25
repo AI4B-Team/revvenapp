@@ -131,6 +131,7 @@ const AppLicense = () => {
             onUpdatePricing={handleUpdatePricing}
             onPublish={handlePublish}
             onUpgradePlan={handleUpgradePlan}
+            sidebarCollapsed={isSidebarCollapsed}
           />
         </main>
       </div>

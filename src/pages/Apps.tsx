@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import AIVASidePanel from '@/components/dashboard/AIVASidePanel';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import AppCard from '@/components/dashboard/AppCard';
@@ -47,6 +48,7 @@ const Apps = () => {
   const [appFilters, setAppFilters] = useState<AppFilterState | undefined>(undefined);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   
   const { isFavorite, toggleFavorite } = useFavoriteApps();
   const { isInstalled, installApp } = useInstalledApps();
@@ -395,6 +397,8 @@ const Apps = () => {
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
         onCollapseChange={setIsSidebarCollapsed}
+        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        isAIVAPanelOpen={isAIVAPanelOpen}
       />
       
       <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
@@ -930,6 +934,13 @@ const Apps = () => {
           onInstall={handleInstall}
         />
       )}
+
+      {/* AIVA Side Panel */}
+      <AIVASidePanel 
+        isOpen={isAIVAPanelOpen} 
+        onClose={() => setIsAIVAPanelOpen(false)}
+        sidebarCollapsed={isSidebarCollapsed}
+      />
     </div>
   );
 };
