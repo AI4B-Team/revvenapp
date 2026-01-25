@@ -27,7 +27,7 @@ export function MarketplaceInput({
           'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent',
           error
             ? 'border-destructive focus:ring-destructive'
-            : 'border-border',
+            : 'border-gray-300 dark:border-gray-600',
           className
         )}
         {...props}
