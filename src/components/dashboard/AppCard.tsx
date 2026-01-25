@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { Video, Image, Mic, Palette, FileText, Wrench, User, Star, Play, Settings } from 'lucide-react';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
 import { Button } from '@/components/ui/button';
+import { resolveAppId } from '@/lib/marketplace/catalog';
 
 interface AppCardProps {
   name: string;
@@ -15,6 +17,7 @@ interface AppCardProps {
   onInstall?: () => void;
   onOpen?: () => void;
   onActivate?: () => void;
+  onResell?: () => void;
 }
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
@@ -66,12 +69,14 @@ const AppCard = ({
   isInstalled = false,
   onInstall,
   onOpen,
-  onActivate
+  onActivate,
+  onResell
 }: AppCardProps) => {
+  const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoriteApps();
   
   // Get the app ID from either the prop or the name mapping
-  const resolvedAppId = appId || nameToIdMap[name] || name.toLowerCase().replace(/\s+/g, '-');
+  const resolvedAppId = appId || nameToIdMap[name] || resolveAppId(name);
   const favorited = isFavorite(resolvedAppId);
 
   const handleStarClick = (e: React.MouseEvent) => {
@@ -92,6 +97,16 @@ const AppCard = ({
   const handleInstallClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onInstall?.();
+  };
+
+  const handleResellClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onResell) {
+      onResell();
+    } else {
+      // Navigate to app license page for white-labeling
+      navigate(`/app-license/${resolvedAppId}`);
+    }
   };
 
   return (
@@ -165,22 +180,50 @@ const AppCard = ({
               variant="outline"
               size="sm"
               className="flex-1 h-8 text-xs"
-              onClick={handleActivateClick}
+              onClick={handleResellClick}
             >
-              <Settings size={12} className="mr-1" />
-              Activate
+              Resell
             </Button>
           </div>
         ) : onInstall ? (
-          <Button
-            variant="default"
-            size="sm"
-            className="w-full h-8 text-xs"
-            onClick={handleInstallClick}
-          >
-            Install
-          </Button>
-        ) : null}
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              className="flex-1 h-8 text-xs"
+              onClick={handleInstallClick}
+            >
+              Install
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 h-8 text-xs"
+              onClick={handleResellClick}
+            >
+              Resell
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              className="flex-1 h-8 text-xs"
+              onClick={onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined}
+            >
+              Install
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 h-8 text-xs"
+              onClick={handleResellClick}
+            >
+              Resell
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

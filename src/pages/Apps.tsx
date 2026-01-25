@@ -459,7 +459,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                     {imageApps.map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -490,7 +490,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                     {videoApps.map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -521,7 +521,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                     {audioApps.map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -552,7 +552,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                     {designApps.map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -583,7 +583,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                     {contentApps.map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -614,7 +614,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                     {toolsApps.map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
