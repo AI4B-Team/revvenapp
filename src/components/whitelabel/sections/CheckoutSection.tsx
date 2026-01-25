@@ -330,18 +330,18 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label>Guarantee Period</Label>
-                <div className="flex gap-2 flex-wrap">
+                <div className="grid grid-cols-4 gap-2">
                   {[7, 14, 30, 60].map((days) => (
                     <button
                       key={days}
                       onClick={() => setGuaranteeDays(days)}
-                      className={`px-4 py-2 rounded-lg border transition-all w-[90px] text-center ${
+                      className={`px-4 py-2 rounded-lg border transition-all text-center whitespace-nowrap ${
                         guaranteeDays === days
                           ? 'border-emerald-500 bg-emerald-500/10'
                           : 'border-border hover:border-muted-foreground/30'
                       }`}
                     >
-                      {days} days
+                      {days} Days
                     </button>
                   ))}
                 </div>
