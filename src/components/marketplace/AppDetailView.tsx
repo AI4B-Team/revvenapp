@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
+import { getAppThumbnail } from '@/utils/appThumbnails';
 
 interface AppDetailViewProps {
   app: MarketplaceApp;
@@ -78,7 +79,13 @@ export function AppDetailView({
 
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="text-5xl">{app.icon}</div>
+              <div className="w-16 h-16 rounded-2xl bg-muted/50 border border-border shadow-md overflow-hidden flex-shrink-0">
+                {getAppThumbnail(app.name) ? (
+                  <img src={getAppThumbnail(app.name)} alt={app.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-3xl">{app.icon}</div>
+                )}
+              </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">{app.name}</h1>
                 <p className="text-muted-foreground mt-1">{app.description}</p>
