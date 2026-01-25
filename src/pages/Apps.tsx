@@ -316,6 +316,16 @@ const Apps = () => {
     return 'grid-cols-1 sm:grid-cols-2';
   };
 
+  // Get number of visible columns based on zoom (for slicing apps)
+  const getVisibleColumns = () => {
+    if (zoom <= 15) return 7;
+    if (zoom <= 30) return 6;
+    if (zoom <= 50) return 5;
+    if (zoom <= 70) return 4;
+    if (zoom <= 85) return 3;
+    return 2;
+  };
+
   // Filter apps based on current filters
   const filterApps = <T extends { name: string; category: string; badge?: string }>(apps: T[]): T[] => {
     if (!appFilters) return apps;
@@ -499,7 +509,7 @@ const Apps = () => {
                   </div>
 
                   <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
-                    {filterApps(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
+                    {filterApps(expandedSections.trending ? trendingApps : trendingApps.slice(0, getVisibleColumns())).map((app) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -542,7 +552,7 @@ const Apps = () => {
                   </div>
 
                   <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
-                    {filterApps(expandedSections.recommended ? topPicks : topPicks.slice(0, 5)).map((app) => {
+                    {filterApps(expandedSections.recommended ? topPicks : topPicks.slice(0, getVisibleColumns())).map((app) => {
                       const appId = resolveAppId(app.name);
                       // Top picks are pre-installed for new users
                       const installed = app.preInstalled || isInstalled(appId);
