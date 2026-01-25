@@ -68,8 +68,10 @@ export interface AppLicense {
     customDomain?: string;
   };
   pricingSettings: {
+    pricingModel: 'monthly' | 'one-time' | 'both';
     monthlyPrice: number;
     setupFee?: number;
+    oneTimePrice?: number;
   };
   publishStatus: 'draft' | 'live';
   activatedAt?: Date;

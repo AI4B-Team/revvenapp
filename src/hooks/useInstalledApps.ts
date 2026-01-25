@@ -85,7 +85,7 @@ export function useInstalledApps() {
       status: 'active',
       brandSettings: { primaryColor: '#000000' },
       domainSettings: { subdomain: `app-${Date.now()}` },
-      pricingSettings: { monthlyPrice: 29 },
+      pricingSettings: { pricingModel: 'monthly', monthlyPrice: 29 },
       publishStatus: 'draft',
       activatedAt: new Date()
     };
