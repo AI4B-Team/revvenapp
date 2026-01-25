@@ -180,7 +180,7 @@ const Apps = () => {
       id: 3,
       name: 'Ghost Ink',
       category: 'Content Tools',
-      description: 'AI ghostwriting for articles, blogs, and more',
+      description: 'AI ghostwriting for articles, blogs, and ebooks',
       thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop',
       badge: 'NEW',
       icon: <PenTool size={16} className="text-primary" />,
