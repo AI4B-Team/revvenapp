@@ -11,8 +11,10 @@ import {
   Palette,
   Globe,
   ArrowRight,
-  Lock
+  Lock,
+  ArrowLeft
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface LicenseActivationProps {
   app: MarketplaceApp;
@@ -41,6 +43,15 @@ export function LicenseActivation({ app, onActivate }: LicenseActivationProps) {
   return (
     <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-background via-background to-muted/30">
       <div className="max-w-2xl w-full">
+        {/* Back Link */}
+        <Link 
+          to="/apps" 
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
+          <ArrowLeft size={16} />
+          Back To Apps
+        </Link>
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
@@ -96,23 +107,36 @@ export function LicenseActivation({ app, onActivate }: LicenseActivationProps) {
             What's Included
           </h3>
           <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-            {[
-              'Full white-label customization',
-              'Custom landing page builder',
-              'Flexible pricing controls',
-              'Subdomain hosting included',
-              'Custom domain support',
-              'Integrated checkout system',
-              'Revenue tracking dashboard',
-              'Priority support access'
-            ].map((item, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                  <Check size={12} className="text-emerald-500" />
+            <div className="space-y-3">
+              {[
+                'Full white-label customization',
+                'Custom landing page builder',
+                'Flexible pricing controls',
+                'Subdomain hosting included',
+              ].map((item, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                    <Check size={12} className="text-emerald-500" />
+                  </div>
+                  <span className="text-sm text-muted-foreground">{item}</span>
                 </div>
-                <span className="text-sm text-muted-foreground">{item}</span>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="space-y-3 border-l border-border pl-8">
+              {[
+                'Custom domain support',
+                'Integrated checkout system',
+                'Revenue tracking dashboard',
+                'Priority support access'
+              ].map((item, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                    <Check size={12} className="text-emerald-500" />
+                  </div>
+                  <span className="text-sm text-muted-foreground">{item}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
