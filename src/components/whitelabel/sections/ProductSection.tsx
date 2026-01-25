@@ -8,7 +8,6 @@ import {
   Sparkles, 
   RefreshCw, 
   Lightbulb, 
-  Image as ImageIcon,
   Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -33,7 +32,6 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
   const [description, setDescription] = useState('');
   const [isGeneratingNames, setIsGeneratingNames] = useState(false);
   const [generatedNames, setGeneratedNames] = useState<string[]>([]);
-  const [isGeneratingLogos, setIsGeneratingLogos] = useState(false);
 
   const handleGenerateNames = async () => {
     setIsGeneratingNames(true);
@@ -46,14 +44,19 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
 
   const handleSelectName = (name: string) => {
     setProductName(name);
+    onUpdate({ appName: name });
     toast.success(`"${name}" selected as product name`);
   };
 
-  const handleGenerateLogos = async () => {
-    setIsGeneratingLogos(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsGeneratingLogos(false);
-    toast.success('Logo concepts generated! Check the Branding section.');
+  const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setProductName(newName);
+    onUpdate({ appName: newName });
+  };
+
+  const handleGenerateMessaging = async () => {
+    toast.success('AI messaging generated!');
+    // TODO: Integrate with Lovable AI
   };
 
   const handleSave = () => {
@@ -86,45 +89,30 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
           <Input
             id="productName"
             value={productName}
-            onChange={(e) => setProductName(e.target.value)}
+            onChange={handleProductNameChange}
             placeholder="Enter your product name"
             className="text-lg"
           />
         </div>
 
-        <div className="flex gap-3">
-          <Button 
-            variant="outline" 
-            onClick={handleGenerateNames}
-            disabled={isGeneratingNames}
-            className="gap-2"
-          >
-            {isGeneratingNames ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <Wand2 className="h-4 w-4" />
-            )}
-            Generate Name Ideas
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={handleGenerateLogos}
-            disabled={isGeneratingLogos}
-            className="gap-2"
-          >
-            {isGeneratingLogos ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <ImageIcon className="h-4 w-4" />
-            )}
-            Generate AI Logo
-          </Button>
-        </div>
+        <Button 
+          variant="outline" 
+          onClick={handleGenerateNames}
+          disabled={isGeneratingNames}
+          className="gap-2"
+        >
+          {isGeneratingNames ? (
+            <RefreshCw className="h-4 w-4 animate-spin" />
+          ) : (
+            <Wand2 className="h-4 w-4" />
+          )}
+          Generate Name Ideas
+        </Button>
 
         {/* Generated Names */}
         {generatedNames.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Click to use:</p>
+            <p className="text-sm font-medium text-muted-foreground">Click To Use:</p>
             <div className="flex flex-wrap gap-2">
               {generatedNames.map((name) => (
                 <button
@@ -173,7 +161,7 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
           <p className="text-xs text-muted-foreground">{description.length}/300 characters</p>
         </div>
 
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2" onClick={handleGenerateMessaging}>
           <Sparkles className="h-4 w-4" />
           Generate With AI
         </Button>
