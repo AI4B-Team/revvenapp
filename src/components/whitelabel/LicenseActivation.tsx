@@ -41,8 +41,8 @@ export function LicenseActivation({ app, onActivate }: LicenseActivationProps) {
   ];
 
   return (
-    <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-background via-background to-muted/30">
-      <div className="max-w-2xl w-full">
+    <div className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-background via-background to-muted/30">
+      <div className="max-w-2xl w-full mx-auto">
         {/* Back Link */}
         <Link 
           to="/apps" 
