@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Video, Image, Mic, Palette, FileText, Wrench, User, Star, Play, Download, DollarSign, Flame, Sparkles, CheckCircle } from 'lucide-react';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { resolveAppId } from '@/lib/marketplace/catalog';
 
 interface AppCardProps {
@@ -296,15 +297,24 @@ const AppCard = ({
               </>
             )}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1 h-8 text-xs"
-            onClick={handleResellClick}
-          >
-            <DollarSign size={12} className="mr-1" />
-            Resell
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-8 text-xs border-border bg-background hover:bg-accent"
+                  onClick={handleResellClick}
+                >
+                  <DollarSign size={12} className="mr-1" />
+                  Resell
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                White-Label This App & Sell It Under Your Brand
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
     </div>
