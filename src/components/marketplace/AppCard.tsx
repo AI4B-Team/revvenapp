@@ -48,9 +48,13 @@ export function AppCard({ app, install, onInstall, onOpen, onResell, hasLicense 
       <div className="flex items-center justify-between mb-4">
         <div className="text-4xl">{app.icon}</div>
         {app.isWhitelabelEligible && (
-          <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+          <div className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${
+            hasLicense 
+              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
+              : 'bg-primary/10 text-primary'
+          }`}>
             {hasLicense ? '✓' : <Lock className="h-3 w-3" />}
-            <span>White-label</span>
+            <span>{hasLicense ? 'Licensed' : 'White-label'}</span>
           </div>
         )}
       </div>
