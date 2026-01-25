@@ -57,8 +57,23 @@ export function useInstalledApps() {
   }, [installs]);
 
   const activateLicense = useCallback((appId: string, workspaceId: string) => {
-    const install = installs.find(i => i.appId === appId);
-    if (!install) return null;
+    let install = installs.find(i => i.appId === appId);
+    
+    // If no install exists, create one automatically
+    if (!install) {
+      install = {
+        id: `install-${Date.now()}`,
+        appId,
+        workspaceId,
+        installedAt: new Date(),
+        installedBy: 'user',
+        accessMode: 'all_members' as const,
+        allowedUserIds: [],
+        allowedTeamIds: []
+      };
+      const newInstalls = [...installs, install];
+      saveInstalls(newInstalls);
+    }
 
     const existingLicense = licenses.find(l => l.appInstallId === install.id);
     if (existingLicense) return existingLicense;

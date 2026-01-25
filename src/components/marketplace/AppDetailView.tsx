@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MarketplaceApp, AppInstall, AppLicense, MarketplaceWorkspace } from '@/lib/marketplace/types';
 import { appRoutes } from '@/lib/marketplace/catalog';
@@ -8,6 +8,10 @@ import { BrandControl } from './BrandControl';
 import { DomainSettings } from './DomainSettings';
 import { PricingSettings } from './PricingSettings';
 import { ArrowLeft, Settings, ExternalLink } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { toast } from 'sonner';
 
 interface AppDetailViewProps {
   app: MarketplaceApp;
@@ -21,6 +25,7 @@ interface AppDetailViewProps {
   onUpdatePricing: (settings: any) => void;
   onPublish: () => void;
   onUpgradePlan: () => void;
+  onUpdatePermissions?: (accessMode: string, userIds: string[], teamIds: string[]) => void;
 }
 
 export function AppDetailView({
@@ -34,12 +39,29 @@ export function AppDetailView({
   onUpdateDomain,
   onUpdatePricing,
   onPublish,
-  onUpgradePlan
+  onUpgradePlan,
+  onUpdatePermissions
 }: AppDetailViewProps) {
   const navigate = useNavigate();
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [selectedAccessMode, setSelectedAccessMode] = useState<'all_members' | 'select_users' | 'select_teams'>(install.accessMode);
+  
   const isLicenseActive = license?.status === 'active';
   const isPublished = license?.publishStatus === 'live';
   const appRoute = appRoutes[app.id];
+
+  const handleEditPermissions = () => {
+    setSelectedAccessMode(install.accessMode);
+    setShowPermissionsModal(true);
+  };
+
+  const handleSavePermissions = () => {
+    if (onUpdatePermissions) {
+      onUpdatePermissions(selectedAccessMode, [], []);
+    }
+    toast.success('Permissions updated successfully');
+    setShowPermissionsModal(false);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -161,11 +183,45 @@ export function AppDetailView({
               </div>
             )}
           </div>
-          <Button variant="outline" className="w-full mt-4">
+          <Button variant="outline" className="w-full mt-4" onClick={handleEditPermissions}>
             Edit Permissions
           </Button>
         </div>
       </div>
+
+      {/* Edit Permissions Modal */}
+      <Dialog open={showPermissionsModal} onOpenChange={setShowPermissionsModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Access Permissions</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Label>Who Should Have Access?</Label>
+            <RadioGroup value={selectedAccessMode} onValueChange={(value) => setSelectedAccessMode(value as 'all_members' | 'select_users' | 'select_teams')}>
+              <div className="flex items-center space-x-2 p-3 border border-border rounded-lg">
+                <RadioGroupItem value="all_members" id="all" />
+                <Label htmlFor="all" className="flex-1 cursor-pointer">Everyone In This Workspace</Label>
+              </div>
+              <div className="flex items-center space-x-2 p-3 border border-border rounded-lg">
+                <RadioGroupItem value="select_users" id="users" />
+                <Label htmlFor="users" className="flex-1 cursor-pointer">Select Specific Users</Label>
+              </div>
+              <div className="flex items-center space-x-2 p-3 border border-border rounded-lg">
+                <RadioGroupItem value="select_teams" id="teams" />
+                <Label htmlFor="teams" className="flex-1 cursor-pointer">Select Specific Teams</Label>
+              </div>
+            </RadioGroup>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => setShowPermissionsModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSavePermissions} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
