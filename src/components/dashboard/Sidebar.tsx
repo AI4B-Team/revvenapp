@@ -206,14 +206,29 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
      createNavItems);
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed ?? collapsed ?? defaultCollapsed ?? false);
+  const [userExpandedSidebar, setUserExpandedSidebar] = useState(false);
 
   useEffect(() => {
-    if (forceCollapsed) {
+    // Only apply forceCollapsed if user hasn't manually expanded
+    if (forceCollapsed && !userExpandedSidebar) {
       setIsCollapsed(true);
-    } else if (typeof collapsed === "boolean") {
+    } else if (typeof collapsed === "boolean" && !userExpandedSidebar) {
       setIsCollapsed(collapsed);
     }
-  }, [collapsed, forceCollapsed]);
+  }, [collapsed, forceCollapsed, userExpandedSidebar]);
+
+  // Handler for user-initiated expand
+  const handleExpandSidebar = () => {
+    setUserExpandedSidebar(true);
+    setIsCollapsed(false);
+  };
+
+  // Reset user override when navigating away from force-collapsed pages
+  useEffect(() => {
+    if (!forceCollapsed) {
+      setUserExpandedSidebar(false);
+    }
+  }, [forceCollapsed]);
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandsDropdownOpen, setIsBrandsDropdownOpen] = useState(false);
@@ -438,7 +453,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               <TooltipTrigger asChild>
                 {isCollapsed ? (
                   <button
-                    onClick={() => setIsCollapsed(false)}
+                    onClick={handleExpandSidebar}
                     className="flex-shrink-0 mx-auto hover:opacity-80 transition"
                   >
                     <RevvenLogo size={40} />
