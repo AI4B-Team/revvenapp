@@ -443,20 +443,29 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       <div className={`${isCollapsed ? 'w-16 -translate-x-full lg:translate-x-0' : 'w-64 translate-x-0'} bg-sidebar text-sidebar-text flex flex-col h-screen transition-all duration-300 fixed left-0 top-0 overflow-y-auto scrollbar-thin scrollbar-thumb-white scrollbar-track-gray-800 z-50`}>
         {/* Logo & Collapse Toggle */}
         <div className="p-4 relative flex items-center gap-3 flex-shrink-0">
-          {/* Logo Icon - always visible, clickable to go to landing page */}
+          {/* Logo Icon - always visible, clickable to expand sidebar when collapsed or go to home when expanded */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link
-                  to="/"
-                  className={`flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''} hover:opacity-80 transition`}
-                >
-                  <RevvenLogo size={40} />
-                </Link>
+                {isCollapsed ? (
+                  <button
+                    onClick={() => setIsCollapsed(false)}
+                    className="flex-shrink-0 mx-auto hover:opacity-80 transition"
+                  >
+                    <RevvenLogo size={40} />
+                  </button>
+                ) : (
+                  <Link
+                    to="/"
+                    className="flex-shrink-0 hover:opacity-80 transition"
+                  >
+                    <RevvenLogo size={40} />
+                  </Link>
+                )}
               </TooltipTrigger>
               {isCollapsed && (
                 <TooltipContent side="right">
-                  <p>Go to home</p>
+                  <p>Expand Menu</p>
                 </TooltipContent>
               )}
             </Tooltip>
