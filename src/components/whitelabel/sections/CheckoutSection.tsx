@@ -138,15 +138,15 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label>Discount Percentage</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {[10, 15, 20, 25].map((pct) => (
                     <button
                       key={pct}
                       onClick={() => setDiscountPercent(pct)}
-                      className={`px-3 py-2 rounded-lg border transition-all ${
+                      className={`px-4 py-2 rounded-lg border transition-all min-w-[60px] ${
                         discountPercent === pct
                           ? 'border-emerald-500 bg-emerald-500/10'
                           : 'border-border hover:border-muted-foreground/30'
@@ -159,12 +159,12 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
               </div>
               <div className="space-y-2">
                 <Label>Duration (Months)</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {[1, 3, 6].map((months) => (
                     <button
                       key={months}
                       onClick={() => setDiscountDuration(months)}
-                      className={`px-3 py-2 rounded-lg border transition-all ${
+                      className={`px-4 py-2 rounded-lg border transition-all min-w-[60px] ${
                         discountDuration === months
                           ? 'border-emerald-500 bg-emerald-500/10'
                           : 'border-border hover:border-muted-foreground/30'
@@ -327,15 +327,15 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
 
         {enableGuarantee && (
           <>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label>Guarantee Period</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {[7, 14, 30].map((days) => (
                     <button
                       key={days}
                       onClick={() => setGuaranteeDays(days)}
-                      className={`px-4 py-2 rounded-lg border transition-all ${
+                      className={`px-4 py-2 rounded-lg border transition-all min-w-[70px] ${
                         guaranteeDays === days
                           ? 'border-emerald-500 bg-emerald-500/10'
                           : 'border-border hover:border-muted-foreground/30'
