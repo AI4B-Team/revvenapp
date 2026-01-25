@@ -68,7 +68,10 @@ export function AppDetailView({
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </Button>
-              <Button onClick={() => appRoute && navigate(appRoute)}>
+              <Button 
+                onClick={() => appRoute && navigate(appRoute)}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Open
               </Button>
