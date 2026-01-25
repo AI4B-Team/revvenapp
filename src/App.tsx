@@ -35,6 +35,7 @@ const Contacts = lazy(() => import("./pages/Contacts"));
 const Revenue = lazy(() => import("./pages/Revenue"));
 const Community = lazy(() => import("./pages/Community"));
 const Apps = lazy(() => import("./pages/Apps"));
+const AppStorePage = lazy(() => import("./pages/AppStorePage"));
 const AppLicense = lazy(() => import("./pages/AppLicense"));
 const Assets = lazy(() => import("./pages/Assets"));
 const Integrations = lazy(() => import("./pages/Integrations"));
@@ -154,6 +155,7 @@ const App = () => (
                           <Route path="/community" element={<Community />} />
                           <Route path="/creator-vault" element={<CreatorVault />} />
                           <Route path="/apps" element={<Apps />} />
+                          <Route path="/apps/:appId" element={<AppStorePage />} />
                           <Route path="/sessions" element={<Sessions />} />
                           <Route path="/video-downloader" element={<VideoDownloader />} />
                           <Route path="/versus" element={<Versus />} />
