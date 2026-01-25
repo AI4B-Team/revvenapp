@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -236,6 +236,22 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   const [brandSearchQuery, setBrandSearchQuery] = useState('');
   const [spaceSearchQuery, setSpaceSearchQuery] = useState('');
+  const brandDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close brand dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (brandDropdownRef.current && !brandDropdownRef.current.contains(event.target as Node)) {
+        setIsBrandsDropdownOpen(false);
+        setBrandSearchQuery('');
+      }
+    };
+
+    if (isBrandsDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isBrandsDropdownOpen]);
 
   // Use brand context
   const { 
@@ -543,7 +559,20 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                               navigate('/space-settings');
                             }}
                           >
+                            <Edit size={14} className="mr-2" />
                             Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-border" />
+                          <DropdownMenuItem 
+                            className="text-destructive hover:bg-sidebar-hover focus:bg-sidebar-hover cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Add space delete functionality
+                              setIsWorkspaceOpen(false);
+                            }}
+                          >
+                            <Trash2 size={14} className="mr-2" />
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -574,7 +603,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
       {/* Brands Dropdown */}
       {!isCollapsed && (
-        <div className="px-4 mb-4 relative flex-shrink-0">
+        <div ref={brandDropdownRef} className="px-4 mb-4 relative flex-shrink-0">
           <div className="flex items-center gap-1.5 mb-1.5 px-1">
             <Palette size={10} className="text-sidebar-muted" />
             <span className="text-[10px] font-medium text-sidebar-muted uppercase tracking-wider">Brand</span>
@@ -690,7 +719,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                           }}
                         >
                           <Edit size={14} className="mr-2" />
-                          Rename
+                          Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-border" />
                         <DropdownMenuItem 
