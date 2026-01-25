@@ -10,9 +10,13 @@ import {
   Image as ImageIcon,
   RefreshCw,
   Check,
-  Eye
+  Eye,
+  Sparkles,
+  Loader2,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BrandingSectionProps {
   license?: AppLicense;
@@ -37,8 +41,11 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
   const [faviconUrl, setFaviconUrl] = useState(license?.brandSettings?.favicon || '');
   const [primaryHue, setPrimaryHue] = useState(270);
   const [primarySaturation, setPrimarySaturation] = useState(70);
-  const [useCustomLogo, setUseCustomLogo] = useState(false);
+  const [useCustomLogo, setUseCustomLogo] = useState(!!license?.brandSettings?.logo);
   const [selectedIcon, setSelectedIcon] = useState('🚀');
+  const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
   
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +61,30 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     return `#${f(0)}${f(8)}${f(4)}`;
   };
 
+  const hexToHsl = (hex: string): { h: number; s: number; l: number } | null => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return null;
+    
+    let r = parseInt(result[1], 16) / 255;
+    let g = parseInt(result[2], 16) / 255;
+    let b = parseInt(result[3], 16) / 255;
+    
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+
+    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+  };
+
   const primaryColor = hslToHex(primaryHue, primarySaturation);
 
   const handlePresetClick = (preset: typeof colorPresets[0]) => {
@@ -61,34 +92,123 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     setPrimarySaturation(preset.saturation !== undefined ? preset.saturation : 70);
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoUrl(reader.result as string);
-        toast.success('Logo uploaded successfully');
-      };
-      reader.readAsDataURL(file);
+  const handleHexInput = (hex: string) => {
+    const hsl = hexToHsl(hex);
+    if (hsl) {
+      setPrimaryHue(hsl.h);
+      setPrimarySaturation(hsl.s);
     }
   };
 
-  const handleFaviconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoUrl(reader.result as string);
+        setUseCustomLogo(true);
+        toast.success('Logo uploaded successfully');
+        setIsUploadingLogo(false);
+      };
+      reader.onerror = () => {
+        toast.error('Failed to read file');
+        setIsUploadingLogo(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast.error('Failed to upload logo');
+      setIsUploadingLogo(false);
+    }
+  };
+
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Favicon must be less than 2MB');
+      return;
+    }
+
+    setIsUploadingFavicon(true);
+    try {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFaviconUrl(reader.result as string);
         toast.success('Favicon uploaded successfully');
+        setIsUploadingFavicon(false);
+      };
+      reader.onerror = () => {
+        toast.error('Failed to read file');
+        setIsUploadingFavicon(false);
       };
       reader.readAsDataURL(file);
+    } catch (error) {
+      toast.error('Failed to upload favicon');
+      setIsUploadingFavicon(false);
     }
+  };
+
+  const handleGenerateLogo = async () => {
+    const appName = license?.brandSettings?.appName || 'My App';
+    
+    setIsGeneratingLogo(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('editor-generate-image', {
+        body: {
+          prompt: `Create a modern, minimal, professional logo icon for a brand called "${appName}". The logo should be simple, memorable, and work well at small sizes. Use bold shapes and clean lines. Square aspect ratio, centered design, solid background. No text in the logo.`
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.imageUrl) {
+        setLogoUrl(data.imageUrl);
+        setUseCustomLogo(true);
+        toast.success('Logo generated successfully!');
+      } else {
+        throw new Error('No image generated');
+      }
+    } catch (error) {
+      console.error('Logo generation error:', error);
+      toast.error('Failed to generate logo. Please try again.');
+    } finally {
+      setIsGeneratingLogo(false);
+    }
+  };
+
+  const clearLogo = () => {
+    setLogoUrl('');
+    if (logoInputRef.current) logoInputRef.current.value = '';
+  };
+
+  const clearFavicon = () => {
+    setFaviconUrl('');
+    if (faviconInputRef.current) faviconInputRef.current.value = '';
   };
 
   const handleSave = () => {
     onUpdate({
-      logo: logoUrl,
-      favicon: faviconUrl,
+      logo: useCustomLogo ? logoUrl : undefined,
+      favicon: faviconUrl || undefined,
       primaryColor: primaryColor
     });
     toast.success('Branding settings saved!');
@@ -116,11 +236,11 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
         
         <div className="flex items-center gap-4 p-4 rounded-lg bg-background border border-border">
           <div 
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl overflow-hidden"
             style={{ backgroundColor: `${primaryColor}20`, border: `2px solid ${primaryColor}` }}
           >
-            {logoUrl ? (
-              <img src={logoUrl} alt="Logo" className="w-full h-full object-cover rounded-xl" />
+            {useCustomLogo && logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
             ) : (
               selectedIcon
             )}
@@ -129,10 +249,17 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
             <p className="font-semibold text-foreground">{license?.brandSettings?.appName || 'Your Product'}</p>
             <p className="text-sm text-muted-foreground">White-Label App</p>
           </div>
-          <div 
-            className="ml-auto w-8 h-8 rounded-full"
-            style={{ backgroundColor: primaryColor }}
-          />
+          <div className="ml-auto flex items-center gap-2">
+            {faviconUrl && (
+              <div className="w-6 h-6 rounded overflow-hidden border border-border">
+                <img src={faviconUrl} alt="Favicon" className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div 
+              className="w-8 h-8 rounded-full"
+              style={{ backgroundColor: primaryColor }}
+            />
+          </div>
         </div>
       </div>
 
@@ -188,60 +315,111 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-6">
             {/* Logo Upload */}
-            <div className="space-y-3">
-              <Label>Logo</Label>
-              <div 
-                onClick={() => logoInputRef.current?.click()}
-                className="h-32 rounded-xl border-2 border-dashed border-border hover:border-emerald-500/50 flex flex-col items-center justify-center cursor-pointer transition-colors"
-              >
-                {logoUrl ? (
-                  <img src={logoUrl} alt="Logo" className="max-h-full max-w-full object-contain p-2" />
-                ) : (
-                  <>
-                    <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">Click To Upload Logo</p>
-                  </>
-                )}
-                <input
-                  ref={logoInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                />
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label>Logo</Label>
+                <div className="relative">
+                  <div 
+                    onClick={() => !isUploadingLogo && logoInputRef.current?.click()}
+                    className={`h-32 rounded-xl border-2 border-dashed border-border hover:border-emerald-500/50 flex flex-col items-center justify-center cursor-pointer transition-colors ${isUploadingLogo ? 'opacity-50' : ''}`}
+                  >
+                    {isUploadingLogo ? (
+                      <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+                    ) : logoUrl ? (
+                      <img src={logoUrl} alt="Logo" className="max-h-full max-w-full object-contain p-2" />
+                    ) : (
+                      <>
+                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                        <p className="text-sm text-muted-foreground">Click To Upload Logo</p>
+                      </>
+                    )}
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  {logoUrl && (
+                    <button
+                      onClick={clearLogo}
+                      className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Tip: Transparent PNGs with a square layout look best.
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Tip: Transparent PNGs with a square layout look best.
-              </p>
+
+              {/* Favicon Upload */}
+              <div className="space-y-3">
+                <Label>Favicon</Label>
+                <div className="relative">
+                  <div 
+                    onClick={() => !isUploadingFavicon && faviconInputRef.current?.click()}
+                    className={`h-32 rounded-xl border-2 border-dashed border-border hover:border-emerald-500/50 flex flex-col items-center justify-center cursor-pointer transition-colors ${isUploadingFavicon ? 'opacity-50' : ''}`}
+                  >
+                    {isUploadingFavicon ? (
+                      <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+                    ) : faviconUrl ? (
+                      <img src={faviconUrl} alt="Favicon" className="max-h-full max-w-full object-contain p-2" />
+                    ) : (
+                      <>
+                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                        <p className="text-sm text-muted-foreground">Click To Upload Favicon</p>
+                      </>
+                    )}
+                    <input
+                      ref={faviconInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFaviconUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  {faviconUrl && (
+                    <button
+                      onClick={clearFavicon}
+                      className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  We optimize the favicon automatically.
+                </p>
+              </div>
             </div>
 
-            {/* Favicon Upload */}
-            <div className="space-y-3">
-              <Label>Favicon</Label>
-              <div 
-                onClick={() => faviconInputRef.current?.click()}
-                className="h-32 rounded-xl border-2 border-dashed border-border hover:border-emerald-500/50 flex flex-col items-center justify-center cursor-pointer transition-colors"
+            {/* AI Logo Generation */}
+            <div className="pt-4 border-t border-border">
+              <Button
+                onClick={handleGenerateLogo}
+                disabled={isGeneratingLogo}
+                variant="outline"
+                className="w-full border-dashed border-2 h-12"
               >
-                {faviconUrl ? (
-                  <img src={faviconUrl} alt="Favicon" className="max-h-full max-w-full object-contain p-2" />
+                {isGeneratingLogo ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating Logo...
+                  </>
                 ) : (
                   <>
-                    <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">Click To Upload Favicon</p>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Logo With AI
                   </>
                 )}
-                <input
-                  ref={faviconInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFaviconUpload}
-                  className="hidden"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                We optimize the favicon automatically.
+              </Button>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                AI will create a unique logo based on your product name
               </p>
             </div>
           </div>
@@ -299,13 +477,13 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
             className="h-4 rounded-full"
             style={{
               background: `linear-gradient(to right, 
-                hsl(0, 70%, 50%), 
-                hsl(60, 70%, 50%), 
-                hsl(120, 70%, 50%), 
-                hsl(180, 70%, 50%), 
-                hsl(240, 70%, 50%), 
-                hsl(300, 70%, 50%), 
-                hsl(360, 70%, 50%)
+                hsl(0, ${primarySaturation}%, 50%), 
+                hsl(60, ${primarySaturation}%, 50%), 
+                hsl(120, ${primarySaturation}%, 50%), 
+                hsl(180, ${primarySaturation}%, 50%), 
+                hsl(240, ${primarySaturation}%, 50%), 
+                hsl(300, ${primarySaturation}%, 50%), 
+                hsl(360, ${primarySaturation}%, 50%)
               )`
             }}
           />
@@ -322,16 +500,28 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
           </p>
         </div>
 
+        {/* Saturation Slider */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label>Saturation</Label>
+            <span className="text-sm font-mono text-muted-foreground">{primarySaturation}%</span>
+          </div>
+          <Slider
+            value={[primarySaturation]}
+            onValueChange={([value]) => setPrimarySaturation(value)}
+            min={0}
+            max={100}
+            step={1}
+          />
+        </div>
+
         {/* Custom Color Input */}
         <div className="space-y-2">
           <Label htmlFor="customColor">Custom Hex Color</Label>
           <Input
             id="customColor"
             value={primaryColor}
-            onChange={(e) => {
-              // Parse hex and convert to hue
-              // For now, just show the value
-            }}
+            onChange={(e) => handleHexInput(e.target.value)}
             placeholder="#590BA8"
             className="font-mono"
           />
@@ -341,6 +531,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
       {/* Save Button */}
       <div className="flex justify-end">
         <Button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
+          <Check className="h-4 w-4 mr-2" />
           Save Branding
         </Button>
       </div>
