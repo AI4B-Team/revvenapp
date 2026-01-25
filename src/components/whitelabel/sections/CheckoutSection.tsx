@@ -50,10 +50,10 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
   const [selectedBadges, setSelectedBadges] = useState(['ssl', 'pci', 'stripe', 'gdpr']);
   const [enableGuarantee, setEnableGuarantee] = useState(true);
   const [guaranteeDays, setGuaranteeDays] = useState(14);
-  const [guaranteeDescription, setGuaranteeDescription] = useState('Try it risk-free');
+  const [guaranteeDescription, setGuaranteeDescription] = useState('Try It Risk-Free');
   const [guaranteeItems, setGuaranteeItems] = useState([
-    'Customers trust us',
-    'One-click refund in dashboard'
+    'Customers Trust Us',
+    'One-Click Refund In Dashboard'
   ]);
   const [enableFAQs, setEnableFAQs] = useState(true);
   const [checkoutFAQs, setCheckoutFAQs] = useState([
