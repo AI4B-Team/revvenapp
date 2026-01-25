@@ -310,7 +310,7 @@ const Apps = () => {
 
           {/* Main Content */}
           <div className="px-8 py-12">
-            {activeTab === 'apps' ? (
+            {activeTab === 'marketplace' ? (
               <div className="w-full space-y-16">
                 
                 {/* Trending Section */}
@@ -580,86 +580,82 @@ const Apps = () => {
                 </section>
               </div>
             ) : (
-              /* Marketplace Tab */
+              /* My Apps Tab - Only installed apps */
               <div className="w-full">
-                <div className="mb-4 flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    {sampleMarketplaceApps.length} apps available for white-label
-                  </p>
-                  {!hasLicense && (
-                    <Button variant="outline" size="sm">
-                      🔓 Upgrade for White-Label
-                    </Button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {sampleMarketplaceApps.map((app) => {
-                    const installed = isInstalled(app.id);
+                {(() => {
+                  // Combine all apps and filter only installed ones
+                  const allApps = [
+                    ...trendingApps.map(app => ({ ...app, category: app.category })),
+                    ...topPicks.map(app => ({ ...app, category: app.category })),
+                    ...imageApps,
+                    ...videoApps,
+                    ...audioApps,
+                    ...designApps,
+                    ...contentApps,
+                    ...toolsApps,
+                  ];
+                  
+                  // Remove duplicates by name and filter only installed
+                  const uniqueApps = allApps.reduce((acc, app) => {
+                    if (!acc.find(a => a.name === app.name)) {
+                      acc.push(app);
+                    }
+                    return acc;
+                  }, [] as typeof allApps);
+                  
+                  const installedApps = uniqueApps.filter(app => {
+                    const appId = resolveAppId(app.name);
+                    return isInstalled(appId);
+                  });
+                  
+                  if (installedApps.length === 0) {
                     return (
-                      <div 
-                        key={app.id}
-                        className="bg-card rounded-xl border border-border p-6 hover:shadow-lg transition-shadow duration-200"
-                      >
-                        {/* Icon */}
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="text-4xl">{app.icon}</div>
-                          {app.isWhitelabelEligible && (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
-                              {hasLicense ? '✓' : '🔒'}
-                              <span>White-label</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Content */}
-                        <h3 className="text-lg font-semibold text-foreground mb-2">{app.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{app.description}</p>
-
-                        {/* Features */}
-                        <ul className="space-y-1 mb-4">
-                          {app.features.slice(0, 3).map((feature, idx) => (
-                            <li key={idx} className="text-xs text-muted-foreground flex items-center">
-                              <span className="text-primary mr-2">•</span>
-                              {feature}
-                            </li>
-                          ))}
-                        </ul>
-
-                        {/* Action Buttons */}
-                        {installed ? (
-                          <div className="flex gap-2">
-                            <Button
-                              variant="default"
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => handleOpenApp(`/${app.id}`, app.id)}
-                            >
-                              <Play size={14} className="mr-1" />
-                              Open
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => handleActivateApp(app.id)}
-                            >
-                              Activate
-                            </Button>
-                          </div>
-                        ) : (
-                          <Button
-                            variant="default"
-                            className="w-full"
-                            onClick={() => setInstallModalApp(app)}
-                          >
-                            Install
-                          </Button>
-                        )}
+                      <div className="text-center py-16">
+                        <div className="text-6xl mb-4">📦</div>
+                        <h3 className="text-xl font-semibold mb-2">No Apps Installed Yet</h3>
+                        <p className="text-muted-foreground mb-6">
+                          Browse the Marketplace to discover and install apps.
+                        </p>
+                        <Button onClick={() => setActiveTab('marketplace')}>
+                          <Store size={16} className="mr-2" />
+                          Browse Marketplace
+                        </Button>
                       </div>
                     );
-                  })}
-                </div>
+                  }
+                  
+                  return (
+                    <>
+                      <div className="mb-4">
+                        <p className="text-sm text-muted-foreground">
+                          {installedApps.length} app{installedApps.length !== 1 ? 's' : ''} installed
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {installedApps.map((app, idx) => {
+                          const appId = resolveAppId(app.name);
+                          const description = 'description' in app ? (app.description as string) : '';
+                          const onClick = 'onClick' in app ? (app.onClick as (() => void) | undefined) : undefined;
+                          return (
+                            <AppCard
+                              key={idx}
+                              name={app.name}
+                              category={app.category}
+                              thumbnail={app.thumbnail}
+                              description={description || ''}
+                              badge={app.badge}
+                              appId={appId}
+                              isInstalled={true}
+                              onOpen={() => openInstalledApp(app.name)}
+                              onActivate={() => handleActivateApp(appId)}
+                              onClick={onClick}
+                            />
+                          );
+                        })}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>
