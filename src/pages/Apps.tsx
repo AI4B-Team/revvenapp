@@ -485,7 +485,7 @@ const Apps = () => {
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
-                      <p className="text-muted-foreground">The hottest AI apps right now</p>
+                      <p className="text-muted-foreground">The Hottest AI Apps Right Now</p>
                     </div>
                     {trendingApps.length > 6 && (
                       <button 
@@ -530,7 +530,7 @@ const Apps = () => {
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-2xl font-bold mb-1">RECOMMENDED FOR YOU</h2>
-                      <p className="text-muted-foreground text-sm">Handpicked apps just for you - ready to use</p>
+                      <p className="text-muted-foreground text-sm">Handpicked Apps Just For You - Ready To Use</p>
                     </div>
                     {topPicks.length > 6 && (
                       <button 
