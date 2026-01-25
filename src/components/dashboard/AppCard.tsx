@@ -314,24 +314,33 @@ const AppCard = ({
 
         {/* Action Buttons */}
         <div className="flex gap-2 flex-shrink-0">
-          <Button
-            variant="default"
-            size="sm"
-            className="h-8 text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-4"
-            onClick={isInstalled ? handleOpenClick : (onInstall ? handleInstallClick : (onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined))}
-          >
-            {isInstalled ? (
-              <>
-                <Play size={12} className="mr-1" />
-                Open
-              </>
-            ) : (
-              <>
-                <Download size={12} className="mr-1" />
-                Install
-              </>
-            )}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="h-8 text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-4"
+                  onClick={isInstalled ? handleOpenClick : (onInstall ? handleInstallClick : (onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined))}
+                >
+                  {isInstalled ? (
+                    <>
+                      <Play size={12} className="mr-1" />
+                      Open
+                    </>
+                  ) : (
+                    <>
+                      <Download size={12} className="mr-1" />
+                      Install
+                    </>
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p>{isInstalled ? 'Launch This App' : 'Add This App To Your Workspace'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -446,24 +455,33 @@ const AppCard = ({
 
         {/* Action Buttons - flex wrap: side-by-side when space allows, stack when narrow */}
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            className="flex-1 min-w-[80px] h-8 text-xs bg-emerald-500 hover:bg-emerald-600 text-white"
-            onClick={isInstalled ? handleOpenClick : (onInstall ? handleInstallClick : (onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined))}
-          >
-            {isInstalled ? (
-              <>
-                <Play size={12} className="mr-1" />
-                Open
-              </>
-            ) : (
-              <>
-                <Download size={12} className="mr-1" />
-                Install
-              </>
-            )}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="flex-1 min-w-[80px] h-8 text-xs bg-emerald-500 hover:bg-emerald-600 text-white"
+                  onClick={isInstalled ? handleOpenClick : (onInstall ? handleInstallClick : (onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined))}
+                >
+                  {isInstalled ? (
+                    <>
+                      <Play size={12} className="mr-1" />
+                      Open
+                    </>
+                  ) : (
+                    <>
+                      <Download size={12} className="mr-1" />
+                      Install
+                    </>
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p>{isInstalled ? 'Launch This App' : 'Add This App To Your Workspace'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
