@@ -389,8 +389,8 @@ const Apps = () => {
         <Header />
         
         <main className="flex-1 overflow-auto bg-background">
-          {/* Header Section */}
-          <div className="px-8 py-12 border-b border-border">
+          {/* Header Section - Sticky */}
+          <div className="px-8 py-6 border-b border-border bg-background sticky top-0 z-40">
             <div className="w-full">
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold">

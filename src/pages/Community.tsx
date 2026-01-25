@@ -30,15 +30,18 @@ const Community = () => {
         <Header />
         
         <main className="flex-1 overflow-auto bg-white">
-          <div className="px-8 py-8">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
+          {/* Header - Sticky */}
+          <div className="px-8 py-6 bg-white sticky top-0 z-40 border-b border-border">
+            <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold mb-2">COMMUNITY</h1>
                 <p className="text-muted-foreground">Explore creations from the community</p>
               </div>
               <FilterToolbar zoom={zoom} onZoomChange={setZoom} onFiltersChange={setFilters} />
             </div>
+          </div>
+          
+          <div className="px-8 py-8">
 
             {/* Gallery Content */}
             <CreationsGallery type="community" columnsPerRow={zoomLevel} filters={filters} />
