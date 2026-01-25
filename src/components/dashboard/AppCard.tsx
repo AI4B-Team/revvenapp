@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Video, Image, Mic, Palette, FileText, Wrench, User, Star, Play, Download, DollarSign, Flame, Sparkles, CheckCircle } from 'lucide-react';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
@@ -47,6 +48,30 @@ const categoryIcons: { [key: string]: React.ReactNode } = {
   'Real Estate': <Wrench size={10} />,
   'Sales Tool': <Wrench size={10} />,
   'Sales Tools': <Wrench size={10} />,
+};
+
+// Category-based icon colors for the rounded square icon badges
+const categoryIconColors: { [key: string]: string } = {
+  'Video Tool': 'bg-blue-500',
+  'Video Tools': 'bg-blue-500',
+  'Image Tool': 'bg-purple-500',
+  'Image Tools': 'bg-purple-500',
+  'Audio Tool': 'bg-amber-500',
+  'Audio Tools': 'bg-amber-500',
+  'Design Tool': 'bg-pink-500',
+  'Design Tools': 'bg-pink-500',
+  'Content Tool': 'bg-emerald-500',
+  'Content Tools': 'bg-emerald-500',
+  'Avatar Creator': 'bg-indigo-500',
+  'Ad Maker': 'bg-red-500',
+  'LLM Tool': 'bg-slate-700',
+  'Tool': 'bg-slate-600',
+  'Tools': 'bg-slate-600',
+  'Content Intelligence': 'bg-teal-500',
+  'Communication': 'bg-cyan-500',
+  'Real Estate': 'bg-orange-500',
+  'Sales Tool': 'bg-green-500',
+  'Sales Tools': 'bg-green-500',
 };
 
 // Convert plural category to singular
@@ -236,7 +261,17 @@ const AppCard = ({
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            {icon && <span className="text-base">{icon}</span>}
+            {/* Rounded square icon badge */}
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${categoryIconColors[singularCategory] || categoryIconColors[category] || 'bg-slate-600'}`}>
+              {icon ? (
+                <span className="text-white text-sm">{icon}</span>
+              ) : (
+                React.cloneElement(
+                  (categoryIcons[singularCategory] || categoryIcons[category] || <Wrench size={14} />) as React.ReactElement,
+                  { size: 14, className: 'text-white' }
+                )
+              )}
+            </div>
             <h3 className="font-semibold text-sm text-foreground truncate">{name}</h3>
             {/* Category Badge */}
             <div className="bg-muted text-muted-foreground text-[9px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1 flex-shrink-0">
@@ -375,7 +410,17 @@ const AppCard = ({
       {/* Content */}
       <div className="p-3 flex flex-col flex-grow">
         <div className="flex items-center gap-2 mb-1">
-          {icon && <span className="text-lg">{icon}</span>}
+          {/* Rounded square icon badge */}
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${categoryIconColors[singularCategory] || categoryIconColors[category] || 'bg-slate-600'}`}>
+            {icon ? (
+              <span className="text-white text-base">{icon}</span>
+            ) : (
+              React.cloneElement(
+                (categoryIcons[singularCategory] || categoryIcons[category] || <Wrench size={16} />) as React.ReactElement,
+                { size: 16, className: 'text-white' }
+              )
+            )}
+          </div>
           <h3 className="font-semibold text-sm text-foreground">{name}</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-2 line-clamp-2 flex-grow">{appDescription}</p>
