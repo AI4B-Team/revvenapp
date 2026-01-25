@@ -107,6 +107,13 @@ const Index = () => {
       videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     },
     {
+      id: 'projects',
+      title: 'Projects Tutorial',
+      description: 'Learn how to create, manage, and organize your projects efficiently.',
+      thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800',
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    },
+    {
       id: 'apps',
       title: 'Apps Tutorial',
       description: 'Learn how to use and install AI-powered apps from the marketplace.',
