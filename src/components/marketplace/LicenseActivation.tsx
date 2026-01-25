@@ -25,7 +25,7 @@ export function LicenseActivation({
   }
 
   return (
-    <div className="border border-border rounded-xl p-6 bg-background">
+    <div className="border-2 border-gray-300 dark:border-gray-600 rounded-xl p-6 bg-background">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold text-foreground mb-1">

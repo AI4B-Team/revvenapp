@@ -17,7 +17,7 @@ export function BrandControl({ license, onUpdate }: BrandControlProps) {
   };
 
   return (
-    <div className="border border-border rounded-xl p-6 space-y-6 bg-background">
+    <div className="border-2 border-gray-300 dark:border-gray-600 rounded-xl p-6 space-y-6 bg-background">
       <div>
         <h3 className="text-lg font-semibold text-foreground mb-1">Brand Control</h3>
         <p className="text-sm text-muted-foreground">
