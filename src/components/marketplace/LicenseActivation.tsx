@@ -32,7 +32,7 @@ export function LicenseActivation({
             White-Label License
           </h3>
           <p className="text-sm text-muted-foreground">
-            Rebrand this app and resell it to your clients
+            Rebrand This App And Resell It To Your Clients
           </p>
         </div>
         {isLicenseActive && (
@@ -69,7 +69,7 @@ export function LicenseActivation({
         <div className="space-y-4">
           <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
             <p className="text-sm text-primary">
-              Activate your license to start customizing and reselling this app
+              Activate Your License To Start Customizing And Reselling This App
             </p>
           </div>
           <Button onClick={onActivate} className="w-full">

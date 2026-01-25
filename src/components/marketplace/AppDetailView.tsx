@@ -126,20 +126,20 @@ export function AppDetailView({
           </h3>
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Installed on</span>
+              <span className="text-muted-foreground">Installed On</span>
               <span className="font-medium text-foreground">
                 {new Date(install.installedAt).toLocaleDateString()}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Access mode</span>
+              <span className="text-muted-foreground">Access Mode</span>
               <span className="font-medium text-foreground capitalize">
                 {install.accessMode.replace('_', ' ')}
               </span>
             </div>
             {install.accessMode === 'select_users' && (
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Allowed users</span>
+                <span className="text-muted-foreground">Allowed Users</span>
                 <span className="font-medium text-foreground">
                   {install.allowedUserIds.length} users
                 </span>
@@ -147,7 +147,7 @@ export function AppDetailView({
             )}
             {install.accessMode === 'select_teams' && (
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Allowed teams</span>
+                <span className="text-muted-foreground">Allowed Teams</span>
                 <span className="font-medium text-foreground">
                   {install.allowedTeamIds.length} teams
                 </span>
