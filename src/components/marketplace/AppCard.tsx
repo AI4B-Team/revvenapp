@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MarketplaceApp, AppInstall } from '@/lib/marketplace/types';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
@@ -8,11 +9,22 @@ interface AppCardProps {
   install?: AppInstall;
   onInstall: (app: MarketplaceApp) => void;
   onOpen: (app: MarketplaceApp) => void;
+  onResell?: (app: MarketplaceApp) => void;
   hasLicense: boolean;
 }
 
-export function AppCard({ app, install, onInstall, onOpen, hasLicense }: AppCardProps) {
+export function AppCard({ app, install, onInstall, onOpen, onResell, hasLicense }: AppCardProps) {
+  const navigate = useNavigate();
   const isInstalled = !!install;
+
+  const handleResell = () => {
+    if (onResell) {
+      onResell(app);
+    } else {
+      // Navigate to app license page for white-labeling
+      navigate(`/app-license/${app.id}`);
+    }
+  };
 
   return (
     <div className="bg-background rounded-xl border border-border p-6 hover:shadow-lg transition-shadow duration-200">
@@ -41,14 +53,23 @@ export function AppCard({ app, install, onInstall, onOpen, hasLicense }: AppCard
         ))}
       </ul>
 
-      {/* Action */}
-      <Button
-        variant={isInstalled ? 'outline' : 'default'}
-        className="w-full"
-        onClick={() => (isInstalled ? onOpen(app) : onInstall(app))}
-      >
-        {isInstalled ? 'Open' : 'Install'}
-      </Button>
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <Button
+          variant={isInstalled ? 'outline' : 'default'}
+          className="flex-1"
+          onClick={() => (isInstalled ? onOpen(app) : onInstall(app))}
+        >
+          {isInstalled ? 'Open' : 'Install'}
+        </Button>
+        <Button
+          variant="outline"
+          className="flex-1"
+          onClick={handleResell}
+        >
+          Resell
+        </Button>
+      </div>
     </div>
   );
 }
