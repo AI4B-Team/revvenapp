@@ -314,7 +314,7 @@ const Index = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground text-lg">Start Your 14-Day Free Trial Of Our PRO Plan!</h3>
-                  <p className="text-muted-foreground text-sm">Unlock unlimited projects, custom domains, and more.</p>
+                  <p className="text-muted-foreground text-sm">Access AI video creation, automated content, lead generation, and 50+ powerful business tools.</p>
                 </div>
               </div>
               <button className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors">
