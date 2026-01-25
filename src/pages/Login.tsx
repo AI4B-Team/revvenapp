@@ -520,7 +520,6 @@ export default function LoginPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
-                  required
                 />
               </div>
             )}
@@ -538,7 +537,6 @@ export default function LoginPage() {
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                   className="h-12 bg-white text-gray-900 placeholder:text-gray-500 border-2 border-gray-400 focus:border-cyan-500"
-                  required
                 />
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-gray-600">{t('auth.accessByInvitation', 'Access Is By Invitation Only')}</p>
@@ -567,7 +565,6 @@ export default function LoginPage() {
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-400 focus:border-green-600'
                 }`}
-                required
               />
               {emailNotFound && !isSignUp && (
                 <p className="mt-1.5 text-sm text-red-500">
@@ -594,8 +591,6 @@ export default function LoginPage() {
                   onFocus={() => setIsPasswordFocused(true)}
                   onBlur={() => setIsPasswordFocused(false)}
                   className="h-12 bg-white border-2 border-gray-400 focus:border-green-600 pr-24"
-                  required
-                  minLength={6}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                   {/* Strength Badge - Only show in Sign Up mode when password has content */}
