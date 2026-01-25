@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ChevronRight, Store, LayoutGrid, Grid3X3, List
+  ChevronRight, Store, LayoutGrid, Grid3X3, List,
+  FolderOpen, Target, Video, Camera, User, Sparkles, Mic, PenTool, Edit3, Search
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -98,9 +99,9 @@ const Apps = () => {
       name: 'Creator Vault',
       category: 'Content Tools',
       description: 'Your curated library of premium content collections',
-      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',
       badge: 'HOT',
-      icon: '🗃️',
+      icon: <FolderOpen size={16} className="text-primary" />,
       rating: 4.9,
       onClick: () => navigate('/creator-vault')
     },
@@ -111,7 +112,7 @@ const Apps = () => {
       description: 'AI-powered sales closing assistant',
       thumbnail: 'https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=600&h=400&fit=crop',
       badge: 'HOT',
-      icon: '🎯',
+      icon: <Target size={16} className="text-primary" />,
       rating: 4.8,
       onClick: () => navigate('/master-closer')
     },
@@ -122,7 +123,7 @@ const Apps = () => {
       description: 'Create viral short-form video content',
       thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=600&h=400&fit=crop',
       badge: 'HOT',
-      icon: '🎬',
+      icon: <Video size={16} className="text-primary" />,
       rating: 4.7,
       onClick: () => navigate('/viral-shorts')
     },
@@ -133,7 +134,7 @@ const Apps = () => {
       description: 'Record and manage video sessions effortlessly',
       thumbnail: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=600&h=400&fit=crop',
       badge: 'NEW',
-      icon: '📹',
+      icon: <Camera size={16} className="text-primary" />,
       rating: 4.6,
       onClick: () => navigate('/sessions')
     },
@@ -144,7 +145,7 @@ const Apps = () => {
       description: 'Generate AI-powered influencer content',
       thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=600&h=400&fit=crop',
       badge: 'HOT',
-      icon: '👤',
+      icon: <User size={16} className="text-primary" />,
       rating: 4.9,
       onClick: () => navigate('/ai-influencer')
     },
@@ -158,7 +159,7 @@ const Apps = () => {
       description: 'Your all-in-one AI content creation studio',
       thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop',
       badge: 'HOT',
-      icon: '✨',
+      icon: <Sparkles size={16} className="text-primary" />,
       rating: 4.9,
       onClick: () => navigate('/create'),
       preInstalled: true,
@@ -170,7 +171,7 @@ const Apps = () => {
       description: 'Convert speech to text with high accuracy',
       thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop',
       badge: 'NEW',
-      icon: '🎙️',
+      icon: <Mic size={16} className="text-primary" />,
       rating: 4.8,
       onClick: () => navigate('/transcribe'),
       preInstalled: true,
@@ -182,7 +183,7 @@ const Apps = () => {
       description: 'AI ghostwriting for articles, blogs, and more',
       thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop',
       badge: 'NEW',
-      icon: '✍️',
+      icon: <PenTool size={16} className="text-primary" />,
       rating: 4.7,
       preInstalled: true,
     },
@@ -193,7 +194,7 @@ const Apps = () => {
       description: 'Create and edit content with pro-grade tools',
       thumbnail: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop',
       badge: 'HOT',
-      icon: '🛠️',
+      icon: <Edit3 size={16} className="text-primary" />,
       rating: 4.8,
       onClick: () => navigate('/edit'),
       preInstalled: true,
@@ -205,7 +206,7 @@ const Apps = () => {
       description: 'Content intelligence and insights for your campaigns',
       thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
       badge: 'NEW',
-      icon: '🕵️',
+      icon: <Search size={16} className="text-primary" />,
       rating: 4.6,
       onClick: () => navigate('/digital-spy'),
       preInstalled: true,
@@ -358,8 +359,8 @@ const Apps = () => {
                   onClick={() => setActiveTab('marketplace')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                     activeTab === 'marketplace'
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      ? 'bg-foreground text-background shadow-md'
+                      : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
                   }`}
                 >
                   <Store size={14} />
@@ -369,8 +370,8 @@ const Apps = () => {
                   onClick={() => setActiveTab('apps')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                     activeTab === 'apps'
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      ? 'bg-foreground text-background shadow-md'
+                      : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
                   }`}
                 >
                   <LayoutGrid size={14} />
