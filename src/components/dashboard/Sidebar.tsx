@@ -500,7 +500,29 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
 
       {/* Workspace/Space Selector */}
-      {!isCollapsed && (
+      {isCollapsed ? (
+        <div className="px-4 mb-2 flex-shrink-0">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setUserExpandedSidebar(true);
+                    setIsCollapsed(false);
+                    setTimeout(() => setIsWorkspaceOpen(true), 100);
+                  }}
+                  className="w-full flex items-center justify-center py-2.5 hover:bg-sidebar-hover rounded-lg transition"
+                >
+                  <LayoutGrid size={18} className="text-sidebar-muted" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{displaySpace?.name || 'Workspace'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ) : (
         <div className="px-4 mb-2 relative flex-shrink-0">
           <div className="flex items-center gap-1.5 mb-1.5 px-1">
             <LayoutGrid size={10} className="text-sidebar-muted" />
@@ -620,7 +642,29 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       )}
 
       {/* Brands Dropdown */}
-      {!isCollapsed && (
+      {isCollapsed ? (
+        <div className="px-4 mb-2 flex-shrink-0">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setUserExpandedSidebar(true);
+                    setIsCollapsed(false);
+                    setTimeout(() => setIsBrandsDropdownOpen(true), 100);
+                  }}
+                  className="w-full flex items-center justify-center py-2.5 hover:bg-sidebar-hover rounded-lg transition"
+                >
+                  <Palette size={18} className="text-sidebar-muted" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{displayBrand?.name || 'Brand'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ) : (
         <div ref={brandDropdownRef} className="px-4 mb-4 relative flex-shrink-0">
           <div className="flex items-center gap-1.5 mb-1.5 px-1">
             <Palette size={10} className="text-sidebar-muted" />
