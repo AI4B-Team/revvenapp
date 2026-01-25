@@ -110,6 +110,14 @@ export function useInstalledApps() {
     saveLicenses(newLicenses);
   }, [installs, licenses]);
 
+  const deactivateLicense = useCallback((appId: string) => {
+    const install = installs.find(i => i.appId === appId);
+    if (!install) return;
+
+    const newLicenses = licenses.filter(l => l.appInstallId !== install.id);
+    saveLicenses(newLicenses);
+  }, [installs, licenses]);
+
   return {
     installs,
     licenses,
@@ -118,6 +126,7 @@ export function useInstalledApps() {
     getInstall,
     activateLicense,
     getLicense,
-    updateLicense
+    updateLicense,
+    deactivateLicense
   };
 }

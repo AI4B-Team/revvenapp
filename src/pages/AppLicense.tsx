@@ -42,7 +42,7 @@ const AppLicense = () => {
     }
   };
   
-  const { getLicense, activateLicense, updateLicense } = useInstalledApps();
+  const { getLicense, activateLicense, updateLicense, deactivateLicense } = useInstalledApps();
 
   const app = appId ? getCatalogApp(appId) : undefined;
   const license = appId ? getLicense(appId) : undefined;
@@ -90,6 +90,12 @@ const AppLicense = () => {
     );
   }
 
+  const handleDeactivateLicense = () => {
+    if (appId) {
+      deactivateLicense(appId);
+    }
+  };
+
   const renderSection = () => {
     switch (activeSection) {
       case 'product': return <ProductSection app={app} license={license} onUpdate={handleUpdateBrand} />;
@@ -98,7 +104,7 @@ const AppLicense = () => {
       case 'pricing': return <PricingSection license={license} onUpdate={handleUpdatePricing} />;
       case 'checkout': return <CheckoutSection license={license} />;
       case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
-      case 'settings': return <SettingsSection />;
+      case 'settings': return <SettingsSection onDeactivate={handleDeactivateLicense} />;
       default: return null;
     }
   };

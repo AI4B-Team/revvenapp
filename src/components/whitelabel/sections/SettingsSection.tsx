@@ -2,16 +2,38 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Settings, Bell, Shield, Users, CreditCard } from 'lucide-react';
+import { Settings, Bell, Shield, Users, CreditCard, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
-export function SettingsSection() {
+interface SettingsSectionProps {
+  onDeactivate?: () => void;
+}
+
+export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
   const [enableNotifications, setEnableNotifications] = useState(true);
   const [enableAnalytics, setEnableAnalytics] = useState(true);
   const [requireEmailVerification, setRequireEmailVerification] = useState(false);
 
   const handleSave = () => {
     toast.success('Settings saved!');
+  };
+
+  const handleDeactivate = () => {
+    if (onDeactivate) {
+      onDeactivate();
+      toast.success('License deactivated');
+    }
   };
 
   return (
@@ -41,6 +63,36 @@ export function SettingsSection() {
         <div className="flex items-center gap-2"><CreditCard className="h-5 w-5 text-primary" /><h3 className="font-semibold">Stripe Integration</h3></div>
         <p className="text-sm text-muted-foreground">Connect your Stripe account to receive payments</p>
         <Button variant="outline">Connect Stripe</Button>
+      </div>
+
+      {/* Danger Zone */}
+      <div className="p-6 rounded-xl border-2 border-destructive/50 bg-destructive/5 space-y-4">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5 text-destructive" />
+          <h3 className="font-semibold text-destructive">Danger Zone</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Deactivating your license will remove all your customizations and return you to the activation screen.
+        </p>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">Deactivate License</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will deactivate your white-label license and remove all customizations. You can reactivate anytime.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeactivate} className="bg-destructive hover:bg-destructive/90">
+                Deactivate
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <div className="flex justify-end">
