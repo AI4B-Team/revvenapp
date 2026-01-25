@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Video, Image, Mic, Palette, FileText, Wrench, User, Star, Play, Settings } from 'lucide-react';
+import { Video, Image, Mic, Palette, FileText, Wrench, User, Star, Play, Download, Share2, Flame, Sparkles, CheckCircle } from 'lucide-react';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
 import { Button } from '@/components/ui/button';
 import { resolveAppId } from '@/lib/marketplace/catalog';
@@ -18,6 +18,7 @@ interface AppCardProps {
   onOpen?: () => void;
   onActivate?: () => void;
   onResell?: () => void;
+  createdAt?: Date;
 }
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
@@ -30,6 +31,10 @@ const categoryIcons: { [key: string]: React.ReactNode } = {
   'Ad Maker': <Palette size={12} />,
   'LLM Tool': <Wrench size={12} />,
   'Tools': <Wrench size={12} />,
+  'Content Intelligence': <FileText size={12} />,
+  'Communication': <FileText size={12} />,
+  'Real Estate': <Wrench size={12} />,
+  'Sales Tools': <Wrench size={12} />,
 };
 
 // Map app names to IDs for favorites
@@ -63,14 +68,15 @@ const AppCard = ({
   thumbnail, 
   timestamp, 
   badge, 
-  badgeColor = 'bg-amber-500', 
+  badgeColor, 
   onClick, 
   appId,
   isInstalled = false,
   onInstall,
   onOpen,
   onActivate,
-  onResell
+  onResell,
+  createdAt
 }: AppCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoriteApps();
@@ -78,6 +84,14 @@ const AppCard = ({
   // Get the app ID from either the prop or the name mapping
   const resolvedAppId = appId || nameToIdMap[name] || resolveAppId(name);
   const favorited = isFavorite(resolvedAppId);
+
+  // Check if app is new (within 30 days)
+  const isNewApp = createdAt ? (Date.now() - createdAt.getTime()) < 30 * 24 * 60 * 60 * 1000 : false;
+
+  // Determine which badge to show (only HOT, NEW are allowed on right side)
+  const normalizedBadge = badge?.toUpperCase();
+  const showHotBadge = normalizedBadge === 'HOT';
+  const showNewBadge = normalizedBadge === 'NEW' || isNewApp;
 
   const handleStarClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -122,24 +136,34 @@ const AppCard = ({
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         
-        {/* Timestamp Badge */}
-        {timestamp && (
+        {/* Timestamp Badge - only if not installed */}
+        {timestamp && !isInstalled && (
           <div className="absolute top-3 left-3 bg-foreground/80 text-background text-[10px] font-medium px-2 py-0.5 rounded">
             {timestamp}
           </div>
         )}
+
+        {/* Installed Badge - Left Side (green) */}
+        {isInstalled && (
+          <div className="absolute top-3 left-3 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <CheckCircle size={10} />
+            INSTALLED
+          </div>
+        )}
         
-        {/* AI/Feature Badge */}
-        {badge && (
-          <div className={`absolute top-3 right-3 ${badgeColor} text-black text-[10px] font-bold px-2 py-0.5 rounded-full`}>
-            {badge}
+        {/* Hot Badge - Right Side (red) */}
+        {showHotBadge && (
+          <div className="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <Flame size={10} />
+            HOT
           </div>
         )}
 
-        {/* Installed Badge */}
-        {isInstalled && (
-          <div className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
-            INSTALLED
+        {/* New Badge - Right Side (yellow) - only if not hot */}
+        {showNewBadge && !showHotBadge && (
+          <div className="absolute top-3 right-3 bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <Sparkles size={10} />
+            NEW
           </div>
         )}
 
@@ -165,65 +189,35 @@ const AppCard = ({
         </div>
 
         {/* Action Buttons */}
-        {isInstalled ? (
-          <div className="flex gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              className="flex-1 h-8 text-xs"
-              onClick={handleOpenClick}
-            >
-              <Play size={12} className="mr-1" />
-              Open
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 h-8 text-xs"
-              onClick={handleResellClick}
-            >
-              Resell
-            </Button>
-          </div>
-        ) : onInstall ? (
-          <div className="flex gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              className="flex-1 h-8 text-xs"
-              onClick={handleInstallClick}
-            >
-              Install
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 h-8 text-xs"
-              onClick={handleResellClick}
-            >
-              Resell
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              className="flex-1 h-8 text-xs"
-              onClick={onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined}
-            >
-              Install
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 h-8 text-xs"
-              onClick={handleResellClick}
-            >
-              Resell
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            className="flex-1 h-8 text-xs"
+            onClick={isInstalled ? handleOpenClick : (onInstall ? handleInstallClick : (onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined))}
+          >
+            {isInstalled ? (
+              <>
+                <Play size={12} className="mr-1" />
+                Open
+              </>
+            ) : (
+              <>
+                <Download size={12} className="mr-1" />
+                Install
+              </>
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-8 text-xs"
+            onClick={handleResellClick}
+          >
+            <Share2 size={12} className="mr-1" />
+            Resell
+          </Button>
+        </div>
       </div>
     </div>
   );
