@@ -13,6 +13,7 @@ import { useInstalledApps } from '@/hooks/useInstalledApps';
 import { InstallModal } from '@/components/marketplace';
 import { sampleMarketplaceApps, mockMembers, mockTeams, mockMarketplaceWorkspace, mockMarketplaceUser } from '@/lib/marketplace/data';
 import { MarketplaceApp } from '@/lib/marketplace/types';
+import { appRoutes, getCatalogApp, resolveAppId } from '@/lib/marketplace/catalog';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -63,6 +64,22 @@ const Apps = () => {
   const handleOpenApp = (appPath: string, appId: string) => {
     addToOpenTabs(appId, navigate);
     navigate(appPath);
+  };
+
+  const openInstalledApp = (appName: string) => {
+    const appId = resolveAppId(appName);
+    const path = appRoutes[appId];
+    if (!path) {
+      toast.error('This app does not have a route configured yet.');
+      return;
+    }
+    addToOpenTabs(appId, navigate);
+    navigate(path);
+  };
+
+  const openInstallForAppName = (appName: string) => {
+    const appId = resolveAppId(appName);
+    setInstallModalApp(getCatalogApp(appId));
   };
 
   const handleActivateApp = (appId: string) => {
@@ -415,9 +432,21 @@ const Apps = () => {
                     </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                    {imageApps.map((app, idx) => (
-                      <AppCard key={idx} {...app} />
-                    ))}
+                    {imageApps.map((app, idx) => {
+                      const appId = resolveAppId(app.name);
+                      const installed = isInstalled(appId);
+                      return (
+                        <AppCard
+                          key={idx}
+                          {...app}
+                          appId={appId}
+                          isInstalled={installed}
+                          onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
+                          onOpen={installed ? () => openInstalledApp(app.name) : undefined}
+                          onActivate={installed ? () => handleActivateApp(appId) : undefined}
+                        />
+                      );
+                    })}
                   </div>
                 </section>
 
@@ -434,9 +463,21 @@ const Apps = () => {
                     </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                    {videoApps.map((app, idx) => (
-                      <AppCard key={idx} {...app} />
-                    ))}
+                    {videoApps.map((app, idx) => {
+                      const appId = resolveAppId(app.name);
+                      const installed = isInstalled(appId);
+                      return (
+                        <AppCard
+                          key={idx}
+                          {...app}
+                          appId={appId}
+                          isInstalled={installed}
+                          onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
+                          onOpen={installed ? () => openInstalledApp(app.name) : undefined}
+                          onActivate={installed ? () => handleActivateApp(appId) : undefined}
+                        />
+                      );
+                    })}
                   </div>
                 </section>
 
@@ -453,9 +494,21 @@ const Apps = () => {
                     </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                    {audioApps.map((app, idx) => (
-                      <AppCard key={idx} {...app} />
-                    ))}
+                    {audioApps.map((app, idx) => {
+                      const appId = resolveAppId(app.name);
+                      const installed = isInstalled(appId);
+                      return (
+                        <AppCard
+                          key={idx}
+                          {...app}
+                          appId={appId}
+                          isInstalled={installed}
+                          onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
+                          onOpen={installed ? () => openInstalledApp(app.name) : undefined}
+                          onActivate={installed ? () => handleActivateApp(appId) : undefined}
+                        />
+                      );
+                    })}
                   </div>
                 </section>
 
@@ -472,9 +525,21 @@ const Apps = () => {
                     </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                    {designApps.map((app, idx) => (
-                      <AppCard key={idx} {...app} />
-                    ))}
+                    {designApps.map((app, idx) => {
+                      const appId = resolveAppId(app.name);
+                      const installed = isInstalled(appId);
+                      return (
+                        <AppCard
+                          key={idx}
+                          {...app}
+                          appId={appId}
+                          isInstalled={installed}
+                          onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
+                          onOpen={installed ? () => openInstalledApp(app.name) : undefined}
+                          onActivate={installed ? () => handleActivateApp(appId) : undefined}
+                        />
+                      );
+                    })}
                   </div>
                 </section>
 
@@ -491,9 +556,21 @@ const Apps = () => {
                     </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                    {contentApps.map((app, idx) => (
-                      <AppCard key={idx} {...app} />
-                    ))}
+                    {contentApps.map((app, idx) => {
+                      const appId = resolveAppId(app.name);
+                      const installed = isInstalled(appId);
+                      return (
+                        <AppCard
+                          key={idx}
+                          {...app}
+                          appId={appId}
+                          isInstalled={installed}
+                          onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
+                          onOpen={installed ? () => openInstalledApp(app.name) : undefined}
+                          onActivate={installed ? () => handleActivateApp(appId) : undefined}
+                        />
+                      );
+                    })}
                   </div>
                 </section>
 
@@ -510,9 +587,21 @@ const Apps = () => {
                     </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                    {toolsApps.map((app, idx) => (
-                      <AppCard key={idx} {...app} />
-                    ))}
+                    {toolsApps.map((app, idx) => {
+                      const appId = resolveAppId(app.name);
+                      const installed = isInstalled(appId);
+                      return (
+                        <AppCard
+                          key={idx}
+                          {...app}
+                          appId={appId}
+                          isInstalled={installed}
+                          onInstall={!installed ? () => openInstallForAppName(app.name) : undefined}
+                          onOpen={installed ? () => openInstalledApp(app.name) : undefined}
+                          onActivate={installed ? () => handleActivateApp(appId) : undefined}
+                        />
+                      );
+                    })}
                   </div>
                 </section>
               </div>
