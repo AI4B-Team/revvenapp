@@ -335,7 +335,7 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
                     <button
                       key={days}
                       onClick={() => setGuaranteeDays(days)}
-                      className={`px-4 py-2 rounded-lg border transition-all min-w-[70px] ${
+                      className={`px-4 py-2 rounded-lg border transition-all w-[90px] text-center ${
                         guaranteeDays === days
                           ? 'border-emerald-500 bg-emerald-500/10'
                           : 'border-border hover:border-muted-foreground/30'
