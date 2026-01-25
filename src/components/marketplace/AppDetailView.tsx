@@ -7,6 +7,9 @@ import { LicenseActivation } from './LicenseActivation';
 import { BrandControl } from './BrandControl';
 import { DomainSettings } from './DomainSettings';
 import { PricingSettings } from './PricingSettings';
+import { MemberSelector } from './MemberSelector';
+import { TeamSelector } from './TeamSelector';
+import { mockMembers, mockTeams } from '@/lib/marketplace/data';
 import { ArrowLeft, Settings, ExternalLink } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -46,6 +49,8 @@ export function AppDetailView({
   const navigate = useNavigate();
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [selectedAccessMode, setSelectedAccessMode] = useState<'all_members' | 'select_users' | 'select_teams'>(install.accessMode);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(install.allowedUserIds || []);
+  const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>(install.allowedTeamIds || []);
   
   const isLicenseActive = license?.status === 'active';
   const isPublished = license?.publishStatus === 'live';
@@ -53,12 +58,14 @@ export function AppDetailView({
 
   const handleEditPermissions = () => {
     setSelectedAccessMode(install.accessMode);
+    setSelectedUserIds(install.allowedUserIds || []);
+    setSelectedTeamIds(install.allowedTeamIds || []);
     setShowPermissionsModal(true);
   };
 
   const handleSavePermissions = () => {
     if (onUpdatePermissions) {
-      onUpdatePermissions(selectedAccessMode, [], []);
+      onUpdatePermissions(selectedAccessMode, selectedUserIds, selectedTeamIds);
     }
     toast.success('Permissions updated successfully');
     setShowPermissionsModal(false);
@@ -198,7 +205,7 @@ export function AppDetailView({
 
       {/* Edit Permissions Modal */}
       <Dialog open={showPermissionsModal} onOpenChange={setShowPermissionsModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Access Permissions</DialogTitle>
           </DialogHeader>
@@ -218,6 +225,23 @@ export function AppDetailView({
                 <Label htmlFor="teams" className="flex-1 cursor-pointer">Select Specific Teams</Label>
               </div>
             </RadioGroup>
+
+            {/* Conditional Selectors */}
+            {selectedAccessMode === 'select_users' && (
+              <MemberSelector
+                members={mockMembers}
+                selectedIds={selectedUserIds}
+                onChange={setSelectedUserIds}
+              />
+            )}
+
+            {selectedAccessMode === 'select_teams' && (
+              <TeamSelector
+                teams={mockTeams}
+                selectedIds={selectedTeamIds}
+                onChange={setSelectedTeamIds}
+              />
+            )}
           </div>
           <div className="flex gap-3 justify-end">
             <Button variant="outline" onClick={() => setShowPermissionsModal(false)}>
