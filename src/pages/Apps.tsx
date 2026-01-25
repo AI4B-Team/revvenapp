@@ -50,6 +50,15 @@ const Apps = () => {
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
   const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   
+  // Handle AIVA toggle - also collapse sidebar when opening
+  const handleAIVAToggle = () => {
+    const newState = !isAIVAPanelOpen;
+    setIsAIVAPanelOpen(newState);
+    if (newState) {
+      setIsSidebarCollapsed(true);
+    }
+  };
+  
   const { isFavorite, toggleFavorite } = useFavoriteApps();
   const { isInstalled, installApp } = useInstalledApps();
 
@@ -397,7 +406,7 @@ const Apps = () => {
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
         onCollapseChange={setIsSidebarCollapsed}
-        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        onAIVAPanelToggle={handleAIVAToggle}
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
       

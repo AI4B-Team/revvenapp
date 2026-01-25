@@ -17,6 +17,15 @@ const BlogWriter = () => {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
+  
+  // Handle AIVA toggle - also collapse sidebar when opening
+  const handleAIVAToggle = () => {
+    const newState = !isAIVAPanelOpen;
+    setIsAIVAPanelOpen(newState);
+    if (newState) {
+      setIsSidebarCollapsed(true);
+    }
+  };
   const [topic, setTopic] = useState('');
   const [keywords, setKeywords] = useState('');
   const [tone, setTone] = useState('professional');
@@ -67,7 +76,7 @@ const BlogWriter = () => {
     <div className="flex min-h-screen bg-background">
       <Sidebar 
         onCollapseChange={setIsSidebarCollapsed}
-        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        onAIVAPanelToggle={handleAIVAToggle}
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'} ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}>

@@ -80,6 +80,15 @@ const EbookCreator = () => {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
+  
+  // Handle AIVA toggle - also collapse sidebar when opening
+  const handleAIVAToggle = () => {
+    const newState = !isAIVAPanelOpen;
+    setIsAIVAPanelOpen(newState);
+    if (newState) {
+      setSidebarCollapsed(true);
+    }
+  };
   const [showChapterEditor, setShowChapterEditor] = useState(false);
   const [showCoverDesigner, setShowCoverDesigner] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -628,7 +637,7 @@ const EbookCreator = () => {
     <div className="min-h-screen bg-background flex w-full">
       <Sidebar 
         onCollapseChange={setSidebarCollapsed} 
-        onAIVAPanelToggle={() => setIsAIVAPanelOpen(true)}
+        onAIVAPanelToggle={handleAIVAToggle}
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
 
