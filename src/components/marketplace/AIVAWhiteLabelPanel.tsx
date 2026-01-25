@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Sparkles, Loader2, MessageSquare, Bot, User } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, MessageSquare, Trash2, History, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, SquarePen, ArrowLeft, Clock, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { MarketplaceApp, AppLicense } from '@/lib/marketplace/types';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -23,15 +25,55 @@ interface AIVAWhiteLabelPanelProps {
   sidebarCollapsed?: boolean;
 }
 
-// Suggestions for white-label configuration
-const AIVA_SUGGESTIONS = [
-  'Help me set up my brand colors',
-  'Suggest pricing for my target market',
-  'Write a compelling tagline for my app',
-  'What domain name should I use?',
-  'How do I attract my first customers?',
-  'Help me create marketing copy',
-];
+// Simple markdown renderer for chat messages
+const renderMarkdown = (text: string): React.ReactNode => {
+  if (!text) return null;
+  
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  
+  lines.forEach((line, lineIndex) => {
+    const processInline = (str: string): React.ReactNode[] => {
+      const parts: React.ReactNode[] = [];
+      let remaining = str;
+      let keyIndex = 0;
+      
+      while (remaining.length > 0) {
+        const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+        if (boldMatch && boldMatch.index !== undefined) {
+          if (boldMatch.index > 0) {
+            parts.push(remaining.substring(0, boldMatch.index));
+          }
+          parts.push(<strong key={`bold-${keyIndex++}`}>{boldMatch[1]}</strong>);
+          remaining = remaining.substring(boldMatch.index + boldMatch[0].length);
+          continue;
+        }
+        parts.push(remaining);
+        break;
+      }
+      
+      return parts;
+    };
+    
+    if (line.startsWith('- ') || line.startsWith('* ')) {
+      const content = line.substring(2);
+      elements.push(
+        <div key={lineIndex} className="flex gap-2 ml-2">
+          <span className="text-muted-foreground">•</span>
+          <span>{processInline(content)}</span>
+        </div>
+      );
+    } else if (line.trim() === '') {
+      elements.push(<div key={lineIndex} className="h-2" />);
+    } else {
+      elements.push(
+        <div key={lineIndex}>{processInline(line)}</div>
+      );
+    }
+  });
+  
+  return <div className="space-y-1 text-sm whitespace-pre-wrap">{elements}</div>;
+};
 
 export function AIVAWhiteLabelPanel({
   isOpen,
@@ -44,11 +86,40 @@ export function AIVAWhiteLabelPanel({
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Speech recognition
+  const handleSpeechResult = useCallback((transcript: string) => {
+    setMessage(transcript);
+  }, []);
+
+  const { isListening, isSupported, startListening, stopListening } = useSpeechRecognition({
+    onResult: handleSpeechResult,
+  });
+
+  const handleMicClick = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening(message);
+    }
+  }, [isListening, startListening, stopListening, message]);
+
+  // Suggestions for white-label configuration
+  const AIVA_SUGGESTIONS = [
+    'Help me set up my brand colors',
+    'Suggest pricing for my target market',
+    'Write a compelling tagline for my app',
+    'What domain name should I use?',
+  ];
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -60,17 +131,6 @@ export function AIVAWhiteLabelPanel({
       inputRef.current.focus();
     }
   }, [isOpen]);
-
-  // Initialize with welcome message
-  useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      setMessages([{
-        id: 'welcome',
-        role: 'assistant',
-        content: `Hi! I'm AIVA, your white-label configuration assistant. I'm here to help you set up and customize **${app.name}** for your brand.\n\nI can help you with:\n- **Brand Setup**: Logo, colors, and app name\n- **Pricing Strategy**: Setting competitive prices\n- **Marketing Copy**: Headlines and descriptions\n- **Domain Configuration**: Choosing the right subdomain\n\nWhat would you like to start with?`
-      }]);
-    }
-  }, [isOpen, app.name]);
 
   const sendMessage = useCallback(async () => {
     if (!message.trim() || isLoading) return;
@@ -84,6 +144,10 @@ export function AIVAWhiteLabelPanel({
     setMessages(prev => [...prev, userMessage]);
     setMessage('');
     setIsLoading(true);
+
+    // Create placeholder for assistant message
+    const assistantId = `assistant-${Date.now()}`;
+    setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -109,15 +173,14 @@ Your role:
 4. Guide them through the setup process
 5. Answer questions about reselling and customization
 
-Be friendly, helpful, and provide specific, actionable advice. Use markdown formatting for lists and emphasis.
-
-If suggesting a specific configuration change, format it clearly so the user knows exactly what to do.`;
+Be friendly, helpful, and provide specific, actionable advice. Use markdown formatting for lists and emphasis.`;
 
       const response = await fetch(`${SUPABASE_URL}/functions/v1/aiva-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || SUPABASE_KEY}`
+          'apikey': SUPABASE_KEY,
+          'Authorization': session?.access_token ? `Bearer ${session.access_token}` : `Bearer ${SUPABASE_KEY}`
         },
         body: JSON.stringify({
           messages: [
@@ -126,7 +189,7 @@ If suggesting a specific configuration change, format it clearly so the user kno
             { role: 'user', content: userMessage.content }
           ],
           context: '/app-license',
-          stream: false
+          stream: true
         })
       });
 
@@ -134,21 +197,50 @@ If suggesting a specific configuration change, format it clearly so the user kno
         throw new Error('Failed to get response');
       }
 
-      const data = await response.json();
-      const assistantMessage: Message = {
-        id: `assistant-${Date.now()}`,
-        role: 'assistant',
-        content: data.message || 'I apologize, but I encountered an error. Please try again.'
-      };
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+      
+      const decoder = new TextDecoder();
+      let fullContent = '';
 
-      setMessages(prev => [...prev, assistantMessage]);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ') && !line.includes('[DONE]')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              const content = data.choices?.[0]?.delta?.content;
+              if (content) {
+                fullContent += content;
+                setMessages(prev => 
+                  prev.map(m => 
+                    m.id === assistantId 
+                      ? { ...m, content: fullContent }
+                      : m
+                  )
+                );
+              }
+            } catch {
+              // Ignore parse errors for incomplete chunks
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('AIVA error:', error);
-      setMessages(prev => [...prev, {
-        id: `error-${Date.now()}`,
-        role: 'assistant',
-        content: 'I apologize, but I encountered an error. Please try again.'
-      }]);
+      setMessages(prev => 
+        prev.map(m => 
+          m.id === assistantId 
+            ? { ...m, content: 'I apologize, but I encountered an error. Please try again.' }
+            : m
+        )
+      );
     } finally {
       setIsLoading(false);
     }
@@ -166,21 +258,8 @@ If suggesting a specific configuration change, format it clearly so the user kno
     inputRef.current?.focus();
   };
 
-  // Simple markdown renderer
-  const renderMarkdown = (text: string) => {
-    return text.split('\n').map((line, i) => {
-      // Bold
-      line = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-      // Bullet points
-      if (line.startsWith('- ')) {
-        return <div key={i} className="flex gap-2 ml-2"><span>•</span><span dangerouslySetInnerHTML={{ __html: line.substring(2) }} /></div>;
-      }
-      // Empty line
-      if (line.trim() === '') {
-        return <div key={i} className="h-2" />;
-      }
-      return <div key={i} dangerouslySetInnerHTML={{ __html: line }} />;
-    });
+  const handleClearChat = () => {
+    setMessages([]);
   };
 
   if (!isOpen) return null;
@@ -189,111 +268,252 @@ If suggesting a specific configuration change, format it clearly so the user kno
   const leftPosition = sidebarCollapsed ? 'left-16' : 'left-64';
 
   return (
-    <div className={`fixed ${leftPosition} top-0 bottom-0 w-[400px] bg-background border-r border-border shadow-xl z-40 flex flex-col transition-all duration-300 animate-in slide-in-from-left`}>
+    <div 
+      className={`fixed ${leftPosition} top-0 h-full bg-background border-r border-border shadow-xl z-40 flex flex-col transition-all duration-300 ${
+        isExpanded ? 'w-[600px]' : 'w-[400px]'
+      } animate-in slide-in-from-left`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-violet-500/10 to-indigo-500/10">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
-            <Bot className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-foreground">AIVA</h3>
-            <p className="text-xs text-muted-foreground">White-Label Assistant</p>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2 rounded-lg border border-border bg-muted/50">
+                  <MessageSquare size={18} className="text-foreground" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Chat</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => setMessages([])}
+                  className="p-2 rounded-lg hover:bg-muted transition"
+                >
+                  <SquarePen size={18} className="text-muted-foreground" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>New Chat</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={handleClearChat}
+                  className="p-2 rounded-lg hover:bg-muted transition"
+                >
+                  <Trash2 size={18} className="text-muted-foreground" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Clear Chat</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2 rounded-lg hover:bg-muted transition">
+                  <History size={18} className="text-muted-foreground" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Chat History</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2 rounded-lg hover:bg-muted transition">
+                  <SlidersHorizontal size={18} className="text-muted-foreground" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Settings</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
+        
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="p-2 rounded-lg hover:bg-muted transition"
+                >
+                  {isExpanded ? (
+                    <Minimize2 size={18} className="text-muted-foreground" />
+                  ) : (
+                    <Maximize2 size={18} className="text-muted-foreground" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isExpanded ? 'Minimize' : 'Expand'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <button 
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-muted transition"
+          >
+            <X size={18} className="text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-white" />
-                </div>
-              )}
-              <div
-                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                  msg.role === 'user'
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-muted text-foreground'
-                }`}
-              >
-                <div className="text-sm leading-relaxed">
-                  {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
+      {/* Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {messages.length === 0 ? (
+          /* Empty State - Welcome Screen */
+          <div className="flex-1 flex flex-col items-center justify-center p-6">
+            <div className="flex flex-col items-center text-center max-w-sm">
+              <div className="flex items-center gap-1 mb-4">
+                <div className="w-2 h-2 rounded-full bg-brand-green" />
+                <div className="w-2 h-2 rounded-full bg-brand-green" />
+                <div className="w-2 h-2 rounded-full bg-brand-green" />
+              </div>
+              <h2 className="text-xl font-semibold text-foreground mb-2">How Can I Help?</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                I'm here to help you set up and customize <strong>{app.name}</strong> for your brand.
+              </p>
+              
+              {/* What I can help with */}
+              <div className="text-left w-full mb-6 p-4 rounded-xl bg-muted/30 border border-border">
+                <p className="text-sm text-foreground mb-3">I can help you with:</p>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div className="flex gap-2">
+                    <span>•</span>
+                    <span><strong className="text-foreground">Brand Setup</strong>: Logo, colors, and app name</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span>•</span>
+                    <span><strong className="text-foreground">Pricing Strategy</strong>: Setting competitive prices</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span>•</span>
+                    <span><strong className="text-foreground">Marketing Copy</strong>: Headlines and descriptions</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span>•</span>
+                    <span><strong className="text-foreground">Domain Configuration</strong>: Choosing the right subdomain</span>
+                  </div>
                 </div>
               </div>
-              {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                  <User className="w-4 h-4 text-white" />
-                </div>
-              )}
+              
+              {/* Quick Suggestions */}
+              <div className="w-full space-y-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2 justify-center">
+                  <Sparkles size={12} />
+                  Quick Suggestions
+                </p>
+                {AIVA_SUGGESTIONS.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="w-full text-left px-4 py-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-brand-green/30 transition text-sm text-foreground"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
             </div>
-          ))}
-          
-          {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
-                <Bot className="w-4 h-4 text-white" />
-              </div>
-              <div className="bg-muted rounded-2xl px-4 py-3">
-                <Loader2 className="w-4 h-4 animate-spin" />
-              </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
-
-      {/* Suggestions */}
-      {messages.length <= 1 && (
-        <div className="px-4 pb-2">
-          <p className="text-xs text-muted-foreground mb-2">Quick suggestions:</p>
-          <div className="flex flex-wrap gap-2">
-            {AIVA_SUGGESTIONS.slice(0, 3).map((suggestion, i) => (
-              <button
-                key={i}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {suggestion}
-              </button>
-            ))}
           </div>
-        </div>
-      )}
+        ) : (
+          /* Chat Messages */
+          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+            <div className="space-y-4">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[85%] px-4 py-3 rounded-2xl ${
+                      msg.role === 'user'
+                        ? 'bg-brand-green text-white rounded-br-md'
+                        : 'bg-muted text-foreground rounded-bl-md'
+                    }`}
+                  >
+                    {msg.content ? (
+                      msg.role === 'assistant' 
+                        ? renderMarkdown(msg.content)
+                        : <span className="text-sm">{msg.content}</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Loader2 size={14} className="animate-spin" />
+                        <span className="text-sm opacity-70">Thinking...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+        )}
+      </div>
 
-      {/* Input */}
+      {/* Input Area */}
       <div className="p-4 border-t border-border">
-        <div className="flex gap-2">
-          <textarea
+        <div className="border-2 border-border rounded-xl p-3">
+          <input
             ref={inputRef}
+            type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask AIVA for help..."
-            className="flex-1 resize-none bg-muted rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[44px] max-h-[120px]"
-            rows={1}
+            placeholder="Ask AIVA Anything"
+            disabled={isLoading}
+            className="w-full bg-transparent outline-none text-foreground placeholder:text-muted-foreground mb-3 disabled:opacity-50"
           />
-          <Button
-            onClick={sendMessage}
-            disabled={!message.trim() || isLoading}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white h-auto"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </Button>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-muted hover:border-brand-green/50 transition text-sm text-muted-foreground">
+                <SlidersHorizontal size={14} />
+                Tools
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {isSupported && (
+                <button 
+                  onClick={handleMicClick}
+                  className={`p-2 rounded-lg transition ${
+                    isListening 
+                      ? 'bg-red-100 hover:bg-red-200' 
+                      : 'hover:bg-muted'
+                  }`}
+                >
+                  {isListening ? (
+                    <MicOff size={18} className="text-red-500 animate-pulse" />
+                  ) : (
+                    <Mic size={18} className="text-muted-foreground" />
+                  )}
+                </button>
+              )}
+              <button 
+                onClick={sendMessage}
+                disabled={!message.trim() || isLoading}
+                className="p-2 rounded-full bg-brand-green/20 hover:bg-brand-green/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <Loader2 size={18} className="text-brand-green animate-spin" />
+                ) : (
+                  <Send size={18} className="text-brand-green" />
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
