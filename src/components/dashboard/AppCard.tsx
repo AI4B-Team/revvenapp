@@ -20,6 +20,9 @@ interface AppCardProps {
   onActivate?: () => void;
   onResell?: () => void;
   createdAt?: Date;
+  rating?: number;
+  icon?: React.ReactNode;
+  viewMode?: 'grid' | 'list';
 }
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
@@ -60,6 +63,7 @@ const appDescriptions: { [key: string]: string } = {
   'Video Resizer': 'Resize videos for any social platform',
   'Motion-Sync': 'Sync motion across video clips seamlessly',
   'Explainer Video': 'Create engaging explainer videos with AI',
+  'Digital Influencer': 'Generate AI-powered influencer content',
   'AI Influencer': 'Generate AI-powered influencer content',
   'Viral Shorts': 'Create viral short-form video content',
   'AI Voice Cloner': 'Clone any voice with advanced AI technology',
@@ -145,7 +149,10 @@ const AppCard = ({
   onOpen,
   onActivate,
   onResell,
-  createdAt
+  createdAt,
+  rating = 0,
+  icon,
+  viewMode = 'grid'
 }: AppCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoriteApps();
@@ -249,15 +256,32 @@ const AppCard = ({
 
       {/* Content */}
       <div className="p-3 flex flex-col flex-grow">
-        <h3 className="font-semibold text-sm text-foreground mb-1">{name}</h3>
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-2 flex-grow">{appDescription}</p>
+        <div className="flex items-center gap-2 mb-1">
+          {icon && <span className="text-lg">{icon}</span>}
+          <h3 className="font-semibold text-sm text-foreground">{name}</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-2 line-clamp-2 flex-grow">{appDescription}</p>
+        
+        {/* Rating */}
+        {rating > 0 && (
+          <div className="flex items-center gap-1 mb-2">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star 
+                key={star} 
+                size={12} 
+                className={star <= rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'} 
+              />
+            ))}
+            <span className="text-xs text-muted-foreground ml-1">({rating.toFixed(1)})</span>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-2">
           <Button
             variant="default"
             size="sm"
-            className="flex-1 h-8 text-xs"
+            className={`flex-1 h-8 text-xs ${!isInstalled ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''}`}
             onClick={isInstalled ? handleOpenClick : (onInstall ? handleInstallClick : (onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined))}
           >
             {isInstalled ? (

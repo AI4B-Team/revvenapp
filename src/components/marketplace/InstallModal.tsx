@@ -61,8 +61,9 @@ export function InstallModal({
           <Button
             onClick={handleInstall}
             disabled={!canProceed() || isSubmitting}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white"
           >
-            {isSubmitting ? 'Installing...' : 'Proceed to Install'}
+            {isSubmitting ? 'Installing...' : 'Install App'}
           </Button>
         </div>
       }
@@ -80,9 +81,9 @@ export function InstallModal({
         {/* Access Control */}
         <div className="space-y-4">
           <MarketplaceDropdown
-            label="Members Who Can Access This App"
+            label="Who Should Have Access?"
             options={[
-              { value: 'all_members', label: 'All Members In This Workspace' },
+              { value: 'all_members', label: 'Everyone In This Workspace' },
               { value: 'select_users', label: 'Select Users' },
               { value: 'select_teams', label: 'Select Teams' }
             ]}
