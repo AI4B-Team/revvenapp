@@ -28,12 +28,15 @@ const colorPresets = [
   { name: 'Orange', hue: 30 },
   { name: 'Pink', hue: 330 },
   { name: 'Teal', hue: 180 },
+  { name: 'Red', hue: 0 },
+  { name: 'Gray', hue: 0, saturation: 0 },
 ];
 
 export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
   const [logoUrl, setLogoUrl] = useState(license?.brandSettings?.logo || '');
   const [faviconUrl, setFaviconUrl] = useState(license?.brandSettings?.favicon || '');
   const [primaryHue, setPrimaryHue] = useState(270);
+  const [primarySaturation, setPrimarySaturation] = useState(70);
   const [useCustomLogo, setUseCustomLogo] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState('🚀');
   
@@ -51,7 +54,12 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     return `#${f(0)}${f(8)}${f(4)}`;
   };
 
-  const primaryColor = hslToHex(primaryHue);
+  const primaryColor = hslToHex(primaryHue, primarySaturation);
+
+  const handlePresetClick = (preset: typeof colorPresets[0]) => {
+    setPrimaryHue(preset.hue);
+    setPrimarySaturation(preset.saturation !== undefined ? preset.saturation : 70);
+  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -257,16 +265,16 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
             {colorPresets.map((preset) => (
               <button
                 key={preset.name}
-                onClick={() => setPrimaryHue(preset.hue)}
+                onClick={() => handlePresetClick(preset)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
-                  primaryHue === preset.hue
+                  primaryHue === preset.hue && primarySaturation === (preset.saturation !== undefined ? preset.saturation : 70)
                     ? 'border-emerald-500 bg-emerald-500/10'
                     : 'border-border hover:border-muted-foreground/30'
                 }`}
               >
                 <div 
                   className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: hslToHex(preset.hue) }}
+                  style={{ backgroundColor: hslToHex(preset.hue, preset.saturation !== undefined ? preset.saturation : 70) }}
                 />
                 <span className="text-sm">{preset.name}</span>
               </button>
