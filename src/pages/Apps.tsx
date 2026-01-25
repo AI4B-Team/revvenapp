@@ -191,7 +191,7 @@ const Apps = () => {
       id: 4,
       name: 'Editor',
       category: 'Tools',
-      description: 'Create and edit content with pro-grade tools',
+      description: 'Professional image, video, and audio editor',
       thumbnail: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop',
       badge: 'HOT',
       icon: <Edit3 size={16} className="text-primary" />,

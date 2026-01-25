@@ -99,7 +99,7 @@ const appDescriptions: { [key: string]: string } = {
   'Investor Calculator': 'Calculate real estate investment returns',
   'AI Responder': 'Automate responses with AI',
   'Master Closer': 'AI-powered sales closing assistant',
-  'Editor': 'Professional editing suite for creators',
+  'Editor': 'Professional image, video, and audio editor',
   'Versus': 'Compare AI models side by side',
   'Forms': 'Build beautiful forms effortlessly',
   'Signature': 'Create professional email signatures',
