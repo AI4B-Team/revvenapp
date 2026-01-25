@@ -394,12 +394,12 @@ const AppCard = ({
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex gap-2">
+        {/* Action Buttons - stack when narrow */}
+        <div className="flex flex-col gap-2">
           <Button
             variant="default"
             size="sm"
-            className="flex-1 h-8 text-xs bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="w-full h-8 text-xs bg-emerald-500 hover:bg-emerald-600 text-white"
             onClick={isInstalled ? handleOpenClick : (onInstall ? handleInstallClick : (onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined))}
           >
             {isInstalled ? (
@@ -420,7 +420,7 @@ const AppCard = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 h-8 text-xs border-border bg-background hover:bg-accent"
+                  className="w-full h-8 text-xs border-border bg-background hover:bg-accent"
                   onClick={handleResellClick}
                 >
                   <DollarSign size={12} className="mr-1" />
