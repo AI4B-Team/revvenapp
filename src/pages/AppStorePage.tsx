@@ -31,6 +31,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { appRoutes } from '@/lib/marketplace/catalog';
+import { getAppIcon } from '@/utils/appIconMapping';
 
 // Mock screenshots for apps - in production these would come from the catalog
 const getAppScreenshots = (appId: string): { src: string; title: string }[] => {
@@ -277,8 +278,12 @@ const AppStorePage = () => {
             <div className="flex flex-col lg:flex-row gap-8 mb-12">
               {/* App Icon & Info */}
               <div className="flex-shrink-0">
-                <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border flex items-center justify-center text-6xl shadow-lg">
-                  {app.icon}
+                <div className="w-32 h-32 rounded-3xl bg-muted/50 border border-border flex items-center justify-center shadow-lg overflow-hidden">
+                  {getAppIcon(app.name) ? (
+                    <img src={getAppIcon(app.name)} alt={app.name} className="w-20 h-20 object-contain" />
+                  ) : (
+                    <span className="text-6xl">{app.icon}</span>
+                  )}
                 </div>
               </div>
 
