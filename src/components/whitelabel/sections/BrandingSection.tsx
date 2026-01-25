@@ -218,6 +218,27 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     }
   };
 
+  const generateSingleLogo = async (style: string, productContext: string, appName: string, retries = 2): Promise<string | null> => {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const result = await supabase.functions.invoke('editor-generate-image', {
+          body: {
+            prompt: `Design a premium app logo for "${appName}". ${productContext} Style: ${style}. Requirements: Modern, minimal, professional. Must work at small sizes. Square format, centered, transparent or solid color background. NO text, only icon/symbol. High quality, tech-forward aesthetic. Color palette should feel professional and trustworthy.`
+          }
+        });
+        if (!result.error && result.data?.imageUrl) {
+          return result.data.imageUrl;
+        }
+      } catch (e) {
+        console.error(`Logo generation attempt ${attempt + 1} failed:`, e);
+      }
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, 500)); // Small delay before retry
+      }
+    }
+    return null;
+  };
+
   const handleGenerateLogos = async () => {
     const appName = license?.brandSettings?.appName || 'My App';
     const tagline = license?.brandSettings?.tagline || '';
@@ -234,19 +255,13 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
         'iconic symbol with clean silhouette'
       ];
       
-      // Generate 3 logos in parallel with different styles
-      const promises = styleVariations.map((style, index) => 
-        supabase.functions.invoke('editor-generate-image', {
-          body: {
-            prompt: `Design a premium app logo for "${appName}". ${productContext} Style: ${style}. Requirements: Modern, minimal, professional. Must work at small sizes. Square format, centered, transparent or solid color background. NO text, only icon/symbol. High quality, tech-forward aesthetic. Color palette should feel professional and trustworthy.`
-          }
-        })
+      // Generate 3 logos in parallel with retry logic
+      const promises = styleVariations.map(style => 
+        generateSingleLogo(style, productContext, appName)
       );
 
       const results = await Promise.all(promises);
-      const logos = results
-        .filter(r => !r.error && r.data?.imageUrl)
-        .map(r => r.data.imageUrl);
+      const logos = results.filter((url): url is string => url !== null);
 
       if (logos.length === 0) {
         throw new Error('No logos generated');
@@ -260,6 +275,27 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     } finally {
       setIsGeneratingLogo(false);
     }
+  };
+
+  const generateSingleFavicon = async (style: string, retries = 2): Promise<string | null> => {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const result = await supabase.functions.invoke('editor-generate-image', {
+          body: {
+            prompt: `Create a favicon: ${style}. Must be extremely simple, high contrast, perfectly centered, square format, solid background. Optimized to look crisp at 32x32 pixels. No fine details - only bold, clear shapes.`
+          }
+        });
+        if (!result.error && result.data?.imageUrl) {
+          return result.data.imageUrl;
+        }
+      } catch (e) {
+        console.error(`Favicon generation attempt ${attempt + 1} failed:`, e);
+      }
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+    return null;
   };
 
   const handleGenerateFavicons = async () => {
@@ -276,19 +312,11 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
         `A minimal icon symbol that represents the brand "${appName}"`
       ];
       
-      // Generate 3 favicons in parallel
-      const promises = faviconStyles.map((style) => 
-        supabase.functions.invoke('editor-generate-image', {
-          body: {
-            prompt: `Create a favicon: ${style}. Must be extremely simple, high contrast, perfectly centered, square format, solid background. Optimized to look crisp at 32x32 pixels. No fine details - only bold, clear shapes.`
-          }
-        })
-      );
+      // Generate 3 favicons in parallel with retry logic
+      const promises = faviconStyles.map(style => generateSingleFavicon(style));
 
       const results = await Promise.all(promises);
-      const favicons = results
-        .filter(r => !r.error && r.data?.imageUrl)
-        .map(r => r.data.imageUrl);
+      const favicons = results.filter((url): url is string => url !== null);
 
       if (favicons.length === 0) {
         throw new Error('No favicons generated');
