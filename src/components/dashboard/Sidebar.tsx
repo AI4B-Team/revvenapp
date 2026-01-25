@@ -96,7 +96,10 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     '/newsletter',
   ];
   
-  const isInsideApp = appPages.some(path => location.pathname.startsWith(path));
+  // Check if on app detail or white-label page (e.g., /apps/some-app-id or /apps/some-app-id/license)
+  const isAppDetailPage = location.pathname.startsWith('/apps/') && location.pathname !== '/apps';
+  
+  const isInsideApp = appPages.some(path => location.pathname.startsWith(path)) || isAppDetailPage;
 
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
