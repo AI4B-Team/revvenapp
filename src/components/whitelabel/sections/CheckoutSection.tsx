@@ -438,6 +438,7 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
                     setCheckoutFAQs(newFAQs);
                   }}
                   placeholder="Question"
+                  className="bg-muted/50"
                 />
                 <Textarea
                   value={faq.a}
@@ -448,6 +449,7 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
                   }}
                   placeholder="Answer"
                   rows={2}
+                  className="bg-background"
                 />
               </div>
             ))}
