@@ -234,10 +234,10 @@ const AppCard = ({
           </div>
         )}
 
-        {/* Star Favorite Overlay */}
+        {/* Star Favorite Overlay - Bottom Right */}
         <button
           onClick={handleStarClick}
-          className={`absolute top-3 ${!showHotBadge && !showNewBadge ? 'right-3' : 'right-20'} p-1.5 rounded-full transition-all ${
+          className={`absolute bottom-3 right-3 p-1.5 rounded-full transition-all ${
             favorited 
               ? 'bg-amber-500 text-white' 
               : 'bg-black/50 text-white opacity-0 group-hover:opacity-100'
