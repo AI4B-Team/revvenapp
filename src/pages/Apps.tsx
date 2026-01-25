@@ -487,19 +487,17 @@ const Apps = () => {
                       <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
                       <p className="text-muted-foreground">The Hottest AI Apps Right Now</p>
                     </div>
-                    {trendingApps.length > 6 && (
-                      <button 
-                        onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
-                        className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                      >
-                        {expandedSections.trending ? 'Show Less' : 'See All'}
-                        <ChevronRight size={18} className={expandedSections.trending ? 'rotate-90' : ''} />
-                      </button>
-                    )}
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      {expandedSections.trending ? 'Show Less' : 'See All'}
+                      <ChevronRight size={18} className={expandedSections.trending ? 'rotate-90' : ''} />
+                    </button>
                   </div>
 
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
-                    {filterApps(expandedSections.trending ? trendingApps : trendingApps.slice(0, 6)).map((app) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${expandedSections.trending ? getGridCols() : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'} gap-4`}>
+                    {filterApps(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -532,19 +530,17 @@ const Apps = () => {
                       <h2 className="text-2xl font-bold mb-1">RECOMMENDED FOR YOU</h2>
                       <p className="text-muted-foreground text-sm">Handpicked Apps Just For You - Ready To Use</p>
                     </div>
-                    {topPicks.length > 6 && (
-                      <button 
-                        onClick={() => setExpandedSections({ ...expandedSections, recommended: !expandedSections.recommended })}
-                        className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                      >
-                        {expandedSections.recommended ? 'Show Less' : 'See All'}
-                        <ChevronRight size={18} className={expandedSections.recommended ? 'rotate-90' : ''} />
-                      </button>
-                    )}
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, recommended: !expandedSections.recommended })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      {expandedSections.recommended ? 'Show Less' : 'See All'}
+                      <ChevronRight size={18} className={expandedSections.recommended ? 'rotate-90' : ''} />
+                    </button>
                   </div>
 
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
-                    {filterApps(topPicks).map((app) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${expandedSections.recommended ? getGridCols() : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'} gap-4`}>
+                    {filterApps(expandedSections.recommended ? topPicks : topPicks.slice(0, 5)).map((app) => {
                       const appId = resolveAppId(app.name);
                       // Top picks are pre-installed for new users
                       const installed = app.preInstalled || isInstalled(appId);
