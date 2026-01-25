@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut, Store
+  Play, ChevronRight, Store
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import AppCard from '@/components/dashboard/AppCard';
+import AppsFilterToolbar, { type AppFilterState } from '@/components/dashboard/AppsFilterToolbar';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
 import { useInstalledApps } from '@/hooks/useInstalledApps';
 import { InstallModal } from '@/components/marketplace';
@@ -38,6 +39,9 @@ const Apps = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'apps' | 'marketplace'>('marketplace');
   const [installModalApp, setInstallModalApp] = useState<MarketplaceApp | null>(null);
+  const [zoom, setZoom] = useState(50);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [appFilters, setAppFilters] = useState<AppFilterState | undefined>(undefined);
   
   const { isFavorite, toggleFavorite } = useFavoriteApps();
   const { isInstalled, installApp } = useInstalledApps();
@@ -266,24 +270,13 @@ const Apps = () => {
                 </h1>
                 
                 {/* Filter Controls */}
-                <div className="flex items-center gap-3">
-                  <button className="px-4 py-2 border border-border rounded-lg flex items-center gap-2 hover:bg-muted transition">
-                    <span className="text-sm text-foreground">All</span>
-                    <ChevronDown size={16} className="text-muted-foreground" />
-                  </button>
-                  <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
-                    <SlidersHorizontal size={18} className="text-muted-foreground" />
-                  </button>
-                  <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
-                    <Search size={18} className="text-muted-foreground" />
-                  </button>
-                  <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
-                    <ZoomIn size={18} className="text-muted-foreground" />
-                  </button>
-                  <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
-                    <ZoomOut size={18} className="text-muted-foreground" />
-                  </button>
-                </div>
+                <AppsFilterToolbar 
+                  zoom={zoom}
+                  onZoomChange={setZoom}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  onFiltersChange={setAppFilters}
+                />
               </div>
               
               <p className="text-muted-foreground text-lg mb-6">
