@@ -101,35 +101,17 @@ const AppLicense = () => {
     );
   }
 
-  // If app exists but not installed, show a prompt to install first
-  if (!install) {
-    return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar onCollapseChange={setIsSidebarCollapsed} />
-        <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-          <Header />
-          <main className="flex-1 overflow-y-auto p-8">
-            <div className="flex flex-col items-center justify-center h-full gap-6">
-              <div className="text-6xl">{app.icon}</div>
-              <h2 className="text-2xl font-bold">{app.name}</h2>
-              <p className="text-muted-foreground text-lg text-center max-w-md">
-                You need to install this app before you can access white-label settings.
-              </p>
-              <div className="flex gap-3">
-                <Button onClick={() => navigate('/apps')} variant="outline">
-                  <ArrowLeft size={16} className="mr-2" />
-                  Back to Apps
-                </Button>
-                <Button onClick={() => navigate('/apps')}>
-                  Go to Apps to Install
-                </Button>
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
-  }
+  // Create a mock install object if not installed (allows access to white-label settings without installing)
+  const effectiveInstall = install || {
+    id: `temp-install-${appId}`,
+    appId: appId!,
+    workspaceId: mockMarketplaceWorkspace.id,
+    installedAt: new Date(),
+    installedBy: 'user',
+    accessMode: 'all_members' as const,
+    allowedUserIds: [],
+    allowedTeamIds: []
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -139,7 +121,7 @@ const AppLicense = () => {
         <main className="flex-1 overflow-y-auto">
           <AppDetailView
             app={app}
-            install={install}
+            install={effectiveInstall}
             license={license}
             workspace={mockMarketplaceWorkspace}
             onBack={() => navigate('/apps')}
