@@ -261,17 +261,17 @@ const AppCard = ({
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            {/* Rounded square icon badge */}
-            <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${categoryIconColors[singularCategory] || categoryIconColors[category] || 'bg-slate-600'}`}>
+            {/* Simple icon matching sidebar style */}
+            <span className="text-muted-foreground flex-shrink-0">
               {icon ? (
-                <span className="text-white text-sm">{icon}</span>
+                icon
               ) : (
                 React.cloneElement(
-                  (categoryIcons[singularCategory] || categoryIcons[category] || <Wrench size={14} />) as React.ReactElement,
-                  { size: 14, className: 'text-white' }
+                  (categoryIcons[singularCategory] || categoryIcons[category] || <Wrench size={16} />) as React.ReactElement,
+                  { size: 16 }
                 )
               )}
-            </div>
+            </span>
             <h3 className="font-semibold text-sm text-foreground truncate">{name}</h3>
             {/* Category Badge */}
             <div className="bg-muted text-muted-foreground text-[9px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1 flex-shrink-0">
@@ -410,17 +410,17 @@ const AppCard = ({
       {/* Content */}
       <div className="p-3 flex flex-col flex-grow">
         <div className="flex items-center gap-2 mb-1">
-          {/* Rounded square icon badge */}
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${categoryIconColors[singularCategory] || categoryIconColors[category] || 'bg-slate-600'}`}>
+          {/* Simple icon matching sidebar style */}
+          <span className="text-muted-foreground flex-shrink-0">
             {icon ? (
-              <span className="text-white text-base">{icon}</span>
+              icon
             ) : (
               React.cloneElement(
-                (categoryIcons[singularCategory] || categoryIcons[category] || <Wrench size={16} />) as React.ReactElement,
-                { size: 16, className: 'text-white' }
+                (categoryIcons[singularCategory] || categoryIcons[category] || <Wrench size={18} />) as React.ReactElement,
+                { size: 18 }
               )
             )}
-          </div>
+          </span>
           <h3 className="font-semibold text-sm text-foreground">{name}</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-2 line-clamp-2 flex-grow">{appDescription}</p>
