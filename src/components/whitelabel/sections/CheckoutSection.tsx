@@ -327,10 +327,10 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
 
         {enableGuarantee && (
           <>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-6">
+              <div className="col-span-2 space-y-2">
                 <Label>Guarantee Period</Label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="flex gap-2">
                   {[7, 14, 30, 60].map((days) => (
                     <button
                       key={days}
