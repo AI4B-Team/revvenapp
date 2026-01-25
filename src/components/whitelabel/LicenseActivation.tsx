@@ -35,7 +35,7 @@ export function LicenseActivation({ app, onActivate }: LicenseActivationProps) {
     { icon: Palette, title: 'Custom Branding', description: 'Your logo, colors, and identity' },
     { icon: DollarSign, title: 'Set Your Prices', description: 'Control pricing and keep profits' },
     { icon: Globe, title: 'Custom Domain', description: 'Use your own domain name' },
-    { icon: Shield, title: 'Full Ownership', description: 'Sell as your own product' },
+    { icon: Shield, title: 'White-Label Rights', description: 'Sell as your own product' },
   ];
 
   return (
