@@ -129,7 +129,7 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
         {enableConversionBooster && (
           <>
             <div className="p-4 rounded-lg bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
-              <p className="text-sm text-muted-foreground mb-2">Your offer:</p>
+              <p className="text-sm text-muted-foreground mb-2">Your Offer</p>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-emerald-600">{discountPercent}% OFF</span>
                 <span className="text-sm text-muted-foreground">
