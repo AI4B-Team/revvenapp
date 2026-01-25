@@ -177,14 +177,14 @@ const Apps = () => {
     },
     {
       id: 2,
-      name: 'Transcribe',
-      category: 'Audio Tools',
-      description: 'Convert speech to text with high accuracy',
-      thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop',
+      name: 'Agents',
+      category: 'Automation Tools',
+      description: 'Create and deploy AI agents to automate workflows',
+      thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop',
       badge: 'NEW',
-      icon: <Mic size={16} className="text-primary" />,
+      icon: <Bot size={16} className="text-primary" />,
       rating: 4.8,
-      onClick: () => navigate('/transcribe'),
+      onClick: () => navigate('/automate'),
       preInstalled: true,
     },
     {
@@ -224,14 +224,14 @@ const Apps = () => {
     },
     {
       id: 6,
-      name: 'Agents',
-      category: 'Automation Tools',
-      description: 'Create and deploy AI agents to automate workflows',
-      thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop',
+      name: 'Transcribe',
+      category: 'Audio Tools',
+      description: 'Convert speech to text with high accuracy',
+      thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop',
       badge: 'NEW',
-      icon: <Bot size={16} className="text-primary" />,
+      icon: <Mic size={16} className="text-primary" />,
       rating: 4.8,
-      onClick: () => navigate('/automate'),
+      onClick: () => navigate('/transcribe'),
       preInstalled: true,
     }
   ];
@@ -532,6 +532,15 @@ const Apps = () => {
                       <h2 className="text-2xl font-bold mb-1">RECOMMENDED FOR YOU</h2>
                       <p className="text-muted-foreground text-sm">Handpicked apps just for you - ready to use</p>
                     </div>
+                    {topPicks.length > 6 && (
+                      <button 
+                        onClick={() => setExpandedSections({ ...expandedSections, recommended: !expandedSections.recommended })}
+                        className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                      >
+                        {expandedSections.recommended ? 'Show Less' : 'See All'}
+                        <ChevronRight size={18} className={expandedSections.recommended ? 'rotate-90' : ''} />
+                      </button>
+                    )}
                   </div>
 
                   <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
