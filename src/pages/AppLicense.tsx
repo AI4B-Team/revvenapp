@@ -47,13 +47,12 @@ const AppLicense = () => {
   const app = appId ? getCatalogApp(appId) : undefined;
   const license = appId ? getLicense(appId) : undefined;
 
-  const handleUpdateBrand = (settings: any) => {
+  const handleUpdateBrand = (settings: any, showToast = true) => {
     if (!appId) return;
     const currentLicense = getLicense(appId);
     if (currentLicense) {
       updateLicense(appId, { brandSettings: { ...currentLicense.brandSettings, ...settings } });
     }
-    toast.success('Brand settings saved');
   };
 
   const handleUpdateDomain = (settings: any) => {
