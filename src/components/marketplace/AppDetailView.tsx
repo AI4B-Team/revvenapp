@@ -47,7 +47,7 @@ export function AppDetailView({
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Apps
+            Back To Apps
           </button>
 
           <div className="flex items-start justify-between">
