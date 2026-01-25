@@ -9,11 +9,14 @@ import { DomainSettings } from './DomainSettings';
 import { PricingSettings } from './PricingSettings';
 import { MemberSelector } from './MemberSelector';
 import { TeamSelector } from './TeamSelector';
+import { SalesPageBuilder } from './SalesPageBuilder';
+import { AIVAWhiteLabelPanel } from './AIVAWhiteLabelPanel';
 import { mockMembers, mockTeams } from '@/lib/marketplace/data';
-import { ArrowLeft, Settings, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Settings, ExternalLink, Bot, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { getAppThumbnail } from '@/utils/appThumbnails';
 
@@ -51,6 +54,7 @@ export function AppDetailView({
   const [selectedAccessMode, setSelectedAccessMode] = useState<'all_members' | 'select_users' | 'select_teams'>(install.accessMode);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>(install.allowedUserIds || []);
   const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>(install.allowedTeamIds || []);
+  const [isAIVAOpen, setIsAIVAOpen] = useState(false);
   
   const isLicenseActive = license?.status === 'active';
   const isPublished = license?.publishStatus === 'live';
@@ -107,6 +111,23 @@ export function AppDetailView({
             </div>
 
             <div className="flex items-center gap-3">
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      onClick={() => setIsAIVAOpen(true)}
+                      className="gap-2"
+                    >
+                      <Bot className="h-4 w-4" />
+                      AIVA
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Get AI help with white-label setup</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button variant="outline">
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
@@ -166,6 +187,16 @@ export function AppDetailView({
                 </Button>
               </div>
             </div>
+
+            {/* Sales Page Builder */}
+            <SalesPageBuilder 
+              app={app} 
+              license={license}
+              onSave={(data) => {
+                console.log('Sales page saved:', data);
+                toast.success('Sales page configuration saved!');
+              }}
+            />
           </>
         )}
 
@@ -260,6 +291,14 @@ export function AppDetailView({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* AIVA White-Label Assistant Panel */}
+      <AIVAWhiteLabelPanel
+        isOpen={isAIVAOpen}
+        onClose={() => setIsAIVAOpen(false)}
+        app={app}
+        license={license}
+      />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 // Export all marketplace components
 export { AppCard } from './AppCard';
+export { SalesPageBuilder } from './SalesPageBuilder';
+export { AIVAWhiteLabelPanel } from './AIVAWhiteLabelPanel';
 export { AppGrid } from './AppGrid';
 export { InstallModal } from './InstallModal';
 export { MemberSelector } from './MemberSelector';
