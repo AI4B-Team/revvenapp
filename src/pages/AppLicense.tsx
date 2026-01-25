@@ -18,7 +18,8 @@ import {
   CheckoutSection,
   DomainSection,
   SettingsSection,
-  LivePreview
+  LivePreview,
+  LicenseActivation
 } from '@/components/whitelabel';
 import {
   ResizablePanelGroup,
@@ -102,6 +103,30 @@ const AppLicense = () => {
       default: return null;
     }
   };
+
+  const handleActivateLicense = () => {
+    if (appId) {
+      activateLicense(appId, mockMarketplaceWorkspace.id);
+    }
+  };
+
+  // Show activation screen if no license exists
+  if (!license) {
+    return (
+      <div className="flex h-screen bg-background overflow-hidden">
+        <Sidebar 
+          onCollapseChange={setIsSidebarCollapsed} 
+          onAIVAPanelToggle={handleAIVAToggle} 
+          isAIVAPanelOpen={isAIVAPanelOpen} 
+          forceCollapsed 
+        />
+        <div className="flex-1 flex flex-col ml-16">
+          <Header />
+          <LicenseActivation app={app} onActivate={handleActivateLicense} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
