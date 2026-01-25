@@ -590,24 +590,8 @@ const AppStorePage = () => {
                   <div className="font-medium text-foreground capitalize">{app.category}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground">Version</div>
-                  <div className="font-medium text-foreground">2.4.1</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Size</div>
-                  <div className="font-medium text-foreground">12.8 MB</div>
-                </div>
-                <div>
                   <div className="text-sm text-muted-foreground">Updated</div>
                   <div className="font-medium text-foreground">Jan 20, 2026</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Compatibility</div>
-                  <div className="font-medium text-foreground">All Devices</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Languages</div>
-                  <div className="font-medium text-foreground">English, Spanish, +8</div>
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Developer</div>
