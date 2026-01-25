@@ -1,0 +1,8 @@
+export { WhiteLabelSidebar, type WhiteLabelSection } from './WhiteLabelSidebar';
+export { ProductSection } from './sections/ProductSection';
+export { BrandingSection } from './sections/BrandingSection';
+export { PageSection } from './sections/PageSection';
+export { PricingSection } from './sections/PricingSection';
+export { CheckoutSection } from './sections/CheckoutSection';
+export { DomainSection } from './sections/DomainSection';
+export { SettingsSection } from './sections/SettingsSection';

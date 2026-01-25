@@ -1,22 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AppDetailView } from '@/components/marketplace';
 import { mockMarketplaceWorkspace } from '@/lib/marketplace/data';
 import { getCatalogApp } from '@/lib/marketplace/catalog';
 import { useInstalledApps } from '@/hooks/useInstalledApps';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { 
+  WhiteLabelSidebar, 
+  WhiteLabelSection,
+  ProductSection,
+  BrandingSection,
+  PageSection,
+  PricingSection,
+  CheckoutSection,
+  DomainSection,
+  SettingsSection
+} from '@/components/whitelabel';
 
 const AppLicense = () => {
   const { appId } = useParams<{ appId: string }>();
   const navigate = useNavigate();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
-  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = React.useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Auto-collapse on white-label page
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<WhiteLabelSection>('product');
 
-  // Collapse sidebar when AIVA panel opens
+  // Auto-collapse sidebar when entering white-label page
+  useEffect(() => {
+    setIsSidebarCollapsed(true);
+  }, []);
+
   const handleAIVAToggle = () => {
     const newState = !isAIVAPanelOpen;
     setIsAIVAPanelOpen(newState);
@@ -25,31 +40,16 @@ const AppLicense = () => {
     }
   };
   
-  const { 
-    getInstall, 
-    getLicense, 
-    activateLicense, 
-    updateLicense 
-  } = useInstalledApps();
+  const { getLicense, activateLicense, updateLicense } = useInstalledApps();
 
-  // Use getCatalogApp to resolve any appId (from catalog or generate a placeholder)
   const app = appId ? getCatalogApp(appId) : undefined;
-  const install = appId ? getInstall(appId) : undefined;
   const license = appId ? getLicense(appId) : undefined;
-
-  const handleActivateLicense = () => {
-    if (!appId) return;
-    activateLicense(appId, mockMarketplaceWorkspace.id);
-    toast.success('License activated successfully');
-  };
 
   const handleUpdateBrand = (settings: any) => {
     if (!appId) return;
     const currentLicense = getLicense(appId);
     if (currentLicense) {
-      updateLicense(appId, { 
-        brandSettings: { ...currentLicense.brandSettings, ...settings } 
-      });
+      updateLicense(appId, { brandSettings: { ...currentLicense.brandSettings, ...settings } });
     }
     toast.success('Brand settings saved');
   };
@@ -58,9 +58,7 @@ const AppLicense = () => {
     if (!appId) return;
     const currentLicense = getLicense(appId);
     if (currentLicense) {
-      updateLicense(appId, { 
-        domainSettings: { ...currentLicense.domainSettings, ...settings } 
-      });
+      updateLicense(appId, { domainSettings: { ...currentLicense.domainSettings, ...settings } });
     }
     toast.success('Domain settings saved');
   };
@@ -69,45 +67,21 @@ const AppLicense = () => {
     if (!appId) return;
     const currentLicense = getLicense(appId);
     if (currentLicense) {
-      updateLicense(appId, { 
-        pricingSettings: { ...currentLicense.pricingSettings, ...settings } 
-      });
+      updateLicense(appId, { pricingSettings: { ...currentLicense.pricingSettings, ...settings } });
     }
     toast.success('Pricing settings saved');
-  };
-
-  const handlePublish = () => {
-    if (!appId) return;
-    const currentLicense = getLicense(appId);
-    if (currentLicense) {
-      updateLicense(appId, { 
-        publishStatus: currentLicense.publishStatus === 'live' ? 'draft' : 'live' 
-      });
-      toast.success(currentLicense.publishStatus === 'live' ? 'App unpublished' : 'App published');
-    }
-  };
-
-  const handleUpgradePlan = () => {
-    toast.info('Upgrade flow would open here');
   };
 
   if (!app) {
     return (
       <div className="flex min-h-screen bg-background">
-      <Sidebar 
-        onCollapseChange={setIsSidebarCollapsed} 
-        onAIVAPanelToggle={handleAIVAToggle}
-        isAIVAPanelOpen={isAIVAPanelOpen}
-      />
-        <div className={`flex-1 flex flex-col overflow-x-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+        <Sidebar onCollapseChange={setIsSidebarCollapsed} onAIVAPanelToggle={handleAIVAToggle} isAIVAPanelOpen={isAIVAPanelOpen} />
+        <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
           <Header />
-          <main className="flex-1 overflow-y-auto p-8">
-            <div className="flex flex-col items-center justify-center h-full gap-4">
-              <p className="text-muted-foreground text-lg">App not found</p>
-              <Button onClick={() => navigate('/apps')} variant="outline">
-                <ArrowLeft size={16} className="mr-2" />
-                Back to Apps
-              </Button>
+          <main className="flex-1 p-8 flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <p className="text-muted-foreground">App not found</p>
+              <Button onClick={() => navigate('/apps')} variant="outline"><ArrowLeft size={16} className="mr-2" />Back to Apps</Button>
             </div>
           </main>
         </div>
@@ -115,44 +89,36 @@ const AppLicense = () => {
     );
   }
 
-  // Create a mock install object if not installed (allows access to white-label settings without installing)
-  const effectiveInstall = install || {
-    id: `temp-install-${appId}`,
-    appId: appId!,
-    workspaceId: mockMarketplaceWorkspace.id,
-    installedAt: new Date(),
-    installedBy: 'user',
-    accessMode: 'all_members' as const,
-    allowedUserIds: [],
-    allowedTeamIds: []
+  const renderSection = () => {
+    switch (activeSection) {
+      case 'product': return <ProductSection app={app} license={license} onUpdate={handleUpdateBrand} />;
+      case 'branding': return <BrandingSection license={license} onUpdate={handleUpdateBrand} />;
+      case 'page': return <PageSection app={app} license={license} />;
+      case 'pricing': return <PricingSection license={license} onUpdate={handleUpdatePricing} />;
+      case 'checkout': return <CheckoutSection license={license} />;
+      case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
+      case 'settings': return <SettingsSection />;
+      default: return null;
+    }
   };
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar 
-        onCollapseChange={setIsSidebarCollapsed}
-        onAIVAPanelToggle={handleAIVAToggle}
-        isAIVAPanelOpen={isAIVAPanelOpen}
+      <Sidebar onCollapseChange={setIsSidebarCollapsed} onAIVAPanelToggle={handleAIVAToggle} isAIVAPanelOpen={isAIVAPanelOpen} forceCollapsed />
+      
+      {/* White-Label Sidebar */}
+      <WhiteLabelSidebar 
+        app={app} 
+        activeSection={activeSection} 
+        onSectionChange={setActiveSection} 
+        onBack={() => navigate('/apps')} 
       />
-      <div className={`flex-1 flex flex-col overflow-x-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto">
-          <AppDetailView
-            app={app}
-            install={effectiveInstall}
-            license={license}
-            workspace={mockMarketplaceWorkspace}
-            onBack={() => navigate('/apps')}
-            onActivateLicense={handleActivateLicense}
-            onUpdateBrand={handleUpdateBrand}
-            onUpdateDomain={handleUpdateDomain}
-            onUpdatePricing={handleUpdatePricing}
-            onPublish={handlePublish}
-            onUpgradePlan={handleUpgradePlan}
-            sidebarCollapsed={isSidebarCollapsed}
-            isAIVAOpen={isAIVAPanelOpen}
-            onAIVAToggle={handleAIVAToggle}
-          />
+        <main className="flex-1 overflow-y-auto p-8 max-w-4xl">
+          {renderSection()}
         </main>
       </div>
     </div>
