@@ -435,7 +435,7 @@ const Apps = () => {
                 <section className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-3xl p-8 -mx-4">
                   <div className="mb-6 flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold mb-1">TOP PICKS FOR YOU</h2>
+                      <h2 className="text-2xl font-bold mb-1">RECOMMENDED FOR YOU</h2>
                       <p className="text-muted-foreground text-sm">Handpicked apps just for you - ready to use</p>
                     </div>
                   </div>
