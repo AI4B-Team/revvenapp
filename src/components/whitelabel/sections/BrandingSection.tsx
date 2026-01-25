@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AppLicense } from '@/lib/marketplace/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface BrandingSectionProps {
   license?: AppLicense;
-  onUpdate: (settings: Partial<AppLicense['brandSettings']>) => void;
+  onUpdate: (settings: Partial<AppLicense['brandSettings']>, showToast?: boolean) => void;
 }
 
 const predefinedIcons = ['🚀', '⚡', '💎', '🎯', '✨', '🔥', '💡', '🌟'];
@@ -36,11 +36,59 @@ const colorPresets = [
   { name: 'Gray', hue: 0, saturation: 0 },
 ];
 
+// Parse hex to HSL
+const hexToHsl = (hex: string): { h: number; s: number; l: number } | null => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return null;
+  
+  let r = parseInt(result[1], 16) / 255;
+  let g = parseInt(result[2], 16) / 255;
+  let b = parseInt(result[3], 16) / 255;
+  
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+};
+
+// Convert HSL to Hex
+const hslToHex = (h: number, s: number = 70, l: number = 50) => {
+  const a = s / 100;
+  const b = l / 100;
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = b - a * Math.min(b, 1 - b) * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+};
+
+// Initialize hue/saturation from existing color
+const getInitialHueSaturation = (color?: string) => {
+  if (color) {
+    const hsl = hexToHsl(color);
+    if (hsl) return { hue: hsl.h, saturation: hsl.s };
+  }
+  return { hue: 270, saturation: 70 };
+};
+
 export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
+  const initialColor = getInitialHueSaturation(license?.brandSettings?.primaryColor);
+  
   const [logoUrl, setLogoUrl] = useState(license?.brandSettings?.logo || '');
   const [faviconUrl, setFaviconUrl] = useState(license?.brandSettings?.favicon || '');
-  const [primaryHue, setPrimaryHue] = useState(270);
-  const [primarySaturation, setPrimarySaturation] = useState(70);
+  const [primaryHue, setPrimaryHue] = useState(initialColor.hue);
+  const [primarySaturation, setPrimarySaturation] = useState(initialColor.saturation);
   const [useCustomLogo, setUseCustomLogo] = useState(!!license?.brandSettings?.logo);
   const [selectedIcon, setSelectedIcon] = useState('🚀');
   const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
@@ -49,43 +97,33 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
   
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
-
-  const hslToHex = (h: number, s: number = 70, l: number = 50) => {
-    const a = s / 100;
-    const b = l / 100;
-    const f = (n: number) => {
-      const k = (n + h / 30) % 12;
-      const color = b - a * Math.min(b, 1 - b) * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color).toString(16).padStart(2, '0');
-    };
-    return `#${f(0)}${f(8)}${f(4)}`;
-  };
-
-  const hexToHsl = (hex: string): { h: number; s: number; l: number } | null => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    if (!result) return null;
-    
-    let r = parseInt(result[1], 16) / 255;
-    let g = parseInt(result[2], 16) / 255;
-    let b = parseInt(result[3], 16) / 255;
-    
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h = 0, s = 0, l = (max + min) / 2;
-
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-        case g: h = ((b - r) / d + 2) / 6; break;
-        case b: h = ((r - g) / d + 4) / 6; break;
-      }
-    }
-
-    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
-  };
+  const isInitialMount = useRef(true);
 
   const primaryColor = hslToHex(primaryHue, primarySaturation);
+
+  // Auto-update preview when color changes
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    onUpdate({ primaryColor }, false);
+  }, [primaryColor]);
+
+  // Auto-update preview when logo changes
+  useEffect(() => {
+    if (!isInitialMount.current) {
+      onUpdate({ logo: useCustomLogo ? logoUrl : undefined }, false);
+    }
+  }, [logoUrl, useCustomLogo]);
+
+  // Auto-update preview when favicon changes
+  useEffect(() => {
+    if (!isInitialMount.current) {
+      onUpdate({ favicon: faviconUrl || undefined }, false);
+    }
+  }, [faviconUrl]);
+
 
   const handlePresetClick = (preset: typeof colorPresets[0]) => {
     setPrimaryHue(preset.hue);
@@ -210,8 +248,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
       logo: useCustomLogo ? logoUrl : undefined,
       favicon: faviconUrl || undefined,
       primaryColor: primaryColor
-    });
-    toast.success('Branding settings saved!');
+    }, true);
   };
 
   return (
