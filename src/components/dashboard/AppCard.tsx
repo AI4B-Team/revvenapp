@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Video, Image, Mic, Palette, FileText, Wrench, User, Star, Play, Download, Share2, Flame, Sparkles, CheckCircle } from 'lucide-react';
+import { Video, Image, Mic, Palette, FileText, Wrench, User, Star, Play, Download, DollarSign, Flame, Sparkles, CheckCircle } from 'lucide-react';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
 import { Button } from '@/components/ui/button';
 import { resolveAppId } from '@/lib/marketplace/catalog';
@@ -8,6 +8,7 @@ interface AppCardProps {
   name: string;
   category: string;
   thumbnail: string;
+  description?: string;
   timestamp?: string;
   badge?: string;
   badgeColor?: string;
@@ -22,19 +23,71 @@ interface AppCardProps {
 }
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
-  'Video Tools': <Video size={12} />,
-  'Image Tools': <Image size={12} />,
-  'Audio Tools': <Mic size={12} />,
-  'Design Tools': <Palette size={12} />,
-  'Content Tools': <FileText size={12} />,
-  'Avatar Creator': <User size={12} />,
-  'Ad Maker': <Palette size={12} />,
-  'LLM Tool': <Wrench size={12} />,
-  'Tools': <Wrench size={12} />,
-  'Content Intelligence': <FileText size={12} />,
-  'Communication': <FileText size={12} />,
-  'Real Estate': <Wrench size={12} />,
-  'Sales Tools': <Wrench size={12} />,
+  'Video Tools': <Video size={10} />,
+  'Image Tools': <Image size={10} />,
+  'Audio Tools': <Mic size={10} />,
+  'Design Tools': <Palette size={10} />,
+  'Content Tools': <FileText size={10} />,
+  'Avatar Creator': <User size={10} />,
+  'Ad Maker': <Palette size={10} />,
+  'LLM Tool': <Wrench size={10} />,
+  'Tools': <Wrench size={10} />,
+  'Content Intelligence': <FileText size={10} />,
+  'Communication': <FileText size={10} />,
+  'Real Estate': <Wrench size={10} />,
+  'Sales Tools': <Wrench size={10} />,
+};
+
+// Map app names to descriptions
+const appDescriptions: { [key: string]: string } = {
+  'Sessions': 'Record and manage video sessions effortlessly',
+  'Video Downloader': 'Download videos from any platform instantly',
+  'Video Resizer': 'Resize videos for any social platform',
+  'Motion-Sync': 'Sync motion across video clips seamlessly',
+  'Explainer Video': 'Create engaging explainer videos with AI',
+  'AI Influencer': 'Generate AI-powered influencer content',
+  'Viral Shorts': 'Create viral short-form video content',
+  'AI Voice Cloner': 'Clone any voice with advanced AI technology',
+  'Transcribe': 'Convert speech to text with high accuracy',
+  'AI Voice Changer': 'Transform your voice in real-time',
+  'AI Voiceovers': 'Generate professional voiceovers instantly',
+  'AI Audio Dubber': 'Dub audio in multiple languages',
+  'AI Noise Remover': 'Remove background noise from audio',
+  'Art Blocks': 'Generate unique AI art blocks',
+  'Edit': 'Professional photo editing tools',
+  'Background Remover': 'Remove backgrounds from images instantly',
+  'Image Eraser': 'Erase unwanted objects from photos',
+  'Image Upscaler': 'Upscale images to 4K resolution',
+  'Image Enhancer': 'Enhance image quality with AI',
+  'Image Colorizer': 'Add color to black and white photos',
+  'Logo Designer': 'Design professional logos with AI',
+  'Banner Creator': 'Create stunning banners for any platform',
+  'Flyer Maker': 'Design eye-catching flyers quickly',
+  'Poster Designer': 'Create professional posters easily',
+  'Infographic Builder': 'Build informative infographics',
+  'Presentation Maker': 'Create stunning presentations',
+  'Article': 'Generate SEO-optimized articles',
+  'Job Newsletter': 'Create professional job newsletters',
+  'Blog Writer': 'Write engaging blog posts with AI',
+  'Social Posts': 'Generate social media content',
+  'Email Generator': 'Create compelling email campaigns',
+  'Ad Copy Writer': 'Write high-converting ad copy',
+  'Script Writer': 'Generate scripts for any medium',
+  'SEO Optimizer': 'Optimize content for search engines',
+  'Ebook Creator': 'Create professional ebooks easily',
+  'Digital Spy': 'Monitor digital trends and competitors',
+  'Inbox': 'Manage all your messages in one place',
+  'Investor Calculator': 'Calculate real estate investment returns',
+  'AI Responder': 'Automate responses with AI',
+  'Master Closer': 'AI-powered sales closing assistant',
+  'Editor': 'Professional editing suite for creators',
+  'Versus': 'Compare AI models side by side',
+  'Forms': 'Build beautiful forms effortlessly',
+  'Signature': 'Create professional email signatures',
+  'Prompt Lab': 'Experiment with AI prompts',
+  'Model Benchmark': 'Benchmark AI model performance',
+  'AI Story': 'Generate engaging stories with AI',
+  'Lead Generation': 'Generate quality leads automatically',
 };
 
 // Map app names to IDs for favorites
@@ -66,6 +119,7 @@ const AppCard = ({
   name, 
   category, 
   thumbnail, 
+  description,
   timestamp, 
   badge, 
   badgeColor, 
@@ -85,6 +139,9 @@ const AppCard = ({
   const resolvedAppId = appId || nameToIdMap[name] || resolveAppId(name);
   const favorited = isFavorite(resolvedAppId);
 
+  // Get description from prop or lookup
+  const appDescription = description || appDescriptions[name] || 'Powerful AI-powered tool';
+
   // Check if app is new (within 30 days)
   const isNewApp = createdAt ? (Date.now() - createdAt.getTime()) < 30 * 24 * 60 * 60 * 1000 : false;
 
@@ -103,11 +160,6 @@ const AppCard = ({
     onOpen?.();
   };
 
-  const handleActivateClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onActivate?.();
-  };
-
   const handleInstallClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onInstall?.();
@@ -118,7 +170,6 @@ const AppCard = ({
     if (onResell) {
       onResell();
     } else {
-      // Navigate to app license page for white-labeling
       navigate(`/app-license/${resolvedAppId}`);
     }
   };
@@ -135,9 +186,14 @@ const AppCard = ({
           alt={name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        
 
-        {/* Installed Badge - Left Side (green) */}
+        {/* Category Badge - Bottom Left Overlay */}
+        <div className="absolute bottom-3 left-3 bg-black/70 text-white text-[9px] font-medium px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
+          {categoryIcons[category] || <Wrench size={10} />}
+          <span>{category}</span>
+        </div>
+
+        {/* Installed Badge - Top Left (green) */}
         {isInstalled && (
           <div className="absolute top-3 left-3 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <CheckCircle size={10} />
@@ -145,7 +201,7 @@ const AppCard = ({
           </div>
         )}
         
-        {/* Hot Badge - Right Side (red) */}
+        {/* Hot Badge - Top Right (red) */}
         {showHotBadge && (
           <div className="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <Flame size={10} />
@@ -153,7 +209,7 @@ const AppCard = ({
           </div>
         )}
 
-        {/* New Badge - Right Side (yellow) - only if not hot */}
+        {/* New Badge - Top Right (yellow) - only if not hot */}
         {showNewBadge && !showHotBadge && (
           <div className="absolute top-3 right-3 bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <Sparkles size={10} />
@@ -164,7 +220,7 @@ const AppCard = ({
         {/* Star Favorite Overlay */}
         <button
           onClick={handleStarClick}
-          className={`absolute bottom-3 right-3 p-1.5 rounded-full transition-all ${
+          className={`absolute top-3 ${!showHotBadge && !showNewBadge ? 'right-3' : 'right-16'} p-1.5 rounded-full transition-all ${
             favorited 
               ? 'bg-amber-500 text-white' 
               : 'bg-black/50 text-white opacity-0 group-hover:opacity-100'
@@ -177,10 +233,7 @@ const AppCard = ({
       {/* Content */}
       <div className="p-3">
         <h3 className="font-semibold text-sm text-foreground mb-1">{name}</h3>
-        <div className="flex items-center gap-1.5 text-muted-foreground mb-3">
-          {categoryIcons[category] || <Wrench size={12} />}
-          <span className="text-xs">{category}</span>
-        </div>
+        <p className="text-xs text-muted-foreground mb-3 line-clamp-1">{appDescription}</p>
 
         {/* Action Buttons */}
         <div className="flex gap-2">
@@ -208,7 +261,7 @@ const AppCard = ({
             className="flex-1 h-8 text-xs"
             onClick={handleResellClick}
           >
-            <Share2 size={12} className="mr-1" />
+            <DollarSign size={12} className="mr-1" />
             Resell
           </Button>
         </div>
