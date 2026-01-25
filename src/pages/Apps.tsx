@@ -102,44 +102,39 @@ const Apps = () => {
     },
     {
       id: 1,
-      name: 'Video Face Swap',
-      category: 'Video Tools',
-      description: 'Best-in-class face swapping technology for any video',
-      thumbnail: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=400&fit=crop',
-      badge: 'NEW',
+      name: 'Transcribe',
+      category: 'Audio Tools',
+      description: 'Turn speech into text with AI-powered transcription',
+      thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&h=400&fit=crop',
+      badge: 'HOT',
+      onClick: () => navigate('/transcribe')
     },
     {
       id: 2,
-      name: 'Recast',
-      category: 'Video Tools',
-      description: 'Industry-leading character swap for any video in seconds',
-      thumbnail: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop',
-      badge: 'HOT',
+      name: 'GhostInk',
+      category: 'Content Tools',
+      description: 'AI ghostwriting for articles, blogs, and more',
+      thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=400&fit=crop',
+      badge: 'NEW',
     },
     {
       id: 3,
-      name: 'Transitions',
-      category: 'Video Tools',
-      description: 'Create seamless transitions between any shots effortlessly',
-      thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop',
-      badge: 'NEW',
+      name: 'Editor',
+      category: 'Tools',
+      description: 'Create and edit content with pro-grade tools',
+      thumbnail: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=400&fit=crop',
+      badge: 'HOT',
+      onClick: () => navigate('/edit')
     },
     {
       id: 4,
-      name: 'Face Swap',
-      category: 'Image Tools',
-      description: 'The best instant AI face swap technology for photos',
-      thumbnail: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=600&h=400&fit=crop',
+      name: 'Digital Spy',
+      category: 'Content Intelligence',
+      description: 'Content intelligence and insights for your campaigns',
+      thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop',
       badge: 'NEW',
+      onClick: () => navigate('/digital-spy')
     },
-    {
-      id: 5,
-      name: 'AI Upscaler',
-      category: 'Image Tools',
-      description: 'Enhance video and image quality to 4K resolution instantly',
-      thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=400&fit=crop',
-      badge: 'HOT',
-    }
   ];
 
   const topPicks = [
@@ -348,7 +343,7 @@ const Apps = () => {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     {(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -381,7 +376,7 @@ const Apps = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     {topPicks.map((app) => {
                       const appId = resolveAppId(app.name);
                       // Top picks are pre-installed for new users
@@ -424,8 +419,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-                    {imageApps.map((app, idx) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                    {imageApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -455,8 +450,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-                    {videoApps.map((app, idx) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                    {videoApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -486,8 +481,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-                    {audioApps.map((app, idx) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                    {audioApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -517,8 +512,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-                    {designApps.map((app, idx) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                    {designApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -548,8 +543,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-                    {contentApps.map((app, idx) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                    {contentApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -579,8 +574,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-                    {toolsApps.map((app, idx) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+                    {toolsApps.slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
