@@ -12,8 +12,11 @@ interface PricingSettingsProps {
 export function PricingSettings({ license, onUpdate }: PricingSettingsProps) {
   const [settings, setSettings] = useState(license.pricingSettings);
 
-  const calculateMonthlyRevenue = (customers: number) => {
-    return (settings.monthlyPrice * customers).toLocaleString('en-US', {
+  const calculateRevenue = (customers: number) => {
+    const monthlyRevenue = settings.monthlyPrice * customers;
+    const setupRevenue = (settings.setupFee || 0) * customers;
+    const totalRevenue = monthlyRevenue + setupRevenue;
+    return totalRevenue.toLocaleString('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0
@@ -66,7 +69,7 @@ export function PricingSettings({ license, onUpdate }: PricingSettingsProps) {
           {[10, 50, 100].map((customers) => (
             <div key={customers} className="text-center">
               <div className="text-2xl font-bold text-foreground">
-                {calculateMonthlyRevenue(customers)}
+                {calculateRevenue(customers)}
               </div>
               <div className="text-sm text-muted-foreground">{customers} clients</div>
             </div>
