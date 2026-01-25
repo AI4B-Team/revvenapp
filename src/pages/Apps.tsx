@@ -41,7 +41,7 @@ const Apps = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'apps' | 'marketplace'>('marketplace');
   const [installModalApp, setInstallModalApp] = useState<MarketplaceApp | null>(null);
-  const [zoom, setZoom] = useState(50);
+  const [zoom, setZoom] = useState(40);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [appFilters, setAppFilters] = useState<AppFilterState | undefined>(undefined);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
