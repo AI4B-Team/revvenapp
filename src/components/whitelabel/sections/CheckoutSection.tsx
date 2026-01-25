@@ -327,8 +327,16 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
 
         {enableGuarantee && (
           <>
-            <div className="grid grid-cols-3 gap-6">
-              <div className="col-span-2 space-y-2">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Input
+                  value={guaranteeDescription}
+                  onChange={(e) => setGuaranteeDescription(e.target.value)}
+                  placeholder="Try it risk-free"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label>Guarantee Period</Label>
                 <div className="flex gap-2">
                   {[7, 14, 30, 60].map((days) => (
@@ -345,14 +353,6 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
                     </button>
                   ))}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Input
-                  value={guaranteeDescription}
-                  onChange={(e) => setGuaranteeDescription(e.target.value)}
-                  placeholder="Try it risk-free"
-                />
               </div>
             </div>
 
