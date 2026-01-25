@@ -377,7 +377,7 @@ const Apps = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
       <Sidebar 
         isAutomatePage
         onCharactersClick={() => setCharactersModalOpen(true)}
@@ -385,12 +385,12 @@ const Apps = () => {
         onCollapseChange={setIsSidebarCollapsed}
       />
       
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <div className="flex-shrink-0">
           <Header />
         </div>
         
-        <main className="flex-1 overflow-auto bg-background">
+        <main className="flex-1 overflow-y-auto bg-background">
           {/* Header Section - Sticky */}
           <div className="px-8 py-6 border-b border-border bg-background sticky top-0 z-40 shadow-sm">
             <div className="w-full">
