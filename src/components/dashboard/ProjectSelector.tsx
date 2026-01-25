@@ -85,13 +85,15 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
 
   if (isCollapsed) {
     return (
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-center p-2 hover:bg-sidebar-hover rounded-lg transition"
-        title={selectedProject?.name ?? "Projects"}
-      >
-        <FolderKanban size={20} className="text-sidebar-muted" />
-      </button>
+      <div className="px-4 mb-2 flex-shrink-0">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-center py-2.5 hover:bg-sidebar-hover rounded-lg transition"
+          title={selectedProject?.name ?? "Projects"}
+        >
+          <FolderKanban size={18} className="text-sidebar-muted" />
+        </button>
+      </div>
     );
   }
 
