@@ -192,7 +192,7 @@ export function NameGeneratorWizard({ isOpen, onClose, onSelectName, appContext 
           <div className="p-6 pt-4">
             {step === 'style' && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-center text-foreground">Select a name style</h2>
+                <h2 className="text-2xl font-bold text-center text-foreground">Select A Name Style</h2>
                 <div className="grid grid-cols-2 gap-3">
                   {nameStyles.map((style) => (
                     <button
@@ -224,7 +224,7 @@ export function NameGeneratorWizard({ isOpen, onClose, onSelectName, appContext 
 
             {step === 'randomness' && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-center text-foreground">Select generation randomness</h2>
+                <h2 className="text-2xl font-bold text-center text-foreground">Select Generation Randomness</h2>
                 <div className="space-y-3">
                   {randomnessLevels.map((level) => (
                     <button
@@ -253,7 +253,7 @@ export function NameGeneratorWizard({ isOpen, onClose, onSelectName, appContext 
 
             {step === 'info' && !generatedNames.length && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-center text-foreground">Add brand context</h2>
+                <h2 className="text-2xl font-bold text-center text-foreground">Add Brand Context</h2>
                 <p className="text-center text-muted-foreground">Optional: Help AI understand your brand better</p>
                 
                 <div className="space-y-4">
@@ -268,7 +268,7 @@ export function NameGeneratorWizard({ isOpen, onClose, onSelectName, appContext 
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="keywords">Keywords or themes</Label>
+                    <Label htmlFor="keywords">Keywords / Themes</Label>
                     <Textarea
                       id="keywords"
                       value={keywords}
