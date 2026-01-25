@@ -465,6 +465,10 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       {/* Workspace/Space Selector */}
       {!isCollapsed && (
         <div className="px-4 mb-2 relative flex-shrink-0">
+          <div className="flex items-center gap-1.5 mb-1.5 px-1">
+            <LayoutGrid size={10} className="text-sidebar-muted" />
+            <span className="text-[10px] font-medium text-sidebar-muted uppercase tracking-wider">Workspace</span>
+          </div>
           <button 
             onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
             className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
@@ -571,6 +575,10 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       {/* Brands Dropdown */}
       {!isCollapsed && (
         <div className="px-4 mb-4 relative flex-shrink-0">
+          <div className="flex items-center gap-1.5 mb-1.5 px-1">
+            <Palette size={10} className="text-sidebar-muted" />
+            <span className="text-[10px] font-medium text-sidebar-muted uppercase tracking-wider">Brand</span>
+          </div>
           <div className="w-full flex items-center gap-3 px-3 py-2 border-2 border-brand-green rounded-lg hover:bg-sidebar-hover transition">
             {/* Brand name/icon - navigates to brand profile */}
             <button 
