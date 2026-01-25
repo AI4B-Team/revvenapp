@@ -52,6 +52,11 @@ export const allApps: AppTab[] = [
   { id: 'ai-agents', label: 'AI Agents', icon: Bot, color: 'text-white', bgColor: 'bg-purple-600', path: '/ai-agents' },
   { id: 'versus', label: 'Versus', icon: Zap, color: 'text-white', bgColor: 'bg-orange-600', path: '/versus' },
   { id: 'forms', label: 'Forms', icon: ClipboardList, color: 'text-white', bgColor: 'bg-indigo-600', path: '/forms' },
+  { id: 'digital-spy', label: 'Digital Spy', icon: BarChart3, color: 'text-white', bgColor: 'bg-emerald-500', path: '/digital-spy' },
+  { id: 'inbox', label: 'Inbox', icon: Mail, color: 'text-white', bgColor: 'bg-blue-500', path: '/inbox' },
+  { id: 'investor-calculator', label: 'Investor Calculator', icon: DollarSign, color: 'text-white', bgColor: 'bg-green-600', path: '/investor-calculator' },
+  { id: 'ai-responder', label: 'AI Responder', icon: Bot, color: 'text-white', bgColor: 'bg-yellow-500', path: '/ai-responder' },
+  { id: 'signature', label: 'Signature', icon: FileEdit, color: 'text-white', bgColor: 'bg-slate-600', path: '/signature' },
 ];
 
 interface AppTabsProps {
@@ -244,18 +249,18 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
             return (
               <Tooltip key={app.id}>
                 <TooltipTrigger asChild>
-                  <button
+                  <div
                     onClick={() => handleTabClick(app)}
-                    className="relative p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 transition-colors text-slate-500 group"
+                    className="relative p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 transition-colors text-slate-500 group cursor-pointer"
                   >
                     <Icon size={18} />
-                    <button
+                    <span
                       onClick={(e) => handleCloseTab(e, app.id)}
-                      className="absolute -top-1 -right-1 p-0.5 rounded-full bg-slate-200 hover:bg-slate-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute -top-1 -right-1 p-0.5 rounded-full bg-slate-200 hover:bg-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                     >
                       <X size={10} />
-                    </button>
-                  </button>
+                    </span>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>{app.label}</TooltipContent>
               </Tooltip>
