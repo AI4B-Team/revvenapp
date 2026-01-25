@@ -136,12 +136,6 @@ const AppCard = ({
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         
-        {/* Timestamp Badge - only if not installed */}
-        {timestamp && !isInstalled && (
-          <div className="absolute top-3 left-3 bg-foreground/80 text-background text-[10px] font-medium px-2 py-0.5 rounded">
-            {timestamp}
-          </div>
-        )}
 
         {/* Installed Badge - Left Side (green) */}
         {isInstalled && (
