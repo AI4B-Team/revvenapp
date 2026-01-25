@@ -328,17 +328,40 @@ const AppsFilterToolbar = ({
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  onFiltersChange?.({
+                    category: selectedCategory,
+                    ...filters,
+                    searchQuery: e.target.value
+                  });
+                }}
                 onBlur={() => {
                   if (!searchQuery) setSearchExpanded(false);
                 }}
-                placeholder="Search..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setSearchQuery('');
+                    setSearchExpanded(false);
+                    onFiltersChange?.({
+                      category: selectedCategory,
+                      ...filters,
+                      searchQuery: ''
+                    });
+                  }
+                }}
+                placeholder="Search apps..."
                 className="px-3 py-2 w-64 text-sm outline-none"
               />
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setSearchExpanded(false);
+                  onFiltersChange?.({
+                    category: selectedCategory,
+                    ...filters,
+                    searchQuery: ''
+                  });
                 }}
                 className="px-3 py-2 hover:bg-gray-100 transition-colors"
               >

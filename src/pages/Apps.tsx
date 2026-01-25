@@ -282,6 +282,77 @@ const Apps = () => {
   // Marketplace apps for the "Marketplace" tab
   const hasLicense = mockMarketplaceWorkspace.plan === 'apps_license';
 
+  // Calculate grid columns based on zoom level (0-100)
+  // zoom 0 = 7 cols (smallest), zoom 100 = 2 cols (largest)
+  const getGridCols = () => {
+    if (zoom <= 15) return 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-7';
+    if (zoom <= 30) return 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-6';
+    if (zoom <= 50) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5';
+    if (zoom <= 70) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
+    if (zoom <= 85) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+    return 'grid-cols-1 sm:grid-cols-2';
+  };
+
+  // Filter apps based on current filters
+  const filterApps = <T extends { name: string; category: string; badge?: string }>(apps: T[]): T[] => {
+    if (!appFilters) return apps;
+    
+    return apps.filter(app => {
+      // Search filter
+      if (appFilters.searchQuery) {
+        const query = appFilters.searchQuery.toLowerCase();
+        if (!app.name.toLowerCase().includes(query)) {
+          return false;
+        }
+      }
+      
+      // Category filter
+      if (appFilters.category && appFilters.category !== 'All') {
+        const categoryMap: { [key: string]: string[] } = {
+          'Image': ['Image Tools', 'Image Tool'],
+          'Video': ['Video Tools', 'Video Tool'],
+          'Audio': ['Audio Tools', 'Audio Tool'],
+          'Design': ['Design Tools', 'Design Tool'],
+          'Content': ['Content Tools', 'Content Tool', 'Content Intelligence'],
+          'Tools': ['Tools', 'Tool', 'LLM Tool', 'Communication', 'Real Estate', 'Sales Tools', 'Sales Tool']
+        };
+        const allowedCategories = categoryMap[appFilters.category] || [];
+        if (!allowedCategories.includes(app.category)) {
+          return false;
+        }
+      }
+      
+      // Trending filter
+      if (appFilters.trending && app.badge?.toUpperCase() !== 'HOT') {
+        return false;
+      }
+      
+      // Favorites filter
+      if (appFilters.favorites) {
+        const appId = resolveAppId(app.name);
+        if (!isFavorite(appId)) {
+          return false;
+        }
+      }
+      
+      // Recently added filter
+      if (appFilters.recentlyAdded && app.badge?.toUpperCase() !== 'NEW') {
+        return false;
+      }
+      
+      return true;
+    });
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = appFilters && (
+    appFilters.searchQuery || 
+    (appFilters.category && appFilters.category !== 'All') ||
+    appFilters.trending ||
+    appFilters.favorites ||
+    appFilters.recentlyAdded
+  );
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
@@ -404,8 +475,8 @@ const Apps = () => {
                     )}
                   </div>
 
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4'}>
-                    {(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
+                    {filterApps(expandedSections.trending ? trendingApps : trendingApps.slice(0, 5)).map((app) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -440,8 +511,8 @@ const Apps = () => {
                     </div>
                   </div>
 
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4'}>
-                    {topPicks.map((app) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
+                    {filterApps(topPicks).map((app) => {
                       const appId = resolveAppId(app.name);
                       // Top picks are pre-installed for new users
                       const installed = app.preInstalled || isInstalled(appId);
@@ -486,8 +557,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
-                    {imageApps.slice(0, 10).map((app, idx) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                    {filterApps(imageApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -518,8 +589,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
-                    {videoApps.slice(0, 10).map((app, idx) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                    {filterApps(videoApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -550,8 +621,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
-                    {audioApps.slice(0, 10).map((app, idx) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                    {filterApps(audioApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -582,8 +653,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
-                    {designApps.slice(0, 10).map((app, idx) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                    {filterApps(designApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -614,8 +685,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
-                    {contentApps.slice(0, 10).map((app, idx) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                    {filterApps(contentApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -646,8 +717,8 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12'}>
-                    {toolsApps.slice(0, 10).map((app, idx) => {
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                    {filterApps(toolsApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
                       return (
@@ -690,7 +761,9 @@ const Apps = () => {
                     return acc;
                   }, [] as typeof allApps);
                   
-                  const installedApps = uniqueApps.filter(app => {
+                  // Apply filters and then check if installed
+                  const filteredApps = filterApps(uniqueApps);
+                  const installedApps = filteredApps.filter(app => {
                     const appId = resolveAppId(app.name);
                     return isInstalled(appId);
                   });
@@ -718,11 +791,12 @@ const Apps = () => {
                           {installedApps.length} app{installedApps.length !== 1 ? 's' : ''} installed
                         </p>
                       </div>
-                      <div className={viewMode === 'list' ? 'flex flex-col gap-3' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'}>
+                      <div className={viewMode === 'list' ? 'flex flex-col gap-3' : `grid ${getGridCols()} gap-4`}>
                         {installedApps.map((app, idx) => {
                           const appId = resolveAppId(app.name);
                           const description = 'description' in app ? (app.description as string) : '';
                           const onClick = 'onClick' in app ? (app.onClick as (() => void) | undefined) : undefined;
+                          const rating = 'rating' in app ? (app.rating as number) : 0;
                           return (
                             <AppCard
                               key={idx}
@@ -731,6 +805,7 @@ const Apps = () => {
                               thumbnail={app.thumbnail}
                               description={description || ''}
                               badge={app.badge}
+                              rating={rating}
                               appId={appId}
                               isInstalled={true}
                               onOpen={() => openInstalledApp(app.name)}
