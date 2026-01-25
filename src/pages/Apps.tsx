@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Play, ChevronRight, Store
+  ChevronRight, Store, LayoutGrid
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -283,19 +283,31 @@ const Apps = () => {
                 A full suite of intelligent AI Apps to help you create, monetize, and automate.
               </p>
               
-              {/* Tabs below description */}
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'apps' | 'marketplace')}>
-                <TabsList className="bg-muted">
-                  <TabsTrigger value="marketplace" className="gap-2">
-                    <Store size={14} />
-                    Marketplace
-                  </TabsTrigger>
-                  <TabsTrigger value="apps" className="gap-2">
-                    <Play size={14} />
-                    My Apps
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              {/* Tab Buttons - Separated */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setActiveTab('marketplace')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                    activeTab === 'marketplace'
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  <Store size={14} />
+                  Marketplace
+                </button>
+                <button
+                  onClick={() => setActiveTab('apps')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                    activeTab === 'apps'
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  <LayoutGrid size={14} />
+                  My Apps
+                </button>
+              </div>
             </div>
           </div>
 
