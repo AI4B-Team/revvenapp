@@ -331,7 +331,7 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
               <div className="space-y-2">
                 <Label>Guarantee Period</Label>
                 <div className="flex gap-2 flex-wrap">
-                  {[7, 14, 30].map((days) => (
+                  {[7, 14, 30, 60].map((days) => (
                     <button
                       key={days}
                       onClick={() => setGuaranteeDays(days)}
