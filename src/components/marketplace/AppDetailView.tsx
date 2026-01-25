@@ -94,7 +94,14 @@ export function AppDetailView({
                 )}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{app.name}</h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-foreground">{app.name}</h1>
+                  {isLicenseActive && (
+                    <span className="flex items-center gap-1 px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium rounded-full">
+                      ✓ White-Label Active
+                    </span>
+                  )}
+                </div>
                 <p className="text-muted-foreground mt-1">{app.description}</p>
               </div>
             </div>
