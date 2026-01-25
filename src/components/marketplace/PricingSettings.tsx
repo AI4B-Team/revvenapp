@@ -11,6 +11,7 @@ interface PricingSettingsProps {
 
 export function PricingSettings({ license, onUpdate }: PricingSettingsProps) {
   const [settings, setSettings] = useState(license.pricingSettings);
+  const [customClients, setCustomClients] = useState<number>(25);
 
   const calculateRevenue = (customers: number) => {
     const monthlyRevenue = settings.monthlyPrice * customers;
@@ -65,7 +66,7 @@ export function PricingSettings({ license, onUpdate }: PricingSettingsProps) {
           <TrendingUp className="h-5 w-5 text-primary" />
           <h4 className="font-semibold text-foreground">Revenue Potential</h4>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {[10, 50, 100].map((customers) => (
             <div key={customers} className="text-center">
               <div className="text-2xl font-bold text-foreground">
@@ -74,6 +75,21 @@ export function PricingSettings({ license, onUpdate }: PricingSettingsProps) {
               <div className="text-sm text-muted-foreground">{customers} clients</div>
             </div>
           ))}
+          <div className="text-center">
+            <div className="text-2xl font-bold text-foreground">
+              {calculateRevenue(customClients || 0)}
+            </div>
+            <div className="flex items-center justify-center gap-1">
+              <input
+                type="number"
+                value={customClients}
+                onChange={(e) => setCustomClients(parseInt(e.target.value) || 0)}
+                className="w-16 text-center text-sm text-muted-foreground bg-transparent border-b border-muted-foreground/30 focus:border-primary focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                min={0}
+              />
+              <span className="text-sm text-muted-foreground">clients</span>
+            </div>
+          </div>
         </div>
       </div>
 
