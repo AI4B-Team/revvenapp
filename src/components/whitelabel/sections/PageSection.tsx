@@ -50,21 +50,144 @@ const sectionIcons: Record<SectionType, React.ElementType> = {
   footer: Type,
 };
 
-const defaultSections: PageBlock[] = [
-  { id: 'hero', type: 'hero', enabled: true, title: 'Hero Section', content: { badge: 'AI-Powered', tagline: '', description: '' } },
-  { id: 'features', type: 'features', enabled: true, title: 'Features Section', content: { features: [] } },
-  { id: 'capabilities', type: 'capabilities', enabled: true, title: 'Capabilities Section', content: { cards: [] } },
-  { id: 'testimonials', type: 'testimonials', enabled: false, title: 'Testimonials', content: { testimonials: [] } },
-  { id: 'pricing', type: 'pricing', enabled: true, title: 'Pricing Section', content: {} },
-  { id: 'faq', type: 'faq', enabled: true, title: 'FAQ Section', content: { questions: [] } },
-  { id: 'cta', type: 'cta', enabled: true, title: 'Call To Action', content: {} },
-  { id: 'footer', type: 'footer', enabled: true, title: 'Footer', content: {} },
-];
+// Generate default sections based on app context
+const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBlock[] => {
+  const appName = license?.brandSettings?.appName || app.name;
+  const tagline = license?.brandSettings?.tagline || 'Transform Your Business With AI-Powered Solutions';
+  const description = license?.brandSettings?.description || app.description;
+  
+  return [
+    { 
+      id: 'hero', 
+      type: 'hero', 
+      enabled: true, 
+      title: 'Hero Section', 
+      content: { 
+        badge: 'AI-Powered', 
+        tagline: tagline,
+        description: description
+      } 
+    },
+    { 
+      id: 'features', 
+      type: 'features', 
+      enabled: true, 
+      title: 'Features Section', 
+      content: { 
+        features: [
+          { title: 'Smart AI Technology', description: 'Leverage cutting-edge artificial intelligence to automate and optimize your workflow' },
+          { title: 'Built For You', description: 'Every feature is designed with your specific business needs in mind' },
+          { title: 'Easy Integration', description: 'Get started in minutes with our plug-and-play setup process' },
+          { title: 'Always Available', description: 'Access your tools 24/7 from any device, anywhere in the world' }
+        ] 
+      } 
+    },
+    { 
+      id: 'capabilities', 
+      type: 'capabilities', 
+      enabled: true, 
+      title: 'Capabilities Section', 
+      content: { 
+        cards: [
+          { title: 'Automation', description: 'Automate repetitive tasks and save hours every week', icon: '⚡' },
+          { title: 'Analytics', description: 'Get real-time insights and data-driven recommendations', icon: '📊' },
+          { title: 'Collaboration', description: 'Work seamlessly with your team in real-time', icon: '👥' }
+        ] 
+      } 
+    },
+    { 
+      id: 'testimonials', 
+      type: 'testimonials', 
+      enabled: true, 
+      title: 'Testimonials', 
+      content: { 
+        testimonials: [
+          { name: 'Sarah Johnson', role: 'Marketing Director', company: 'TechCorp', quote: 'This platform has completely transformed how we operate. The AI features alone have saved us 20+ hours per week.', avatar: '' },
+          { name: 'Michael Chen', role: 'Founder & CEO', company: 'StartupXYZ', quote: 'The best investment we made this year. ROI was visible within the first month of usage.', avatar: '' },
+          { name: 'Emily Rodriguez', role: 'Operations Manager', company: 'GrowthCo', quote: 'Incredible customer support and the product just keeps getting better with each update.', avatar: '' }
+        ] 
+      } 
+    },
+    { 
+      id: 'pricing', 
+      type: 'pricing', 
+      enabled: true, 
+      title: 'Pricing Section', 
+      content: {
+        headline: 'Simple, Transparent Pricing',
+        subheadline: 'Start free, upgrade when you need more',
+        showComparison: true,
+        highlightedPlan: 'pro'
+      } 
+    },
+    { 
+      id: 'faq', 
+      type: 'faq', 
+      enabled: true, 
+      title: 'FAQ Section', 
+      content: { 
+        questions: [
+          { q: 'How quickly can I get started?', a: 'You can be up and running in less than 5 minutes. Our intuitive onboarding process guides you through everything you need to know.' },
+          { q: 'Is there a free trial available?', a: 'Yes! We offer a 14-day free trial with full access to all features. No credit card required to start.' },
+          { q: 'Can I cancel my subscription anytime?', a: 'Absolutely. You can cancel your subscription at any time with no questions asked. Your access continues until the end of your billing period.' },
+          { q: 'Do you offer refunds?', a: 'Yes, we have a 14-day money-back guarantee. If you\'re not satisfied, we\'ll refund your payment in full.' },
+          { q: 'Is my data secure?', a: 'Security is our top priority. We use enterprise-grade encryption and are fully compliant with GDPR and other privacy regulations.' }
+        ] 
+      } 
+    },
+    { 
+      id: 'cta', 
+      type: 'cta', 
+      enabled: true, 
+      title: 'Call To Action', 
+      content: {
+        headline: 'Ready to Transform Your Business?',
+        subheadline: 'Join thousands of successful businesses already using our platform',
+        buttonText: 'Start Your Free Trial',
+        secondaryButtonText: 'Schedule a Demo'
+      } 
+    },
+    { 
+      id: 'footer', 
+      type: 'footer', 
+      enabled: true, 
+      title: 'Footer', 
+      content: {
+        companyName: appName,
+        tagline: 'Empowering businesses with AI',
+        showSocialLinks: true,
+        showNewsletter: true,
+        copyrightYear: new Date().getFullYear()
+      } 
+    },
+  ];
+};
 
 export function PageSection({ app, license }: PageSectionProps) {
-  const [sections, setSections] = useState<PageBlock[]>(defaultSections);
+  const [sections, setSections] = useState<PageBlock[]>(() => getDefaultSections(app, license));
   const [expandedSection, setExpandedSection] = useState<string | null>('hero');
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
+
+  // Update sections when license changes (e.g., product name updated)
+  React.useEffect(() => {
+    const newDefaults = getDefaultSections(app, license);
+    setSections(current => {
+      // Only update hero section with new product info if it hasn't been manually edited
+      return current.map((section, idx) => {
+        if (section.id === 'hero') {
+          return {
+            ...section,
+            content: {
+              ...section.content,
+              tagline: license?.brandSettings?.tagline || section.content.tagline,
+              description: license?.brandSettings?.description || section.content.description
+            }
+          };
+        }
+        return section;
+      });
+    });
+  }, [license?.brandSettings?.tagline, license?.brandSettings?.description]);
 
   const toggleSection = (id: string) => {
     setExpandedSection(expandedSection === id ? null : id);
@@ -129,28 +252,11 @@ export function PageSection({ app, license }: PageSectionProps) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Landing Page Builder</h2>
-          <p className="text-muted-foreground mt-1">
-            Configure and customize your sales page sections
-          </p>
-        </div>
-        <Button variant="outline" className="gap-2">
-          <Eye className="h-4 w-4" />
-          Preview Page
-        </Button>
-      </div>
-
-      {/* Live Preview Card */}
-      <div className="p-4 rounded-xl border-2 border-border bg-gradient-to-br from-muted/30 to-muted/10">
-        <div className="flex items-center gap-2 mb-3">
-          <Eye className="h-5 w-5 text-primary" />
-          <span className="font-semibold text-foreground">Live Preview</span>
-        </div>
-        <div className="aspect-video rounded-lg bg-background border border-border flex items-center justify-center">
-          <p className="text-muted-foreground text-sm">Page preview will appear here</p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-foreground">Landing Page Builder</h2>
+        <p className="text-muted-foreground mt-1">
+          Configure and customize your sales page sections. Changes are reflected in the live preview.
+        </p>
       </div>
 
       {/* Section List */}
@@ -288,10 +394,255 @@ export function PageSection({ app, license }: PageSectionProps) {
                     </div>
                   )}
 
+                  {section.type === 'capabilities' && (
+                    <div className="space-y-4">
+                      {(section.content.cards || []).map((card: any, idx: number) => (
+                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label>Capability {idx + 1}</Label>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => {
+                                const newCards = [...section.content.cards];
+                                newCards.splice(idx, 1);
+                                updateSectionContent(section.id, { cards: newCards });
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                          <div className="flex gap-2">
+                            <Input
+                              value={card.icon}
+                              onChange={(e) => {
+                                const newCards = [...section.content.cards];
+                                newCards[idx] = { ...card, icon: e.target.value };
+                                updateSectionContent(section.id, { cards: newCards });
+                              }}
+                              placeholder="Icon (emoji)"
+                              className="w-16"
+                            />
+                            <Input
+                              value={card.title}
+                              onChange={(e) => {
+                                const newCards = [...section.content.cards];
+                                newCards[idx] = { ...card, title: e.target.value };
+                                updateSectionContent(section.id, { cards: newCards });
+                              }}
+                              placeholder="Title"
+                              className="flex-1"
+                            />
+                          </div>
+                          <Textarea
+                            value={card.description}
+                            onChange={(e) => {
+                              const newCards = [...section.content.cards];
+                              newCards[idx] = { ...card, description: e.target.value };
+                              updateSectionContent(section.id, { cards: newCards });
+                            }}
+                            placeholder="Description"
+                            rows={2}
+                          />
+                        </div>
+                      ))}
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const newCards = [...(section.content.cards || []), { title: '', description: '', icon: '✨' }];
+                          updateSectionContent(section.id, { cards: newCards });
+                        }}
+                        className="w-full gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Capability
+                      </Button>
+                    </div>
+                  )}
+
+                  {section.type === 'testimonials' && (
+                    <div className="space-y-4">
+                      {(section.content.testimonials || []).map((testimonial: any, idx: number) => (
+                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label>Testimonial {idx + 1}</Label>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => {
+                                const newTestimonials = [...section.content.testimonials];
+                                newTestimonials.splice(idx, 1);
+                                updateSectionContent(section.id, { testimonials: newTestimonials });
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              value={testimonial.name}
+                              onChange={(e) => {
+                                const newTestimonials = [...section.content.testimonials];
+                                newTestimonials[idx] = { ...testimonial, name: e.target.value };
+                                updateSectionContent(section.id, { testimonials: newTestimonials });
+                              }}
+                              placeholder="Name"
+                            />
+                            <Input
+                              value={testimonial.role}
+                              onChange={(e) => {
+                                const newTestimonials = [...section.content.testimonials];
+                                newTestimonials[idx] = { ...testimonial, role: e.target.value };
+                                updateSectionContent(section.id, { testimonials: newTestimonials });
+                              }}
+                              placeholder="Role"
+                            />
+                          </div>
+                          <Input
+                            value={testimonial.company}
+                            onChange={(e) => {
+                              const newTestimonials = [...section.content.testimonials];
+                              newTestimonials[idx] = { ...testimonial, company: e.target.value };
+                              updateSectionContent(section.id, { testimonials: newTestimonials });
+                            }}
+                            placeholder="Company"
+                          />
+                          <Textarea
+                            value={testimonial.quote}
+                            onChange={(e) => {
+                              const newTestimonials = [...section.content.testimonials];
+                              newTestimonials[idx] = { ...testimonial, quote: e.target.value };
+                              updateSectionContent(section.id, { testimonials: newTestimonials });
+                            }}
+                            placeholder="Quote/Review"
+                            rows={2}
+                          />
+                        </div>
+                      ))}
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const newTestimonials = [...(section.content.testimonials || []), { name: '', role: '', company: '', quote: '', avatar: '' }];
+                          updateSectionContent(section.id, { testimonials: newTestimonials });
+                        }}
+                        className="w-full gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Testimonial
+                      </Button>
+                    </div>
+                  )}
+
+                  {section.type === 'pricing' && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Section Headline</Label>
+                        <Input
+                          value={section.content.headline || ''}
+                          onChange={(e) => updateSectionContent(section.id, { headline: e.target.value })}
+                          placeholder="e.g., Simple, Transparent Pricing"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Subheadline</Label>
+                        <Input
+                          value={section.content.subheadline || ''}
+                          onChange={(e) => updateSectionContent(section.id, { subheadline: e.target.value })}
+                          placeholder="e.g., Start free, upgrade when you need more"
+                        />
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted/30 border border-border">
+                        <p className="text-sm text-muted-foreground">
+                          💡 Pricing tiers are configured in the <span className="font-medium text-foreground">Pricing</span> section of this builder.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {section.type === 'cta' && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Headline</Label>
+                        <Input
+                          value={section.content.headline || ''}
+                          onChange={(e) => updateSectionContent(section.id, { headline: e.target.value })}
+                          placeholder="e.g., Ready to Transform Your Business?"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Subheadline</Label>
+                        <Input
+                          value={section.content.subheadline || ''}
+                          onChange={(e) => updateSectionContent(section.id, { subheadline: e.target.value })}
+                          placeholder="e.g., Join thousands of successful businesses"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Primary Button</Label>
+                          <Input
+                            value={section.content.buttonText || ''}
+                            onChange={(e) => updateSectionContent(section.id, { buttonText: e.target.value })}
+                            placeholder="Start Your Free Trial"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Secondary Button</Label>
+                          <Input
+                            value={section.content.secondaryButtonText || ''}
+                            onChange={(e) => updateSectionContent(section.id, { secondaryButtonText: e.target.value })}
+                            placeholder="Schedule a Demo"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {section.type === 'footer' && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Company Name</Label>
+                        <Input
+                          value={section.content.companyName || ''}
+                          onChange={(e) => updateSectionContent(section.id, { companyName: e.target.value })}
+                          placeholder="Your Company Name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Tagline</Label>
+                        <Input
+                          value={section.content.tagline || ''}
+                          onChange={(e) => updateSectionContent(section.id, { tagline: e.target.value })}
+                          placeholder="Empowering businesses with AI"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+                        <div>
+                          <p className="font-medium text-foreground text-sm">Show Social Links</p>
+                          <p className="text-xs text-muted-foreground">Display social media icons</p>
+                        </div>
+                        <Switch
+                          checked={section.content.showSocialLinks || false}
+                          onCheckedChange={(checked) => updateSectionContent(section.id, { showSocialLinks: checked })}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+                        <div>
+                          <p className="font-medium text-foreground text-sm">Show Newsletter Signup</p>
+                          <p className="text-xs text-muted-foreground">Include email capture form</p>
+                        </div>
+                        <Switch
+                          checked={section.content.showNewsletter || false}
+                          onCheckedChange={(checked) => updateSectionContent(section.id, { showNewsletter: checked })}
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   {section.type === 'faq' && (
                     <div className="space-y-4">
                       <p className="text-sm text-muted-foreground">
-                        {(section.content.questions || []).length} of 5 questions
+                        {(section.content.questions || []).length} questions configured
                       </p>
                       {(section.content.questions || []).map((faq: any, idx: number) => (
                         <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
