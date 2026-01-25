@@ -67,8 +67,9 @@ const Index = () => {
   const [currentTutorialIndex, setCurrentTutorialIndex] = useState(0);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [showTutorialSection, setShowTutorialSection] = useState(() => {
-    const stored = localStorage.getItem('dashboard-tutorial-visible');
-    return stored !== 'false';
+    // Reset to visible for now
+    localStorage.removeItem('dashboard-tutorial-visible');
+    return true;
   });
 
   const dismissTutorialSection = () => {
