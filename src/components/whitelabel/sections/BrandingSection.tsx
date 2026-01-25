@@ -595,8 +595,14 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
                 }`}
               >
                 <div 
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: hslToHex(preset.hue, preset.saturation !== undefined ? preset.saturation : 70) }}
+                  className="w-4 h-4 rounded-full border border-border"
+                  style={{ 
+                    backgroundColor: hslToHex(
+                      preset.hue, 
+                      preset.saturation !== undefined ? preset.saturation : 70,
+                      preset.lightness !== undefined ? preset.lightness : 50
+                    ) 
+                  }}
                 />
                 <span className="text-sm">{preset.name}</span>
               </button>
