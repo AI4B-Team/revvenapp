@@ -94,7 +94,7 @@ const appDescriptions: { [key: string]: string } = {
   'Script Writer': 'Generate scripts for any medium',
   'SEO Optimizer': 'Optimize content for search engines',
   'Ebook Creator': 'Create professional ebooks easily',
-  'Digital Spy': 'Monitor digital trends and competitors',
+  'Digital Spy': 'Competitor social intelligence and content insights',
   'Inbox': 'Manage all your messages in one place',
   'Investor Calculator': 'Calculate real estate investment returns',
   'AI Responder': 'Automate responses with AI',
