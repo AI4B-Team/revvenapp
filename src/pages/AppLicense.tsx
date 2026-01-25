@@ -113,13 +113,15 @@ const AppLicense = () => {
         forceCollapsed 
       />
       
-      {/* White-Label Sidebar */}
-      <WhiteLabelSidebar 
-        app={app} 
-        activeSection={activeSection} 
-        onSectionChange={setActiveSection} 
-        onBack={() => navigate('/apps')} 
-      />
+      {/* White-Label Sidebar - positioned after the collapsed main sidebar */}
+      <div className="ml-16">
+        <WhiteLabelSidebar 
+          app={app} 
+          activeSection={activeSection} 
+          onSectionChange={setActiveSection} 
+          onBack={() => navigate('/apps')} 
+        />
+      </div>
       
       {/* Main Content Area - 2 Resizable Panels */}
       <div className="flex-1 flex flex-col overflow-hidden">
