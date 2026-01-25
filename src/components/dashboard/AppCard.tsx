@@ -281,7 +281,7 @@ const AppCard = ({
           <Button
             variant="default"
             size="sm"
-            className={`flex-1 h-8 text-xs ${!isInstalled ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''}`}
+            className="flex-1 h-8 text-xs bg-emerald-500 hover:bg-emerald-600 text-white"
             onClick={isInstalled ? handleOpenClick : (onInstall ? handleInstallClick : (onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined))}
           >
             {isInstalled ? (
