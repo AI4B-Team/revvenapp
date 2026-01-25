@@ -62,6 +62,8 @@ export interface AppLicense {
     appName?: string;
     primaryColor?: string;
     favicon?: string;
+    tagline?: string;
+    description?: string;
   };
   domainSettings: {
     subdomain: string;
