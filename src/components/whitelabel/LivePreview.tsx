@@ -48,6 +48,8 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
   const primaryColor = license?.brandSettings?.primaryColor || '#10b981';
   const productName = license?.brandSettings?.appName || app?.name || 'Your Product';
   const tagline = license?.brandSettings?.tagline || 'Transform Your Business Today';
+  const selectedIcon = license?.brandSettings?.icon || '🚀';
+  const logoUrl = license?.brandSettings?.logo;
 
   return (
     <div className="h-full flex flex-col bg-muted/30">
@@ -164,18 +166,18 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
             >
               {/* Logo */}
               <div className="mb-6">
-                {license?.brandSettings?.logo ? (
+                {logoUrl ? (
                   <img 
-                    src={license.brandSettings.logo} 
+                    src={logoUrl} 
                     alt="Logo" 
                     className="h-12 mx-auto object-contain"
                   />
                 ) : (
                   <div 
-                    className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center text-white font-bold text-xl"
-                    style={{ backgroundColor: primaryColor }}
+                    className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center text-2xl"
+                    style={{ backgroundColor: `${primaryColor}15` }}
                   >
-                    {productName.charAt(0)}
+                    {selectedIcon}
                   </div>
                 )}
               </div>

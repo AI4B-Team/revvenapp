@@ -24,6 +24,7 @@ interface BrandingSectionProps {
 const predefinedIcons = ['🚀', '⚡', '💎', '🎯', '✨', '🔥', '💡', '🌟'];
 
 const colorPresets = [
+  { name: 'White', hue: 0, saturation: 0, lightness: 100 },
   { name: 'Purple', hue: 270 },
   { name: 'Blue', hue: 220 },
   { name: 'Green', hue: 150 },
@@ -61,11 +62,12 @@ const hexToHsl = (hex: string): { h: number; s: number; l: number } | null => {
 
 // Convert HSL to Hex
 const hslToHex = (h: number, s: number = 70, l: number = 50) => {
-  const a = s / 100;
-  const b = l / 100;
+  const sNorm = s / 100;
+  const lNorm = l / 100;
+  const a = sNorm * Math.min(lNorm, 1 - lNorm);
   const f = (n: number) => {
     const k = (n + h / 30) % 12;
-    const color = b - a * Math.min(b, 1 - b) * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    const color = lNorm - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
     return Math.round(255 * color).toString(16).padStart(2, '0');
   };
   return `#${f(0)}${f(8)}${f(4)}`;
@@ -87,8 +89,9 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
   const [faviconUrl, setFaviconUrl] = useState(license?.brandSettings?.favicon || '');
   const [primaryHue, setPrimaryHue] = useState(initialColor.hue);
   const [primarySaturation, setPrimarySaturation] = useState(initialColor.saturation);
+  const [primaryLightness, setPrimaryLightness] = useState(50);
   const [useCustomLogo, setUseCustomLogo] = useState(!!license?.brandSettings?.logo);
-  const [selectedIcon, setSelectedIcon] = useState('🚀');
+  const [selectedIcon, setSelectedIcon] = useState(license?.brandSettings?.icon || '🚀');
   const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
   const [isGeneratingFavicon, setIsGeneratingFavicon] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
@@ -102,7 +105,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
   const faviconInputRef = useRef<HTMLInputElement>(null);
   const isInitialMount = useRef(true);
 
-  const primaryColor = hslToHex(primaryHue, primarySaturation);
+  const primaryColor = hslToHex(primaryHue, primarySaturation, primaryLightness);
 
   // Auto-update preview when color changes
   useEffect(() => {
@@ -120,6 +123,13 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     }
   }, [logoUrl, useCustomLogo]);
 
+  // Auto-update preview when icon changes
+  useEffect(() => {
+    if (!isInitialMount.current && !useCustomLogo) {
+      onUpdate({ icon: selectedIcon }, false);
+    }
+  }, [selectedIcon, useCustomLogo]);
+
   // Auto-update preview when favicon changes
   useEffect(() => {
     if (!isInitialMount.current) {
@@ -127,10 +137,10 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
     }
   }, [faviconUrl]);
 
-
-  const handlePresetClick = (preset: typeof colorPresets[0]) => {
+  const handlePresetClick = (preset: { name: string; hue: number; saturation?: number; lightness?: number }) => {
     setPrimaryHue(preset.hue);
     setPrimarySaturation(preset.saturation !== undefined ? preset.saturation : 70);
+    setPrimaryLightness(preset.lightness !== undefined ? preset.lightness : 50);
   };
 
   const handleHexInput = (hex: string) => {
