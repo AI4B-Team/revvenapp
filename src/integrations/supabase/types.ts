@@ -259,6 +259,42 @@ export type Database = {
         }
         Relationships: []
       }
+      app_reviews: {
+        Row: {
+          app_id: string
+          author_name: string
+          content: string | null
+          created_at: string
+          id: string
+          rating: number
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          app_id: string
+          author_name?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          app_id?: string
+          author_name?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       app_tools: {
         Row: {
           bg_color: string

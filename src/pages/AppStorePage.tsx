@@ -4,11 +4,15 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { getCatalogApp } from '@/lib/marketplace/catalog';
 import { useInstalledApps } from '@/hooks/useInstalledApps';
+import { useAppReviews } from '@/hooks/useAppReviews';
 import { mockMembers, mockMarketplaceWorkspace, mockMarketplaceUser } from '@/lib/marketplace/data';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { formatDistanceToNow } from 'date-fns';
 import { 
   ArrowLeft, 
   Download, 
@@ -22,7 +26,9 @@ import {
   Clock,
   Check,
   ExternalLink,
-  X
+  X,
+  Send,
+  Trash2
 } from 'lucide-react';
 import { appRoutes } from '@/lib/marketplace/catalog';
 
@@ -66,37 +72,6 @@ const getExtendedFeatures = (appId: string) => [
   },
 ];
 
-// Mock reviews
-const mockReviews = [
-  {
-    id: '1',
-    author: 'Sarah M.',
-    rating: 5,
-    date: '2 days ago',
-    title: 'Exactly what I needed!',
-    content: 'This app has transformed my workflow. The interface is intuitive and the features are powerful.',
-    avatar: 'SM'
-  },
-  {
-    id: '2',
-    author: 'James K.',
-    rating: 4,
-    date: '1 week ago',
-    title: 'Great app with minor issues',
-    content: 'Overall excellent experience. Would love to see more export options in future updates.',
-    avatar: 'JK'
-  },
-  {
-    id: '3',
-    author: 'Maria L.',
-    rating: 5,
-    date: '2 weeks ago',
-    title: 'Best in class',
-    content: 'I have tried many similar apps but this one stands out. The customer support is also exceptional.',
-    avatar: 'ML'
-  }
-];
-
 const AppStorePage = () => {
   const { appId } = useParams<{ appId: string }>();
   const navigate = useNavigate();
@@ -107,7 +82,25 @@ const AppStorePage = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   
+  // Review form state
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewContent, setReviewContent] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  
   const { isInstalled, installApp } = useInstalledApps();
+  const { 
+    reviews, 
+    isLoading: isLoadingReviews, 
+    userReview, 
+    user,
+    submitReview, 
+    deleteReview,
+    totalReviews,
+    averageRating,
+    ratingDistribution
+  } = useAppReviews(appId);
   
   const app = appId ? getCatalogApp(appId) : undefined;
   const screenshots = appId ? getAppScreenshots(appId) : [];
@@ -185,6 +178,32 @@ const AppStorePage = () => {
     setLightboxIndex((prev) => (prev + 1) % screenshots.length);
   };
 
+  const handleSubmitReview = async () => {
+    if (!reviewContent.trim()) {
+      toast.error('Please write a review');
+      return;
+    }
+    setIsSubmittingReview(true);
+    const success = await submitReview(reviewRating, reviewTitle, reviewContent);
+    if (success) {
+      setReviewTitle('');
+      setReviewContent('');
+      setReviewRating(5);
+      setShowReviewForm(false);
+    }
+    setIsSubmittingReview(false);
+  };
+
+  const handleDeleteReview = async () => {
+    if (confirm('Are you sure you want to delete your review?')) {
+      await deleteReview();
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   if (!app) {
     return (
       <div className="flex min-h-screen bg-background">
@@ -231,7 +250,7 @@ const AppStorePage = () => {
                     onClick={handleOpen}
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Open App
+                    Open
                   </Button>
                 ) : (
                   <Button
@@ -516,68 +535,190 @@ const AppStorePage = () => {
             <div className="mb-12">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-foreground">Reviews & Ratings</h2>
-                <Button variant="ghost" size="sm">
-                  See All
-                </Button>
+                {user && !userReview && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowReviewForm(!showReviewForm)}
+                  >
+                    Write A Review
+                  </Button>
+                )}
               </div>
               
               {/* Rating Summary */}
               <div className="flex items-center gap-8 mb-6 p-6 bg-muted/50 rounded-2xl border border-border">
                 <div className="text-center">
-                  <div className="text-5xl font-bold text-foreground">4.8</div>
+                  <div className="text-5xl font-bold text-foreground">
+                    {totalReviews > 0 ? averageRating.toFixed(1) : '—'}
+                  </div>
                   <div className="flex items-center gap-1 mt-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`w-4 h-4 ${star <= 5 ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`}
+                        className={`w-4 h-4 ${star <= Math.round(averageRating) ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`}
                       />
                     ))}
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">2,438 Reviews</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {totalReviews} {totalReviews === 1 ? 'Review' : 'Reviews'}
+                  </div>
                 </div>
                 
                 <div className="flex-1 space-y-2">
-                  {[5, 4, 3, 2, 1].map((rating) => (
+                  {ratingDistribution.map(({ rating, percentage }) => (
                     <div key={rating} className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground w-4">{rating}</span>
                       <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-yellow-400 rounded-full"
-                          style={{ width: `${rating === 5 ? 70 : rating === 4 ? 20 : rating === 3 ? 7 : 2}%` }}
+                          className="h-full bg-yellow-400 rounded-full transition-all"
+                          style={{ width: `${percentage}%` }}
                         />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-              
-              {/* Individual Reviews */}
-              <div className="space-y-4">
-                {mockReviews.map((review) => (
-                  <div key={review.id} className="p-4 bg-background rounded-xl border border-border">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                          {review.avatar}
+
+              {/* Review Form */}
+              {showReviewForm && user && (
+                <div className="mb-6 p-6 bg-muted/50 rounded-2xl border border-border">
+                  <h3 className="font-semibold text-foreground mb-4">Write Your Review</h3>
+                  
+                  {/* Star Rating */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm text-muted-foreground">Rating:</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => setReviewRating(star)}
+                          className="focus:outline-none"
+                        >
+                          <Star
+                            className={`w-6 h-6 cursor-pointer transition-colors ${
+                              star <= reviewRating 
+                                ? 'text-yellow-400 fill-yellow-400' 
+                                : 'text-muted hover:text-yellow-300'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Input
+                    placeholder="Review title (optional)"
+                    value={reviewTitle}
+                    onChange={(e) => setReviewTitle(e.target.value)}
+                    className="mb-3"
+                  />
+                  
+                  <Textarea
+                    placeholder="Share your experience with this app..."
+                    value={reviewContent}
+                    onChange={(e) => setReviewContent(e.target.value)}
+                    className="mb-4 min-h-[100px]"
+                  />
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleSubmitReview}
+                      disabled={isSubmittingReview || !reviewContent.trim()}
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowReviewForm(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* User's Existing Review */}
+              {userReview && (
+                <div className="mb-4 p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-600 font-semibold text-sm">
+                        {getInitials(userReview.author_name)}
+                      </div>
+                      <div>
+                        <div className="font-medium text-foreground flex items-center gap-2">
+                          {userReview.author_name}
+                          <Badge variant="secondary" className="text-xs">Your Review</Badge>
                         </div>
-                        <div>
-                          <div className="font-medium text-foreground">{review.author}</div>
-                          <div className="text-xs text-muted-foreground">{review.date}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(userReview.created_at), { addSuffix: true })}
                         </div>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
-                            className={`w-4 h-4 ${star <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`}
+                            className={`w-4 h-4 ${star <= userReview.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`}
                           />
                         ))}
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleDeleteReview}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <h4 className="font-medium text-foreground mb-1">{review.title}</h4>
-                    <p className="text-sm text-muted-foreground">{review.content}</p>
                   </div>
-                ))}
+                  {userReview.title && <h4 className="font-medium text-foreground mb-1">{userReview.title}</h4>}
+                  <p className="text-sm text-muted-foreground">{userReview.content}</p>
+                </div>
+              )}
+              
+              {/* Individual Reviews */}
+              <div className="space-y-4">
+                {isLoadingReviews ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading reviews...</div>
+                ) : reviews.filter(r => r.id !== userReview?.id).length === 0 && !userReview ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No reviews yet. {user ? 'Be the first to leave a review!' : 'Log in to leave a review.'}
+                  </div>
+                ) : (
+                  reviews.filter(r => r.id !== userReview?.id).map((review) => (
+                    <div key={review.id} className="p-4 bg-background rounded-xl border border-border">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+                            {getInitials(review.author_name)}
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground">{review.author_name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-4 h-4 ${star <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {review.title && <h4 className="font-medium text-foreground mb-1">{review.title}</h4>}
+                      <p className="text-sm text-muted-foreground">{review.content}</p>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
