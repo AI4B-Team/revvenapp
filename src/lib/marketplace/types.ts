@@ -59,6 +59,7 @@ export interface AppLicense {
   status: 'inactive' | 'active';
   brandSettings: {
     logo?: string;
+    icon?: string;
     appName?: string;
     primaryColor?: string;
     favicon?: string;
