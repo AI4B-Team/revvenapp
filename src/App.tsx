@@ -35,6 +35,7 @@ const Contacts = lazy(() => import("./pages/Contacts"));
 const Revenue = lazy(() => import("./pages/Revenue"));
 const Community = lazy(() => import("./pages/Community"));
 const Apps = lazy(() => import("./pages/Apps"));
+const AppLicense = lazy(() => import("./pages/AppLicense"));
 const Assets = lazy(() => import("./pages/Assets"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Websites = lazy(() => import("./pages/Websites"));
@@ -103,7 +104,7 @@ const AIResponder = lazy(() => import("./pages/AIResponder"));
 const Inbox = lazy(() => import("./pages/Inbox"));
 const InvestorCalculator = lazy(() => import("./pages/InvestorCalculator"));
 const DigitalSpy = lazy(() => import("./pages/DigitalSpy"));
-const Marketplace = lazy(() => import("./pages/Marketplace"));
+
 
 
 const queryClient = new QueryClient();
@@ -212,7 +213,7 @@ const App = () => (
                           <Route path="/inbox" element={<Inbox />} />
                           <Route path="/investor-calculator" element={<InvestorCalculator />} />
                           <Route path="/digital-spy" element={<DigitalSpy />} />
-                          <Route path="/marketplace" element={<Marketplace />} />
+                          <Route path="/app-license/:appId" element={<AppLicense />} />
                           {/* Admin is now accessible via /account?tab=admin */}
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />

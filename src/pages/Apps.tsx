@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut, Star
+  Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut, Star, Store
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -9,6 +9,25 @@ import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModa
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import AppCard from '@/components/dashboard/AppCard';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
+import { useInstalledApps } from '@/hooks/useInstalledApps';
+import { InstallModal } from '@/components/marketplace';
+import { sampleMarketplaceApps, mockMembers, mockTeams, mockMarketplaceWorkspace, mockMarketplaceUser } from '@/lib/marketplace/data';
+import { MarketplaceApp } from '@/lib/marketplace/types';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// Helper to add app to open tabs and navigate
+const addToOpenTabs = (appId: string, navigate: ReturnType<typeof useNavigate>) => {
+  const OPEN_TABS_KEY = 'app-open-tabs';
+  const saved = localStorage.getItem(OPEN_TABS_KEY);
+  const openTabs = saved ? JSON.parse(saved) : ['create'];
+  
+  if (!openTabs.includes(appId)) {
+    openTabs.push(appId);
+    localStorage.setItem(OPEN_TABS_KEY, JSON.stringify(openTabs));
+  }
+};
 
 const Apps = () => {
   const navigate = useNavigate();
@@ -16,7 +35,39 @@ const Apps = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<'apps' | 'marketplace'>('apps');
+  const [installModalApp, setInstallModalApp] = useState<MarketplaceApp | null>(null);
+  
   const { isFavorite, toggleFavorite } = useFavoriteApps();
+  const { isInstalled, installApp } = useInstalledApps();
+
+  const handleInstall = async (
+    accessMode: string,
+    userIds: string[],
+    teamIds: string[]
+  ) => {
+    if (installModalApp) {
+      installApp(
+        installModalApp.id,
+        mockMarketplaceWorkspace.id,
+        mockMarketplaceUser.id,
+        accessMode as 'all_members' | 'select_users' | 'select_teams',
+        userIds,
+        teamIds
+      );
+      toast.success(`${installModalApp.name} installed successfully`);
+      setInstallModalApp(null);
+    }
+  };
+
+  const handleOpenApp = (appPath: string, appId: string) => {
+    addToOpenTabs(appId, navigate);
+    navigate(appPath);
+  };
+
+  const handleActivateApp = (appId: string) => {
+    navigate(`/app-license/${appId}`);
+  };
 
   const trendingApps = [
     {
@@ -168,6 +219,9 @@ const Apps = () => {
     { name: 'Lead Generation', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop', badge: 'NEW', onClick: () => navigate('/lead-generation') },
   ];
 
+  // Marketplace apps for the "Marketplace" tab
+  const hasLicense = mockMarketplaceWorkspace.plan === 'apps_license';
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
@@ -210,243 +264,341 @@ const Apps = () => {
                 </div>
               </div>
               
-              <p className="text-muted-foreground text-lg">
+              <p className="text-muted-foreground text-lg mb-6">
                 A full suite of intelligent AI Apps to help you create like a pro.
               </p>
+
+              {/* Tabs */}
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'apps' | 'marketplace')}>
+                <TabsList className="bg-muted">
+                  <TabsTrigger value="apps" className="gap-2">
+                    <Play size={14} />
+                    My Apps
+                  </TabsTrigger>
+                  <TabsTrigger value="marketplace" className="gap-2">
+                    <Store size={14} />
+                    Marketplace
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
           </div>
 
           {/* Main Content */}
           <div className="px-8 py-12">
-            <div className="w-full space-y-16">
-              
-              {/* Trending Section */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
-                    <p className="text-muted-foreground">The hottest AI effects right now</p>
+            {activeTab === 'apps' ? (
+              <div className="w-full space-y-16">
+                
+                {/* Trending Section */}
+                <section>
+                  <div className="mb-6 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
+                      <p className="text-muted-foreground">The hottest AI effects right now</p>
+                    </div>
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      See All
+                      <ChevronRight size={18} />
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                  >
-                    See All
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                  {trendingApps.map((app) => {
-                    const appId = app.name.toLowerCase().replace(/\s+/g, '-');
-                    const favorited = isFavorite(appId);
-                    return (
-                      <div
-                        key={app.id}
-                        onClick={app.onClick}
-                        className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer border border-border"
-                      >
-                        <div className="relative aspect-[4/3]">
-                          <img
-                            src={app.image}
-                            alt={app.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          {app.badge && (
-                            <div className={`absolute top-4 left-4 ${app.badgeColor} text-black font-bold text-xs px-3 py-1 rounded-full`}>
-                              {app.badge}
-                            </div>
-                          )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                    {trendingApps.map((app) => {
+                      const appId = app.name.toLowerCase().replace(/\s+/g, '-');
+                      const favorited = isFavorite(appId);
+                      return (
+                        <div
+                          key={app.id}
+                          onClick={app.onClick}
+                          className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer border border-border"
+                        >
+                          <div className="relative aspect-[4/3]">
+                            <img
+                              src={app.image}
+                              alt={app.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            {app.badge && (
+                              <div className={`absolute top-4 left-4 ${app.badgeColor} text-black font-bold text-xs px-3 py-1 rounded-full`}>
+                                {app.badge}
+                              </div>
+                            )}
+                            {/* Star Favorite Overlay */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(appId);
+                              }}
+                              className={`absolute bottom-3 right-3 p-1.5 rounded-full transition-all ${
+                                favorited 
+                                  ? 'bg-amber-500 text-white' 
+                                  : 'bg-black/50 text-white opacity-0 group-hover:opacity-100'
+                              } hover:scale-110`}
+                            >
+                              <Star size={14} className={favorited ? 'fill-current' : ''} />
+                            </button>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-bold text-lg mb-2 text-foreground">{app.name}</h3>
+                            <p className="text-muted-foreground text-sm mb-4">{app.description}</p>
+                            <button className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                              <Play size={16} fill="currentColor" />
+                              <span>Try Now</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* Top Picks Section */}
+                <section>
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold mb-2">TOP PICKS FOR YOU</h2>
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, topPicks: !expandedSections.topPicks })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      See All
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {topPicks.map((app) => {
+                      const appId = app.name.toLowerCase().replace(/\s+/g, '-');
+                      const favorited = isFavorite(appId);
+                      return (
+                        <div
+                          key={app.id}
+                          className="group relative bg-card rounded-2xl p-6 hover:shadow-xl hover:scale-105 transition-all cursor-pointer border border-border"
+                        >
                           {/* Star Favorite Overlay */}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleFavorite(appId);
                             }}
-                            className={`absolute bottom-3 right-3 p-1.5 rounded-full transition-all ${
+                            className={`absolute top-3 right-3 p-1.5 rounded-full transition-all ${
                               favorited 
                                 ? 'bg-amber-500 text-white' 
-                                : 'bg-black/50 text-white opacity-0 group-hover:opacity-100'
+                                : 'bg-muted text-muted-foreground opacity-0 group-hover:opacity-100'
                             } hover:scale-110`}
                           >
                             <Star size={14} className={favorited ? 'fill-current' : ''} />
                           </button>
+                          <div className={`w-12 h-12 ${app.color} rounded-xl flex items-center justify-center text-2xl mb-4`}>
+                            {app.icon}
+                          </div>
+                          <h3 className="font-bold mb-1 text-foreground">{app.name}</h3>
+                          <p className="text-muted-foreground text-sm">{app.description}</p>
                         </div>
-                        <div className="p-4">
-                          <h3 className="font-bold text-lg mb-2 text-foreground">{app.name}</h3>
-                          <p className="text-muted-foreground text-sm mb-4">{app.description}</p>
-                          <button className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <Play size={16} fill="currentColor" />
-                            <span>Try Now</span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
+                      );
+                    })}
+                  </div>
+                </section>
 
-              {/* Top Picks Section */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold mb-2">TOP PICKS FOR YOU</h2>
-                  <button 
-                    onClick={() => setExpandedSections({ ...expandedSections, topPicks: !expandedSections.topPicks })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                  >
-                    See All
-                    <ChevronRight size={18} />
-                  </button>
+                {/* Image Apps */}
+                <section>
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">IMAGE APPS</h2>
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, imageApps: !expandedSections.imageApps })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      See All
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                    {imageApps.map((app, idx) => (
+                      <AppCard key={idx} {...app} />
+                    ))}
+                  </div>
+                </section>
+
+                {/* Video Apps */}
+                <section>
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">VIDEO APPS</h2>
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, videoApps: !expandedSections.videoApps })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      See All
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                    {videoApps.map((app, idx) => (
+                      <AppCard key={idx} {...app} />
+                    ))}
+                  </div>
+                </section>
+
+                {/* Audio Apps */}
+                <section>
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">AUDIO APPS</h2>
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, audioApps: !expandedSections.audioApps })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      See All
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                    {audioApps.map((app, idx) => (
+                      <AppCard key={idx} {...app} />
+                    ))}
+                  </div>
+                </section>
+
+                {/* Design Apps */}
+                <section>
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">DESIGN APPS</h2>
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, designApps: !expandedSections.designApps })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      See All
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                    {designApps.map((app, idx) => (
+                      <AppCard key={idx} {...app} />
+                    ))}
+                  </div>
+                </section>
+
+                {/* Content Apps */}
+                <section>
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">CONTENT APPS</h2>
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, contentApps: !expandedSections.contentApps })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      See All
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                    {contentApps.map((app, idx) => (
+                      <AppCard key={idx} {...app} />
+                    ))}
+                  </div>
+                </section>
+
+                {/* Tools */}
+                <section>
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">TOOLS</h2>
+                    <button 
+                      onClick={() => setExpandedSections({ ...expandedSections, tools: !expandedSections.tools })}
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                    >
+                      See All
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                    {toolsApps.map((app, idx) => (
+                      <AppCard key={idx} {...app} />
+                    ))}
+                  </div>
+                </section>
+              </div>
+            ) : (
+              /* Marketplace Tab */
+              <div className="w-full">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {sampleMarketplaceApps.length} apps available for white-label
+                  </p>
+                  {!hasLicense && (
+                    <Button variant="outline" size="sm">
+                      🔓 Upgrade for White-Label
+                    </Button>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {topPicks.map((app) => {
-                    const appId = app.name.toLowerCase().replace(/\s+/g, '-');
-                    const favorited = isFavorite(appId);
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {sampleMarketplaceApps.map((app) => {
+                    const installed = isInstalled(app.id);
                     return (
-                      <div
+                      <div 
                         key={app.id}
-                        className="group relative bg-card rounded-2xl p-6 hover:shadow-xl hover:scale-105 transition-all cursor-pointer border border-border"
+                        className="bg-card rounded-xl border border-border p-6 hover:shadow-lg transition-shadow duration-200"
                       >
-                        {/* Star Favorite Overlay */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(appId);
-                          }}
-                          className={`absolute top-3 right-3 p-1.5 rounded-full transition-all ${
-                            favorited 
-                              ? 'bg-amber-500 text-white' 
-                              : 'bg-muted text-muted-foreground opacity-0 group-hover:opacity-100'
-                          } hover:scale-110`}
-                        >
-                          <Star size={14} className={favorited ? 'fill-current' : ''} />
-                        </button>
-                        <div className={`w-12 h-12 ${app.color} rounded-xl flex items-center justify-center text-2xl mb-4`}>
-                          {app.icon}
+                        {/* Icon */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-4xl">{app.icon}</div>
+                          {app.isWhitelabelEligible && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                              {hasLicense ? '✓' : '🔒'}
+                              <span>White-label</span>
+                            </div>
+                          )}
                         </div>
-                        <h3 className="font-bold mb-1 text-foreground">{app.name}</h3>
-                        <p className="text-muted-foreground text-sm">{app.description}</p>
+
+                        {/* Content */}
+                        <h3 className="text-lg font-semibold text-foreground mb-2">{app.name}</h3>
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{app.description}</p>
+
+                        {/* Features */}
+                        <ul className="space-y-1 mb-4">
+                          {app.features.slice(0, 3).map((feature, idx) => (
+                            <li key={idx} className="text-xs text-muted-foreground flex items-center">
+                              <span className="text-primary mr-2">•</span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/* Action Buttons */}
+                        {installed ? (
+                          <div className="flex gap-2">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => handleOpenApp(`/${app.id}`, app.id)}
+                            >
+                              <Play size={14} className="mr-1" />
+                              Open
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => handleActivateApp(app.id)}
+                            >
+                              Activate
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            variant="default"
+                            className="w-full"
+                            onClick={() => setInstallModalApp(app)}
+                          >
+                            Install
+                          </Button>
+                        )}
                       </div>
                     );
                   })}
                 </div>
-              </section>
-
-              {/* Image Apps */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">IMAGE APPS</h2>
-                  <button 
-                    onClick={() => setExpandedSections({ ...expandedSections, imageApps: !expandedSections.imageApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                  >
-                    See All
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {imageApps.map((app, idx) => (
-                    <AppCard key={idx} {...app} />
-                  ))}
-                </div>
-              </section>
-
-              {/* Video Apps */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">VIDEO APPS</h2>
-                  <button 
-                    onClick={() => setExpandedSections({ ...expandedSections, videoApps: !expandedSections.videoApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                  >
-                    See All
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {videoApps.map((app, idx) => (
-                    <AppCard key={idx} {...app} />
-                  ))}
-                </div>
-              </section>
-
-              {/* Audio Apps */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">AUDIO APPS</h2>
-                  <button 
-                    onClick={() => setExpandedSections({ ...expandedSections, audioApps: !expandedSections.audioApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                  >
-                    See All
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {audioApps.map((app, idx) => (
-                    <AppCard key={idx} {...app} />
-                  ))}
-                </div>
-              </section>
-
-              {/* Design Apps */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">DESIGN APPS</h2>
-                  <button 
-                    onClick={() => setExpandedSections({ ...expandedSections, designApps: !expandedSections.designApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                  >
-                    See All
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {designApps.map((app, idx) => (
-                    <AppCard key={idx} {...app} />
-                  ))}
-                </div>
-              </section>
-
-              {/* Content Apps */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">CONTENT APPS</h2>
-                  <button 
-                    onClick={() => setExpandedSections({ ...expandedSections, contentApps: !expandedSections.contentApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                  >
-                    See All
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {contentApps.map((app, idx) => (
-                    <AppCard key={idx} {...app} />
-                  ))}
-                </div>
-              </section>
-
-              {/* Tools */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">TOOLS</h2>
-                  <button 
-                    onClick={() => setExpandedSections({ ...expandedSections, tools: !expandedSections.tools })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
-                  >
-                    See All
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {toolsApps.map((app, idx) => (
-                    <AppCard key={idx} {...app} />
-                  ))}
-                </div>
-              </section>
-            </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
@@ -459,6 +611,18 @@ const Apps = () => {
         isOpen={identitySidebarOpen} 
         onClose={() => setIdentitySidebarOpen(false)}
       />
+
+      {/* Install Modal */}
+      {installModalApp && (
+        <InstallModal
+          isOpen={!!installModalApp}
+          onClose={() => setInstallModalApp(null)}
+          app={installModalApp}
+          members={mockMembers}
+          teams={mockTeams}
+          onInstall={handleInstall}
+        />
+      )}
     </div>
   );
 };
