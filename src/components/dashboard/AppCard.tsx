@@ -1,5 +1,6 @@
-import { Video, Image, Mic, Palette, FileText, Wrench, User, Star } from 'lucide-react';
+import { Video, Image, Mic, Palette, FileText, Wrench, User, Star, Play, Settings } from 'lucide-react';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
+import { Button } from '@/components/ui/button';
 
 interface AppCardProps {
   name: string;
@@ -10,6 +11,9 @@ interface AppCardProps {
   badgeColor?: string;
   onClick?: () => void;
   appId?: string;
+  isInstalled?: boolean;
+  onOpen?: () => void;
+  onActivate?: () => void;
 }
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
@@ -49,7 +53,19 @@ const nameToIdMap: { [key: string]: string } = {
   'Explainer Video': 'explainer-video',
 };
 
-const AppCard = ({ name, category, thumbnail, timestamp, badge, badgeColor = 'bg-amber-500', onClick, appId }: AppCardProps) => {
+const AppCard = ({ 
+  name, 
+  category, 
+  thumbnail, 
+  timestamp, 
+  badge, 
+  badgeColor = 'bg-amber-500', 
+  onClick, 
+  appId,
+  isInstalled = false,
+  onOpen,
+  onActivate
+}: AppCardProps) => {
   const { isFavorite, toggleFavorite } = useFavoriteApps();
   
   // Get the app ID from either the prop or the name mapping
@@ -61,10 +77,20 @@ const AppCard = ({ name, category, thumbnail, timestamp, badge, badgeColor = 'bg
     toggleFavorite(resolvedAppId);
   };
 
+  const handleOpenClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onOpen?.();
+  };
+
+  const handleActivateClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onActivate?.();
+  };
+
   return (
     <div 
       className="bg-card rounded-2xl overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer border border-border group"
-      onClick={onClick}
+      onClick={!isInstalled ? onClick : undefined}
     >
       {/* Thumbnail Area */}
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
@@ -88,6 +114,13 @@ const AppCard = ({ name, category, thumbnail, timestamp, badge, badgeColor = 'bg
           </div>
         )}
 
+        {/* Installed Badge */}
+        {isInstalled && (
+          <div className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
+            INSTALLED
+          </div>
+        )}
+
         {/* Star Favorite Overlay */}
         <button
           onClick={handleStarClick}
@@ -104,10 +137,34 @@ const AppCard = ({ name, category, thumbnail, timestamp, badge, badgeColor = 'bg
       {/* Content */}
       <div className="p-3">
         <h3 className="font-semibold text-sm text-foreground mb-1">{name}</h3>
-        <div className="flex items-center gap-1.5 text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-muted-foreground mb-3">
           {categoryIcons[category] || <Wrench size={12} />}
           <span className="text-xs">{category}</span>
         </div>
+
+        {/* Action Buttons for Installed Apps */}
+        {isInstalled && (
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              className="flex-1 h-8 text-xs"
+              onClick={handleOpenClick}
+            >
+              <Play size={12} className="mr-1" />
+              Open
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 h-8 text-xs"
+              onClick={handleActivateClick}
+            >
+              <Settings size={12} className="mr-1" />
+              Activate
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
