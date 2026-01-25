@@ -72,7 +72,7 @@ export function LicenseActivation({
               Activate Your License To Start Customizing And Reselling This App
             </p>
           </div>
-          <Button onClick={onActivate} className="w-full">
+          <Button onClick={onActivate} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
             Activate License
           </Button>
         </div>
