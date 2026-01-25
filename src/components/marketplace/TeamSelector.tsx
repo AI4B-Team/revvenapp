@@ -40,7 +40,7 @@ export function TeamSelector({ teams, selectedIds, onChange }: TeamSelectorProps
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <MarketplaceInput
           type="text"
-          placeholder="Search teams..."
+          placeholder="Search Teams..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
@@ -65,7 +65,7 @@ export function TeamSelector({ teams, selectedIds, onChange }: TeamSelectorProps
             <Check className="h-3 w-3 text-primary-foreground" />
           )}
         </div>
-        Select all ({teams.length})
+        Select All ({teams.length})
       </button>
 
       {/* Team List */}
@@ -115,7 +115,7 @@ export function TeamSelector({ teams, selectedIds, onChange }: TeamSelectorProps
 
       {/* Selected Count */}
       <div className="text-sm text-muted-foreground">
-        {selectedIds.length} of {teams.length} teams selected
+        {selectedIds.length} Teams Selected
       </div>
     </div>
   );
