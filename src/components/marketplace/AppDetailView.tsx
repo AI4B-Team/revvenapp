@@ -34,6 +34,8 @@ interface AppDetailViewProps {
   onUpgradePlan: () => void;
   onUpdatePermissions?: (accessMode: string, userIds: string[], teamIds: string[]) => void;
   sidebarCollapsed?: boolean;
+  isAIVAOpen?: boolean;
+  onAIVAToggle?: () => void;
 }
 
 export function AppDetailView({
@@ -49,14 +51,15 @@ export function AppDetailView({
   onPublish,
   onUpgradePlan,
   onUpdatePermissions,
-  sidebarCollapsed = false
+  sidebarCollapsed = false,
+  isAIVAOpen = false,
+  onAIVAToggle
 }: AppDetailViewProps) {
   const navigate = useNavigate();
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [selectedAccessMode, setSelectedAccessMode] = useState<'all_members' | 'select_users' | 'select_teams'>(install.accessMode);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>(install.allowedUserIds || []);
   const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>(install.allowedTeamIds || []);
-  const [isAIVAOpen, setIsAIVAOpen] = useState(false);
   
   const isLicenseActive = license?.status === 'active';
   const isPublished = license?.publishStatus === 'live';
@@ -118,7 +121,7 @@ export function AppDetailView({
                   <TooltipTrigger asChild>
                     <Button 
                       variant="outline"
-                      onClick={() => setIsAIVAOpen(true)}
+                      onClick={onAIVAToggle}
                       className="gap-2"
                     >
                       <Bot className="h-4 w-4" />
@@ -297,7 +300,7 @@ export function AppDetailView({
       {/* AIVA White-Label Assistant Panel */}
       <AIVAWhiteLabelPanel
         isOpen={isAIVAOpen}
-        onClose={() => setIsAIVAOpen(false)}
+        onClose={onAIVAToggle || (() => {})}
         app={app}
         license={license}
         sidebarCollapsed={sidebarCollapsed}

@@ -56,6 +56,15 @@ export default function Voiceovers() {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
+  
+  // Handle AIVA toggle - also collapse sidebar when opening
+  const handleAIVAToggle = () => {
+    const newState = !isAIVAPanelOpen;
+    setIsAIVAPanelOpen(newState);
+    if (newState) {
+      setIsSidebarCollapsed(true);
+    }
+  };
   const [text, setText] = useState('');
   const [selectedVoice, setSelectedVoice] = useState(VOICES[0]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -201,7 +210,7 @@ export default function Voiceovers() {
     <div className="min-h-screen bg-background text-foreground flex">
       <Sidebar 
         onCollapseChange={setIsSidebarCollapsed}
-        onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
+        onAIVAPanelToggle={handleAIVAToggle}
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
       

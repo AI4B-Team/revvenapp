@@ -14,6 +14,16 @@ const AppLicense = () => {
   const { appId } = useParams<{ appId: string }>();
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
+  const [isAIVAPanelOpen, setIsAIVAPanelOpen] = React.useState(false);
+
+  // Collapse sidebar when AIVA panel opens
+  const handleAIVAToggle = () => {
+    const newState = !isAIVAPanelOpen;
+    setIsAIVAPanelOpen(newState);
+    if (newState) {
+      setIsSidebarCollapsed(true);
+    }
+  };
   
   const { 
     getInstall, 
@@ -84,7 +94,11 @@ const AppLicense = () => {
   if (!app) {
     return (
       <div className="flex min-h-screen bg-background">
-        <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <Sidebar 
+        onCollapseChange={setIsSidebarCollapsed} 
+        onAIVAPanelToggle={handleAIVAToggle}
+        isAIVAPanelOpen={isAIVAPanelOpen}
+      />
         <div className={`flex-1 flex flex-col overflow-x-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
           <Header />
           <main className="flex-1 overflow-y-auto p-8">
@@ -115,7 +129,11 @@ const AppLicense = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <Sidebar 
+        onCollapseChange={setIsSidebarCollapsed}
+        onAIVAPanelToggle={handleAIVAToggle}
+        isAIVAPanelOpen={isAIVAPanelOpen}
+      />
       <div className={`flex-1 flex flex-col overflow-x-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         <main className="flex-1 overflow-y-auto">
@@ -132,6 +150,8 @@ const AppLicense = () => {
             onPublish={handlePublish}
             onUpgradePlan={handleUpgradePlan}
             sidebarCollapsed={isSidebarCollapsed}
+            isAIVAOpen={isAIVAPanelOpen}
+            onAIVAToggle={handleAIVAToggle}
           />
         </main>
       </div>
