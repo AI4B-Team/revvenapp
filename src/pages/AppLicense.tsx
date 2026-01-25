@@ -85,7 +85,7 @@ const AppLicense = () => {
     return (
       <div className="flex min-h-screen bg-background">
         <Sidebar onCollapseChange={setIsSidebarCollapsed} />
-        <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+        <div className={`flex-1 flex flex-col overflow-x-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
           <Header />
           <main className="flex-1 overflow-y-auto p-8">
             <div className="flex flex-col items-center justify-center h-full gap-4">
@@ -116,7 +116,7 @@ const AppLicense = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <div className={`flex-1 flex flex-col overflow-x-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         <main className="flex-1 overflow-y-auto">
           <AppDetailView
