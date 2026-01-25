@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { MarketplaceApp, AppLicense } from '@/lib/marketplace/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 interface ProductSectionProps {
   app: MarketplaceApp;
   license?: AppLicense;
-  onUpdate: (settings: Partial<AppLicense['brandSettings']>) => void;
+  onUpdate: (settings: Partial<AppLicense['brandSettings']>, showToast?: boolean) => void;
 }
 
 const suggestedNames = [
@@ -32,10 +32,26 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
   const [description, setDescription] = useState(license?.brandSettings?.description || '');
   const [isGeneratingNames, setIsGeneratingNames] = useState(false);
   const [generatedNames, setGeneratedNames] = useState<string[]>([]);
+  
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const debouncedSave = useCallback((settings: Partial<AppLicense['brandSettings']>) => {
+    // Clear any existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+    
+    // Update preview immediately (no toast)
+    onUpdate(settings, false);
+    
+    // Schedule toast after 5 seconds of inactivity
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      toast.success('Brand settings saved');
+    }, 5000);
+  }, [onUpdate]);
 
   const handleGenerateNames = async () => {
     setIsGeneratingNames(true);
-    // Simulate AI name generation
     await new Promise(resolve => setTimeout(resolve, 1500));
     setGeneratedNames(suggestedNames);
     setIsGeneratingNames(false);
@@ -44,14 +60,14 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
 
   const handleSelectName = (name: string) => {
     setProductName(name);
-    onUpdate({ appName: name });
+    onUpdate({ appName: name }, false);
     toast.success(`"${name}" selected as product name`);
   };
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
     setProductName(newName);
-    onUpdate({ appName: newName });
+    debouncedSave({ appName: newName });
   };
 
   const handleGenerateMessaging = async () => {
@@ -59,20 +75,20 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
     const generatedDescription = "Unlock the full potential of your business with our cutting-edge platform. Streamline workflows, boost productivity, and drive growth with intelligent automation tools designed for modern entrepreneurs.";
     setTagline(generatedTagline);
     setDescription(generatedDescription);
-    onUpdate({ tagline: generatedTagline, description: generatedDescription });
+    onUpdate({ tagline: generatedTagline, description: generatedDescription }, false);
     toast.success('AI messaging generated!');
   };
 
   const handleTaglineChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTagline = e.target.value;
     setTagline(newTagline);
-    onUpdate({ tagline: newTagline });
+    debouncedSave({ tagline: newTagline });
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newDescription = e.target.value;
     setDescription(newDescription);
-    onUpdate({ description: newDescription });
+    debouncedSave({ description: newDescription });
   };
 
   const handleSave = () => {
