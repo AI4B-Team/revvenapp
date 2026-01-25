@@ -147,12 +147,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       color: 'text-brand-blue',
       link: '/automate'
     },
-    { 
-      icon: <LayoutTemplate size={18} />, 
-      label: 'Templates', 
-      color: 'text-brand-green',
-      link: '/templates'
-    },
   ];
 
   const monetizeNavItems = [

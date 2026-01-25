@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ChevronRight, Store, LayoutGrid, Grid3X3, List,
-  FolderOpen, Target, Video, Camera, User, Sparkles, Mic, PenTool, Edit3, Search
+  FolderOpen, Target, Video, Camera, User, Sparkles, Mic, PenTool, Edit3, Search, Layers, Bot
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -149,6 +149,17 @@ const Apps = () => {
       rating: 4.9,
       onClick: () => navigate('/ai-influencer')
     },
+    {
+      id: 5,
+      name: 'Resizer',
+      category: 'Image Tools',
+      description: 'Resize images and videos for any platform',
+      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop',
+      badge: 'HOT',
+      icon: <Layers size={16} className="text-primary" />,
+      rating: 4.7,
+      onClick: () => navigate('/resizer')
+    },
   ];
 
   const topPicks = [
@@ -209,6 +220,18 @@ const Apps = () => {
       icon: <Search size={16} className="text-primary" />,
       rating: 4.6,
       onClick: () => navigate('/digital-spy'),
+      preInstalled: true,
+    },
+    {
+      id: 6,
+      name: 'Agents',
+      category: 'Automation Tools',
+      description: 'Create and deploy AI agents to automate workflows',
+      thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop',
+      badge: 'NEW',
+      icon: <Bot size={16} className="text-primary" />,
+      rating: 4.8,
+      onClick: () => navigate('/automate'),
       preInstalled: true,
     }
   ];
