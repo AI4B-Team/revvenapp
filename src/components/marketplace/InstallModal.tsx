@@ -80,11 +80,11 @@ export function InstallModal({
         {/* Access Control */}
         <div className="space-y-4">
           <MarketplaceDropdown
-            label="Members who can access this app"
+            label="Members Who Can Access This App"
             options={[
-              { value: 'all_members', label: 'All members in this workspace' },
-              { value: 'select_users', label: 'Select users' },
-              { value: 'select_teams', label: 'Select teams' }
+              { value: 'all_members', label: 'All Members In This Workspace' },
+              { value: 'select_users', label: 'Select Users' },
+              { value: 'select_teams', label: 'Select Teams' }
             ]}
             value={accessMode}
             onChange={setAccessMode}
