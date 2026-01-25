@@ -27,11 +27,13 @@ const Community = () => {
       />
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <Header />
+        <div className="flex-shrink-0">
+          <Header />
+        </div>
         
         <main className="flex-1 overflow-auto bg-white">
           {/* Header - Sticky */}
-          <div className="px-8 py-6 bg-white sticky top-0 z-40 border-b border-border">
+          <div className="px-8 py-6 bg-white sticky top-0 z-40 border-b border-border shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold mb-2">COMMUNITY</h1>
