@@ -31,7 +31,7 @@ export function BrandControl({ license, onUpdate }: BrandControlProps) {
           <label className="block text-sm font-medium text-foreground mb-2">
             Logo
           </label>
-          <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
+          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
             {settings.logo ? (
               <img src={settings.logo} alt="Logo" className="h-16 mx-auto" />
             ) : (
@@ -49,7 +49,7 @@ export function BrandControl({ license, onUpdate }: BrandControlProps) {
           <label className="block text-sm font-medium text-foreground mb-2">
             Favicon
           </label>
-          <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
+          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
             {settings.favicon ? (
               <img src={settings.favicon} alt="Favicon" className="h-16 mx-auto" />
             ) : (
@@ -80,7 +80,7 @@ export function BrandControl({ license, onUpdate }: BrandControlProps) {
             type="color"
             value={settings.primaryColor || '#000000'}
             onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-            className="h-10 w-20 rounded border border-border cursor-pointer"
+            className="h-10 w-20 rounded border-2 border-gray-300 dark:border-gray-600 cursor-pointer"
           />
           <MarketplaceInput
             type="text"
