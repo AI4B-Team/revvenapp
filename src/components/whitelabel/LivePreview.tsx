@@ -12,7 +12,10 @@ import {
   Star,
   Zap,
   Shield,
-  ArrowRight
+  ArrowRight,
+  Clock,
+  CreditCard,
+  Lock
 } from 'lucide-react';
 import {
   Tooltip,
@@ -160,153 +163,186 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
           {/* Page Preview */}
           <div className="bg-white rounded-b-lg shadow-2xl overflow-hidden min-h-[600px]">
             {activeSection === 'checkout' ? (
-              /* Dedicated Checkout Page Preview */
-              <div className="min-h-[600px]">
+              /* Dedicated Checkout Page Preview - Unique Design */
+              <div className="min-h-[600px] bg-gradient-to-br from-zinc-50 to-zinc-100">
                 {/* Checkout Header */}
-                <div className="px-6 py-4 border-b border-zinc-200 flex items-center gap-3">
-                  {logoUrl ? (
-                    <img src={logoUrl} alt="Logo" className="h-8 object-contain" />
-                  ) : (
-                    <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
-                      style={{ backgroundColor: `${primaryColor}15` }}
-                    >
-                      {selectedIcon}
-                    </div>
-                  )}
-                  <span className="font-semibold text-zinc-900">{productName}</span>
+                <div className="px-6 py-4 bg-white border-b border-zinc-200 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {logoUrl ? (
+                      <img src={logoUrl} alt="Logo" className="h-8 object-contain" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-lg bg-emerald-100">
+                        {selectedIcon}
+                      </div>
+                    )}
+                    <span className="font-semibold text-zinc-900">{productName}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-zinc-500">
+                    <Lock size={12} />
+                    <span>Secure Checkout</span>
+                  </div>
                 </div>
 
-                {/* Checkout Content - Two Column Layout */}
-                <div className="grid grid-cols-2 gap-6 p-6">
-                  {/* Left Column - Plan Card */}
-                  <div className="space-y-4">
-                    {/* Plan Card */}
-                    <div 
-                      className="p-5 rounded-xl border-2"
-                      style={{ borderColor: primaryColor }}
-                    >
-                      <div className="flex items-center gap-2 mb-3">
-                        <Zap size={18} style={{ color: primaryColor }} />
-                        <span className="font-bold text-zinc-900">Pro</span>
-                      </div>
-                      <p className="text-sm text-zinc-600 mb-4">
-                        Everything you need to start using smart AI agents — no complexity, just results.
-                      </p>
-                      <div className="flex items-baseline gap-1 mb-4">
-                        <span className="text-2xl font-bold text-zinc-900">
-                          ${license?.pricingSettings?.monthlyPrice || '9.99'}
+                {/* Countdown Timer Banner */}
+                <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-3 flex items-center justify-center gap-3">
+                  <Clock size={16} className="text-white" />
+                  <span className="text-white font-medium text-sm">Special Offer Expires In:</span>
+                  <div className="flex items-center gap-1">
+                    {['14', '59', '32'].map((time, idx) => (
+                      <React.Fragment key={idx}>
+                        <span className="bg-white/20 text-white font-bold px-2 py-1 rounded text-sm">
+                          {time}
                         </span>
-                        <span className="text-sm text-zinc-500">/seat/mo</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-zinc-600">
-                        <Check size={14} style={{ color: primaryColor }} />
-                        Unlimited Premium AI Usage
-                      </div>
-                    </div>
+                        {idx < 2 && <span className="text-white/80">:</span>}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
 
-                    {/* Conversion Booster Button */}
-                    <button 
-                      className="w-full py-3 rounded-lg font-medium text-white flex items-center justify-center gap-2"
-                      style={{ backgroundColor: primaryColor }}
-                    >
-                      <Zap size={16} />
-                      Unlock 15% OFF For 3 Months
-                    </button>
-
-                    {/* Money-Back Guarantee */}
-                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-0.5 text-xs font-bold bg-amber-200 text-amber-800 rounded uppercase">
-                          Guarantee
-                        </span>
-                        <span className="font-semibold text-zinc-900 text-sm">14-Day Money-Back Guarantee</span>
+                {/* Main Checkout Content */}
+                <div className="p-6 max-w-2xl mx-auto">
+                  {/* Discount Applied Banner */}
+                  <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
+                          <Zap size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-emerald-700 font-medium">Discount Applied!</p>
+                          <p className="text-2xl font-bold text-emerald-600">15% OFF For 3 Months</p>
+                        </div>
                       </div>
-                      <p className="text-xs text-zinc-600 mb-2">Try It Risk-Free</p>
-                      <ul className="space-y-1">
-                        {['Customers Trust Us', 'One-Click Refund In Dashboard'].map((item, idx) => (
-                          <li key={idx} className="flex items-center gap-2 text-xs text-zinc-600">
-                            <Check size={12} className="text-amber-600" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
+                      <Check size={24} className="text-emerald-500" />
                     </div>
                   </div>
 
-                  {/* Right Column - Payment Form */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-zinc-900">Secure Payment Information</span>
-                      <span className="text-xs text-zinc-500 flex items-center gap-1">
-                        <Shield size={12} />
-                        Enterprise-grade security powered by Stripe
-                      </span>
+                  {/* Order Summary Card */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden mb-6">
+                    <div className="p-5 border-b border-zinc-100">
+                      <h3 className="font-bold text-zinc-900 mb-1">Order Summary</h3>
+                      <p className="text-sm text-zinc-500">Complete your purchase to get started</p>
                     </div>
+                    <div className="p-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                            <Zap size={18} className="text-emerald-600" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-zinc-900">Pro Plan</p>
+                            <p className="text-xs text-zinc-500">Monthly Subscription</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-zinc-400 line-through">${license?.pricingSettings?.monthlyPrice || '97'}/mo</p>
+                          <p className="font-bold text-emerald-600">${Math.round((license?.pricingSettings?.monthlyPrice || 97) * 0.85)}/mo</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2 py-3 border-t border-zinc-100">
+                        {['Unlimited AI Usage', 'Priority Support', '14-Day Money-Back Guarantee'].map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-sm text-zinc-600">
+                            <Check size={14} className="text-emerald-500" />
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
 
-                    {/* Payment Form Fields */}
-                    <div className="space-y-3">
+                  {/* Payment Form Card */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden mb-6">
+                    <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CreditCard size={18} className="text-zinc-600" />
+                        <h3 className="font-bold text-zinc-900">Payment Details</h3>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-zinc-400">
+                        <Shield size={12} />
+                        Powered by Stripe
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-4">
                       <div>
-                        <label className="text-xs text-zinc-500 mb-1 block">Card Number</label>
-                        <div className="px-3 py-2.5 rounded-lg border border-zinc-300 bg-white text-sm text-zinc-400 flex items-center justify-between">
+                        <label className="text-xs font-medium text-zinc-600 mb-1.5 block">Card Number</label>
+                        <div className="px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400 flex items-center justify-between">
                           <span>1234 5678 9012 3456</span>
                           <div className="flex gap-1">
-                            <div className="w-6 h-4 bg-blue-600 rounded-sm" />
-                            <div className="w-6 h-4 bg-red-500 rounded-sm" />
+                            <div className="w-8 h-5 bg-gradient-to-r from-blue-600 to-blue-700 rounded" />
+                            <div className="w-8 h-5 bg-gradient-to-r from-red-500 to-orange-500 rounded" />
                           </div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-xs text-zinc-500 mb-1 block">Expiration Date</label>
-                          <div className="px-3 py-2.5 rounded-lg border border-zinc-300 bg-white text-sm text-zinc-400">
+                          <label className="text-xs font-medium text-zinc-600 mb-1.5 block">Expiry</label>
+                          <div className="px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400">
                             MM / YY
                           </div>
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-500 mb-1 block">CVV</label>
-                          <div className="px-3 py-2.5 rounded-lg border border-zinc-300 bg-white text-sm text-zinc-400">
+                          <label className="text-xs font-medium text-zinc-600 mb-1.5 block">CVC</label>
+                          <div className="px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400">
                             •••
                           </div>
                         </div>
                       </div>
                       <div>
-                        <label className="text-xs text-zinc-500 mb-1 block">Cardholder Name</label>
-                        <div className="px-3 py-2.5 rounded-lg border border-zinc-300 bg-white text-sm text-zinc-400">
+                        <label className="text-xs font-medium text-zinc-600 mb-1.5 block">Name On Card</label>
+                        <div className="px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400">
                           John Doe
                         </div>
                       </div>
-                      <div>
-                        <label className="text-xs text-zinc-500 mb-1 block">Address</label>
-                        <div className="px-3 py-2.5 rounded-lg border border-zinc-300 bg-white text-sm text-zinc-400">
-                          123 Main Street
-                        </div>
-                      </div>
                     </div>
-
+                    
                     {/* Submit Button */}
-                    <button 
-                      className="w-full py-3 rounded-lg font-medium text-white"
-                      style={{ backgroundColor: primaryColor }}
-                    >
-                      Start
-                    </button>
-
-                    {/* Trust Badges */}
-                    <div className="flex justify-between pt-4 border-t border-zinc-100">
-                      {[
-                        { label: '256-bit SSL', sub: 'Encrypted' },
-                        { label: 'PCI Compliant', sub: 'Secure' },
-                        { label: 'Stripe Powered', sub: 'Trusted' },
-                        { label: 'GDPR Ready', sub: 'Compliant' },
-                      ].map((badge, idx) => (
-                        <div key={idx} className="text-center">
-                          <Shield size={16} className="mx-auto mb-1 text-zinc-400" />
-                          <p className="text-[10px] font-medium text-zinc-600">{badge.label}</p>
-                          <p className="text-[10px] text-zinc-400">{badge.sub}</p>
-                        </div>
-                      ))}
+                    <div className="p-5 pt-0">
+                      <button className="w-full py-4 rounded-xl font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2 text-lg">
+                        <Lock size={18} />
+                        Complete Purchase
+                      </button>
                     </div>
+                  </div>
+
+                  {/* Guarantee & Trust */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    {/* Money-Back Guarantee */}
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-400 text-white rounded uppercase">
+                          Guarantee
+                        </span>
+                      </div>
+                      <p className="font-semibold text-zinc-900 text-sm mb-1">14-Day Money-Back</p>
+                      <p className="text-xs text-zinc-600">Try It Risk-Free</p>
+                    </div>
+                    
+                    {/* Instant Access */}
+                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500 text-white rounded uppercase">
+                          Instant
+                        </span>
+                      </div>
+                      <p className="font-semibold text-zinc-900 text-sm mb-1">Immediate Access</p>
+                      <p className="text-xs text-zinc-600">Start In 2 Minutes</p>
+                    </div>
+                  </div>
+
+                  {/* Trust Badges */}
+                  <div className="flex justify-center gap-6">
+                    {[
+                      { label: '256-bit SSL', sub: 'Encrypted' },
+                      { label: 'PCI DSS', sub: 'Compliant' },
+                      { label: 'Stripe', sub: 'Secured' },
+                      { label: 'GDPR', sub: 'Ready' },
+                    ].map((badge, idx) => (
+                      <div key={idx} className="text-center">
+                        <Shield size={18} className="mx-auto mb-1 text-zinc-300" />
+                        <p className="text-[10px] font-medium text-zinc-500">{badge.label}</p>
+                        <p className="text-[10px] text-zinc-400">{badge.sub}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
