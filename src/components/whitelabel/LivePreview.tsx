@@ -38,15 +38,24 @@ interface LegalDocument {
   enabled: boolean;
 }
 
+interface PageBlock {
+  id: string;
+  type: string;
+  enabled: boolean;
+  title: string;
+  content: Record<string, any>;
+}
+
 interface LivePreviewProps {
   app?: MarketplaceApp;
   license?: AppLicense;
   activeSection: string;
   checkoutConfig?: CheckoutConfig;
   legalDocs?: LegalDocument[];
+  pageSections?: PageBlock[];
 }
 
-export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [] }: LivePreviewProps) {
+export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [] }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
@@ -401,135 +410,241 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
               /* Sales Page Preview */
               <>
                 {/* Hero Section */}
-                <div 
-                  className="px-8 py-16 text-center"
-                  style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
-                >
-                  {/* Logo */}
-                  <div className="mb-6">
-                    {logoUrl ? (
-                      <img 
-                        src={logoUrl} 
-                        alt="Logo" 
-                        className="h-12 mx-auto object-contain"
-                      />
-                    ) : (
-                      <div 
-                        className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center text-2xl"
-                        style={{ backgroundColor: `${primaryColor}15` }}
-                      >
-                        {selectedIcon}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Badge */}
+                {(pageSections.find(s => s.id === 'hero')?.enabled !== false) && (
                   <div 
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-4"
-                    style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
+                    className="px-8 py-16 text-center"
+                    style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
                   >
-                    <Zap size={12} />
-                    AI-Powered
-                  </div>
-
-                  {/* Headline */}
-                  <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">
-                    {productName}
-                  </h1>
-                  <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">
-                    {tagline}
-                  </p>
-
-                  {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <button 
-                      className="px-6 py-3 rounded-lg font-medium text-white flex items-center justify-center gap-2"
-                      style={{ backgroundColor: primaryColor }}
-                    >
-                      Get Started <ArrowRight size={16} />
-                    </button>
-                    <button className="px-6 py-3 rounded-lg font-medium text-zinc-700 bg-zinc-100 hover:bg-zinc-200">
-                      Learn More
-                    </button>
-                  </div>
-                </div>
-
-                {/* Features Section */}
-                <div className="px-8 py-12 bg-zinc-50">
-                  <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                    Why Choose Us
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[
-                      { icon: Zap, title: 'Lightning Fast', desc: 'Get results in seconds' },
-                      { icon: Shield, title: 'Secure & Private', desc: 'Your data is protected' },
-                      { icon: Star, title: 'Premium Quality', desc: 'Best-in-class results' },
-                    ].map((feature, idx) => (
-                      <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
+                    {/* Logo */}
+                    <div className="mb-6">
+                      {logoUrl ? (
+                        <img 
+                          src={logoUrl} 
+                          alt="Logo" 
+                          className="h-12 mx-auto object-contain"
+                        />
+                      ) : (
                         <div 
-                          className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center"
-                          style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}
+                          className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center text-2xl"
+                          style={{ backgroundColor: `${primaryColor}15` }}
                         >
-                          <feature.icon size={20} />
+                          {selectedIcon}
                         </div>
-                        <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
-                        <p className="text-sm text-zinc-600">{feature.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Pricing Section */}
-                <div className="px-8 py-12">
-                  <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                    Simple Pricing
-                  </h2>
-                  <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
-                    <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
-                      {license?.pricingSettings?.pricingModel === 'one-time' ? 'One-Time Payment' : 'Monthly'}
-                    </div>
-                    <div className="text-4xl font-bold text-zinc-900 mb-4">
-                      ${license?.pricingSettings?.monthlyPrice || license?.pricingSettings?.oneTimePrice || '97'}
-                      {license?.pricingSettings?.pricingModel !== 'one-time' && (
-                        <span className="text-lg font-normal text-zinc-500">/mo</span>
                       )}
                     </div>
-                    <ul className="text-left space-y-3 mb-6">
-                      {['Full Access', 'Priority Support', 'Regular Updates'].map((item, idx) => (
-                        <li key={idx} className="flex items-center gap-2 text-zinc-600">
-                          <Check size={16} style={{ color: primaryColor }} />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                    <button 
-                      className="w-full py-3 rounded-lg font-medium text-white"
-                      style={{ backgroundColor: primaryColor }}
-                    >
-                      Get Started Now
-                    </button>
-                  </div>
-                </div>
 
-                {/* Footer */}
-                <div className="px-8 py-6 bg-zinc-900 text-center space-y-3">
-                  {legalDocs.filter(doc => doc.enabled).length > 0 && (
-                    <div className="flex items-center justify-center gap-4 flex-wrap">
-                      {legalDocs.filter(doc => doc.enabled).map((doc) => (
-                        <a 
-                          key={doc.id}
-                          href={`#${doc.id}`}
-                          className="text-zinc-400 text-sm hover:text-white transition-colors underline"
-                        >
-                          {doc.title}
-                        </a>
+                    {/* Badge */}
+                    <div 
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-4"
+                      style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
+                    >
+                      <Zap size={12} />
+                      {pageSections.find(s => s.id === 'hero')?.content?.badge || 'AI-Powered'}
+                    </div>
+
+                    {/* Headline */}
+                    <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">
+                      {productName}
+                    </h1>
+                    <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">
+                      {pageSections.find(s => s.id === 'hero')?.content?.tagline || tagline}
+                    </p>
+
+                    {/* CTA Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <button 
+                        className="px-6 py-3 rounded-lg font-medium text-white flex items-center justify-center gap-2"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        Get Started <ArrowRight size={16} />
+                      </button>
+                      <button className="px-6 py-3 rounded-lg font-medium text-zinc-700 bg-zinc-100 hover:bg-zinc-200">
+                        Learn More
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Features Section */}
+                {(pageSections.find(s => s.id === 'features')?.enabled !== false) && (
+                  <div className="px-8 py-12 bg-zinc-50">
+                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                      Why Choose Us
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {(pageSections.find(s => s.id === 'features')?.content?.features || [
+                        { title: 'Lightning Fast', description: 'Get results in seconds' },
+                        { title: 'Secure & Private', description: 'Your data is protected' },
+                        { title: 'Premium Quality', description: 'Best-in-class results' },
+                      ]).slice(0, 3).map((feature: any, idx: number) => (
+                        <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
+                          <div 
+                            className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                            style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}
+                          >
+                            <Zap size={20} />
+                          </div>
+                          <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
+                          <p className="text-sm text-zinc-600">{feature.description || feature.desc}</p>
+                        </div>
                       ))}
                     </div>
-                  )}
-                  <p className="text-zinc-400 text-sm">
-                    © {new Date().getFullYear()} {productName}. All rights reserved.
-                  </p>
-                </div>
+                  </div>
+                )}
+
+                {/* Capabilities Section */}
+                {(pageSections.find(s => s.id === 'capabilities')?.enabled !== false) && (
+                  <div className="px-8 py-12">
+                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                      What We Offer
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {(pageSections.find(s => s.id === 'capabilities')?.content?.cards || [
+                        { title: 'Automation', description: 'Automate repetitive tasks', icon: '⚡' },
+                        { title: 'Analytics', description: 'Get real-time insights', icon: '📊' },
+                        { title: 'Collaboration', description: 'Work seamlessly with your team', icon: '👥' },
+                      ]).map((card: any, idx: number) => (
+                        <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
+                          <div className="text-3xl mb-4">{card.icon}</div>
+                          <h3 className="font-semibold text-zinc-900 mb-2">{card.title}</h3>
+                          <p className="text-sm text-zinc-600">{card.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Testimonials Section */}
+                {(pageSections.find(s => s.id === 'testimonials')?.enabled !== false) && (
+                  <div className="px-8 py-12 bg-zinc-50">
+                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                      What Our Customers Say
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {(pageSections.find(s => s.id === 'testimonials')?.content?.testimonials || [
+                        { name: 'Sarah J.', role: 'Marketing Director', quote: 'This platform transformed our workflow.' },
+                        { name: 'Michael C.', role: 'Founder', quote: 'Best investment we made this year.' },
+                        { name: 'Emily R.', role: 'Operations Manager', quote: 'Incredible support and product.' },
+                      ]).slice(0, 3).map((testimonial: any, idx: number) => (
+                        <div key={idx} className="bg-white rounded-xl p-6 shadow-sm">
+                          <p className="text-zinc-600 text-sm mb-4">"{testimonial.quote}"</p>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-500 font-medium">
+                              {testimonial.name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-medium text-zinc-900">{testimonial.name}</p>
+                              <p className="text-xs text-zinc-500">{testimonial.role}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pricing Section */}
+                {(pageSections.find(s => s.id === 'pricing')?.enabled !== false) && (
+                  <div className="px-8 py-12">
+                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                      {pageSections.find(s => s.id === 'pricing')?.content?.headline || 'Simple Pricing'}
+                    </h2>
+                    <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
+                      <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
+                        {license?.pricingSettings?.pricingModel === 'one-time' ? 'One-Time Payment' : 'Monthly'}
+                      </div>
+                      <div className="text-4xl font-bold text-zinc-900 mb-4">
+                        ${license?.pricingSettings?.monthlyPrice || license?.pricingSettings?.oneTimePrice || '97'}
+                        {license?.pricingSettings?.pricingModel !== 'one-time' && (
+                          <span className="text-lg font-normal text-zinc-500">/mo</span>
+                        )}
+                      </div>
+                      <ul className="text-left space-y-3 mb-6">
+                        {['Full Access', 'Priority Support', 'Regular Updates'].map((item, idx) => (
+                          <li key={idx} className="flex items-center gap-2 text-zinc-600">
+                            <Check size={16} style={{ color: primaryColor }} />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                      <button 
+                        className="w-full py-3 rounded-lg font-medium text-white"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        Get Started Now
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* FAQ Section */}
+                {(pageSections.find(s => s.id === 'faq')?.enabled !== false) && (
+                  <div className="px-8 py-12 bg-zinc-50">
+                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                      Frequently Asked Questions
+                    </h2>
+                    <div className="max-w-2xl mx-auto space-y-4">
+                      {(pageSections.find(s => s.id === 'faq')?.content?.questions || [
+                        { q: 'How quickly can I get started?', a: 'You can be up and running in less than 5 minutes.' },
+                        { q: 'Is there a free trial?', a: 'Yes! We offer a 14-day free trial with full access.' },
+                        { q: 'Can I cancel anytime?', a: 'Absolutely. Cancel anytime with no questions asked.' },
+                      ]).slice(0, 3).map((faq: any, idx: number) => (
+                        <div key={idx} className="bg-white rounded-xl p-4 shadow-sm">
+                          <p className="font-medium text-zinc-900 mb-2">{faq.q}</p>
+                          <p className="text-sm text-zinc-600">{faq.a}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Call To Action Section */}
+                {(pageSections.find(s => s.id === 'cta')?.enabled !== false) && (
+                  <div 
+                    className="px-8 py-16 text-center"
+                    style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
+                  >
+                    <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 mb-4">
+                      {pageSections.find(s => s.id === 'cta')?.content?.headline || 'Ready to Transform Your Business?'}
+                    </h2>
+                    <p className="text-zinc-600 mb-8 max-w-md mx-auto">
+                      {pageSections.find(s => s.id === 'cta')?.content?.subheadline || 'Join thousands of successful businesses already using our platform'}
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <button 
+                        className="px-8 py-3 rounded-lg font-medium text-white"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        {pageSections.find(s => s.id === 'cta')?.content?.buttonText || 'Start Your Free Trial'}
+                      </button>
+                      <button className="px-8 py-3 rounded-lg font-medium text-zinc-700 bg-white border border-zinc-200">
+                        {pageSections.find(s => s.id === 'cta')?.content?.secondaryButtonText || 'Schedule a Demo'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Footer */}
+                {(pageSections.find(s => s.id === 'footer')?.enabled !== false) && (
+                  <div className="px-8 py-6 bg-zinc-900 text-center space-y-3">
+                    {legalDocs.filter(doc => doc.enabled).length > 0 && (
+                      <div className="flex items-center justify-center gap-4 flex-wrap">
+                        {legalDocs.filter(doc => doc.enabled).map((doc) => (
+                          <a 
+                            key={doc.id}
+                            href={`#${doc.id}`}
+                            className="text-zinc-400 text-sm hover:text-white transition-colors underline"
+                          >
+                            {doc.title}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-zinc-400 text-sm">
+                      © {new Date().getFullYear()} {productName}. All rights reserved.
+                    </p>
+                  </div>
+                )}
               </>
             )}
           </div>
