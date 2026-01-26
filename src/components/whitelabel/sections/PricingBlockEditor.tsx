@@ -396,11 +396,14 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
 
       {/* Earnings Calculator */}
       <div className="p-4 rounded-lg bg-foreground text-background space-y-4">
-        <div className="flex items-center justify-center gap-2">
-          <Sparkles className="h-4 w-4 text-emerald-400" />
-          <span className="font-semibold text-sm">
-            With {activeCustomerCount} customers
-          </span>
+        <div className="text-center space-y-1">
+          <p className="text-sm font-medium text-background/70">Revenue Projections</p>
+          <div className="flex items-center justify-center gap-2">
+            <Sparkles className="h-4 w-4 text-emerald-400" />
+            <span className="font-semibold text-sm">
+              With {activeCustomerCount} Customers
+            </span>
+          </div>
         </div>
 
         {/* Customer Count Selector */}
@@ -423,13 +426,13 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
           ))}
           <Input
             type="number"
-            placeholder="Custom"
+            placeholder="#"
             value={customCustomerCount}
             onChange={(e) => {
               const val = parseInt(e.target.value);
               setCustomCustomerCount(isNaN(val) ? '' : Math.max(1, val));
             }}
-            className="w-16 h-7 text-center text-xs bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-14 h-7 text-center text-xs bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
 
