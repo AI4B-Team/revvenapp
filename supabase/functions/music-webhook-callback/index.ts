@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.0';
+import { validateWebhookUrl, logWebhookCallback, getClientIp } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,7 +16,13 @@ serve(async (req) => {
     const url = new URL(req.url);
     const recordId = url.searchParams.get('recordId');
     
-    const payload = await req.json();
+    const rawBody = await req.text();
+    const payload = JSON.parse(rawBody);
+    
+    // Audit logging
+    const clientIp = getClientIp(req);
+    logWebhookCallback('music-webhook-callback', payload, clientIp);
+    
     console.log('Music webhook received:', JSON.stringify(payload));
     console.log('Record ID:', recordId);
 
@@ -38,7 +45,7 @@ serve(async (req) => {
     console.log('Clips count:', clips.length);
 
     // Find the first clip with an audio URL
-    const clipWithAudio = clips.find((c: any) => c.audio_url);
+    const clipWithAudio = clips.find((c: { audio_url?: string }) => c.audio_url);
     const audioUrl = clipWithAudio?.audio_url;
     const imageUrl = clipWithAudio?.image_url;
     const title = clipWithAudio?.title;
@@ -54,10 +61,36 @@ serve(async (req) => {
       });
     }
 
+    // Verify the record exists and is in pending state
+    const { data: existingRecord, error: findError } = await supabase
+      .from('user_voices')
+      .select('id, status, user_id')
+      .eq('id', recordId)
+      .single();
+
+    if (findError || !existingRecord) {
+      console.error('Record not found:', recordId);
+      throw new Error('Record not found - invalid callback');
+    }
+
+    if (existingRecord.status !== 'pending' && existingRecord.status !== 'processing') {
+      console.log('Record already processed:', existingRecord.status);
+      return new Response(JSON.stringify({ success: true, message: 'Record already processed' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Update on 'complete' or 'first' if we have an audio URL
     if ((callbackType === 'complete' || callbackType === 'first') && audioUrl) {
+      // Validate the audio URL before using
+      const validation = await validateWebhookUrl(audioUrl, 'audio');
+      if (!validation.valid) {
+        console.error('URL validation failed:', validation.error);
+        throw new Error(`URL validation failed: ${validation.error}`);
+      }
+
       // Update database record with completed status and URL
-      const updateData: Record<string, any> = {
+      const updateData: Record<string, unknown> = {
         url: audioUrl,
         status: 'completed',
       };

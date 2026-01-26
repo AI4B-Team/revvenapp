@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateWebhookUrl, logWebhookCallback, getClientIp } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,8 +15,12 @@ serve(async (req) => {
   try {
     console.log("Image webhook callback received");
     
-    const payload = await req.json();
-    console.log("Callback payload:", JSON.stringify(payload, null, 2));
+    const rawBody = await req.text();
+    const payload = JSON.parse(rawBody);
+    
+    // Audit logging
+    const clientIp = getClientIp(req);
+    logWebhookCallback('image-webhook-callback', payload, clientIp);
 
     // KIE.AI callback format (current): { code, msg, data: { taskId, info: { resultImageUrl } } }
     const { code, msg, data } = payload;
@@ -29,12 +34,29 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
+    // Verify the task exists and is in pending state before processing
+    const { data: existingRecord, error: findError } = await supabaseClient
+      .from("generated_images")
+      .select("id, status, user_id")
+      .eq("kie_task_id", data.taskId)
+      .single();
+
+    if (findError || !existingRecord) {
+      console.error("Task not found:", data.taskId);
+      throw new Error("Task not found - invalid callback");
+    }
+
+    if (existingRecord.status !== 'pending' && existingRecord.status !== 'processing') {
+      console.log("Task already processed:", existingRecord.status);
+      return new Response(
+        JSON.stringify({ success: true, message: "Task already processed" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
     if (code === 200) {
       // Success case - download and upload to Cloudinary
       // Different KIE.AI models return the result URL in different places
-      //  - Flux: data.info.resultImageUrl or data.response.resultImageUrl
-      //  - GPT-4o: data.info.result_urls[0] (array format)
-      //  - Seedream: data.resultJson = '{"resultUrls":["https://..."]}'
       let imageUrl = data.info?.resultImageUrl || data.response?.resultImageUrl;
 
       // GPT-4o format: result_urls array
@@ -59,10 +81,16 @@ serve(async (req) => {
         throw new Error("Missing resultImageUrl in callback payload");
       }
 
-      console.log("Image ready, passing URL directly to Cloudinary:", imageUrl);
+      console.log("Image ready, validating URL:", imageUrl);
+
+      // Validate the URL before uploading
+      const validation = await validateWebhookUrl(imageUrl, 'image');
+      if (!validation.valid) {
+        console.error("URL validation failed:", validation.error);
+        throw new Error(`URL validation failed: ${validation.error}`);
+      }
 
       // Upload original URL directly to Cloudinary (no base64 conversion to avoid large in-memory buffers)
-      const cloudinaryApiKey = Deno.env.get("CLOUDINARY_API_KEY") || "357119741731559";
       const cloudinaryUploadPreset = "revven";
       const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dszt275xv/upload";
 

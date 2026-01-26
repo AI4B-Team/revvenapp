@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateWebhookUrl, logWebhookCallback, getClientIp } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +23,9 @@ serve(async (req) => {
     const contentType = req.headers.get('content-type') || '';
     const url = new URL(req.url);
     
+    // Audit logging
+    const clientIp = getClientIp(req);
+    
     // Check if this is a KIE.AI callback (source=kie in query params)
     const source = url.searchParams.get('source');
     const videoIdFromQuery = url.searchParams.get('videoId') || url.searchParams.get('video_id');
@@ -29,12 +33,35 @@ serve(async (req) => {
     if (source === 'kie') {
       console.log('KIE.AI callback detected');
       
-      const payload = await req.json();
-      console.log('KIE.AI callback payload:', JSON.stringify(payload, null, 2));
+      const rawBody = await req.text();
+      const payload = JSON.parse(rawBody);
+      
+      // Audit logging
+      logWebhookCallback('video-webhook-callback/kie', payload, clientIp);
       
       const videoId = videoIdFromQuery;
       if (!videoId) {
         throw new Error('videoId is required in query params for KIE.AI callbacks');
+      }
+
+      // Verify the video exists and is in pending/processing state
+      const { data: existingVideo, error: findError } = await supabase
+        .from('ai_videos')
+        .select('id, status, user_id')
+        .eq('id', videoId)
+        .single();
+
+      if (findError || !existingVideo) {
+        console.error('Video not found:', videoId);
+        throw new Error('Video not found - invalid callback');
+      }
+
+      if (existingVideo.status !== 'pending' && existingVideo.status !== 'processing' && existingVideo.status !== 'generating') {
+        console.log('Video already processed:', existingVideo.status);
+        return new Response(
+          JSON.stringify({ success: true, message: 'Video already processed' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
       }
 
       // KIE.AI success callback format
@@ -53,6 +80,13 @@ serve(async (req) => {
         }
 
         console.log('KIE.AI video URL:', videoUrl);
+
+        // Validate the URL before uploading
+        const validation = await validateWebhookUrl(videoUrl, 'video');
+        if (!validation.valid) {
+          console.error('URL validation failed:', validation.error);
+          throw new Error(`URL validation failed: ${validation.error}`);
+        }
 
         // Upload video to Cloudinary using URL-based upload (avoids memory issues)
         const formData = new FormData();
@@ -160,14 +194,40 @@ serve(async (req) => {
         throw new Error('job_id is required in query params when sending binary data');
       }
 
+      // Verify the job exists and is in pending state
+      const { data: existingJob, error: findError } = await supabase
+        .from('ai_story_jobs')
+        .select('id, status, user_id')
+        .eq('id', job_id)
+        .single();
+
+      if (findError || !existingJob) {
+        console.error('Job not found:', job_id);
+        throw new Error('Job not found - invalid callback');
+      }
+
+      if (existingJob.status !== 'pending' && existingJob.status !== 'processing') {
+        console.log('Job already processed:', existingJob.status);
+        return new Response(
+          JSON.stringify({ success: true, message: 'Job already processed' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
+      }
+
       // Get the binary video
       videoBlob = await req.blob();
       console.log('Video blob size:', videoBlob.size);
+      
+      // Audit log for binary upload
+      logWebhookCallback('video-webhook-callback/binary', { job_id, size: videoBlob.size }, clientIp);
 
     } else {
       console.log('Received JSON payload');
-      const payload = await req.json();
-      console.log('Webhook payload:', JSON.stringify(payload, null, 2));
+      const rawBody = await req.text();
+      const payload = JSON.parse(rawBody);
+      
+      // Audit logging
+      logWebhookCallback('video-webhook-callback/json', payload, clientIp);
 
       job_id = payload.job_id || payload.video_id;
       
@@ -175,8 +235,35 @@ serve(async (req) => {
         throw new Error('job_id is required in webhook payload');
       }
 
-      // If JSON contains a video_url, we can use it directly
+      // Verify the job exists and is in pending state
+      const { data: existingJob, error: findError } = await supabase
+        .from('ai_story_jobs')
+        .select('id, status, user_id')
+        .eq('id', job_id)
+        .single();
+
+      if (findError || !existingJob) {
+        console.error('Job not found:', job_id);
+        throw new Error('Job not found - invalid callback');
+      }
+
+      if (existingJob.status !== 'pending' && existingJob.status !== 'processing') {
+        console.log('Job already processed:', existingJob.status);
+        return new Response(
+          JSON.stringify({ success: true, message: 'Job already processed' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
+      }
+
+      // If JSON contains a video_url, validate and use it directly
       if (payload.video_url) {
+        // Validate the URL before using
+        const validation = await validateWebhookUrl(payload.video_url, 'video');
+        if (!validation.valid) {
+          console.error('URL validation failed:', validation.error);
+          throw new Error(`URL validation failed: ${validation.error}`);
+        }
+
         const { error: updateError } = await supabase
           .from('ai_story_jobs')
           .update({
