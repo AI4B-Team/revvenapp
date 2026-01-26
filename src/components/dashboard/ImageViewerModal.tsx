@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   X, ChevronLeft, ChevronRight, Bookmark, Heart, Download, 
-  RefreshCw, Share2, Copy, Check, Maximize, Globe, Printer, Edit, Play
+  RefreshCw, Share2, Copy, Check, Maximize, Globe, Printer, Edit, Play, Loader2
 } from 'lucide-react';
 import {
   Tooltip,
@@ -9,6 +9,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface StoryScene {
   scene: string;
@@ -73,6 +75,9 @@ const ImageViewerModal = ({
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSharingToCommunity, setIsSharingToCommunity] = useState(false);
+  const [isSharedToCommunity, setIsSharedToCommunity] = useState(false);
+  const { toast } = useToast();
 
   // Download functionality
   const handleDownload = async () => {
@@ -167,10 +172,96 @@ const ImageViewerModal = ({
     }
   };
 
-  // Add to community (placeholder - would need backend integration)
-  const handleAddToCommunity = () => {
-    // For now, show an alert. In production, this would call an API
-    alert('This feature will share your creation to the community gallery. Coming soon!');
+  // Add to community
+  const handleAddToCommunity = async () => {
+    if (isSharingToCommunity) return;
+    
+    setIsSharingToCommunity(true);
+    
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        toast({
+          title: "Login required",
+          description: "Please log in to share to community",
+          variant: "destructive"
+        });
+        setIsSharingToCommunity(false);
+        return;
+      }
+
+      // Get user profile for creator name
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url')
+        .eq('id', session.session.user.id)
+        .single();
+
+      const creatorName = profileData?.full_name || session.session.user.email?.split('@')[0] || 'Anonymous';
+      const creatorAvatar = profileData?.avatar_url || null;
+
+      // Check if already shared
+      const { data: existingPost } = await supabase
+        .from('community_posts')
+        .select('id')
+        .eq('original_item_id', String(image.id))
+        .eq('user_id', session.session.user.id)
+        .single();
+
+      if (existingPost) {
+        toast({
+          title: "Already shared",
+          description: "This creation is already in the community gallery",
+        });
+        setIsSharedToCommunity(true);
+        setIsSharingToCommunity(false);
+        return;
+      }
+
+      // Create community post
+      const { error } = await supabase
+        .from('community_posts')
+        .insert({
+          user_id: session.session.user.id,
+          original_item_id: String(image.id),
+          original_item_type: image.type,
+          title: image.title,
+          thumbnail_url: image.thumbnail,
+          content_url: image.url || image.thumbnail,
+          prompt: image.prompt || null,
+          model: image.model || null,
+          aspect_ratio: image.aspectRatio || null,
+          resolution: image.resolution || null,
+          creator_name: creatorName,
+          creator_avatar: creatorAvatar
+        });
+
+      if (error) {
+        console.error('Error sharing to community:', error);
+        toast({
+          title: "Failed to share",
+          description: "Could not share to community. Please try again.",
+          variant: "destructive"
+        });
+        setIsSharingToCommunity(false);
+        return;
+      }
+
+      setIsSharedToCommunity(true);
+      toast({
+        title: "Shared to Community! 🎉",
+        description: "Your creation is now visible in the community gallery",
+      });
+    } catch (error) {
+      console.error('Error sharing to community:', error);
+      toast({
+        title: "Failed to share",
+        description: "An error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSharingToCommunity(false);
+    }
   };
 
   // Delete with confirmation
@@ -412,13 +503,26 @@ const ImageViewerModal = ({
                       <TooltipTrigger asChild>
                         <button 
                           onClick={handleAddToCommunity}
-                          className="text-gray-400 hover:text-white transition-colors"
+                          disabled={isSharingToCommunity || isSharedToCommunity}
+                          className={`transition-colors ${
+                            isSharedToCommunity 
+                              ? 'text-green-500' 
+                              : isSharingToCommunity 
+                                ? 'text-blue-500 animate-pulse' 
+                                : 'text-gray-400 hover:text-white'
+                          }`}
                         >
-                          <Globe size={20} />
+                          {isSharingToCommunity ? (
+                            <Loader2 size={20} className="animate-spin" />
+                          ) : isSharedToCommunity ? (
+                            <Check size={20} />
+                          ) : (
+                            <Globe size={20} />
+                          )}
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Add To Community</p>
+                        <p>{isSharedToCommunity ? 'Shared to Community' : isSharingToCommunity ? 'Sharing...' : 'Add To Community'}</p>
                       </TooltipContent>
                     </Tooltip>
 
