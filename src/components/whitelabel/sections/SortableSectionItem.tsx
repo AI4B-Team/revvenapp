@@ -15,6 +15,7 @@ import {
   Plus,
   Trash2,
   Image as ImageIcon,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import AITextInput from '../AITextInput';
@@ -82,15 +83,28 @@ export function SortableSectionItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`rounded-xl border-2 transition-all duration-200 bg-card ${
+      className={`rounded-xl border-2 transition-all duration-200 bg-card relative ${
         section.enabled ? 'border-border' : 'border-border/50 opacity-60'
       } ${isDragging ? 'shadow-2xl ring-2 ring-primary/30' : ''} ${
         isOver && !isDragging ? 'border-primary/50 bg-primary/5' : ''
       }`}
     >
+      {/* Delete Button - Top Right */}
+      {onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="absolute top-2 right-2 z-10 p-1 rounded-full hover:bg-destructive/10 transition-colors"
+        >
+          <X className="h-4 w-4 text-destructive" />
+        </button>
+      )}
+
       {/* Section Header */}
       <div
-        className="flex items-center gap-3 p-4 cursor-pointer"
+        className="flex items-center gap-3 p-4 pr-10 cursor-pointer"
         onClick={onToggle}
       >
         {/* Reorder Controls: Up Arrow, Drag Handle, Down Arrow */}
@@ -138,20 +152,6 @@ export function SortableSectionItem({
           onCheckedChange={onToggleEnabled}
           onClick={(e) => e.stopPropagation()}
         />
-
-        {onDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        )}
 
         {isExpanded ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
