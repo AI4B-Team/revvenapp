@@ -16,16 +16,16 @@ import {
   Eye,
   Key,
   UserCheck,
-  Globe,
   FileText,
-  Zap,
   Users,
   Mail,
   Send,
   TrendingUp,
   UserPlus,
   Calendar,
+  HelpCircle,
 } from 'lucide-react';
+import { SiGoogle, SiMeta, SiTiktok } from 'react-icons/si';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -84,9 +84,11 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
   const [receiptEmailBody, setReceiptEmailBody] = useState('Hi {{customer_name}},\n\nThank you for your purchase!\n\nOrder Details:\n- Product: {{product_name}}\n- Amount: {{amount}}\n- Date: {{date}}\n\nYou can access your purchase anytime.\n\nBest,\nThe {{product_name}} Team');
   
   // Marketing state
-  const [googlePixelId, setGooglePixelId] = useState('');
+  const [googleAdsId, setGoogleAdsId] = useState('');
+  const [googleTagManagerId, setGoogleTagManagerId] = useState('');
   const [metaPixelId, setMetaPixelId] = useState('');
-  const [googleAnalyticsId, setGoogleAnalyticsId] = useState('');
+  const [metaAccessToken, setMetaAccessToken] = useState('');
+  const [tiktokPixelId, setTiktokPixelId] = useState('');
   
   // Integrations state
   const [stripeConnected, setStripeConnected] = useState(false);
@@ -466,71 +468,134 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Google Analytics */}
-              <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              {/* Google Ads Tag */}
+              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
                 <div className="flex items-center gap-2">
-                  <Globe className="h-5 w-5 text-blue-500" />
-                  <h3 className="font-semibold">Google Analytics</h3>
+                  <SiGoogle className="h-5 w-5 text-[#FBBC05]" />
+                  <h3 className="font-semibold">Google Ads Tag</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Track visitor behavior and conversions with Google Analytics.
+                  Connect your Google Ads Tag account to track conversions and optimize your advertising campaigns. This integration allows you to measure the ROI of your ads.
                 </p>
                 <div className="space-y-2">
-                  <Label htmlFor="ga-id">Measurement ID</Label>
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="google-ads-id">Google Ads ID</Label>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
                   <Input 
-                    id="ga-id"
-                    placeholder="G-XXXXXXXXXX"
-                    value={googleAnalyticsId}
-                    onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+                    id="google-ads-id"
+                    placeholder="AW-1234567890"
+                    value={googleAdsId}
+                    onChange={(e) => setGoogleAdsId(e.target.value)}
                   />
                 </div>
-                <Button onClick={handleSave} size="sm" className="w-full bg-emerald-500 hover:bg-emerald-600">
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
                   Save
                 </Button>
               </div>
 
-              {/* Google Pixel */}
-              <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              {/* Google Tag Manager */}
+              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
                 <div className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-yellow-500" />
-                  <h3 className="font-semibold">Google Ads Pixel</h3>
+                  <div className="w-5 h-5 bg-[#246FDB] rounded flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">G</span>
+                  </div>
+                  <h3 className="font-semibold">Google Tag Manager</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Track conversions from your Google Ads campaigns.
+                  Integrate Google Tag Manager to track conversions and optimize your advertising campaigns through multiple tags. This integration allows you to measure the ROI of your ads.
                 </p>
                 <div className="space-y-2">
-                  <Label htmlFor="google-pixel">Conversion ID</Label>
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="gtm-id">Google Tag Manager ID</Label>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
                   <Input 
-                    id="google-pixel"
-                    placeholder="AW-XXXXXXXXXX"
-                    value={googlePixelId}
-                    onChange={(e) => setGooglePixelId(e.target.value)}
+                    id="gtm-id"
+                    placeholder="GTM-XXXXXXX"
+                    value={googleTagManagerId}
+                    onChange={(e) => setGoogleTagManagerId(e.target.value)}
                   />
                 </div>
-                <Button onClick={handleSave} size="sm" className="w-full bg-emerald-500 hover:bg-emerald-600">
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
                   Save
                 </Button>
               </div>
 
               {/* Meta Pixel */}
-              <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-blue-600" />
+                  <SiMeta className="h-5 w-5 text-[#0081FB]" />
                   <h3 className="font-semibold">Meta Pixel</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Track conversions from Facebook and Instagram ads.
+                  Integrate Meta Pixel to track visitor activity on your website, measure the effectiveness of your Facebook and Instagram ads, and build targeted audiences for future ads.
                 </p>
                 <div className="space-y-2">
-                  <Label htmlFor="meta-pixel">Pixel ID</Label>
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="meta-pixel">Meta Pixel ID</Label>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
                   <Input 
                     id="meta-pixel"
-                    placeholder="XXXXXXXXXXXXXXXXX"
+                    placeholder="123456789012345"
                     value={metaPixelId}
                     onChange={(e) => setMetaPixelId(e.target.value)}
                   />
                 </div>
-                <Button onClick={handleSave} size="sm" className="w-full bg-emerald-500 hover:bg-emerald-600">
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                  Save
+                </Button>
+              </div>
+
+              {/* Meta Conversions API */}
+              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
+                <div className="flex items-center gap-2">
+                  <SiMeta className="h-5 w-5 text-[#0081FB]" />
+                  <h3 className="font-semibold">Meta Conversions API</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Configure the Facebook Access Token for server-side event tracking via the Conversions API. This enables better tracking accuracy and deduplication between client and server events.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="meta-access-token">Facebook Access Token</Label>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                  <Input 
+                    id="meta-access-token"
+                    placeholder="EAABsbCS1iHgBO7jZCZBpR8..."
+                    value={metaAccessToken}
+                    onChange={(e) => setMetaAccessToken(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                  Save
+                </Button>
+              </div>
+
+              {/* TikTok Pixel */}
+              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
+                <div className="flex items-center gap-2">
+                  <SiTiktok className="h-5 w-5" />
+                  <h3 className="font-semibold">TikTok Pixel</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Add the TikTok Pixel to your website to track visitor actions, measure the effectiveness of your TikTok ads, and build custom audiences for retargeting.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="tiktok-pixel">TikTok Pixel ID</Label>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                  <Input 
+                    id="tiktok-pixel"
+                    placeholder="C3ABCDEFGHIJKLMNOPQRST"
+                    value={tiktokPixelId}
+                    onChange={(e) => setTiktokPixelId(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
                   Save
                 </Button>
               </div>
