@@ -243,11 +243,39 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
 export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered' }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const previewRef = React.useRef<HTMLDivElement>(null);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
     setTimeout(() => setIsRefreshing(false), 500);
   };
+
+  const handleFullscreen = () => {
+    if (!document.fullscreenElement && previewRef.current) {
+      previewRef.current.requestFullscreen();
+      setIsFullscreen(true);
+    } else if (document.fullscreenElement) {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  const handleOpenInNewTab = () => {
+    const subdomain = license?.domainSettings?.subdomain || 'preview';
+    // Open in a new window with the preview URL
+    const previewUrl = `https://${subdomain}.revven.app`;
+    window.open(previewUrl, '_blank');
+  };
+
+  // Listen for fullscreen changes
+  React.useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const getPreviewWidth = () => {
     switch (viewMode) {
@@ -335,15 +363,25 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0"
+                  onClick={handleFullscreen}
+                >
                   <Maximize2 size={14} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Fullscreen</TooltipContent>
+              <TooltipContent>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0"
+                  onClick={handleOpenInNewTab}
+                >
                   <ExternalLink size={14} />
                 </Button>
               </TooltipTrigger>
@@ -354,7 +392,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
       </div>
 
       {/* Preview Content */}
-      <div className="flex-1 overflow-auto p-4">
+      <div ref={previewRef} className="flex-1 overflow-auto p-4">
         <div className={`mx-auto ${getPreviewWidth()} transition-all duration-300`}>
           {/* Browser Chrome */}
           <div className="rounded-t-lg bg-zinc-800 px-4 py-2 flex items-center gap-2">
