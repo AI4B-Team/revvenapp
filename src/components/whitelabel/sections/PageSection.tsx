@@ -1,31 +1,37 @@
 import React, { useState } from 'react';
 import { MarketplaceApp, AppLicense } from '@/lib/marketplace/types';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { 
-  Eye,
   RefreshCw,
   Sparkles,
   ChevronDown,
   ChevronUp,
-  ArrowUp,
-  ArrowDown,
   Plus,
-  Trash2,
-  Image as ImageIcon,
-  Type,
   Layout,
+  Type,
   Star,
   MessageSquare,
   HelpCircle,
-  Zap
+  Zap,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import AITextInput from '../AITextInput';
-import AIIconGenerator from '../AIIconGenerator';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableSectionItem } from './SortableSectionItem';
 
 export interface PageBlock {
   id: string;
@@ -405,6 +411,27 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
     }
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const oldIndex = sections.findIndex(s => s.id === active.id);
+      const newIndex = sections.findIndex(s => s.id === over.id);
+      setSections(arrayMove(sections, oldIndex, newIndex));
+    }
+  };
+
   const handleGenerateCopy = async (sectionId: string) => {
     setIsGenerating(sectionId);
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -507,871 +534,39 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
           </span>
         </div>
 
-        {sections.map((section, sectionIndex) => {
-          const Icon = sectionIcons[section.type];
-          const isExpanded = expandedSection === section.id;
-          const isFirst = sectionIndex === 0;
-          const isLast = sectionIndex === sections.length - 1;
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+            {sections.map((section, sectionIndex) => {
+              const Icon = sectionIcons[section.type];
+              const isExpanded = expandedSection === section.id;
+              const isFirst = sectionIndex === 0;
+              const isLast = sectionIndex === sections.length - 1;
 
-          return (
-            <div 
-              key={section.id}
-              className={`rounded-xl border-2 transition-all ${
-                section.enabled ? 'border-border' : 'border-border/50 opacity-60'
-              }`}
-            >
-              {/* Section Header */}
-              <div 
-                className="flex items-center gap-3 p-4 cursor-pointer"
-                onClick={() => toggleSection(section.id)}
-              >
-                {/* Up/Down Arrow Buttons */}
-                <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    onClick={() => moveSectionUp(section.id)}
-                    disabled={isFirst}
-                    className={`p-1 rounded hover:bg-muted transition-colors ${
-                      isFirst ? 'opacity-30 cursor-not-allowed' : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <ArrowUp className="h-3 w-3" />
-                  </button>
-                  <button
-                    onClick={() => moveSectionDown(section.id)}
-                    disabled={isLast}
-                    className={`p-1 rounded hover:bg-muted transition-colors ${
-                      isLast ? 'opacity-30 cursor-not-allowed' : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <ArrowDown className="h-3 w-3" />
-                  </button>
-                </div>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                  section.enabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
-                }`}>
-                  <Icon size={16} />
-                </div>
-                <span className="font-medium text-foreground flex-1">{section.title}</span>
-                
-                <Switch
-                  checked={section.enabled}
-                  onCheckedChange={() => toggleSectionEnabled(section.id)}
-                  onClick={(e) => e.stopPropagation()}
+              return (
+                <SortableSectionItem
+                  key={section.id}
+                  section={section}
+                  isExpanded={isExpanded}
+                  isFirst={isFirst}
+                  isLast={isLast}
+                  Icon={Icon}
+                  onToggle={() => toggleSection(section.id)}
+                  onToggleEnabled={() => toggleSectionEnabled(section.id)}
+                  onMoveUp={() => moveSectionUp(section.id)}
+                  onMoveDown={() => moveSectionDown(section.id)}
+                  isGenerating={isGenerating}
+                  updateSectionContent={updateSectionContent}
+                  handleGenerateCopy={handleGenerateCopy}
+                  setIsGenerating={setIsGenerating}
                 />
-                
-                {isExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </div>
-
-              {/* Section Content Editor */}
-              {isExpanded && section.enabled && (
-                <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
-                  {section.type === 'hero' && (
-                    <>
-                      <AITextInput
-                        label="Badge Text"
-                        value={section.content.badge || ''}
-                        onChange={(value) => updateSectionContent(section.id, { badge: value })}
-                        placeholder="e.g., AI-Powered, New, Trusted"
-                        context="tagline"
-                      />
-                      <div>
-                        <AITextInput
-                          label="Tagline"
-                          value={section.content.tagline || ''}
-                          onChange={(value) => updateSectionContent(section.id, { tagline: value })}
-                          placeholder="Enter a catchy tagline"
-                          context="tagline"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">{(section.content.tagline?.length || 0)}/60</p>
-                      </div>
-                      <div>
-                        <AITextInput
-                          label="Description"
-                          value={section.content.description || ''}
-                          onChange={(value) => updateSectionContent(section.id, { description: value })}
-                          placeholder="Describe your platform's capabilities..."
-                          context="description"
-                          multiline
-                          rows={3}
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">{(section.content.description?.length || 0)}/300</p>
-                      </div>
-                      
-                      {/* Hero Visual Image */}
-                      <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium">Hero Visual (Optional)</Label>
-                          {section.content.heroImageUrl && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateSectionContent(section.id, { heroImageUrl: '' })}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Upload or generate an image for split layouts. Uses app thumbnail by default.
-                        </p>
-                        
-                        {section.content.heroImageUrl ? (
-                          <div className="relative w-full aspect-square max-w-[200px] rounded-xl overflow-hidden border border-border">
-                            <img 
-                              src={section.content.heroImageUrl} 
-                              alt="Hero visual" 
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex flex-col gap-2">
-                            <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-background hover:bg-muted/50 transition-colors cursor-pointer relative">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                      updateSectionContent(section.id, { heroImageUrl: reader.result as string });
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                }}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                              />
-                              <ImageIcon className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                              <p className="font-medium text-sm text-foreground">Upload Image</p>
-                              <p className="text-xs text-muted-foreground">Click or drag to upload</p>
-                            </div>
-                            <Button
-                              variant="outline"
-                              onClick={async () => {
-                                setIsGenerating('hero-image');
-                                await new Promise(resolve => setTimeout(resolve, 2000));
-                                updateSectionContent(section.id, { 
-                                  heroImageUrl: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=400&fit=crop' 
-                                });
-                                setIsGenerating(null);
-                                toast.success('AI image generated!');
-                              }}
-                              disabled={isGenerating === 'hero-image'}
-                              className="gap-2"
-                            >
-                              {isGenerating === 'hero-image' ? (
-                                <RefreshCw className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Sparkles className="h-4 w-4" />
-                              )}
-                              Generate With AI
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-
-                  {section.type === 'features' && (
-                    <div className="space-y-4">
-                      <AITextInput
-                        label="Section Headline"
-                        value={section.content.headline || ''}
-                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
-                        placeholder="Why Choose Us"
-                        context="headline"
-                      />
-                      
-                      {(section.content.features || []).map((feature: any, idx: number) => (
-                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
-                          <div className="flex items-center justify-between">
-                            <Label>Feature {idx + 1}</Label>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => {
-                                const newFeatures = [...section.content.features];
-                                newFeatures.splice(idx, 1);
-                                updateSectionContent(section.id, { features: newFeatures });
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                          
-                          <div className="flex items-start gap-3">
-                            <AIIconGenerator
-                              currentIcon={feature.icon}
-                              currentIconUrl={feature.iconUrl}
-                              onIconChange={(icon, iconUrl) => {
-                                const newFeatures = [...section.content.features];
-                                newFeatures[idx] = { ...feature, icon, iconUrl };
-                                updateSectionContent(section.id, { features: newFeatures });
-                              }}
-                              context="feature"
-                            />
-                            <div className="flex-1 space-y-2">
-                              <AITextInput
-                                value={feature.title}
-                                onChange={(value) => {
-                                  const newFeatures = [...section.content.features];
-                                  newFeatures[idx] = { ...feature, title: value };
-                                  updateSectionContent(section.id, { features: newFeatures });
-                                }}
-                                placeholder="Feature title"
-                                context="feature_title"
-                              />
-                              <AITextInput
-                                value={feature.description}
-                                onChange={(value) => {
-                                  const newFeatures = [...section.content.features];
-                                  newFeatures[idx] = { ...feature, description: value };
-                                  updateSectionContent(section.id, { features: newFeatures });
-                                }}
-                                placeholder="Feature description"
-                                context="feature_description"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const newFeatures = [...(section.content.features || []), { title: '', description: '', icon: '⚡' }];
-                          updateSectionContent(section.id, { features: newFeatures });
-                        }}
-                        className="w-full gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add Feature
-                      </Button>
-                    </div>
-                  )}
-
-                  {section.type === 'capabilities' && (
-                    <div className="space-y-4">
-                      <AITextInput
-                        label="Section Headline"
-                        value={section.content.headline || ''}
-                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
-                        placeholder="What We Offer"
-                        context="headline"
-                      />
-                      
-                      {(section.content.cards || []).map((card: any, idx: number) => (
-                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
-                          <div className="flex items-center justify-between">
-                            <Label>Capability {idx + 1}</Label>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => {
-                                const newCards = [...section.content.cards];
-                                newCards.splice(idx, 1);
-                                updateSectionContent(section.id, { cards: newCards });
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                          
-                          <div className="flex items-start gap-3">
-                            <AIIconGenerator
-                              currentIcon={card.icon}
-                              currentIconUrl={card.iconUrl}
-                              onIconChange={(icon, iconUrl) => {
-                                const newCards = [...section.content.cards];
-                                newCards[idx] = { ...card, icon, iconUrl };
-                                updateSectionContent(section.id, { cards: newCards });
-                              }}
-                              context="capability"
-                            />
-                            <div className="flex-1 space-y-2">
-                              <AITextInput
-                                value={card.title}
-                                onChange={(value) => {
-                                  const newCards = [...section.content.cards];
-                                  newCards[idx] = { ...card, title: value };
-                                  updateSectionContent(section.id, { cards: newCards });
-                                }}
-                                placeholder="Title"
-                                context="capability_title"
-                              />
-                              <AITextInput
-                                value={card.description}
-                                onChange={(value) => {
-                                  const newCards = [...section.content.cards];
-                                  newCards[idx] = { ...card, description: value };
-                                  updateSectionContent(section.id, { cards: newCards });
-                                }}
-                                placeholder="Description"
-                                context="capability_description"
-                                multiline
-                                rows={2}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const newCards = [...(section.content.cards || []), { title: '', description: '', icon: '✨' }];
-                          updateSectionContent(section.id, { cards: newCards });
-                        }}
-                        className="w-full gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add Capability
-                      </Button>
-                    </div>
-                  )}
-
-                  {section.type === 'testimonials' && (
-                    <div className="space-y-4">
-                      <p className="text-sm text-muted-foreground">
-                        Add testimonials with text, images, or both. All fields are optional for maximum flexibility.
-                      </p>
-                      {(section.content.testimonials || []).map((testimonial: any, idx: number) => (
-                        <div key={idx} className="p-4 rounded-lg bg-muted/30 border border-border space-y-4">
-                          <div className="flex items-center justify-between">
-                            <Label className="font-semibold">Testimonial {idx + 1}</Label>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => {
-                                const newTestimonials = [...section.content.testimonials];
-                                newTestimonials.splice(idx, 1);
-                                updateSectionContent(section.id, { testimonials: newTestimonials });
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                          
-                          {/* Profile Image Upload */}
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">Profile Image (Optional)</Label>
-                            <div className="flex items-center gap-3">
-                              {testimonial.avatarUrl ? (
-                                <div className="relative group">
-                                  <img 
-                                    src={testimonial.avatarUrl} 
-                                    alt="Avatar" 
-                                    className="w-14 h-14 rounded-full object-cover border-2 border-border"
-                                  />
-                                  <button
-                                    onClick={() => {
-                                      const newTestimonials = [...section.content.testimonials];
-                                      newTestimonials[idx] = { ...testimonial, avatarUrl: '' };
-                                      updateSectionContent(section.id, { testimonials: newTestimonials });
-                                    }}
-                                    className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <label className="w-14 h-14 rounded-full border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const reader = new FileReader();
-                                        reader.onloadend = () => {
-                                          const newTestimonials = [...section.content.testimonials];
-                                          newTestimonials[idx] = { ...testimonial, avatarUrl: reader.result as string };
-                                          updateSectionContent(section.id, { testimonials: newTestimonials });
-                                        };
-                                        reader.readAsDataURL(file);
-                                      }
-                                    }}
-                                    className="hidden"
-                                  />
-                                  <Plus className="h-5 w-5 text-muted-foreground" />
-                                </label>
-                              )}
-                              <div className="flex-1 grid grid-cols-2 gap-2">
-                                <Input
-                                  value={testimonial.name || ''}
-                                  onChange={(e) => {
-                                    const newTestimonials = [...section.content.testimonials];
-                                    newTestimonials[idx] = { ...testimonial, name: e.target.value };
-                                    updateSectionContent(section.id, { testimonials: newTestimonials });
-                                  }}
-                                  placeholder="Name (optional)"
-                                />
-                                <Input
-                                  value={testimonial.role || ''}
-                                  onChange={(e) => {
-                                    const newTestimonials = [...section.content.testimonials];
-                                    newTestimonials[idx] = { ...testimonial, role: e.target.value };
-                                    updateSectionContent(section.id, { testimonials: newTestimonials });
-                                  }}
-                                  placeholder="Role (optional)"
-                                />
-                              </div>
-                            </div>
-                            <Input
-                              value={testimonial.company || ''}
-                              onChange={(e) => {
-                                const newTestimonials = [...section.content.testimonials];
-                                newTestimonials[idx] = { ...testimonial, company: e.target.value };
-                                updateSectionContent(section.id, { testimonials: newTestimonials });
-                              }}
-                              placeholder="Company (optional)"
-                            />
-                          </div>
-                          
-                          {/* Quote Text */}
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">Quote/Review (Optional)</Label>
-                            <AITextInput
-                              value={testimonial.quote || ''}
-                              onChange={(value) => {
-                                const newTestimonials = [...section.content.testimonials];
-                                newTestimonials[idx] = { ...testimonial, quote: value };
-                                updateSectionContent(section.id, { testimonials: newTestimonials });
-                              }}
-                              placeholder="Enter testimonial text or leave empty if using screenshot only"
-                              context="testimonial_quote"
-                              multiline
-                              rows={2}
-                            />
-                          </div>
-                          
-                          {/* Screenshot Image Upload */}
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">Screenshot Image (Optional)</Label>
-                            <p className="text-xs text-muted-foreground">
-                              Upload a screenshot from social media, email, or any visual testimonial
-                            </p>
-                            {testimonial.screenshotUrl ? (
-                              <div className="relative group">
-                                <img 
-                                  src={testimonial.screenshotUrl} 
-                                  alt="Screenshot" 
-                                  className="w-full max-h-48 object-cover rounded-lg border border-border"
-                                />
-                                <button
-                                  onClick={() => {
-                                    const newTestimonials = [...section.content.testimonials];
-                                    newTestimonials[idx] = { ...testimonial, screenshotUrl: '' };
-                                    updateSectionContent(section.id, { testimonials: newTestimonials });
-                                  }}
-                                  className="absolute top-2 right-2 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </button>
-                              </div>
-                            ) : (
-                              <label className="block border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      const reader = new FileReader();
-                                      reader.onloadend = () => {
-                                        const newTestimonials = [...section.content.testimonials];
-                                        newTestimonials[idx] = { ...testimonial, screenshotUrl: reader.result as string };
-                                        updateSectionContent(section.id, { testimonials: newTestimonials });
-                                      };
-                                      reader.readAsDataURL(file);
-                                    }
-                                  }}
-                                  className="hidden"
-                                />
-                                <ImageIcon className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                                <p className="text-sm font-medium text-foreground">Upload Screenshot</p>
-                                <p className="text-xs text-muted-foreground">Social media, email, DM, etc.</p>
-                              </label>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const newTestimonials = [...(section.content.testimonials || []), { 
-                            name: '', 
-                            role: '', 
-                            company: '', 
-                            quote: '', 
-                            avatarUrl: '',
-                            screenshotUrl: '' 
-                          }];
-                          updateSectionContent(section.id, { testimonials: newTestimonials });
-                        }}
-                        className="w-full gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add Testimonial
-                      </Button>
-                    </div>
-                  )}
-
-                  {section.type === 'credibility' && (
-                    <div className="space-y-4">
-                      <AITextInput
-                        label="Section Headline"
-                        value={section.content.headline || ''}
-                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
-                        placeholder="e.g., Trusted By Industry Leaders"
-                        context="headline"
-                      />
-                      
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Company Logos</Label>
-                        <p className="text-xs text-muted-foreground">
-                          Upload logos of companies, partners, or media mentions. These will animate in a smooth sliding carousel.
-                        </p>
-                        
-                        {/* Logo Grid */}
-                        <div className="grid grid-cols-3 gap-3">
-                          {(section.content.logos || []).map((logo: { id: string; url: string; name: string }, idx: number) => (
-                            <div key={logo.id} className="relative group">
-                              <div className="aspect-video bg-muted/30 rounded-lg border border-border flex items-center justify-center p-2 overflow-hidden">
-                                <img 
-                                  src={logo.url} 
-                                  alt={logo.name || 'Logo'} 
-                                  className="max-w-full max-h-full object-contain"
-                                />
-                              </div>
-                              <button
-                                onClick={() => {
-                                  const newLogos = [...(section.content.logos || [])];
-                                  newLogos.splice(idx, 1);
-                                  updateSectionContent(section.id, { logos: newLogos });
-                                }}
-                                className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </button>
-                              <Input
-                                value={logo.name || ''}
-                                onChange={(e) => {
-                                  const newLogos = [...(section.content.logos || [])];
-                                  newLogos[idx] = { ...logo, name: e.target.value };
-                                  updateSectionContent(section.id, { logos: newLogos });
-                                }}
-                                placeholder="Company name"
-                                className="mt-2 text-xs h-8"
-                              />
-                            </div>
-                          ))}
-                          
-                          {/* Add New Logo Button */}
-                          <label className="aspect-video bg-muted/20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-muted/40 transition-colors">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    const newLogos = [...(section.content.logos || []), { 
-                                      id: Date.now().toString(), 
-                                      url: reader.result as string, 
-                                      name: file.name.replace(/\.[^/.]+$/, '') 
-                                    }];
-                                    updateSectionContent(section.id, { logos: newLogos });
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              }}
-                              className="hidden"
-                            />
-                            <Plus className="h-6 w-6 text-muted-foreground mb-1" />
-                            <span className="text-xs text-muted-foreground">Add Logo</span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {section.type === 'pricing' && (
-                    <div className="space-y-4">
-                      <AITextInput
-                        label="Section Headline"
-                        value={section.content.headline || ''}
-                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
-                        placeholder="e.g., Simple, Transparent Pricing"
-                        context="headline"
-                      />
-                      <AITextInput
-                        label="Subheadline"
-                        value={section.content.subheadline || ''}
-                        onChange={(value) => updateSectionContent(section.id, { subheadline: value })}
-                        placeholder="e.g., Start free, upgrade when you need more"
-                        context="subheadline"
-                      />
-                      <div className="p-3 rounded-lg bg-muted/30 border border-border">
-                        <p className="text-sm text-muted-foreground">
-                          💡 Pricing tiers are configured in the <span className="font-medium text-foreground">Pricing</span> section of this builder.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {section.type === 'cta' && (
-                    <div className="space-y-4">
-                      <AITextInput
-                        label="Headline"
-                        value={section.content.headline || ''}
-                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
-                        placeholder="e.g., Ready to Transform Your Business?"
-                        context="headline"
-                      />
-                      <AITextInput
-                        label="Subheadline"
-                        value={section.content.subheadline || ''}
-                        onChange={(value) => updateSectionContent(section.id, { subheadline: value })}
-                        placeholder="e.g., Join thousands of successful businesses"
-                        context="subheadline"
-                      />
-                      <div className="grid grid-cols-2 gap-4">
-                        <AITextInput
-                          label="Primary Button"
-                          value={section.content.buttonText || ''}
-                          onChange={(value) => updateSectionContent(section.id, { buttonText: value })}
-                          placeholder="Start Your Free Trial"
-                          context="button_text"
-                        />
-                        <AITextInput
-                          label="Secondary Button"
-                          value={section.content.secondaryButtonText || ''}
-                          onChange={(value) => updateSectionContent(section.id, { secondaryButtonText: value })}
-                          placeholder="Schedule a Demo"
-                          context="button_text"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {section.type === 'footer' && (
-                    <div className="space-y-4">
-                      <AITextInput
-                        label="Company Name"
-                        value={section.content.companyName || ''}
-                        onChange={(value) => updateSectionContent(section.id, { companyName: value })}
-                        placeholder="Your Company Name"
-                        context="tagline"
-                      />
-                      <AITextInput
-                        label="Tagline"
-                        value={section.content.tagline || ''}
-                        onChange={(value) => updateSectionContent(section.id, { tagline: value })}
-                        placeholder="Empowering businesses with AI"
-                        context="tagline"
-                      />
-                      
-                      {/* Social Links Toggle */}
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-                        <div>
-                          <p className="font-medium text-foreground text-sm">Show Social Links</p>
-                          <p className="text-xs text-muted-foreground">Display social media icons</p>
-                        </div>
-                        <Switch
-                          checked={section.content.showSocialLinks || false}
-                          onCheckedChange={(checked) => updateSectionContent(section.id, { showSocialLinks: checked })}
-                        />
-                      </div>
-                      
-                      {section.content.showSocialLinks && (
-                        <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
-                          <Label className="text-sm font-medium">Social Media Links</Label>
-                          <div className="grid grid-cols-1 gap-3">
-                            <div className="flex items-center gap-2">
-                              <span className="w-24 text-sm text-muted-foreground">Twitter/X</span>
-                              <Input
-                                value={section.content.socialLinks?.twitter || ''}
-                                onChange={(e) => updateSectionContent(section.id, { 
-                                  socialLinks: { ...section.content.socialLinks, twitter: e.target.value }
-                                })}
-                                placeholder="https://twitter.com/yourbrand"
-                                className="flex-1"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-24 text-sm text-muted-foreground">Facebook</span>
-                              <Input
-                                value={section.content.socialLinks?.facebook || ''}
-                                onChange={(e) => updateSectionContent(section.id, { 
-                                  socialLinks: { ...section.content.socialLinks, facebook: e.target.value }
-                                })}
-                                placeholder="https://facebook.com/yourbrand"
-                                className="flex-1"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-24 text-sm text-muted-foreground">Instagram</span>
-                              <Input
-                                value={section.content.socialLinks?.instagram || ''}
-                                onChange={(e) => updateSectionContent(section.id, { 
-                                  socialLinks: { ...section.content.socialLinks, instagram: e.target.value }
-                                })}
-                                placeholder="https://instagram.com/yourbrand"
-                                className="flex-1"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-24 text-sm text-muted-foreground">LinkedIn</span>
-                              <Input
-                                value={section.content.socialLinks?.linkedin || ''}
-                                onChange={(e) => updateSectionContent(section.id, { 
-                                  socialLinks: { ...section.content.socialLinks, linkedin: e.target.value }
-                                })}
-                                placeholder="https://linkedin.com/company/yourbrand"
-                                className="flex-1"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-24 text-sm text-muted-foreground">YouTube</span>
-                              <Input
-                                value={section.content.socialLinks?.youtube || ''}
-                                onChange={(e) => updateSectionContent(section.id, { 
-                                  socialLinks: { ...section.content.socialLinks, youtube: e.target.value }
-                                })}
-                                placeholder="https://youtube.com/@yourbrand"
-                                className="flex-1"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Newsletter Toggle */}
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-                        <div>
-                          <p className="font-medium text-foreground text-sm">Show Newsletter Signup</p>
-                          <p className="text-xs text-muted-foreground">Include email capture form</p>
-                        </div>
-                        <Switch
-                          checked={section.content.showNewsletter || false}
-                          onCheckedChange={(checked) => updateSectionContent(section.id, { showNewsletter: checked })}
-                        />
-                      </div>
-                      
-                      {section.content.showNewsletter && (
-                        <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
-                          <Label className="text-sm font-medium">Newsletter Configuration</Label>
-                          <div className="space-y-3">
-                            <AITextInput
-                              label="Headline"
-                              value={section.content.newsletterHeadline || ''}
-                              onChange={(value) => updateSectionContent(section.id, { newsletterHeadline: value })}
-                              placeholder="Stay Updated"
-                              context="headline"
-                            />
-                            <AITextInput
-                              label="Description"
-                              value={section.content.newsletterDescription || ''}
-                              onChange={(value) => updateSectionContent(section.id, { newsletterDescription: value })}
-                              placeholder="Get the latest news and updates"
-                              context="description"
-                            />
-                            <AITextInput
-                              label="Button Text"
-                              value={section.content.newsletterButtonText || ''}
-                              onChange={(value) => updateSectionContent(section.id, { newsletterButtonText: value })}
-                              placeholder="Subscribe"
-                              context="button_text"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {section.type === 'faq' && (
-                    <div className="space-y-4">
-                      <p className="text-sm text-muted-foreground">
-                        {(section.content.questions || []).length} questions configured
-                      </p>
-                      {(section.content.questions || []).map((faq: any, idx: number) => (
-                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
-                          <div className="flex items-center justify-between">
-                            <Label>Question {idx + 1}</Label>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => {
-                                const newQuestions = [...section.content.questions];
-                                newQuestions.splice(idx, 1);
-                                updateSectionContent(section.id, { questions: newQuestions });
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                          <AITextInput
-                            value={faq.q}
-                            onChange={(value) => {
-                              const newQuestions = [...section.content.questions];
-                              newQuestions[idx] = { ...faq, q: value };
-                              updateSectionContent(section.id, { questions: newQuestions });
-                            }}
-                            placeholder="Question"
-                            context="faq_question"
-                          />
-                          <AITextInput
-                            value={faq.a}
-                            onChange={(value) => {
-                              const newQuestions = [...section.content.questions];
-                              newQuestions[idx] = { ...faq, a: value };
-                              updateSectionContent(section.id, { questions: newQuestions });
-                            }}
-                            placeholder="Answer"
-                            context="faq_answer"
-                            multiline
-                            rows={2}
-                          />
-                        </div>
-                      ))}
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const newQuestions = [...(section.content.questions || []), { q: '', a: '' }];
-                          updateSectionContent(section.id, { questions: newQuestions });
-                        }}
-                        className="w-full gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add Question
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Generate with AI Button */}
-                  <Button
-                    variant="outline"
-                    onClick={() => handleGenerateCopy(section.id)}
-                    disabled={isGenerating === section.id}
-                    className="gap-2"
-                  >
-                    {isGenerating === section.id ? (
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="h-4 w-4" />
-                    )}
-                    Generate Entire Section With AI
-                  </Button>
-                </div>
-              )}
-            </div>
-          );
-        })}
+              );
+            })}
+          </SortableContext>
+        </DndContext>
 
         {/* Add Custom Section */}
         <Button variant="outline" className="w-full gap-2 border-dashed">
