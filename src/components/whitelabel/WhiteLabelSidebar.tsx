@@ -4,7 +4,6 @@ import {
   Package, 
   Palette, 
   FileText, 
-  DollarSign, 
   CreditCard, 
   Globe, 
   Settings,
@@ -21,7 +20,6 @@ export type WhiteLabelSection =
   | 'branding' 
   | 'style'
   | 'page' 
-  | 'pricing' 
   | 'checkout' 
   | 'domain' 
   | 'legal'
@@ -39,11 +37,10 @@ const sections: { id: WhiteLabelSection; label: string; icon: React.ElementType;
   { id: 'branding', label: 'Branding', icon: Palette, number: 2 },
   { id: 'style', label: 'Style', icon: LayoutTemplate, number: 3 },
   { id: 'page', label: 'Page', icon: FileText, number: 4 },
-  { id: 'pricing', label: 'Pricing', icon: DollarSign, number: 5 },
-  { id: 'checkout', label: 'Checkout', icon: CreditCard, number: 6 },
-  { id: 'domain', label: 'Domain', icon: Globe, number: 7 },
-  { id: 'legal', label: 'Legal', icon: Scale, number: 8 },
-  { id: 'settings', label: 'Settings', icon: Settings, number: 9 },
+  { id: 'checkout', label: 'Checkout', icon: CreditCard, number: 5 },
+  { id: 'domain', label: 'Domain', icon: Globe, number: 6 },
+  { id: 'legal', label: 'Legal', icon: Scale, number: 7 },
+  { id: 'settings', label: 'Settings', icon: Settings, number: 8 },
 ];
 
 export function WhiteLabelSidebar({ 
