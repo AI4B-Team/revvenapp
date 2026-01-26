@@ -10,6 +10,9 @@ import {
   Calendar,
   Sparkles,
   Check,
+  List,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import AITextInput from '../AITextInput';
 
@@ -37,6 +40,18 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
   const [trialDays, setTrialDays] = useState(content.trialDays || 14);
   const [selectedCustomerCount, setSelectedCustomerCount] = useState(100);
   const [customCustomerCount, setCustomCustomerCount] = useState<number | ''>('');
+  
+  // Pricing Features (what customers get)
+  const defaultFeatures = [
+    'Unlimited AI Content Generation',
+    'Advanced Audience Analytics',
+    'Multi-Platform Scheduling',
+    'Viral Content Templates',
+  ];
+  const [pricingFeatures, setPricingFeatures] = useState<string[]>(
+    content.pricingFeatures || defaultFeatures
+  );
+  const [newFeature, setNewFeature] = useState('');
 
   const activeCustomerCount = customCustomerCount !== '' ? customCustomerCount : selectedCustomerCount;
 
@@ -92,6 +107,28 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
   const handleTrialDaysChange = (days: number) => {
     setTrialDays(days);
     onContentChange({ trialDays: days });
+  };
+
+  const handleAddFeature = () => {
+    if (newFeature.trim()) {
+      const updated = [...pricingFeatures, newFeature.trim()];
+      setPricingFeatures(updated);
+      onContentChange({ pricingFeatures: updated });
+      setNewFeature('');
+    }
+  };
+
+  const handleRemoveFeature = (index: number) => {
+    const updated = pricingFeatures.filter((_, i) => i !== index);
+    setPricingFeatures(updated);
+    onContentChange({ pricingFeatures: updated });
+  };
+
+  const handleUpdateFeature = (index: number, value: string) => {
+    const updated = [...pricingFeatures];
+    updated[index] = value;
+    setPricingFeatures(updated);
+    onContentChange({ pricingFeatures: updated });
   };
 
   const pricingModels = [
@@ -393,6 +430,60 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
           )}
         </div>
       )}
+
+      {/* Pricing Card Features - What Customers Get */}
+      <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
+        <div className="flex items-center gap-2">
+          <List className="h-4 w-4 text-emerald-500" />
+          <span className="font-medium text-sm text-foreground">Pricing Card Features</span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Bullet points shown in the pricing box
+        </p>
+
+        {/* Feature List */}
+        <div className="space-y-2">
+          {pricingFeatures.map((feature, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+              <Input
+                value={feature}
+                onChange={(e) => handleUpdateFeature(index, e.target.value)}
+                className="flex-1 h-8 text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemoveFeature(index)}
+                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {/* Add New Feature */}
+        <div className="flex items-center gap-2 pt-1">
+          <Input
+            value={newFeature}
+            onChange={(e) => setNewFeature(e.target.value)}
+            placeholder="Add a feature..."
+            onKeyDown={(e) => e.key === 'Enter' && handleAddFeature()}
+            className="flex-1 h-8 text-sm"
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAddFeature}
+            disabled={!newFeature.trim()}
+            className="gap-1 h-8"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add
+          </Button>
+        </div>
+      </div>
 
       {/* Earnings Calculator */}
       <div className="p-4 rounded-lg bg-foreground text-background space-y-4">
