@@ -97,20 +97,20 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
   const pricingModels = [
     { 
       id: 'monthly' as PricingModel, 
-      name: 'Monthly Fee', 
-      description: 'Recurring subscription',
+      name: 'Recurring Subscription', 
+      description: 'Monthly recurring payments',
       icon: Calendar
     },
     { 
       id: 'one-time' as PricingModel, 
-      name: 'One-Time Fee', 
-      description: 'Single payment',
+      name: 'Single Payment', 
+      description: 'One-time purchase',
       icon: DollarSign
     },
     { 
       id: 'setup-monthly' as PricingModel, 
-      name: 'Setup + Monthly', 
-      description: 'Setup fee + recurring',
+      name: 'Setup Fee + Recurring', 
+      description: 'Upfront fee plus monthly',
       icon: TrendingUp
     },
   ];
