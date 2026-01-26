@@ -13,6 +13,7 @@ import {
   WhiteLabelSection,
   ProductSection,
   BrandingSection,
+  StyleSection,
   PageSection,
   PricingSection,
   CheckoutSection,
@@ -24,6 +25,7 @@ import {
 } from '@/components/whitelabel';
 import type { CheckoutConfig } from '@/components/whitelabel/sections/CheckoutSection';
 import type { PageBlock } from '@/components/whitelabel/sections/PageSection';
+import type { PageStyle } from '@/components/whitelabel/sections/StyleSection';
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -169,6 +171,7 @@ const AppLicense = () => {
   });
   const [pageSectionsInitialized, setPageSectionsInitialized] = useState(false);
   const [pageSections, setPageSections] = useState<PageBlock[]>([]);
+  const [pageStyle, setPageStyle] = useState<PageStyle>('centered');
 
   const handleAIVAToggle = () => {
     const newState = !isAIVAPanelOpen;
@@ -250,6 +253,7 @@ const AppLicense = () => {
     switch (activeSection) {
       case 'product': return <ProductSection app={app} license={license} onUpdate={handleUpdateBrand} />;
       case 'branding': return <BrandingSection license={license} onUpdate={handleUpdateBrand} />;
+      case 'style': return <StyleSection app={app} license={license} selectedStyle={pageStyle} onStyleChange={setPageStyle} />;
       case 'page': return <PageSection app={app} license={license} pageSections={pageSections} onPageSectionsChange={setPageSections} />;
       case 'pricing': return <PricingSection license={license} onUpdate={handleUpdatePricing} />;
       case 'checkout': return <CheckoutSection license={license} checkoutConfig={checkoutConfig} onCheckoutConfigChange={setCheckoutConfig} />;
@@ -329,6 +333,7 @@ const AppLicense = () => {
                 checkoutConfig={checkoutConfig}
                 legalDocs={legalDocs}
                 pageSections={pageSections}
+                pageStyle={pageStyle}
               />
             </ResizablePanel>
           </ResizablePanelGroup>
