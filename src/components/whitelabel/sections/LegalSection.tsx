@@ -18,8 +18,16 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface SimpleLegalDoc {
+  id: string;
+  title: string;
+  enabled: boolean;
+}
+
 interface LegalSectionProps {
   productName?: string;
+  legalDocs?: SimpleLegalDoc[];
+  onLegalDocsChange?: (docs: SimpleLegalDoc[]) => void;
 }
 
 interface LegalDocument {
@@ -148,8 +156,8 @@ We may update this cookie policy periodically. Check back for the latest informa
   }
 ];
 
-export function LegalSection({ productName = 'Your App' }: LegalSectionProps) {
-  const [legalDocs, setLegalDocs] = useState<LegalDocument[]>(defaultLegalDocs);
+export function LegalSection({ productName = 'Your App', legalDocs: externalLegalDocs, onLegalDocsChange }: LegalSectionProps) {
+  const [legalDocs, setLegalDocsInternal] = useState<LegalDocument[]>(defaultLegalDocs);
   const [expandedDoc, setExpandedDoc] = useState<string | null>('terms');
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState('Your Company Name');
@@ -157,6 +165,17 @@ export function LegalSection({ productName = 'Your App' }: LegalSectionProps) {
   const [companyAddress, setCompanyAddress] = useState('123 Business Street, City, Country');
   const [showCookieBanner, setShowCookieBanner] = useState(true);
   const [requireAgeVerification, setRequireAgeVerification] = useState(false);
+
+  // Sync external legal docs when internal state changes
+  const setLegalDocs = (updater: LegalDocument[] | ((docs: LegalDocument[]) => LegalDocument[])) => {
+    setLegalDocsInternal(prev => {
+      const newDocs = typeof updater === 'function' ? updater(prev) : updater;
+      if (onLegalDocsChange) {
+        onLegalDocsChange(newDocs.map(doc => ({ id: doc.id, title: doc.title, enabled: doc.enabled })));
+      }
+      return newDocs;
+    });
+  };
 
   const toggleDocEnabled = (id: string) => {
     setLegalDocs(docs => docs.map(doc => 

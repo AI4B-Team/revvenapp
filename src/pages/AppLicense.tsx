@@ -35,6 +35,12 @@ const AppLicense = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<WhiteLabelSection>('product');
+  const [legalDocs, setLegalDocs] = useState([
+    { id: 'terms', title: 'Terms of Service', enabled: true },
+    { id: 'privacy', title: 'Privacy Policy', enabled: true },
+    { id: 'refund', title: 'Refund Policy', enabled: true },
+    { id: 'cookies', title: 'Cookie Policy', enabled: true },
+  ]);
   const [checkoutConfig, setCheckoutConfig] = useState<CheckoutConfig>({
     guaranteeDays: 14,
     guaranteeDescription: 'Try It Risk-Free',
@@ -117,7 +123,7 @@ const AppLicense = () => {
       case 'pricing': return <PricingSection license={license} onUpdate={handleUpdatePricing} />;
       case 'checkout': return <CheckoutSection license={license} checkoutConfig={checkoutConfig} onCheckoutConfigChange={setCheckoutConfig} />;
       case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
-      case 'legal': return <LegalSection productName={license?.brandSettings?.appName || app?.name} />;
+      case 'legal': return <LegalSection productName={license?.brandSettings?.appName || app?.name} legalDocs={legalDocs} onLegalDocsChange={setLegalDocs} />;
       case 'settings': return <SettingsSection onDeactivate={handleDeactivateLicense} />;
       default: return null;
     }
@@ -190,6 +196,7 @@ const AppLicense = () => {
                 license={license} 
                 activeSection={activeSection}
                 checkoutConfig={checkoutConfig}
+                legalDocs={legalDocs}
               />
             </ResizablePanel>
           </ResizablePanelGroup>

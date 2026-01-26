@@ -32,14 +32,21 @@ import {
 } from '@/components/ui/tooltip';
 import type { CheckoutConfig } from './sections/CheckoutSection';
 
+interface LegalDocument {
+  id: string;
+  title: string;
+  enabled: boolean;
+}
+
 interface LivePreviewProps {
   app?: MarketplaceApp;
   license?: AppLicense;
   activeSection: string;
   checkoutConfig?: CheckoutConfig;
+  legalDocs?: LegalDocument[];
 }
 
-export function LivePreview({ app, license, activeSection, checkoutConfig }: LivePreviewProps) {
+export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [] }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
@@ -497,7 +504,20 @@ export function LivePreview({ app, license, activeSection, checkoutConfig }: Liv
                 </div>
 
                 {/* Footer */}
-                <div className="px-8 py-6 bg-zinc-900 text-center">
+                <div className="px-8 py-6 bg-zinc-900 text-center space-y-3">
+                  {legalDocs.filter(doc => doc.enabled).length > 0 && (
+                    <div className="flex items-center justify-center gap-4 flex-wrap">
+                      {legalDocs.filter(doc => doc.enabled).map((doc) => (
+                        <a 
+                          key={doc.id}
+                          href={`#${doc.id}`}
+                          className="text-zinc-400 text-sm hover:text-white transition-colors underline"
+                        >
+                          {doc.title}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                   <p className="text-zinc-400 text-sm">
                     © {new Date().getFullYear()} {productName}. All rights reserved.
                   </p>
