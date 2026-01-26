@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateWebhookUrl, logWebhookCallback, getClientIp } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,7 +29,13 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Parse the callback payload from KIE.AI
-    const payload = await req.json();
+    const rawBody = await req.text();
+    const payload = JSON.parse(rawBody);
+    
+    // Audit logging
+    const clientIp = getClientIp(req);
+    logWebhookCallback('veo-webhook-callback', payload, clientIp);
+    
     console.log("Received callback payload:", JSON.stringify(payload, null, 2));
 
     const { status, videoUrl, data, code, msg } = payload;
@@ -51,6 +58,15 @@ serve(async (req) => {
 
     const videoRecord = videos[0];
     console.log("Found video record:", videoRecord.id);
+
+    // Check if already processed
+    if (videoRecord.status !== 'pending' && videoRecord.status !== 'processing' && videoRecord.status !== 'generating') {
+      console.log("Video already processed:", videoRecord.status);
+      return new Response(
+        JSON.stringify({ success: true, message: "Video already processed" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
 
     // Extract video URL from various possible locations in the payload
     let finalVideoUrl = videoUrl || 
@@ -77,6 +93,13 @@ serve(async (req) => {
 
     if (isSuccess && finalVideoUrl) {
       console.log("Video generation successful, URL:", finalVideoUrl);
+
+      // Validate the URL before uploading
+      const validation = await validateWebhookUrl(finalVideoUrl, 'video');
+      if (!validation.valid) {
+        console.error("URL validation failed:", validation.error);
+        throw new Error(`URL validation failed: ${validation.error}`);
+      }
 
       // Use Cloudinary's URL-based upload to avoid memory issues
       let cloudinaryUrl = finalVideoUrl;
