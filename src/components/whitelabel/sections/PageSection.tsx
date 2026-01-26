@@ -592,7 +592,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                       </div>
                       
                       {(section.content.features || []).map((feature: any, idx: number) => (
-                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
+                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
                           <div className="flex items-center justify-between">
                             <Label>Feature {idx + 1}</Label>
                             <Button 
@@ -607,6 +607,74 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
+                          
+                          {/* Icon Selection */}
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground">Icon (Optional)</Label>
+                            <div className="flex items-center gap-2">
+                              {feature.iconUrl ? (
+                                <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-border shrink-0">
+                                  <img src={feature.iconUrl} alt="Icon" className="w-full h-full object-cover" />
+                                  <button
+                                    onClick={() => {
+                                      const newFeatures = [...section.content.features];
+                                      newFeatures[idx] = { ...feature, iconUrl: '' };
+                                      updateSectionContent(section.id, { features: newFeatures });
+                                    }}
+                                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-white flex items-center justify-center text-xs"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="relative w-10 h-10 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-background hover:bg-muted/50 cursor-pointer shrink-0">
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const reader = new FileReader();
+                                          reader.onloadend = () => {
+                                            const newFeatures = [...section.content.features];
+                                            newFeatures[idx] = { ...feature, iconUrl: reader.result as string };
+                                            updateSectionContent(section.id, { features: newFeatures });
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                      }}
+                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                                  </div>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={async () => {
+                                      setIsGenerating(`feature-icon-${idx}`);
+                                      await new Promise(resolve => setTimeout(resolve, 1500));
+                                      const newFeatures = [...section.content.features];
+                                      newFeatures[idx] = { ...feature, iconUrl: 'https://api.iconify.design/fluent-emoji-flat/sparkles.svg' };
+                                      updateSectionContent(section.id, { features: newFeatures });
+                                      setIsGenerating(null);
+                                      toast.success('Icon generated!');
+                                    }}
+                                    disabled={isGenerating === `feature-icon-${idx}`}
+                                    className="gap-1 h-8 text-xs"
+                                  >
+                                    {isGenerating === `feature-icon-${idx}` ? (
+                                      <RefreshCw className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="h-3 w-3" />
+                                    )}
+                                    AI Icon
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          
                           <Input
                             value={feature.title}
                             onChange={(e) => {
@@ -653,7 +721,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                       </div>
                       
                       {(section.content.cards || []).map((card: any, idx: number) => (
-                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
+                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
                           <div className="flex items-center justify-between">
                             <Label>Capability {idx + 1}</Label>
                             <Button 
@@ -668,28 +736,93 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
-                          <div className="flex gap-2">
-                            <Input
-                              value={card.icon}
-                              onChange={(e) => {
-                                const newCards = [...section.content.cards];
-                                newCards[idx] = { ...card, icon: e.target.value };
-                                updateSectionContent(section.id, { cards: newCards });
-                              }}
-                              placeholder="Icon (emoji)"
-                              className="w-16"
-                            />
-                            <Input
-                              value={card.title}
-                              onChange={(e) => {
-                                const newCards = [...section.content.cards];
-                                newCards[idx] = { ...card, title: e.target.value };
-                                updateSectionContent(section.id, { cards: newCards });
-                              }}
-                              placeholder="Title"
-                              className="flex-1"
-                            />
+                          
+                          {/* Icon Selection */}
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground">Icon</Label>
+                            <div className="flex items-center gap-2">
+                              {card.iconUrl ? (
+                                <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-border shrink-0">
+                                  <img src={card.iconUrl} alt="Icon" className="w-full h-full object-cover" />
+                                  <button
+                                    onClick={() => {
+                                      const newCards = [...section.content.cards];
+                                      newCards[idx] = { ...card, iconUrl: '' };
+                                      updateSectionContent(section.id, { cards: newCards });
+                                    }}
+                                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-white flex items-center justify-center text-xs"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="relative w-10 h-10 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-background hover:bg-muted/50 cursor-pointer shrink-0">
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const reader = new FileReader();
+                                          reader.onloadend = () => {
+                                            const newCards = [...section.content.cards];
+                                            newCards[idx] = { ...card, iconUrl: reader.result as string };
+                                            updateSectionContent(section.id, { cards: newCards });
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                      }}
+                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                                  </div>
+                                  <Input
+                                    value={card.icon}
+                                    onChange={(e) => {
+                                      const newCards = [...section.content.cards];
+                                      newCards[idx] = { ...card, icon: e.target.value };
+                                      updateSectionContent(section.id, { cards: newCards });
+                                    }}
+                                    placeholder="Emoji"
+                                    className="w-14 text-center"
+                                  />
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={async () => {
+                                      setIsGenerating(`cap-icon-${idx}`);
+                                      await new Promise(resolve => setTimeout(resolve, 1500));
+                                      const newCards = [...section.content.cards];
+                                      newCards[idx] = { ...card, iconUrl: 'https://api.iconify.design/fluent-emoji-flat/rocket.svg' };
+                                      updateSectionContent(section.id, { cards: newCards });
+                                      setIsGenerating(null);
+                                      toast.success('Icon generated!');
+                                    }}
+                                    disabled={isGenerating === `cap-icon-${idx}`}
+                                    className="gap-1 h-8 text-xs"
+                                  >
+                                    {isGenerating === `cap-icon-${idx}` ? (
+                                      <RefreshCw className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="h-3 w-3" />
+                                    )}
+                                    AI
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
+                          
+                          <Input
+                            value={card.title}
+                            onChange={(e) => {
+                              const newCards = [...section.content.cards];
+                              newCards[idx] = { ...card, title: e.target.value };
+                              updateSectionContent(section.id, { cards: newCards });
+                            }}
+                            placeholder="Title"
+                          />
                           <Textarea
                             value={card.description}
                             onChange={(e) => {
