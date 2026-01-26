@@ -598,6 +598,11 @@ const PhotoshootThemeSelector: React.FC<PhotoshootThemeSelectorProps> = ({
                         alt={`${theme.name} preview ${idx + 1}`}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.onerror = null;
+                          target.src = `https://placehold.co/400x500/e5e7eb/9ca3af?text=${encodeURIComponent(theme.name)}`;
+                        }}
                       />
                     </div>
                   ))}
