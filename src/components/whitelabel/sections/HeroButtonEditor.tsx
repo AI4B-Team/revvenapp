@@ -13,7 +13,9 @@ import {
   ChevronDown,
   ChevronUp,
   Edit2,
-  X
+  X,
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import {
   Select,
@@ -29,6 +31,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 export interface HeroButton {
   id: string;
@@ -39,6 +49,7 @@ export interface HeroButton {
   anchorId?: string;
   videoUrl?: string;
   openInNewTab?: boolean;
+  color?: string;
 }
 
 interface HeroButtonEditorProps {
@@ -51,10 +62,51 @@ const defaultButtons: HeroButton[] = [
   { id: '2', text: 'Learn More', style: 'secondary', action: 'anchor', anchorId: 'features' },
 ];
 
+const BUTTON_COLORS = [
+  { value: '', label: 'Default', color: 'hsl(var(--primary))' },
+  { value: '#10b981', label: 'Emerald', color: '#10b981' },
+  { value: '#3b82f6', label: 'Blue', color: '#3b82f6' },
+  { value: '#8b5cf6', label: 'Purple', color: '#8b5cf6' },
+  { value: '#f59e0b', label: 'Amber', color: '#f59e0b' },
+  { value: '#ef4444', label: 'Red', color: '#ef4444' },
+  { value: '#ec4899', label: 'Pink', color: '#ec4899' },
+  { value: '#14b8a6', label: 'Teal', color: '#14b8a6' },
+];
+
 export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroButtonEditorProps) {
   const [editingButton, setEditingButton] = useState<HeroButton | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isGeneratingText, setIsGeneratingText] = useState(false);
 
+  const generateButtonText = async () => {
+    if (!editingButton) return;
+    
+    setIsGeneratingText(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('editor-generate-text', {
+        body: { 
+          prompt: `Generate 1 short, compelling call-to-action button text (2-4 words max) for a ${editingButton.action === 'video' ? 'video popup' : editingButton.action === 'anchor' ? 'scroll to section' : 'link'} button. Return ONLY the button text, nothing else. Examples: "Get Started", "Learn More", "Watch Demo", "See Pricing", "Start Free Trial"`,
+          type: 'button'
+        }
+      });
+
+      if (error) throw error;
+      
+      const generatedText = data?.text?.trim() || data?.message?.trim();
+      if (generatedText) {
+        setEditingButton({ ...editingButton, text: generatedText });
+      }
+    } catch (error) {
+      console.error('Error generating button text:', error);
+      toast({
+        title: "Generation failed",
+        description: "Could not generate button text. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingText(false);
+    }
+  };
   const addButton = () => {
     const newButton: HeroButton = {
       id: Date.now().toString(),
@@ -208,14 +260,38 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
               {/* Form Fields */}
               <div className="space-y-4">
-                {/* Button Text */}
+              {/* Button Text */}
                 <div className="space-y-2">
                   <Label>Button Text</Label>
-                  <Input
-                    value={editingButton.text}
-                    onChange={(e) => setEditingButton({ ...editingButton, text: e.target.value })}
-                    placeholder="Enter button text"
-                  />
+                  <div className="relative">
+                    <Input
+                      value={editingButton.text}
+                      onChange={(e) => setEditingButton({ ...editingButton, text: e.target.value })}
+                      placeholder="Enter Button Text"
+                      className="pr-10"
+                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            onClick={generateButtonText}
+                            disabled={isGeneratingText}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors disabled:opacity-50"
+                          >
+                            {isGeneratingText ? (
+                              <Loader2 className="h-4 w-4 text-brand-yellow animate-spin" />
+                            ) : (
+                              <Sparkles className="h-4 w-4 text-brand-yellow" />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Generate Button Text With AI</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </div>
 
                 {/* Button Style */}
@@ -237,6 +313,27 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                       <SelectItem value="ghost">Ghost (Text Only)</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Button Color */}
+                <div className="space-y-2">
+                  <Label>Button Color</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {BUTTON_COLORS.map((colorOption) => (
+                      <button
+                        key={colorOption.value || 'default'}
+                        type="button"
+                        onClick={() => setEditingButton({ ...editingButton, color: colorOption.value })}
+                        className={`w-8 h-8 rounded-full border-2 transition-all ${
+                          (editingButton.color || '') === colorOption.value
+                            ? 'border-foreground scale-110'
+                            : 'border-transparent hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: colorOption.color }}
+                        title={colorOption.label}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 {/* Action Type */}
@@ -261,7 +358,7 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                       <SelectItem value="anchor">
                         <div className="flex items-center gap-2">
                           <Anchor className="h-4 w-4" />
-                          Scroll to Section
+                          Scroll To Section
                         </div>
                       </SelectItem>
                       <SelectItem value="video">
@@ -343,20 +440,35 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                 <div className="flex items-center gap-2">
                   <Label className="text-sm font-medium">Live Preview</Label>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-medium">
-                    Auto-sync
+                    Auto-Sync
                   </span>
                 </div>
                 <div className="rounded-lg border border-border bg-gradient-to-br from-muted/50 to-muted/30 p-8 flex items-center justify-center min-h-[200px]">
                   <button
                     className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-all ${
                       editingButton.style === 'primary' 
-                        ? 'bg-primary text-primary-foreground shadow-md' 
+                        ? 'text-primary-foreground shadow-md' 
                         : editingButton.style === 'secondary'
-                        ? 'bg-secondary text-secondary-foreground'
+                        ? 'text-secondary-foreground'
                         : editingButton.style === 'outline'
-                        ? 'border-2 border-primary text-primary bg-transparent'
-                        : 'bg-transparent text-primary hover:bg-muted'
+                        ? 'border-2 bg-transparent'
+                        : 'bg-transparent hover:bg-muted'
                     }`}
+                    style={{
+                      backgroundColor: editingButton.style === 'primary' 
+                        ? (editingButton.color || 'hsl(var(--primary))') 
+                        : editingButton.style === 'secondary'
+                        ? (editingButton.color || 'hsl(var(--secondary))')
+                        : editingButton.style === 'outline'
+                        ? 'transparent'
+                        : 'transparent',
+                      borderColor: editingButton.style === 'outline' 
+                        ? (editingButton.color || 'hsl(var(--primary))') 
+                        : undefined,
+                      color: editingButton.style === 'outline' || editingButton.style === 'ghost'
+                        ? (editingButton.color || 'hsl(var(--primary))')
+                        : undefined,
+                    }}
                   >
                     {editingButton.action === 'video' && <Play className="h-4 w-4" />}
                     {editingButton.text || 'Button Text'}
