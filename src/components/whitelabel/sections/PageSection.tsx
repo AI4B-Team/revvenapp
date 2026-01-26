@@ -11,7 +11,8 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp,
-  GripVertical,
+  ArrowUp,
+  ArrowDown,
   Plus,
   Trash2,
   Image as ImageIcon,
@@ -74,6 +75,22 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
       } 
     },
     { 
+      id: 'credibility', 
+      type: 'credibility', 
+      enabled: true, 
+      title: 'Credibility Section', 
+      content: { 
+        headline: 'Trusted By Industry Leaders',
+        logos: [
+          { id: '1', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/250px-Google_2015_logo.svg.png', name: 'Google' },
+          { id: '2', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png', name: 'Microsoft' },
+          { id: '3', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png', name: 'Amazon' },
+          { id: '4', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/200px-Netflix_2015_logo.svg.png', name: 'Netflix' },
+          { id: '5', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/120px-Tesla_logo.png', name: 'Tesla' },
+        ]
+      } 
+    },
+    { 
       id: 'features', 
       type: 'features', 
       enabled: true, 
@@ -98,22 +115,6 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
           { title: 'Analytics', description: 'Get real-time insights and data-driven recommendations', icon: '📊' },
           { title: 'Collaboration', description: 'Work seamlessly with your team in real-time', icon: '👥' }
         ] 
-      } 
-    },
-    { 
-      id: 'credibility', 
-      type: 'credibility', 
-      enabled: true, 
-      title: 'Credibility Section', 
-      content: { 
-        headline: 'Trusted By Industry Leaders',
-        logos: [
-          { id: '1', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/250px-Google_2015_logo.svg.png', name: 'Google' },
-          { id: '2', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png', name: 'Microsoft' },
-          { id: '3', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png', name: 'Amazon' },
-          { id: '4', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/200px-Netflix_2015_logo.svg.png', name: 'Netflix' },
-          { id: '5', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/120px-Tesla_logo.png', name: 'Tesla' },
-        ]
       } 
     },
     { 
@@ -386,6 +387,24 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
     ));
   };
 
+  const moveSectionUp = (id: string) => {
+    const index = sections.findIndex(s => s.id === id);
+    if (index > 0) {
+      const newSections = [...sections];
+      [newSections[index - 1], newSections[index]] = [newSections[index], newSections[index - 1]];
+      setSections(newSections);
+    }
+  };
+
+  const moveSectionDown = (id: string) => {
+    const index = sections.findIndex(s => s.id === id);
+    if (index < sections.length - 1) {
+      const newSections = [...sections];
+      [newSections[index], newSections[index + 1]] = [newSections[index + 1], newSections[index]];
+      setSections(newSections);
+    }
+  };
+
   const handleGenerateCopy = async (sectionId: string) => {
     setIsGenerating(sectionId);
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -488,9 +507,11 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
           </span>
         </div>
 
-        {sections.map((section) => {
+        {sections.map((section, sectionIndex) => {
           const Icon = sectionIcons[section.type];
           const isExpanded = expandedSection === section.id;
+          const isFirst = sectionIndex === 0;
+          const isLast = sectionIndex === sections.length - 1;
 
           return (
             <div 
@@ -504,7 +525,27 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                 className="flex items-center gap-3 p-4 cursor-pointer"
                 onClick={() => toggleSection(section.id)}
               >
-                <GripVertical className="h-4 w-4 text-muted-foreground" />
+                {/* Up/Down Arrow Buttons */}
+                <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => moveSectionUp(section.id)}
+                    disabled={isFirst}
+                    className={`p-1 rounded hover:bg-muted transition-colors ${
+                      isFirst ? 'opacity-30 cursor-not-allowed' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <ArrowUp className="h-3 w-3" />
+                  </button>
+                  <button
+                    onClick={() => moveSectionDown(section.id)}
+                    disabled={isLast}
+                    className={`p-1 rounded hover:bg-muted transition-colors ${
+                      isLast ? 'opacity-30 cursor-not-allowed' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <ArrowDown className="h-3 w-3" />
+                  </button>
+                </div>
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   section.enabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                 }`}>

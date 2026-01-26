@@ -651,411 +651,378 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                 </div>
               </div>
             ) : (
-              /* Sales Page Preview */
+              /* Sales Page Preview - Render sections in order */
               <>
-                {/* Hero Section */}
-                {(pageSections.find(s => s.id === 'hero')?.enabled !== false) && (
-                  <HeroPreview 
-                    style={pageStyle}
-                    badge={pageSections.find(s => s.id === 'hero')?.content?.badge || 'AI-Powered'}
-                    tagline={pageSections.find(s => s.id === 'hero')?.content?.tagline || tagline}
-                    description={pageSections.find(s => s.id === 'hero')?.content?.description}
-                    productName={productName}
-                    primaryColor={primaryColor}
-                    logoUrl={logoUrl}
-                    selectedIcon={selectedIcon}
-                    heroImageUrl={pageSections.find(s => s.id === 'hero')?.content?.heroImageUrl}
-                    appThumbnail={app ? getAppThumbnail(app.name) : undefined}
-                  />
-                )}
-
-                {/* Features Section */}
-                {(pageSections.find(s => s.id === 'features')?.enabled !== false) && (
-                  <div className="px-8 py-12 bg-zinc-50">
-                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                      {pageSections.find(s => s.id === 'features')?.content?.headline || 'Why Choose Us'}
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {(pageSections.find(s => s.id === 'features')?.content?.features || [
-                        { title: 'Lightning Fast', description: 'Get results in seconds' },
-                        { title: 'Secure & Private', description: 'Your data is protected' },
-                        { title: 'Premium Quality', description: 'Best-in-class results' },
-                      ]).slice(0, 3).map((feature: any, idx: number) => (
-                        <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
-                          <div 
-                            className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden"
-                            style={{ backgroundColor: feature.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
-                          >
-                            {feature.iconUrl ? (
-                              <img src={feature.iconUrl} alt="" className="w-full h-full object-contain" />
-                            ) : feature.icon ? (
-                              <span className="text-xl">{feature.icon}</span>
-                            ) : (
-                              <Zap size={20} />
-                            )}
-                          </div>
-                          <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
-                          <p className="text-sm text-zinc-600">{feature.description || feature.desc}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Capabilities Section */}
-                {(pageSections.find(s => s.id === 'capabilities')?.enabled !== false) && (
-                  <div className="px-8 py-12">
-                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                      {pageSections.find(s => s.id === 'capabilities')?.content?.headline || 'What We Offer'}
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {(pageSections.find(s => s.id === 'capabilities')?.content?.cards || [
-                        { title: 'Automation', description: 'Automate repetitive tasks', icon: '⚡' },
-                        { title: 'Analytics', description: 'Get real-time insights', icon: '📊' },
-                        { title: 'Collaboration', description: 'Work seamlessly with your team', icon: '👥' },
-                      ]).map((card: any, idx: number) => (
-                        <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
-                          <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                            {card.iconUrl ? (
-                              <img src={card.iconUrl} alt="" className="w-full h-full object-contain" />
-                            ) : (
-                              <span className="text-3xl">{card.icon}</span>
-                            )}
-                          </div>
-                          <h3 className="font-semibold text-zinc-900 mb-2">{card.title}</h3>
-                          <p className="text-sm text-zinc-600">{card.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Credibility Section - Logo Carousel */}
-                {(pageSections.find(s => s.id === 'credibility')?.enabled !== false) && (() => {
-                  const credibilitySection = pageSections.find(s => s.id === 'credibility');
-                  const logos = credibilitySection?.content?.logos || [];
-                  const headline = credibilitySection?.content?.headline || 'Trusted By Industry Leaders';
+                {pageSections.map((section) => {
+                  if (!section.enabled) return null;
                   
-                  if (logos.length === 0) return null;
-                  
-                  // Duplicate logos for seamless infinite scroll
-                  const duplicatedLogos = [...logos, ...logos, ...logos];
-                  
-                  return (
-                    <div className="py-12 overflow-hidden bg-zinc-50/50">
-                      <h2 className="text-xl font-semibold text-zinc-600 text-center mb-8">
-                        {headline}
-                      </h2>
-                      <div className="relative">
-                        {/* Gradient overlays for smooth fade effect */}
-                        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-50/50 to-transparent z-10" />
-                        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-50/50 to-transparent z-10" />
-                        
-                        {/* Sliding carousel */}
-                        <div 
-                          className="flex items-center gap-12 animate-scroll-left"
-                          style={{
-                            width: 'fit-content',
-                          }}
-                        >
-                          {duplicatedLogos.map((logo: { id: string; url: string; name: string }, idx: number) => (
+                  switch (section.id) {
+                    case 'hero':
+                      return (
+                        <HeroPreview 
+                          key={section.id}
+                          style={pageStyle}
+                          badge={section.content?.badge || 'AI-Powered'}
+                          tagline={section.content?.tagline || tagline}
+                          description={section.content?.description}
+                          productName={productName}
+                          primaryColor={primaryColor}
+                          logoUrl={logoUrl}
+                          selectedIcon={selectedIcon}
+                          heroImageUrl={section.content?.heroImageUrl}
+                          appThumbnail={app ? getAppThumbnail(app.name) : undefined}
+                        />
+                      );
+                    
+                    case 'credibility':
+                      const logos = section.content?.logos || [];
+                      const headline = section.content?.headline || 'Trusted By Industry Leaders';
+                      if (logos.length === 0) return null;
+                      const duplicatedLogos = [...logos, ...logos, ...logos];
+                      return (
+                        <div key={section.id} className="py-12 overflow-hidden bg-zinc-50/50">
+                          <h2 className="text-xl font-semibold text-zinc-600 text-center mb-8">
+                            {headline}
+                          </h2>
+                          <div className="relative">
+                            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-50/50 to-transparent z-10" />
+                            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-50/50 to-transparent z-10" />
                             <div 
-                              key={`${logo.id}-${idx}`} 
-                              className="flex-shrink-0 h-10 w-28 flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                              className="flex items-center gap-12 animate-scroll-left"
+                              style={{ width: 'fit-content' }}
                             >
-                              <img 
-                                src={logo.url} 
-                                alt={logo.name || 'Company logo'} 
-                                className="max-h-full max-w-full object-contain"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Testimonials Section */}
-                {(pageSections.find(s => s.id === 'testimonials')?.enabled !== false) && (
-                  <div className="px-8 py-12 bg-zinc-50">
-                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                      What Our Customers Say
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {(pageSections.find(s => s.id === 'testimonials')?.content?.testimonials || [
-                        { name: 'Sarah J.', role: 'Marketing Director', quote: 'This platform transformed our workflow.' },
-                        { name: 'Michael C.', role: 'Founder', quote: 'Best investment we made this year.' },
-                        { name: 'Emily R.', role: 'Operations Manager', quote: 'Incredible support and product.' },
-                      ]).slice(0, 3).map((testimonial: any, idx: number) => (
-                        <div key={idx} className="bg-white rounded-xl p-6 shadow-sm flex flex-col">
-                          {/* Screenshot Image - if provided */}
-                          {testimonial.screenshotUrl && (
-                            <div className="mb-4 -mx-2 -mt-2">
-                              <img 
-                                src={testimonial.screenshotUrl} 
-                                alt="Testimonial screenshot" 
-                                className="w-full rounded-lg object-cover max-h-48"
-                              />
-                            </div>
-                          )}
-                          
-                          {/* Quote text - only show if provided */}
-                          {testimonial.quote && (
-                            <p className="text-zinc-600 text-sm mb-4 flex-1">"{testimonial.quote}"</p>
-                          )}
-                          
-                          {/* Author info - only show if name provided */}
-                          {testimonial.name && (
-                            <div className="flex items-center gap-3 mt-auto">
-                              {testimonial.avatarUrl && (
-                                <img 
-                                  src={testimonial.avatarUrl} 
-                                  alt={testimonial.name}
-                                  className="w-10 h-10 rounded-full object-cover"
-                                />
-                              )}
-                              <div>
-                                <p className="font-medium text-zinc-900">{testimonial.name}</p>
-                                {testimonial.role && <p className="text-xs text-zinc-500">{testimonial.role}{testimonial.company && `, ${testimonial.company}`}</p>}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* If only screenshot, no name - just show image */}
-                          {!testimonial.name && !testimonial.quote && testimonial.screenshotUrl && (
-                            <p className="text-xs text-zinc-400 text-center">Customer Testimonial</p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Pricing Section */}
-                {(pageSections.find(s => s.id === 'pricing')?.enabled !== false) && (
-                  <div className="px-8 py-12">
-                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                      {pageSections.find(s => s.id === 'pricing')?.content?.headline || 'Simple Pricing'}
-                    </h2>
-                    <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
-                      <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
-                        {license?.pricingSettings?.pricingModel === 'one-time' ? 'One-Time Payment' : 'Monthly'}
-                      </div>
-                      <div className="text-4xl font-bold text-zinc-900 mb-4">
-                        ${license?.pricingSettings?.monthlyPrice || license?.pricingSettings?.oneTimePrice || '97'}
-                        {license?.pricingSettings?.pricingModel !== 'one-time' && (
-                          <span className="text-lg font-normal text-zinc-500">/mo</span>
-                        )}
-                      </div>
-                      <ul className="text-left space-y-3 mb-6">
-                        {['Full Access', 'Priority Support', 'Regular Updates'].map((item, idx) => (
-                          <li key={idx} className="flex items-center gap-2 text-zinc-600">
-                            <Check size={16} style={{ color: primaryColor }} />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                      <button 
-                        className="w-full py-3 rounded-lg font-medium text-white"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        Get Started Now
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* FAQ Section - Accordion Style */}
-                {(pageSections.find(s => s.id === 'faq')?.enabled !== false) && (
-                  <div className="px-8 py-12 bg-zinc-50">
-                    <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                      Frequently Asked Questions
-                    </h2>
-                    <div className="max-w-2xl mx-auto">
-                      <Accordion type="single" collapsible className="space-y-3">
-                        {(pageSections.find(s => s.id === 'faq')?.content?.questions || [
-                          { q: 'How quickly can I get started?', a: 'You can be up and running in less than 5 minutes.' },
-                          { q: 'Is there a free trial?', a: 'Yes! We offer a 14-day free trial with full access.' },
-                          { q: 'Can I cancel anytime?', a: 'Absolutely. Cancel anytime with no questions asked.' },
-                        ]).map((faq: any, idx: number) => (
-                          <AccordionItem 
-                            key={idx} 
-                            value={`faq-${idx}`} 
-                            className="bg-white rounded-xl shadow-sm border-none overflow-hidden"
-                          >
-                            <AccordionTrigger className="px-5 py-4 text-left font-medium text-zinc-900 hover:no-underline hover:bg-zinc-50 transition-colors">
-                              {faq.q}
-                            </AccordionTrigger>
-                            <AccordionContent className="px-5 pb-4 text-sm text-zinc-600">
-                              {faq.a}
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </div>
-                  </div>
-                )}
-
-                {/* Call To Action Section */}
-                {(pageSections.find(s => s.id === 'cta')?.enabled !== false) && (
-                  <div 
-                    className="px-8 py-16 text-center"
-                    style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
-                  >
-                    <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 mb-4">
-                      {pageSections.find(s => s.id === 'cta')?.content?.headline || 'Ready to Transform Your Business?'}
-                    </h2>
-                    <p className="text-zinc-600 mb-8 max-w-md mx-auto">
-                      {pageSections.find(s => s.id === 'cta')?.content?.subheadline || 'Join thousands of successful businesses already using our platform'}
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <button 
-                        className="px-8 py-3 rounded-lg font-medium text-white"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        {pageSections.find(s => s.id === 'cta')?.content?.buttonText || 'Start Your Free Trial'}
-                      </button>
-                      <button className="px-8 py-3 rounded-lg font-medium text-zinc-700 bg-white border border-zinc-200">
-                        {pageSections.find(s => s.id === 'cta')?.content?.secondaryButtonText || 'Schedule a Demo'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Footer */}
-                {(pageSections.find(s => s.id === 'footer')?.enabled !== false) && (() => {
-                  const footerSection = pageSections.find(s => s.id === 'footer');
-                  const footerContent = footerSection?.content || {};
-                  const showSocialLinks = footerContent.showSocialLinks;
-                  const showNewsletter = footerContent.showNewsletter;
-                  const socialLinks = footerContent.socialLinks || {};
-                  const companyName = footerContent.companyName || productName;
-                  const footerTagline = footerContent.tagline || 'Empowering businesses with AI';
-                  
-                  return (
-                    <div className="px-8 py-10 bg-zinc-900">
-                      <div className="max-w-4xl mx-auto">
-                        {/* Main Footer Content */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                          {/* Brand Column */}
-                          <div className="text-left">
-                            <div className="flex items-center gap-2 mb-3">
-                              {logoUrl ? (
-                                <img src={logoUrl} alt="Logo" className="h-8 object-contain brightness-0 invert" />
-                              ) : (
+                              {duplicatedLogos.map((logo: { id: string; url: string; name: string }, idx: number) => (
                                 <div 
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
-                                  style={{ backgroundColor: primaryColor }}
+                                  key={`${logo.id}-${idx}`} 
+                                  className="flex-shrink-0 h-10 w-28 flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
                                 >
-                                  {selectedIcon}
+                                  <img 
+                                    src={logo.url} 
+                                    alt={logo.name || 'Company logo'} 
+                                    className="max-h-full max-w-full object-contain"
+                                  />
                                 </div>
-                              )}
-                              <span className="font-bold text-white">{companyName}</span>
-                            </div>
-                            <p className="text-zinc-400 text-sm">{footerTagline}</p>
-                          </div>
-                          
-                          {/* Newsletter Column */}
-                          {showNewsletter && (
-                            <div className="text-left">
-                              <h4 className="font-semibold text-white mb-3">
-                                {footerContent.newsletterHeadline || 'Stay Updated'}
-                              </h4>
-                              <p className="text-zinc-400 text-sm mb-3">
-                                {footerContent.newsletterDescription || 'Get the latest news and updates'}
-                              </p>
-                              <div className="flex gap-2">
-                                <input 
-                                  type="email"
-                                  placeholder="Enter your email"
-                                  className="flex-1 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white placeholder:text-zinc-500"
-                                />
-                                <button 
-                                  className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-                                  style={{ backgroundColor: primaryColor }}
-                                >
-                                  {footerContent.newsletterButtonText || 'Subscribe'}
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Social Links Column */}
-                          {showSocialLinks && (
-                            <div className="text-left md:text-right">
-                              <h4 className="font-semibold text-white mb-3">Follow Us</h4>
-                              <div className="flex gap-3 md:justify-end">
-                                {socialLinks.twitter && (
-                                  <a href={socialLinks.twitter} className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                  </a>
-                                )}
-                                {socialLinks.facebook && (
-                                  <a href={socialLinks.facebook} className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                                  </a>
-                                )}
-                                {socialLinks.instagram && (
-                                  <a href={socialLinks.instagram} className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                                  </a>
-                                )}
-                                {socialLinks.linkedin && (
-                                  <a href={socialLinks.linkedin} className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                                  </a>
-                                )}
-                                {socialLinks.youtube && (
-                                  <a href={socialLinks.youtube} className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                                  </a>
-                                )}
-                                {/* Show placeholder icons if no links configured */}
-                                {!socialLinks.twitter && !socialLinks.facebook && !socialLinks.instagram && !socialLinks.linkedin && !socialLinks.youtube && (
-                                  <>
-                                    <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500">
-                                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                    </div>
-                                    <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500">
-                                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                                    </div>
-                                    <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500">
-                                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Divider */}
-                        <div className="border-t border-zinc-800 pt-6">
-                          {/* Legal Links */}
-                          {legalDocs.filter(doc => doc.enabled).length > 0 && (
-                            <div className="flex items-center justify-center gap-4 flex-wrap mb-4">
-                              {legalDocs.filter(doc => doc.enabled).map((doc) => (
-                                <a 
-                                  key={doc.id}
-                                  href={`#${doc.id}`}
-                                  className="text-zinc-400 text-sm hover:text-white transition-colors"
-                                >
-                                  {doc.title}
-                                </a>
                               ))}
                             </div>
-                          )}
-                          
-                          {/* Copyright */}
-                          <p className="text-zinc-500 text-sm text-center">
-                            © {footerContent.copyrightYear || new Date().getFullYear()} {companyName}. All rights reserved.
-                          </p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })()}
+                      );
+                    
+                    case 'features':
+                      return (
+                        <div key={section.id} className="px-8 py-12 bg-zinc-50">
+                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                            {section.content?.headline || 'Why Choose Us'}
+                          </h2>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {(section.content?.features || [
+                              { title: 'Lightning Fast', description: 'Get results in seconds' },
+                              { title: 'Secure & Private', description: 'Your data is protected' },
+                              { title: 'Premium Quality', description: 'Best-in-class results' },
+                            ]).slice(0, 3).map((feature: any, idx: number) => (
+                              <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
+                                <div 
+                                  className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden"
+                                  style={{ backgroundColor: feature.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
+                                >
+                                  {feature.iconUrl ? (
+                                    <img src={feature.iconUrl} alt="" className="w-full h-full object-contain" />
+                                  ) : feature.icon ? (
+                                    <span className="text-xl">{feature.icon}</span>
+                                  ) : (
+                                    <Zap size={20} />
+                                  )}
+                                </div>
+                                <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
+                                <p className="text-sm text-zinc-600">{feature.description || feature.desc}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    
+                    case 'capabilities':
+                      return (
+                        <div key={section.id} className="px-8 py-12">
+                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                            {section.content?.headline || 'What We Offer'}
+                          </h2>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {(section.content?.cards || [
+                              { title: 'Automation', description: 'Automate repetitive tasks', icon: '⚡' },
+                              { title: 'Analytics', description: 'Get real-time insights', icon: '📊' },
+                              { title: 'Collaboration', description: 'Work seamlessly with your team', icon: '👥' },
+                            ]).map((card: any, idx: number) => (
+                              <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
+                                <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                                  {card.iconUrl ? (
+                                    <img src={card.iconUrl} alt="" className="w-full h-full object-contain" />
+                                  ) : (
+                                    <span className="text-3xl">{card.icon}</span>
+                                  )}
+                                </div>
+                                <h3 className="font-semibold text-zinc-900 mb-2">{card.title}</h3>
+                                <p className="text-sm text-zinc-600">{card.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    
+                    case 'testimonials':
+                      return (
+                        <div key={section.id} className="px-8 py-12 bg-zinc-50">
+                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                            What Our Customers Say
+                          </h2>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {(section.content?.testimonials || [
+                              { name: 'Sarah J.', role: 'Marketing Director', quote: 'This platform transformed our workflow.' },
+                              { name: 'Michael C.', role: 'Founder', quote: 'Best investment we made this year.' },
+                              { name: 'Emily R.', role: 'Operations Manager', quote: 'Incredible support and product.' },
+                            ]).slice(0, 3).map((testimonial: any, idx: number) => (
+                              <div key={idx} className="bg-white rounded-xl p-6 shadow-sm flex flex-col">
+                                {testimonial.screenshotUrl && (
+                                  <div className="mb-4 -mx-2 -mt-2">
+                                    <img 
+                                      src={testimonial.screenshotUrl} 
+                                      alt="Testimonial screenshot" 
+                                      className="w-full rounded-lg object-cover max-h-48"
+                                    />
+                                  </div>
+                                )}
+                                {testimonial.quote && (
+                                  <p className="text-zinc-600 text-sm mb-4 flex-1">"{testimonial.quote}"</p>
+                                )}
+                                {testimonial.name && (
+                                  <div className="flex items-center gap-3 mt-auto">
+                                    {testimonial.avatarUrl && (
+                                      <img 
+                                        src={testimonial.avatarUrl} 
+                                        alt={testimonial.name}
+                                        className="w-10 h-10 rounded-full object-cover"
+                                      />
+                                    )}
+                                    <div>
+                                      <p className="font-medium text-zinc-900">{testimonial.name}</p>
+                                      {testimonial.role && <p className="text-xs text-zinc-500">{testimonial.role}{testimonial.company && `, ${testimonial.company}`}</p>}
+                                    </div>
+                                  </div>
+                                )}
+                                {!testimonial.name && !testimonial.quote && testimonial.screenshotUrl && (
+                                  <p className="text-xs text-zinc-400 text-center">Customer Testimonial</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    
+                    case 'pricing':
+                      return (
+                        <div key={section.id} className="px-8 py-12">
+                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                            {section.content?.headline || 'Simple Pricing'}
+                          </h2>
+                          <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
+                            <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
+                              {license?.pricingSettings?.pricingModel === 'one-time' ? 'One-Time Payment' : 'Monthly'}
+                            </div>
+                            <div className="text-4xl font-bold text-zinc-900 mb-4">
+                              ${license?.pricingSettings?.monthlyPrice || license?.pricingSettings?.oneTimePrice || '97'}
+                              {license?.pricingSettings?.pricingModel !== 'one-time' && (
+                                <span className="text-lg font-normal text-zinc-500">/mo</span>
+                              )}
+                            </div>
+                            <ul className="text-left space-y-3 mb-6">
+                              {['Full Access', 'Priority Support', 'Regular Updates'].map((item, idx) => (
+                                <li key={idx} className="flex items-center gap-2 text-zinc-600">
+                                  <Check size={16} style={{ color: primaryColor }} />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                            <button 
+                              className="w-full py-3 rounded-lg font-medium text-white"
+                              style={{ backgroundColor: primaryColor }}
+                            >
+                              Get Started Now
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    
+                    case 'faq':
+                      return (
+                        <div key={section.id} className="px-8 py-12 bg-zinc-50">
+                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                            Frequently Asked Questions
+                          </h2>
+                          <div className="max-w-2xl mx-auto">
+                            <Accordion type="single" collapsible className="space-y-3">
+                              {(section.content?.questions || [
+                                { q: 'How quickly can I get started?', a: 'You can be up and running in less than 5 minutes.' },
+                                { q: 'Is there a free trial?', a: 'Yes! We offer a 14-day free trial with full access.' },
+                                { q: 'Can I cancel anytime?', a: 'Absolutely. Cancel anytime with no questions asked.' },
+                              ]).map((faq: any, idx: number) => (
+                                <AccordionItem 
+                                  key={idx} 
+                                  value={`faq-${idx}`} 
+                                  className="bg-white rounded-xl shadow-sm border-none overflow-hidden"
+                                >
+                                  <AccordionTrigger className="px-5 py-4 text-left font-medium text-zinc-900 hover:no-underline hover:bg-zinc-50 transition-colors">
+                                    {faq.q}
+                                  </AccordionTrigger>
+                                  <AccordionContent className="px-5 pb-4 text-sm text-zinc-600">
+                                    {faq.a}
+                                  </AccordionContent>
+                                </AccordionItem>
+                              ))}
+                            </Accordion>
+                          </div>
+                        </div>
+                      );
+                    
+                    case 'cta':
+                      return (
+                        <div 
+                          key={section.id}
+                          className="px-8 py-16 text-center"
+                          style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
+                        >
+                          <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 mb-4">
+                            {section.content?.headline || 'Ready to Transform Your Business?'}
+                          </h2>
+                          <p className="text-zinc-600 mb-8 max-w-md mx-auto">
+                            {section.content?.subheadline || 'Join thousands of successful businesses already using our platform'}
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button 
+                              className="px-8 py-3 rounded-lg font-medium text-white"
+                              style={{ backgroundColor: primaryColor }}
+                            >
+                              {section.content?.buttonText || 'Start Your Free Trial'}
+                            </button>
+                            <button className="px-8 py-3 rounded-lg font-medium text-zinc-700 bg-white border border-zinc-200">
+                              {section.content?.secondaryButtonText || 'Schedule a Demo'}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    
+                    case 'footer':
+                      const footerContent = section.content || {};
+                      const showSocialLinks = footerContent.showSocialLinks;
+                      const showNewsletter = footerContent.showNewsletter;
+                      const socialLinks = footerContent.socialLinks || {};
+                      const companyName = footerContent.companyName || productName;
+                      const footerTagline = footerContent.tagline || 'Empowering businesses with AI';
+                      
+                      return (
+                        <div key={section.id} className="px-8 py-10 bg-zinc-900">
+                          <div className="max-w-4xl mx-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                              <div className="text-left">
+                                <div className="flex items-center gap-2 mb-3">
+                                  {logoUrl ? (
+                                    <img src={logoUrl} alt="Logo" className="h-8 object-contain brightness-0 invert" />
+                                  ) : (
+                                    <div 
+                                      className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
+                                      style={{ backgroundColor: primaryColor }}
+                                    >
+                                      {selectedIcon}
+                                    </div>
+                                  )}
+                                  <span className="font-bold text-white">{companyName}</span>
+                                </div>
+                                <p className="text-zinc-400 text-sm">{footerTagline}</p>
+                              </div>
+                              
+                              {showNewsletter && (
+                                <div className="text-left">
+                                  <h4 className="font-semibold text-white mb-3">
+                                    {footerContent.newsletterHeadline || 'Stay Updated'}
+                                  </h4>
+                                  <p className="text-zinc-400 text-sm mb-3">
+                                    {footerContent.newsletterDescription || 'Get the latest news and updates'}
+                                  </p>
+                                  <div className="flex gap-2">
+                                    <input 
+                                      type="email"
+                                      placeholder="Enter your email"
+                                      className="flex-1 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white placeholder:text-zinc-500"
+                                    />
+                                    <button 
+                                      className="px-4 py-2 rounded-lg text-sm font-medium text-white"
+                                      style={{ backgroundColor: primaryColor }}
+                                    >
+                                      {footerContent.newsletterButtonText || 'Subscribe'}
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {showSocialLinks && (
+                                <div className="text-left md:text-right">
+                                  <h4 className="font-semibold text-white mb-3">Follow Us</h4>
+                                  <div className="flex gap-3 md:justify-end">
+                                    {socialLinks.twitter && (
+                                      <a href={socialLinks.twitter} className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors">
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                      </a>
+                                    )}
+                                    {socialLinks.instagram && (
+                                      <a href={socialLinks.instagram} className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors">
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                                      </a>
+                                    )}
+                                    {socialLinks.linkedin && (
+                                      <a href={socialLinks.linkedin} className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors">
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                                      </a>
+                                    )}
+                                    {!socialLinks.twitter && !socialLinks.instagram && !socialLinks.linkedin && (
+                                      <>
+                                        <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500">
+                                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                        </div>
+                                        <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500">
+                                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="border-t border-zinc-800 pt-6">
+                              {legalDocs.filter(doc => doc.enabled).length > 0 && (
+                                <div className="flex items-center justify-center gap-4 flex-wrap mb-4">
+                                  {legalDocs.filter(doc => doc.enabled).map((doc) => (
+                                    <a 
+                                      key={doc.id}
+                                      href={`#${doc.id}`}
+                                      className="text-zinc-400 text-sm hover:text-white transition-colors"
+                                    >
+                                      {doc.title}
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                              <p className="text-zinc-500 text-sm text-center">
+                                © {footerContent.copyrightYear || new Date().getFullYear()} {companyName}. All rights reserved.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    
+                    default:
+                      return null;
+                  }
+                })}
               </>
             )}
           </div>
