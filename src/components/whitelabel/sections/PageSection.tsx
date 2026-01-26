@@ -779,6 +779,8 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                           placeholder="Empowering businesses with AI"
                         />
                       </div>
+                      
+                      {/* Social Links Toggle */}
                       <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
                         <div>
                           <p className="font-medium text-foreground text-sm">Show Social Links</p>
@@ -789,6 +791,72 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                           onCheckedChange={(checked) => updateSectionContent(section.id, { showSocialLinks: checked })}
                         />
                       </div>
+                      
+                      {/* Social Links Inputs - shown when toggle is enabled */}
+                      {section.content.showSocialLinks && (
+                        <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
+                          <Label className="text-sm font-medium">Social Media Links</Label>
+                          <div className="grid grid-cols-1 gap-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 text-sm text-muted-foreground">Twitter/X</span>
+                              <Input
+                                value={section.content.socialLinks?.twitter || ''}
+                                onChange={(e) => updateSectionContent(section.id, { 
+                                  socialLinks: { ...section.content.socialLinks, twitter: e.target.value }
+                                })}
+                                placeholder="https://twitter.com/yourbrand"
+                                className="flex-1"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 text-sm text-muted-foreground">Facebook</span>
+                              <Input
+                                value={section.content.socialLinks?.facebook || ''}
+                                onChange={(e) => updateSectionContent(section.id, { 
+                                  socialLinks: { ...section.content.socialLinks, facebook: e.target.value }
+                                })}
+                                placeholder="https://facebook.com/yourbrand"
+                                className="flex-1"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 text-sm text-muted-foreground">Instagram</span>
+                              <Input
+                                value={section.content.socialLinks?.instagram || ''}
+                                onChange={(e) => updateSectionContent(section.id, { 
+                                  socialLinks: { ...section.content.socialLinks, instagram: e.target.value }
+                                })}
+                                placeholder="https://instagram.com/yourbrand"
+                                className="flex-1"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 text-sm text-muted-foreground">LinkedIn</span>
+                              <Input
+                                value={section.content.socialLinks?.linkedin || ''}
+                                onChange={(e) => updateSectionContent(section.id, { 
+                                  socialLinks: { ...section.content.socialLinks, linkedin: e.target.value }
+                                })}
+                                placeholder="https://linkedin.com/company/yourbrand"
+                                className="flex-1"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 text-sm text-muted-foreground">YouTube</span>
+                              <Input
+                                value={section.content.socialLinks?.youtube || ''}
+                                onChange={(e) => updateSectionContent(section.id, { 
+                                  socialLinks: { ...section.content.socialLinks, youtube: e.target.value }
+                                })}
+                                placeholder="https://youtube.com/@yourbrand"
+                                className="flex-1"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Newsletter Toggle */}
                       <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
                         <div>
                           <p className="font-medium text-foreground text-sm">Show Newsletter Signup</p>
@@ -799,6 +867,39 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                           onCheckedChange={(checked) => updateSectionContent(section.id, { showNewsletter: checked })}
                         />
                       </div>
+                      
+                      {/* Newsletter Configuration - shown when toggle is enabled */}
+                      {section.content.showNewsletter && (
+                        <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
+                          <Label className="text-sm font-medium">Newsletter Configuration</Label>
+                          <div className="space-y-3">
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">Headline</Label>
+                              <Input
+                                value={section.content.newsletterHeadline || ''}
+                                onChange={(e) => updateSectionContent(section.id, { newsletterHeadline: e.target.value })}
+                                placeholder="Stay Updated"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">Description</Label>
+                              <Input
+                                value={section.content.newsletterDescription || ''}
+                                onChange={(e) => updateSectionContent(section.id, { newsletterDescription: e.target.value })}
+                                placeholder="Get the latest news and updates"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">Button Text</Label>
+                              <Input
+                                value={section.content.newsletterButtonText || ''}
+                                onChange={(e) => updateSectionContent(section.id, { newsletterButtonText: e.target.value })}
+                                placeholder="Subscribe"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
