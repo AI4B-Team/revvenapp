@@ -582,7 +582,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
     };
   }, []);
 
-  const allItems = type === 'creations' ? [...generatedItems, ...creationsData] : communityData;
+  const allItems = type === 'creations' ? generatedItems : communityData;
 
   // Apply filters
   const items = allItems.filter(item => {
