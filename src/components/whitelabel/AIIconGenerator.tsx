@@ -8,6 +8,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 
 interface AIIconGeneratorProps {
@@ -271,18 +277,27 @@ const AIIconGenerator: React.FC<AIIconGeneratorProps> = ({
                       }
                     }}
                   />
-                  <Button
-                    size="sm"
-                    onClick={handlePromptGenerate}
-                    disabled={isGenerating || !aiPrompt.trim()}
-                    className="shrink-0"
-                  >
-                    {isGenerating ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="h-4 w-4" />
-                    )}
-                  </Button>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        onClick={handlePromptGenerate}
+                        disabled={isGenerating || !aiPrompt.trim()}
+                        className="shrink-0"
+                      >
+                        {isGenerating ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p>Generate Icon From Description</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 </div>
               </div>
             </div>
