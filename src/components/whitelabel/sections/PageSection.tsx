@@ -506,7 +506,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                       {/* Hero Visual Image */}
                       <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
                         <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium">Hero Visual</Label>
+                          <Label className="text-sm font-medium">Hero Visual (Optional)</Label>
                           {section.content.heroImageUrl && (
                             <Button
                               variant="ghost"
