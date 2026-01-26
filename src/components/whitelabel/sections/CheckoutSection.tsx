@@ -29,6 +29,18 @@ export interface CheckoutConfig {
   enableGuarantee: boolean;
   enableFAQs: boolean;
   checkoutFAQs: { q: string; a: string }[];
+  // Conversion Booster fields
+  enableConversionBooster: boolean;
+  discountPercent: number;
+  discountDuration: number;
+  enableUrgencyTimer: boolean;
+  // Spotlight Card fields
+  enableSpotlightCard: boolean;
+  spotlightTitle: string;
+  spotlightItems: string[];
+  // Badge fields
+  enableBadges: boolean;
+  selectedBadges: string[];
 }
 
 interface CheckoutSectionProps {
@@ -46,19 +58,19 @@ const complianceBadges = [
 
 export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChange }: CheckoutSectionProps) {
   const [checkoutLink, setCheckoutLink] = useState('https://yourapp.revven.app/checkout');
-  const [enableConversionBooster, setEnableConversionBooster] = useState(true);
-  const [discountPercent, setDiscountPercent] = useState(15);
-  const [discountDuration, setDiscountDuration] = useState(3);
-  const [enableUrgencyTimer, setEnableUrgencyTimer] = useState(true);
-  const [enableSpotlightCard, setEnableSpotlightCard] = useState(true);
-  const [spotlightTitle, setSpotlightTitle] = useState('What You Get Immediately');
-  const [spotlightItems, setSpotlightItems] = useState([
+  const [enableConversionBooster, setEnableConversionBooster] = useState(checkoutConfig?.enableConversionBooster ?? true);
+  const [discountPercent, setDiscountPercent] = useState(checkoutConfig?.discountPercent ?? 15);
+  const [discountDuration, setDiscountDuration] = useState(checkoutConfig?.discountDuration ?? 3);
+  const [enableUrgencyTimer, setEnableUrgencyTimer] = useState(checkoutConfig?.enableUrgencyTimer ?? true);
+  const [enableSpotlightCard, setEnableSpotlightCard] = useState(checkoutConfig?.enableSpotlightCard ?? true);
+  const [spotlightTitle, setSpotlightTitle] = useState(checkoutConfig?.spotlightTitle ?? 'What You Get Immediately');
+  const [spotlightItems, setSpotlightItems] = useState(checkoutConfig?.spotlightItems ?? [
     'Full Platform Access In 2 Minutes',
     'Unlimited AI Usage Included',
     '14-Day Money-Back Guarantee'
   ]);
-  const [enableBadges, setEnableBadges] = useState(true);
-  const [selectedBadges, setSelectedBadges] = useState(['ssl', 'pci', 'stripe', 'gdpr']);
+  const [enableBadges, setEnableBadges] = useState(checkoutConfig?.enableBadges ?? true);
+  const [selectedBadges, setSelectedBadges] = useState(checkoutConfig?.selectedBadges ?? ['ssl', 'pci', 'stripe', 'gdpr']);
   const [enableGuarantee, setEnableGuarantee] = useState(checkoutConfig?.enableGuarantee ?? true);
   const [guaranteeDays, setGuaranteeDays] = useState(checkoutConfig?.guaranteeDays ?? 14);
   const [guaranteeDescription, setGuaranteeDescription] = useState(checkoutConfig?.guaranteeDescription ?? 'Try It Risk-Free');
@@ -80,8 +92,21 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
       enableGuarantee,
       enableFAQs,
       checkoutFAQs,
+      enableConversionBooster,
+      discountPercent,
+      discountDuration,
+      enableUrgencyTimer,
+      enableSpotlightCard,
+      spotlightTitle,
+      spotlightItems,
+      enableBadges,
+      selectedBadges,
     });
-  }, [guaranteeDays, guaranteeDescription, guaranteeItems, enableGuarantee, enableFAQs, checkoutFAQs]);
+  }, [
+    guaranteeDays, guaranteeDescription, guaranteeItems, enableGuarantee, enableFAQs, checkoutFAQs,
+    enableConversionBooster, discountPercent, discountDuration, enableUrgencyTimer,
+    enableSpotlightCard, spotlightTitle, spotlightItems, enableBadges, selectedBadges
+  ]);
 
   const copyLink = () => {
     navigator.clipboard.writeText(checkoutLink);

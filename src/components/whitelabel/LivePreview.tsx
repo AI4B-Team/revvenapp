@@ -199,39 +199,45 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                   </div>
                 </div>
 
-                {/* Countdown Timer Banner */}
-                <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-3 flex items-center justify-center gap-3">
-                  <Clock size={16} className="text-white" />
-                  <span className="text-white font-medium text-sm">Special Offer Expires In:</span>
-                  <div className="flex items-center gap-1">
-                    {['14', '59', '32'].map((time, idx) => (
-                      <React.Fragment key={idx}>
-                        <span className="bg-white/20 text-white font-bold px-2 py-1 rounded text-sm">
-                          {time}
-                        </span>
-                        {idx < 2 && <span className="text-white/80">:</span>}
-                      </React.Fragment>
-                    ))}
+                {/* Countdown Timer Banner - Only show if urgency timer enabled */}
+                {checkoutConfig?.enableUrgencyTimer !== false && checkoutConfig?.enableConversionBooster !== false && (
+                  <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-3 flex items-center justify-center gap-3">
+                    <Clock size={16} className="text-white" />
+                    <span className="text-white font-medium text-sm">Special Offer Expires In:</span>
+                    <div className="flex items-center gap-1">
+                      {['14', '59', '32'].map((time, idx) => (
+                        <React.Fragment key={idx}>
+                          <span className="bg-white/20 text-white font-bold px-2 py-1 rounded text-sm">
+                            {time}
+                          </span>
+                          {idx < 2 && <span className="text-white/80">:</span>}
+                        </React.Fragment>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Main Checkout Content */}
                 <div className="p-6 max-w-2xl mx-auto">
-                  {/* Discount Applied Banner */}
-                  <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
-                          <Zap size={24} className="text-white" />
+                  {/* Discount Applied Banner - Only show if conversion booster enabled */}
+                  {checkoutConfig?.enableConversionBooster !== false && (
+                    <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
+                            <Zap size={24} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-emerald-700 font-medium">Discount Applied!</p>
+                            <p className="text-2xl font-bold text-emerald-600">
+                              {checkoutConfig?.discountPercent || 15}% OFF For {checkoutConfig?.discountDuration || 3} Month{(checkoutConfig?.discountDuration || 3) > 1 ? 's' : ''}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm text-emerald-700 font-medium">Discount Applied!</p>
-                          <p className="text-2xl font-bold text-emerald-600">15% OFF For 3 Months</p>
-                        </div>
+                        <Check size={24} className="text-emerald-500" />
                       </div>
-                      <Check size={24} className="text-emerald-500" />
                     </div>
-                  </div>
+                  )}
 
                   {/* Order Summary Card */}
                   <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden mb-6">
@@ -252,7 +258,9 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                         </div>
                         <div className="text-right">
                           <p className="text-sm text-zinc-400 line-through">${license?.pricingSettings?.monthlyPrice || '97'}/mo</p>
-                          <p className="font-bold text-emerald-600">${Math.round((license?.pricingSettings?.monthlyPrice || 97) * 0.85)}/mo</p>
+                          <p className="font-bold text-emerald-600">
+                            ${Math.round((license?.pricingSettings?.monthlyPrice || 97) * (1 - (checkoutConfig?.discountPercent || 15) / 100))}/mo
+                          </p>
                         </div>
                       </div>
                       <div className="space-y-2 py-3 border-t border-zinc-100">
