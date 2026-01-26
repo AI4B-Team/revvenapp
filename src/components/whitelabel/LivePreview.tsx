@@ -811,6 +811,36 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
             ) : (
               /* Sales Page Preview - Render sections in order */
               <>
+                {/* Sticky Header with Logo, Site Name, and Auth Buttons */}
+                <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-zinc-100">
+                  <div className="px-6 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {logoUrl ? (
+                        <img src={logoUrl} alt="Logo" className="h-8 object-contain" />
+                      ) : (
+                        <div 
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
+                          style={{ backgroundColor: `${primaryColor}15` }}
+                        >
+                          {selectedIcon}
+                        </div>
+                      )}
+                      <span className="font-semibold text-zinc-900">{productName}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button className="text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors">
+                        Login
+                      </button>
+                      <button 
+                        className="text-sm font-medium px-4 py-1.5 rounded-lg text-white transition-colors"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        Sign Up
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {pageSections.map((section) => {
                   if (!section.enabled) return null;
                   
