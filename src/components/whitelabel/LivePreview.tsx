@@ -769,6 +769,37 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     </div>
                   </div>
 
+                  {/* Order Bumps */}
+                  {checkoutConfig?.enableOrderBumps !== false && checkoutConfig?.orderBumps?.filter(b => b.enabled).length > 0 && (
+                    <div className="mb-6 space-y-3">
+                      <p className="text-sm font-medium text-zinc-700 text-center">Enhance Your Purchase</p>
+                      {checkoutConfig.orderBumps.filter(b => b.enabled).map((bump) => (
+                        <div 
+                          key={bump.id}
+                          className="p-4 rounded-xl border-2 border-zinc-200 bg-white hover:border-zinc-300 cursor-pointer transition-all"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-5 h-5 rounded border-2 border-zinc-300 flex items-center justify-center shrink-0 mt-0.5">
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-zinc-900 text-sm">{bump.headline}</span>
+                                <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">SPECIAL</span>
+                              </div>
+                              <p className="text-xs text-zinc-500 mb-2">{bump.description}</p>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-emerald-600">${bump.price}</span>
+                                {bump.originalPrice && (
+                                  <span className="text-sm text-zinc-400 line-through">${bump.originalPrice}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Payment Form Card */}
                   <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden mb-6">
                     <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
