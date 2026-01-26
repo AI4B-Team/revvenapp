@@ -1185,12 +1185,20 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                 </div>
               </TooltipProvider>
 
-              {/* Creator Info - Bottom Left - Hidden when images are small */}
-              {columnsPerRow <= 3 && (
-                <div className={`absolute bottom-3 left-3 flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
-                  <div className={`${sizes.avatar} bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0`}>
-                    {item.creator.avatar}
-                  </div>
+              {/* Creator Info - Bottom Left - Always visible for community, hidden when images are small for creations */}
+              {(type === 'community' || columnsPerRow <= 3) && (
+                <div className={`absolute bottom-3 left-3 flex items-center ${sizes.gap} ${type === 'community' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                  {item.creator.avatar && item.creator.avatar.startsWith('http') ? (
+                    <img 
+                      src={item.creator.avatar} 
+                      alt={item.creator.name}
+                      className={`${sizes.avatar} rounded-full object-cover shrink-0 border-2 border-white shadow-md`}
+                    />
+                  ) : (
+                    <div className={`${sizes.avatar} bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 border-2 border-white shadow-md`}>
+                      {item.creator.avatar || item.creator.name.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
                   <span className={`text-white ${sizes.text} font-medium bg-black/70 backdrop-blur-sm ${sizes.badge} rounded-lg`}>
                     {item.creator.name}
                   </span>
