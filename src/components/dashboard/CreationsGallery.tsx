@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Play, Bookmark, Heart, Download, Edit, RefreshCw, 
   Share2, X, Copy, Check, Image as ImageIcon, Trash2,
-  Video, Film, Mic, Users, FileText, Music
+  Video, Film, Mic, Users, FileText, Music, MessageCircle
 } from 'lucide-react';
 import {
   Tooltip,
@@ -1106,27 +1106,25 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
               {/* Top Right Actions - Always visible on hover */}
               <TooltipProvider>
                 <div className={`absolute top-3 right-3 flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
-                  {/* Save Bookmark */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleSave(item.id);
-                        }}
-                        className={`${sizes.button} rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
-                          savedItems.has(item.id)
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-black/70 text-white hover:bg-blue-500'
-                        }`}
-                      >
-                        <Bookmark size={sizes.icon} fill={savedItems.has(item.id) ? 'currentColor' : 'none'} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-black text-white border-black">
-                      <p>Save</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  {/* Comment - Only for community */}
+                  {type === 'community' && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleImageClick(index);
+                          }}
+                          className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
+                        >
+                          <MessageCircle size={sizes.icon} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white border-black">
+                        <p>Comment</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
 
                   {/* Like Heart */}
                   <Tooltip>
@@ -1150,41 +1148,69 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                     </TooltipContent>
                   </Tooltip>
 
-                  {/* Download */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDownload(item);
-                        }}
-                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
-                      >
-                        <Download size={sizes.icon} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-black text-white border-black">
-                      <p>Download</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  {/* Save Bookmark - Only for creations */}
+                  {type !== 'community' && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSave(item.id);
+                          }}
+                          className={`${sizes.button} rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
+                            savedItems.has(item.id)
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-black/70 text-white hover:bg-blue-500'
+                          }`}
+                        >
+                          <Bookmark size={sizes.icon} fill={savedItems.has(item.id) ? 'currentColor' : 'none'} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white border-black">
+                        <p>Save</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
 
-                  {/* Delete */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(item);
-                        }}
-                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-red-500 flex items-center justify-center transition-all`}
-                      >
-                        <Trash2 size={sizes.icon} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-black text-white border-black">
-                      <p>Delete</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  {/* Download - Only for creations */}
+                  {type !== 'community' && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownload(item);
+                          }}
+                          className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
+                        >
+                          <Download size={sizes.icon} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white border-black">
+                        <p>Download</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+
+                  {/* Delete - Only for creations */}
+                  {type !== 'community' && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(item);
+                          }}
+                          className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-red-500 flex items-center justify-center transition-all`}
+                        >
+                          <Trash2 size={sizes.icon} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white border-black">
+                        <p>Delete</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
               </TooltipProvider>
 
@@ -1216,108 +1242,110 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                 </div>
               )}
 
-              {/* Action Icons - Bottom Right */}
-              <TooltipProvider>
-                <div className={`absolute bottom-3 right-3 flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(item);
-                        }}
-                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
-                      >
-                        <Edit size={sizes.icon} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Edit</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRecreate(item);
-                        }}
-                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
-                      >
-                        <RefreshCw size={sizes.icon} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Recreate</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleShare(item.id);
-                        }}
-                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
-                      >
-                        <Share2 size={sizes.icon} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Share</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  {/* Animate Dropdown - Only show for images, not videos */}
-                  {item.type === 'image' && (
-                    <DropdownMenu>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <DropdownMenuTrigger asChild>
-                            <button 
-                              onClick={(e) => e.stopPropagation()}
-                              className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-purple-500 flex items-center justify-center transition-all`}
-                            >
-                              <Video size={sizes.icon} />
-                            </button>
-                          </DropdownMenuTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Animate</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <DropdownMenuContent 
-                        className="bg-black border-gray-800 z-50"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <DropdownMenuItem 
-                          onClick={() => handleAnimate(item, 'video')}
-                          className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+              {/* Action Icons - Bottom Right - Only for creations, not community */}
+              {type !== 'community' && (
+                <TooltipProvider>
+                  <div className={`absolute bottom-3 right-3 flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(item);
+                          }}
+                          className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                         >
-                          <Film className="mr-2 h-4 w-4" />
-                          <span>Video</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleAnimate(item, 'speak')}
-                          className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+                          <Edit size={sizes.icon} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Edit</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRecreate(item);
+                          }}
+                          className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                         >
-                          <Mic className="mr-2 h-4 w-4" />
-                          <span>Speak</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleAnimate(item, 'ugc')}
-                          className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+                          <RefreshCw size={sizes.icon} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Recreate</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleShare(item.id);
+                          }}
+                          className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                         >
-                          <Users className="mr-2 h-4 w-4" />
-                          <span>UGC</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-              </TooltipProvider>
+                          <Share2 size={sizes.icon} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Share</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Animate Dropdown - Only show for images, not videos */}
+                    {item.type === 'image' && (
+                      <DropdownMenu>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                              <button 
+                                onClick={(e) => e.stopPropagation()}
+                                className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-purple-500 flex items-center justify-center transition-all`}
+                              >
+                                <Video size={sizes.icon} />
+                              </button>
+                            </DropdownMenuTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Animate</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent 
+                          className="bg-black border-gray-800 z-50"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <DropdownMenuItem 
+                            onClick={() => handleAnimate(item, 'video')}
+                            className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+                          >
+                            <Film className="mr-2 h-4 w-4" />
+                            <span>Video</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleAnimate(item, 'speak')}
+                            className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+                          >
+                            <Mic className="mr-2 h-4 w-4" />
+                            <span>Speak</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleAnimate(item, 'ugc')}
+                            className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+                          >
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>UGC</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                </TooltipProvider>
+              )}
             </div>
           </div>
         ))}
