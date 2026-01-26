@@ -58,82 +58,52 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         return;
       }
 
-      // Fetch images
-      const { data: imagesData, error: imagesError } = await supabase
-        .from('generated_images')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
+      const userId = session.session.user.id;
 
-      if (imagesError) {
-        console.error('Error fetching generated images:', imagesError);
-      }
+      // Fetch all content in parallel for faster loading
+      const [
+        imagesResult,
+        videosResult,
+        businessPlansResult,
+        proposalsResult,
+        caseStudiesResult,
+        coverLettersResult,
+        handbooksResult,
+        voicesResult,
+        audioAppResult
+      ] = await Promise.all([
+        supabase.from('generated_images').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('ai_videos').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('business_plans').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('proposals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('case_studies').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('cover_letters').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('handbooks').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('user_voices').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('audio_app_usage').select('*').eq('user_id', userId).order('created_at', { ascending: false })
+      ]);
 
-      // Fetch videos
-      const { data: videosData, error: videosError } = await supabase
-        .from('ai_videos')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
+      // Extract data and log errors
+      const imagesData = imagesResult.data;
+      const videosData = videosResult.data;
+      const businessPlansData = businessPlansResult.data;
+      const proposalsData = proposalsResult.data;
+      const caseStudiesData = caseStudiesResult.data;
+      const coverLettersData = coverLettersResult.data;
+      const handbooksData = handbooksResult.data;
+      const voicesData = voicesResult.data;
+      const audioAppData = audioAppResult.data;
 
-      if (videosError) {
-        console.error('Error fetching generated videos:', videosError);
-      }
+      if (imagesResult.error) console.error('Error fetching generated images:', imagesResult.error);
+      if (videosResult.error) console.error('Error fetching generated videos:', videosResult.error);
+      if (businessPlansResult.error) console.error('Error fetching business plans:', businessPlansResult.error);
+      if (proposalsResult.error) console.error('Error fetching proposals:', proposalsResult.error);
+      if (caseStudiesResult.error) console.error('Error fetching case studies:', caseStudiesResult.error);
+      if (coverLettersResult.error) console.error('Error fetching cover letters:', coverLettersResult.error);
+      if (handbooksResult.error) console.error('Error fetching handbooks:', handbooksResult.error);
+      if (voicesResult.error) console.error('Error fetching user voices:', voicesResult.error);
+      if (audioAppResult.error) console.error('Error fetching audio app usage:', audioAppResult.error);
 
-      // Fetch business plans
-      const { data: businessPlansData, error: businessPlansError } = await supabase
-        .from('business_plans')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (businessPlansError) {
-        console.error('Error fetching business plans:', businessPlansError);
-      }
-
-      // Fetch proposals
-      const { data: proposalsData, error: proposalsError } = await supabase
-        .from('proposals')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (proposalsError) {
-        console.error('Error fetching proposals:', proposalsError);
-      }
-
-      // Fetch case studies
-      const { data: caseStudiesData, error: caseStudiesError } = await supabase
-        .from('case_studies')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (caseStudiesError) {
-        console.error('Error fetching case studies:', caseStudiesError);
-      }
-
-      // Fetch cover letters
-      const { data: coverLettersData, error: coverLettersError } = await supabase
-        .from('cover_letters')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (coverLettersError) {
-        console.error('Error fetching cover letters:', coverLettersError);
-      }
-
-      // Fetch handbooks
-      const { data: handbooksData, error: handbooksError } = await supabase
-        .from('handbooks')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (handbooksError) {
-        console.error('Error fetching handbooks:', handbooksError);
-      }
 
       const getResolutionFromAspectRatio = (aspectRatio: string | null): string => {
         switch (aspectRatio) {
@@ -327,27 +297,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         content: handbook.content
       })) || [];
 
-      // Fetch user voices (audio)
-      const { data: voicesData, error: voicesError } = await supabase
-        .from('user_voices')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (voicesError) {
-        console.error('Error fetching user voices:', voicesError);
-      }
-
-      // Fetch audio app usage
-      const { data: audioAppData, error: audioAppError } = await supabase
-        .from('audio_app_usage')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (audioAppError) {
-        console.error('Error fetching audio app usage:', audioAppError);
-      }
+      // voicesData and audioAppData are already fetched in parallel above
 
       const mappedVoices: GalleryItem[] = voicesData?.map((voice: any) => ({
         id: voice.id,
