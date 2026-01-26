@@ -330,7 +330,7 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
                   </div>
 
                   {/* Trust Badges */}
-                  <div className="flex justify-center gap-6">
+                  <div className="flex justify-center gap-6 mb-6">
                     {[
                       { label: '256-bit SSL', sub: 'Encrypted' },
                       { label: 'PCI DSS', sub: 'Compliant' },
@@ -343,6 +343,23 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
                         <p className="text-[10px] text-zinc-400">{badge.sub}</p>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Checkout FAQs */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden">
+                    <div className="p-5 border-b border-zinc-100">
+                      <h3 className="font-bold text-zinc-900">Frequently Asked Questions</h3>
+                    </div>
+                    <div className="p-5 space-y-4">
+                      <div className="border-b border-zinc-100 pb-4">
+                        <p className="font-medium text-zinc-900 mb-2">Will I have access to all AIs?</p>
+                        <p className="text-sm text-zinc-600">Yes! You will have access to the main AIs on the market, all integrated in a single platform for you.</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-zinc-900 mb-2">Is there a money-back guarantee?</p>
+                        <p className="text-sm text-zinc-600">Absolutely! We offer a 14-day money-back guarantee with one-click refunds in your dashboard.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
