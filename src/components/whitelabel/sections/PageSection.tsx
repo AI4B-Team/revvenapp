@@ -502,19 +502,6 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                         />
                         <p className="text-xs text-muted-foreground">{(section.content.description?.length || 0)}/300</p>
                       </div>
-                      
-                      {/* Hero Style Templates */}
-                      <div className="space-y-3 pt-2">
-                        <div>
-                          <Label className="text-base font-semibold">Styles</Label>
-                          <p className="text-xs text-muted-foreground">Choose a style for your hero section</p>
-                        </div>
-                        <HeroStyleSelector 
-                          selectedStyle={section.content.style || 'centered'}
-                          onStyleChange={(style) => updateSectionContent(section.id, { style })}
-                          content={section.content}
-                        />
-                      </div>
                     </>
                   )}
 

@@ -53,6 +53,7 @@ interface LivePreviewProps {
   checkoutConfig?: CheckoutConfig;
   legalDocs?: LegalDocument[];
   pageSections?: PageBlock[];
+  pageStyle?: 'centered' | 'split-left' | 'split-right' | 'minimal' | 'gradient' | 'bold';
 }
 
 // Hero Preview Component with style variations
@@ -210,7 +211,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
   }
 }
 
-export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [] }: LivePreviewProps) {
+export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered' }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
@@ -567,7 +568,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                 {/* Hero Section */}
                 {(pageSections.find(s => s.id === 'hero')?.enabled !== false) && (
                   <HeroPreview 
-                    style={pageSections.find(s => s.id === 'hero')?.content?.style || 'centered'}
+                    style={pageStyle}
                     badge={pageSections.find(s => s.id === 'hero')?.content?.badge || 'AI-Powered'}
                     tagline={pageSections.find(s => s.id === 'hero')?.content?.tagline || tagline}
                     description={pageSections.find(s => s.id === 'hero')?.content?.description}
