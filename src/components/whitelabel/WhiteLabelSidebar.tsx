@@ -10,7 +10,8 @@ import {
   ChevronLeft,
   Sparkles,
   Scale,
-  LayoutTemplate
+  LayoutTemplate,
+  Megaphone,
 } from 'lucide-react';
 import { MarketplaceApp } from '@/lib/marketplace/types';
 import { getAppThumbnail } from '@/utils/appThumbnails';
@@ -22,6 +23,7 @@ export type WhiteLabelSection =
   | 'page' 
   | 'checkout' 
   | 'domain' 
+  | 'marketing'
   | 'legal'
   | 'settings';
 
@@ -39,8 +41,9 @@ const sections: { id: WhiteLabelSection; label: string; icon: React.ElementType;
   { id: 'page', label: 'Page', icon: FileText, number: 4 },
   { id: 'checkout', label: 'Checkout', icon: CreditCard, number: 5 },
   { id: 'domain', label: 'Domain', icon: Globe, number: 6 },
-  { id: 'legal', label: 'Legal', icon: Scale, number: 7 },
-  { id: 'settings', label: 'Settings', icon: Settings, number: 8 },
+  { id: 'marketing', label: 'Marketing', icon: Megaphone, number: 7 },
+  { id: 'legal', label: 'Legal', icon: Scale, number: 8 },
+  { id: 'settings', label: 'Settings', icon: Settings, number: 9 },
 ];
 
 export function WhiteLabelSidebar({ 
