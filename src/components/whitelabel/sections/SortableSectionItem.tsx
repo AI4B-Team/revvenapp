@@ -101,7 +101,7 @@ export function SortableSectionItem({
         onClick={onToggle}
       >
         {/* Reorder Controls: Up Arrow, Drag Handle, Down Arrow */}
-        {section.id === 'hero' || section.id === 'credibility' ? (
+        {section.id === 'hero' ? (
           <div className="flex flex-col items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
             <div className="p-1 opacity-30">
               <ArrowUp className="h-3 w-3" />
@@ -110,6 +110,19 @@ export function SortableSectionItem({
               <Lock className="h-4 w-4" />
             </div>
             <div className="p-1 opacity-30">
+              <ArrowDown className="h-3 w-3" />
+            </div>
+          </div>
+        ) : section.id === 'credibility' ? (
+          /* Credibility: Show controls but disabled - always stays at position 1 */
+          <div className="flex flex-col items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+            <div className="p-1 opacity-30 cursor-not-allowed" title="Always below Hero">
+              <ArrowUp className="h-3 w-3" />
+            </div>
+            <div className="p-1.5 rounded-md text-muted-foreground opacity-50" title="Position fixed below Hero">
+              <GripVertical className="h-4 w-4" />
+            </div>
+            <div className="p-1 opacity-30 cursor-not-allowed" title="Always below Hero">
               <ArrowDown className="h-3 w-3" />
             </div>
           </div>
