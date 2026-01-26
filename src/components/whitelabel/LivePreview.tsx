@@ -485,14 +485,35 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           </div>
                           <div>
                             <p className="font-semibold text-zinc-900">Pro Plan</p>
-                            <p className="text-xs text-zinc-500">Monthly Subscription</p>
+                            <p className="text-xs text-zinc-500">
+                              {license?.pricingSettings?.pricingModel === 'one-time' ? 'One-Time Payment' : 'Monthly Subscription'}
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-zinc-400 line-through">${license?.pricingSettings?.monthlyPrice || '97'}/mo</p>
-                          <p className="font-bold text-emerald-600">
-                            ${Math.round((license?.pricingSettings?.monthlyPrice || 97) * (1 - (checkoutConfig?.discountPercent || 15) / 100))}/mo
-                          </p>
+                          {/* Discount Badge */}
+                          {checkoutConfig?.enableConversionBooster !== false && (
+                            <span className="inline-block px-2.5 py-1 mb-2 text-xs font-bold text-white bg-zinc-900 rounded-full">
+                              {checkoutConfig?.discountPercent || 15}% off
+                            </span>
+                          )}
+                          {/* Pricing Display */}
+                          <div className="flex items-baseline justify-end gap-2">
+                            {checkoutConfig?.enableConversionBooster !== false && (
+                              <span className="text-base text-zinc-400 line-through font-medium">
+                                ${license?.pricingSettings?.monthlyPrice || license?.pricingSettings?.oneTimePrice || '97'}
+                              </span>
+                            )}
+                            <span className="text-2xl font-bold text-zinc-900">
+                              ${checkoutConfig?.enableConversionBooster !== false 
+                                ? Math.round((license?.pricingSettings?.monthlyPrice || license?.pricingSettings?.oneTimePrice || 97) * (1 - (checkoutConfig?.discountPercent || 15) / 100))
+                                : (license?.pricingSettings?.monthlyPrice || license?.pricingSettings?.oneTimePrice || '97')
+                              }
+                            </span>
+                            {license?.pricingSettings?.pricingModel !== 'one-time' && (
+                              <span className="text-sm text-zinc-500">/mo</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="space-y-2 py-3 border-t border-zinc-100">
