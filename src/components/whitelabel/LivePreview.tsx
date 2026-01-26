@@ -1034,15 +1034,59 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       const monthlyPrice = license?.pricingSettings?.monthlyPrice || 97;
                       const oneTimePrice = license?.pricingSettings?.oneTimePrice || 297;
                       
+                      // Generate compelling app-specific features
+                      const getAppFeatures = () => {
+                        const appName = app?.name?.toLowerCase() || '';
+                        const features = {
+                          'digital influencer': [
+                            'Unlimited AI Content Generation',
+                            'Advanced Audience Analytics',
+                            'Multi-Platform Scheduling',
+                            'Viral Content Templates',
+                          ],
+                          'creator vault': [
+                            'Unlimited Asset Storage',
+                            'Advanced Organization Tools',
+                            'Quick-Access Collections',
+                            'Secure Cloud Backup',
+                          ],
+                          'master closer': [
+                            'AI-Powered Sales Scripts',
+                            'Objection Handler Library',
+                            'Deal Pipeline Tracking',
+                            'Performance Analytics',
+                          ],
+                          'viral shorts': [
+                            'AI Video Generation',
+                            'Trending Template Library',
+                            'Auto-Caption & Effects',
+                            'Multi-Platform Export',
+                          ],
+                          'ghost ink': [
+                            'AI Writing Assistant',
+                            'SEO Optimization Tools',
+                            'Plagiarism Checker',
+                            'Unlimited Word Count',
+                          ],
+                          default: [
+                            'Unlimited Access To All Features',
+                            'Priority Customer Support',
+                            'Regular Feature Updates',
+                            'Cancel Anytime, No Questions',
+                          ],
+                        };
+                        return features[appName] || features.default;
+                      };
+                      
                       return (
                         <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12">
                           <div className="max-w-6xl mx-auto">
                             <h2 className="text-2xl font-bold text-zinc-900 text-center mb-2">
-                              {section.content?.headline || 'Simple Pricing'}
+                              {section.content?.headline || 'Simple, Transparent Pricing'}
                             </h2>
-                            {section.content?.subheadline && (
-                              <p className="text-zinc-500 text-center mb-8">{section.content.subheadline}</p>
-                            )}
+                            <p className="text-zinc-500 text-center mb-8">
+                              {section.content?.subheadline || 'Start today and see results immediately'}
+                            </p>
                             <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
                               <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
                                 {pricingModel === 'one-time' ? 'One-Time Payment' : pricingModel === 'both' ? 'Setup + Monthly' : 'Monthly'}
@@ -1064,7 +1108,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                                 )}
                               </div>
                               <ul className="text-left space-y-3 mb-6">
-                                {['Full Access', 'Priority Support', 'Regular Updates'].map((item, idx) => (
+                                {getAppFeatures().map((item, idx) => (
                                   <li key={idx} className="flex items-center gap-2 text-zinc-600">
                                     <Check size={16} style={{ color: primaryColor }} />
                                     {item}
