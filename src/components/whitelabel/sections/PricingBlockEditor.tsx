@@ -30,6 +30,9 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
   const [monthlyPrice, setMonthlyPrice] = useState(content.monthlyPrice || 47);
   const [oneTimePrice, setOneTimePrice] = useState(content.oneTimePrice || 297);
   const [setupFee, setSetupFee] = useState(content.setupFee || 97);
+  const [customMonthlyPrice, setCustomMonthlyPrice] = useState<string>('');
+  const [customSetupFee, setCustomSetupFee] = useState<string>('');
+  const [customOneTimePrice, setCustomOneTimePrice] = useState<string>('');
   const [enableFreeTrial, setEnableFreeTrial] = useState(content.enableFreeTrial || false);
   const [trialDays, setTrialDays] = useState(content.trialDays || 14);
   const [selectedCustomerCount, setSelectedCustomerCount] = useState(100);
@@ -166,49 +169,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
         })}
       </div>
 
-      {/* Monthly Pricing with Slider */}
-      {(pricingModel === 'monthly' || pricingModel === 'setup-monthly') && (
-        <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-4">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-foreground">
-              <span className="text-xl text-muted-foreground align-top">$</span>
-              {monthlyPrice}
-              <span className="text-sm font-normal text-muted-foreground">/mo</span>
-            </p>
-          </div>
-
-          <Slider
-            value={[monthlyPrice]}
-            onValueChange={([v]) => handleMonthlyPriceChange(v)}
-            min={5}
-            max={299}
-            step={1}
-            className="w-full [&_[role=slider]]:bg-emerald-500 [&_[role=slider]]:border-emerald-500 [&_.range]:bg-emerald-500"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>$5</span>
-            <span>$299</span>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-1.5">
-            {pricePresets.map((price) => (
-              <button
-                key={price}
-                onClick={() => handleMonthlyPriceChange(price)}
-                className={`px-3 py-1.5 rounded-full border text-sm font-medium transition-all ${
-                  monthlyPrice === price
-                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                    : 'border-border hover:border-muted-foreground/30'
-                }`}
-              >
-                ${price}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Setup Fee for Setup + Monthly Model */}
+      {/* Setup Fee for Setup + Monthly Model - FIRST */}
       {pricingModel === 'setup-monthly' && (
         <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-4">
           <div className="flex items-center gap-2">
@@ -224,21 +185,31 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
           </div>
 
           <Slider
-            value={[setupFee]}
-            onValueChange={([v]) => handleSetupFeeChange(v)}
+            value={[Math.min(setupFee, 1000)]}
+            onValueChange={([v]) => {
+              handleSetupFeeChange(v);
+              setCustomSetupFee('');
+            }}
             min={0}
-            max={997}
+            max={1000}
             step={1}
             className="w-full [&_[role=slider]]:bg-primary [&_[role=slider]]:border-primary [&_.range]:bg-primary"
           />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>$0</span>
+            <span>$1,000</span>
+          </div>
 
           <div className="flex flex-wrap justify-center gap-1.5">
-            {[0, 47, 97, 197, 497].map((price) => (
+            {[0, 97, 197, 497, 997].map((price) => (
               <button
                 key={price}
-                onClick={() => handleSetupFeeChange(price)}
+                onClick={() => {
+                  handleSetupFeeChange(price);
+                  setCustomSetupFee('');
+                }}
                 className={`px-3 py-1 rounded-full border text-xs font-medium transition-all ${
-                  setupFee === price
+                  setupFee === price && customSetupFee === ''
                     ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border hover:border-muted-foreground/30'
                 }`}
@@ -246,6 +217,82 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
                 {price === 0 ? 'No fee' : `$${price}`}
               </button>
             ))}
+            <Input
+              type="number"
+              placeholder="Custom"
+              value={customSetupFee}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomSetupFee(val);
+                const num = parseInt(val);
+                if (!isNaN(num) && num >= 0) {
+                  handleSetupFeeChange(num);
+                }
+              }}
+              className="w-20 h-7 text-center text-xs bg-background border-border [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Monthly Pricing with Slider - SECOND */}
+      {(pricingModel === 'monthly' || pricingModel === 'setup-monthly') && (
+        <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-4">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-foreground">
+              <span className="text-xl text-muted-foreground align-top">$</span>
+              {monthlyPrice}
+              <span className="text-sm font-normal text-muted-foreground">/mo</span>
+            </p>
+          </div>
+
+          <Slider
+            value={[Math.min(monthlyPrice, 1000)]}
+            onValueChange={([v]) => {
+              handleMonthlyPriceChange(v);
+              setCustomMonthlyPrice('');
+            }}
+            min={5}
+            max={1000}
+            step={1}
+            className="w-full [&_[role=slider]]:bg-emerald-500 [&_[role=slider]]:border-emerald-500 [&_.range]:bg-emerald-500"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>$5</span>
+            <span>$1,000</span>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-1.5">
+            {pricePresets.map((price) => (
+              <button
+                key={price}
+                onClick={() => {
+                  handleMonthlyPriceChange(price);
+                  setCustomMonthlyPrice('');
+                }}
+                className={`px-3 py-1.5 rounded-full border text-sm font-medium transition-all ${
+                  monthlyPrice === price && customMonthlyPrice === ''
+                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                    : 'border-border hover:border-muted-foreground/30'
+                }`}
+              >
+                ${price}
+              </button>
+            ))}
+            <Input
+              type="number"
+              placeholder="Custom"
+              value={customMonthlyPrice}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomMonthlyPrice(val);
+                const num = parseInt(val);
+                if (!isNaN(num) && num >= 5) {
+                  handleMonthlyPriceChange(num);
+                }
+              }}
+              className="w-20 h-7 text-center text-xs bg-background border-border [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
           </div>
         </div>
       )}
@@ -266,21 +313,31 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
           </div>
 
           <Slider
-            value={[oneTimePrice]}
-            onValueChange={([v]) => handleOneTimePriceChange(v)}
+            value={[Math.min(oneTimePrice, 1000)]}
+            onValueChange={([v]) => {
+              handleOneTimePriceChange(v);
+              setCustomOneTimePrice('');
+            }}
             min={47}
-            max={2997}
+            max={1000}
             step={1}
             className="w-full [&_[role=slider]]:bg-emerald-500 [&_[role=slider]]:border-emerald-500 [&_.range]:bg-emerald-500"
           />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>$47</span>
+            <span>$1,000</span>
+          </div>
 
           <div className="flex flex-wrap justify-center gap-1.5">
             {[97, 197, 297, 497, 997].map((price) => (
               <button
                 key={price}
-                onClick={() => handleOneTimePriceChange(price)}
+                onClick={() => {
+                  handleOneTimePriceChange(price);
+                  setCustomOneTimePrice('');
+                }}
                 className={`px-3 py-1.5 rounded-full border text-sm font-medium transition-all ${
-                  oneTimePrice === price
+                  oneTimePrice === price && customOneTimePrice === ''
                     ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                     : 'border-border hover:border-muted-foreground/30'
                 }`}
@@ -288,6 +345,20 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
                 ${price}
               </button>
             ))}
+            <Input
+              type="number"
+              placeholder="Custom"
+              value={customOneTimePrice}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomOneTimePrice(val);
+                const num = parseInt(val);
+                if (!isNaN(num) && num >= 47) {
+                  handleOneTimePriceChange(num);
+                }
+              }}
+              className="w-20 h-7 text-center text-xs bg-background border-border [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
           </div>
         </div>
       )}
