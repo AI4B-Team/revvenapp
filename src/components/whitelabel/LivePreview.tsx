@@ -55,6 +55,161 @@ interface LivePreviewProps {
   pageSections?: PageBlock[];
 }
 
+// Hero Preview Component with style variations
+type HeroStyle = 'centered' | 'split-left' | 'split-right' | 'minimal' | 'gradient' | 'bold';
+
+interface HeroPreviewProps {
+  style: HeroStyle;
+  badge: string;
+  tagline: string;
+  description?: string;
+  productName: string;
+  primaryColor: string;
+  logoUrl?: string;
+  selectedIcon: string;
+}
+
+function HeroPreview({ style, badge, tagline, description, productName, primaryColor, logoUrl, selectedIcon }: HeroPreviewProps) {
+  const renderLogo = () => (
+    logoUrl ? (
+      <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
+    ) : (
+      <div 
+        className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+        style={{ backgroundColor: `${primaryColor}15` }}
+      >
+        {selectedIcon}
+      </div>
+    )
+  );
+
+  const renderBadge = (inverted = false) => (
+    <div 
+      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
+      style={{ 
+        backgroundColor: inverted ? 'rgba(255,255,255,0.2)' : `${primaryColor}20`, 
+        color: inverted ? 'white' : primaryColor 
+      }}
+    >
+      <Zap size={12} />
+      {badge}
+    </div>
+  );
+
+  const renderCTAButtons = (inverted = false) => (
+    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+      <button 
+        className="px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2"
+        style={{ 
+          backgroundColor: inverted ? 'white' : primaryColor,
+          color: inverted ? primaryColor : 'white'
+        }}
+      >
+        Get Started <ArrowRight size={16} />
+      </button>
+      <button 
+        className={`px-6 py-3 rounded-lg font-medium ${
+          inverted ? 'bg-white/10 text-white hover:bg-white/20' : 'text-zinc-700 bg-zinc-100 hover:bg-zinc-200'
+        }`}
+      >
+        Learn More
+      </button>
+    </div>
+  );
+
+  switch (style) {
+    case 'split-left':
+      return (
+        <div 
+          className="px-8 py-16 flex items-center gap-8"
+          style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
+        >
+          <div className="flex-1 text-left">
+            <div className="mb-4">{renderLogo()}</div>
+            <div className="mb-4">{renderBadge()}</div>
+            <h1 className="text-3xl font-bold text-zinc-900 mb-3">{productName}</h1>
+            <p className="text-lg text-zinc-600 mb-6 max-w-md">{tagline}</p>
+            {description && <p className="text-sm text-zinc-500 mb-6">{description}</p>}
+            {renderCTAButtons()}
+          </div>
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 opacity-70 shrink-0" />
+        </div>
+      );
+    case 'split-right':
+      return (
+        <div 
+          className="px-8 py-16 flex items-center gap-8"
+          style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
+        >
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 opacity-70 shrink-0" />
+          <div className="flex-1 text-right">
+            <div className="mb-4 flex justify-end">{renderLogo()}</div>
+            <div className="mb-4">{renderBadge()}</div>
+            <h1 className="text-3xl font-bold text-zinc-900 mb-3">{productName}</h1>
+            <p className="text-lg text-zinc-600 mb-6 max-w-md ml-auto">{tagline}</p>
+            <div className="flex justify-end">{renderCTAButtons()}</div>
+          </div>
+        </div>
+      );
+    case 'minimal':
+      return (
+        <div className="px-8 py-24 text-center bg-white">
+          <h1 className="text-4xl md:text-5xl font-bold text-zinc-900 mb-4 tracking-tight">{productName}</h1>
+          <p className="text-xl text-zinc-500 mb-10 max-w-lg mx-auto">{tagline}</p>
+          {renderCTAButtons()}
+        </div>
+      );
+    case 'gradient':
+      return (
+        <div 
+          className="px-8 py-16 text-center"
+          style={{ background: `linear-gradient(135deg, ${primaryColor} 0%, #7c3aed 100%)` }}
+        >
+          <div className="mb-6 flex justify-center">{renderLogo()}</div>
+          <div className="mb-4">{renderBadge(true)}</div>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{productName}</h1>
+          <p className="text-lg text-white/80 mb-8 max-w-md mx-auto">{tagline}</p>
+          {renderCTAButtons(true)}
+        </div>
+      );
+    case 'bold':
+      return (
+        <div className="px-8 py-16 text-center bg-zinc-900">
+          <div className="mb-6 flex justify-center">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
+            ) : (
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                style={{ backgroundColor: primaryColor }}
+              >
+                {selectedIcon}
+              </div>
+            )}
+          </div>
+          <div className="mb-4">{renderBadge(true)}</div>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{productName}</h1>
+          <p className="text-lg text-zinc-400 mb-8 max-w-md mx-auto">{tagline}</p>
+          {renderCTAButtons(true)}
+        </div>
+      );
+    case 'centered':
+    default:
+      return (
+        <div 
+          className="px-8 py-16 text-center"
+          style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
+        >
+          <div className="mb-6 flex justify-center">{renderLogo()}</div>
+          <div className="mb-4">{renderBadge()}</div>
+          <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">{productName}</h1>
+          <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">{tagline}</p>
+          {renderCTAButtons()}
+        </div>
+      );
+  }
+}
+
 export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [] }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -411,58 +566,16 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
               <>
                 {/* Hero Section */}
                 {(pageSections.find(s => s.id === 'hero')?.enabled !== false) && (
-                  <div 
-                    className="px-8 py-16 text-center"
-                    style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
-                  >
-                    {/* Logo */}
-                    <div className="mb-6">
-                      {logoUrl ? (
-                        <img 
-                          src={logoUrl} 
-                          alt="Logo" 
-                          className="h-12 mx-auto object-contain"
-                        />
-                      ) : (
-                        <div 
-                          className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center text-2xl"
-                          style={{ backgroundColor: `${primaryColor}15` }}
-                        >
-                          {selectedIcon}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Badge */}
-                    <div 
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-4"
-                      style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
-                    >
-                      <Zap size={12} />
-                      {pageSections.find(s => s.id === 'hero')?.content?.badge || 'AI-Powered'}
-                    </div>
-
-                    {/* Headline */}
-                    <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">
-                      {productName}
-                    </h1>
-                    <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">
-                      {pageSections.find(s => s.id === 'hero')?.content?.tagline || tagline}
-                    </p>
-
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <button 
-                        className="px-6 py-3 rounded-lg font-medium text-white flex items-center justify-center gap-2"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        Get Started <ArrowRight size={16} />
-                      </button>
-                      <button className="px-6 py-3 rounded-lg font-medium text-zinc-700 bg-zinc-100 hover:bg-zinc-200">
-                        Learn More
-                      </button>
-                    </div>
-                  </div>
+                  <HeroPreview 
+                    style={pageSections.find(s => s.id === 'hero')?.content?.style || 'centered'}
+                    badge={pageSections.find(s => s.id === 'hero')?.content?.badge || 'AI-Powered'}
+                    tagline={pageSections.find(s => s.id === 'hero')?.content?.tagline || tagline}
+                    description={pageSections.find(s => s.id === 'hero')?.content?.description}
+                    productName={productName}
+                    primaryColor={primaryColor}
+                    logoUrl={logoUrl}
+                    selectedIcon={selectedIcon}
+                  />
                 )}
 
                 {/* Features Section */}
