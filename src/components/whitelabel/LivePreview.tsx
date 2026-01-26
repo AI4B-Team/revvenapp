@@ -710,7 +710,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     
                     case 'features':
                       return (
-                        <div key={section.id} className="px-8 py-12 bg-zinc-50">
+                        <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12 bg-zinc-50">
                           <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
                             {section.content?.headline || 'Why Choose Us'}
                           </h2>
@@ -743,7 +743,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     
                     case 'capabilities':
                       return (
-                        <div key={section.id} className="px-8 py-12">
+                        <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12">
                           <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
                             {section.content?.headline || 'What We Offer'}
                           </h2>
@@ -771,7 +771,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     
                     case 'testimonials':
                       return (
-                        <div key={section.id} className="px-8 py-12 bg-zinc-50">
+                        <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12 bg-zinc-50">
                           <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
                             What Our Customers Say
                           </h2>
@@ -820,7 +820,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     
                     case 'pricing':
                       return (
-                        <div key={section.id} className="px-8 py-12">
+                        <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12">
                           <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
                             {section.content?.headline || 'Simple Pricing'}
                           </h2>
@@ -854,11 +854,11 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     
                     case 'faq':
                       return (
-                        <div key={section.id} className="px-8 py-12 bg-zinc-50">
+                        <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12 bg-zinc-50">
                           <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
                             Frequently Asked Questions
                           </h2>
-                          <div className="max-w-2xl mx-auto">
+                          <div className="max-w-3xl mx-auto">
                             <Accordion type="single" collapsible className="space-y-3">
                               {(section.content?.questions || [
                                 { q: 'How quickly can I get started?', a: 'You can be up and running in less than 5 minutes.' },
@@ -887,7 +887,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       return (
                         <div 
                           key={section.id}
-                          className="px-8 py-16 text-center"
+                          className="px-6 md:px-12 lg:px-16 py-16 text-center"
                           style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
                         >
                           <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 mb-4">
@@ -919,8 +919,8 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       const footerTagline = footerContent.tagline || 'Empowering businesses with AI';
                       
                       return (
-                        <div key={section.id} className="px-8 py-10 bg-zinc-900">
-                          <div className="max-w-4xl mx-auto">
+                        <div key={section.id} className="px-6 md:px-12 lg:px-16 py-10 bg-zinc-900">
+                          <div className="max-w-5xl mx-auto">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                               <div className="text-left">
                                 <div className="flex items-center gap-2 mb-3">
