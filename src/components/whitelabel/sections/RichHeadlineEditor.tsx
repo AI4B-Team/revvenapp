@@ -106,40 +106,67 @@ export function RichHeadlineEditor({
     }
   }, []);
 
-  const applyFormatting = useCallback((command: string, formatValue?: string) => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    
-    // Focus the editor first
-    editor.focus();
-    
-    // Restore the saved selection
-    if (savedSelectionRef.current) {
-      const selection = window.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(savedSelectionRef.current);
+  // Keep selection updated even when selection is changed via keyboard/mouse in contentEditable.
+  // (Radix popovers/buttons can steal focus; we want to preserve the last in-editor selection.)
+  useEffect(() => {
+    const onSelectionChange = () => {
+      saveSelection();
+    };
+    document.addEventListener('selectionchange', onSelectionChange);
+    return () => document.removeEventListener('selectionchange', onSelectionChange);
+  }, [saveSelection]);
+
+  const applyInlineStyleToSelection = useCallback(
+    (style: Partial<CSSStyleDeclaration>) => {
+      const editor = editorRef.current;
+      if (!editor) return;
+
+      // Ensure editor is active and selection is restored before we mutate the DOM.
+      editor.focus();
+      if (savedSelectionRef.current) {
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+          selection.addRange(savedSelectionRef.current);
+        }
       }
-    }
-    
-    // Apply the formatting command
-    document.execCommand(command, false, formatValue);
-    
-    // Update the value
-    handleInput();
-    
-    // Re-save the selection for subsequent formatting
-    saveSelection();
-  }, [handleInput, saveSelection]);
+
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      // If nothing is selected, do nothing (keeps behavior predictable).
+      if (range.collapsed) return;
+
+      // Wrap the selected contents with a styled <span>.
+      const wrapper = document.createElement('span');
+      Object.assign(wrapper.style, style);
+
+      const contents = range.extractContents();
+      wrapper.appendChild(contents);
+      range.insertNode(wrapper);
+
+      // Move caret to the end of the newly inserted wrapper.
+      const nextRange = document.createRange();
+      nextRange.setStartAfter(wrapper);
+      nextRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(nextRange);
+
+      savedSelectionRef.current = nextRange.cloneRange();
+      handleInput();
+    },
+    [handleInput]
+  );
 
   const applyUnderline = useCallback(() => {
-    applyFormatting('underline');
-  }, [applyFormatting]);
+    applyInlineStyleToSelection({ textDecoration: 'underline' });
+  }, [applyInlineStyleToSelection]);
 
   const applyColor = useCallback((color: string) => {
-    applyFormatting('foreColor', color);
+    applyInlineStyleToSelection({ color });
     setIsColorPickerOpen(false);
-  }, [applyFormatting]);
+  }, [applyInlineStyleToSelection]);
 
   // Save selection on mouseup and keyup in the editor
   const handleSelectionChange = useCallback(() => {
@@ -211,7 +238,10 @@ export function RichHeadlineEditor({
         <Button
           variant="outline"
           size="sm"
-          onMouseDown={(e) => e.preventDefault()}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            saveSelection();
+          }}
           onClick={applyUnderline}
           className="h-8 w-8 p-0"
           title="Underline selected text"
@@ -225,7 +255,10 @@ export function RichHeadlineEditor({
             <Button
               variant="outline"
               size="sm"
-              onMouseDown={(e) => e.preventDefault()}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  saveSelection();
+                }}
               className="h-8 w-8 p-0"
               title="Color selected text"
             >
@@ -239,7 +272,10 @@ export function RichHeadlineEditor({
                 {COLOR_PRESETS.map(color => (
                   <button
                     key={color}
-                    onMouseDown={(e) => e.preventDefault()}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      saveSelection();
+                    }}
                     onClick={() => applyColor(color)}
                     className="w-6 h-6 rounded-md border border-border hover:scale-110 transition-transform"
                     style={{ backgroundColor: color }}
@@ -256,7 +292,10 @@ export function RichHeadlineEditor({
                 <Button
                   size="sm"
                   variant="secondary"
-                  onMouseDown={(e) => e.preventDefault()}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    saveSelection();
+                  }}
                   onClick={() => applyColor(customColor)}
                   className="flex-1 h-8"
                 >
