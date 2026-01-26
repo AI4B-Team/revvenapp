@@ -479,6 +479,71 @@ function PricingSection({
   );
 }
 
+// Interactive Checkout Order Bumps (with local state for selection)
+interface CheckoutOrderBumpsProps {
+  orderBumps: Array<{
+    id: string;
+    enabled: boolean;
+    headline: string;
+    description: string;
+    price: number;
+    originalPrice?: number;
+  }>;
+}
+
+function CheckoutOrderBumps({ orderBumps }: CheckoutOrderBumpsProps) {
+  const [selectedBumps, setSelectedBumps] = React.useState<string[]>([]);
+  
+  const toggleBump = (bumpId: string) => {
+    setSelectedBumps(prev => 
+      prev.includes(bumpId) ? prev.filter(id => id !== bumpId) : [...prev, bumpId]
+    );
+  };
+  
+  if (!orderBumps || orderBumps.length === 0) return null;
+  
+  return (
+    <div className="mb-6 space-y-3">
+      <p className="text-sm font-medium text-zinc-700 text-center">Enhance Your Purchase</p>
+      {orderBumps.map((bump) => {
+        const isSelected = selectedBumps.includes(bump.id);
+        return (
+          <div 
+            key={bump.id}
+            onClick={() => toggleBump(bump.id)}
+            className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+              isSelected 
+                ? 'border-amber-500 bg-amber-50' 
+                : 'border-zinc-200 bg-white hover:border-zinc-300'
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                isSelected ? 'border-amber-500 bg-amber-500' : 'border-zinc-300'
+              }`}>
+                {isSelected && <Check size={12} className="text-white" />}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-semibold text-zinc-900 text-sm">{bump.headline}</span>
+                  <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">SPECIAL</span>
+                </div>
+                <p className="text-xs text-zinc-500 mb-2">{bump.description}</p>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-emerald-600">${bump.price}</span>
+                  {bump.originalPrice && (
+                    <span className="text-sm text-zinc-400 line-through">${bump.originalPrice}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered' }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -770,34 +835,10 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                   </div>
 
                   {/* Order Bumps */}
-                  {checkoutConfig?.enableOrderBumps !== false && checkoutConfig?.orderBumps?.filter(b => b.enabled).length > 0 && (
-                    <div className="mb-6 space-y-3">
-                      <p className="text-sm font-medium text-zinc-700 text-center">Enhance Your Purchase</p>
-                      {checkoutConfig.orderBumps.filter(b => b.enabled).map((bump) => (
-                        <div 
-                          key={bump.id}
-                          className="p-4 rounded-xl border-2 border-zinc-200 bg-white hover:border-zinc-300 cursor-pointer transition-all"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="w-5 h-5 rounded border-2 border-zinc-300 flex items-center justify-center shrink-0 mt-0.5">
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold text-zinc-900 text-sm">{bump.headline}</span>
-                                <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">SPECIAL</span>
-                              </div>
-                              <p className="text-xs text-zinc-500 mb-2">{bump.description}</p>
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-emerald-600">${bump.price}</span>
-                                {bump.originalPrice && (
-                                  <span className="text-sm text-zinc-400 line-through">${bump.originalPrice}</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  {checkoutConfig?.enableOrderBumps !== false && (
+                    <CheckoutOrderBumps 
+                      orderBumps={checkoutConfig?.orderBumps?.filter(b => b.enabled) || []} 
+                    />
                   )}
 
                   {/* Payment Form Card */}
