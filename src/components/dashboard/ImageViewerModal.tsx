@@ -675,6 +675,37 @@ const ImageViewerModal = ({
                       </button>
                     </div>
                   )}
+
+                  {/* Creation Details Section */}
+                  <div className="mb-4 pb-4 border-b border-gray-800">
+                    <h3 className="text-white font-semibold text-sm mb-3">Details</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {imageData.model && (
+                        <div className="bg-gray-800/50 rounded-lg px-3 py-2">
+                          <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-0.5">Model</p>
+                          <p className="text-white text-xs font-medium truncate">{imageData.model}</p>
+                        </div>
+                      )}
+                      {imageData.aspectRatio && (
+                        <div className="bg-gray-800/50 rounded-lg px-3 py-2">
+                          <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-0.5">Ratio</p>
+                          <p className="text-white text-xs font-medium">{imageData.aspectRatio}</p>
+                        </div>
+                      )}
+                      {image.type && (
+                        <div className="bg-gray-800/50 rounded-lg px-3 py-2">
+                          <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-0.5">Type</p>
+                          <p className="text-white text-xs font-medium capitalize">{image.type}</p>
+                        </div>
+                      )}
+                      {(image.type === 'video' || image.type === 'audio') && image.duration && (
+                        <div className="bg-gray-800/50 rounded-lg px-3 py-2">
+                          <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-0.5">Duration</p>
+                          <p className="text-white text-xs font-medium">{image.duration}s</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   
                   {/* Comments Section */}
                   <div className="flex-1 min-h-0">
