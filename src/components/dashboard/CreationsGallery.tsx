@@ -45,13 +45,18 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [generatedItems, setGeneratedItems] = useState<GalleryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   // Fetch generated images, videos, and documents from Supabase with real-time subscriptions
   useEffect(() => {
     const fetchGeneratedContent = async () => {
+      setIsLoading(true);
       const { data: session } = await supabase.auth.getSession();
-      if (!session?.session?.user) return;
+      if (!session?.session?.user) {
+        setIsLoading(false);
+        return;
+      }
 
       // Fetch images
       const { data: imagesData, error: imagesError } = await supabase
@@ -393,6 +398,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       );
       
       setGeneratedItems(allItems);
+      setIsLoading(false);
     };
 
     fetchGeneratedContent();
@@ -856,6 +862,31 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
   };
 
   const sizes = getIconSize();
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-16">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-muted-foreground">Loading your creations...</p>
+      </div>
+    );
+  }
+
+  // Show empty state if no items
+  if (items.length === 0) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-16">
+        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
+          <ImageIcon size={32} className="text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-medium text-foreground mb-2">No creations yet</h3>
+        <p className="text-muted-foreground text-center max-w-md">
+          Start creating amazing content! Your generated images, videos, documents, and audio will appear here.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
