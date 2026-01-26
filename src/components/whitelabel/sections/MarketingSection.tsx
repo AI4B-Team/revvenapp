@@ -63,7 +63,7 @@ function TrackingCard({
   };
 
   return (
-    <div className="p-5 rounded-xl border-2 border-border bg-card hover:border-primary/30 transition-colors">
+    <div className="p-5 rounded-xl border-2 border-border bg-card hover:border-primary/30 transition-colors flex flex-col h-full">
       <div className="flex items-start gap-3 mb-4">
         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
           {icon}
@@ -74,8 +74,8 @@ function TrackingCard({
         </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col flex-1">
+        <div className="flex items-center gap-2 mb-2">
           <Label className="text-sm font-medium">{inputLabel}</Label>
           {helpText && (
             <TooltipProvider>
@@ -94,22 +94,24 @@ function TrackingCard({
           value={localValue}
           onChange={(e) => setLocalValue(e.target.value)}
           placeholder={inputPlaceholder}
-          className="font-mono text-sm"
+          className="font-mono text-sm mb-auto"
         />
-        <Button 
-          onClick={handleSave}
-          size="sm"
-          className={`gap-2 ${isSaved ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-primary hover:bg-primary/90'}`}
-        >
-          {isSaved ? (
-            <>
-              <Check className="h-4 w-4" />
-              Saved
-            </>
-          ) : (
-            'Save'
-          )}
-        </Button>
+        <div className="mt-4">
+          <Button 
+            onClick={handleSave}
+            size="sm"
+            className={`gap-2 ${isSaved ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-primary hover:bg-primary/90'}`}
+          >
+            {isSaved ? (
+              <>
+                <Check className="h-4 w-4" />
+                Saved
+              </>
+            ) : (
+              'Save'
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
