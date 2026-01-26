@@ -629,10 +629,57 @@ const ImageViewerModal = ({
 
             {/* Scrollable Middle Section */}
             <div className="flex-1 overflow-y-auto min-h-0">
-              {/* Community View: Show Comments */}
+              {/* Community View: Show Prompt + Comments */}
               {isCommunityView ? (
                 <div className="p-4 h-full flex flex-col">
-                  <CommunityComments postId={String(image.id)} />
+                  {/* Use Prompt Section */}
+                  {imageData.prompt && (
+                    <div className="mb-4 pb-4 border-b border-gray-800">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-white font-semibold text-sm">Prompt</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={copyPrompt}
+                                className="text-gray-400 hover:text-white transition-colors"
+                              >
+                                {copiedPrompt ? (
+                                  <Check size={16} className="text-green-500" />
+                                ) : (
+                                  <Copy size={16} />
+                                )}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{copiedPrompt ? 'Copied!' : 'Copy Prompt'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <p className="text-gray-300 text-xs leading-relaxed line-clamp-3 mb-3">
+                        {imageData.prompt}
+                      </p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(imageData.prompt);
+                          toast({
+                            title: "Prompt Copied!",
+                            description: "You can now use this prompt to create your own image",
+                          });
+                        }}
+                        className="w-full px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg flex items-center justify-center gap-2 transition-colors text-sm font-medium"
+                      >
+                        <Copy size={14} />
+                        <span>Use This Prompt</span>
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Comments Section */}
+                  <div className="flex-1 min-h-0">
+                    <CommunityComments postId={String(image.id)} />
+                  </div>
                 </div>
               ) : (
                 <>
