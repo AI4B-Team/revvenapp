@@ -873,28 +873,30 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       const duplicatedLogos = [...logos, ...logos, ...logos];
                       return (
                         <div key={section.id} className="py-12 overflow-hidden bg-zinc-50/50">
-                          <h2 className="text-xl font-semibold text-zinc-600 text-center mb-8">
-                            {headline}
-                          </h2>
-                          <div className="relative">
-                            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-50/50 to-transparent z-10" />
-                            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-50/50 to-transparent z-10" />
-                            <div 
-                              className="flex items-center gap-12 animate-scroll-left"
-                              style={{ width: 'fit-content' }}
-                            >
-                              {duplicatedLogos.map((logo: { id: string; url: string; name: string }, idx: number) => (
-                                <div 
-                                  key={`${logo.id}-${idx}`} 
-                                  className="flex-shrink-0 h-10 w-28 flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
-                                >
-                                  <img 
-                                    src={logo.url} 
-                                    alt={logo.name || 'Company logo'} 
-                                    className="max-h-full max-w-full object-contain"
-                                  />
-                                </div>
-                              ))}
+                          <div className="max-w-6xl mx-auto">
+                            <h2 className="text-xl font-semibold text-zinc-600 text-center mb-8">
+                              {headline}
+                            </h2>
+                            <div className="relative overflow-hidden">
+                              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-50/50 to-transparent z-10" />
+                              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-50/50 to-transparent z-10" />
+                              <div 
+                                className="flex items-center gap-12 animate-scroll-left"
+                                style={{ width: 'fit-content' }}
+                              >
+                                {duplicatedLogos.map((logo: { id: string; url: string; name: string }, idx: number) => (
+                                  <div 
+                                    key={`${logo.id}-${idx}`} 
+                                    className="flex-shrink-0 h-10 w-28 flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                                  >
+                                    <img 
+                                      src={logo.url} 
+                                      alt={logo.name || 'Company logo'} 
+                                      className="max-h-full max-w-full object-contain"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
