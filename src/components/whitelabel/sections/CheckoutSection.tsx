@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppLicense } from '@/lib/marketplace/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,8 +22,19 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+export interface CheckoutConfig {
+  guaranteeDays: number;
+  guaranteeDescription: string;
+  guaranteeItems: string[];
+  enableGuarantee: boolean;
+  enableFAQs: boolean;
+  checkoutFAQs: { q: string; a: string }[];
+}
+
 interface CheckoutSectionProps {
   license?: AppLicense;
+  checkoutConfig?: CheckoutConfig;
+  onCheckoutConfigChange?: (config: CheckoutConfig) => void;
 }
 
 const complianceBadges = [
@@ -33,7 +44,7 @@ const complianceBadges = [
   { id: 'gdpr', name: 'GDPR Ready', description: 'Compliant', icon: Check },
 ];
 
-export function CheckoutSection({ license }: CheckoutSectionProps) {
+export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChange }: CheckoutSectionProps) {
   const [checkoutLink, setCheckoutLink] = useState('https://yourapp.revven.app/checkout');
   const [enableConversionBooster, setEnableConversionBooster] = useState(true);
   const [discountPercent, setDiscountPercent] = useState(15);
@@ -48,17 +59,29 @@ export function CheckoutSection({ license }: CheckoutSectionProps) {
   ]);
   const [enableBadges, setEnableBadges] = useState(true);
   const [selectedBadges, setSelectedBadges] = useState(['ssl', 'pci', 'stripe', 'gdpr']);
-  const [enableGuarantee, setEnableGuarantee] = useState(true);
-  const [guaranteeDays, setGuaranteeDays] = useState(14);
-  const [guaranteeDescription, setGuaranteeDescription] = useState('Try It Risk-Free');
-  const [guaranteeItems, setGuaranteeItems] = useState([
+  const [enableGuarantee, setEnableGuarantee] = useState(checkoutConfig?.enableGuarantee ?? true);
+  const [guaranteeDays, setGuaranteeDays] = useState(checkoutConfig?.guaranteeDays ?? 14);
+  const [guaranteeDescription, setGuaranteeDescription] = useState(checkoutConfig?.guaranteeDescription ?? 'Try It Risk-Free');
+  const [guaranteeItems, setGuaranteeItems] = useState(checkoutConfig?.guaranteeItems ?? [
     'Customers Trust Us',
     'One-Click Refund In Dashboard'
   ]);
-  const [enableFAQs, setEnableFAQs] = useState(true);
-  const [checkoutFAQs, setCheckoutFAQs] = useState([
+  const [enableFAQs, setEnableFAQs] = useState(checkoutConfig?.enableFAQs ?? true);
+  const [checkoutFAQs, setCheckoutFAQs] = useState(checkoutConfig?.checkoutFAQs ?? [
     { q: 'Will I have access to all AIs?', a: 'Yes! You will have access to the main AIs on the market, all integrated in a single platform for you.' }
   ]);
+
+  // Sync config changes to parent
+  useEffect(() => {
+    onCheckoutConfigChange?.({
+      guaranteeDays,
+      guaranteeDescription,
+      guaranteeItems,
+      enableGuarantee,
+      enableFAQs,
+      checkoutFAQs,
+    });
+  }, [guaranteeDays, guaranteeDescription, guaranteeItems, enableGuarantee, enableFAQs, checkoutFAQs]);
 
   const copyLink = () => {
     navigator.clipboard.writeText(checkoutLink);
