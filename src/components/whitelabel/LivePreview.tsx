@@ -709,6 +709,52 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                   </div>
                 )}
 
+                {/* Credibility Section - Logo Carousel */}
+                {(pageSections.find(s => s.id === 'credibility')?.enabled !== false) && (() => {
+                  const credibilitySection = pageSections.find(s => s.id === 'credibility');
+                  const logos = credibilitySection?.content?.logos || [];
+                  const headline = credibilitySection?.content?.headline || 'Trusted By Industry Leaders';
+                  
+                  if (logos.length === 0) return null;
+                  
+                  // Duplicate logos for seamless infinite scroll
+                  const duplicatedLogos = [...logos, ...logos, ...logos];
+                  
+                  return (
+                    <div className="py-12 overflow-hidden bg-zinc-50/50">
+                      <h2 className="text-xl font-semibold text-zinc-600 text-center mb-8">
+                        {headline}
+                      </h2>
+                      <div className="relative">
+                        {/* Gradient overlays for smooth fade effect */}
+                        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-50/50 to-transparent z-10" />
+                        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-50/50 to-transparent z-10" />
+                        
+                        {/* Sliding carousel */}
+                        <div 
+                          className="flex items-center gap-12 animate-scroll-left"
+                          style={{
+                            width: 'fit-content',
+                          }}
+                        >
+                          {duplicatedLogos.map((logo: { id: string; url: string; name: string }, idx: number) => (
+                            <div 
+                              key={`${logo.id}-${idx}`} 
+                              className="flex-shrink-0 h-10 w-28 flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                            >
+                              <img 
+                                src={logo.url} 
+                                alt={logo.name || 'Company logo'} 
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Testimonials Section */}
                 {(pageSections.find(s => s.id === 'testimonials')?.enabled !== false) && (
                   <div className="px-8 py-12 bg-zinc-50">
