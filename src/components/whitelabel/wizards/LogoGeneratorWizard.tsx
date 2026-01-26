@@ -200,13 +200,13 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
                 )}
                 {step === 'generating' && (
                   <>
-                    <h2 className="text-2xl font-bold text-foreground">Creating your logos...</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Creating Your Logos...</h2>
                     <p className="text-muted-foreground mt-1">This may take a moment</p>
                   </>
                 )}
                 {step === 'results' && (
                   <>
-                    <h2 className="text-2xl font-bold text-foreground">Pick your favorite logo</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Pick Your Favorite Logo</h2>
                     <p className="text-muted-foreground mt-1">Click a design to use it</p>
                   </>
                 )}
