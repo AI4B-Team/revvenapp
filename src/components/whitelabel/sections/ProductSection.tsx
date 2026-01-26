@@ -19,6 +19,7 @@ interface ProductSectionProps {
 
 export function ProductSection({ app, license, onUpdate }: ProductSectionProps) {
   const [productName, setProductName] = useState(license?.brandSettings?.appName || '');
+  const [headline, setHeadline] = useState(license?.brandSettings?.headline || '');
   const [tagline, setTagline] = useState(license?.brandSettings?.tagline || '');
   const [description, setDescription] = useState(license?.brandSettings?.description || '');
   const [isNameWizardOpen, setIsNameWizardOpen] = useState(false);
@@ -54,6 +55,11 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
   const handleTaglineAIChange = (newTagline: string) => {
     setTagline(newTagline);
     debouncedSave({ tagline: newTagline });
+  };
+
+  const handleHeadlineAIChange = (newHeadline: string) => {
+    setHeadline(newHeadline);
+    debouncedSave({ headline: newHeadline });
   };
 
   const handleDescriptionAIChange = (newDescription: string) => {
@@ -120,6 +126,17 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
       <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
         <h3 className="font-semibold text-foreground">Brand Messaging</h3>
         
+        <div className="space-y-3">
+          <AITextInput
+            label="Headline"
+            value={headline}
+            onChange={handleHeadlineAIChange}
+            placeholder="A short, hypnotic scroll-stopping headline to sell your product"
+            context="headline"
+          />
+          <p className="text-xs text-muted-foreground">{headline.length}/80 characters</p>
+        </div>
+
         <div className="space-y-3">
           <AITextInput
             label="Tagline"
