@@ -1311,9 +1311,9 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                                 const defaultIcons = [Rocket, BarChart3, Users];
                                 const IconComponent = defaultIcons[idx] || Settings;
                                 return (
-                                  <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
+                                  <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm border border-zinc-100">
                                     <div 
-                                      className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                                      className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden"
                                       style={{ backgroundColor: card.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
                                     >
                                       {card.iconUrl ? (
