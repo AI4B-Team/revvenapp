@@ -819,18 +819,36 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       );
                     
                     case 'pricing':
+                      const pricingModel = license?.pricingSettings?.pricingModel;
+                      const setupFee = license?.pricingSettings?.setupFee || 0;
+                      const monthlyPrice = license?.pricingSettings?.monthlyPrice || 97;
+                      const oneTimePrice = license?.pricingSettings?.oneTimePrice || 297;
+                      
                       return (
                         <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12">
-                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-2">
                             {section.content?.headline || 'Simple Pricing'}
                           </h2>
+                          {section.content?.subheadline && (
+                            <p className="text-zinc-500 text-center mb-8">{section.content.subheadline}</p>
+                          )}
                           <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
                             <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
-                              {license?.pricingSettings?.pricingModel === 'one-time' ? 'One-Time Payment' : 'Monthly'}
+                              {pricingModel === 'one-time' ? 'One-Time Payment' : pricingModel === 'both' ? 'Setup + Monthly' : 'Monthly'}
                             </div>
+                            
+                            {/* Setup Fee Display */}
+                            {pricingModel === 'both' && setupFee > 0 && (
+                              <div className="mb-3 pb-3 border-b border-zinc-100">
+                                <div className="text-sm text-zinc-500">One-Time Setup</div>
+                                <div className="text-2xl font-bold text-zinc-900">${setupFee}</div>
+                              </div>
+                            )}
+                            
+                            {/* Main Price Display */}
                             <div className="text-4xl font-bold text-zinc-900 mb-4">
-                              ${license?.pricingSettings?.monthlyPrice || license?.pricingSettings?.oneTimePrice || '97'}
-                              {license?.pricingSettings?.pricingModel !== 'one-time' && (
+                              ${pricingModel === 'one-time' ? oneTimePrice : monthlyPrice}
+                              {pricingModel !== 'one-time' && (
                                 <span className="text-lg font-normal text-zinc-500">/mo</span>
                               )}
                             </div>
