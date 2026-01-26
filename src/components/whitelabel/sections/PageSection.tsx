@@ -36,6 +36,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { SortableSectionItem } from './SortableSectionItem';
+import { AddSectionModal } from './AddSectionModal';
 
 export interface PageBlock {
   id: string;
@@ -349,6 +350,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
   );
   const [expandedSection, setExpandedSection] = useState<string | null>('hero');
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
+  const [isAddSectionModalOpen, setIsAddSectionModalOpen] = useState(false);
 
   // Wrapper to sync sections to parent
   const setSections = (updater: PageBlock[] | ((prev: PageBlock[]) => PageBlock[])) => {
@@ -585,28 +587,23 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
         <Button 
           variant="outline" 
           className="w-full gap-2 border-dashed"
-          onClick={() => {
-            const customId = `custom-${Date.now()}`;
-            const newSection: PageBlock = {
-              id: customId,
-              type: 'features',
-              enabled: true,
-              title: 'Custom Section',
-              content: {
-                headline: 'Your Custom Section',
-                features: [
-                  { title: 'Feature 1', description: 'Describe this feature', icon: '✨' },
-                ]
-              }
-            };
-            setSections([...sections, newSection]);
-            setExpandedSection(customId);
-            toast.success('Custom section added!');
-          }}
+          onClick={() => setIsAddSectionModalOpen(true)}
         >
           <Plus className="h-4 w-4" />
+          <Sparkles className="h-4 w-4 text-emerald-500" />
           Add Custom Section
         </Button>
+
+        <AddSectionModal
+          open={isAddSectionModalOpen}
+          onOpenChange={setIsAddSectionModalOpen}
+          onSectionCreated={(newSection) => {
+            setSections([...sections, newSection]);
+            setExpandedSection(newSection.id);
+          }}
+          appName={license?.brandSettings?.appName || app.name}
+          appDescription={license?.brandSettings?.description || app.description}
+        />
       </div>
 
       {/* Save Button */}
