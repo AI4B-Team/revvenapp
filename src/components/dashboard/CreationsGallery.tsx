@@ -1171,6 +1171,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
           onToggleLike={() => toggleLike(items[selectedImageIndex].id)}
           onToggleSave={() => toggleSave(items[selectedImageIndex].id)}
           onAnimate={onAnimate}
+          onDelete={() => handleDelete(items[selectedImageIndex])}
         />
       )}
 
