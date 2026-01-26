@@ -10,7 +10,7 @@ import {
   Shield, 
   CreditCard, 
   AlertTriangle,
-  Megaphone,
+  BarChart3,
   Plug,
   Lock,
   Eye,
@@ -24,6 +24,7 @@ import {
   UserPlus,
   Calendar,
   HelpCircle,
+  ExternalLink,
 } from 'lucide-react';
 import { SiGoogle, SiMeta, SiTiktok } from 'react-icons/si';
 import { toast } from 'sonner';
@@ -43,18 +44,37 @@ interface SettingsSectionProps {
   onDeactivate?: () => void;
 }
 
-type SettingsTab = 'announcements' | 'customers' | 'email-templates' | 'marketing' | 'integrations' | 'security' | 'notifications' | 'advanced';
+type SettingsTab = 'announcements' | 'customers' | 'email-templates' | 'analytics' | 'integrations' | 'security' | 'notifications' | 'advanced';
 
 const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
   { id: 'announcements', label: 'Announcements', icon: Send },
   { id: 'customers', label: 'Customers', icon: Users },
   { id: 'email-templates', label: 'Email Templates', icon: Mail },
-  { id: 'marketing', label: 'Marketing', icon: Megaphone },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'integrations', label: 'Integrations', icon: Plug },
   { id: 'security', label: 'Security', icon: Shield },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'advanced', label: 'Advanced', icon: Settings },
 ];
+
+type ConnectionStatus = 'connected' | 'not_connected' | 'error';
+
+function StatusIndicator({ status }: { status: ConnectionStatus }) {
+  const config = {
+    connected: { color: 'bg-emerald-500', label: 'Connected' },
+    not_connected: { color: 'bg-muted-foreground/40', label: 'Not connected' },
+    error: { color: 'bg-red-500', label: 'Error detected' },
+  };
+  
+  const { color, label } = config[status];
+  
+  return (
+    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <span className={`w-2 h-2 rounded-full ${color}`} />
+      {label}
+    </div>
+  );
+}
 
 export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('announcements');
@@ -464,29 +484,33 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
           </div>
         );
 
-      case 'marketing':
+      case 'analytics':
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Meta Pixel */}
-              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
-                <div className="flex items-center gap-2">
-                  <SiMeta className="h-5 w-5 text-[#0081FB]" />
-                  <h3 className="font-semibold">Meta Pixel</h3>
+              <div className="p-5 rounded-xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <SiMeta className="h-5 w-5 text-[#0081FB]" />
+                    <h3 className="font-semibold">Meta Pixel</h3>
+                  </div>
+                  <StatusIndicator status={metaPixelId ? 'connected' : 'not_connected'} />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Integrate Meta Pixel to track visitor activity on your website, measure the effectiveness of your Facebook and Instagram ads, and build targeted audiences for future ads.
+                  Track Facebook & Instagram ad conversions.{' '}
+                  <a href="https://www.facebook.com/business/help/952192354843755" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-0.5">
+                    Learn more <ExternalLink className="h-3 w-3" />
+                  </a>
                 </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Label htmlFor="meta-pixel">Meta Pixel ID</Label>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="meta-pixel" className="text-xs">Pixel ID</Label>
                   <Input 
                     id="meta-pixel"
                     placeholder="123456789012345"
                     value={metaPixelId}
                     onChange={(e) => setMetaPixelId(e.target.value)}
+                    className="h-9"
                   />
                 </div>
                 <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
@@ -495,24 +519,28 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
               </div>
 
               {/* Meta Conversions API */}
-              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
-                <div className="flex items-center gap-2">
-                  <SiMeta className="h-5 w-5 text-[#0081FB]" />
-                  <h3 className="font-semibold">Meta Conversions API</h3>
+              <div className="p-5 rounded-xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <SiMeta className="h-5 w-5 text-[#0081FB]" />
+                    <h3 className="font-semibold">Meta Conversions API</h3>
+                  </div>
+                  <StatusIndicator status={metaAccessToken ? 'connected' : 'not_connected'} />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Configure the Facebook Access Token for server-side event tracking via the Conversions API. This enables better tracking accuracy and deduplication between client and server events.
+                  Server-side tracking for better accuracy.{' '}
+                  <a href="https://developers.facebook.com/docs/marketing-api/conversions-api" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-0.5">
+                    Learn more <ExternalLink className="h-3 w-3" />
+                  </a>
                 </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Label htmlFor="meta-access-token">Facebook Access Token</Label>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="meta-access-token" className="text-xs">Access Token</Label>
                   <Input 
                     id="meta-access-token"
                     placeholder="EAABsbCS1iHgBO7jZCZBpR8..."
                     value={metaAccessToken}
                     onChange={(e) => setMetaAccessToken(e.target.value)}
+                    className="h-9"
                   />
                 </div>
                 <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
@@ -521,24 +549,28 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
               </div>
 
               {/* Google Ads Tag */}
-              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
-                <div className="flex items-center gap-2">
-                  <SiGoogle className="h-5 w-5 text-[#FBBC05]" />
-                  <h3 className="font-semibold">Google Ads Tag</h3>
+              <div className="p-5 rounded-xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <SiGoogle className="h-5 w-5 text-[#FBBC05]" />
+                    <h3 className="font-semibold">Google Ads Tag</h3>
+                  </div>
+                  <StatusIndicator status={googleAdsId ? 'connected' : 'not_connected'} />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Connect your Google Ads Tag account to track conversions and optimize your advertising campaigns. This integration allows you to measure the ROI of your ads.
+                  Measure Google Ads ROI and conversions.{' '}
+                  <a href="https://support.google.com/google-ads/answer/6095821" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-0.5">
+                    Learn more <ExternalLink className="h-3 w-3" />
+                  </a>
                 </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Label htmlFor="google-ads-id">Google Ads ID</Label>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="google-ads-id" className="text-xs">Google Ads ID</Label>
                   <Input 
                     id="google-ads-id"
                     placeholder="AW-1234567890"
                     value={googleAdsId}
                     onChange={(e) => setGoogleAdsId(e.target.value)}
+                    className="h-9"
                   />
                 </div>
                 <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
@@ -547,26 +579,30 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
               </div>
 
               {/* Google Tag Manager */}
-              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 bg-[#246FDB] rounded flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">G</span>
+              <div className="p-5 rounded-xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 bg-[#246FDB] rounded flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">G</span>
+                    </div>
+                    <h3 className="font-semibold">Google Tag Manager</h3>
                   </div>
-                  <h3 className="font-semibold">Google Tag Manager</h3>
+                  <StatusIndicator status={googleTagManagerId ? 'connected' : 'not_connected'} />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Integrate Google Tag Manager to track conversions and optimize your advertising campaigns through multiple tags. This integration allows you to measure the ROI of your ads.
+                  Manage all tracking tags in one place.{' '}
+                  <a href="https://support.google.com/tagmanager/answer/6102821" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-0.5">
+                    Learn more <ExternalLink className="h-3 w-3" />
+                  </a>
                 </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Label htmlFor="gtm-id">Google Tag Manager ID</Label>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="gtm-id" className="text-xs">Container ID</Label>
                   <Input 
                     id="gtm-id"
                     placeholder="GTM-XXXXXXX"
                     value={googleTagManagerId}
                     onChange={(e) => setGoogleTagManagerId(e.target.value)}
+                    className="h-9"
                   />
                 </div>
                 <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
@@ -575,24 +611,28 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
               </div>
 
               {/* TikTok Pixel */}
-              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
-                <div className="flex items-center gap-2">
-                  <SiTiktok className="h-5 w-5" />
-                  <h3 className="font-semibold">TikTok Pixel</h3>
+              <div className="p-5 rounded-xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <SiTiktok className="h-5 w-5" />
+                    <h3 className="font-semibold">TikTok Pixel</h3>
+                  </div>
+                  <StatusIndicator status={tiktokPixelId ? 'connected' : 'not_connected'} />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Add the TikTok Pixel to your website to track visitor actions, measure the effectiveness of your TikTok ads, and build custom audiences for retargeting.
+                  Track TikTok ad performance and audiences.{' '}
+                  <a href="https://ads.tiktok.com/help/article/tiktok-pixel" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-0.5">
+                    Learn more <ExternalLink className="h-3 w-3" />
+                  </a>
                 </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Label htmlFor="tiktok-pixel">TikTok Pixel ID</Label>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="tiktok-pixel" className="text-xs">Pixel ID</Label>
                   <Input 
                     id="tiktok-pixel"
                     placeholder="C3ABCDEFGHIJKLMNOPQRST"
                     value={tiktokPixelId}
                     onChange={(e) => setTiktokPixelId(e.target.value)}
+                    className="h-9"
                   />
                 </div>
                 <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
@@ -661,7 +701,7 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
               {/* Mailchimp */}
               <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
                 <div className="flex items-center gap-2">
-                  <Megaphone className="h-5 w-5 text-yellow-600" />
+                  <Mail className="h-5 w-5 text-yellow-600" />
                   <h3 className="font-semibold">Mailchimp</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
