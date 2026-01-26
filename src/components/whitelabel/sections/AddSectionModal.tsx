@@ -115,7 +115,7 @@ export function AddSectionModal({
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Lightbulb className="h-3 w-3" />
-              <span>Try these examples:</span>
+              <span>Try These Examples:</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {EXAMPLE_PROMPTS.map((example, idx) => (
