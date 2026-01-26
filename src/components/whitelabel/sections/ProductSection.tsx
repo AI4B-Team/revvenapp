@@ -3,14 +3,13 @@ import { MarketplaceApp, AppLicense } from '@/lib/marketplace/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { 
-  Sparkles, 
   Lightbulb, 
   Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NameGeneratorWizard } from '../wizards/NameGeneratorWizard';
+import AITextInput from '../AITextInput';
 
 interface ProductSectionProps {
   app: MarketplaceApp;
@@ -52,26 +51,16 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
     debouncedSave({ appName: newName });
   };
 
-  const handleGenerateMessaging = async () => {
-    const generatedTagline = "Transform Your Business With AI-Powered Solutions";
-    const generatedDescription = "Unlock the full potential of your business with our cutting-edge platform. Streamline workflows, boost productivity, and drive growth with intelligent automation tools designed for modern entrepreneurs.";
-    setTagline(generatedTagline);
-    setDescription(generatedDescription);
-    onUpdate({ tagline: generatedTagline, description: generatedDescription }, false);
-    toast.success('AI messaging generated!');
-  };
-
-  const handleTaglineChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTagline = e.target.value;
+  const handleTaglineAIChange = (newTagline: string) => {
     setTagline(newTagline);
     debouncedSave({ tagline: newTagline });
   };
 
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newDescription = e.target.value;
+  const handleDescriptionAIChange = (newDescription: string) => {
     setDescription(newDescription);
     debouncedSave({ description: newDescription });
   };
+
 
   const handleSave = () => {
     onUpdate({ appName: productName });
@@ -132,34 +121,28 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
         <h3 className="font-semibold text-foreground">Brand Messaging</h3>
         
         <div className="space-y-3">
-          <Label htmlFor="tagline">Tagline</Label>
-          <Input
-            id="tagline"
+          <AITextInput
+            label="Tagline"
             value={tagline}
-            onChange={handleTaglineChange}
+            onChange={handleTaglineAIChange}
             placeholder="Enter a catchy tagline (e.g., 'Where Success Happens')"
-            maxLength={60}
+            context="tagline"
           />
           <p className="text-xs text-muted-foreground">{tagline.length}/60 characters</p>
         </div>
 
         <div className="space-y-3">
-          <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
+          <AITextInput
+            label="Description"
             value={description}
-            onChange={handleDescriptionChange}
+            onChange={handleDescriptionAIChange}
             placeholder="Describe your product's capabilities and value proposition..."
+            context="description"
+            multiline
             rows={4}
-            maxLength={300}
           />
           <p className="text-xs text-muted-foreground">{description.length}/300 characters</p>
         </div>
-
-        <Button variant="outline" className="gap-2" onClick={handleGenerateMessaging}>
-          <Sparkles className="h-4 w-4" />
-          Generate With AI
-        </Button>
       </div>
 
       {/* Save Button */}
