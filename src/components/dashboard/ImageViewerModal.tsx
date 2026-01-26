@@ -49,6 +49,7 @@ interface ImageViewerModalProps {
   onToggleLike?: () => void;
   onToggleSave?: () => void;
   onAnimate?: (imageUrl: string) => void;
+  onDelete?: (id: string | number) => void;
 }
 
 const ImageViewerModal = ({ 
@@ -60,7 +61,8 @@ const ImageViewerModal = ({
   isSaved = false,
   onToggleLike,
   onToggleSave,
-  onAnimate
+  onAnimate,
+  onDelete
 }: ImageViewerModalProps) => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -70,6 +72,114 @@ const ImageViewerModal = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Download functionality
+  const handleDownload = async () => {
+    if (image.type === 'document') {
+      // For documents, create a downloadable text file
+      const content = image.content || 'No content available';
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${image.title || 'document'}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    const fileUrl = image.url || image.thumbnail;
+    if (!fileUrl || fileUrl === '/placeholder.svg') return;
+
+    setIsDownloading(true);
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const extension = image.type === 'video' ? 'mp4' : image.type === 'audio' ? 'mp3' : 'png';
+      a.download = `${image.title || 'download'}.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback: open in new tab
+      window.open(fileUrl, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Print functionality
+  const handlePrint = () => {
+    if (image.type === 'document') {
+      const content = image.content || 'No content available';
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>${image.title || 'Document'}</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
+                h1, h2, h3 { margin-top: 1em; }
+              </style>
+            </head>
+            <body>
+              <h1>${image.title || 'Document'}</h1>
+              <div>${content.replace(/\n/g, '<br/>')}</div>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    } else {
+      const fileUrl = image.url || image.thumbnail;
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>${image.title || 'Print'}</title>
+              <style>
+                body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                img, video { max-width: 100%; max-height: 100vh; object-fit: contain; }
+              </style>
+            </head>
+            <body>
+              ${image.type === 'video' 
+                ? `<video src="${fileUrl}" controls style="max-width: 100%;"></video>` 
+                : `<img src="${fileUrl}" alt="${image.title || 'Image'}" />`
+              }
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
+  };
+
+  // Add to community (placeholder - would need backend integration)
+  const handleAddToCommunity = () => {
+    // For now, show an alert. In production, this would call an API
+    alert('This feature will share your creation to the community gallery. Coming soon!');
+  };
+
+  // Delete with confirmation
+  const handleDelete = () => {
+    if (onDelete && window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+      onDelete(image.id);
+      onClose();
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -300,7 +410,10 @@ const ImageViewerModal = ({
                   <div className="flex items-center justify-between w-full gap-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="text-gray-400 hover:text-white transition-colors">
+                        <button 
+                          onClick={handleAddToCommunity}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
                           <Globe size={20} />
                         </button>
                       </TooltipTrigger>
@@ -319,24 +432,31 @@ const ImageViewerModal = ({
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Save</p>
+                        <p>{isSaved ? 'Unsave' : 'Save'}</p>
                       </TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="text-gray-400 hover:text-white transition-colors">
+                        <button 
+                          onClick={handleDownload}
+                          disabled={isDownloading}
+                          className={`transition-colors ${isDownloading ? 'text-blue-500 animate-pulse' : 'text-gray-400 hover:text-white'}`}
+                        >
                           <Download size={20} />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Download</p>
+                        <p>{isDownloading ? 'Downloading...' : 'Download'}</p>
                       </TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="text-gray-400 hover:text-white transition-colors">
+                        <button 
+                          onClick={handlePrint}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
                           <Printer size={20} />
                         </button>
                       </TooltipTrigger>
@@ -361,7 +481,10 @@ const ImageViewerModal = ({
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="text-gray-400 hover:text-white transition-colors">
+                        <button 
+                          onClick={handleDelete}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                        >
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="3 6 5 6 21 6"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
