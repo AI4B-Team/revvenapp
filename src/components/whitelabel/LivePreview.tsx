@@ -556,20 +556,27 @@ function PricingSection({
                 </thead>
                 <tbody>
                   {/* Get all unique features across all tiers */}
-                  {Array.from(new Set(pricingTiers.flatMap(t => t.features))).map((feature, idx) => (
-                    <tr key={idx} className="border-b border-zinc-100">
-                      <td className="py-3 px-4 text-sm text-zinc-600">{feature}</td>
-                      {pricingTiers.map((tier) => (
-                        <td key={tier.id} className="py-3 px-4 text-center">
-                          {tier.features.includes(feature) ? (
-                            <Check size={16} className="text-emerald-500 mx-auto" />
-                          ) : (
-                            <span className="text-zinc-300">—</span>
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                  {Array.from(new Set(pricingTiers.flatMap(t => t.features))).map((feature, idx) => {
+                    // Convert to Title Case
+                    const titleCaseFeature = feature.split(' ').map(word => 
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                    ).join(' ');
+                    
+                    return (
+                      <tr key={idx} className="border-b border-zinc-100">
+                        <td className="py-3 px-4 text-sm text-zinc-600">{titleCaseFeature}</td>
+                        {pricingTiers.map((tier) => (
+                          <td key={tier.id} className="py-3 px-4 text-center">
+                            {tier.features.includes(feature) ? (
+                              <Check size={16} className="text-emerald-500 mx-auto" />
+                            ) : (
+                              <span className="text-zinc-300">—</span>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
