@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
   Lightbulb, 
-  Wand2
+  Wand2,
+  Loader2,
+  Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NameGeneratorWizard } from '../wizards/NameGeneratorWizard';
@@ -23,6 +25,7 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
   const [tagline, setTagline] = useState(license?.brandSettings?.tagline || '');
   const [description, setDescription] = useState(license?.brandSettings?.description || '');
   const [isNameWizardOpen, setIsNameWizardOpen] = useState(false);
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -65,6 +68,52 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
   const handleDescriptionAIChange = (newDescription: string) => {
     setDescription(newDescription);
     debouncedSave({ description: newDescription });
+  };
+
+  const handleGenerateAllCopy = async () => {
+    setIsGeneratingAll(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const headlines = [
+        'Stop Scrolling. Start Winning.',
+        'The Secret Weapon Top Performers Use',
+        'Finally, A Solution That Actually Works',
+        'Your Competition Is Already Using This',
+      ];
+      
+      const taglines = [
+        'Transform Your Business With AI-Powered Solutions',
+        'Unlock Your Potential With Smart Automation',
+        'The Future of Work, Available Today',
+      ];
+      
+      const descriptions = [
+        'Streamline your workflow, boost productivity, and achieve more with our cutting-edge platform designed for modern businesses.',
+        'Experience the power of intelligent automation that adapts to your needs and scales with your growth.',
+        'Join thousands of successful businesses already transforming their operations with our innovative solutions.',
+      ];
+      
+      const newHeadline = headlines[Math.floor(Math.random() * headlines.length)];
+      const newTagline = taglines[Math.floor(Math.random() * taglines.length)];
+      const newDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
+      
+      setHeadline(newHeadline);
+      setTagline(newTagline);
+      setDescription(newDescription);
+      
+      onUpdate({ 
+        headline: newHeadline, 
+        tagline: newTagline, 
+        description: newDescription 
+      }, false);
+      
+      toast.success('All brand messaging generated!');
+    } catch (error) {
+      toast.error('Generation failed. Please try again.');
+    } finally {
+      setIsGeneratingAll(false);
+    }
   };
 
 
@@ -124,7 +173,23 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
 
       {/* Tagline & Description */}
       <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
-        <h3 className="font-semibold text-foreground">Brand Messaging</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-foreground">Brand Messaging</h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleGenerateAllCopy}
+            disabled={isGeneratingAll}
+            className="gap-2"
+          >
+            {isGeneratingAll ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            {isGeneratingAll ? 'Generating...' : 'AI Writer'}
+          </Button>
+        </div>
         
         <div className="space-y-3">
           <AITextInput
