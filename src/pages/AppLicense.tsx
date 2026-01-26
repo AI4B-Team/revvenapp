@@ -234,13 +234,20 @@ const AppLicense = () => {
     toast.success('Domain settings saved');
   };
 
-  const handleUpdatePricing = (settings: any) => {
+  const handleUpdatePricing = (settings: any, showToast = true) => {
     if (!appId) return;
     const currentLicense = getLicense(appId);
     if (currentLicense) {
       updateLicense(appId, { pricingSettings: { ...currentLicense.pricingSettings, ...settings } });
     }
-    toast.success('Pricing settings saved');
+    if (showToast) {
+      toast.success('Pricing settings saved');
+    }
+  };
+
+  // Silent pricing update for real-time preview sync
+  const handlePricingSettingsChange = (settings: any) => {
+    handleUpdatePricing(settings, false);
   };
 
   if (!app) {
@@ -271,7 +278,7 @@ const AppLicense = () => {
       case 'product': return <ProductSection app={app} license={license} onUpdate={handleUpdateBrand} />;
       case 'branding': return <BrandingSection license={license} onUpdate={handleUpdateBrand} />;
       case 'style': return <StyleSection app={app} license={license} selectedStyle={pageStyle} onStyleChange={setPageStyle} />;
-      case 'page': return <PageSection app={app} license={license} pageSections={pageSections} onPageSectionsChange={setPageSections} />;
+      case 'page': return <PageSection app={app} license={license} pageSections={pageSections} onPageSectionsChange={setPageSections} onPricingSettingsChange={handlePricingSettingsChange} />;
       case 'checkout': return <CheckoutSection license={license} checkoutConfig={checkoutConfig} onCheckoutConfigChange={setCheckoutConfig} />;
       case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
       case 'integrations': return <IntegrationsSection />;
