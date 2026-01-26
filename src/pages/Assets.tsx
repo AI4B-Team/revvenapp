@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
@@ -17,13 +17,29 @@ const Assets = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [filters, setFilters] = useState<FilterState | undefined>(undefined);
   const [currentView, setCurrentView] = useState<'folders' | 'gallery'>('folders');
   const [currentFolderType, setCurrentFolderType] = useState<FolderType | null>(null);
   const [currentFolderName, setCurrentFolderName] = useState<string>('');
   
+  // Filter state management
+  const [selectedContentType, setSelectedContentType] = useState<string>('All');
+  const [filters, setFilters] = useState<FilterState>({
+    contentType: 'All',
+    likes: false,
+    edits: false,
+    upscales: false,
+    startDate: '',
+    endDate: '',
+    searchQuery: ''
+  });
+  
   // Asset counts from database
-  const [imageCounts, setImageCounts] = useState({ images: 0, videos: 0 });
+  const [assetCounts, setAssetCounts] = useState({
+    images: 0,
+    videos: 0,
+    music: 0,
+    documents: 0
+  });
 
   // Fetch real counts from database
   useEffect(() => {
@@ -31,21 +47,76 @@ const Assets = () => {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) return;
 
+      const userId = session.session.user.id;
+
       // Count images
       const { count: imageCount } = await supabase
         .from('generated_images')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', session.session.user.id);
+        .eq('user_id', userId);
 
-      // Count videos
-      const { count: videoCount } = await supabase
+      // Count videos (ai_videos + autoyt_videos + explainer_videos)
+      const { count: aiVideoCount } = await supabase
         .from('ai_videos')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', session.session.user.id);
+        .eq('user_id', userId);
 
-      setImageCounts({
-        images: (imageCount || 0) + creationsData.filter(item => item.type === 'image').length,
-        videos: (videoCount || 0) + creationsData.filter(item => item.type === 'video').length
+      const { count: autoytVideoCount } = await supabase
+        .from('autoyt_videos')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      const { count: explainerVideoCount } = await supabase
+        .from('explainer_videos')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      // Count music/audio (user_voices + audio_app_usage)
+      const { count: voicesCount } = await supabase
+        .from('user_voices')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      const { count: audioAppCount } = await supabase
+        .from('audio_app_usage')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      // Count documents (business_plans + proposals + case_studies + cover_letters + handbooks)
+      const { count: businessPlansCount } = await supabase
+        .from('business_plans')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      const { count: proposalsCount } = await supabase
+        .from('proposals')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      const { count: caseStudiesCount } = await supabase
+        .from('case_studies')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      const { count: coverLettersCount } = await supabase
+        .from('cover_letters')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      const { count: handbooksCount } = await supabase
+        .from('handbooks')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      // Also count from static data
+      const staticImages = creationsData.filter(item => item.type === 'image').length;
+      const staticVideos = creationsData.filter(item => item.type === 'video').length;
+
+      setAssetCounts({
+        images: (imageCount || 0) + staticImages,
+        videos: (aiVideoCount || 0) + (autoytVideoCount || 0) + (explainerVideoCount || 0) + staticVideos,
+        music: (voicesCount || 0) + (audioAppCount || 0),
+        documents: (businessPlansCount || 0) + (proposalsCount || 0) + (caseStudiesCount || 0) + (coverLettersCount || 0) + (handbooksCount || 0)
       });
     };
 
@@ -63,7 +134,7 @@ const Assets = () => {
       { 
         id: 'photos', 
         name: 'Photos', 
-        fileCount: imageCounts.images, 
+        fileCount: assetCounts.images, 
         type: 'photos', 
         lastModified: new Date(), 
         color: 'blue', 
@@ -72,33 +143,33 @@ const Assets = () => {
       { 
         id: 'videos', 
         name: 'Videos', 
-        fileCount: imageCounts.videos, 
+        fileCount: assetCounts.videos, 
         type: 'videos', 
         lastModified: new Date(), 
-        color: 'blue', 
+        color: 'purple', 
         isFavorite: false 
       },
       { 
         id: 'music', 
-        name: 'Music', 
-        fileCount: 0, 
+        name: 'Music & Audio', 
+        fileCount: assetCounts.music, 
         type: 'music', 
         lastModified: new Date(), 
-        color: 'blue', 
+        color: 'green', 
         isFavorite: false 
       },
       { 
         id: 'documents', 
         name: 'Documents', 
-        fileCount: 0, 
+        fileCount: assetCounts.documents, 
         type: 'documents', 
         lastModified: new Date(), 
-        color: 'blue', 
+        color: 'orange', 
         isFavorite: false 
       },
     ];
     setFolders(defaultFolders);
-  }, [imageCounts]);
+  }, [assetCounts]);
 
   const handleCreateFolder = () => {
     const newFolder: AssetFolder = {
@@ -121,11 +192,22 @@ const Assets = () => {
       setCurrentView('gallery');
       
       // Set content type filter based on folder type
+      let contentType = 'All';
       if (folderType === 'photos') {
-        setFilters(prev => ({ ...prev, contentType: 'Image' } as FilterState));
+        contentType = 'Image';
       } else if (folderType === 'videos') {
-        setFilters(prev => ({ ...prev, contentType: 'Video' } as FilterState));
+        contentType = 'Video';
+      } else if (folderType === 'music') {
+        contentType = 'Audio';
+      } else if (folderType === 'documents') {
+        contentType = 'Document';
       }
+      
+      setSelectedContentType(contentType);
+      setFilters(prev => ({ 
+        ...prev, 
+        contentType: contentType 
+      }));
     }
   };
 
@@ -133,7 +215,26 @@ const Assets = () => {
     setCurrentView('folders');
     setCurrentFolderType(null);
     setCurrentFolderName('');
-    setFilters(undefined);
+    setSelectedContentType('All');
+    setFilters({
+      contentType: 'All',
+      likes: false,
+      edits: false,
+      upscales: false,
+      startDate: '',
+      endDate: '',
+      searchQuery: ''
+    });
+  };
+
+  const handleFiltersChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    setSelectedContentType(newFilters.contentType);
+  };
+
+  const handleContentTypeChange = (type: string) => {
+    setSelectedContentType(type);
+    setFilters(prev => ({ ...prev, contentType: type }));
   };
 
   return (
@@ -160,32 +261,44 @@ const Assets = () => {
             ) : (
               <>
                 {/* Back button and folder title */}
-                <div className="flex items-center gap-4 mb-6">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleBackToFolders}
-                    className="hover:bg-muted"
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                  </Button>
-                  <div>
-                    <h1 className="text-3xl font-bold">{currentFolderName}</h1>
-                    <p className="text-muted-foreground">
-                      {currentFolderType === 'photos' ? 'All your images' : 
-                       currentFolderType === 'videos' ? 'All your videos' : 
-                       'Folder contents'}
-                    </p>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleBackToFolders}
+                      className="hover:bg-muted"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </Button>
+                    <div>
+                      <h1 className="text-3xl font-bold">{currentFolderName}</h1>
+                      <p className="text-muted-foreground">
+                        {currentFolderType === 'photos' ? `${assetCounts.images} images` : 
+                         currentFolderType === 'videos' ? `${assetCounts.videos} videos` : 
+                         currentFolderType === 'music' ? `${assetCounts.music} audio files` :
+                         currentFolderType === 'documents' ? `${assetCounts.documents} documents` :
+                         'Folder contents'}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Filter toolbar */}
-                <div className="flex items-center justify-end mb-8">
-                  <FilterToolbar zoom={zoom} onZoomChange={setZoom} onFiltersChange={setFilters} />
+                  {/* Filter toolbar */}
+                  <FilterToolbar 
+                    zoom={zoom} 
+                    onZoomChange={setZoom} 
+                    onFiltersChange={handleFiltersChange}
+                    selectedContentType={selectedContentType}
+                    onContentTypeChange={handleContentTypeChange}
+                  />
                 </div>
 
                 {/* Creations Gallery */}
-                <CreationsGallery type="creations" columnsPerRow={zoomLevel} filters={filters} />
+                <CreationsGallery 
+                  type="creations" 
+                  columnsPerRow={zoomLevel} 
+                  filters={filters} 
+                />
               </>
             )}
           </div>
