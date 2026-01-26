@@ -813,7 +813,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
               <>
                 {/* Sticky Header with Logo, Site Name, and Auth Buttons */}
                 <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-zinc-100">
-                  <div className="px-6 py-3 flex items-center justify-between">
+                  <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {logoUrl ? (
                         <img src={logoUrl} alt="Logo" className="h-8 object-contain" />
@@ -903,32 +903,34 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     case 'features':
                       return (
                         <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12 bg-zinc-50">
-                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                            {section.content?.headline || 'Why Choose Us'}
-                          </h2>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {(section.content?.features || [
-                              { title: 'Lightning Fast', description: 'Get results in seconds' },
-                              { title: 'Secure & Private', description: 'Your data is protected' },
-                              { title: 'Premium Quality', description: 'Best-in-class results' },
-                            ]).slice(0, 3).map((feature: any, idx: number) => (
-                              <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
-                                <div 
-                                  className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden"
-                                  style={{ backgroundColor: feature.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
-                                >
-                                  {feature.iconUrl ? (
-                                    <img src={feature.iconUrl} alt="" className="w-full h-full object-contain" />
-                                  ) : feature.icon ? (
-                                    <span className="text-xl">{feature.icon}</span>
-                                  ) : (
-                                    <Zap size={20} />
-                                  )}
+                          <div className="max-w-6xl mx-auto">
+                            <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                              {section.content?.headline || 'Why Choose Us'}
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              {(section.content?.features || [
+                                { title: 'Lightning Fast', description: 'Get results in seconds' },
+                                { title: 'Secure & Private', description: 'Your data is protected' },
+                                { title: 'Premium Quality', description: 'Best-in-class results' },
+                              ]).slice(0, 3).map((feature: any, idx: number) => (
+                                <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
+                                  <div 
+                                    className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden"
+                                    style={{ backgroundColor: feature.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
+                                  >
+                                    {feature.iconUrl ? (
+                                      <img src={feature.iconUrl} alt="" className="w-full h-full object-contain" />
+                                    ) : feature.icon ? (
+                                      <span className="text-xl">{feature.icon}</span>
+                                    ) : (
+                                      <Zap size={20} />
+                                    )}
+                                  </div>
+                                  <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
+                                  <p className="text-sm text-zinc-600">{feature.description || feature.desc}</p>
                                 </div>
-                                <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
-                                <p className="text-sm text-zinc-600">{feature.description || feature.desc}</p>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
                         </div>
                       );
@@ -936,27 +938,29 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     case 'capabilities':
                       return (
                         <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12">
-                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                            {section.content?.headline || 'What We Offer'}
-                          </h2>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {(section.content?.cards || [
-                              { title: 'Automation', description: 'Automate repetitive tasks', icon: '⚡' },
-                              { title: 'Analytics', description: 'Get real-time insights', icon: '📊' },
-                              { title: 'Collaboration', description: 'Work seamlessly with your team', icon: '👥' },
-                            ]).map((card: any, idx: number) => (
-                              <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
-                                <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                                  {card.iconUrl ? (
-                                    <img src={card.iconUrl} alt="" className="w-full h-full object-contain" />
-                                  ) : (
-                                    <span className="text-3xl">{card.icon}</span>
-                                  )}
+                          <div className="max-w-6xl mx-auto">
+                            <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                              {section.content?.headline || 'What We Offer'}
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              {(section.content?.cards || [
+                                { title: 'Automation', description: 'Automate repetitive tasks', icon: '⚡' },
+                                { title: 'Analytics', description: 'Get real-time insights', icon: '📊' },
+                                { title: 'Collaboration', description: 'Work seamlessly with your team', icon: '👥' },
+                              ]).map((card: any, idx: number) => (
+                                <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
+                                  <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                                    {card.iconUrl ? (
+                                      <img src={card.iconUrl} alt="" className="w-full h-full object-contain" />
+                                    ) : (
+                                      <span className="text-3xl">{card.icon}</span>
+                                    )}
+                                  </div>
+                                  <h3 className="font-semibold text-zinc-900 mb-2">{card.title}</h3>
+                                  <p className="text-sm text-zinc-600">{card.description}</p>
                                 </div>
-                                <h3 className="font-semibold text-zinc-900 mb-2">{card.title}</h3>
-                                <p className="text-sm text-zinc-600">{card.description}</p>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
                         </div>
                       );
@@ -964,48 +968,50 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     case 'testimonials':
                       return (
                         <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12 bg-zinc-50">
-                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                            What Our Customers Say
-                          </h2>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {(section.content?.testimonials || [
-                              { name: 'Sarah J.', role: 'Marketing Director', quote: 'This platform transformed our workflow.' },
-                              { name: 'Michael C.', role: 'Founder', quote: 'Best investment we made this year.' },
-                              { name: 'Emily R.', role: 'Operations Manager', quote: 'Incredible support and product.' },
-                            ]).slice(0, 3).map((testimonial: any, idx: number) => (
-                              <div key={idx} className="bg-white rounded-xl p-6 shadow-sm flex flex-col">
-                                {testimonial.screenshotUrl && (
-                                  <div className="mb-4 -mx-2 -mt-2">
-                                    <img 
-                                      src={testimonial.screenshotUrl} 
-                                      alt="Testimonial screenshot" 
-                                      className="w-full rounded-lg object-cover max-h-48"
-                                    />
-                                  </div>
-                                )}
-                                {testimonial.quote && (
-                                  <p className="text-zinc-600 text-sm mb-4 flex-1">"{testimonial.quote}"</p>
-                                )}
-                                {testimonial.name && (
-                                  <div className="flex items-center gap-3 mt-auto">
-                                    {testimonial.avatarUrl && (
+                          <div className="max-w-6xl mx-auto">
+                            <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+                              What Our Customers Say
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              {(section.content?.testimonials || [
+                                { name: 'Sarah J.', role: 'Marketing Director', quote: 'This platform transformed our workflow.' },
+                                { name: 'Michael C.', role: 'Founder', quote: 'Best investment we made this year.' },
+                                { name: 'Emily R.', role: 'Operations Manager', quote: 'Incredible support and product.' },
+                              ]).slice(0, 3).map((testimonial: any, idx: number) => (
+                                <div key={idx} className="bg-white rounded-xl p-6 shadow-sm flex flex-col">
+                                  {testimonial.screenshotUrl && (
+                                    <div className="mb-4 -mx-2 -mt-2">
                                       <img 
-                                        src={testimonial.avatarUrl} 
-                                        alt={testimonial.name}
-                                        className="w-10 h-10 rounded-full object-cover"
+                                        src={testimonial.screenshotUrl} 
+                                        alt="Testimonial screenshot" 
+                                        className="w-full rounded-lg object-cover max-h-48"
                                       />
-                                    )}
-                                    <div>
-                                      <p className="font-medium text-zinc-900">{testimonial.name}</p>
-                                      {testimonial.role && <p className="text-xs text-zinc-500">{testimonial.role}{testimonial.company && `, ${testimonial.company}`}</p>}
                                     </div>
-                                  </div>
-                                )}
-                                {!testimonial.name && !testimonial.quote && testimonial.screenshotUrl && (
-                                  <p className="text-xs text-zinc-400 text-center">Customer Testimonial</p>
-                                )}
-                              </div>
-                            ))}
+                                  )}
+                                  {testimonial.quote && (
+                                    <p className="text-zinc-600 text-sm mb-4 flex-1">"{testimonial.quote}"</p>
+                                  )}
+                                  {testimonial.name && (
+                                    <div className="flex items-center gap-3 mt-auto">
+                                      {testimonial.avatarUrl && (
+                                        <img 
+                                          src={testimonial.avatarUrl} 
+                                          alt={testimonial.name}
+                                          className="w-10 h-10 rounded-full object-cover"
+                                        />
+                                      )}
+                                      <div>
+                                        <p className="font-medium text-zinc-900">{testimonial.name}</p>
+                                        {testimonial.role && <p className="text-xs text-zinc-500">{testimonial.role}{testimonial.company && `, ${testimonial.company}`}</p>}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {!testimonial.name && !testimonial.quote && testimonial.screenshotUrl && (
+                                    <p className="text-xs text-zinc-400 text-center">Customer Testimonial</p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       );
@@ -1018,46 +1024,48 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       
                       return (
                         <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12">
-                          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-2">
-                            {section.content?.headline || 'Simple Pricing'}
-                          </h2>
-                          {section.content?.subheadline && (
-                            <p className="text-zinc-500 text-center mb-8">{section.content.subheadline}</p>
-                          )}
-                          <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
-                            <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
-                              {pricingModel === 'one-time' ? 'One-Time Payment' : pricingModel === 'both' ? 'Setup + Monthly' : 'Monthly'}
-                            </div>
-                            
-                            {/* Setup Fee Display */}
-                            {pricingModel === 'both' && setupFee > 0 && (
-                              <div className="mb-3 pb-3 border-b border-zinc-100">
-                                <div className="text-sm text-zinc-500">One-Time Setup</div>
-                                <div className="text-2xl font-bold text-zinc-900">${setupFee}</div>
-                              </div>
+                          <div className="max-w-6xl mx-auto">
+                            <h2 className="text-2xl font-bold text-zinc-900 text-center mb-2">
+                              {section.content?.headline || 'Simple Pricing'}
+                            </h2>
+                            {section.content?.subheadline && (
+                              <p className="text-zinc-500 text-center mb-8">{section.content.subheadline}</p>
                             )}
-                            
-                            {/* Main Price Display */}
-                            <div className="text-4xl font-bold text-zinc-900 mb-4">
-                              ${pricingModel === 'one-time' ? oneTimePrice : monthlyPrice}
-                              {pricingModel !== 'one-time' && (
-                                <span className="text-lg font-normal text-zinc-500">/mo</span>
+                            <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
+                              <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
+                                {pricingModel === 'one-time' ? 'One-Time Payment' : pricingModel === 'both' ? 'Setup + Monthly' : 'Monthly'}
+                              </div>
+                              
+                              {/* Setup Fee Display */}
+                              {pricingModel === 'both' && setupFee > 0 && (
+                                <div className="mb-3 pb-3 border-b border-zinc-100">
+                                  <div className="text-sm text-zinc-500">One-Time Setup</div>
+                                  <div className="text-2xl font-bold text-zinc-900">${setupFee}</div>
+                                </div>
                               )}
+                              
+                              {/* Main Price Display */}
+                              <div className="text-4xl font-bold text-zinc-900 mb-4">
+                                ${pricingModel === 'one-time' ? oneTimePrice : monthlyPrice}
+                                {pricingModel !== 'one-time' && (
+                                  <span className="text-lg font-normal text-zinc-500">/mo</span>
+                                )}
+                              </div>
+                              <ul className="text-left space-y-3 mb-6">
+                                {['Full Access', 'Priority Support', 'Regular Updates'].map((item, idx) => (
+                                  <li key={idx} className="flex items-center gap-2 text-zinc-600">
+                                    <Check size={16} style={{ color: primaryColor }} />
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                              <button 
+                                className="w-full py-3 rounded-lg font-medium text-white"
+                                style={{ backgroundColor: primaryColor }}
+                              >
+                                Get Started Now
+                              </button>
                             </div>
-                            <ul className="text-left space-y-3 mb-6">
-                              {['Full Access', 'Priority Support', 'Regular Updates'].map((item, idx) => (
-                                <li key={idx} className="flex items-center gap-2 text-zinc-600">
-                                  <Check size={16} style={{ color: primaryColor }} />
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                            <button 
-                              className="w-full py-3 rounded-lg font-medium text-white"
-                              style={{ backgroundColor: primaryColor }}
-                            >
-                              Get Started Now
-                            </button>
                           </div>
                         </div>
                       );
@@ -1100,22 +1108,24 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           className="px-6 md:px-12 lg:px-16 py-16 text-center"
                           style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
                         >
-                          <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 mb-4">
-                            {section.content?.headline || 'Ready to Transform Your Business?'}
-                          </h2>
-                          <p className="text-zinc-600 mb-8 max-w-md mx-auto">
-                            {section.content?.subheadline || 'Join thousands of successful businesses already using our platform'}
-                          </p>
-                          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <button 
-                              className="px-8 py-3 rounded-lg font-medium text-white"
-                              style={{ backgroundColor: primaryColor }}
-                            >
-                              {section.content?.buttonText || 'Start Your Free Trial'}
-                            </button>
-                            <button className="px-8 py-3 rounded-lg font-medium text-zinc-700 bg-white border border-zinc-200">
-                              {section.content?.secondaryButtonText || 'Schedule a Demo'}
-                            </button>
+                          <div className="max-w-4xl mx-auto">
+                            <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 mb-4">
+                              {section.content?.headline || 'Ready to Transform Your Business?'}
+                            </h2>
+                            <p className="text-zinc-600 mb-8 max-w-md mx-auto">
+                              {section.content?.subheadline || 'Join thousands of successful businesses already using our platform'}
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                              <button 
+                                className="px-8 py-3 rounded-lg font-medium text-white"
+                                style={{ backgroundColor: primaryColor }}
+                              >
+                                {section.content?.buttonText || 'Start Your Free Trial'}
+                              </button>
+                              <button className="px-8 py-3 rounded-lg font-medium text-zinc-700 bg-white border border-zinc-200">
+                                {section.content?.secondaryButtonText || 'Schedule a Demo'}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );
