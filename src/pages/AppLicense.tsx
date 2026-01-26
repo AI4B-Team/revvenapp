@@ -366,6 +366,7 @@ const AppLicense = () => {
                   legalDocs={legalDocs}
                   pageSections={pageSections}
                   pageStyle={pageStyle}
+                  onPageSectionsChange={setPageSections}
                 />
               </ResizablePanel>
             </ResizablePanelGroup>
