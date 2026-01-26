@@ -24,6 +24,7 @@ import AIIconGenerator from '../AIIconGenerator';
 import { PricingBlockEditor } from './PricingBlockEditor';
 import { HeroButtonEditor } from './HeroButtonEditor';
 import { RichHeadlineEditor } from './RichHeadlineEditor';
+import { SocialLinksEditor } from './SocialLinksEditor';
 import type { PageBlock } from './PageSection';
 
 interface SortableSectionItemProps {
@@ -755,6 +756,15 @@ export function SortableSectionItem({
                   onCheckedChange={(checked) => updateSectionContent(section.id, { showSocialLinks: checked })}
                 />
               </div>
+
+              {/* Social Links Configuration */}
+              {section.content.showSocialLinks && (
+                <SocialLinksEditor
+                  socialLinks={section.content.socialLinks || {}}
+                  onChange={(socialLinks) => updateSectionContent(section.id, { socialLinks })}
+                />
+              )}
+
               <div className="flex items-center justify-between">
                 <Label>Show Newsletter Signup</Label>
                 <Switch
@@ -762,6 +772,41 @@ export function SortableSectionItem({
                   onCheckedChange={(checked) => updateSectionContent(section.id, { showNewsletter: checked })}
                 />
               </div>
+
+              {/* Newsletter Configuration */}
+              {section.content.showNewsletter && (
+                <div className="p-4 rounded-lg bg-muted/30 border border-border space-y-3">
+                  <Label className="text-sm font-medium">Newsletter Settings</Label>
+                  <AITextInput
+                    label="Headline"
+                    value={section.content.newsletterHeadline || ''}
+                    onChange={(value) => updateSectionContent(section.id, { newsletterHeadline: value })}
+                    placeholder="Stay Updated"
+                    context="newsletter_headline"
+                  />
+                  <AITextInput
+                    label="Description"
+                    value={section.content.newsletterDescription || ''}
+                    onChange={(value) => updateSectionContent(section.id, { newsletterDescription: value })}
+                    placeholder="Get the latest news and updates"
+                    context="newsletter_description"
+                  />
+                  <AITextInput
+                    label="Button Text"
+                    value={section.content.newsletterButtonText || ''}
+                    onChange={(value) => updateSectionContent(section.id, { newsletterButtonText: value })}
+                    placeholder="Subscribe"
+                    context="button_text"
+                  />
+                  <AITextInput
+                    label="Placeholder Text"
+                    value={section.content.newsletterPlaceholder || ''}
+                    onChange={(value) => updateSectionContent(section.id, { newsletterPlaceholder: value })}
+                    placeholder="Enter your email"
+                    context="placeholder"
+                  />
+                </div>
+              )}
             </div>
           )}
 
