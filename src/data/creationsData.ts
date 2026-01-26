@@ -11,6 +11,7 @@ export interface GalleryItem {
   creator: {
     name: string;
     avatar: string;
+    userId?: string;
   };
   likes?: number;
   isEdited?: boolean;
