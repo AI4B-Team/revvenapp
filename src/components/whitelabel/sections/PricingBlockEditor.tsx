@@ -15,6 +15,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import AITextInput from '../AITextInput';
+import { MultiTierPricingEditor } from './MultiTierPricingEditor';
 
 type PricingModel = 'monthly' | 'one-time' | 'setup-monthly';
 
@@ -172,10 +173,16 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
         />
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-border pt-4">
-        <Label className="text-sm font-semibold text-foreground">Pricing Model</Label>
-      </div>
+      {/* Multi-Tier Pricing */}
+      <MultiTierPricingEditor content={content} onContentChange={onContentChange} />
+
+      {/* Single Tier Options (shown when multi-tier is disabled) */}
+      {!content.enableMultiTier && (
+        <>
+          {/* Divider */}
+          <div className="border-t border-border pt-4">
+            <Label className="text-sm font-semibold text-foreground">Pricing Model</Label>
+          </div>
 
       {/* Pricing Model Selection */}
       <div className="grid grid-cols-1 gap-2">
@@ -581,6 +588,8 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
           );
         })()}
       </div>
+        </>
+      )}
     </div>
   );
 }
