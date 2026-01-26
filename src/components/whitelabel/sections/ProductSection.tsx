@@ -21,6 +21,7 @@ interface ProductSectionProps {
 
 export function ProductSection({ app, license, onUpdate }: ProductSectionProps) {
   const [productName, setProductName] = useState(license?.brandSettings?.appName || '');
+  const [badge, setBadge] = useState(license?.brandSettings?.badge || '');
   const [headline, setHeadline] = useState(license?.brandSettings?.headline || '');
   const [tagline, setTagline] = useState(license?.brandSettings?.tagline || '');
   const [description, setDescription] = useState(license?.brandSettings?.description || '');
@@ -60,6 +61,11 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
     debouncedSave({ tagline: newTagline });
   };
 
+  const handleBadgeAIChange = (newBadge: string) => {
+    setBadge(newBadge);
+    debouncedSave({ badge: newBadge });
+  };
+
   const handleHeadlineAIChange = (newHeadline: string) => {
     setHeadline(newHeadline);
     debouncedSave({ headline: newHeadline });
@@ -74,6 +80,14 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
     setIsGeneratingAll(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const badges = [
+        'AI-Powered',
+        'New Release',
+        '#1 Rated',
+        'Industry Leading',
+        'Award Winning',
+      ];
       
       const headlines = [
         'Stop Scrolling. Start Winning.',
@@ -94,15 +108,18 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
         'Join thousands of successful businesses already transforming their operations with our innovative solutions.',
       ];
       
+      const newBadge = badges[Math.floor(Math.random() * badges.length)];
       const newHeadline = headlines[Math.floor(Math.random() * headlines.length)];
       const newTagline = taglines[Math.floor(Math.random() * taglines.length)];
       const newDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
       
+      setBadge(newBadge);
       setHeadline(newHeadline);
       setTagline(newTagline);
       setDescription(newDescription);
       
       onUpdate({ 
+        badge: newBadge,
         headline: newHeadline, 
         tagline: newTagline, 
         description: newDescription 
@@ -191,6 +208,17 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
           </Button>
         </div>
         
+        <div className="space-y-3">
+          <AITextInput
+            label="Badge Text"
+            value={badge}
+            onChange={handleBadgeAIChange}
+            placeholder="Short badge text (e.g., 'AI-Powered', '#1 Rated')"
+            context="badge"
+          />
+          <p className="text-xs text-muted-foreground">{badge.length}/20 characters</p>
+        </div>
+
         <div className="space-y-3">
           <AITextInput
             label="Headline"

@@ -371,8 +371,7 @@ function HeroPreview({
           >
             <div className="mb-4">{renderBadge()}</div>
             {renderHeadline('text-zinc-900')}
-            <p className="text-lg text-zinc-600 mb-4 max-w-md mx-auto">{tagline}</p>
-            {description && <p className="text-sm text-zinc-500 mb-8 max-w-md mx-auto">{description}</p>}
+            <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">{tagline}</p>
             {renderCTAButtons()}
           </div>
         );
@@ -435,6 +434,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
   // Get brand colors from license or use defaults
   const primaryColor = license?.brandSettings?.primaryColor || '#10b981';
   const productName = license?.brandSettings?.appName || app?.name || 'Your Product';
+  const brandBadge = license?.brandSettings?.badge || '';
   const brandHeadline = license?.brandSettings?.headline || '';
   const brandTagline = license?.brandSettings?.tagline || 'Transform Your Business Today';
   const brandDescription = license?.brandSettings?.description || '';
@@ -841,7 +841,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           <HeroPreview 
                             key={section.id}
                             style={pageStyle}
-                            badge={section.content?.badge || 'AI-Powered'}
+                            badge={brandBadge || section.content?.badge || 'AI-Powered'}
                             tagline={brandTagline || section.content?.tagline || 'Transform Your Business Today'}
                             description={brandDescription || section.content?.description}
                             productName={productName}

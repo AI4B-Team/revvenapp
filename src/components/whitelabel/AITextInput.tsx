@@ -47,6 +47,14 @@ const AITextInput: React.FC<AITextInputProps> = ({
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const generatedTexts: Record<string, string[]> = {
+        badge: [
+          'AI-Powered',
+          'New Release',
+          '#1 Rated',
+          'Industry Leading',
+          'Award Winning',
+          'Best Seller',
+        ],
         headline: [
           'Stop Scrolling. Start Winning.',
           'The Secret Weapon Top Performers Use',
