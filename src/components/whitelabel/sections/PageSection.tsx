@@ -81,7 +81,11 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
       enabled: true, 
       title: 'Hero Section', 
       content: { 
-        badge: 'AI-Powered', 
+        badge: 'AI-Powered',
+        headline: appName,
+        headlineFontSize: '3xl',
+        headlineColor: '',
+        headlineUnderline: false,
         tagline: tagline,
         description: description
       } 
