@@ -5,6 +5,12 @@ import { Label } from '@/components/ui/label';
 import { X, Check, Sparkles, Loader2, ArrowRight, SkipForward } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface LogoGeneratorWizardProps {
   isOpen: boolean;
@@ -231,35 +237,40 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
           {/* Content */}
           <div className="p-6">
             {step === 'colors' && (
-              <div className="grid grid-cols-3 gap-4">
-                {colorOptions.map((color) => (
-                  <button
-                    key={color.id}
-                    onClick={() => toggleColor(color.id)}
-                    className={`relative rounded-xl overflow-hidden transition-all ${
-                      selectedColors.includes(color.id)
-                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
-                        : 'hover:scale-105'
-                    }`}
-                  >
-                    <div 
-                      className={`h-28 bg-gradient-to-br ${color.gradient} flex items-end p-3`}
-                    >
-                      <div className="text-left">
-                        <p className="font-semibold text-white">{color.name}</p>
-                        {selectedColors.includes(color.id) && (
-                          <p className="text-xs text-white/80 mt-1 line-clamp-2">{color.description}</p>
-                        )}
-                      </div>
-                    </div>
-                    {selectedColors.includes(color.id) && (
-                      <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                        <Check className="h-4 w-4 text-primary" />
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
+              <TooltipProvider delayDuration={200}>
+                <div className="grid grid-cols-3 gap-4">
+                  {colorOptions.map((color) => (
+                    <Tooltip key={color.id}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => toggleColor(color.id)}
+                          className={`relative rounded-xl overflow-hidden transition-all ${
+                            selectedColors.includes(color.id)
+                              ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                              : 'hover:scale-105'
+                          }`}
+                        >
+                          <div 
+                            className={`h-28 bg-gradient-to-br ${color.gradient} flex items-end p-3`}
+                          >
+                            <div className="text-left">
+                              <p className="font-semibold text-white">{color.name}</p>
+                            </div>
+                          </div>
+                          {selectedColors.includes(color.id) && (
+                            <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                              <Check className="h-4 w-4 text-primary" />
+                            </div>
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[200px] text-center">
+                        <p>{color.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+              </TooltipProvider>
             )}
 
             {step === 'style' && (
