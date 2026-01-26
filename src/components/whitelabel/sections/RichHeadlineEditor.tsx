@@ -57,6 +57,7 @@ export function RichHeadlineEditor({
   placeholder = 'Enter your headline'
 }: RichHeadlineEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const savedSelectionRef = useRef<Range | null>(null);
   const [isColorPickerOpen, setIsColorPickerOpen] = React.useState(false);
   const [customColor, setCustomColor] = React.useState('#000000');
 
@@ -73,11 +74,40 @@ export function RichHeadlineEditor({
     }
   }, [onChange]);
 
-  const applyFormatting = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-    editorRef.current?.focus();
-    handleInput();
-  };
+  // Save selection when user selects text
+  const saveSelection = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      // Only save if selection is within our editor
+      if (editorRef.current?.contains(range.commonAncestorContainer)) {
+        savedSelectionRef.current = range.cloneRange();
+      }
+    }
+  }, []);
+
+  // Restore saved selection
+  const restoreSelection = useCallback(() => {
+    if (savedSelectionRef.current && editorRef.current) {
+      editorRef.current.focus();
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(savedSelectionRef.current);
+      }
+    }
+  }, []);
+
+  const applyFormatting = useCallback((command: string, formatValue?: string) => {
+    restoreSelection();
+    // Small delay to ensure selection is restored
+    requestAnimationFrame(() => {
+      document.execCommand(command, false, formatValue);
+      handleInput();
+      // Re-save selection after formatting
+      saveSelection();
+    });
+  }, [restoreSelection, handleInput, saveSelection]);
 
   const applyUnderline = () => {
     applyFormatting('underline');
@@ -88,10 +118,10 @@ export function RichHeadlineEditor({
     setIsColorPickerOpen(false);
   };
 
-  const hasSelection = () => {
-    const selection = window.getSelection();
-    return selection && selection.toString().length > 0;
-  };
+  // Save selection on mouseup and keyup in the editor
+  const handleSelectionChange = useCallback(() => {
+    saveSelection();
+  }, [saveSelection]);
 
   return (
     <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
@@ -104,7 +134,10 @@ export function RichHeadlineEditor({
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        className="min-h-[60px] p-3 rounded-md border border-border bg-background text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        onMouseUp={handleSelectionChange}
+        onKeyUp={handleSelectionChange}
+        onSelect={handleSelectionChange}
+        className="min-h-[60px] p-3 rounded-md border border-border bg-background text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-text"
         style={{ 
           fontFamily: fontFamily === 'georgia' ? 'Georgia, serif' 
             : fontFamily === 'playfair' ? '"Playfair Display", serif'
@@ -155,6 +188,7 @@ export function RichHeadlineEditor({
         <Button
           variant="outline"
           size="sm"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={applyUnderline}
           className="h-8 w-8 p-0"
           title="Underline selected text"
@@ -168,6 +202,7 @@ export function RichHeadlineEditor({
             <Button
               variant="outline"
               size="sm"
+              onMouseDown={(e) => e.preventDefault()}
               className="h-8 w-8 p-0"
               title="Color selected text"
             >
@@ -181,6 +216,7 @@ export function RichHeadlineEditor({
                 {COLOR_PRESETS.map(color => (
                   <button
                     key={color}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => applyColor(color)}
                     className="w-6 h-6 rounded-md border border-border hover:scale-110 transition-transform"
                     style={{ backgroundColor: color }}
@@ -197,6 +233,7 @@ export function RichHeadlineEditor({
                 <Button
                   size="sm"
                   variant="secondary"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => applyColor(customColor)}
                   className="flex-1 h-8"
                 >
