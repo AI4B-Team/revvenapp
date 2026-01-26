@@ -662,10 +662,14 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       ]).slice(0, 3).map((feature: any, idx: number) => (
                         <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
                           <div 
-                            className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center"
-                            style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}
+                            className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden"
+                            style={{ backgroundColor: feature.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
                           >
-                            <Zap size={20} />
+                            {feature.iconUrl ? (
+                              <img src={feature.iconUrl} alt="" className="w-full h-full object-contain" />
+                            ) : (
+                              <Zap size={20} />
+                            )}
                           </div>
                           <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
                           <p className="text-sm text-zinc-600">{feature.description || feature.desc}</p>
@@ -688,7 +692,13 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                         { title: 'Collaboration', description: 'Work seamlessly with your team', icon: '👥' },
                       ]).map((card: any, idx: number) => (
                         <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
-                          <div className="text-3xl mb-4">{card.icon}</div>
+                          <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                            {card.iconUrl ? (
+                              <img src={card.iconUrl} alt="" className="w-full h-full object-contain" />
+                            ) : (
+                              <span className="text-3xl">{card.icon}</span>
+                            )}
+                          </div>
                           <h3 className="font-semibold text-zinc-900 mb-2">{card.title}</h3>
                           <p className="text-sm text-zinc-600">{card.description}</p>
                         </div>
