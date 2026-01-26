@@ -524,7 +524,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       ) : (
         <div className="px-4 mb-2 relative flex-shrink-0">
-          <div className="flex items-center gap-1.5 mb-1.5 px-1">
+          <div className="flex items-center gap-1.5 mb-1.5 px-3">
             <LayoutGrid size={10} className="text-sidebar-muted" />
             <span className="text-[10px] font-medium text-sidebar-muted uppercase tracking-wider">Workspace</span>
           </div>
@@ -666,7 +666,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       ) : (
         <div ref={brandDropdownRef} className="px-4 mb-4 relative flex-shrink-0">
-          <div className="flex items-center gap-1.5 mb-1.5 px-1">
+          <div className="flex items-center gap-1.5 mb-1.5 px-3">
             <Palette size={10} className="text-sidebar-muted" />
             <span className="text-[10px] font-medium text-sidebar-muted uppercase tracking-wider">Brand</span>
           </div>
