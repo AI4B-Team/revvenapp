@@ -38,6 +38,7 @@ interface SortableSectionItemProps {
   updateSectionContent: (id: string, updates: Record<string, any>) => void;
   handleGenerateCopy: (sectionId: string) => void;
   setIsGenerating: (value: string | null) => void;
+  onPricingSettingsChange?: (settings: Record<string, any>) => void;
 }
 
 export function SortableSectionItem({
@@ -55,6 +56,7 @@ export function SortableSectionItem({
   updateSectionContent,
   handleGenerateCopy,
   setIsGenerating,
+  onPricingSettingsChange,
 }: SortableSectionItemProps) {
   const {
     attributes,
@@ -636,7 +638,13 @@ export function SortableSectionItem({
           {section.type === 'pricing' && (
             <PricingBlockEditor
               content={section.content}
-              onContentChange={(updates) => updateSectionContent(section.id, updates)}
+              onContentChange={(updates) => {
+                updateSectionContent(section.id, updates);
+                // Also sync to license pricingSettings for live preview
+                if (onPricingSettingsChange) {
+                  onPricingSettingsChange(updates);
+                }
+              }}
             />
           )}
 

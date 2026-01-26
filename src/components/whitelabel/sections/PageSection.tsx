@@ -51,6 +51,7 @@ interface PageSectionProps {
   license?: AppLicense;
   pageSections?: PageBlock[];
   onPageSectionsChange?: (sections: PageBlock[]) => void;
+  onPricingSettingsChange?: (settings: Record<string, any>) => void;
 }
 
 type SectionType = 'hero' | 'features' | 'capabilities' | 'credibility' | 'testimonials' | 'pricing' | 'faq' | 'cta' | 'footer';
@@ -344,7 +345,7 @@ function HeroStyleSelector({
   );
 }
 
-export function PageSection({ app, license, pageSections: externalSections, onPageSectionsChange }: PageSectionProps) {
+export function PageSection({ app, license, pageSections: externalSections, onPageSectionsChange, onPricingSettingsChange }: PageSectionProps) {
   const [sections, setSectionsInternal] = useState<PageBlock[]>(() => 
     externalSections || getDefaultSections(app, license)
   );
@@ -577,6 +578,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                   updateSectionContent={updateSectionContent}
                   handleGenerateCopy={handleGenerateCopy}
                   setIsGenerating={setIsGenerating}
+                  onPricingSettingsChange={onPricingSettingsChange}
                 />
               );
             })}
