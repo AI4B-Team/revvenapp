@@ -305,7 +305,6 @@ function HeroPreview({
             style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
           >
             <div className="flex-1 text-left">
-              <div className="mb-4">{renderLogo()}</div>
               <div className="mb-4">{renderBadge()}</div>
               {renderHeadline('text-zinc-900')}
               <p className="text-lg text-zinc-600 mb-6 max-w-md">{tagline}</p>
@@ -323,10 +322,10 @@ function HeroPreview({
           >
             {renderHeroVisual('lg')}
             <div className="flex-1 text-right">
-              <div className="mb-4 flex justify-end">{renderLogo()}</div>
               <div className="mb-4">{renderBadge()}</div>
               {renderHeadline('text-zinc-900')}
               <p className="text-lg text-zinc-600 mb-6 max-w-md ml-auto">{tagline}</p>
+              {description && <p className="text-sm text-zinc-500 mb-6 ml-auto">{description}</p>}
               <div className="flex justify-end">{renderCTAButtons()}</div>
             </div>
           </div>
@@ -335,7 +334,8 @@ function HeroPreview({
         return (
           <div className="px-8 py-24 text-center bg-white">
             {renderHeadline('text-zinc-900')}
-            <p className="text-xl text-zinc-500 mb-10 max-w-lg mx-auto">{tagline}</p>
+            <p className="text-xl text-zinc-500 mb-4 max-w-lg mx-auto">{tagline}</p>
+            {description && <p className="text-sm text-zinc-400 mb-10 max-w-lg mx-auto">{description}</p>}
             {renderCTAButtons()}
           </div>
         );
@@ -345,31 +345,20 @@ function HeroPreview({
             className="px-8 py-16 text-center"
             style={{ background: `linear-gradient(135deg, ${primaryColor} 0%, #7c3aed 100%)` }}
           >
-            <div className="mb-6 flex justify-center">{renderLogo()}</div>
             <div className="mb-4">{renderBadge(true)}</div>
             {renderHeadline('text-white')}
-            <p className="text-lg text-white/80 mb-8 max-w-md mx-auto">{tagline}</p>
+            <p className="text-lg text-white/80 mb-4 max-w-md mx-auto">{tagline}</p>
+            {description && <p className="text-sm text-white/60 mb-8 max-w-md mx-auto">{description}</p>}
             {renderCTAButtons(true)}
           </div>
         );
       case 'bold':
         return (
           <div className="px-8 py-16 text-center bg-zinc-900">
-            <div className="mb-6 flex justify-center">
-              {logoUrl ? (
-                <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
-              ) : (
-                <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  {selectedIcon}
-                </div>
-              )}
-            </div>
             <div className="mb-4">{renderBadge(true)}</div>
             {renderHeadline('text-white')}
-            <p className="text-lg text-zinc-400 mb-8 max-w-md mx-auto">{tagline}</p>
+            <p className="text-lg text-zinc-400 mb-4 max-w-md mx-auto">{tagline}</p>
+            {description && <p className="text-sm text-zinc-500 mb-8 max-w-md mx-auto">{description}</p>}
             {renderCTAButtons(true)}
           </div>
         );
@@ -380,10 +369,10 @@ function HeroPreview({
             className="px-8 py-16 text-center"
             style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
           >
-            <div className="mb-6 flex justify-center">{renderLogo()}</div>
             <div className="mb-4">{renderBadge()}</div>
             {renderHeadline('text-zinc-900')}
-            <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">{tagline}</p>
+            <p className="text-lg text-zinc-600 mb-4 max-w-md mx-auto">{tagline}</p>
+            {description && <p className="text-sm text-zinc-500 mb-8 max-w-md mx-auto">{description}</p>}
             {renderCTAButtons()}
           </div>
         );
