@@ -24,20 +24,22 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface PageSectionProps {
-  app: MarketplaceApp;
-  license?: AppLicense;
-}
-
-type SectionType = 'hero' | 'features' | 'capabilities' | 'testimonials' | 'pricing' | 'faq' | 'cta' | 'footer';
-
-interface PageBlock {
+export interface PageBlock {
   id: string;
   type: SectionType;
   enabled: boolean;
   title: string;
   content: Record<string, any>;
 }
+
+interface PageSectionProps {
+  app: MarketplaceApp;
+  license?: AppLicense;
+  pageSections?: PageBlock[];
+  onPageSectionsChange?: (sections: PageBlock[]) => void;
+}
+
+type SectionType = 'hero' | 'features' | 'capabilities' | 'testimonials' | 'pricing' | 'faq' | 'cta' | 'footer';
 
 const sectionIcons: Record<SectionType, React.ElementType> = {
   hero: Layout,
@@ -163,17 +165,28 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
   ];
 };
 
-export function PageSection({ app, license }: PageSectionProps) {
-  const [sections, setSections] = useState<PageBlock[]>(() => getDefaultSections(app, license));
+export function PageSection({ app, license, pageSections: externalSections, onPageSectionsChange }: PageSectionProps) {
+  const [sections, setSectionsInternal] = useState<PageBlock[]>(() => 
+    externalSections || getDefaultSections(app, license)
+  );
   const [expandedSection, setExpandedSection] = useState<string | null>('hero');
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
+
+  // Wrapper to sync sections to parent
+  const setSections = (updater: PageBlock[] | ((prev: PageBlock[]) => PageBlock[])) => {
+    setSectionsInternal(prev => {
+      const newSections = typeof updater === 'function' ? updater(prev) : updater;
+      onPageSectionsChange?.(newSections);
+      return newSections;
+    });
+  };
 
   // Update sections when license changes (e.g., product name updated)
   React.useEffect(() => {
     const newDefaults = getDefaultSections(app, license);
-    setSections(current => {
+    setSectionsInternal(current => {
       // Only update hero section with new product info if it hasn't been manually edited
-      return current.map((section, idx) => {
+      const updated = current.map((section, idx) => {
         if (section.id === 'hero') {
           return {
             ...section,
@@ -186,6 +199,8 @@ export function PageSection({ app, license }: PageSectionProps) {
         }
         return section;
       });
+      onPageSectionsChange?.(updated);
+      return updated;
     });
   }, [license?.brandSettings?.tagline, license?.brandSettings?.description]);
 
@@ -264,7 +279,7 @@ export function PageSection({ app, license }: PageSectionProps) {
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-foreground">Page Sections</h3>
           <span className="text-sm text-muted-foreground">
-            {sections.filter(s => s.enabled).length} of {sections.length} enabled
+            {sections.filter(s => s.enabled).length} of {sections.length} Enabled
           </span>
         </div>
 

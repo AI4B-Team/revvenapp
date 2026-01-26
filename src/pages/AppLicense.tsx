@@ -23,6 +23,7 @@ import {
   LicenseActivation
 } from '@/components/whitelabel';
 import type { CheckoutConfig } from '@/components/whitelabel/sections/CheckoutSection';
+import type { PageBlock } from '@/components/whitelabel/sections/PageSection';
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -58,6 +59,7 @@ const AppLicense = () => {
     enableBadges: true,
     selectedBadges: ['ssl', 'pci', 'stripe', 'gdpr'],
   });
+  const [pageSections, setPageSections] = useState<PageBlock[]>([]);
 
   const handleAIVAToggle = () => {
     const newState = !isAIVAPanelOpen;
@@ -128,7 +130,7 @@ const AppLicense = () => {
     switch (activeSection) {
       case 'product': return <ProductSection app={app} license={license} onUpdate={handleUpdateBrand} />;
       case 'branding': return <BrandingSection license={license} onUpdate={handleUpdateBrand} />;
-      case 'page': return <PageSection app={app} license={license} />;
+      case 'page': return <PageSection app={app} license={license} pageSections={pageSections} onPageSectionsChange={setPageSections} />;
       case 'pricing': return <PricingSection license={license} onUpdate={handleUpdatePricing} />;
       case 'checkout': return <CheckoutSection license={license} checkoutConfig={checkoutConfig} onCheckoutConfigChange={setCheckoutConfig} />;
       case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
@@ -206,6 +208,7 @@ const AppLicense = () => {
                 activeSection={activeSection}
                 checkoutConfig={checkoutConfig}
                 legalDocs={legalDocs}
+                pageSections={pageSections}
               />
             </ResizablePanel>
           </ResizablePanelGroup>
