@@ -409,7 +409,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
   const moveSectionUp = (id: string) => {
     const index = sections.findIndex(s => s.id === id);
-    // Prevent moving hero or credibility, and prevent moving into positions 0-1
+    // Prevent moving hero, credibility, and prevent moving into positions 0-1 (hero & credibility slots)
     if (index <= 2 || id === 'hero' || id === 'credibility') return;
     
     const newSections = [...sections];
@@ -419,7 +419,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
   const moveSectionDown = (id: string) => {
     const index = sections.findIndex(s => s.id === id);
-    // Prevent moving hero or credibility
+    // Prevent moving hero, credibility, and allow moving only from position 2+
     if (index < 2 || id === 'hero' || id === 'credibility' || index >= sections.length - 1) return;
     
     const newSections = [...sections];
