@@ -60,7 +60,7 @@ We shall not be liable for any indirect, incidental, special, consequential, or 
 
 8. MODIFICATIONS
 We reserve the right to modify these terms at any time. Continued use of the service constitutes acceptance of modified terms.`,
-    lastUpdated: new Date().toISOString().split('T')[0]
+    lastUpdated: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
   },
   {
     id: 'privacy',
@@ -90,7 +90,7 @@ We retain your data for as long as your account is active or as needed to provid
 
 8. CONTACT US
 For privacy-related inquiries, please contact our privacy team through the support channels.`,
-    lastUpdated: new Date().toISOString().split('T')[0]
+    lastUpdated: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
   },
   {
     id: 'refund',
@@ -117,7 +117,7 @@ Setup fees, custom development work, and add-on purchases are non-refundable.
 
 7. SUBSCRIPTION CANCELLATION
 You may cancel your subscription at any time. Access continues until the end of the current billing period.`,
-    lastUpdated: new Date().toISOString().split('T')[0]
+    lastUpdated: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
   },
   {
     id: 'cookies',
@@ -144,7 +144,7 @@ By continuing to use our platform, you consent to our use of cookies as describe
 
 6. UPDATES
 We may update this cookie policy periodically. Check back for the latest information.`,
-    lastUpdated: new Date().toISOString().split('T')[0]
+    lastUpdated: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
   }
 ];
 
@@ -166,7 +166,7 @@ export function LegalSection({ productName = 'Your App' }: LegalSectionProps) {
 
   const updateDocContent = (id: string, content: string) => {
     setLegalDocs(docs => docs.map(doc => 
-      doc.id === id ? { ...doc, content, lastUpdated: new Date().toISOString().split('T')[0] } : doc
+      doc.id === id ? { ...doc, content, lastUpdated: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) } : doc
     ));
   };
 
