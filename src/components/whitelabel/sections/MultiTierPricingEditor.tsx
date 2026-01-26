@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -69,20 +69,29 @@ const defaultTiers: PricingTier[] = [
 ];
 
 export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPricingEditorProps) {
-  const [enableMultiTier, setEnableMultiTier] = useState(content.enableMultiTier || false);
-  const [tiers, setTiers] = useState<PricingTier[]>(content.pricingTiers || defaultTiers);
-  const [showAnnualToggle, setShowAnnualToggle] = useState(content.showAnnualToggle ?? true);
-  const [showComparisonTable, setShowComparisonTable] = useState(content.showComparisonTable ?? false);
+  const enableMultiTier = content.enableMultiTier || false;
+  const tiers: PricingTier[] = content.pricingTiers || defaultTiers;
+  const showAnnualToggle = content.showAnnualToggle ?? true;
+  const showComparisonTable = content.showComparisonTable ?? false;
   const [selectedTierIndex, setSelectedTierIndex] = useState(0);
   const [newFeature, setNewFeature] = useState('');
 
+  // Initialize pricingTiers in content if not set
+  useEffect(() => {
+    if (!content.pricingTiers) {
+      onContentChange({ pricingTiers: defaultTiers });
+    }
+  }, []);
+
   const handleEnableMultiTier = (enabled: boolean) => {
-    setEnableMultiTier(enabled);
-    onContentChange({ enableMultiTier: enabled });
+    // When enabling multi-tier, make sure tiers are saved to content
+    onContentChange({ 
+      enableMultiTier: enabled,
+      pricingTiers: content.pricingTiers || defaultTiers 
+    });
   };
 
   const handleTiersChange = (updatedTiers: PricingTier[]) => {
-    setTiers(updatedTiers);
     onContentChange({ pricingTiers: updatedTiers });
   };
 
@@ -175,7 +184,6 @@ export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPr
                 <Switch 
                   checked={showAnnualToggle} 
                   onCheckedChange={(v) => {
-                    setShowAnnualToggle(v);
                     onContentChange({ showAnnualToggle: v });
                   }} 
                 />
@@ -190,7 +198,6 @@ export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPr
                 <Switch 
                   checked={showComparisonTable} 
                   onCheckedChange={(v) => {
-                    setShowComparisonTable(v);
                     onContentChange({ showComparisonTable: v });
                   }} 
                 />
