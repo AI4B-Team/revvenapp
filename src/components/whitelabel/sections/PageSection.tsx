@@ -165,6 +165,154 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
   ];
 };
 
+// Hero Style Templates
+type HeroStyle = 'centered' | 'split-left' | 'split-right' | 'minimal' | 'gradient' | 'bold';
+
+interface HeroStyleOption {
+  id: HeroStyle;
+  name: string;
+  preview: React.ReactNode;
+}
+
+function HeroStyleSelector({ 
+  selectedStyle, 
+  onStyleChange, 
+  content 
+}: { 
+  selectedStyle: HeroStyle; 
+  onStyleChange: (style: HeroStyle) => void;
+  content: Record<string, any>;
+}) {
+  const styles: HeroStyleOption[] = [
+    { 
+      id: 'centered', 
+      name: 'Centered',
+      preview: (
+        <div className="w-full h-full flex flex-col items-center justify-center text-center p-2">
+          <div className="w-8 h-1.5 rounded bg-emerald-500/60 mb-1.5" />
+          <div className="w-16 h-2 rounded bg-foreground/80 mb-1" />
+          <div className="w-12 h-1 rounded bg-muted-foreground/40 mb-2" />
+          <div className="w-6 h-2 rounded bg-emerald-500" />
+        </div>
+      )
+    },
+    { 
+      id: 'split-left', 
+      name: 'Split Left',
+      preview: (
+        <div className="w-full h-full flex items-center p-2">
+          <div className="flex-1 flex flex-col items-start justify-center">
+            <div className="w-8 h-1.5 rounded bg-emerald-500/60 mb-1" />
+            <div className="w-12 h-2 rounded bg-foreground/80 mb-1" />
+            <div className="w-10 h-1 rounded bg-muted-foreground/40 mb-1.5" />
+            <div className="w-5 h-1.5 rounded bg-emerald-500" />
+          </div>
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 opacity-70" />
+        </div>
+      )
+    },
+    { 
+      id: 'split-right', 
+      name: 'Split Right',
+      preview: (
+        <div className="w-full h-full flex items-center p-2">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 opacity-70" />
+          <div className="flex-1 flex flex-col items-end justify-center text-right">
+            <div className="w-8 h-1.5 rounded bg-emerald-500/60 mb-1" />
+            <div className="w-12 h-2 rounded bg-foreground/80 mb-1" />
+            <div className="w-10 h-1 rounded bg-muted-foreground/40 mb-1.5" />
+            <div className="w-5 h-1.5 rounded bg-emerald-500" />
+          </div>
+        </div>
+      )
+    },
+    { 
+      id: 'minimal', 
+      name: 'Minimal',
+      preview: (
+        <div className="w-full h-full flex flex-col items-center justify-center text-center p-2">
+          <div className="w-20 h-2 rounded bg-foreground/80 mb-1" />
+          <div className="w-14 h-1 rounded bg-muted-foreground/30" />
+        </div>
+      )
+    },
+    { 
+      id: 'gradient', 
+      name: 'Gradient',
+      preview: (
+        <div className="w-full h-full bg-gradient-to-br from-emerald-500/20 to-violet-500/20 rounded flex flex-col items-center justify-center text-center p-2">
+          <div className="w-8 h-1.5 rounded bg-white/60 mb-1.5" />
+          <div className="w-14 h-2 rounded bg-foreground/80 mb-1" />
+          <div className="w-10 h-1 rounded bg-muted-foreground/40 mb-2" />
+          <div className="w-6 h-2 rounded bg-white" />
+        </div>
+      )
+    },
+    { 
+      id: 'bold', 
+      name: 'Bold',
+      preview: (
+        <div className="w-full h-full bg-foreground rounded flex flex-col items-center justify-center text-center p-2">
+          <div className="w-8 h-1.5 rounded bg-emerald-500 mb-1.5" />
+          <div className="w-16 h-2 rounded bg-white mb-1" />
+          <div className="w-12 h-1 rounded bg-white/40 mb-2" />
+          <div className="w-6 h-2 rounded bg-emerald-500" />
+        </div>
+      )
+    },
+  ];
+
+  const [currentIndex, setCurrentIndex] = React.useState(() => {
+    const idx = styles.findIndex(s => s.id === selectedStyle);
+    return idx >= 0 ? idx : 0;
+  });
+
+  const handlePrev = () => {
+    const newIndex = currentIndex === 0 ? styles.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+    onStyleChange(styles[newIndex].id);
+  };
+
+  const handleNext = () => {
+    const newIndex = currentIndex === styles.length - 1 ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+    onStyleChange(styles[newIndex].id);
+  };
+
+  const currentStyle = styles[currentIndex];
+
+  return (
+    <div className="flex items-center gap-2">
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={handlePrev}
+        className="h-8 w-8 shrink-0 rounded-full bg-muted"
+      >
+        <ChevronUp className="h-4 w-4 rotate-[-90deg]" />
+      </Button>
+      
+      <div className="flex-1 border-2 border-border rounded-xl overflow-hidden">
+        <div className="h-24 bg-background">
+          {currentStyle.preview}
+        </div>
+        <div className="p-2 bg-muted/30 border-t border-border text-center">
+          <span className="text-xs font-medium text-foreground">{currentStyle.name}</span>
+        </div>
+      </div>
+      
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={handleNext}
+        className="h-8 w-8 shrink-0 rounded-full bg-muted"
+      >
+        <ChevronUp className="h-4 w-4 rotate-90" />
+      </Button>
+    </div>
+  );
+}
+
 export function PageSection({ app, license, pageSections: externalSections, onPageSectionsChange }: PageSectionProps) {
   const [sections, setSectionsInternal] = useState<PageBlock[]>(() => 
     externalSections || getDefaultSections(app, license)
@@ -353,6 +501,19 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                           maxLength={300}
                         />
                         <p className="text-xs text-muted-foreground">{(section.content.description?.length || 0)}/300</p>
+                      </div>
+                      
+                      {/* Hero Style Templates */}
+                      <div className="space-y-3 pt-2">
+                        <div>
+                          <Label className="text-base font-semibold">Styles</Label>
+                          <p className="text-xs text-muted-foreground">Choose a style for your hero section</p>
+                        </div>
+                        <HeroStyleSelector 
+                          selectedStyle={section.content.style || 'centered'}
+                          onStyleChange={(style) => updateSectionContent(section.id, { style })}
+                          content={section.content}
+                        />
                       </div>
                     </>
                   )}

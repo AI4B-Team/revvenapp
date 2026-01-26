@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -30,6 +30,114 @@ import {
   ResizableHandle,
 } from '@/components/ui/resizable';
 
+// Generate default page sections
+const getDefaultPageSections = (appName: string, tagline: string, description: string): PageBlock[] => [
+  { 
+    id: 'hero', 
+    type: 'hero', 
+    enabled: true, 
+    title: 'Hero Section', 
+    content: { 
+      badge: 'AI-Powered', 
+      tagline: tagline,
+      description: description,
+      style: 'centered' // default style
+    } 
+  },
+  { 
+    id: 'features', 
+    type: 'features', 
+    enabled: true, 
+    title: 'Features Section', 
+    content: { 
+      features: [
+        { title: 'Smart AI Technology', description: 'Leverage cutting-edge artificial intelligence to automate and optimize your workflow' },
+        { title: 'Built For You', description: 'Every feature is designed with your specific business needs in mind' },
+        { title: 'Easy Integration', description: 'Get started in minutes with our plug-and-play setup process' },
+        { title: 'Always Available', description: 'Access your tools 24/7 from any device, anywhere in the world' }
+      ] 
+    } 
+  },
+  { 
+    id: 'capabilities', 
+    type: 'capabilities', 
+    enabled: true, 
+    title: 'Capabilities Section', 
+    content: { 
+      cards: [
+        { title: 'Automation', description: 'Automate repetitive tasks and save hours every week', icon: '⚡' },
+        { title: 'Analytics', description: 'Get real-time insights and data-driven recommendations', icon: '📊' },
+        { title: 'Collaboration', description: 'Work seamlessly with your team in real-time', icon: '👥' }
+      ] 
+    } 
+  },
+  { 
+    id: 'testimonials', 
+    type: 'testimonials', 
+    enabled: true, 
+    title: 'Testimonials', 
+    content: { 
+      testimonials: [
+        { name: 'Sarah Johnson', role: 'Marketing Director', company: 'TechCorp', quote: 'This platform has completely transformed how we operate. The AI features alone have saved us 20+ hours per week.', avatar: '' },
+        { name: 'Michael Chen', role: 'Founder & CEO', company: 'StartupXYZ', quote: 'The best investment we made this year. ROI was visible within the first month of usage.', avatar: '' },
+        { name: 'Emily Rodriguez', role: 'Operations Manager', company: 'GrowthCo', quote: 'Incredible customer support and the product just keeps getting better with each update.', avatar: '' }
+      ] 
+    } 
+  },
+  { 
+    id: 'pricing', 
+    type: 'pricing', 
+    enabled: true, 
+    title: 'Pricing Section', 
+    content: {
+      headline: 'Simple, Transparent Pricing',
+      subheadline: 'Start free, upgrade when you need more',
+      showComparison: true,
+      highlightedPlan: 'pro'
+    } 
+  },
+  { 
+    id: 'faq', 
+    type: 'faq', 
+    enabled: true, 
+    title: 'FAQ Section', 
+    content: { 
+      questions: [
+        { q: 'How quickly can I get started?', a: 'You can be up and running in less than 5 minutes. Our intuitive onboarding process guides you through everything you need to know.' },
+        { q: 'Is there a free trial available?', a: 'Yes! We offer a 14-day free trial with full access to all features. No credit card required to start.' },
+        { q: 'Can I cancel my subscription anytime?', a: 'Absolutely. You can cancel your subscription at any time with no questions asked. Your access continues until the end of your billing period.' },
+        { q: 'Do you offer refunds?', a: 'Yes, we have a 14-day money-back guarantee. If you\'re not satisfied, we\'ll refund your payment in full.' },
+        { q: 'Is my data secure?', a: 'Security is our top priority. We use enterprise-grade encryption and are fully compliant with GDPR and other privacy regulations.' }
+      ] 
+    } 
+  },
+  { 
+    id: 'cta', 
+    type: 'cta', 
+    enabled: true, 
+    title: 'Call To Action', 
+    content: {
+      headline: 'Ready to Transform Your Business?',
+      subheadline: 'Join thousands of successful businesses already using our platform',
+      buttonText: 'Start Your Free Trial',
+      secondaryButtonText: 'Schedule a Demo'
+    } 
+  },
+  { 
+    id: 'footer', 
+    type: 'footer', 
+    enabled: true, 
+    title: 'Footer', 
+    content: {
+      companyName: appName,
+      tagline: 'Empowering businesses with AI',
+      showSocialLinks: true,
+      showNewsletter: true,
+      copyrightYear: new Date().getFullYear()
+    } 
+  },
+];
+
 const AppLicense = () => {
   const { appId } = useParams<{ appId: string }>();
   const navigate = useNavigate();
@@ -59,6 +167,7 @@ const AppLicense = () => {
     enableBadges: true,
     selectedBadges: ['ssl', 'pci', 'stripe', 'gdpr'],
   });
+  const [pageSectionsInitialized, setPageSectionsInitialized] = useState(false);
   const [pageSections, setPageSections] = useState<PageBlock[]>([]);
 
   const handleAIVAToggle = () => {
@@ -73,6 +182,17 @@ const AppLicense = () => {
 
   const app = appId ? getCatalogApp(appId) : undefined;
   const license = appId ? getLicense(appId) : undefined;
+
+  // Initialize page sections with defaults when app is available
+  useEffect(() => {
+    if (app && !pageSectionsInitialized) {
+      const appName = license?.brandSettings?.appName || app.name;
+      const tagline = license?.brandSettings?.tagline || 'Transform Your Business With AI-Powered Solutions';
+      const description = license?.brandSettings?.description || app.description;
+      setPageSections(getDefaultPageSections(appName, tagline, description));
+      setPageSectionsInitialized(true);
+    }
+  }, [app, license, pageSectionsInitialized]);
 
   const handleUpdateBrand = (settings: any, showToast = true) => {
     if (!appId) return;
