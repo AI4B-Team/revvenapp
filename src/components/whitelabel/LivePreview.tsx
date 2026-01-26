@@ -560,7 +560,7 @@ function CheckoutOrderBumps({ orderBumps, basePrice, pricingModel }: CheckoutOrd
         </div>
         {bumpTotal > 0 && (
           <div className="flex items-center justify-between mb-3 text-emerald-400">
-            <span>Add-ons ({selectedBumps.length})</span>
+            <span>Add-Ons ({selectedBumps.length})</span>
             <span className="font-medium">+${bumpTotal}</span>
           </div>
         )}
@@ -568,11 +568,16 @@ function CheckoutOrderBumps({ orderBumps, basePrice, pricingModel }: CheckoutOrd
           <span className="text-lg font-semibold">Total Due Today</span>
           <div className="text-right">
             <span className="text-2xl font-bold">${grandTotal}</span>
-            {pricingModel !== 'one-time' && (
+            {pricingModel !== 'one-time' && bumpTotal === 0 && (
               <span className="text-zinc-400 text-sm">/mo</span>
             )}
           </div>
         </div>
+        {pricingModel !== 'one-time' && bumpTotal > 0 && (
+          <p className="text-xs text-zinc-500 mt-2 text-right">
+            Then ${basePrice}/mo after add-ons
+          </p>
+        )}
       </div>
     </>
   );
