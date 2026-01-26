@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ImageViewerModal from './ImageViewerModal';
-import { creationsData, communityData, type GalleryItem } from '@/data/creationsData';
+import { type GalleryItem } from '@/data/creationsData';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -39,14 +39,16 @@ interface GalleryProps {
 }
 
 const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: GalleryProps) => {
-  const [likedItems, setLikedItems] = useState(new Set());
-  const [savedItems, setSavedItems] = useState(new Set());
+  const [likedItems, setLikedItems] = useState<Set<number | string>>(new Set());
+  const [savedItems, setSavedItems] = useState<Set<number | string>>(new Set());
   const [shareModalOpen, setShareModalOpen] = useState<number | string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [generatedItems, setGeneratedItems] = useState<GalleryItem[]>([]);
+  const [communityItems, setCommunityItems] = useState<GalleryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
 
   // Fetch generated images, videos, and documents from Supabase with real-time subscriptions
   useEffect(() => {
@@ -538,7 +540,108 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
     };
   }, []);
 
-  const allItems = type === 'creations' ? generatedItems : communityData;
+  // Fetch community posts
+  useEffect(() => {
+    if (type !== 'community') return;
+    
+    const fetchCommunityPosts = async () => {
+      setIsLoading(true);
+      
+      const { data: session } = await supabase.auth.getSession();
+      const userId = session?.session?.user?.id;
+      
+      // Fetch community posts
+      const { data: postsData, error: postsError } = await supabase
+        .from('community_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (postsError) {
+        console.error('Error fetching community posts:', postsError);
+        setIsLoading(false);
+        return;
+      }
+
+      // If user is logged in, fetch their likes
+      let userLikes: Set<string> = new Set();
+      if (userId) {
+        const { data: likesData } = await supabase
+          .from('community_likes')
+          .select('post_id')
+          .eq('user_id', userId);
+        
+        if (likesData) {
+          userLikes = new Set(likesData.map(l => l.post_id));
+        }
+      }
+
+      const formatTimestamp = (dateString: string | null): string => {
+        if (!dateString) return 'Just now';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} min ago`;
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      };
+
+      const mappedPosts: GalleryItem[] = postsData?.map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        thumbnail: post.thumbnail_url,
+        url: post.content_url || post.thumbnail_url,
+        type: post.original_item_type as 'image' | 'video' | 'audio' | 'document',
+        creator: {
+          name: post.creator_name,
+          avatar: post.creator_avatar || post.creator_name.substring(0, 2).toUpperCase()
+        },
+        likes: post.likes_count || 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: post.created_at,
+        status: 'completed' as const,
+        prompt: post.prompt,
+        model: post.model,
+        aspectRatio: post.aspect_ratio,
+        resolution: post.resolution,
+        timestamp: formatTimestamp(post.created_at)
+      })) || [];
+
+      setCommunityItems(mappedPosts);
+      setLikedItems(userLikes);
+      setIsLoading(false);
+    };
+
+    fetchCommunityPosts();
+
+    // Subscribe to real-time updates
+    const communityChannel = supabase
+      .channel('community_posts_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'community_posts'
+        },
+        () => {
+          fetchCommunityPosts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(communityChannel);
+    };
+  }, [type]);
+
+  const allItems = type === 'creations' ? generatedItems : communityItems;
 
   // Apply filters
   const items = allItems.filter(item => {
@@ -577,7 +680,49 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
     return true;
   });
 
-  const toggleLike = (id: number | string) => {
+  const toggleLike = async (id: number | string) => {
+    // For community posts, handle likes via database
+    if (type === 'community') {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        toast({
+          title: "Login required",
+          description: "Please log in to like posts",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const isLiked = likedItems.has(id);
+      
+      if (isLiked) {
+        // Remove like
+        const { error } = await supabase
+          .from('community_likes')
+          .delete()
+          .eq('user_id', session.session.user.id)
+          .eq('post_id', String(id));
+        
+        if (error) {
+          console.error('Error removing like:', error);
+          return;
+        }
+      } else {
+        // Add like
+        const { error } = await supabase
+          .from('community_likes')
+          .insert({
+            user_id: session.session.user.id,
+            post_id: String(id)
+          });
+        
+        if (error) {
+          console.error('Error adding like:', error);
+          return;
+        }
+      }
+    }
+
     setLikedItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
