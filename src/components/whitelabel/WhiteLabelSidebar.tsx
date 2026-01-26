@@ -13,6 +13,7 @@ import {
   LayoutTemplate,
   Megaphone,
   Plug,
+  DollarSign,
 } from 'lucide-react';
 import { MarketplaceApp } from '@/lib/marketplace/types';
 import { getAppThumbnail } from '@/utils/appThumbnails';
@@ -22,6 +23,7 @@ export type WhiteLabelSection =
   | 'branding' 
   | 'style'
   | 'page' 
+  | 'pricing'
   | 'checkout' 
   | 'domain' 
   | 'integrations'
@@ -41,12 +43,13 @@ const sections: { id: WhiteLabelSection; label: string; icon: React.ElementType;
   { id: 'branding', label: 'Branding', icon: Palette, number: 2 },
   { id: 'style', label: 'Style', icon: LayoutTemplate, number: 3 },
   { id: 'page', label: 'Page', icon: FileText, number: 4 },
-  { id: 'checkout', label: 'Checkout', icon: CreditCard, number: 5 },
-  { id: 'domain', label: 'Domain', icon: Globe, number: 6 },
-  { id: 'integrations', label: 'Integrations', icon: Plug, number: 7 },
-  { id: 'marketing', label: 'Marketing', icon: Megaphone, number: 8 },
-  { id: 'legal', label: 'Legal', icon: Scale, number: 9 },
-  { id: 'settings', label: 'Settings', icon: Settings, number: 10 },
+  { id: 'pricing', label: 'Pricing', icon: DollarSign, number: 5 },
+  { id: 'checkout', label: 'Checkout', icon: CreditCard, number: 6 },
+  { id: 'domain', label: 'Domain', icon: Globe, number: 7 },
+  { id: 'integrations', label: 'Integrations', icon: Plug, number: 8 },
+  { id: 'marketing', label: 'Marketing', icon: Megaphone, number: 9 },
+  { id: 'legal', label: 'Legal', icon: Scale, number: 10 },
+  { id: 'settings', label: 'Settings', icon: Settings, number: 11 },
 ];
 
 export function WhiteLabelSidebar({ 

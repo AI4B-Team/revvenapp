@@ -273,6 +273,7 @@ const AppLicense = () => {
       case 'branding': return <BrandingSection license={license} onUpdate={handleUpdateBrand} />;
       case 'style': return <StyleSection app={app} license={license} selectedStyle={pageStyle} onStyleChange={setPageStyle} />;
       case 'page': return <PageSection app={app} license={license} pageSections={pageSections} onPageSectionsChange={setPageSections} />;
+      case 'pricing': return <PricingSection license={license} onUpdate={handleUpdatePricing} />;
       case 'checkout': return <CheckoutSection license={license} checkoutConfig={checkoutConfig} onCheckoutConfigChange={setCheckoutConfig} />;
       case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
       case 'integrations': return <IntegrationsSection />;
