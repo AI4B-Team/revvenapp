@@ -336,7 +336,7 @@ const AppLicense = () => {
           {activeSection === 'settings' ? (
             // Settings section takes full width - no live preview
             <div className="h-full overflow-y-auto p-6 bg-background">
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-6xl mx-auto">
                 {renderSection()}
               </div>
             </div>

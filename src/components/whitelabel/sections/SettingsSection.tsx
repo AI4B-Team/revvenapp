@@ -909,20 +909,20 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex flex-wrap gap-2 p-1 bg-muted/30 rounded-xl border border-border">
+      <div className="flex gap-1 p-1 bg-muted/30 rounded-xl border border-border overflow-x-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-background text-foreground shadow-sm border border-border'
                   : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-3.5 w-3.5" />
               {tab.label}
             </button>
           );
