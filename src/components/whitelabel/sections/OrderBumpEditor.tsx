@@ -22,6 +22,7 @@ export interface OrderBump {
   description: string;
   price: number;
   originalPrice?: number;
+  pricingType: 'one-time' | 'monthly';
   isAISuggested: boolean;
 }
 
@@ -169,6 +170,33 @@ export function OrderBumpEditor({
             />
           </div>
 
+          {/* Pricing Type Toggle */}
+          <div className="space-y-2">
+            <Label>Pricing Type</Label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onUpdate({ ...bump, pricingType: 'one-time' })}
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  bump.pricingType === 'one-time' || !bump.pricingType
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                One-Time Fee
+              </button>
+              <button
+                onClick={() => onUpdate({ ...bump, pricingType: 'monthly' })}
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  bump.pricingType === 'monthly'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                Monthly Fee
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -213,10 +241,17 @@ export function OrderBumpEditor({
                 </div>
                 <p className="text-xs text-muted-foreground mb-2">{bump.description || 'Description of what the customer gets...'}</p>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-emerald-600">${bump.price.toFixed(2)}</span>
+                  <span className="font-bold text-emerald-600">
+                    ${bump.price.toFixed(2)}{bump.pricingType === 'monthly' ? '/mo' : ''}
+                  </span>
                   {bump.originalPrice && (
-                    <span className="text-sm text-muted-foreground line-through">${bump.originalPrice.toFixed(2)}</span>
+                    <span className="text-sm text-muted-foreground line-through">
+                      ${bump.originalPrice.toFixed(2)}{bump.pricingType === 'monthly' ? '/mo' : ''}
+                    </span>
                   )}
+                  <span className="text-xs px-1.5 py-0.5 bg-muted text-muted-foreground rounded">
+                    {bump.pricingType === 'monthly' ? 'Monthly' : 'One-Time'}
+                  </span>
                 </div>
               </div>
             </div>

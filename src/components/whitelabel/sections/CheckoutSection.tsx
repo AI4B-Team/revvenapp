@@ -103,6 +103,7 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
       description: suggestion.description || '',
       price: suggestion.price || 27,
       originalPrice: suggestion.originalPrice,
+      pricingType: 'one-time' as const,
       isAISuggested: true,
     }));
   });
@@ -366,6 +367,7 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
                     description: unusedSuggestion.description || '',
                     price: unusedSuggestion.price || 27,
                     originalPrice: unusedSuggestion.originalPrice,
+                    pricingType: 'one-time' as const,
                     isAISuggested: true,
                   }]);
                   toast.success('AI-suggested order bump added!');
@@ -384,6 +386,7 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
                     headline: '',
                     description: '',
                     price: 27,
+                    pricingType: 'one-time' as const,
                     isAISuggested: false,
                   }]);
                 }}

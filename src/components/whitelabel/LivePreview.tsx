@@ -654,6 +654,7 @@ interface CheckoutOrderBumpsProps {
     description: string;
     price: number;
     originalPrice?: number;
+    pricingType?: 'one-time' | 'monthly';
   }>;
   basePrice: number;
   pricingModel: 'monthly' | 'one-time' | 'both' | undefined;
@@ -668,11 +669,19 @@ function CheckoutOrderBumps({ orderBumps, basePrice, pricingModel }: CheckoutOrd
     );
   };
   
-  const bumpTotal = orderBumps
-    .filter(b => selectedBumps.includes(b.id))
+  // Calculate one-time and monthly bump totals separately
+  const selectedBumpObjects = orderBumps.filter(b => selectedBumps.includes(b.id));
+  const oneTimeBumpTotal = selectedBumpObjects
+    .filter(b => b.pricingType !== 'monthly')
+    .reduce((sum, b) => sum + b.price, 0);
+  const monthlyBumpTotal = selectedBumpObjects
+    .filter(b => b.pricingType === 'monthly')
     .reduce((sum, b) => sum + b.price, 0);
   
-  const grandTotal = basePrice + bumpTotal;
+  const isBaseMonthly = pricingModel !== 'one-time';
+  const totalMonthly = (isBaseMonthly ? basePrice : 0) + monthlyBumpTotal;
+  const totalOneTime = (!isBaseMonthly ? basePrice : 0) + oneTimeBumpTotal;
+  const grandTotal = totalOneTime + (isBaseMonthly ? basePrice : 0) + monthlyBumpTotal;
   
   return (
     <>
@@ -705,10 +714,17 @@ function CheckoutOrderBumps({ orderBumps, basePrice, pricingModel }: CheckoutOrd
                     </div>
                     <p className="text-xs text-zinc-500 mb-2">{bump.description}</p>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-emerald-600">${bump.price}</span>
+                      <span className="font-bold text-emerald-600">
+                        ${bump.price}{bump.pricingType === 'monthly' ? '/mo' : ''}
+                      </span>
                       {bump.originalPrice && (
-                        <span className="text-sm text-zinc-400 line-through">${bump.originalPrice}</span>
+                        <span className="text-sm text-zinc-400 line-through">
+                          ${bump.originalPrice}{bump.pricingType === 'monthly' ? '/mo' : ''}
+                        </span>
                       )}
+                      <span className="text-xs px-1.5 py-0.5 bg-zinc-100 text-zinc-600 rounded">
+                        {bump.pricingType === 'monthly' ? 'Monthly' : 'One-Time'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -722,26 +738,29 @@ function CheckoutOrderBumps({ orderBumps, basePrice, pricingModel }: CheckoutOrd
       <div className="mb-6 p-5 rounded-2xl bg-zinc-900 text-white">
         <div className="flex items-center justify-between mb-3">
           <span className="text-zinc-400">Subtotal</span>
-          <span className="font-medium">${basePrice}{pricingModel !== 'one-time' ? '/mo' : ''}</span>
+          <span className="font-medium">${basePrice}{isBaseMonthly ? '/mo' : ''}</span>
         </div>
-        {bumpTotal > 0 && (
+        {oneTimeBumpTotal > 0 && (
           <div className="flex items-center justify-between mb-3 text-emerald-400">
-            <span>Add-Ons ({selectedBumps.length})</span>
-            <span className="font-medium">+${bumpTotal}</span>
+            <span>One-Time Add-Ons ({selectedBumpObjects.filter(b => b.pricingType !== 'monthly').length})</span>
+            <span className="font-medium">+${oneTimeBumpTotal}</span>
+          </div>
+        )}
+        {monthlyBumpTotal > 0 && (
+          <div className="flex items-center justify-between mb-3 text-blue-400">
+            <span>Monthly Add-Ons ({selectedBumpObjects.filter(b => b.pricingType === 'monthly').length})</span>
+            <span className="font-medium">+${monthlyBumpTotal}/mo</span>
           </div>
         )}
         <div className="border-t border-zinc-700 pt-3 flex items-center justify-between">
           <span className="text-lg font-semibold">Total Due Today</span>
           <div className="text-right">
             <span className="text-2xl font-bold">${grandTotal}</span>
-            {pricingModel !== 'one-time' && bumpTotal === 0 && (
-              <span className="text-zinc-400 text-sm">/mo</span>
-            )}
           </div>
         </div>
-        {pricingModel !== 'one-time' && bumpTotal > 0 && (
+        {(isBaseMonthly || monthlyBumpTotal > 0) && (
           <p className="text-xs text-zinc-500 mt-2 text-right">
-            Then ${basePrice}/mo after add-ons
+            Then ${totalMonthly}/mo recurring
           </p>
         )}
       </div>
