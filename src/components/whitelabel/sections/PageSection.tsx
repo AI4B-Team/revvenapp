@@ -84,8 +84,7 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
         badge: 'AI-Powered',
         headline: appName,
         headlineFontSize: '3xl',
-        headlineColor: '',
-        headlineUnderline: false,
+        headlineFontFamily: 'inter',
         tagline: tagline,
         description: description,
         buttons: [
@@ -98,7 +97,7 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
       id: 'credibility', 
       type: 'credibility', 
       enabled: true, 
-      title: 'Credibility Section', 
+      title: 'Credibility Section',
       content: { 
         headline: 'Trusted By Industry Leaders',
         logos: [
@@ -410,20 +409,22 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
   const moveSectionUp = (id: string) => {
     const index = sections.findIndex(s => s.id === id);
-    if (index > 0) {
-      const newSections = [...sections];
-      [newSections[index - 1], newSections[index]] = [newSections[index], newSections[index - 1]];
-      setSections(newSections);
-    }
+    // Prevent moving hero or credibility, and prevent moving into positions 0-1
+    if (index <= 2 || id === 'hero' || id === 'credibility') return;
+    
+    const newSections = [...sections];
+    [newSections[index - 1], newSections[index]] = [newSections[index], newSections[index - 1]];
+    setSections(newSections);
   };
 
   const moveSectionDown = (id: string) => {
     const index = sections.findIndex(s => s.id === id);
-    if (index < sections.length - 1) {
-      const newSections = [...sections];
-      [newSections[index], newSections[index + 1]] = [newSections[index + 1], newSections[index]];
-      setSections(newSections);
-    }
+    // Prevent moving hero or credibility
+    if (index < 2 || id === 'hero' || id === 'credibility' || index >= sections.length - 1) return;
+    
+    const newSections = [...sections];
+    [newSections[index], newSections[index + 1]] = [newSections[index + 1], newSections[index]];
+    setSections(newSections);
   };
 
   const deleteSection = (id: string) => {
@@ -451,6 +452,22 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
     if (over && active.id !== over.id) {
       const oldIndex = sections.findIndex(s => s.id === active.id);
       const newIndex = sections.findIndex(s => s.id === over.id);
+      
+      // Prevent moving hero from position 0
+      if (sections[oldIndex].id === 'hero' || newIndex === 0) {
+        return;
+      }
+      
+      // Prevent moving credibility from position 1 (always right after hero)
+      if (sections[oldIndex].id === 'credibility' || newIndex === 1) {
+        return;
+      }
+      
+      // Prevent other sections from moving to positions 0 or 1
+      if (newIndex <= 1) {
+        return;
+      }
+      
       setSections(arrayMove(sections, oldIndex, newIndex));
     }
   };

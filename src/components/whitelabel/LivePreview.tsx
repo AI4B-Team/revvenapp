@@ -92,8 +92,7 @@ interface HeroPreviewProps {
   appThumbnail?: string;
   headline?: string;
   headlineFontSize?: string;
-  headlineColor?: string;
-  headlineUnderline?: boolean;
+  headlineFontFamily?: string;
   buttons?: HeroButton[];
 }
 
@@ -110,8 +109,7 @@ function HeroPreview({
   appThumbnail,
   headline,
   headlineFontSize = '3xl',
-  headlineColor,
-  headlineUnderline = false,
+  headlineFontFamily = 'inter',
   buttons = []
 }: HeroPreviewProps) {
   const [videoModalUrl, setVideoModalUrl] = useState<string | null>(null);
@@ -212,6 +210,7 @@ function HeroPreview({
   // Get font size class based on setting
   const getFontSizeClass = () => {
     const sizeMap: Record<string, string> = {
+      'md': 'text-lg md:text-xl',
       'lg': 'text-xl md:text-2xl',
       'xl': 'text-2xl md:text-3xl',
       '2xl': 'text-3xl md:text-4xl',
@@ -221,18 +220,32 @@ function HeroPreview({
     return sizeMap[headlineFontSize] || sizeMap['3xl'];
   };
 
-  // Render headline with styling
+  // Get font family style
+  const getFontFamilyStyle = (): React.CSSProperties => {
+    const fontMap: Record<string, string> = {
+      'inter': 'Inter, system-ui, sans-serif',
+      'georgia': 'Georgia, serif',
+      'helvetica': 'Helvetica, Arial, sans-serif',
+      'playfair': '"Playfair Display", serif',
+      'roboto': 'Roboto, sans-serif',
+      'montserrat': 'Montserrat, sans-serif',
+    };
+    return { fontFamily: fontMap[headlineFontFamily] || fontMap['inter'] };
+  };
+
+  // Render headline with rich text HTML support
   const renderHeadline = (defaultColor: string = 'text-zinc-900') => {
     const displayText = headline || productName;
     const fontSizeClass = getFontSizeClass();
-    const textColor = headlineColor || undefined;
+    const isRichText = displayText.includes('<');
     
     return (
       <h1 
-        className={`${fontSizeClass} font-bold mb-4 ${headlineUnderline ? 'underline decoration-2 underline-offset-4' : ''} ${!headlineColor ? defaultColor : ''}`}
-        style={textColor ? { color: textColor } : undefined}
+        className={`${fontSizeClass} font-bold mb-4 ${defaultColor}`}
+        style={getFontFamilyStyle()}
+        {...(isRichText ? { dangerouslySetInnerHTML: { __html: displayText } } : {})}
       >
-        {displayText}
+        {!isRichText ? displayText : null}
       </h1>
     );
   };
@@ -818,8 +831,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           appThumbnail={app ? getAppThumbnail(app.name) : undefined}
                           headline={section.content?.headline}
                           headlineFontSize={section.content?.headlineFontSize}
-                          headlineColor={section.content?.headlineColor}
-                          headlineUnderline={section.content?.headlineUnderline}
+                          headlineFontFamily={section.content?.headlineFontFamily}
                           buttons={section.content?.buttons}
                         />
                       );
