@@ -390,7 +390,7 @@ const Index = () => {
                     </div>
 
                     <button 
-                      onClick={() => navigate('/assistant')}
+                      onClick={() => navigate('/create?openAIVA=true')}
                       className="w-full bg-card hover:bg-secondary text-brand-green border border-brand-green py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
                     >
                       Chat With AIVA
