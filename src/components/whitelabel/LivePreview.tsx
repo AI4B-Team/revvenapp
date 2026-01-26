@@ -15,8 +15,15 @@ import {
   ArrowRight,
   Clock,
   CreditCard,
-  Lock
+  Lock,
+  ChevronDown
 } from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import {
   Tooltip,
   TooltipContent,
@@ -352,15 +359,25 @@ export function LivePreview({ app, license, activeSection, checkoutConfig }: Liv
                     <div className="p-5 border-b border-zinc-100">
                       <h3 className="font-bold text-zinc-900">Frequently Asked Questions</h3>
                     </div>
-                    <div className="p-5 space-y-4">
-                      <div className="border-b border-zinc-100 pb-4">
-                        <p className="font-medium text-zinc-900 mb-2">Will I have access to all AIs?</p>
-                        <p className="text-sm text-zinc-600">Yes! You will have access to the main AIs on the market, all integrated in a single platform for you.</p>
-                      </div>
-                      <div>
-                        <p className="font-medium text-zinc-900 mb-2">Is there a money-back guarantee?</p>
-                        <p className="text-sm text-zinc-600">Absolutely! We offer a {checkoutConfig?.guaranteeDays || 14}-day money-back guarantee with one-click refunds in your dashboard.</p>
-                      </div>
+                    <div className="px-5 pb-2">
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="faq-1" className="border-b border-zinc-100">
+                          <AccordionTrigger className="text-left font-medium text-zinc-900 text-sm py-4 hover:no-underline">
+                            Will I have access to all AIs?
+                          </AccordionTrigger>
+                          <AccordionContent className="text-sm text-zinc-600 pb-4">
+                            Yes! You will have access to the main AIs on the market, all integrated in a single platform for you.
+                          </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="faq-2" className="border-none">
+                          <AccordionTrigger className="text-left font-medium text-zinc-900 text-sm py-4 hover:no-underline">
+                            Is there a money-back guarantee?
+                          </AccordionTrigger>
+                          <AccordionContent className="text-sm text-zinc-600 pb-4">
+                            Absolutely! We offer a {checkoutConfig?.guaranteeDays || 14}-day money-back guarantee with one-click refunds in your dashboard.
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
                     </div>
                   </div>
                 </div>
