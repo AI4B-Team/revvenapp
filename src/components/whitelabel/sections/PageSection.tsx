@@ -572,7 +572,28 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
         </DndContext>
 
         {/* Add Custom Section */}
-        <Button variant="outline" className="w-full gap-2 border-dashed">
+        <Button 
+          variant="outline" 
+          className="w-full gap-2 border-dashed"
+          onClick={() => {
+            const customId = `custom-${Date.now()}`;
+            const newSection: PageBlock = {
+              id: customId,
+              type: 'features',
+              enabled: true,
+              title: 'Custom Section',
+              content: {
+                headline: 'Your Custom Section',
+                features: [
+                  { title: 'Feature 1', description: 'Describe this feature', icon: '✨' },
+                ]
+              }
+            };
+            setSections([...sections, newSection]);
+            setExpandedSection(customId);
+            toast.success('Custom section added!');
+          }}
+        >
           <Plus className="h-4 w-4" />
           Add Custom Section
         </Button>
