@@ -446,7 +446,9 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
   // Get brand colors from license or use defaults
   const primaryColor = license?.brandSettings?.primaryColor || '#10b981';
   const productName = license?.brandSettings?.appName || app?.name || 'Your Product';
-  const tagline = license?.brandSettings?.tagline || 'Transform Your Business Today';
+  const brandHeadline = license?.brandSettings?.headline || '';
+  const brandTagline = license?.brandSettings?.tagline || 'Transform Your Business Today';
+  const brandDescription = license?.brandSettings?.description || '';
   const selectedIcon = license?.brandSettings?.icon || '🚀';
   const logoUrl = license?.brandSettings?.logo;
 
@@ -846,25 +848,25 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                   
                   switch (section.id) {
                     case 'hero':
-                      return (
-                        <HeroPreview 
-                          key={section.id}
-                          style={pageStyle}
-                          badge={section.content?.badge || 'AI-Powered'}
-                          tagline={section.content?.tagline || tagline}
-                          description={section.content?.description}
-                          productName={productName}
-                          primaryColor={primaryColor}
-                          logoUrl={logoUrl}
-                          selectedIcon={selectedIcon}
-                          heroImageUrl={section.content?.heroImageUrl}
-                          appThumbnail={app ? getAppThumbnail(app.name) : undefined}
-                          headline={section.content?.headline}
-                          headlineFontSize={section.content?.headlineFontSize}
-                          headlineFontFamily={section.content?.headlineFontFamily}
-                          buttons={section.content?.buttons}
-                        />
-                      );
+                        return (
+                          <HeroPreview 
+                            key={section.id}
+                            style={pageStyle}
+                            badge={section.content?.badge || 'AI-Powered'}
+                            tagline={section.content?.tagline || brandTagline}
+                            description={section.content?.description || brandDescription}
+                            productName={productName}
+                            primaryColor={primaryColor}
+                            logoUrl={logoUrl}
+                            selectedIcon={selectedIcon}
+                            heroImageUrl={section.content?.heroImageUrl}
+                            appThumbnail={app ? getAppThumbnail(app.name) : undefined}
+                            headline={section.content?.headline || brandHeadline}
+                            headlineFontSize={section.content?.headlineFontSize}
+                            headlineFontFamily={section.content?.headlineFontFamily}
+                            buttons={section.content?.buttons}
+                          />
+                        );
                     
                     case 'credibility':
                       const logos = section.content?.logos || [];
