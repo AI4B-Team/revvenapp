@@ -95,7 +95,7 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-foreground">How much will you charge?</h2>
+        <h2 className="text-2xl font-bold text-foreground">Pricing Configuration</h2>
         <p className="text-muted-foreground mt-1">
           Set your price — you can always change it later
         </p>
