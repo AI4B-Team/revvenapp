@@ -47,6 +47,14 @@ const AITextInput: React.FC<AITextInputProps> = ({
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const generatedTexts: Record<string, string[]> = {
+        headline: [
+          'Stop Scrolling. Start Winning.',
+          'The Secret Weapon Top Performers Use',
+          'Finally, A Solution That Actually Works',
+          'Your Competition Is Already Using This',
+          'Transform Your Results In 30 Days Or Less',
+          'The #1 Tool Smart Entrepreneurs Swear By',
+        ],
         tagline: [
           'Transform Your Business With AI-Powered Solutions',
           'Unlock Your Potential With Smart Automation',
@@ -83,7 +91,7 @@ const AITextInput: React.FC<AITextInputProps> = ({
           'The best investment we\'ve made this year. ROI was visible within the first month.',
           'Incredible product with even better support. Highly recommended!',
         ],
-        headline: [
+        cta_headline: [
           'Ready to Transform Your Business?',
           'Start Your Success Story Today',
           'Join the Revolution',
