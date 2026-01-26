@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AITextInputProps {
   value: string;
@@ -25,7 +26,54 @@ interface AITextInputProps {
   multiline?: boolean;
   className?: string;
   rows?: number;
+  productName?: string; // Optional product name for better context
 }
+
+const getPromptForContext = (context: string, productName?: string): string => {
+  const product = productName || 'the product';
+  
+  const prompts: Record<string, string> = {
+    badge: `Generate a short, compelling badge text (2-4 words max) for ${product}. Examples: "AI-Powered", "#1 Rated", "Award Winning". Return only the badge text, nothing else.`,
+    headline: `Generate a hypnotic, scroll-stopping headline (under 80 characters) for ${product}. It should be compelling and create urgency. Return only the headline, nothing else.`,
+    tagline: `Generate a catchy tagline (under 60 characters) for ${product}. It should be memorable and communicate value. Return only the tagline, nothing else.`,
+    description: `Generate a compelling product description (under 300 characters) for ${product}. Highlight benefits and value proposition. Return only the description, nothing else.`,
+    feature_title: `Generate a compelling feature title (2-4 words) for ${product}. Return only the title, nothing else.`,
+    feature_description: `Generate a brief feature description (under 100 characters) for ${product}. Return only the description, nothing else.`,
+    capability_title: `Generate a capability title (2-4 words) for ${product}. Return only the title, nothing else.`,
+    capability_description: `Generate a brief capability description (under 100 characters) for ${product}. Return only the description, nothing else.`,
+    testimonial_quote: `Generate a realistic testimonial quote (under 150 characters) for ${product}. Make it sound authentic and highlight positive results. Return only the quote, nothing else.`,
+    cta_headline: `Generate a compelling call-to-action headline (under 60 characters) for ${product}. Return only the headline, nothing else.`,
+    subheadline: `Generate a persuasive subheadline (under 80 characters) for ${product}. Return only the subheadline, nothing else.`,
+    button_text: `Generate compelling button text (2-4 words) for ${product}. Return only the button text, nothing else.`,
+    faq_question: `Generate a common FAQ question (under 60 characters) for ${product}. Return only the question, nothing else.`,
+    faq_answer: `Generate a helpful FAQ answer (under 200 characters) for ${product}. Return only the answer, nothing else.`,
+    order_bump_headline: `Generate an irresistible order bump headline (under 50 characters) for an add-on to ${product}. Return only the headline, nothing else.`,
+    order_bump_description: `Generate a compelling order bump description (under 150 characters) that explains the value of an add-on to ${product}. Return only the description, nothing else.`,
+    guarantee_description: `Generate a trust-building guarantee description (under 80 characters) for ${product}. Return only the description, nothing else.`,
+    spotlight_item: `Generate a compelling "what you get" item (under 50 characters) for ${product}. Return only the item text, nothing else.`,
+    default: `Generate compelling marketing copy (under 150 characters) for ${product}. Return only the text, nothing else.`,
+  };
+
+  const contextKey = context.toLowerCase().replace(/\s+/g, '_');
+  return prompts[contextKey] || prompts.default;
+};
+
+const getEnhancePrompt = (text: string, context: string): string => {
+  const contextKey = context.toLowerCase().replace(/\s+/g, '_');
+  
+  const maxLengths: Record<string, number> = {
+    badge: 20,
+    headline: 80,
+    tagline: 60,
+    description: 300,
+    button_text: 20,
+    default: 150,
+  };
+  
+  const maxLength = maxLengths[contextKey] || maxLengths.default;
+  
+  return `Enhance and improve this marketing text while keeping it under ${maxLength} characters. Make it more compelling, clear, and persuasive. Original text: "${text}". Return only the enhanced text, nothing else.`;
+};
 
 const AITextInput: React.FC<AITextInputProps> = ({
   value,
@@ -36,6 +84,7 @@ const AITextInput: React.FC<AITextInputProps> = ({
   multiline = false,
   className = '',
   rows = 3,
+  productName,
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -43,103 +92,32 @@ const AITextInput: React.FC<AITextInputProps> = ({
   const handleAutoGenerate = async () => {
     setIsGenerating(true);
     try {
-      // Simulate AI generation - in production, call Lovable AI
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const prompt = getPromptForContext(context, productName);
       
-      const generatedTexts: Record<string, string[]> = {
-        badge: [
-          'AI-Powered',
-          'New Release',
-          '#1 Rated',
-          'Industry Leading',
-          'Award Winning',
-          'Best Seller',
-        ],
-        headline: [
-          'Stop Scrolling. Start Winning.',
-          'The Secret Weapon Top Performers Use',
-          'Finally, A Solution That Actually Works',
-          'Your Competition Is Already Using This',
-          'Transform Your Results In 30 Days Or Less',
-          'The #1 Tool Smart Entrepreneurs Swear By',
-        ],
-        tagline: [
-          'Transform Your Business With AI-Powered Solutions',
-          'Unlock Your Potential With Smart Automation',
-          'The Future of Work, Available Today',
-        ],
-        description: [
-          'Streamline your workflow, boost productivity, and achieve more with our cutting-edge platform designed for modern businesses.',
-          'Experience the power of intelligent automation that adapts to your needs and scales with your growth.',
-          'Join thousands of successful businesses already transforming their operations with our innovative solutions.',
-        ],
-        feature_title: [
-          'Smart Automation',
-          'Real-Time Analytics',
-          'Seamless Integration',
-          'AI-Powered Insights',
-        ],
-        feature_description: [
-          'Automate repetitive tasks and focus on what matters most to your business.',
-          'Get instant insights with powerful analytics that drive better decisions.',
-          'Connect with your favorite tools and workflows effortlessly.',
-        ],
-        capability_title: [
-          'Lightning Fast',
-          'Always Secure',
-          'Infinitely Scalable',
-        ],
-        capability_description: [
-          'Experience blazing-fast performance that keeps you ahead of the competition.',
-          'Enterprise-grade security that protects your data around the clock.',
-          'Grow without limits - our infrastructure scales with your success.',
-        ],
-        testimonial_quote: [
-          'This platform has completely transformed how we operate. The results speak for themselves.',
-          'The best investment we\'ve made this year. ROI was visible within the first month.',
-          'Incredible product with even better support. Highly recommended!',
-        ],
-        cta_headline: [
-          'Ready to Transform Your Business?',
-          'Start Your Success Story Today',
-          'Join the Revolution',
-        ],
-        subheadline: [
-          'Join thousands of successful businesses already using our platform.',
-          'Get started in minutes and see results immediately.',
-          'No credit card required. Start your free trial now.',
-        ],
-        button_text: [
-          'Get Started Free',
-          'Start Your Trial',
-          'Try It Now',
-        ],
-        faq_question: [
-          'How do I get started?',
-          'Is there a free trial?',
-          'What kind of support do you offer?',
-        ],
-        faq_answer: [
-          'Getting started is easy! Simply sign up for a free account and follow our quick onboarding guide.',
-          'Yes! We offer a 14-day free trial with full access to all features. No credit card required.',
-          'We offer 24/7 customer support via chat, email, and phone for all paid plans.',
-        ],
-        default: [
-          'Professional content that engages your audience.',
-          'Clear, compelling messaging that converts.',
-          'Expertly crafted copy that drives results.',
-        ],
-      };
+      const { data, error } = await supabase.functions.invoke('editor-generate-text', {
+        body: { prompt, type: context }
+      });
 
-      const contextKey = context.toLowerCase().replace(/\s+/g, '_');
-      const options = generatedTexts[contextKey] || generatedTexts.default;
-      const generated = options[Math.floor(Math.random() * options.length)];
+      if (error) {
+        console.error('AI generation error:', error);
+        throw new Error(error.message || 'Generation failed');
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.text) {
+        onChange(data.text);
+        toast.success('Content generated!');
+      } else {
+        throw new Error('No content generated');
+      }
       
-      onChange(generated);
-      toast.success('Content generated!');
       setIsOpen(false);
     } catch (error) {
-      toast.error('Generation failed. Please try again.');
+      console.error('Generation error:', error);
+      toast.error(error instanceof Error ? error.message : 'Generation failed. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -153,45 +131,32 @@ const AITextInput: React.FC<AITextInputProps> = ({
     
     setIsGenerating(true);
     try {
-      // Simulate AI enhancement - in production, call Lovable AI
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const prompt = getEnhancePrompt(value, context);
       
-      // Simple enhancement simulation
-      const enhancements = [
-        // Make more compelling
-        (text: string) => {
-          const words = text.split(' ');
-          if (words.length < 5) {
-            return `${text} – designed for success.`;
-          }
-          return `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
-        },
-        // Add power words
-        (text: string) => {
-          const powerWords = ['innovative', 'powerful', 'seamless', 'intelligent'];
-          const randomWord = powerWords[Math.floor(Math.random() * powerWords.length)];
-          if (!text.toLowerCase().includes(randomWord)) {
-            return text.replace(/^(\w+)/, `${randomWord.charAt(0).toUpperCase()}${randomWord.slice(1)}`);
-          }
-          return text;
-        },
-        // Improve clarity
-        (text: string) => {
-          return text
-            .replace(/\s+/g, ' ')
-            .replace(/^\s+|\s+$/g, '')
-            .replace(/\.\s*$/, '') + '.';
-        },
-      ];
+      const { data, error } = await supabase.functions.invoke('editor-generate-text', {
+        body: { prompt, type: `enhance_${context}` }
+      });
+
+      if (error) {
+        console.error('AI enhancement error:', error);
+        throw new Error(error.message || 'Enhancement failed');
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.text) {
+        onChange(data.text);
+        toast.success('Content enhanced!');
+      } else {
+        throw new Error('No content generated');
+      }
       
-      const enhance = enhancements[Math.floor(Math.random() * enhancements.length)];
-      const enhanced = enhance(value);
-      
-      onChange(enhanced);
-      toast.success('Content enhanced!');
       setIsOpen(false);
     } catch (error) {
-      toast.error('Enhancement failed. Please try again.');
+      console.error('Enhancement error:', error);
+      toast.error(error instanceof Error ? error.message : 'Enhancement failed. Please try again.');
     } finally {
       setIsGenerating(false);
     }

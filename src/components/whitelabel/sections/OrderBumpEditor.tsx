@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Trash2,
   Sparkles,
@@ -14,6 +13,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import AITextInput from '../AITextInput';
 
 export interface OrderBump {
   id: string;
@@ -150,22 +150,27 @@ export function OrderBumpEditor({
                 ) : (
                   <Sparkles className="h-3 w-3" />
                 )}
-                Rewrite with AI
+                Rewrite All
               </Button>
             </div>
-            <Input
+            <AITextInput
               value={bump.headline}
-              onChange={(e) => onUpdate({ ...bump, headline: e.target.value })}
+              onChange={(newValue) => onUpdate({ ...bump, headline: newValue })}
               placeholder="Add [Product Name] to Your Order"
+              context="order_bump_headline"
+              productName={productName}
             />
           </div>
 
           <div className="space-y-2">
             <Label>Description</Label>
-            <Textarea
+            <AITextInput
               value={bump.description}
-              onChange={(e) => onUpdate({ ...bump, description: e.target.value })}
+              onChange={(newValue) => onUpdate({ ...bump, description: newValue })}
               placeholder="Describe what the customer gets with this add-on..."
+              context="order_bump_description"
+              productName={productName}
+              multiline
               rows={3}
             />
           </div>
