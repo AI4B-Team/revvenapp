@@ -435,7 +435,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
               className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-medium rounded-xl"
             >
               <Wand2 className="h-5 w-5 mr-2" />
-              Create Logo with AI Wizard
+              Create Logo With AI Wizard
             </Button>
 
             <div className="relative flex items-center justify-center">
@@ -537,7 +537,7 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
                 className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-12"
               >
                 <Wand2 className="h-4 w-4 mr-2" />
-                Create Logo with AI Wizard
+                Create Logo With AI Wizard
               </Button>
               
               <div className="relative">
