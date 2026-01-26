@@ -429,6 +429,24 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* AI Wizard Button */}
+            <Button
+              onClick={() => setIsLogoWizardOpen(true)}
+              className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-medium rounded-xl"
+            >
+              <Wand2 className="h-5 w-5 mr-2" />
+              Create Logo with AI Wizard
+            </Button>
+
+            <div className="relative flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <span className="relative bg-card px-4 text-sm text-muted-foreground uppercase tracking-wider">
+                Or Quick Generate
+              </span>
+            </div>
+
             {/* Logo Upload */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-3">
@@ -743,6 +761,17 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
           Save Branding
         </Button>
       </div>
+
+      {/* Logo Generator Wizard */}
+      <LogoGeneratorWizard
+        isOpen={isLogoWizardOpen}
+        onClose={() => setIsLogoWizardOpen(false)}
+        onSelectLogo={(url) => {
+          setLogoUrl(url);
+          setUseCustomLogo(true);
+        }}
+        productName={license?.brandSettings?.appName}
+      />
     </div>
   );
 }
