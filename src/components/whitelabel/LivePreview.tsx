@@ -18,7 +18,13 @@ import {
   Lock,
   ChevronDown,
   Play,
-  X
+  X,
+  Rocket,
+  Award,
+  TrendingUp,
+  BarChart3,
+  Users,
+  Settings
 } from 'lucide-react';
 import {
   Dialog,
@@ -905,24 +911,28 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                                 { title: 'Lightning Fast', description: 'Get results in seconds' },
                                 { title: 'Secure & Private', description: 'Your data is protected' },
                                 { title: 'Premium Quality', description: 'Best-in-class results' },
-                              ]).slice(0, 3).map((feature: any, idx: number) => (
-                                <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
-                                  <div 
-                                    className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden"
-                                    style={{ backgroundColor: feature.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
-                                  >
-                                    {feature.iconUrl ? (
-                                      <img src={feature.iconUrl} alt="" className="w-full h-full object-contain" />
-                                    ) : feature.icon ? (
-                                      <span className="text-xl">{feature.icon}</span>
-                                    ) : (
-                                      <Zap size={20} />
-                                    )}
+                              ]).slice(0, 3).map((feature: any, idx: number) => {
+                                const defaultIcons = [Zap, Shield, Award];
+                                const IconComponent = defaultIcons[idx] || Zap;
+                                return (
+                                  <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-sm">
+                                    <div 
+                                      className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden"
+                                      style={{ backgroundColor: feature.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
+                                    >
+                                      {feature.iconUrl ? (
+                                        <img src={feature.iconUrl} alt="" className="w-full h-full object-contain" />
+                                      ) : feature.icon ? (
+                                        <span className="text-xl">{feature.icon}</span>
+                                      ) : (
+                                        <IconComponent size={20} />
+                                      )}
+                                    </div>
+                                    <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
+                                    <p className="text-sm text-zinc-600">{feature.description || feature.desc}</p>
                                   </div>
-                                  <h3 className="font-semibold text-zinc-900 mb-2">{feature.title}</h3>
-                                  <p className="text-sm text-zinc-600">{feature.description || feature.desc}</p>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         </div>
@@ -940,19 +950,28 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                                 { title: 'Automation', description: 'Automate repetitive tasks', icon: '⚡' },
                                 { title: 'Analytics', description: 'Get real-time insights', icon: '📊' },
                                 { title: 'Collaboration', description: 'Work seamlessly with your team', icon: '👥' },
-                              ]).map((card: any, idx: number) => (
-                                <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
-                                  <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                                    {card.iconUrl ? (
-                                      <img src={card.iconUrl} alt="" className="w-full h-full object-contain" />
-                                    ) : (
-                                      <span className="text-3xl">{card.icon}</span>
-                                    )}
+                              ]).map((card: any, idx: number) => {
+                                const defaultIcons = [Rocket, BarChart3, Users];
+                                const IconComponent = defaultIcons[idx] || Settings;
+                                return (
+                                  <div key={idx} className="bg-zinc-50 rounded-xl p-6 text-center">
+                                    <div 
+                                      className="w-10 h-10 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                                      style={{ backgroundColor: card.iconUrl ? 'transparent' : `${primaryColor}15`, color: primaryColor }}
+                                    >
+                                      {card.iconUrl ? (
+                                        <img src={card.iconUrl} alt="" className="w-full h-full object-contain" />
+                                      ) : card.icon ? (
+                                        <span className="text-xl">{card.icon}</span>
+                                      ) : (
+                                        <IconComponent size={20} />
+                                      )}
+                                    </div>
+                                    <h3 className="font-semibold text-zinc-900 mb-2">{card.title}</h3>
+                                    <p className="text-sm text-zinc-600">{card.description}</p>
                                   </div>
-                                  <h3 className="font-semibold text-zinc-900 mb-2">{card.title}</h3>
-                                  <p className="text-sm text-zinc-600">{card.description}</p>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         </div>
