@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Eye,
   RefreshCw,
@@ -21,10 +20,11 @@ import {
   Star,
   MessageSquare,
   HelpCircle,
-  Zap,
-  Upload
+  Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
+import AITextInput from '../AITextInput';
+import AIIconGenerator from '../AIIconGenerator';
 
 export interface PageBlock {
   id: string;
@@ -335,7 +335,6 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
   React.useEffect(() => {
     const newDefaults = getDefaultSections(app, license);
     setSectionsInternal(current => {
-      // Only update hero section with new product info if it hasn't been manually edited
       const updated = current.map((section, idx) => {
         if (section.id === 'hero') {
           return {
@@ -374,7 +373,6 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
     setIsGenerating(sectionId);
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Simulate AI-generated content based on section type
     const section = sections.find(s => s.id === sectionId);
     if (section) {
       switch (section.type) {
@@ -404,6 +402,34 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
               { title: 'Collaboration', description: 'Work seamlessly with your team in one platform', icon: '👥' },
               { title: 'Integration', description: 'Connect with your favorite tools and workflows', icon: '🔗' }
             ]
+          });
+          break;
+        case 'testimonials':
+          updateSectionContent(sectionId, {
+            testimonials: [
+              { name: 'John Smith', role: 'CEO', company: 'TechVentures', quote: 'Absolutely game-changing. Our productivity doubled in the first month.', avatar: '' },
+              { name: 'Lisa Wang', role: 'VP Marketing', company: 'GrowthLabs', quote: 'The AI capabilities are unmatched. Best decision we made this quarter.', avatar: '' },
+              { name: 'Mark Johnson', role: 'Founder', company: 'StartupHub', quote: 'Simple to use, powerful results. Highly recommend to any business.', avatar: '' }
+            ]
+          });
+          break;
+        case 'pricing':
+          updateSectionContent(sectionId, {
+            headline: 'Choose Your Plan',
+            subheadline: 'Start free, scale when ready'
+          });
+          break;
+        case 'cta':
+          updateSectionContent(sectionId, {
+            headline: 'Start Your Journey Today',
+            subheadline: 'Join 10,000+ businesses already growing with us',
+            buttonText: 'Get Started Now',
+            secondaryButtonText: 'Talk to Sales'
+          });
+          break;
+        case 'footer':
+          updateSectionContent(sectionId, {
+            tagline: 'Building the future of business automation'
           });
           break;
         case 'faq':
@@ -487,34 +513,34 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                 <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
                   {section.type === 'hero' && (
                     <>
-                      <div className="space-y-2">
-                        <Label>Badge Text</Label>
-                        <Input
-                          value={section.content.badge || ''}
-                          onChange={(e) => updateSectionContent(section.id, { badge: e.target.value })}
-                          placeholder="e.g., AI-Powered, New, Trusted"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Tagline</Label>
-                        <Input
+                      <AITextInput
+                        label="Badge Text"
+                        value={section.content.badge || ''}
+                        onChange={(value) => updateSectionContent(section.id, { badge: value })}
+                        placeholder="e.g., AI-Powered, New, Trusted"
+                        context="tagline"
+                      />
+                      <div>
+                        <AITextInput
+                          label="Tagline"
                           value={section.content.tagline || ''}
-                          onChange={(e) => updateSectionContent(section.id, { tagline: e.target.value })}
+                          onChange={(value) => updateSectionContent(section.id, { tagline: value })}
                           placeholder="Enter a catchy tagline"
-                          maxLength={60}
+                          context="tagline"
                         />
-                        <p className="text-xs text-muted-foreground">{(section.content.tagline?.length || 0)}/60</p>
+                        <p className="text-xs text-muted-foreground mt-1">{(section.content.tagline?.length || 0)}/60</p>
                       </div>
-                      <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Textarea
+                      <div>
+                        <AITextInput
+                          label="Description"
                           value={section.content.description || ''}
-                          onChange={(e) => updateSectionContent(section.id, { description: e.target.value })}
+                          onChange={(value) => updateSectionContent(section.id, { description: value })}
                           placeholder="Describe your platform's capabilities..."
+                          context="description"
+                          multiline
                           rows={3}
-                          maxLength={300}
                         />
-                        <p className="text-xs text-muted-foreground">{(section.content.description?.length || 0)}/300</p>
+                        <p className="text-xs text-muted-foreground mt-1">{(section.content.description?.length || 0)}/300</p>
                       </div>
                       
                       {/* Hero Visual Image */}
@@ -571,7 +597,6 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                               onClick={async () => {
                                 setIsGenerating('hero-image');
                                 await new Promise(resolve => setTimeout(resolve, 2000));
-                                // Mock AI-generated image placeholder
                                 updateSectionContent(section.id, { 
                                   heroImageUrl: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=400&fit=crop' 
                                 });
@@ -596,14 +621,13 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
                   {section.type === 'features' && (
                     <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Section Headline</Label>
-                        <Input
-                          value={section.content.headline || ''}
-                          onChange={(e) => updateSectionContent(section.id, { headline: e.target.value })}
-                          placeholder="Why Choose Us"
-                        />
-                      </div>
+                      <AITextInput
+                        label="Section Headline"
+                        value={section.content.headline || ''}
+                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
+                        placeholder="Why Choose Us"
+                        context="headline"
+                      />
                       
                       {(section.content.features || []).map((feature: any, idx: number) => (
                         <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
@@ -622,115 +646,46 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                             </Button>
                           </div>
                           
-                          {/* Icon Selection */}
-                          <div className="flex items-center gap-3">
-                            <div className="relative group">
-                              <div className="w-12 h-12 rounded-lg border border-border flex items-center justify-center bg-muted/30 text-2xl shrink-0">
-                                {feature.iconUrl ? (
-                                  <img src={feature.iconUrl} alt="Icon" className="w-full h-full object-contain rounded-lg" />
-                                ) : (
-                                  <span>{feature.icon || '⚡'}</span>
-                                )}
-                              </div>
-                              {/* Replace overlay on hover */}
-                              <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <button className="text-white text-xs font-medium hover:underline">
-                                      Replace
-                                    </button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-48 p-2 space-y-2" align="start">
-                                    <div className="space-y-1">
-                                      <Label className="text-xs">Emoji</Label>
-                                      <Input
-                                        value={feature.icon || ''}
-                                        onChange={(e) => {
-                                          const newFeatures = [...section.content.features];
-                                          newFeatures[idx] = { ...feature, icon: e.target.value, iconUrl: '' };
-                                          updateSectionContent(section.id, { features: newFeatures });
-                                        }}
-                                        placeholder="⚡"
-                                        className="h-8 text-center"
-                                      />
-                                    </div>
-                                    <div className="relative">
-                                      <Button variant="outline" size="sm" className="w-full gap-2 h-8 text-xs">
-                                        <Upload className="h-3 w-3" />
-                                        Upload Image
-                                      </Button>
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => {
-                                          const file = e.target.files?.[0];
-                                          if (file) {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => {
-                                              const newFeatures = [...section.content.features];
-                                              newFeatures[idx] = { ...feature, iconUrl: reader.result as string };
-                                              updateSectionContent(section.id, { features: newFeatures });
-                                            };
-                                            reader.readAsDataURL(file);
-                                          }
-                                        }}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                      />
-                                    </div>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={async () => {
-                                        setIsGenerating(`feature-icon-${idx}`);
-                                        await new Promise(resolve => setTimeout(resolve, 1500));
-                                        const icons = ['✨', '🚀', '💡', '🎯', '⚡', '🔥', '💎', '🌟'];
-                                        const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-                                        const newFeatures = [...section.content.features];
-                                        newFeatures[idx] = { ...feature, icon: randomIcon, iconUrl: '' };
-                                        updateSectionContent(section.id, { features: newFeatures });
-                                        setIsGenerating(null);
-                                        toast.success('Icon generated!');
-                                      }}
-                                      disabled={isGenerating === `feature-icon-${idx}`}
-                                      className="w-full gap-2 h-8 text-xs"
-                                    >
-                                      {isGenerating === `feature-icon-${idx}` ? (
-                                        <RefreshCw className="h-3 w-3 animate-spin" />
-                                      ) : (
-                                        <Sparkles className="h-3 w-3" />
-                                      )}
-                                      Generate With AI
-                                    </Button>
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
-                            </div>
-                            <Input
-                              value={feature.title}
-                              onChange={(e) => {
+                          <div className="flex items-start gap-3">
+                            <AIIconGenerator
+                              currentIcon={feature.icon}
+                              currentIconUrl={feature.iconUrl}
+                              onIconChange={(icon, iconUrl) => {
                                 const newFeatures = [...section.content.features];
-                                newFeatures[idx] = { ...feature, title: e.target.value };
+                                newFeatures[idx] = { ...feature, icon, iconUrl };
                                 updateSectionContent(section.id, { features: newFeatures });
                               }}
-                              placeholder="Feature title"
-                              className="flex-1"
+                              context="feature"
                             />
+                            <div className="flex-1 space-y-2">
+                              <AITextInput
+                                value={feature.title}
+                                onChange={(value) => {
+                                  const newFeatures = [...section.content.features];
+                                  newFeatures[idx] = { ...feature, title: value };
+                                  updateSectionContent(section.id, { features: newFeatures });
+                                }}
+                                placeholder="Feature title"
+                                context="feature_title"
+                              />
+                              <AITextInput
+                                value={feature.description}
+                                onChange={(value) => {
+                                  const newFeatures = [...section.content.features];
+                                  newFeatures[idx] = { ...feature, description: value };
+                                  updateSectionContent(section.id, { features: newFeatures });
+                                }}
+                                placeholder="Feature description"
+                                context="feature_description"
+                              />
+                            </div>
                           </div>
-                          <Input
-                            value={feature.description}
-                            onChange={(e) => {
-                              const newFeatures = [...section.content.features];
-                              newFeatures[idx] = { ...feature, description: e.target.value };
-                              updateSectionContent(section.id, { features: newFeatures });
-                            }}
-                            placeholder="Feature description"
-                          />
                         </div>
                       ))}
                       <Button
                         variant="outline"
                         onClick={() => {
-                          const newFeatures = [...(section.content.features || []), { title: '', description: '' }];
+                          const newFeatures = [...(section.content.features || []), { title: '', description: '', icon: '⚡' }];
                           updateSectionContent(section.id, { features: newFeatures });
                         }}
                         className="w-full gap-2"
@@ -743,14 +698,13 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
                   {section.type === 'capabilities' && (
                     <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Section Headline</Label>
-                        <Input
-                          value={section.content.headline || ''}
-                          onChange={(e) => updateSectionContent(section.id, { headline: e.target.value })}
-                          placeholder="What We Offer"
-                        />
-                      </div>
+                      <AITextInput
+                        label="Section Headline"
+                        value={section.content.headline || ''}
+                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
+                        placeholder="What We Offer"
+                        context="headline"
+                      />
                       
                       {(section.content.cards || []).map((card: any, idx: number) => (
                         <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
@@ -769,110 +723,42 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                             </Button>
                           </div>
                           
-                          {/* Icon + Title Row */}
-                          <div className="flex items-center gap-3">
-                            <div className="relative group">
-                              <div className="w-12 h-12 rounded-lg border border-border flex items-center justify-center bg-muted/30 text-2xl shrink-0">
-                                {card.iconUrl ? (
-                                  <img src={card.iconUrl} alt="Icon" className="w-full h-full object-contain rounded-lg" />
-                                ) : (
-                                  <span>{card.icon || '✨'}</span>
-                                )}
-                              </div>
-                              {/* Replace overlay on hover */}
-                              <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <button className="text-white text-xs font-medium hover:underline">
-                                      Replace
-                                    </button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-48 p-2 space-y-2" align="start">
-                                    <div className="space-y-1">
-                                      <Label className="text-xs">Emoji</Label>
-                                      <Input
-                                        value={card.icon || ''}
-                                        onChange={(e) => {
-                                          const newCards = [...section.content.cards];
-                                          newCards[idx] = { ...card, icon: e.target.value, iconUrl: '' };
-                                          updateSectionContent(section.id, { cards: newCards });
-                                        }}
-                                        placeholder="✨"
-                                        className="h-8 text-center"
-                                      />
-                                    </div>
-                                    <div className="relative">
-                                      <Button variant="outline" size="sm" className="w-full gap-2 h-8 text-xs">
-                                        <Upload className="h-3 w-3" />
-                                        Upload Image
-                                      </Button>
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => {
-                                          const file = e.target.files?.[0];
-                                          if (file) {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => {
-                                              const newCards = [...section.content.cards];
-                                              newCards[idx] = { ...card, iconUrl: reader.result as string };
-                                              updateSectionContent(section.id, { cards: newCards });
-                                            };
-                                            reader.readAsDataURL(file);
-                                          }
-                                        }}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                      />
-                                    </div>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={async () => {
-                                        setIsGenerating(`cap-icon-${idx}`);
-                                        await new Promise(resolve => setTimeout(resolve, 1500));
-                                        const icons = ['🚀', '📊', '👥', '🔗', '💡', '⚡', '🎯', '🌟'];
-                                        const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-                                        const newCards = [...section.content.cards];
-                                        newCards[idx] = { ...card, icon: randomIcon, iconUrl: '' };
-                                        updateSectionContent(section.id, { cards: newCards });
-                                        setIsGenerating(null);
-                                        toast.success('Icon generated!');
-                                      }}
-                                      disabled={isGenerating === `cap-icon-${idx}`}
-                                      className="w-full gap-2 h-8 text-xs"
-                                    >
-                                      {isGenerating === `cap-icon-${idx}` ? (
-                                        <RefreshCw className="h-3 w-3 animate-spin" />
-                                      ) : (
-                                        <Sparkles className="h-3 w-3" />
-                                      )}
-                                      Generate With AI
-                                    </Button>
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
-                            </div>
-                            <Input
-                              value={card.title}
-                              onChange={(e) => {
+                          <div className="flex items-start gap-3">
+                            <AIIconGenerator
+                              currentIcon={card.icon}
+                              currentIconUrl={card.iconUrl}
+                              onIconChange={(icon, iconUrl) => {
                                 const newCards = [...section.content.cards];
-                                newCards[idx] = { ...card, title: e.target.value };
+                                newCards[idx] = { ...card, icon, iconUrl };
                                 updateSectionContent(section.id, { cards: newCards });
                               }}
-                              placeholder="Title"
-                              className="flex-1"
+                              context="capability"
                             />
+                            <div className="flex-1 space-y-2">
+                              <AITextInput
+                                value={card.title}
+                                onChange={(value) => {
+                                  const newCards = [...section.content.cards];
+                                  newCards[idx] = { ...card, title: value };
+                                  updateSectionContent(section.id, { cards: newCards });
+                                }}
+                                placeholder="Title"
+                                context="capability_title"
+                              />
+                              <AITextInput
+                                value={card.description}
+                                onChange={(value) => {
+                                  const newCards = [...section.content.cards];
+                                  newCards[idx] = { ...card, description: value };
+                                  updateSectionContent(section.id, { cards: newCards });
+                                }}
+                                placeholder="Description"
+                                context="capability_description"
+                                multiline
+                                rows={2}
+                              />
+                            </div>
                           </div>
-                          <Textarea
-                            value={card.description}
-                            onChange={(e) => {
-                              const newCards = [...section.content.cards];
-                              newCards[idx] = { ...card, description: e.target.value };
-                              updateSectionContent(section.id, { cards: newCards });
-                            }}
-                            placeholder="Description"
-                            rows={2}
-                          />
                         </div>
                       ))}
                       <Button
@@ -892,7 +778,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                   {section.type === 'testimonials' && (
                     <div className="space-y-4">
                       {(section.content.testimonials || []).map((testimonial: any, idx: number) => (
-                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
+                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
                           <div className="flex items-center justify-between">
                             <Label>Testimonial {idx + 1}</Label>
                             <Button 
@@ -936,14 +822,16 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                             }}
                             placeholder="Company"
                           />
-                          <Textarea
+                          <AITextInput
                             value={testimonial.quote}
-                            onChange={(e) => {
+                            onChange={(value) => {
                               const newTestimonials = [...section.content.testimonials];
-                              newTestimonials[idx] = { ...testimonial, quote: e.target.value };
+                              newTestimonials[idx] = { ...testimonial, quote: value };
                               updateSectionContent(section.id, { testimonials: newTestimonials });
                             }}
                             placeholder="Quote/Review"
+                            context="testimonial_quote"
+                            multiline
                             rows={2}
                           />
                         </div>
@@ -964,22 +852,20 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
                   {section.type === 'pricing' && (
                     <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Section Headline</Label>
-                        <Input
-                          value={section.content.headline || ''}
-                          onChange={(e) => updateSectionContent(section.id, { headline: e.target.value })}
-                          placeholder="e.g., Simple, Transparent Pricing"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Subheadline</Label>
-                        <Input
-                          value={section.content.subheadline || ''}
-                          onChange={(e) => updateSectionContent(section.id, { subheadline: e.target.value })}
-                          placeholder="e.g., Start free, upgrade when you need more"
-                        />
-                      </div>
+                      <AITextInput
+                        label="Section Headline"
+                        value={section.content.headline || ''}
+                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
+                        placeholder="e.g., Simple, Transparent Pricing"
+                        context="headline"
+                      />
+                      <AITextInput
+                        label="Subheadline"
+                        value={section.content.subheadline || ''}
+                        onChange={(value) => updateSectionContent(section.id, { subheadline: value })}
+                        placeholder="e.g., Start free, upgrade when you need more"
+                        context="subheadline"
+                      />
                       <div className="p-3 rounded-lg bg-muted/30 border border-border">
                         <p className="text-sm text-muted-foreground">
                           💡 Pricing tiers are configured in the <span className="font-medium text-foreground">Pricing</span> section of this builder.
@@ -990,61 +876,55 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
                   {section.type === 'cta' && (
                     <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Headline</Label>
-                        <Input
-                          value={section.content.headline || ''}
-                          onChange={(e) => updateSectionContent(section.id, { headline: e.target.value })}
-                          placeholder="e.g., Ready to Transform Your Business?"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Subheadline</Label>
-                        <Input
-                          value={section.content.subheadline || ''}
-                          onChange={(e) => updateSectionContent(section.id, { subheadline: e.target.value })}
-                          placeholder="e.g., Join thousands of successful businesses"
-                        />
-                      </div>
+                      <AITextInput
+                        label="Headline"
+                        value={section.content.headline || ''}
+                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
+                        placeholder="e.g., Ready to Transform Your Business?"
+                        context="headline"
+                      />
+                      <AITextInput
+                        label="Subheadline"
+                        value={section.content.subheadline || ''}
+                        onChange={(value) => updateSectionContent(section.id, { subheadline: value })}
+                        placeholder="e.g., Join thousands of successful businesses"
+                        context="subheadline"
+                      />
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Primary Button</Label>
-                          <Input
-                            value={section.content.buttonText || ''}
-                            onChange={(e) => updateSectionContent(section.id, { buttonText: e.target.value })}
-                            placeholder="Start Your Free Trial"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Secondary Button</Label>
-                          <Input
-                            value={section.content.secondaryButtonText || ''}
-                            onChange={(e) => updateSectionContent(section.id, { secondaryButtonText: e.target.value })}
-                            placeholder="Schedule a Demo"
-                          />
-                        </div>
+                        <AITextInput
+                          label="Primary Button"
+                          value={section.content.buttonText || ''}
+                          onChange={(value) => updateSectionContent(section.id, { buttonText: value })}
+                          placeholder="Start Your Free Trial"
+                          context="button_text"
+                        />
+                        <AITextInput
+                          label="Secondary Button"
+                          value={section.content.secondaryButtonText || ''}
+                          onChange={(value) => updateSectionContent(section.id, { secondaryButtonText: value })}
+                          placeholder="Schedule a Demo"
+                          context="button_text"
+                        />
                       </div>
                     </div>
                   )}
 
                   {section.type === 'footer' && (
                     <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Company Name</Label>
-                        <Input
-                          value={section.content.companyName || ''}
-                          onChange={(e) => updateSectionContent(section.id, { companyName: e.target.value })}
-                          placeholder="Your Company Name"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Tagline</Label>
-                        <Input
-                          value={section.content.tagline || ''}
-                          onChange={(e) => updateSectionContent(section.id, { tagline: e.target.value })}
-                          placeholder="Empowering businesses with AI"
-                        />
-                      </div>
+                      <AITextInput
+                        label="Company Name"
+                        value={section.content.companyName || ''}
+                        onChange={(value) => updateSectionContent(section.id, { companyName: value })}
+                        placeholder="Your Company Name"
+                        context="tagline"
+                      />
+                      <AITextInput
+                        label="Tagline"
+                        value={section.content.tagline || ''}
+                        onChange={(value) => updateSectionContent(section.id, { tagline: value })}
+                        placeholder="Empowering businesses with AI"
+                        context="tagline"
+                      />
                       
                       {/* Social Links Toggle */}
                       <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
@@ -1058,7 +938,6 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                         />
                       </div>
                       
-                      {/* Social Links Inputs - shown when toggle is enabled */}
                       {section.content.showSocialLinks && (
                         <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
                           <Label className="text-sm font-medium">Social Media Links</Label>
@@ -1134,35 +1013,31 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                         />
                       </div>
                       
-                      {/* Newsletter Configuration - shown when toggle is enabled */}
                       {section.content.showNewsletter && (
                         <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
                           <Label className="text-sm font-medium">Newsletter Configuration</Label>
                           <div className="space-y-3">
-                            <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground">Headline</Label>
-                              <Input
-                                value={section.content.newsletterHeadline || ''}
-                                onChange={(e) => updateSectionContent(section.id, { newsletterHeadline: e.target.value })}
-                                placeholder="Stay Updated"
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground">Description</Label>
-                              <Input
-                                value={section.content.newsletterDescription || ''}
-                                onChange={(e) => updateSectionContent(section.id, { newsletterDescription: e.target.value })}
-                                placeholder="Get the latest news and updates"
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-xs text-muted-foreground">Button Text</Label>
-                              <Input
-                                value={section.content.newsletterButtonText || ''}
-                                onChange={(e) => updateSectionContent(section.id, { newsletterButtonText: e.target.value })}
-                                placeholder="Subscribe"
-                              />
-                            </div>
+                            <AITextInput
+                              label="Headline"
+                              value={section.content.newsletterHeadline || ''}
+                              onChange={(value) => updateSectionContent(section.id, { newsletterHeadline: value })}
+                              placeholder="Stay Updated"
+                              context="headline"
+                            />
+                            <AITextInput
+                              label="Description"
+                              value={section.content.newsletterDescription || ''}
+                              onChange={(value) => updateSectionContent(section.id, { newsletterDescription: value })}
+                              placeholder="Get the latest news and updates"
+                              context="description"
+                            />
+                            <AITextInput
+                              label="Button Text"
+                              value={section.content.newsletterButtonText || ''}
+                              onChange={(value) => updateSectionContent(section.id, { newsletterButtonText: value })}
+                              placeholder="Subscribe"
+                              context="button_text"
+                            />
                           </div>
                         </div>
                       )}
@@ -1175,7 +1050,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                         {(section.content.questions || []).length} questions configured
                       </p>
                       {(section.content.questions || []).map((faq: any, idx: number) => (
-                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
+                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
                           <div className="flex items-center justify-between">
                             <Label>Question {idx + 1}</Label>
                             <Button 
@@ -1190,23 +1065,26 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
-                          <Input
+                          <AITextInput
                             value={faq.q}
-                            onChange={(e) => {
+                            onChange={(value) => {
                               const newQuestions = [...section.content.questions];
-                              newQuestions[idx] = { ...faq, q: e.target.value };
+                              newQuestions[idx] = { ...faq, q: value };
                               updateSectionContent(section.id, { questions: newQuestions });
                             }}
                             placeholder="Question"
+                            context="faq_question"
                           />
-                          <Textarea
+                          <AITextInput
                             value={faq.a}
-                            onChange={(e) => {
+                            onChange={(value) => {
                               const newQuestions = [...section.content.questions];
-                              newQuestions[idx] = { ...faq, a: e.target.value };
+                              newQuestions[idx] = { ...faq, a: value };
                               updateSectionContent(section.id, { questions: newQuestions });
                             }}
                             placeholder="Answer"
+                            context="faq_answer"
+                            multiline
                             rows={2}
                           />
                         </div>
@@ -1237,7 +1115,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                     ) : (
                       <Sparkles className="h-4 w-4" />
                     )}
-                    Generate With AI
+                    Generate Entire Section With AI
                   </Button>
                 </div>
               )}
