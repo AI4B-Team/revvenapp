@@ -17,7 +17,7 @@ interface StoryScene {
 
 interface ImageData {
   id: number | string;
-  type: 'image' | 'video' | 'document';
+  type: 'image' | 'video' | 'document' | 'audio';
   thumbnail: string;
   title: string;
   creator: {
@@ -35,6 +35,8 @@ interface ImageData {
   scenes?: StoryScene[];
   documentType?: string;
   content?: string;
+  audioType?: string;
+  duration?: number;
 }
 
 interface ImageViewerModalProps {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { 
   Play, Bookmark, Heart, Download, Edit, RefreshCw, 
   Share2, X, Copy, Check, Image as ImageIcon, Trash2,
-  Video, Film, Mic, Users, FileText
+  Video, Film, Mic, Users, FileText, Music
 } from 'lucide-react';
 import {
   Tooltip,
@@ -322,8 +322,73 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         content: handbook.content
       })) || [];
 
+      // Fetch user voices (audio)
+      const { data: voicesData, error: voicesError } = await supabase
+        .from('user_voices')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (voicesError) {
+        console.error('Error fetching user voices:', voicesError);
+      }
+
+      // Fetch audio app usage
+      const { data: audioAppData, error: audioAppError } = await supabase
+        .from('audio_app_usage')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (audioAppError) {
+        console.error('Error fetching audio app usage:', audioAppError);
+      }
+
+      const mappedVoices: GalleryItem[] = voicesData?.map((voice: any) => ({
+        id: voice.id,
+        title: voice.name,
+        thumbnail: '/placeholder.svg',
+        url: voice.url || undefined,
+        type: 'audio' as const,
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: voice.created_at || new Date().toISOString(),
+        status: voice.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: voice.prompt || undefined,
+        model: 'ElevenLabs',
+        timestamp: formatTimestamp(voice.created_at),
+        audioType: voice.type || 'Voice',
+        duration: voice.duration
+      })) || [];
+
+      const mappedAudioApp: GalleryItem[] = audioAppData?.map((audio: any) => ({
+        id: audio.id,
+        title: audio.app_name,
+        thumbnail: '/placeholder.svg',
+        url: audio.output_audio_url || undefined,
+        type: 'audio' as const,
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: audio.created_at || new Date().toISOString(),
+        status: audio.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: audio.input_text || undefined,
+        model: 'Audio AI',
+        timestamp: formatTimestamp(audio.created_at),
+        audioType: audio.app_name
+      })) || [];
+
       // Combine and sort by creation date
-      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals, ...mappedCaseStudies, ...mappedCoverLetters, ...mappedHandbooks].sort((a, b) => 
+      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals, ...mappedCaseStudies, ...mappedCoverLetters, ...mappedHandbooks, ...mappedVoices, ...mappedAudioApp].sort((a, b) => 
         new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
       );
       
@@ -451,6 +516,23 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       )
       .subscribe();
 
+    // Real-time subscription for user voices (audio)
+    const voicesChannel = supabase
+      .channel('user_voices_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_voices'
+        },
+        (payload) => {
+          console.log('User voices update:', payload);
+          fetchGeneratedContent();
+        }
+      )
+      .subscribe();
+
     // Poll for stuck processing videos every 30 seconds
     const checkStuckVideos = async () => {
       const { data: session } = await supabase.auth.getSession();
@@ -495,6 +577,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       supabase.removeChannel(caseStudiesChannel);
       supabase.removeChannel(coverLettersChannel);
       supabase.removeChannel(handbooksChannel);
+      supabase.removeChannel(voicesChannel);
       clearInterval(pollInterval);
     };
   }, []);
@@ -508,6 +591,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       if (filters.contentType === 'Image' && item.type !== 'image') return false;
       if (filters.contentType === 'Video' && item.type !== 'video') return false;
       if (filters.contentType === 'Document' && item.type !== 'document') return false;
+      if (filters.contentType === 'Audio' && item.type !== 'audio') return false;
     }
 
     // Likes filter
@@ -629,23 +713,31 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
 
   const handleDelete = async (item: GalleryItem) => {
     try {
-      const tableName = item.type === 'video' ? 'ai_videos' : item.type === 'document' ? 'business_plans' : 'generated_images';
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .eq('id', String(item.id));
+      let deleteQuery;
+      
+      if (item.type === 'video') {
+        deleteQuery = supabase.from('ai_videos').delete().eq('id', String(item.id));
+      } else if (item.type === 'document') {
+        deleteQuery = supabase.from('business_plans').delete().eq('id', String(item.id));
+      } else if (item.type === 'audio') {
+        deleteQuery = supabase.from('user_voices').delete().eq('id', String(item.id));
+      } else {
+        deleteQuery = supabase.from('generated_images').delete().eq('id', String(item.id));
+      }
+      
+      const { error } = await deleteQuery;
 
       if (error) throw error;
 
       setGeneratedItems(prev => prev.filter(i => i.id !== item.id));
       
-      const typeLabel = item.type === 'video' ? 'Video' : item.type === 'document' ? 'Document' : 'Image';
+      const typeLabel = item.type === 'video' ? 'Video' : item.type === 'document' ? 'Document' : item.type === 'audio' ? 'Audio' : 'Image';
       toast({
         title: "Deleted",
         description: `${typeLabel} deleted successfully`,
       });
     } catch (error) {
-      const typeLabel = item.type === 'video' ? 'video' : item.type === 'document' ? 'document' : 'image';
+      const typeLabel = item.type === 'video' ? 'video' : item.type === 'document' ? 'document' : item.type === 'audio' ? 'audio' : 'image';
       toast({
         title: "Delete failed",
         description: `Unable to delete ${typeLabel}`,
@@ -790,6 +882,21 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                     {item.title}
                   </p>
                 </div>
+              ) : item.type === 'audio' ? (
+                <div className="w-full h-full bg-gradient-to-br from-purple-500 to-indigo-600 flex flex-col items-center justify-center p-4">
+                  <Music size={48} className="text-white mb-3" />
+                  <span className="text-white text-xs font-medium uppercase tracking-wide bg-white/20 px-2 py-1 rounded">
+                    {item.audioType || 'Audio'}
+                  </span>
+                  <p className="text-white/90 text-sm mt-3 text-center line-clamp-2 px-2">
+                    {item.title}
+                  </p>
+                  {item.duration && (
+                    <p className="text-white/70 text-xs mt-2">
+                      {Math.floor(item.duration / 60)}:{String(item.duration % 60).padStart(2, '0')}
+                    </p>
+                  )}
+                </div>
               ) : item.type === 'video' && item.status === 'completed' && item.url ? (
                 <video
                   src={item.url}
@@ -816,10 +923,10 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                   </div>
                   <div className="text-center">
                     <p className="text-white font-semibold text-lg mb-1">
-                      {item.type === 'video' ? 'Generating Video' : item.type === 'document' ? 'Generating Document' : 'Generating Image'}
+                      {item.type === 'video' ? 'Generating Video' : item.type === 'document' ? 'Generating Document' : item.type === 'audio' ? 'Processing Audio' : 'Generating Image'}
                     </p>
                     <p className="text-white/70 text-sm">
-                      {item.type === 'video' ? 'This may take a few minutes...' : item.type === 'document' ? 'Creating your business plan...' : 'This may take a few moments...'}
+                      {item.type === 'video' ? 'This may take a few minutes...' : item.type === 'document' ? 'Creating your document...' : item.type === 'audio' ? 'Processing your audio...' : 'This may take a few moments...'}
                     </p>
                   </div>
                 </div>
@@ -852,6 +959,11 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
                     <>
                       <FileText size={sizes.badgeIcon} className="text-white" />
                       <span className={`text-white ${sizes.text} font-semibold uppercase`}>{item.documentType || 'Document'}</span>
+                    </>
+                  ) : item.type === 'audio' ? (
+                    <>
+                      <Music size={sizes.badgeIcon} className="text-white" />
+                      <span className={`text-white ${sizes.text} font-semibold uppercase`}>{item.audioType || 'Audio'}</span>
                     </>
                   ) : (
                     <>
