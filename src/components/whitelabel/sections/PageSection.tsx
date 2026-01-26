@@ -777,10 +777,13 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
                   {section.type === 'testimonials' && (
                     <div className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        Add testimonials with text, images, or both. All fields are optional for maximum flexibility.
+                      </p>
                       {(section.content.testimonials || []).map((testimonial: any, idx: number) => (
-                        <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
+                        <div key={idx} className="p-4 rounded-lg bg-muted/30 border border-border space-y-4">
                           <div className="flex items-center justify-between">
-                            <Label>Testimonial {idx + 1}</Label>
+                            <Label className="font-semibold">Testimonial {idx + 1}</Label>
                             <Button 
                               variant="ghost" 
                               size="sm"
@@ -793,53 +796,162 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
-                          <div className="grid grid-cols-2 gap-2">
+                          
+                          {/* Profile Image Upload */}
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground">Profile Image (Optional)</Label>
+                            <div className="flex items-center gap-3">
+                              {testimonial.avatarUrl ? (
+                                <div className="relative group">
+                                  <img 
+                                    src={testimonial.avatarUrl} 
+                                    alt="Avatar" 
+                                    className="w-14 h-14 rounded-full object-cover border-2 border-border"
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      const newTestimonials = [...section.content.testimonials];
+                                      newTestimonials[idx] = { ...testimonial, avatarUrl: '' };
+                                      updateSectionContent(section.id, { testimonials: newTestimonials });
+                                    }}
+                                    className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <label className="w-14 h-14 rounded-full border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => {
+                                          const newTestimonials = [...section.content.testimonials];
+                                          newTestimonials[idx] = { ...testimonial, avatarUrl: reader.result as string };
+                                          updateSectionContent(section.id, { testimonials: newTestimonials });
+                                        };
+                                        reader.readAsDataURL(file);
+                                      }
+                                    }}
+                                    className="hidden"
+                                  />
+                                  <Plus className="h-5 w-5 text-muted-foreground" />
+                                </label>
+                              )}
+                              <div className="flex-1 grid grid-cols-2 gap-2">
+                                <Input
+                                  value={testimonial.name || ''}
+                                  onChange={(e) => {
+                                    const newTestimonials = [...section.content.testimonials];
+                                    newTestimonials[idx] = { ...testimonial, name: e.target.value };
+                                    updateSectionContent(section.id, { testimonials: newTestimonials });
+                                  }}
+                                  placeholder="Name (optional)"
+                                />
+                                <Input
+                                  value={testimonial.role || ''}
+                                  onChange={(e) => {
+                                    const newTestimonials = [...section.content.testimonials];
+                                    newTestimonials[idx] = { ...testimonial, role: e.target.value };
+                                    updateSectionContent(section.id, { testimonials: newTestimonials });
+                                  }}
+                                  placeholder="Role (optional)"
+                                />
+                              </div>
+                            </div>
                             <Input
-                              value={testimonial.name}
+                              value={testimonial.company || ''}
                               onChange={(e) => {
                                 const newTestimonials = [...section.content.testimonials];
-                                newTestimonials[idx] = { ...testimonial, name: e.target.value };
+                                newTestimonials[idx] = { ...testimonial, company: e.target.value };
                                 updateSectionContent(section.id, { testimonials: newTestimonials });
                               }}
-                              placeholder="Name"
-                            />
-                            <Input
-                              value={testimonial.role}
-                              onChange={(e) => {
-                                const newTestimonials = [...section.content.testimonials];
-                                newTestimonials[idx] = { ...testimonial, role: e.target.value };
-                                updateSectionContent(section.id, { testimonials: newTestimonials });
-                              }}
-                              placeholder="Role"
+                              placeholder="Company (optional)"
                             />
                           </div>
-                          <Input
-                            value={testimonial.company}
-                            onChange={(e) => {
-                              const newTestimonials = [...section.content.testimonials];
-                              newTestimonials[idx] = { ...testimonial, company: e.target.value };
-                              updateSectionContent(section.id, { testimonials: newTestimonials });
-                            }}
-                            placeholder="Company"
-                          />
-                          <AITextInput
-                            value={testimonial.quote}
-                            onChange={(value) => {
-                              const newTestimonials = [...section.content.testimonials];
-                              newTestimonials[idx] = { ...testimonial, quote: value };
-                              updateSectionContent(section.id, { testimonials: newTestimonials });
-                            }}
-                            placeholder="Quote/Review"
-                            context="testimonial_quote"
-                            multiline
-                            rows={2}
-                          />
+                          
+                          {/* Quote Text */}
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground">Quote/Review (Optional)</Label>
+                            <AITextInput
+                              value={testimonial.quote || ''}
+                              onChange={(value) => {
+                                const newTestimonials = [...section.content.testimonials];
+                                newTestimonials[idx] = { ...testimonial, quote: value };
+                                updateSectionContent(section.id, { testimonials: newTestimonials });
+                              }}
+                              placeholder="Enter testimonial text or leave empty if using screenshot only"
+                              context="testimonial_quote"
+                              multiline
+                              rows={2}
+                            />
+                          </div>
+                          
+                          {/* Screenshot Image Upload */}
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground">Screenshot Image (Optional)</Label>
+                            <p className="text-xs text-muted-foreground">
+                              Upload a screenshot from social media, email, or any visual testimonial
+                            </p>
+                            {testimonial.screenshotUrl ? (
+                              <div className="relative group">
+                                <img 
+                                  src={testimonial.screenshotUrl} 
+                                  alt="Screenshot" 
+                                  className="w-full max-h-48 object-cover rounded-lg border border-border"
+                                />
+                                <button
+                                  onClick={() => {
+                                    const newTestimonials = [...section.content.testimonials];
+                                    newTestimonials[idx] = { ...testimonial, screenshotUrl: '' };
+                                    updateSectionContent(section.id, { testimonials: newTestimonials });
+                                  }}
+                                  className="absolute top-2 right-2 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="block border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onloadend = () => {
+                                        const newTestimonials = [...section.content.testimonials];
+                                        newTestimonials[idx] = { ...testimonial, screenshotUrl: reader.result as string };
+                                        updateSectionContent(section.id, { testimonials: newTestimonials });
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }}
+                                  className="hidden"
+                                />
+                                <ImageIcon className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                                <p className="text-sm font-medium text-foreground">Upload Screenshot</p>
+                                <p className="text-xs text-muted-foreground">Social media, email, DM, etc.</p>
+                              </label>
+                            )}
+                          </div>
                         </div>
                       ))}
                       <Button
                         variant="outline"
                         onClick={() => {
-                          const newTestimonials = [...(section.content.testimonials || []), { name: '', role: '', company: '', quote: '', avatar: '' }];
+                          const newTestimonials = [...(section.content.testimonials || []), { 
+                            name: '', 
+                            role: '', 
+                            company: '', 
+                            quote: '', 
+                            avatarUrl: '',
+                            screenshotUrl: '' 
+                          }];
                           updateSectionContent(section.id, { testimonials: newTestimonials });
                         }}
                         className="w-full gap-2"
