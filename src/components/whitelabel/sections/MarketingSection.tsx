@@ -63,7 +63,7 @@ function TrackingCard({
   };
 
   return (
-    <div className="p-5 rounded-xl border-2 border-border bg-card hover:border-primary/30 transition-colors flex flex-col h-full">
+    <div className="p-5 rounded-xl border-2 border-border bg-card hover:border-primary/30 transition-colors flex flex-col h-full min-h-[220px]">
       <div className="flex items-start gap-3 mb-4">
         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
           {icon}
@@ -94,9 +94,9 @@ function TrackingCard({
           value={localValue}
           onChange={(e) => setLocalValue(e.target.value)}
           placeholder={inputPlaceholder}
-          className="font-mono text-sm mb-auto"
+          className="font-mono text-sm"
         />
-        <div className="mt-4">
+        <div className="mt-auto pt-4">
           <Button 
             onClick={handleSave}
             size="sm"
