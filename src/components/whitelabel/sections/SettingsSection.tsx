@@ -468,6 +468,58 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Meta Pixel */}
+              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
+                <div className="flex items-center gap-2">
+                  <SiMeta className="h-5 w-5 text-[#0081FB]" />
+                  <h3 className="font-semibold">Meta Pixel</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Integrate Meta Pixel to track visitor activity on your website, measure the effectiveness of your Facebook and Instagram ads, and build targeted audiences for future ads.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="meta-pixel">Meta Pixel ID</Label>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                  <Input 
+                    id="meta-pixel"
+                    placeholder="123456789012345"
+                    value={metaPixelId}
+                    onChange={(e) => setMetaPixelId(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                  Save
+                </Button>
+              </div>
+
+              {/* Meta Conversions API */}
+              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
+                <div className="flex items-center gap-2">
+                  <SiMeta className="h-5 w-5 text-[#0081FB]" />
+                  <h3 className="font-semibold">Meta Conversions API</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Configure the Facebook Access Token for server-side event tracking via the Conversions API. This enables better tracking accuracy and deduplication between client and server events.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="meta-access-token">Facebook Access Token</Label>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                  <Input 
+                    id="meta-access-token"
+                    placeholder="EAABsbCS1iHgBO7jZCZBpR8..."
+                    value={metaAccessToken}
+                    onChange={(e) => setMetaAccessToken(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                  Save
+                </Button>
+              </div>
+
               {/* Google Ads Tag */}
               <div className="p-6 rounded-xl border border-border bg-card space-y-4">
                 <div className="flex items-center gap-2">
@@ -515,58 +567,6 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
                     placeholder="GTM-XXXXXXX"
                     value={googleTagManagerId}
                     onChange={(e) => setGoogleTagManagerId(e.target.value)}
-                  />
-                </div>
-                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
-                  Save
-                </Button>
-              </div>
-
-              {/* Meta Pixel */}
-              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
-                <div className="flex items-center gap-2">
-                  <SiMeta className="h-5 w-5 text-[#0081FB]" />
-                  <h3 className="font-semibold">Meta Pixel</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Integrate Meta Pixel to track visitor activity on your website, measure the effectiveness of your Facebook and Instagram ads, and build targeted audiences for future ads.
-                </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Label htmlFor="meta-pixel">Meta Pixel ID</Label>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <Input 
-                    id="meta-pixel"
-                    placeholder="123456789012345"
-                    value={metaPixelId}
-                    onChange={(e) => setMetaPixelId(e.target.value)}
-                  />
-                </div>
-                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
-                  Save
-                </Button>
-              </div>
-
-              {/* Meta Conversions API */}
-              <div className="p-6 rounded-xl border border-border bg-card space-y-4">
-                <div className="flex items-center gap-2">
-                  <SiMeta className="h-5 w-5 text-[#0081FB]" />
-                  <h3 className="font-semibold">Meta Conversions API</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Configure the Facebook Access Token for server-side event tracking via the Conversions API. This enables better tracking accuracy and deduplication between client and server events.
-                </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Label htmlFor="meta-access-token">Facebook Access Token</Label>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <Input 
-                    id="meta-access-token"
-                    placeholder="EAABsbCS1iHgBO7jZCZBpR8..."
-                    value={metaAccessToken}
-                    onChange={(e) => setMetaAccessToken(e.target.value)}
                   />
                 </div>
                 <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
