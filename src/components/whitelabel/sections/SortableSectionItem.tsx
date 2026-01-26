@@ -31,6 +31,7 @@ interface SortableSectionItemProps {
   onToggleEnabled: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  onDelete?: () => void;
   isGenerating: string | null;
   updateSectionContent: (id: string, updates: Record<string, any>) => void;
   handleGenerateCopy: (sectionId: string) => void;
@@ -47,6 +48,7 @@ export function SortableSectionItem({
   onToggleEnabled,
   onMoveUp,
   onMoveDown,
+  onDelete,
   isGenerating,
   updateSectionContent,
   handleGenerateCopy,
@@ -136,6 +138,20 @@ export function SortableSectionItem({
           onCheckedChange={onToggleEnabled}
           onClick={(e) => e.stopPropagation()}
         />
+
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
 
         {isExpanded ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />

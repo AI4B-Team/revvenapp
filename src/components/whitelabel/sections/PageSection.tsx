@@ -14,6 +14,7 @@ import {
   HelpCircle,
   Zap,
   Image as ImageIcon,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -414,6 +415,14 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
     }
   };
 
+  const deleteSection = (id: string) => {
+    setSections(sections.filter(s => s.id !== id));
+    if (expandedSection === id) {
+      setExpandedSection(null);
+    }
+    toast.success('Section deleted');
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -561,6 +570,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                   onToggleEnabled={() => toggleSectionEnabled(section.id)}
                   onMoveUp={() => moveSectionUp(section.id)}
                   onMoveDown={() => moveSectionDown(section.id)}
+                  onDelete={() => deleteSection(section.id)}
                   isGenerating={isGenerating}
                   updateSectionContent={updateSectionContent}
                   handleGenerateCopy={handleGenerateCopy}
