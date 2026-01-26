@@ -272,7 +272,7 @@ export function LegalSection({ productName = 'Your App' }: LegalSectionProps) {
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-foreground">Legal Documents</h3>
           <span className="text-sm text-muted-foreground">
-            {legalDocs.filter(d => d.enabled).length} of {legalDocs.length} enabled
+            {legalDocs.filter(d => d.enabled).length} of {legalDocs.length} Enabled
           </span>
         </div>
 
@@ -299,7 +299,7 @@ export function LegalSection({ productName = 'Your App' }: LegalSectionProps) {
                 </div>
                 <div className="flex-1">
                   <span className="font-medium text-foreground">{doc.title}</span>
-                  <p className="text-xs text-muted-foreground">Last updated: {doc.lastUpdated}</p>
+                  <p className="text-xs text-muted-foreground">Last Updated: {doc.lastUpdated}</p>
                 </div>
                 
                 <Switch
