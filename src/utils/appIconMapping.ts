@@ -117,7 +117,7 @@ export const appIconMapping: Record<string, string> = {
   'Ad Copy Writer': toolAdCopyWriter,
   'Script Writer': toolScriptWriter,
   'SEO Optimizer': toolSeoOptimizer,
-  'Ebook Creator': toolEbookCreator,
+  'Ghost Ink': toolEbookCreator,
   'Newsletter': toolJobNewsletter,
 };
 
