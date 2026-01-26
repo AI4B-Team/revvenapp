@@ -194,7 +194,7 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
                 )}
                 {step === 'symbols' && (
                   <>
-                    <h2 className="text-2xl font-bold text-foreground">Select symbol types</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Select Symbol Types</h2>
                     <p className="text-muted-foreground mt-1">What kind of shapes represent your brand?</p>
                   </>
                 )}
@@ -322,7 +322,7 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
 
                 {productName && (
                   <div className="space-y-2 pt-4 border-t border-border">
-                    <Label htmlFor="slogan">Add a slogan (optional)</Label>
+                    <Label htmlFor="slogan">Add A Slogan (Optional)</Label>
                     <Input
                       id="slogan"
                       value={slogan}
