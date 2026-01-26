@@ -106,6 +106,7 @@ const Inbox = lazy(() => import("./pages/Inbox"));
 const InvestorCalculator = lazy(() => import("./pages/InvestorCalculator"));
 const DigitalSpy = lazy(() => import("./pages/DigitalSpy"));
 const CreatorVault = lazy(() => import("./pages/CreatorVault"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 
 
 
@@ -153,6 +154,7 @@ const App = () => (
                           <Route path="/revenue" element={<Revenue />} />
                           <Route path="/marketing" element={<Marketing />} />
                           <Route path="/community" element={<Community />} />
+                          <Route path="/profile/:userId" element={<PublicProfile />} />
                           <Route path="/creator-vault" element={<CreatorVault />} />
                           <Route path="/apps" element={<Apps />} />
                           <Route path="/apps/:appId" element={<AppStorePage />} />

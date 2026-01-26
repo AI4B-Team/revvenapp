@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Play, Bookmark, Heart, Download, Edit, RefreshCw, 
   Share2, X, Copy, Check, Image as ImageIcon, Trash2,
@@ -39,6 +40,7 @@ interface GalleryProps {
 }
 
 const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: GalleryProps) => {
+  const navigate = useNavigate();
   const [likedItems, setLikedItems] = useState<Set<number | string>>(new Set());
   const [savedItems, setSavedItems] = useState<Set<number | string>>(new Set());
   const [shareModalOpen, setShareModalOpen] = useState<number | string | null>(null);
@@ -599,7 +601,8 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         type: post.original_item_type as 'image' | 'video' | 'audio' | 'document',
         creator: {
           name: post.creator_name,
-          avatar: post.creator_avatar || post.creator_name.substring(0, 2).toUpperCase()
+          avatar: post.creator_avatar || post.creator_name.substring(0, 2).toUpperCase(),
+          userId: post.user_id
         },
         likes: post.likes_count || 0,
         isEdited: false,
@@ -1187,7 +1190,15 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
 
               {/* Creator Info - Bottom Left - Always visible for community, hidden when images are small for creations */}
               {(type === 'community' || columnsPerRow <= 3) && (
-                <div className={`absolute bottom-3 left-3 flex items-center ${sizes.gap} ${type === 'community' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                <div 
+                  className={`absolute bottom-3 left-3 flex items-center ${sizes.gap} ${type === 'community' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity ${type === 'community' && item.creator.userId ? 'cursor-pointer hover:scale-105' : ''}`}
+                  onClick={(e) => {
+                    if (type === 'community' && item.creator.userId) {
+                      e.stopPropagation();
+                      navigate(`/profile/${item.creator.userId}`);
+                    }
+                  }}
+                >
                   {item.creator.avatar && item.creator.avatar.startsWith('http') ? (
                     <img 
                       src={item.creator.avatar} 
