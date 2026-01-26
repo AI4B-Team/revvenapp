@@ -3,7 +3,6 @@ export { ProductSection } from './sections/ProductSection';
 export { BrandingSection } from './sections/BrandingSection';
 export { StyleSection, type PageStyle } from './sections/StyleSection';
 export { PageSection } from './sections/PageSection';
-export { PricingSection } from './sections/PricingSection';
 export { CheckoutSection } from './sections/CheckoutSection';
 export { DomainSection } from './sections/DomainSection';
 export { IntegrationsSection } from './sections/IntegrationsSection';
