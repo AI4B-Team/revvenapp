@@ -23,14 +23,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import type { CheckoutConfig } from './sections/CheckoutSection';
 
 interface LivePreviewProps {
   app?: MarketplaceApp;
   license?: AppLicense;
   activeSection: string;
+  checkoutConfig?: CheckoutConfig;
 }
 
-export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
+export function LivePreview({ app, license, activeSection, checkoutConfig }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
@@ -240,7 +242,7 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
                         </div>
                       </div>
                       <div className="space-y-2 py-3 border-t border-zinc-100">
-                        {['Unlimited AI Usage', 'Priority Support', '14-Day Money-Back Guarantee'].map((item, idx) => (
+                        {['Unlimited AI Usage', 'Priority Support', `${checkoutConfig?.guaranteeDays || 14}-Day Money-Back Guarantee`].map((item, idx) => (
                           <div key={idx} className="flex items-center gap-2 text-sm text-zinc-600">
                             <Check size={14} className="text-emerald-500" />
                             {item}
@@ -313,8 +315,8 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
                           Guarantee
                         </span>
                       </div>
-                      <p className="font-semibold text-zinc-900 text-sm mb-1">14-Day Money-Back</p>
-                      <p className="text-xs text-zinc-600">Try It Risk-Free</p>
+                      <p className="font-semibold text-zinc-900 text-sm mb-1">{checkoutConfig?.guaranteeDays || 14}-Day Money-Back</p>
+                      <p className="text-xs text-zinc-600">{checkoutConfig?.guaranteeDescription || 'Try It Risk-Free'}</p>
                     </div>
                     
                     {/* Instant Access */}
@@ -357,7 +359,7 @@ export function LivePreview({ app, license, activeSection }: LivePreviewProps) {
                       </div>
                       <div>
                         <p className="font-medium text-zinc-900 mb-2">Is there a money-back guarantee?</p>
-                        <p className="text-sm text-zinc-600">Absolutely! We offer a 14-day money-back guarantee with one-click refunds in your dashboard.</p>
+                        <p className="text-sm text-zinc-600">Absolutely! We offer a {checkoutConfig?.guaranteeDays || 14}-day money-back guarantee with one-click refunds in your dashboard.</p>
                       </div>
                     </div>
                   </div>

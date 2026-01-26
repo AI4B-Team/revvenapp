@@ -21,6 +21,7 @@ import {
   LivePreview,
   LicenseActivation
 } from '@/components/whitelabel';
+import type { CheckoutConfig } from '@/components/whitelabel/sections/CheckoutSection';
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -33,6 +34,14 @@ const AppLicense = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isAIVAPanelOpen, setIsAIVAPanelOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<WhiteLabelSection>('product');
+  const [checkoutConfig, setCheckoutConfig] = useState<CheckoutConfig>({
+    guaranteeDays: 14,
+    guaranteeDescription: 'Try It Risk-Free',
+    guaranteeItems: ['Customers Trust Us', 'One-Click Refund In Dashboard'],
+    enableGuarantee: true,
+    enableFAQs: true,
+    checkoutFAQs: [{ q: 'Will I have access to all AIs?', a: 'Yes! You will have access to the main AIs on the market, all integrated in a single platform for you.' }],
+  });
 
   const handleAIVAToggle = () => {
     const newState = !isAIVAPanelOpen;
@@ -105,7 +114,7 @@ const AppLicense = () => {
       case 'branding': return <BrandingSection license={license} onUpdate={handleUpdateBrand} />;
       case 'page': return <PageSection app={app} license={license} />;
       case 'pricing': return <PricingSection license={license} onUpdate={handleUpdatePricing} />;
-      case 'checkout': return <CheckoutSection license={license} />;
+      case 'checkout': return <CheckoutSection license={license} checkoutConfig={checkoutConfig} onCheckoutConfigChange={setCheckoutConfig} />;
       case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
       case 'settings': return <SettingsSection onDeactivate={handleDeactivateLicense} />;
       default: return null;
@@ -177,7 +186,8 @@ const AppLicense = () => {
               <LivePreview 
                 app={app} 
                 license={license} 
-                activeSection={activeSection} 
+                activeSection={activeSection}
+                checkoutConfig={checkoutConfig}
               />
             </ResizablePanel>
           </ResizablePanelGroup>
