@@ -183,6 +183,8 @@ const AppLicense = () => {
     spotlightItems: ['Full Platform Access In 2 Minutes', 'Unlimited AI Usage Included', '14-Day Money-Back Guarantee'],
     enableBadges: true,
     selectedBadges: ['ssl', 'pci', 'stripe', 'gdpr'],
+    enableOrderBumps: true,
+    orderBumps: [],
   });
   const [pageSectionsInitialized, setPageSectionsInitialized] = useState(false);
   const [pageSections, setPageSections] = useState<PageBlock[]>([]);

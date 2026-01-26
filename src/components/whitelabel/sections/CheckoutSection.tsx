@@ -18,9 +18,12 @@ import {
   Check,
   Gift,
   Timer,
-  BadgeCheck
+  BadgeCheck,
+  Package,
+  RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { OrderBumpEditor, OrderBump, getAISuggestedBumps } from './OrderBumpEditor';
 
 export interface CheckoutConfig {
   guaranteeDays: number;
@@ -41,12 +44,16 @@ export interface CheckoutConfig {
   // Badge fields
   enableBadges: boolean;
   selectedBadges: string[];
+  // Order Bumps
+  enableOrderBumps: boolean;
+  orderBumps: OrderBump[];
 }
 
 interface CheckoutSectionProps {
   license?: AppLicense;
   checkoutConfig?: CheckoutConfig;
   onCheckoutConfigChange?: (config: CheckoutConfig) => void;
+  productName?: string;
 }
 
 const complianceBadges = [
@@ -56,7 +63,7 @@ const complianceBadges = [
   { id: 'gdpr', name: 'GDPR Ready', description: 'Compliant', icon: Check },
 ];
 
-export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChange }: CheckoutSectionProps) {
+export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChange, productName = 'Your Product' }: CheckoutSectionProps) {
   const [checkoutLink, setCheckoutLink] = useState('https://yourapp.revven.app/checkout');
   const [enableConversionBooster, setEnableConversionBooster] = useState(checkoutConfig?.enableConversionBooster ?? true);
   const [discountPercent, setDiscountPercent] = useState(checkoutConfig?.discountPercent ?? 15);
@@ -82,6 +89,24 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
   const [checkoutFAQs, setCheckoutFAQs] = useState(checkoutConfig?.checkoutFAQs ?? [
     { q: 'Will I have access to all AIs?', a: 'Yes! You will have access to the main AIs on the market, all integrated in a single platform for you.' }
   ]);
+  
+  // Order Bumps State
+  const [enableOrderBumps, setEnableOrderBumps] = useState(checkoutConfig?.enableOrderBumps ?? true);
+  const [orderBumps, setOrderBumps] = useState<OrderBump[]>(() => {
+    if (checkoutConfig?.orderBumps?.length) return checkoutConfig.orderBumps;
+    // Initialize with AI suggested bumps
+    const suggestions = getAISuggestedBumps(productName);
+    return suggestions.slice(0, 2).map((suggestion, idx) => ({
+      id: `bump-${Date.now()}-${idx}`,
+      enabled: idx === 0, // Enable first one by default
+      headline: suggestion.headline || '',
+      description: suggestion.description || '',
+      price: suggestion.price || 27,
+      originalPrice: suggestion.originalPrice,
+      isAISuggested: true,
+    }));
+  });
+  const [isGeneratingBump, setIsGeneratingBump] = useState<string | null>(null);
 
   // Sync config changes to parent
   useEffect(() => {
@@ -101,11 +126,14 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
       spotlightItems,
       enableBadges,
       selectedBadges,
+      enableOrderBumps,
+      orderBumps,
     });
   }, [
     guaranteeDays, guaranteeDescription, guaranteeItems, enableGuarantee, enableFAQs, checkoutFAQs,
     enableConversionBooster, discountPercent, discountDuration, enableUrgencyTimer,
-    enableSpotlightCard, spotlightTitle, spotlightItems, enableBadges, selectedBadges
+    enableSpotlightCard, spotlightTitle, spotlightItems, enableBadges, selectedBadges,
+    enableOrderBumps, orderBumps
   ]);
 
   const copyLink = () => {
@@ -264,6 +292,125 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
                 </div>
               </div>
             </div>
+          </>
+        )}
+      </div>
+
+      {/* Order Bumps */}
+      <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Package className="h-5 w-5 text-violet-500" />
+            <h3 className="font-semibold text-foreground">Order Bumps</h3>
+            <span className="px-2 py-0.5 text-xs font-medium bg-violet-500/10 text-violet-600 rounded">AI Suggested</span>
+          </div>
+          <Switch checked={enableOrderBumps} onCheckedChange={setEnableOrderBumps} />
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Add one-click upsells at checkout to increase your average order value. AI suggests products based on your main offer.
+        </p>
+
+        {enableOrderBumps && (
+          <>
+            {/* Order Bump List */}
+            <div className="space-y-3">
+              {orderBumps.map((bump, idx) => (
+                <OrderBumpEditor
+                  key={bump.id}
+                  bump={bump}
+                  index={idx}
+                  productName={productName}
+                  onUpdate={(updatedBump) => {
+                    const newBumps = [...orderBumps];
+                    newBumps[idx] = updatedBump;
+                    setOrderBumps(newBumps);
+                  }}
+                  onDelete={() => setOrderBumps(orderBumps.filter((_, i) => i !== idx))}
+                  isGenerating={isGeneratingBump === bump.id}
+                  onGenerate={async () => {
+                    setIsGeneratingBump(bump.id);
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    const suggestions = getAISuggestedBumps(productName);
+                    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+                    const newBumps = [...orderBumps];
+                    newBumps[idx] = {
+                      ...bump,
+                      headline: randomSuggestion.headline || bump.headline,
+                      description: randomSuggestion.description || bump.description,
+                      price: randomSuggestion.price || bump.price,
+                      originalPrice: randomSuggestion.originalPrice,
+                      isAISuggested: true,
+                    };
+                    setOrderBumps(newBumps);
+                    setIsGeneratingBump(null);
+                    toast.success('Order bump regenerated with AI!');
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Add Bump Button */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const suggestions = getAISuggestedBumps(productName);
+                  const unusedSuggestion = suggestions.find(
+                    s => !orderBumps.some(b => b.headline === s.headline)
+                  ) || suggestions[0];
+                  
+                  setOrderBumps([...orderBumps, {
+                    id: `bump-${Date.now()}`,
+                    enabled: true,
+                    headline: unusedSuggestion.headline || '',
+                    description: unusedSuggestion.description || '',
+                    price: unusedSuggestion.price || 27,
+                    originalPrice: unusedSuggestion.originalPrice,
+                    isAISuggested: true,
+                  }]);
+                  toast.success('AI-suggested order bump added!');
+                }}
+                className="flex-1 gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Add AI-Suggested Bump
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOrderBumps([...orderBumps, {
+                    id: `bump-${Date.now()}`,
+                    enabled: true,
+                    headline: '',
+                    description: '',
+                    price: 27,
+                    isAISuggested: false,
+                  }]);
+                }}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Custom
+              </Button>
+            </div>
+
+            {/* Revenue Insight */}
+            {orderBumps.filter(b => b.enabled).length > 0 && (
+              <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="h-4 w-4 text-emerald-600" />
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-300">Revenue Potential</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  With <strong>{orderBumps.filter(b => b.enabled).length}</strong> active order bump{orderBumps.filter(b => b.enabled).length > 1 ? 's' : ''}, 
+                  at a <strong>25% take rate</strong>, you could add{' '}
+                  <strong className="text-emerald-600">
+                    ${(orderBumps.filter(b => b.enabled).reduce((sum, b) => sum + b.price, 0) * 0.25 * 100).toFixed(0)}
+                  </strong>{' '}
+                  extra revenue per 100 customers.
+                </p>
+              </div>
+            )}
           </>
         )}
       </div>
