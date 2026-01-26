@@ -504,13 +504,6 @@ export function LivePreview({ app, license, activeSection, checkoutConfig }: Liv
                 </div>
               </>
             )}
-
-            {/* Footer */}
-            <div className="px-8 py-6 bg-zinc-900 text-center">
-              <p className="text-zinc-400 text-sm">
-                © {new Date().getFullYear()} {productName}. All rights reserved.
-              </p>
-            </div>
           </div>
         </div>
       </div>
