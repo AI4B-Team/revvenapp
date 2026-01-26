@@ -107,24 +107,39 @@ export function RichHeadlineEditor({
   }, []);
 
   const applyFormatting = useCallback((command: string, formatValue?: string) => {
-    restoreSelection();
-    // Small delay to ensure selection is restored
-    requestAnimationFrame(() => {
-      document.execCommand(command, false, formatValue);
-      handleInput();
-      // Re-save selection after formatting
-      saveSelection();
-    });
-  }, [restoreSelection, handleInput, saveSelection]);
+    const editor = editorRef.current;
+    if (!editor) return;
+    
+    // Focus the editor first
+    editor.focus();
+    
+    // Restore the saved selection
+    if (savedSelectionRef.current) {
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(savedSelectionRef.current);
+      }
+    }
+    
+    // Apply the formatting command
+    document.execCommand(command, false, formatValue);
+    
+    // Update the value
+    handleInput();
+    
+    // Re-save the selection for subsequent formatting
+    saveSelection();
+  }, [handleInput, saveSelection]);
 
-  const applyUnderline = () => {
+  const applyUnderline = useCallback(() => {
     applyFormatting('underline');
-  };
+  }, [applyFormatting]);
 
-  const applyColor = (color: string) => {
+  const applyColor = useCallback((color: string) => {
     applyFormatting('foreColor', color);
     setIsColorPickerOpen(false);
-  };
+  }, [applyFormatting]);
 
   // Save selection on mouseup and keyup in the editor
   const handleSelectionChange = useCallback(() => {
