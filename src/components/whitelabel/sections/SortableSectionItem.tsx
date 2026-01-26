@@ -59,21 +59,32 @@ export function SortableSectionItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: section.id });
+    isOver,
+  } = useSortable({ 
+    id: section.id,
+    transition: {
+      duration: 200,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
+  });
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+    transition: transition || 'transform 200ms cubic-bezier(0.25, 1, 0.5, 1)',
+    opacity: isDragging ? 0.4 : 1,
+    scale: isDragging ? 1.02 : 1,
+    zIndex: isDragging ? 50 : 'auto',
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`rounded-xl border-2 transition-all ${
+      className={`rounded-xl border-2 transition-all duration-200 bg-card ${
         section.enabled ? 'border-border' : 'border-border/50 opacity-60'
-      } ${isDragging ? 'z-50 shadow-lg' : ''}`}
+      } ${isDragging ? 'shadow-2xl ring-2 ring-primary/30' : ''} ${
+        isOver && !isDragging ? 'border-primary/50 bg-primary/5' : ''
+      }`}
     >
       {/* Section Header */}
       <div
@@ -94,9 +105,13 @@ export function SortableSectionItem({
           <button
             {...attributes}
             {...listeners}
-            className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing"
+            className={`p-1.5 rounded-md transition-all duration-150 cursor-grab active:cursor-grabbing ${
+              isDragging 
+                ? 'bg-primary/20 text-primary scale-110' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+            }`}
           >
-            <GripVertical className="h-3.5 w-3.5" />
+            <GripVertical className="h-4 w-4" />
           </button>
           <button
             onClick={onMoveDown}
