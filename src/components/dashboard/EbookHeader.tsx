@@ -211,11 +211,11 @@ const EbookHeader = ({
             {TABS.map((tab) => {
               const isEbook = tab.id === 'review';
               return (
-                <Tooltip key={tab.id}>
+              <Tooltip key={tab.id}>
                   <TooltipTrigger asChild>
                     <button 
                       disabled
-                      className={`flex items-center gap-2 py-1.5 px-3 text-sm font-medium rounded-lg transition-all text-gray-400 cursor-not-allowed border border-transparent ${isEbook ? 'border border-gray-500' : ''}`}
+                      className={`flex items-center gap-2 py-1.5 px-3 text-sm font-medium rounded-lg transition-all text-blue-400 cursor-not-allowed border border-transparent ${isEbook ? 'border border-blue-500/50' : ''}`}
                     >
                       <tab.icon className="w-4 h-4" />
                       <span className="hidden md:inline">{tab.label}</span>
