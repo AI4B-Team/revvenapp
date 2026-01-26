@@ -20,7 +20,7 @@ interface PricingBlockEditorProps {
   onContentChange: (updates: Record<string, any>) => void;
 }
 
-const pricePresets = [9, 19, 29, 49, 99, 199];
+const pricePresets = [7, 17, 27, 47, 97, 197];
 const customerPresets = [25, 50, 100];
 
 export function PricingBlockEditor({ content, onContentChange }: PricingBlockEditorProps) {
@@ -201,7 +201,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
           </div>
 
           <div className="flex flex-wrap justify-center gap-1.5">
-            {[0, 97, 197, 497, 997].map((price) => (
+            {[0, 47, 97, 197, 497].map((price) => (
               <button
                 key={price}
                 onClick={() => {
@@ -214,7 +214,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
                     : 'border-border hover:border-muted-foreground/30'
                 }`}
               >
-                {price === 0 ? 'No fee' : `$${price}`}
+                {price === 0 ? 'No Fee' : `$${price}`}
               </button>
             ))}
             <Input
@@ -397,7 +397,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
       {/* Earnings Calculator */}
       <div className="p-4 rounded-lg bg-foreground text-background space-y-4">
         <div className="flex items-center justify-center gap-2">
-          <Sparkles className="h-4 w-4 text-orange-400" />
+          <Sparkles className="h-4 w-4 text-emerald-400" />
           <span className="font-semibold text-sm">
             With {activeCustomerCount} customers
           </span>
@@ -414,7 +414,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
               }}
               className={`px-3 py-1.5 rounded-full border transition-all text-xs font-medium ${
                 selectedCustomerCount === count && customCustomerCount === ''
-                  ? 'border-orange-400 bg-orange-400/20 text-orange-400'
+                  ? 'border-emerald-400 bg-emerald-400/20 text-emerald-400'
                   : 'border-background/30 hover:border-background/50'
               }`}
             >
@@ -442,7 +442,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
             </div>
             <div className="text-center">
               <p className="text-xs text-background/60 mb-0.5">ARR</p>
-              <p className="text-xl font-bold text-orange-400">{formatCurrency(calculateARR(monthlyPrice, activeCustomerCount as number))}</p>
+              <p className="text-xl font-bold text-emerald-400">{formatCurrency(calculateARR(monthlyPrice, activeCustomerCount as number))}</p>
             </div>
           </div>
         )}
@@ -450,7 +450,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
         {pricingModel === 'one-time' && (
           <div className="text-center">
             <p className="text-xs text-background/60 mb-0.5">Total Revenue</p>
-            <p className="text-2xl font-bold text-orange-400">{formatCurrency(calculateOneTimeRevenue(oneTimePrice, activeCustomerCount as number))}</p>
+            <p className="text-2xl font-bold text-emerald-400">{formatCurrency(calculateOneTimeRevenue(oneTimePrice, activeCustomerCount as number))}</p>
           </div>
         )}
 
@@ -470,7 +470,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
               </div>
               <div className="text-center pt-2 border-t border-background/20">
                 <p className="text-xs text-background/60 mb-0.5">First Year Total</p>
-                <p className="text-2xl font-bold text-orange-400">{formatCurrency(rev.total)}</p>
+                <p className="text-2xl font-bold text-emerald-400">{formatCurrency(rev.total)}</p>
               </div>
             </div>
           );
