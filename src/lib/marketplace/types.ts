@@ -63,6 +63,7 @@ export interface AppLicense {
     appName?: string;
     primaryColor?: string;
     favicon?: string;
+    badge?: string;
     headline?: string;
     tagline?: string;
     description?: string;
