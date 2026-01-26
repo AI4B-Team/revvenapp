@@ -24,8 +24,10 @@ import {
   TrendingUp,
   BarChart3,
   Users,
-  Settings
+  Settings,
+  Crown,
 } from 'lucide-react';
+import type { PricingTier } from './sections/MultiTierPricingEditor';
 import {
   Dialog,
   DialogContent,
@@ -427,8 +429,157 @@ function PricingSection({
   getAppFeatures,
   ctaButtonText,
 }: PricingSectionProps) {
+  const [isAnnual, setIsAnnual] = useState(false);
   const basePrice = pricingModel === 'one-time' ? oneTimePrice : monthlyPrice;
   
+  // Check for multi-tier pricing
+  const enableMultiTier = section.content?.enableMultiTier;
+  const pricingTiers: PricingTier[] = section.content?.pricingTiers || [];
+  const showAnnualToggle = section.content?.showAnnualToggle ?? true;
+  const showComparisonTable = section.content?.showComparisonTable ?? false;
+
+  // Multi-tier pricing render
+  if (enableMultiTier && pricingTiers.length > 0) {
+    return (
+      <div className="px-6 md:px-12 lg:px-16 py-12 bg-zinc-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-bold text-zinc-900 text-center mb-2">
+            {section.content?.headline || 'Simple, Transparent Pricing'}
+          </h2>
+          <p className="text-zinc-500 text-center mb-6">
+            {section.content?.subheadline || 'Choose the plan that works for you'}
+          </p>
+          
+          {/* Annual/Monthly Toggle */}
+          {showAnnualToggle && (
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <span className={`text-sm font-medium ${!isAnnual ? 'text-zinc-900' : 'text-zinc-400'}`}>Monthly</span>
+              <button
+                onClick={() => setIsAnnual(!isAnnual)}
+                className={`relative w-12 h-6 rounded-full transition-colors ${isAnnual ? 'bg-emerald-500' : 'bg-zinc-300'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${isAnnual ? 'translate-x-7' : 'translate-x-1'}`} />
+              </button>
+              <span className={`text-sm font-medium ${isAnnual ? 'text-zinc-900' : 'text-zinc-400'}`}>
+                Annual <span className="text-emerald-500 text-xs font-bold">Save 20%</span>
+              </span>
+            </div>
+          )}
+          
+          {/* Pricing Cards */}
+          <div className={`grid gap-6 ${pricingTiers.length === 1 ? 'max-w-md mx-auto' : pricingTiers.length === 2 ? 'grid-cols-2 max-w-2xl mx-auto' : 'grid-cols-3'}`}>
+            {pricingTiers.map((tier, index) => {
+              const displayPrice = isAnnual ? (tier.annualPrice || tier.monthlyPrice * 10) : tier.monthlyPrice;
+              const monthlyEquivalent = isAnnual ? Math.round(displayPrice / 12) : tier.monthlyPrice;
+              
+              return (
+                <div 
+                  key={tier.id} 
+                  className={`relative bg-white rounded-2xl border-2 p-6 text-center ${tier.isPopular ? 'border-emerald-500 shadow-lg scale-105' : 'border-zinc-200'}`}
+                >
+                  {/* Popular Badge */}
+                  {tier.isPopular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                      <Crown className="h-3 w-3" />
+                      MOST POPULAR
+                    </div>
+                  )}
+                  
+                  {/* Best Value Badge */}
+                  {tier.isBestValue && !tier.isPopular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                      <Star className="h-3 w-3" />
+                      BEST VALUE
+                    </div>
+                  )}
+                  
+                  <h3 className="text-lg font-bold text-zinc-900 mb-1">{tier.name}</h3>
+                  {tier.description && (
+                    <p className="text-sm text-zinc-500 mb-4">{tier.description}</p>
+                  )}
+                  
+                  {/* Price */}
+                  <div className="mb-4">
+                    {tier.originalPrice && (
+                      <div className="text-lg text-zinc-400 line-through">
+                        ${tier.originalPrice}
+                      </div>
+                    )}
+                    <div className="text-4xl font-bold text-zinc-900">
+                      ${isAnnual ? monthlyEquivalent : tier.monthlyPrice}
+                      <span className="text-lg font-normal text-zinc-500">/mo</span>
+                    </div>
+                    {isAnnual && (
+                      <p className="text-xs text-zinc-400 mt-1">Billed annually (${displayPrice}/yr)</p>
+                    )}
+                  </div>
+                  
+                  {/* Features */}
+                  <ul className="text-left space-y-2 mb-6">
+                    {tier.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center gap-2 text-sm text-zinc-600">
+                        <Check size={14} className="text-emerald-500 shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  {/* CTA Button */}
+                  <button 
+                    className={`w-full py-3 rounded-lg font-medium transition-colors ${
+                      tier.isPopular 
+                        ? 'text-white' 
+                        : 'border-2 text-zinc-700 hover:bg-zinc-50'
+                    }`}
+                    style={tier.isPopular ? { backgroundColor: primaryColor } : { borderColor: primaryColor, color: primaryColor }}
+                  >
+                    {tier.ctaButtonText}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Comparison Table */}
+          {showComparisonTable && pricingTiers.length > 1 && (
+            <div className="mt-12 overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-zinc-200">
+                    <th className="py-3 px-4 text-sm font-semibold text-zinc-900">Features</th>
+                    {pricingTiers.map((tier) => (
+                      <th key={tier.id} className="py-3 px-4 text-sm font-semibold text-zinc-900 text-center">
+                        {tier.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Get all unique features across all tiers */}
+                  {Array.from(new Set(pricingTiers.flatMap(t => t.features))).map((feature, idx) => (
+                    <tr key={idx} className="border-b border-zinc-100">
+                      <td className="py-3 px-4 text-sm text-zinc-600">{feature}</td>
+                      {pricingTiers.map((tier) => (
+                        <td key={tier.id} className="py-3 px-4 text-center">
+                          {tier.features.includes(feature) ? (
+                            <Check size={16} className="text-emerald-500 mx-auto" />
+                          ) : (
+                            <span className="text-zinc-300">—</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  
+  // Single tier pricing (original)
   return (
     <div className="px-6 md:px-12 lg:px-16 py-12">
       <div className="max-w-6xl mx-auto">
