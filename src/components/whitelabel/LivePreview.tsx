@@ -68,13 +68,8 @@ interface LegalDocument {
   enabled: boolean;
 }
 
-interface PageBlock {
-  id: string;
-  type: string;
-  enabled: boolean;
-  title: string;
-  content: Record<string, any>;
-}
+// Re-export PageBlock from PageSection for type consistency
+import type { PageBlock } from './sections/PageSection';
 
 interface LivePreviewProps {
   app?: MarketplaceApp;
@@ -84,6 +79,7 @@ interface LivePreviewProps {
   legalDocs?: LegalDocument[];
   pageSections?: PageBlock[];
   pageStyle?: 'centered' | 'split-left' | 'split-right' | 'minimal' | 'gradient' | 'bold';
+  onPageSectionsChange?: (sections: PageBlock[]) => void;
 }
 
 // Hero Preview Component with style variations
@@ -115,6 +111,7 @@ interface HeroPreviewProps {
   headlineFontSize?: string;
   headlineFontFamily?: string;
   buttons?: HeroButton[];
+  onHeadlineChange?: (value: string) => void;
 }
 
 function HeroPreview({ 
@@ -131,7 +128,8 @@ function HeroPreview({
   headline,
   headlineFontSize = '3xl',
   headlineFontFamily = 'inter',
-  buttons = []
+  buttons = [],
+  onHeadlineChange
 }: HeroPreviewProps) {
   const [videoModalUrl, setVideoModalUrl] = useState<string | null>(null);
   const renderLogo = () => (
@@ -254,20 +252,28 @@ function HeroPreview({
     return { fontFamily: fontMap[headlineFontFamily] || fontMap['inter'] };
   };
 
-  // Render headline with rich text HTML support
+  // Render headline with rich text HTML support - editable if callback provided
   const renderHeadline = (defaultColor: string = 'text-zinc-900') => {
     const displayText = headline || productName;
     const fontSizeClass = getFontSizeClass();
     const isRichText = displayText.includes('<');
+    const isEditable = !!onHeadlineChange;
+    
+    const handleBlur = (e: React.FocusEvent<HTMLHeadingElement>) => {
+      if (onHeadlineChange) {
+        onHeadlineChange(e.currentTarget.innerHTML);
+      }
+    };
     
     return (
       <h1 
-        className={`${fontSizeClass} font-bold mb-4 ${defaultColor}`}
+        className={`${fontSizeClass} font-bold mb-4 ${defaultColor} ${isEditable ? 'outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 rounded cursor-text' : ''}`}
         style={getFontFamilyStyle()}
-        {...(isRichText ? { dangerouslySetInnerHTML: { __html: displayText } } : {})}
-      >
-        {!isRichText ? displayText : null}
-      </h1>
+        contentEditable={isEditable}
+        suppressContentEditableWarning={isEditable}
+        onBlur={isEditable ? handleBlur : undefined}
+        dangerouslySetInnerHTML={{ __html: displayText }}
+      />
     );
   };
 
@@ -743,7 +749,7 @@ function CheckoutOrderBumps({ orderBumps, basePrice, pricingModel }: CheckoutOrd
   );
 }
 
-export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered' }: LivePreviewProps) {
+export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered', onPageSectionsChange }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
@@ -787,6 +793,15 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
       default: return 'w-full';
     }
   };
+
+  // Helper to update section content from live preview edits
+  const updateSectionContent = React.useCallback((sectionId: string, updates: Record<string, any>) => {
+    if (!onPageSectionsChange) return;
+    const updatedSections = pageSections.map(s => 
+      s.id === sectionId ? { ...s, content: { ...s.content, ...updates } } : s
+    );
+    onPageSectionsChange(updatedSections);
+  }, [pageSections, onPageSectionsChange]);
 
   // Get brand colors from license or use defaults
   const primaryColor = license?.brandSettings?.primaryColor || '#10b981';
@@ -1211,19 +1226,20 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           <HeroPreview 
                             key={section.id}
                             style={pageStyle}
-                            badge={brandBadge || section.content?.badge || 'AI-Powered'}
-                            tagline={brandTagline || section.content?.tagline || 'Transform Your Business Today'}
-                            description={brandDescription || section.content?.description}
+                            badge={section.content?.badge || brandBadge || 'AI-Powered'}
+                            tagline={section.content?.tagline || brandTagline || 'Transform Your Business Today'}
+                            description={section.content?.description || brandDescription}
                             productName={productName}
                             primaryColor={primaryColor}
                             logoUrl={logoUrl}
                             selectedIcon={selectedIcon}
                             heroImageUrl={section.content?.heroImageUrl}
                             appThumbnail={app ? getAppThumbnail(app.name) : undefined}
-                            headline={brandHeadline || section.content?.headline}
+                            headline={section.content?.headline || brandHeadline}
                             headlineFontSize={section.content?.headlineFontSize}
                             headlineFontFamily={section.content?.headlineFontFamily}
                             buttons={section.content?.buttons}
+                            onHeadlineChange={(value) => updateSectionContent('hero', { headline: value })}
                           />
                         );
                     
