@@ -405,6 +405,146 @@ function HeroPreview({
   );
 }
 
+// Pricing Section with Order Bumps (with local state for bump selection)
+interface PricingSectionWithBumpsProps {
+  section: PageBlock;
+  pricingModel: 'monthly' | 'one-time' | 'both' | undefined;
+  setupFee: number;
+  monthlyPrice: number;
+  oneTimePrice: number;
+  primaryColor: string;
+  orderBumps: Array<{
+    id: string;
+    enabled: boolean;
+    headline: string;
+    description: string;
+    price: number;
+    originalPrice?: number;
+  }>;
+  getAppFeatures: () => string[];
+}
+
+function PricingSectionWithBumps({
+  section,
+  pricingModel,
+  setupFee,
+  monthlyPrice,
+  oneTimePrice,
+  primaryColor,
+  orderBumps,
+  getAppFeatures,
+}: PricingSectionWithBumpsProps) {
+  const [selectedBumps, setSelectedBumps] = React.useState<string[]>([]);
+  
+  const toggleBump = (bumpId: string) => {
+    setSelectedBumps(prev => 
+      prev.includes(bumpId) ? prev.filter(id => id !== bumpId) : [...prev, bumpId]
+    );
+  };
+  
+  const basePrice = pricingModel === 'one-time' ? oneTimePrice : monthlyPrice;
+  const bumpTotal = orderBumps.filter(b => selectedBumps.includes(b.id)).reduce((sum, b) => sum + b.price, 0);
+  const totalPrice = basePrice + bumpTotal;
+  
+  return (
+    <div className="px-6 md:px-12 lg:px-16 py-12">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-2xl font-bold text-zinc-900 text-center mb-2">
+          {section.content?.headline || 'Simple, Transparent Pricing'}
+        </h2>
+        <p className="text-zinc-500 text-center mb-8">
+          {section.content?.subheadline || 'Start today and see results immediately'}
+        </p>
+        <div className="max-w-md mx-auto space-y-4">
+          {/* Main Price Card */}
+          <div className="bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
+            <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
+              {pricingModel === 'one-time' ? 'One-Time Payment' : pricingModel === 'both' ? 'Setup + Monthly' : 'Monthly'}
+            </div>
+            
+            {/* Setup Fee Display */}
+            {pricingModel === 'both' && setupFee > 0 && (
+              <div className="mb-3 pb-3 border-b border-zinc-100">
+                <div className="text-sm text-zinc-500">One-Time Setup</div>
+                <div className="text-2xl font-bold text-zinc-900">${setupFee}</div>
+              </div>
+            )}
+            
+            {/* Main Price Display */}
+            <div className="text-4xl font-bold text-zinc-900 mb-4">
+              ${totalPrice.toFixed(0)}
+              {pricingModel !== 'one-time' && (
+                <span className="text-lg font-normal text-zinc-500">/mo</span>
+              )}
+              {bumpTotal > 0 && (
+                <span className="text-sm font-normal text-emerald-600 ml-2">
+                  +${bumpTotal} add-ons
+                </span>
+              )}
+            </div>
+            <ul className="text-left space-y-3 mb-6">
+              {getAppFeatures().map((item, idx) => (
+                <li key={idx} className="flex items-center gap-2 text-zinc-600">
+                  <Check size={16} style={{ color: primaryColor }} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <button 
+              className="w-full py-3 rounded-lg font-medium text-white"
+              style={{ backgroundColor: primaryColor }}
+            >
+              Get Started Now
+            </button>
+          </div>
+          
+          {/* Order Bumps */}
+          {orderBumps.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-zinc-700 text-center">Enhance Your Purchase</p>
+              {orderBumps.map((bump) => {
+                const isSelected = selectedBumps.includes(bump.id);
+                return (
+                  <div 
+                    key={bump.id}
+                    onClick={() => toggleBump(bump.id)}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      isSelected 
+                        ? 'border-amber-500 bg-amber-50' 
+                        : 'border-zinc-200 bg-white hover:border-zinc-300'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                        isSelected ? 'border-amber-500 bg-amber-500' : 'border-zinc-300'
+                      }`}>
+                        {isSelected && <Check size={12} className="text-white" />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-zinc-900 text-sm">{bump.headline}</span>
+                          <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">SPECIAL</span>
+                        </div>
+                        <p className="text-xs text-zinc-500 mb-2">{bump.description}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-emerald-600">${bump.price}</span>
+                          {bump.originalPrice && (
+                            <span className="text-sm text-zinc-400 line-through">${bump.originalPrice}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered' }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -1046,6 +1186,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       const setupFee = license?.pricingSettings?.setupFee || 0;
                       const monthlyPrice = license?.pricingSettings?.monthlyPrice || 97;
                       const oneTimePrice = license?.pricingSettings?.oneTimePrice || 297;
+                      const orderBumps = checkoutConfig?.orderBumps?.filter(b => b.enabled) || [];
                       
                       // Generate compelling app-specific features
                       const getAppFeatures = () => {
@@ -1092,51 +1233,17 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       };
                       
                       return (
-                        <div key={section.id} className="px-6 md:px-12 lg:px-16 py-12">
-                          <div className="max-w-6xl mx-auto">
-                            <h2 className="text-2xl font-bold text-zinc-900 text-center mb-2">
-                              {section.content?.headline || 'Simple, Transparent Pricing'}
-                            </h2>
-                            <p className="text-zinc-500 text-center mb-8">
-                              {section.content?.subheadline || 'Start today and see results immediately'}
-                            </p>
-                            <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
-                              <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
-                                {pricingModel === 'one-time' ? 'One-Time Payment' : pricingModel === 'both' ? 'Setup + Monthly' : 'Monthly'}
-                              </div>
-                              
-                              {/* Setup Fee Display */}
-                              {pricingModel === 'both' && setupFee > 0 && (
-                                <div className="mb-3 pb-3 border-b border-zinc-100">
-                                  <div className="text-sm text-zinc-500">One-Time Setup</div>
-                                  <div className="text-2xl font-bold text-zinc-900">${setupFee}</div>
-                                </div>
-                              )}
-                              
-                              {/* Main Price Display */}
-                              <div className="text-4xl font-bold text-zinc-900 mb-4">
-                                ${pricingModel === 'one-time' ? oneTimePrice : monthlyPrice}
-                                {pricingModel !== 'one-time' && (
-                                  <span className="text-lg font-normal text-zinc-500">/mo</span>
-                                )}
-                              </div>
-                              <ul className="text-left space-y-3 mb-6">
-                                {getAppFeatures().map((item, idx) => (
-                                  <li key={idx} className="flex items-center gap-2 text-zinc-600">
-                                    <Check size={16} style={{ color: primaryColor }} />
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                              <button 
-                                className="w-full py-3 rounded-lg font-medium text-white"
-                                style={{ backgroundColor: primaryColor }}
-                              >
-                                Get Started Now
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                        <PricingSectionWithBumps
+                          key={section.id}
+                          section={section}
+                          pricingModel={pricingModel}
+                          setupFee={setupFee}
+                          monthlyPrice={monthlyPrice}
+                          oneTimePrice={oneTimePrice}
+                          primaryColor={primaryColor}
+                          orderBumps={orderBumps}
+                          getAppFeatures={getAppFeatures}
+                        />
                       );
                     
                     case 'faq':
