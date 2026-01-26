@@ -182,7 +182,7 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
               <div>
                 {step === 'colors' && (
                   <>
-                    <h2 className="text-2xl font-bold text-foreground">Pick some colors you like</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Pick Some Colors You Like</h2>
                     <p className="text-muted-foreground mt-1">Colors help convey emotion in your logo</p>
                   </>
                 )}
