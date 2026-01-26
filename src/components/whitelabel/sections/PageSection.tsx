@@ -41,12 +41,13 @@ interface PageSectionProps {
   onPageSectionsChange?: (sections: PageBlock[]) => void;
 }
 
-type SectionType = 'hero' | 'features' | 'capabilities' | 'testimonials' | 'pricing' | 'faq' | 'cta' | 'footer';
+type SectionType = 'hero' | 'features' | 'capabilities' | 'credibility' | 'testimonials' | 'pricing' | 'faq' | 'cta' | 'footer';
 
 const sectionIcons: Record<SectionType, React.ElementType> = {
   hero: Layout,
   features: Zap,
   capabilities: Star,
+  credibility: ImageIcon,
   testimonials: MessageSquare,
   pricing: Star,
   faq: HelpCircle,
@@ -97,6 +98,22 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
           { title: 'Analytics', description: 'Get real-time insights and data-driven recommendations', icon: '📊' },
           { title: 'Collaboration', description: 'Work seamlessly with your team in real-time', icon: '👥' }
         ] 
+      } 
+    },
+    { 
+      id: 'credibility', 
+      type: 'credibility', 
+      enabled: true, 
+      title: 'Credibility Section', 
+      content: { 
+        headline: 'Trusted By Industry Leaders',
+        logos: [
+          { id: '1', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/250px-Google_2015_logo.svg.png', name: 'Google' },
+          { id: '2', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png', name: 'Microsoft' },
+          { id: '3', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png', name: 'Amazon' },
+          { id: '4', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/200px-Netflix_2015_logo.svg.png', name: 'Netflix' },
+          { id: '5', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/120px-Tesla_logo.png', name: 'Tesla' },
+        ]
       } 
     },
     { 
@@ -959,6 +976,86 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                         <Plus className="h-4 w-4" />
                         Add Testimonial
                       </Button>
+                    </div>
+                  )}
+
+                  {section.type === 'credibility' && (
+                    <div className="space-y-4">
+                      <AITextInput
+                        label="Section Headline"
+                        value={section.content.headline || ''}
+                        onChange={(value) => updateSectionContent(section.id, { headline: value })}
+                        placeholder="e.g., Trusted By Industry Leaders"
+                        context="headline"
+                      />
+                      
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Company Logos</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Upload logos of companies, partners, or media mentions. These will animate in a smooth sliding carousel.
+                        </p>
+                        
+                        {/* Logo Grid */}
+                        <div className="grid grid-cols-3 gap-3">
+                          {(section.content.logos || []).map((logo: { id: string; url: string; name: string }, idx: number) => (
+                            <div key={logo.id} className="relative group">
+                              <div className="aspect-video bg-muted/30 rounded-lg border border-border flex items-center justify-center p-2 overflow-hidden">
+                                <img 
+                                  src={logo.url} 
+                                  alt={logo.name || 'Logo'} 
+                                  className="max-w-full max-h-full object-contain"
+                                />
+                              </div>
+                              <button
+                                onClick={() => {
+                                  const newLogos = [...(section.content.logos || [])];
+                                  newLogos.splice(idx, 1);
+                                  updateSectionContent(section.id, { logos: newLogos });
+                                }}
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                              <Input
+                                value={logo.name || ''}
+                                onChange={(e) => {
+                                  const newLogos = [...(section.content.logos || [])];
+                                  newLogos[idx] = { ...logo, name: e.target.value };
+                                  updateSectionContent(section.id, { logos: newLogos });
+                                }}
+                                placeholder="Company name"
+                                className="mt-2 text-xs h-8"
+                              />
+                            </div>
+                          ))}
+                          
+                          {/* Add New Logo Button */}
+                          <label className="aspect-video bg-muted/20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-muted/40 transition-colors">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    const newLogos = [...(section.content.logos || []), { 
+                                      id: Date.now().toString(), 
+                                      url: reader.result as string, 
+                                      name: file.name.replace(/\.[^/.]+$/, '') 
+                                    }];
+                                    updateSectionContent(section.id, { logos: newLogos });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="hidden"
+                            />
+                            <Plus className="h-6 w-6 text-muted-foreground mb-1" />
+                            <span className="text-xs text-muted-foreground">Add Logo</span>
+                          </label>
+                        </div>
+                      </div>
                     </div>
                   )}
 

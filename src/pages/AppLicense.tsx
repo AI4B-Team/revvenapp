@@ -74,6 +74,22 @@ const getDefaultPageSections = (appName: string, tagline: string, description: s
     } 
   },
   { 
+    id: 'credibility', 
+    type: 'credibility', 
+    enabled: true, 
+    title: 'Credibility Section', 
+    content: { 
+      headline: 'Trusted By Industry Leaders',
+      logos: [
+        { id: '1', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/250px-Google_2015_logo.svg.png', name: 'Google' },
+        { id: '2', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png', name: 'Microsoft' },
+        { id: '3', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png', name: 'Amazon' },
+        { id: '4', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/200px-Netflix_2015_logo.svg.png', name: 'Netflix' },
+        { id: '5', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/120px-Tesla_logo.png', name: 'Tesla' },
+      ]
+    } 
+  },
+  { 
     id: 'testimonials', 
     type: 'testimonials', 
     enabled: true, 
