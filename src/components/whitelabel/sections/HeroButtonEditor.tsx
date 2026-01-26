@@ -199,141 +199,187 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
 
       {/* Edit Button Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Button</DialogTitle>
           </DialogHeader>
 
           {editingButton && (
-            <div className="space-y-4 py-4">
-              {/* Button Text */}
-              <div className="space-y-2">
-                <Label>Button Text</Label>
-                <Input
-                  value={editingButton.text}
-                  onChange={(e) => setEditingButton({ ...editingButton, text: e.target.value })}
-                  placeholder="Enter button text"
-                />
-              </div>
-
-              {/* Button Style */}
-              <div className="space-y-2">
-                <Label>Style</Label>
-                <Select
-                  value={editingButton.style}
-                  onValueChange={(value: HeroButton['style']) => 
-                    setEditingButton({ ...editingButton, style: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="primary">Primary (Filled)</SelectItem>
-                    <SelectItem value="secondary">Secondary (Muted)</SelectItem>
-                    <SelectItem value="outline">Outline</SelectItem>
-                    <SelectItem value="ghost">Ghost (Text Only)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Action Type */}
-              <div className="space-y-2">
-                <Label>Action</Label>
-                <Select
-                  value={editingButton.action}
-                  onValueChange={(value: HeroButton['action']) => 
-                    setEditingButton({ ...editingButton, action: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="link">
-                      <div className="flex items-center gap-2">
-                        <ExternalLink className="h-4 w-4" />
-                        Open URL
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="anchor">
-                      <div className="flex items-center gap-2">
-                        <Anchor className="h-4 w-4" />
-                        Scroll to Section
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="video">
-                      <div className="flex items-center gap-2">
-                        <Play className="h-4 w-4" />
-                        Video Popup
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Action-specific fields */}
-              {editingButton.action === 'link' && (
-                <>
-                  <div className="space-y-2">
-                    <Label>URL</Label>
-                    <Input
-                      value={editingButton.url || ''}
-                      onChange={(e) => setEditingButton({ ...editingButton, url: e.target.value })}
-                      placeholder="https://example.com or #section"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="openInNewTab"
-                      checked={editingButton.openInNewTab || false}
-                      onChange={(e) => setEditingButton({ ...editingButton, openInNewTab: e.target.checked })}
-                      className="rounded border-border"
-                    />
-                    <Label htmlFor="openInNewTab" className="text-sm cursor-pointer">
-                      Open in new tab
-                    </Label>
-                  </div>
-                </>
-              )}
-
-              {editingButton.action === 'anchor' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+              {/* Form Fields */}
+              <div className="space-y-4">
+                {/* Button Text */}
                 <div className="space-y-2">
-                  <Label>Section ID</Label>
+                  <Label>Button Text</Label>
+                  <Input
+                    value={editingButton.text}
+                    onChange={(e) => setEditingButton({ ...editingButton, text: e.target.value })}
+                    placeholder="Enter button text"
+                  />
+                </div>
+
+                {/* Button Style */}
+                <div className="space-y-2">
+                  <Label>Style</Label>
                   <Select
-                    value={editingButton.anchorId || ''}
-                    onValueChange={(value) => setEditingButton({ ...editingButton, anchorId: value })}
+                    value={editingButton.style}
+                    onValueChange={(value: HeroButton['style']) => 
+                      setEditingButton({ ...editingButton, style: value })
+                    }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select section" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="features">Features</SelectItem>
-                      <SelectItem value="capabilities">Capabilities</SelectItem>
-                      <SelectItem value="testimonials">Testimonials</SelectItem>
-                      <SelectItem value="pricing">Pricing</SelectItem>
-                      <SelectItem value="faq">FAQ</SelectItem>
-                      <SelectItem value="cta">Call to Action</SelectItem>
-                      <SelectItem value="footer">Footer</SelectItem>
+                      <SelectItem value="primary">Primary (Filled)</SelectItem>
+                      <SelectItem value="secondary">Secondary (Muted)</SelectItem>
+                      <SelectItem value="outline">Outline</SelectItem>
+                      <SelectItem value="ghost">Ghost (Text Only)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              )}
 
-              {editingButton.action === 'video' && (
+                {/* Action Type */}
                 <div className="space-y-2">
-                  <Label>Video URL</Label>
-                  <Input
-                    value={editingButton.videoUrl || ''}
-                    onChange={(e) => setEditingButton({ ...editingButton, videoUrl: e.target.value })}
-                    placeholder="YouTube or Vimeo URL"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Supports YouTube and Vimeo embed URLs
-                  </p>
+                  <Label>Action</Label>
+                  <Select
+                    value={editingButton.action}
+                    onValueChange={(value: HeroButton['action']) => 
+                      setEditingButton({ ...editingButton, action: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="link">
+                        <div className="flex items-center gap-2">
+                          <ExternalLink className="h-4 w-4" />
+                          Open URL
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="anchor">
+                        <div className="flex items-center gap-2">
+                          <Anchor className="h-4 w-4" />
+                          Scroll to Section
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="video">
+                        <div className="flex items-center gap-2">
+                          <Play className="h-4 w-4" />
+                          Video Popup
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
+
+                {/* Action-specific fields */}
+                {editingButton.action === 'link' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>URL</Label>
+                      <Input
+                        value={editingButton.url || ''}
+                        onChange={(e) => setEditingButton({ ...editingButton, url: e.target.value })}
+                        placeholder="https://example.com or #section"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="openInNewTab"
+                        checked={editingButton.openInNewTab || false}
+                        onChange={(e) => setEditingButton({ ...editingButton, openInNewTab: e.target.checked })}
+                        className="rounded border-border"
+                      />
+                      <Label htmlFor="openInNewTab" className="text-sm cursor-pointer">
+                        Open in new tab
+                      </Label>
+                    </div>
+                  </>
+                )}
+
+                {editingButton.action === 'anchor' && (
+                  <div className="space-y-2">
+                    <Label>Section ID</Label>
+                    <Select
+                      value={editingButton.anchorId || ''}
+                      onValueChange={(value) => setEditingButton({ ...editingButton, anchorId: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select section" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="features">Features</SelectItem>
+                        <SelectItem value="capabilities">Capabilities</SelectItem>
+                        <SelectItem value="testimonials">Testimonials</SelectItem>
+                        <SelectItem value="pricing">Pricing</SelectItem>
+                        <SelectItem value="faq">FAQ</SelectItem>
+                        <SelectItem value="cta">Call to Action</SelectItem>
+                        <SelectItem value="footer">Footer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {editingButton.action === 'video' && (
+                  <div className="space-y-2">
+                    <Label>Video URL</Label>
+                    <Input
+                      value={editingButton.videoUrl || ''}
+                      onChange={(e) => setEditingButton({ ...editingButton, videoUrl: e.target.value })}
+                      placeholder="YouTube or Vimeo URL"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Supports YouTube and Vimeo embed URLs
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Live Preview */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-medium">Live Preview</Label>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-medium">
+                    Auto-sync
+                  </span>
+                </div>
+                <div className="rounded-lg border border-border bg-gradient-to-br from-muted/50 to-muted/30 p-8 flex items-center justify-center min-h-[200px]">
+                  <button
+                    className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-all ${
+                      editingButton.style === 'primary' 
+                        ? 'bg-primary text-primary-foreground shadow-md' 
+                        : editingButton.style === 'secondary'
+                        ? 'bg-secondary text-secondary-foreground'
+                        : editingButton.style === 'outline'
+                        ? 'border-2 border-primary text-primary bg-transparent'
+                        : 'bg-transparent text-primary hover:bg-muted'
+                    }`}
+                  >
+                    {editingButton.action === 'video' && <Play className="h-4 w-4" />}
+                    {editingButton.text || 'Button Text'}
+                    {editingButton.action === 'link' && editingButton.style === 'primary' && (
+                      <ExternalLink className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  {editingButton.action === 'link' && editingButton.url && (
+                    <>Links to: <span className="font-mono">{editingButton.url}</span></>
+                  )}
+                  {editingButton.action === 'anchor' && editingButton.anchorId && (
+                    <>Scrolls to: <span className="font-mono">#{editingButton.anchorId}</span></>
+                  )}
+                  {editingButton.action === 'video' && (
+                    <>Opens video popup</>
+                  )}
+                  {!editingButton.url && !editingButton.anchorId && editingButton.action !== 'video' && (
+                    <>Configure action below</>
+                  )}
+                </p>
+              </div>
             </div>
           )}
 
