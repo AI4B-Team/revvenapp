@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import AITextInput from '../AITextInput';
 import AIIconGenerator from '../AIIconGenerator';
 import { PricingBlockEditor } from './PricingBlockEditor';
+import { HeroButtonEditor } from './HeroButtonEditor';
 import type { PageBlock } from './PageSection';
 
 interface SortableSectionItemProps {
@@ -317,6 +318,15 @@ export function SortableSectionItem({
                   </div>
                 )}
               </div>
+
+              {/* CTA Buttons Editor */}
+              <HeroButtonEditor
+                buttons={section.content.buttons || [
+                  { id: '1', text: 'Get Started', style: 'primary', action: 'anchor', anchorId: 'pricing' },
+                  { id: '2', text: 'Learn More', style: 'secondary', action: 'anchor', anchorId: 'features' },
+                ]}
+                onChange={(buttons) => updateSectionContent(section.id, { buttons })}
+              />
             </>
           )}
 

@@ -87,7 +87,11 @@ const getDefaultSections = (app: MarketplaceApp, license?: AppLicense): PageBloc
         headlineColor: '',
         headlineUnderline: false,
         tagline: tagline,
-        description: description
+        description: description,
+        buttons: [
+          { id: '1', text: 'Get Started', style: 'primary', action: 'anchor', anchorId: 'pricing' },
+          { id: '2', text: 'Learn More', style: 'secondary', action: 'anchor', anchorId: 'features' },
+        ]
       } 
     },
     { 
