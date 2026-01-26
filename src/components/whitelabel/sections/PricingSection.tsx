@@ -12,6 +12,9 @@ import {
   Calendar,
   Sparkles,
   Check,
+  Plus,
+  Trash2,
+  List,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -38,6 +41,18 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
   const [trialDays, setTrialDays] = useState(14);
   const [selectedCustomerCount, setSelectedCustomerCount] = useState(100);
   const [customCustomerCount, setCustomCustomerCount] = useState<number | ''>('');
+  
+  // Pricing Features (what customers get)
+  const defaultFeatures = [
+    'Unlimited AI Content Generation',
+    'Advanced Audience Analytics',
+    'Multi-Platform Scheduling',
+    'Viral Content Templates',
+  ];
+  const [pricingFeatures, setPricingFeatures] = useState<string[]>(
+    license?.pricingSettings?.pricingFeatures || defaultFeatures
+  );
+  const [newFeature, setNewFeature] = useState('');
 
   const activeCustomerCount = customCustomerCount !== '' ? customCustomerCount : selectedCustomerCount;
 
@@ -65,9 +80,27 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
       pricingModel: pricingModel === 'setup-monthly' ? 'both' : pricingModel,
       monthlyPrice: pricingModel === 'one-time' ? 0 : monthlyPrice,
       oneTimePrice: pricingModel === 'monthly' ? 0 : (pricingModel === 'one-time' ? oneTimePrice : 0),
-      setupFee: pricingModel === 'setup-monthly' ? setupFee : undefined
+      setupFee: pricingModel === 'setup-monthly' ? setupFee : undefined,
+      pricingFeatures,
     });
     toast.success('Pricing settings saved!');
+  };
+
+  const handleAddFeature = () => {
+    if (newFeature.trim()) {
+      setPricingFeatures([...pricingFeatures, newFeature.trim()]);
+      setNewFeature('');
+    }
+  };
+
+  const handleRemoveFeature = (index: number) => {
+    setPricingFeatures(pricingFeatures.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateFeature = (index: number, value: string) => {
+    const updated = [...pricingFeatures];
+    updated[index] = value;
+    setPricingFeatures(updated);
   };
 
   const pricingModels = [
@@ -287,6 +320,72 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
           </div>
         </div>
       )}
+
+      {/* Pricing Features - What Customers Get */}
+      <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+        <div className="flex items-center gap-2">
+          <List className="h-5 w-5 text-emerald-500" />
+          <h3 className="font-semibold text-foreground">Pricing Card Features</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          These features appear in the pricing card and checkout page
+        </p>
+
+        {/* Feature List */}
+        <div className="space-y-2">
+          {pricingFeatures.map((feature, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+              <Input
+                value={feature}
+                onChange={(e) => handleUpdateFeature(index, e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemoveFeature(index)}
+                className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {/* Add New Feature */}
+        <div className="flex items-center gap-2 pt-2">
+          <Input
+            value={newFeature}
+            onChange={(e) => setNewFeature(e.target.value)}
+            placeholder="Add a new feature..."
+            onKeyDown={(e) => e.key === 'Enter' && handleAddFeature()}
+            className="flex-1"
+          />
+          <Button
+            variant="outline"
+            onClick={handleAddFeature}
+            disabled={!newFeature.trim()}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add
+          </Button>
+        </div>
+
+        {/* Preview */}
+        <div className="mt-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800">
+          <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-2">Preview</p>
+          <ul className="space-y-1.5">
+            {pricingFeatures.map((feature, idx) => (
+              <li key={idx} className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+                <Check className="h-4 w-4" />
+                {feature}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
 
       {/* Free Trial Option */}
       {pricingModel !== 'one-time' && (
