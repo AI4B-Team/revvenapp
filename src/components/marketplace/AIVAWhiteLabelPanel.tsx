@@ -381,7 +381,10 @@ Be friendly, helpful, and provide specific, actionable advice. Use markdown form
                 <div className="w-2 h-2 rounded-full bg-brand-green" />
                 <div className="w-2 h-2 rounded-full bg-brand-green" />
               </div>
-              <h2 className="text-xl font-semibold text-foreground mb-2">How Can I Help?</h2>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Sparkles size={20} className="text-brand-yellow" />
+                <h2 className="text-xl font-semibold text-foreground">How Can I Help?</h2>
+              </div>
               <p className="text-sm text-muted-foreground mb-4">
                 I'm here to help you set up and customize <strong>{app.name}</strong> for your brand.
               </p>
