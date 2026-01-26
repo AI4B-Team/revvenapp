@@ -17,6 +17,7 @@ import {
   PricingSection,
   CheckoutSection,
   DomainSection,
+  LegalSection,
   SettingsSection,
   LivePreview,
   LicenseActivation
@@ -116,6 +117,7 @@ const AppLicense = () => {
       case 'pricing': return <PricingSection license={license} onUpdate={handleUpdatePricing} />;
       case 'checkout': return <CheckoutSection license={license} checkoutConfig={checkoutConfig} onCheckoutConfigChange={setCheckoutConfig} />;
       case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
+      case 'legal': return <LegalSection productName={license?.brandSettings?.appName || app?.name} />;
       case 'settings': return <SettingsSection onDeactivate={handleDeactivateLicense} />;
       default: return null;
     }
