@@ -37,12 +37,12 @@ const colorOptions = [
 ];
 
 const logoStyles = [
-  { id: 'minimal', name: 'Minimal', description: 'Clean, simple geometric shapes', icon: '◯' },
-  { id: 'modern', name: 'Modern', description: 'Contemporary with sharp lines', icon: '◇' },
-  { id: 'elegant', name: 'Elegant', description: 'Sophisticated and refined', icon: '✧' },
-  { id: 'bold', name: 'Bold', description: 'Strong, impactful designs', icon: '■' },
-  { id: 'playful', name: 'Playful', description: 'Fun and approachable', icon: '★' },
-  { id: 'tech', name: 'Tech', description: 'Digital and futuristic', icon: '⬡' },
+  { id: 'minimal', name: 'Minimal', description: 'Clean, simple geometric shapes', textStyle: 'font-light tracking-widest uppercase text-sm' },
+  { id: 'modern', name: 'Modern', description: 'Contemporary with sharp lines', textStyle: 'font-bold tracking-tight text-lg' },
+  { id: 'elegant', name: 'Elegant', description: 'Sophisticated and refined', textStyle: 'font-serif italic text-lg' },
+  { id: 'bold', name: 'Bold', description: 'Strong, impactful designs', textStyle: 'font-black text-xl uppercase' },
+  { id: 'playful', name: 'Playful', description: 'Fun and approachable', textStyle: 'font-medium text-lg' },
+  { id: 'tech', name: 'Tech', description: 'Digital and futuristic', textStyle: 'font-mono font-semibold text-sm tracking-wider' },
 ];
 
 const symbolTypes = [
@@ -171,11 +171,11 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
   const canProceedFromSymbols = selectedSymbols.length > 0 || true; // Allow skip
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-[100] overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={handleClose} />
         
-        <div className="relative w-full max-w-3xl bg-background rounded-2xl shadow-2xl border border-border overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div className="relative z-[101] w-full max-w-3xl bg-background rounded-2xl shadow-2xl border border-border overflow-hidden max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="sticky top-0 bg-background z-10 p-6 pb-4 border-b border-border">
             <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
                 )}
                 {step === 'style' && (
                   <>
-                    <h2 className="text-2xl font-bold text-foreground">Choose a logo style</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Choose A Logo Style</h2>
                     <p className="text-muted-foreground mt-1">This defines the overall aesthetic</p>
                   </>
                 )}
@@ -286,7 +286,7 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
                         : 'border-border hover:border-muted-foreground/50'
                     }`}
                   >
-                    <div className="text-4xl mb-3">{style.icon}</div>
+                    <div className={`mb-3 h-10 flex items-center justify-center ${style.textStyle}`}>Aa</div>
                     <p className="font-semibold text-foreground">{style.name}</p>
                     <p className="text-xs text-muted-foreground mt-1">{style.description}</p>
                   </button>
