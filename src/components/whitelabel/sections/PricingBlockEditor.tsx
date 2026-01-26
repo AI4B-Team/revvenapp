@@ -398,12 +398,9 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
       <div className="p-4 rounded-lg bg-foreground text-background space-y-4">
         <div className="text-center space-y-1">
           <p className="text-sm font-medium text-background/70">Revenue Projections</p>
-          <div className="flex items-center justify-center gap-2">
-            <Sparkles className="h-4 w-4 text-emerald-400" />
-            <span className="font-semibold text-sm">
-              With {activeCustomerCount} Customers
-            </span>
-          </div>
+          <p className="font-semibold text-sm">
+            With {activeCustomerCount} Customers
+          </p>
         </div>
 
         {/* Customer Count Selector */}
