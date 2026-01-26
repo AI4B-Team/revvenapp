@@ -533,7 +533,7 @@ const Onboarding = () => {
                   </div>
 
                   <button 
-                    onClick={() => navigate('/assistant')}
+                    onClick={() => navigate('/create?openAIVA=true')}
                     className="w-full bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary text-brand-green border border-brand-green py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
                   >
                     Chat With AIVA

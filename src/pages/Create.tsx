@@ -130,6 +130,12 @@ const Create = () => {
     } | null;
     const params = new URLSearchParams(location.search);
     const imageUrl = state?.editImage || params.get('editImage');
+    
+    // Check if AIVA panel should be opened via URL param
+    const openAIVA = params.get('openAIVA') === 'true';
+    if (openAIVA) {
+      setIsAIVAPanelOpen(true);
+    }
     const animateUrl = state?.animateImage || params.get('animateImage');
     const transcriptText = state?.transcriptText;
     const targetMode = state?.targetMode;
