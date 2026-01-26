@@ -468,7 +468,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
           <Input
             value={newFeature}
             onChange={(e) => setNewFeature(e.target.value)}
-            placeholder="Add a feature..."
+            placeholder="Add A Feature"
             onKeyDown={(e) => e.key === 'Enter' && handleAddFeature()}
             className="flex-1 h-8 text-sm"
           />
@@ -483,6 +483,20 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
             Add
           </Button>
         </div>
+      </div>
+
+      {/* CTA Button Text */}
+      <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
+        <Label className="text-sm font-medium text-foreground">Button Text</Label>
+        <Input
+          value={content.ctaButtonText || 'Get Started Now'}
+          onChange={(e) => onContentChange({ ctaButtonText: e.target.value })}
+          placeholder="Get Started Now"
+          className="h-9"
+        />
+        <p className="text-xs text-muted-foreground">
+          Text shown on the pricing card button
+        </p>
       </div>
 
       {/* Earnings Calculator */}
