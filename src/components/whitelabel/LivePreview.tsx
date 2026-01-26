@@ -721,17 +721,48 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                         { name: 'Michael C.', role: 'Founder', quote: 'Best investment we made this year.' },
                         { name: 'Emily R.', role: 'Operations Manager', quote: 'Incredible support and product.' },
                       ]).slice(0, 3).map((testimonial: any, idx: number) => (
-                        <div key={idx} className="bg-white rounded-xl p-6 shadow-sm">
-                          <p className="text-zinc-600 text-sm mb-4">"{testimonial.quote}"</p>
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-500 font-medium">
-                              {testimonial.name.charAt(0)}
+                        <div key={idx} className="bg-white rounded-xl p-6 shadow-sm flex flex-col">
+                          {/* Screenshot Image - if provided */}
+                          {testimonial.screenshotUrl && (
+                            <div className="mb-4 -mx-2 -mt-2">
+                              <img 
+                                src={testimonial.screenshotUrl} 
+                                alt="Testimonial screenshot" 
+                                className="w-full rounded-lg object-cover max-h-48"
+                              />
                             </div>
-                            <div>
-                              <p className="font-medium text-zinc-900">{testimonial.name}</p>
-                              <p className="text-xs text-zinc-500">{testimonial.role}</p>
+                          )}
+                          
+                          {/* Quote text - only show if provided */}
+                          {testimonial.quote && (
+                            <p className="text-zinc-600 text-sm mb-4 flex-1">"{testimonial.quote}"</p>
+                          )}
+                          
+                          {/* Author info - only show if name provided */}
+                          {testimonial.name && (
+                            <div className="flex items-center gap-3 mt-auto">
+                              {testimonial.avatarUrl ? (
+                                <img 
+                                  src={testimonial.avatarUrl} 
+                                  alt={testimonial.name}
+                                  className="w-10 h-10 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-500 font-medium">
+                                  {testimonial.name.charAt(0)}
+                                </div>
+                              )}
+                              <div>
+                                <p className="font-medium text-zinc-900">{testimonial.name}</p>
+                                {testimonial.role && <p className="text-xs text-zinc-500">{testimonial.role}{testimonial.company && `, ${testimonial.company}`}</p>}
+                              </div>
                             </div>
-                          </div>
+                          )}
+                          
+                          {/* If only screenshot, no name - just show image */}
+                          {!testimonial.name && !testimonial.quote && testimonial.screenshotUrl && (
+                            <p className="text-xs text-zinc-400 text-center">Customer Testimonial</p>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -772,23 +803,33 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                   </div>
                 )}
 
-                {/* FAQ Section */}
+                {/* FAQ Section - Accordion Style */}
                 {(pageSections.find(s => s.id === 'faq')?.enabled !== false) && (
                   <div className="px-8 py-12 bg-zinc-50">
                     <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
                       Frequently Asked Questions
                     </h2>
-                    <div className="max-w-2xl mx-auto space-y-4">
-                      {(pageSections.find(s => s.id === 'faq')?.content?.questions || [
-                        { q: 'How quickly can I get started?', a: 'You can be up and running in less than 5 minutes.' },
-                        { q: 'Is there a free trial?', a: 'Yes! We offer a 14-day free trial with full access.' },
-                        { q: 'Can I cancel anytime?', a: 'Absolutely. Cancel anytime with no questions asked.' },
-                      ]).slice(0, 3).map((faq: any, idx: number) => (
-                        <div key={idx} className="bg-white rounded-xl p-4 shadow-sm">
-                          <p className="font-medium text-zinc-900 mb-2">{faq.q}</p>
-                          <p className="text-sm text-zinc-600">{faq.a}</p>
-                        </div>
-                      ))}
+                    <div className="max-w-2xl mx-auto">
+                      <Accordion type="single" collapsible className="space-y-3">
+                        {(pageSections.find(s => s.id === 'faq')?.content?.questions || [
+                          { q: 'How quickly can I get started?', a: 'You can be up and running in less than 5 minutes.' },
+                          { q: 'Is there a free trial?', a: 'Yes! We offer a 14-day free trial with full access.' },
+                          { q: 'Can I cancel anytime?', a: 'Absolutely. Cancel anytime with no questions asked.' },
+                        ]).map((faq: any, idx: number) => (
+                          <AccordionItem 
+                            key={idx} 
+                            value={`faq-${idx}`} 
+                            className="bg-white rounded-xl shadow-sm border-none overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-5 py-4 text-left font-medium text-zinc-900 hover:no-underline hover:bg-zinc-50 transition-colors">
+                              {faq.q}
+                            </AccordionTrigger>
+                            <AccordionContent className="px-5 pb-4 text-sm text-zinc-600">
+                              {faq.a}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
                     </div>
                   </div>
                 )}
