@@ -67,13 +67,13 @@ const EbookHeader = ({
       <div className="flex items-center justify-between px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0 relative">
         {/* Left Section */}
         <div className="flex items-center gap-3">
-          {/* Ebook Studio Logo */}
+          {/* Writing Studio Logo */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
               <Book className="w-4 h-4 text-white" />
             </div>
             <h1 className="text-lg font-bold tracking-tight">
-              <span className="text-white">EBOOK</span>
+              <span className="text-white">WRITING</span>
               <span className="text-emerald-400">STUDIO</span>
             </h1>
           </div>

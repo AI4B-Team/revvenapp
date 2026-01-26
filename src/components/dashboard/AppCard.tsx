@@ -119,7 +119,7 @@ const appDescriptions: { [key: string]: string } = {
   'Ad Copy Writer': 'Write high-converting ad copy',
   'Script Writer': 'Generate scripts for any medium',
   'SEO Optimizer': 'Optimize content for search engines',
-  'Ebook Creator': 'Create professional ebooks easily',
+  'Ghost Ink': 'AI ghostwriting for articles, blogs, and ebooks',
   'Digital Spy': 'Competitor social intelligence and content insights',
   'Inbox': 'Manage all your messages in one place',
   'Investor Calculator': 'Calculate real estate investment returns',

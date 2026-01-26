@@ -57,7 +57,6 @@ export const appThumbnails: Record<string, string> = {
   'Ad Copy Writer': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop',
   'Script Writer': 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=600&h=400&fit=crop',
   'SEO Optimizer': 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=600&h=400&fit=crop',
-  'Ebook Creator': 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&h=400&fit=crop',
 
   // Tools Apps
   'Inbox': 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=600&h=400&fit=crop',
