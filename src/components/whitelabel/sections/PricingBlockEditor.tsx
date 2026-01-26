@@ -453,10 +453,11 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
           {pricingFeatures.map((feature, index) => (
             <div key={index} className="flex items-center gap-2">
               <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-              <Input
+              <AITextInput
                 value={feature}
-                onChange={(e) => handleUpdateFeature(index, e.target.value)}
+                onChange={(newValue) => handleUpdateFeature(index, newValue)}
                 className="flex-1 h-8 text-sm"
+                context="spotlight_item"
               />
               <Button
                 variant="ghost"

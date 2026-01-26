@@ -3,7 +3,6 @@ import { AppLicense } from '@/lib/marketplace/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { 
   CreditCard,
@@ -24,6 +23,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { OrderBumpEditor, OrderBump, getAISuggestedBumps } from './OrderBumpEditor';
+import AITextInput from '../AITextInput';
 
 export interface CheckoutConfig {
   guaranteeDays: number;
@@ -428,11 +428,13 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
         {enableSpotlightCard && (
           <>
             <div className="space-y-2">
-              <Label>Title</Label>
-              <Input
+              <AITextInput
+                label="Title"
                 value={spotlightTitle}
-                onChange={(e) => setSpotlightTitle(e.target.value)}
+                onChange={setSpotlightTitle}
                 placeholder="What You Get Immediately"
+                context="cta_headline"
+                productName={productName}
               />
             </div>
 
@@ -440,13 +442,16 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
               <Label>Items</Label>
               {spotlightItems.map((item, idx) => (
                 <div key={idx} className="flex gap-2">
-                  <Input
+                  <AITextInput
                     value={item}
-                    onChange={(e) => {
+                    onChange={(newValue) => {
                       const newItems = [...spotlightItems];
-                      newItems[idx] = e.target.value;
+                      newItems[idx] = newValue;
                       setSpotlightItems(newItems);
                     }}
+                    placeholder="Enter item..."
+                    context="spotlight_item"
+                    productName={productName}
                   />
                   <Button
                     variant="ghost"
@@ -527,11 +532,13 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
           <>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Description</Label>
-                <Input
+                <AITextInput
+                  label="Description"
                   value={guaranteeDescription}
-                  onChange={(e) => setGuaranteeDescription(e.target.value)}
+                  onChange={setGuaranteeDescription}
                   placeholder="Try it risk-free"
+                  context="guarantee_description"
+                  productName={productName}
                 />
               </div>
               <div className="space-y-2">
@@ -558,13 +565,16 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
               <Label>Guarantee Items</Label>
               {guaranteeItems.map((item, idx) => (
                 <div key={idx} className="flex gap-2">
-                  <Input
+                  <AITextInput
                     value={item}
-                    onChange={(e) => {
+                    onChange={(newValue) => {
                       const newItems = [...guaranteeItems];
-                      newItems[idx] = e.target.value;
+                      newItems[idx] = newValue;
                       setGuaranteeItems(newItems);
                     }}
+                    placeholder="Enter guarantee item..."
+                    context="spotlight_item"
+                    productName={productName}
                   />
                   <Button
                     variant="ghost"
@@ -628,24 +638,29 @@ export function CheckoutSection({ license, checkoutConfig, onCheckoutConfigChang
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
-                <Input
+                <AITextInput
                   value={faq.q}
-                  onChange={(e) => {
+                  onChange={(newValue) => {
                     const newFAQs = [...checkoutFAQs];
-                    newFAQs[idx] = { ...faq, q: e.target.value };
+                    newFAQs[idx] = { ...faq, q: newValue };
                     setCheckoutFAQs(newFAQs);
                   }}
                   placeholder="Question"
+                  context="faq_question"
+                  productName={productName}
                   className="bg-muted/50"
                 />
-                <Textarea
+                <AITextInput
                   value={faq.a}
-                  onChange={(e) => {
+                  onChange={(newValue) => {
                     const newFAQs = [...checkoutFAQs];
-                    newFAQs[idx] = { ...faq, a: e.target.value };
+                    newFAQs[idx] = { ...faq, a: newValue };
                     setCheckoutFAQs(newFAQs);
                   }}
                   placeholder="Answer"
+                  context="faq_answer"
+                  productName={productName}
+                  multiline
                   rows={2}
                   className="bg-background"
                 />

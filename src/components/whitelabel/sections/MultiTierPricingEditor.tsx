@@ -263,29 +263,32 @@ export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPr
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs">Plan Name</Label>
-                  <Input
+                  <AITextInput
                     value={selectedTier.name}
-                    onChange={(e) => handleTierUpdate(selectedTierIndex, { name: e.target.value })}
+                    onChange={(newValue) => handleTierUpdate(selectedTierIndex, { name: newValue })}
                     className="h-8 text-sm"
+                    context="button_text"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">Button Text</Label>
-                  <Input
+                  <AITextInput
                     value={selectedTier.ctaButtonText}
-                    onChange={(e) => handleTierUpdate(selectedTierIndex, { ctaButtonText: e.target.value })}
+                    onChange={(newValue) => handleTierUpdate(selectedTierIndex, { ctaButtonText: newValue })}
                     className="h-8 text-sm"
+                    context="button_text"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs">Description</Label>
-                <Input
+                <AITextInput
                   value={selectedTier.description || ''}
-                  onChange={(e) => handleTierUpdate(selectedTierIndex, { description: e.target.value })}
+                  onChange={(newValue) => handleTierUpdate(selectedTierIndex, { description: newValue })}
                   placeholder="Short description of this plan"
                   className="h-8 text-sm"
+                  context="tagline"
                 />
               </div>
 
@@ -362,10 +365,11 @@ export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPr
                 {selectedTier.features.map((feature, idx) => (
                   <div key={idx} className="flex items-center gap-2">
                     <Check className="h-3 w-3 text-emerald-500 shrink-0" />
-                    <Input
+                    <AITextInput
                       value={feature}
-                      onChange={(e) => handleUpdateFeature(idx, e.target.value)}
+                      onChange={(newValue) => handleUpdateFeature(idx, newValue)}
                       className="flex-1 h-7 text-xs"
+                      context="spotlight_item"
                     />
                     <Button
                       variant="ghost"
