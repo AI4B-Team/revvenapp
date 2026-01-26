@@ -44,15 +44,37 @@ function MiniPreview({
 }) {
   const renderLogo = () => (
     logoUrl ? (
-      <img src={logoUrl} alt="Logo" className="h-4 object-contain" />
+      <img src={logoUrl} alt="Logo" className="h-3 object-contain" />
     ) : (
       <div 
-        className="w-4 h-4 rounded flex items-center justify-center text-[8px]"
+        className="w-3 h-3 rounded flex items-center justify-center text-[6px]"
         style={{ backgroundColor: `${primaryColor}30` }}
       >
         {selectedIcon}
       </div>
     )
+  );
+
+  const renderHeader = (inverted = false) => (
+    <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-2 py-1 z-10">
+      <div className="flex items-center gap-1">
+        {renderLogo()}
+      </div>
+      <div className="flex items-center gap-1">
+        <span className={`text-[5px] font-medium ${inverted ? 'text-white/80' : 'text-zinc-500'}`}>
+          Login
+        </span>
+        <span 
+          className="text-[5px] font-medium px-1 py-0.5 rounded"
+          style={{ 
+            backgroundColor: inverted ? 'white' : primaryColor,
+            color: inverted ? primaryColor : 'white'
+          }}
+        >
+          Sign Up
+        </span>
+      </div>
+    </div>
   );
 
   const renderBadge = (inverted = false) => (
@@ -91,11 +113,11 @@ function MiniPreview({
     case 'split-left':
       return (
         <div 
-          className="w-full h-full flex items-center gap-2 p-2"
+          className="relative w-full h-full flex items-center gap-2 p-2 pt-5"
           style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
         >
+          {renderHeader()}
           <div className="flex-1 flex flex-col items-start gap-1">
-            {renderLogo()}
             {renderBadge()}
             <div className="text-[7px] font-bold text-zinc-900 truncate max-w-full">{productName}</div>
             <div className="w-full h-1 bg-zinc-300 rounded" />
@@ -111,12 +133,12 @@ function MiniPreview({
     case 'split-right':
       return (
         <div 
-          className="w-full h-full flex items-center gap-2 p-2"
+          className="relative w-full h-full flex items-center gap-2 p-2 pt-5"
           style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
         >
+          {renderHeader()}
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 opacity-70 shrink-0" />
           <div className="flex-1 flex flex-col items-end gap-1 text-right">
-            {renderLogo()}
             {renderBadge()}
             <div className="text-[7px] font-bold text-zinc-900 truncate max-w-full">{productName}</div>
             <div className="w-full h-1 bg-zinc-300 rounded" />
@@ -125,7 +147,8 @@ function MiniPreview({
       );
     case 'minimal':
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center p-2 bg-white">
+        <div className="relative w-full h-full flex flex-col items-center justify-center p-2 pt-5 bg-white">
+          {renderHeader()}
           <div className="text-[9px] font-bold text-zinc-900 mb-1">{productName}</div>
           <div className="w-16 h-1 bg-zinc-200 rounded mb-2" />
           {renderCTA()}
@@ -134,10 +157,10 @@ function MiniPreview({
     case 'gradient':
       return (
         <div 
-          className="w-full h-full flex flex-col items-center justify-center p-2 text-center"
+          className="relative w-full h-full flex flex-col items-center justify-center p-2 pt-5 text-center"
           style={{ background: `linear-gradient(135deg, ${primaryColor} 0%, #7c3aed 100%)` }}
         >
-          {renderLogo()}
+          {renderHeader(true)}
           <div className="mt-1">{renderBadge(true)}</div>
           <div className="text-[8px] font-bold text-white mt-1">{productName}</div>
           <div className="w-12 h-0.5 bg-white/40 rounded my-1" />
@@ -146,7 +169,8 @@ function MiniPreview({
       );
     case 'bold':
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center p-2 bg-zinc-900 text-center">
+        <div className="relative w-full h-full flex flex-col items-center justify-center p-2 pt-5 bg-zinc-900 text-center">
+          {renderHeader(true)}
           <div 
             className="w-4 h-4 rounded flex items-center justify-center text-[8px]"
             style={{ backgroundColor: primaryColor }}
@@ -163,10 +187,10 @@ function MiniPreview({
     default:
       return (
         <div 
-          className="w-full h-full flex flex-col items-center justify-center p-2 text-center"
+          className="relative w-full h-full flex flex-col items-center justify-center p-2 pt-5 text-center"
           style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
         >
-          {renderLogo()}
+          {renderHeader()}
           <div className="mt-1">{renderBadge()}</div>
           <div className="text-[8px] font-bold text-zinc-900 mt-1">{productName}</div>
           <div className="w-12 h-0.5 bg-zinc-300 rounded my-1" />
