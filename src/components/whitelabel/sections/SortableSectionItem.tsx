@@ -162,6 +162,65 @@ export function SortableSectionItem({
                 placeholder="e.g., AI-Powered, New, Trusted"
                 context="tagline"
               />
+              
+              {/* Headline Editor */}
+              <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
+                <Label className="text-sm font-semibold">Headline</Label>
+                <AITextInput
+                  value={section.content.headline || ''}
+                  onChange={(value) => updateSectionContent(section.id, { headline: value })}
+                  placeholder="Enter your main headline"
+                  context="headline"
+                />
+                
+                {/* Headline Styling Controls */}
+                <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border">
+                  {/* Font Size */}
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground">Size</Label>
+                    <select
+                      value={section.content.headlineFontSize || 'xl'}
+                      onChange={(e) => updateSectionContent(section.id, { headlineFontSize: e.target.value })}
+                      className="h-8 px-2 rounded-md border border-border bg-background text-sm"
+                    >
+                      <option value="lg">Large</option>
+                      <option value="xl">X-Large</option>
+                      <option value="2xl">2X-Large</option>
+                      <option value="3xl">3X-Large</option>
+                      <option value="4xl">4X-Large</option>
+                    </select>
+                  </div>
+                  
+                  {/* Color */}
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground">Color</Label>
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={section.content.headlineColor || '#000000'}
+                        onChange={(e) => updateSectionContent(section.id, { headlineColor: e.target.value })}
+                        className="w-8 h-8 rounded-md border border-border cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Underline Toggle */}
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground">Underline</Label>
+                    <button
+                      onClick={() => updateSectionContent(section.id, { headlineUnderline: !section.content.headlineUnderline })}
+                      className={`h-8 px-3 rounded-md border text-sm font-medium transition-colors ${
+                        section.content.headlineUnderline 
+                          ? 'bg-primary text-primary-foreground border-primary' 
+                          : 'bg-background border-border hover:bg-muted'
+                      }`}
+                    >
+                      <span className="underline">U</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <AITextInput
                   label="Tagline"

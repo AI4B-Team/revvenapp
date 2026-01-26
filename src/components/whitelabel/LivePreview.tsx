@@ -71,9 +71,28 @@ interface HeroPreviewProps {
   selectedIcon: string;
   heroImageUrl?: string;
   appThumbnail?: string;
+  headline?: string;
+  headlineFontSize?: string;
+  headlineColor?: string;
+  headlineUnderline?: boolean;
 }
 
-function HeroPreview({ style, badge, tagline, description, productName, primaryColor, logoUrl, selectedIcon, heroImageUrl, appThumbnail }: HeroPreviewProps) {
+function HeroPreview({ 
+  style, 
+  badge, 
+  tagline, 
+  description, 
+  productName, 
+  primaryColor, 
+  logoUrl, 
+  selectedIcon, 
+  heroImageUrl, 
+  appThumbnail,
+  headline,
+  headlineFontSize = '3xl',
+  headlineColor,
+  headlineUnderline = false
+}: HeroPreviewProps) {
   const renderLogo = () => (
     logoUrl ? (
       <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
@@ -121,6 +140,34 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
     </div>
   );
 
+  // Get font size class based on setting
+  const getFontSizeClass = () => {
+    const sizeMap: Record<string, string> = {
+      'lg': 'text-xl md:text-2xl',
+      'xl': 'text-2xl md:text-3xl',
+      '2xl': 'text-3xl md:text-4xl',
+      '3xl': 'text-4xl md:text-5xl',
+      '4xl': 'text-5xl md:text-6xl',
+    };
+    return sizeMap[headlineFontSize] || sizeMap['3xl'];
+  };
+
+  // Render headline with styling
+  const renderHeadline = (defaultColor: string = 'text-zinc-900') => {
+    const displayText = headline || productName;
+    const fontSizeClass = getFontSizeClass();
+    const textColor = headlineColor || undefined;
+    
+    return (
+      <h1 
+        className={`${fontSizeClass} font-bold mb-4 ${headlineUnderline ? 'underline decoration-2 underline-offset-4' : ''} ${!headlineColor ? defaultColor : ''}`}
+        style={textColor ? { color: textColor } : undefined}
+      >
+        {displayText}
+      </h1>
+    );
+  };
+
   // Render hero visual element (custom image, app thumbnail, or gradient fallback)
   const renderHeroVisual = (size: 'sm' | 'lg' = 'lg') => {
     const sizeClass = size === 'lg' ? 'w-32 h-32' : 'w-24 h-24';
@@ -157,7 +204,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
           <div className="flex-1 text-left">
             <div className="mb-4">{renderLogo()}</div>
             <div className="mb-4">{renderBadge()}</div>
-            <h1 className="text-3xl font-bold text-zinc-900 mb-3">{productName}</h1>
+            {renderHeadline('text-zinc-900')}
             <p className="text-lg text-zinc-600 mb-6 max-w-md">{tagline}</p>
             {description && <p className="text-sm text-zinc-500 mb-6">{description}</p>}
             {renderCTAButtons()}
@@ -175,7 +222,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
           <div className="flex-1 text-right">
             <div className="mb-4 flex justify-end">{renderLogo()}</div>
             <div className="mb-4">{renderBadge()}</div>
-            <h1 className="text-3xl font-bold text-zinc-900 mb-3">{productName}</h1>
+            {renderHeadline('text-zinc-900')}
             <p className="text-lg text-zinc-600 mb-6 max-w-md ml-auto">{tagline}</p>
             <div className="flex justify-end">{renderCTAButtons()}</div>
           </div>
@@ -184,7 +231,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
     case 'minimal':
       return (
         <div className="px-8 py-24 text-center bg-white">
-          <h1 className="text-4xl md:text-5xl font-bold text-zinc-900 mb-4 tracking-tight">{productName}</h1>
+          {renderHeadline('text-zinc-900')}
           <p className="text-xl text-zinc-500 mb-10 max-w-lg mx-auto">{tagline}</p>
           {renderCTAButtons()}
         </div>
@@ -197,7 +244,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
         >
           <div className="mb-6 flex justify-center">{renderLogo()}</div>
           <div className="mb-4">{renderBadge(true)}</div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{productName}</h1>
+          {renderHeadline('text-white')}
           <p className="text-lg text-white/80 mb-8 max-w-md mx-auto">{tagline}</p>
           {renderCTAButtons(true)}
         </div>
@@ -218,7 +265,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
             )}
           </div>
           <div className="mb-4">{renderBadge(true)}</div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{productName}</h1>
+          {renderHeadline('text-white')}
           <p className="text-lg text-zinc-400 mb-8 max-w-md mx-auto">{tagline}</p>
           {renderCTAButtons(true)}
         </div>
@@ -232,7 +279,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
         >
           <div className="mb-6 flex justify-center">{renderLogo()}</div>
           <div className="mb-4">{renderBadge()}</div>
-          <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">{productName}</h1>
+          {renderHeadline('text-zinc-900')}
           <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">{tagline}</p>
           {renderCTAButtons()}
         </div>
@@ -671,6 +718,10 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           selectedIcon={selectedIcon}
                           heroImageUrl={section.content?.heroImageUrl}
                           appThumbnail={app ? getAppThumbnail(app.name) : undefined}
+                          headline={section.content?.headline}
+                          headlineFontSize={section.content?.headlineFontSize}
+                          headlineColor={section.content?.headlineColor}
+                          headlineUnderline={section.content?.headlineUnderline}
                         />
                       );
                     
