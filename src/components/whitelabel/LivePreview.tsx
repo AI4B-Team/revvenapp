@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MarketplaceApp, AppLicense } from '@/lib/marketplace/types';
 import { Button } from '@/components/ui/button';
 import { 
@@ -16,8 +16,16 @@ import {
   Clock,
   CreditCard,
   Lock,
-  ChevronDown
+  ChevronDown,
+  Play,
+  X
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Accordion,
   AccordionContent,
@@ -60,6 +68,17 @@ interface LivePreviewProps {
 // Hero Preview Component with style variations
 type HeroStyle = 'centered' | 'split-left' | 'split-right' | 'minimal' | 'gradient' | 'bold';
 
+interface HeroButton {
+  id: string;
+  text: string;
+  style: 'primary' | 'secondary' | 'outline' | 'ghost';
+  action: 'link' | 'anchor' | 'video' | 'custom';
+  url?: string;
+  anchorId?: string;
+  videoUrl?: string;
+  openInNewTab?: boolean;
+}
+
 interface HeroPreviewProps {
   style: HeroStyle;
   badge: string;
@@ -75,6 +94,7 @@ interface HeroPreviewProps {
   headlineFontSize?: string;
   headlineColor?: string;
   headlineUnderline?: boolean;
+  buttons?: HeroButton[];
 }
 
 function HeroPreview({ 
@@ -91,8 +111,10 @@ function HeroPreview({
   headline,
   headlineFontSize = '3xl',
   headlineColor,
-  headlineUnderline = false
+  headlineUnderline = false,
+  buttons = []
 }: HeroPreviewProps) {
+  const [videoModalUrl, setVideoModalUrl] = useState<string | null>(null);
   const renderLogo = () => (
     logoUrl ? (
       <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
@@ -119,24 +141,71 @@ function HeroPreview({
     </div>
   );
 
-  const renderCTAButtons = (inverted = false) => (
-    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-      <button 
-        className="px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2"
-        style={{ 
+  const getButtonStyle = (btn: HeroButton, inverted: boolean) => {
+    switch (btn.style) {
+      case 'primary':
+        return {
           backgroundColor: inverted ? 'white' : primaryColor,
-          color: inverted ? primaryColor : 'white'
-        }}
-      >
-        Get Started <ArrowRight size={16} />
-      </button>
-      <button 
-        className={`px-6 py-3 rounded-lg font-medium ${
-          inverted ? 'bg-white/10 text-white hover:bg-white/20' : 'text-zinc-700 bg-zinc-100 hover:bg-zinc-200'
-        }`}
-      >
-        Learn More
-      </button>
+          color: inverted ? primaryColor : 'white',
+        };
+      case 'secondary':
+        return inverted 
+          ? { backgroundColor: 'rgba(255,255,255,0.1)', color: 'white' }
+          : { backgroundColor: '#f4f4f5', color: '#3f3f46' };
+      case 'outline':
+        return {
+          backgroundColor: 'transparent',
+          border: `1px solid ${inverted ? 'white' : primaryColor}`,
+          color: inverted ? 'white' : primaryColor,
+        };
+      case 'ghost':
+        return {
+          backgroundColor: 'transparent',
+          color: inverted ? 'white' : primaryColor,
+        };
+      default:
+        return {};
+    }
+  };
+
+  const handleButtonClick = (btn: HeroButton) => {
+    if (btn.action === 'video' && btn.videoUrl) {
+      setVideoModalUrl(btn.videoUrl);
+    } else if (btn.action === 'link' && btn.url) {
+      if (btn.openInNewTab) {
+        window.open(btn.url, '_blank');
+      } else {
+        window.location.href = btn.url;
+      }
+    } else if (btn.action === 'anchor' && btn.anchorId) {
+      const element = document.getElementById(btn.anchorId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const defaultButtons: HeroButton[] = [
+    { id: '1', text: 'Get Started', style: 'primary', action: 'anchor', anchorId: 'pricing' },
+    { id: '2', text: 'Learn More', style: 'secondary', action: 'anchor', anchorId: 'features' },
+  ];
+
+  const displayButtons = buttons.length > 0 ? buttons : defaultButtons;
+
+  const renderCTAButtons = (inverted = false) => (
+    <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
+      {displayButtons.map((btn) => (
+        <button 
+          key={btn.id}
+          onClick={() => handleButtonClick(btn)}
+          className="px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
+          style={getButtonStyle(btn, inverted)}
+        >
+          {btn.action === 'video' && <Play size={16} />}
+          {btn.text}
+          {btn.action === 'link' && btn.style === 'primary' && <ArrowRight size={16} />}
+        </button>
+      ))}
     </div>
   );
 
@@ -194,97 +263,126 @@ function HeroPreview({
     );
   };
 
-  switch (style) {
-    case 'split-left':
-      return (
-        <div 
-          className="px-8 py-16 flex items-center gap-8"
-          style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
-        >
-          <div className="flex-1 text-left">
-            <div className="mb-4">{renderLogo()}</div>
-            <div className="mb-4">{renderBadge()}</div>
+  // Video Modal
+  const videoModal = videoModalUrl ? (
+    <Dialog open={!!videoModalUrl} onOpenChange={() => setVideoModalUrl(null)}>
+      <DialogContent className="sm:max-w-3xl p-0 overflow-hidden">
+        <div className="relative aspect-video bg-black">
+          <iframe
+            src={videoModalUrl.includes('youtube') 
+              ? videoModalUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')
+              : videoModalUrl.includes('vimeo') 
+                ? videoModalUrl.replace('vimeo.com/', 'player.vimeo.com/video/')
+                : videoModalUrl}
+            className="absolute inset-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  ) : null;
+
+  const getContent = () => {
+    switch (style) {
+      case 'split-left':
+        return (
+          <div 
+            className="px-8 py-16 flex items-center gap-8"
+            style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
+          >
+            <div className="flex-1 text-left">
+              <div className="mb-4">{renderLogo()}</div>
+              <div className="mb-4">{renderBadge()}</div>
+              {renderHeadline('text-zinc-900')}
+              <p className="text-lg text-zinc-600 mb-6 max-w-md">{tagline}</p>
+              {description && <p className="text-sm text-zinc-500 mb-6">{description}</p>}
+              {renderCTAButtons()}
+            </div>
+            {renderHeroVisual('lg')}
+          </div>
+        );
+      case 'split-right':
+        return (
+          <div 
+            className="px-8 py-16 flex items-center gap-8"
+            style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
+          >
+            {renderHeroVisual('lg')}
+            <div className="flex-1 text-right">
+              <div className="mb-4 flex justify-end">{renderLogo()}</div>
+              <div className="mb-4">{renderBadge()}</div>
+              {renderHeadline('text-zinc-900')}
+              <p className="text-lg text-zinc-600 mb-6 max-w-md ml-auto">{tagline}</p>
+              <div className="flex justify-end">{renderCTAButtons()}</div>
+            </div>
+          </div>
+        );
+      case 'minimal':
+        return (
+          <div className="px-8 py-24 text-center bg-white">
             {renderHeadline('text-zinc-900')}
-            <p className="text-lg text-zinc-600 mb-6 max-w-md">{tagline}</p>
-            {description && <p className="text-sm text-zinc-500 mb-6">{description}</p>}
+            <p className="text-xl text-zinc-500 mb-10 max-w-lg mx-auto">{tagline}</p>
             {renderCTAButtons()}
           </div>
-          {renderHeroVisual('lg')}
-        </div>
-      );
-    case 'split-right':
-      return (
-        <div 
-          className="px-8 py-16 flex items-center gap-8"
-          style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
-        >
-          {renderHeroVisual('lg')}
-          <div className="flex-1 text-right">
-            <div className="mb-4 flex justify-end">{renderLogo()}</div>
+        );
+      case 'gradient':
+        return (
+          <div 
+            className="px-8 py-16 text-center"
+            style={{ background: `linear-gradient(135deg, ${primaryColor} 0%, #7c3aed 100%)` }}
+          >
+            <div className="mb-6 flex justify-center">{renderLogo()}</div>
+            <div className="mb-4">{renderBadge(true)}</div>
+            {renderHeadline('text-white')}
+            <p className="text-lg text-white/80 mb-8 max-w-md mx-auto">{tagline}</p>
+            {renderCTAButtons(true)}
+          </div>
+        );
+      case 'bold':
+        return (
+          <div className="px-8 py-16 text-center bg-zinc-900">
+            <div className="mb-6 flex justify-center">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
+              ) : (
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  {selectedIcon}
+                </div>
+              )}
+            </div>
+            <div className="mb-4">{renderBadge(true)}</div>
+            {renderHeadline('text-white')}
+            <p className="text-lg text-zinc-400 mb-8 max-w-md mx-auto">{tagline}</p>
+            {renderCTAButtons(true)}
+          </div>
+        );
+      case 'centered':
+      default:
+        return (
+          <div 
+            className="px-8 py-16 text-center"
+            style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
+          >
+            <div className="mb-6 flex justify-center">{renderLogo()}</div>
             <div className="mb-4">{renderBadge()}</div>
             {renderHeadline('text-zinc-900')}
-            <p className="text-lg text-zinc-600 mb-6 max-w-md ml-auto">{tagline}</p>
-            <div className="flex justify-end">{renderCTAButtons()}</div>
+            <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">{tagline}</p>
+            {renderCTAButtons()}
           </div>
-        </div>
-      );
-    case 'minimal':
-      return (
-        <div className="px-8 py-24 text-center bg-white">
-          {renderHeadline('text-zinc-900')}
-          <p className="text-xl text-zinc-500 mb-10 max-w-lg mx-auto">{tagline}</p>
-          {renderCTAButtons()}
-        </div>
-      );
-    case 'gradient':
-      return (
-        <div 
-          className="px-8 py-16 text-center"
-          style={{ background: `linear-gradient(135deg, ${primaryColor} 0%, #7c3aed 100%)` }}
-        >
-          <div className="mb-6 flex justify-center">{renderLogo()}</div>
-          <div className="mb-4">{renderBadge(true)}</div>
-          {renderHeadline('text-white')}
-          <p className="text-lg text-white/80 mb-8 max-w-md mx-auto">{tagline}</p>
-          {renderCTAButtons(true)}
-        </div>
-      );
-    case 'bold':
-      return (
-        <div className="px-8 py-16 text-center bg-zinc-900">
-          <div className="mb-6 flex justify-center">
-            {logoUrl ? (
-              <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
-            ) : (
-              <div 
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                style={{ backgroundColor: primaryColor }}
-              >
-                {selectedIcon}
-              </div>
-            )}
-          </div>
-          <div className="mb-4">{renderBadge(true)}</div>
-          {renderHeadline('text-white')}
-          <p className="text-lg text-zinc-400 mb-8 max-w-md mx-auto">{tagline}</p>
-          {renderCTAButtons(true)}
-        </div>
-      );
-    case 'centered':
-    default:
-      return (
-        <div 
-          className="px-8 py-16 text-center"
-          style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
-        >
-          <div className="mb-6 flex justify-center">{renderLogo()}</div>
-          <div className="mb-4">{renderBadge()}</div>
-          {renderHeadline('text-zinc-900')}
-          <p className="text-lg text-zinc-600 mb-8 max-w-md mx-auto">{tagline}</p>
-          {renderCTAButtons()}
-        </div>
-      );
-  }
+        );
+    }
+  };
+
+  return (
+    <>
+      {getContent()}
+      {videoModal}
+    </>
+  );
 }
 
 export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered' }: LivePreviewProps) {
@@ -722,6 +820,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           headlineFontSize={section.content?.headlineFontSize}
                           headlineColor={section.content?.headlineColor}
                           headlineUnderline={section.content?.headlineUnderline}
+                          buttons={section.content?.buttons}
                         />
                       );
                     
