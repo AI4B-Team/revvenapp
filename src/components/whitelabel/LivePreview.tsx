@@ -414,6 +414,7 @@ interface PricingSectionProps {
   oneTimePrice: number;
   primaryColor: string;
   getAppFeatures: () => string[];
+  ctaButtonText?: string;
 }
 
 function PricingSection({
@@ -424,6 +425,7 @@ function PricingSection({
   oneTimePrice,
   primaryColor,
   getAppFeatures,
+  ctaButtonText,
 }: PricingSectionProps) {
   const basePrice = pricingModel === 'one-time' ? oneTimePrice : monthlyPrice;
   
@@ -470,7 +472,7 @@ function PricingSection({
               className="w-full py-3 rounded-lg font-medium text-white"
               style={{ backgroundColor: primaryColor }}
             >
-              Get Started Now
+              {ctaButtonText || section.content?.ctaButtonText || 'Get Started Now'}
             </button>
           </div>
         </div>
@@ -1299,6 +1301,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           oneTimePrice={oneTimePrice}
                           primaryColor={primaryColor}
                           getAppFeatures={getAppFeatures}
+                          ctaButtonText={section.content?.ctaButtonText}
                         />
                       );
                     
