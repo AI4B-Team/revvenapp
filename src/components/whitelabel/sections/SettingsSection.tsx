@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Settings, 
   Bell, 
@@ -18,6 +19,12 @@ import {
   Globe,
   FileText,
   Zap,
+  Users,
+  Mail,
+  Send,
+  TrendingUp,
+  UserPlus,
+  Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -36,9 +43,12 @@ interface SettingsSectionProps {
   onDeactivate?: () => void;
 }
 
-type SettingsTab = 'marketing' | 'integrations' | 'security' | 'notifications' | 'advanced';
+type SettingsTab = 'announcements' | 'customers' | 'email-templates' | 'marketing' | 'integrations' | 'security' | 'notifications' | 'advanced';
 
 const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
+  { id: 'announcements', label: 'Announcements', icon: Send },
+  { id: 'customers', label: 'Customers', icon: Users },
+  { id: 'email-templates', label: 'Email Templates', icon: Mail },
   { id: 'marketing', label: 'Marketing', icon: Megaphone },
   { id: 'integrations', label: 'Integrations', icon: Plug },
   { id: 'security', label: 'Security', icon: Shield },
@@ -47,7 +57,31 @@ const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
 ];
 
 export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('marketing');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('announcements');
+  
+  // Announcements state
+  const [announcementTitle, setAnnouncementTitle] = useState('');
+  const [announcementMessage, setAnnouncementMessage] = useState('');
+  const [announcementType, setAnnouncementType] = useState<'info' | 'success' | 'warning'>('info');
+  const [announcements, setAnnouncements] = useState<{ id: string; title: string; message: string; type: string; date: string; active: boolean }[]>([
+    { id: '1', title: 'Welcome to our platform!', message: 'Thank you for joining. Check out our new features.', type: 'info', date: '2025-01-20', active: true },
+  ]);
+  
+  // Customer stats (mock data)
+  const customerStats = {
+    total: 127,
+    thisMonth: 23,
+    lastMonth: 18,
+    growth: 27.8,
+    active: 98,
+    churned: 5,
+  };
+  
+  // Email templates state
+  const [welcomeEmailSubject, setWelcomeEmailSubject] = useState('Welcome to {{product_name}}!');
+  const [welcomeEmailBody, setWelcomeEmailBody] = useState('Hi {{customer_name}},\n\nWelcome to {{product_name}}! We\'re thrilled to have you on board.\n\nGet started by exploring our features and let us know if you have any questions.\n\nBest,\nThe {{product_name}} Team');
+  const [receiptEmailSubject, setReceiptEmailSubject] = useState('Your {{product_name}} purchase confirmation');
+  const [receiptEmailBody, setReceiptEmailBody] = useState('Hi {{customer_name}},\n\nThank you for your purchase!\n\nOrder Details:\n- Product: {{product_name}}\n- Amount: {{amount}}\n- Date: {{date}}\n\nYou can access your purchase anytime.\n\nBest,\nThe {{product_name}} Team');
   
   // Marketing state
   const [googlePixelId, setGooglePixelId] = useState('');
@@ -89,8 +123,345 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
     }
   };
 
+  const handleSendAnnouncement = () => {
+    if (!announcementTitle || !announcementMessage) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    
+    const newAnnouncement = {
+      id: Date.now().toString(),
+      title: announcementTitle,
+      message: announcementMessage,
+      type: announcementType,
+      date: new Date().toISOString().split('T')[0],
+      active: true,
+    };
+    
+    setAnnouncements([newAnnouncement, ...announcements]);
+    setAnnouncementTitle('');
+    setAnnouncementMessage('');
+    toast.success('Announcement sent to all customers!');
+  };
+
+  const toggleAnnouncementActive = (id: string) => {
+    setAnnouncements(announcements.map(a => 
+      a.id === id ? { ...a, active: !a.active } : a
+    ));
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'announcements':
+        return (
+          <div className="space-y-6">
+            {/* Create Announcement */}
+            <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              <div className="flex items-center gap-2">
+                <Send className="h-5 w-5 text-emerald-500" />
+                <h3 className="font-semibold">Send Announcement</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Send in-app notifications to all your customers.
+              </p>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Announcement Type</Label>
+                  <div className="flex gap-2">
+                    {(['info', 'success', 'warning'] as const).map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setAnnouncementType(type)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
+                          announcementType === type
+                            ? type === 'info' ? 'bg-blue-500 text-white'
+                            : type === 'success' ? 'bg-emerald-500 text-white'
+                            : 'bg-amber-500 text-white'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="announcement-title">Title</Label>
+                  <Input 
+                    id="announcement-title"
+                    placeholder="New Feature Available!"
+                    value={announcementTitle}
+                    onChange={(e) => setAnnouncementTitle(e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="announcement-message">Message</Label>
+                  <Textarea 
+                    id="announcement-message"
+                    placeholder="We've just launched an exciting new feature that you'll love..."
+                    value={announcementMessage}
+                    onChange={(e) => setAnnouncementMessage(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+                
+                <Button 
+                  onClick={handleSendAnnouncement} 
+                  className="w-full bg-emerald-500 hover:bg-emerald-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Send to All Customers
+                </Button>
+              </div>
+            </div>
+
+            {/* Recent Announcements */}
+            <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Bell className="h-5 w-5 text-primary" />
+                  <h3 className="font-semibold">Recent Announcements</h3>
+                </div>
+                <span className="text-sm text-muted-foreground">{announcements.length} total</span>
+              </div>
+              
+              <div className="space-y-3">
+                {announcements.map((announcement) => (
+                  <div 
+                    key={announcement.id}
+                    className={`p-4 rounded-lg border ${
+                      announcement.active ? 'border-border bg-muted/30' : 'border-border/50 bg-muted/10 opacity-60'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                            announcement.type === 'info' ? 'bg-blue-500/20 text-blue-600'
+                            : announcement.type === 'success' ? 'bg-emerald-500/20 text-emerald-600'
+                            : 'bg-amber-500/20 text-amber-600'
+                          }`}>
+                            {announcement.type}
+                          </span>
+                          <span className="text-xs text-muted-foreground">{announcement.date}</span>
+                        </div>
+                        <h4 className="font-medium text-sm">{announcement.title}</h4>
+                        <p className="text-sm text-muted-foreground mt-1">{announcement.message}</p>
+                      </div>
+                      <Switch 
+                        checked={announcement.active} 
+                        onCheckedChange={() => toggleAnnouncementActive(announcement.id)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'customers':
+        return (
+          <div className="space-y-6">
+            {/* Customer Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-6 rounded-xl border-2 border-border bg-card">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-emerald-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Customers</p>
+                    <p className="text-3xl font-bold">{customerStats.total}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6 rounded-xl border-2 border-border bg-card">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                    <UserPlus className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">New This Month</p>
+                    <p className="text-3xl font-bold">{customerStats.thisMonth}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6 rounded-xl border-2 border-border bg-card">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Growth Rate</p>
+                    <p className="text-3xl font-bold text-emerald-500">+{customerStats.growth}%</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Customer Breakdown */}
+            <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold">Customer Breakdown</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Customers</p>
+                      <p className="text-2xl font-bold text-emerald-600">{customerStats.active}</p>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                      <UserCheck className="h-5 w-5 text-emerald-500" />
+                    </div>
+                  </div>
+                  <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-emerald-500 rounded-full"
+                      style={{ width: `${(customerStats.active / customerStats.total) * 100}%` }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Churned</p>
+                      <p className="text-2xl font-bold text-muted-foreground">{customerStats.churned}</p>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  </div>
+                  <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-muted-foreground/50 rounded-full"
+                      style={{ width: `${(customerStats.churned / customerStats.total) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Monthly Comparison */}
+            <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold">Monthly Comparison</h3>
+              </div>
+              
+              <div className="flex items-center gap-6">
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground mb-1">This Month</p>
+                  <div className="flex items-end gap-2">
+                    <p className="text-3xl font-bold">{customerStats.thisMonth}</p>
+                    <span className="text-sm text-emerald-500 pb-1">new signups</span>
+                  </div>
+                </div>
+                <div className="w-px h-12 bg-border" />
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground mb-1">Last Month</p>
+                  <div className="flex items-end gap-2">
+                    <p className="text-3xl font-bold text-muted-foreground">{customerStats.lastMonth}</p>
+                    <span className="text-sm text-muted-foreground pb-1">signups</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'email-templates':
+        return (
+          <div className="space-y-6">
+            <p className="text-sm text-muted-foreground">
+              Customize the emails sent to your customers. Use variables like {'{{customer_name}}'}, {'{{product_name}}'}, {'{{amount}}'}, and {'{{date}}'}.
+            </p>
+
+            {/* Welcome Email */}
+            <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-emerald-500" />
+                <h3 className="font-semibold">Welcome Email</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Sent when a new customer signs up.
+              </p>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="welcome-subject">Subject Line</Label>
+                  <Input 
+                    id="welcome-subject"
+                    value={welcomeEmailSubject}
+                    onChange={(e) => setWelcomeEmailSubject(e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="welcome-body">Email Body</Label>
+                  <Textarea 
+                    id="welcome-body"
+                    value={welcomeEmailBody}
+                    onChange={(e) => setWelcomeEmailBody(e.target.value)}
+                    rows={8}
+                    className="font-mono text-sm"
+                  />
+                </div>
+                
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                  Save Template
+                </Button>
+              </div>
+            </div>
+
+            {/* Receipt Email */}
+            <div className="p-6 rounded-xl border-2 border-border bg-card space-y-4">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-500" />
+                <h3 className="font-semibold">Purchase Receipt</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Sent after a successful purchase.
+              </p>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="receipt-subject">Subject Line</Label>
+                  <Input 
+                    id="receipt-subject"
+                    value={receiptEmailSubject}
+                    onChange={(e) => setReceiptEmailSubject(e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="receipt-body">Email Body</Label>
+                  <Textarea 
+                    id="receipt-body"
+                    value={receiptEmailBody}
+                    onChange={(e) => setReceiptEmailBody(e.target.value)}
+                    rows={10}
+                    className="font-mono text-sm"
+                  />
+                </div>
+                
+                <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                  Save Template
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+
       case 'marketing':
         return (
           <div className="space-y-6">
@@ -468,8 +839,8 @@ export function SettingsSection({ onDeactivate }: SettingsSectionProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground">Settings</h2>
-        <p className="text-muted-foreground mt-1">Configure your white-label app settings</p>
+        <h2 className="text-2xl font-bold text-foreground">Account</h2>
+        <p className="text-muted-foreground mt-1">Manage your white-label app and customers</p>
       </div>
 
       {/* Tab Navigation */}

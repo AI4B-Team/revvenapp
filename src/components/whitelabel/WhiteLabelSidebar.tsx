@@ -40,7 +40,7 @@ const sections: { id: WhiteLabelSection; label: string; icon: React.ElementType;
   { id: 'checkout', label: 'Checkout', icon: CreditCard, number: 5 },
   { id: 'domain', label: 'Domain', icon: Globe, number: 6 },
   { id: 'legal', label: 'Legal', icon: Scale, number: 7 },
-  { id: 'settings', label: 'Settings', icon: Settings, number: 8 },
+  { id: 'settings', label: 'Account', icon: Settings, number: 8 },
 ];
 
 export function WhiteLabelSidebar({ 
