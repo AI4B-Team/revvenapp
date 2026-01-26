@@ -371,14 +371,15 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
   // Update sections when license changes (e.g., product name updated)
   React.useEffect(() => {
-    const newDefaults = getDefaultSections(app, license);
     setSectionsInternal(current => {
-      const updated = current.map((section, idx) => {
+      const updated = current.map((section) => {
         if (section.id === 'hero') {
           return {
             ...section,
             content: {
               ...section.content,
+              badge: license?.brandSettings?.badge || section.content.badge,
+              headline: license?.brandSettings?.headline || section.content.headline,
               tagline: license?.brandSettings?.tagline || section.content.tagline,
               description: license?.brandSettings?.description || section.content.description
             }
@@ -389,7 +390,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
       onPageSectionsChange?.(updated);
       return updated;
     });
-  }, [license?.brandSettings?.tagline, license?.brandSettings?.description]);
+  }, [license?.brandSettings?.badge, license?.brandSettings?.headline, license?.brandSettings?.tagline, license?.brandSettings?.description]);
 
   const toggleSection = (id: string) => {
     setExpandedSection(expandedSection === id ? null : id);
