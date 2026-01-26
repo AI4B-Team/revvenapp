@@ -1364,6 +1364,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
           onToggleSave={() => toggleSave(items[selectedImageIndex].id)}
           onAnimate={onAnimate}
           onDelete={() => handleDelete(items[selectedImageIndex])}
+          isCommunityView={type === 'community'}
         />
       )}
 
