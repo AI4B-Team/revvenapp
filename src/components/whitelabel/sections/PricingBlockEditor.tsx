@@ -252,13 +252,13 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
               handleMonthlyPriceChange(v);
               setCustomMonthlyPrice('');
             }}
-            min={5}
+            min={0}
             max={1000}
             step={1}
             className="w-full [&_[role=slider]]:bg-emerald-500 [&_[role=slider]]:border-emerald-500 [&_.range]:bg-emerald-500"
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>$5</span>
+            <span>$0</span>
             <span>$1,000</span>
           </div>
 
@@ -287,7 +287,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
                 const val = e.target.value;
                 setCustomMonthlyPrice(val);
                 const num = parseInt(val);
-                if (!isNaN(num) && num >= 5) {
+                if (!isNaN(num) && num >= 0) {
                   handleMonthlyPriceChange(num);
                 }
               }}
@@ -318,13 +318,13 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
               handleOneTimePriceChange(v);
               setCustomOneTimePrice('');
             }}
-            min={47}
+            min={0}
             max={1000}
             step={1}
             className="w-full [&_[role=slider]]:bg-emerald-500 [&_[role=slider]]:border-emerald-500 [&_.range]:bg-emerald-500"
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>$47</span>
+            <span>$0</span>
             <span>$1,000</span>
           </div>
 
@@ -353,7 +353,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
                 const val = e.target.value;
                 setCustomOneTimePrice(val);
                 const num = parseInt(val);
-                if (!isNaN(num) && num >= 47) {
+                if (!isNaN(num) && num >= 0) {
                   handleOneTimePriceChange(num);
                 }
               }}
