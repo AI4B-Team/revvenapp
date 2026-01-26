@@ -978,7 +978,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
           <ImageIcon size={32} className="text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium text-foreground mb-2">No creations yet</h3>
+        <h3 className="text-lg font-medium text-foreground mb-2">No Creations Yet</h3>
         <p className="text-muted-foreground text-center max-w-md">
           Start creating amazing content! Your generated images, videos, documents, and audio will appear here.
         </p>
