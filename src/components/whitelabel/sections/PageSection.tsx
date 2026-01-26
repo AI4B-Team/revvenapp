@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Eye,
   RefreshCw,
@@ -20,7 +21,8 @@ import {
   Star,
   MessageSquare,
   HelpCircle,
-  Zap
+  Zap,
+  Upload
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -384,11 +386,23 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
           break;
         case 'features':
           updateSectionContent(sectionId, {
+            headline: 'Why Choose Us',
             features: [
-              { title: 'Smart AI', description: 'Constantly evolving intelligence at your fingertips' },
-              { title: 'Built for You', description: 'Every agent is designed to serve your specific needs' },
-              { title: 'Plug & Play', description: 'No setup needed. Just log in and get things done.' },
-              { title: '24/7 Available', description: 'Get help anytime, anywhere, on any device.' }
+              { title: 'Smart AI', description: 'Constantly evolving intelligence at your fingertips', icon: '🧠' },
+              { title: 'Built for You', description: 'Every agent is designed to serve your specific needs', icon: '🎯' },
+              { title: 'Plug & Play', description: 'No setup needed. Just log in and get things done.', icon: '⚡' },
+              { title: '24/7 Available', description: 'Get help anytime, anywhere, on any device.', icon: '🌐' }
+            ]
+          });
+          break;
+        case 'capabilities':
+          updateSectionContent(sectionId, {
+            headline: 'What We Offer',
+            cards: [
+              { title: 'Automation', description: 'Automate repetitive tasks and save hours every week', icon: '🤖' },
+              { title: 'Analytics', description: 'Get real-time insights and data-driven decisions', icon: '📊' },
+              { title: 'Collaboration', description: 'Work seamlessly with your team in one platform', icon: '👥' },
+              { title: 'Integration', description: 'Connect with your favorite tools and workflows', icon: '🔗' }
             ]
           });
           break;
@@ -609,81 +623,99 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                           </div>
                           
                           {/* Icon Selection */}
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">Icon (Optional)</Label>
-                            <div className="flex items-center gap-2">
-                              {feature.iconUrl ? (
-                                <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-border shrink-0">
-                                  <img src={feature.iconUrl} alt="Icon" className="w-full h-full object-cover" />
-                                  <button
-                                    onClick={() => {
-                                      const newFeatures = [...section.content.features];
-                                      newFeatures[idx] = { ...feature, iconUrl: '' };
-                                      updateSectionContent(section.id, { features: newFeatures });
-                                    }}
-                                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-white flex items-center justify-center text-xs"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              ) : (
-                                <>
-                                  <div className="relative w-10 h-10 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-background hover:bg-muted/50 cursor-pointer shrink-0">
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                          const reader = new FileReader();
-                                          reader.onloadend = () => {
-                                            const newFeatures = [...section.content.features];
-                                            newFeatures[idx] = { ...feature, iconUrl: reader.result as string };
-                                            updateSectionContent(section.id, { features: newFeatures });
-                                          };
-                                          reader.readAsDataURL(file);
-                                        }
+                          <div className="flex items-center gap-3">
+                            <div className="relative group">
+                              <div className="w-12 h-12 rounded-lg border border-border flex items-center justify-center bg-muted/30 text-2xl shrink-0">
+                                {feature.iconUrl ? (
+                                  <img src={feature.iconUrl} alt="Icon" className="w-full h-full object-contain rounded-lg" />
+                                ) : (
+                                  <span>{feature.icon || '⚡'}</span>
+                                )}
+                              </div>
+                              {/* Replace overlay on hover */}
+                              <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <button className="text-white text-xs font-medium hover:underline">
+                                      Replace
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-48 p-2 space-y-2" align="start">
+                                    <div className="space-y-1">
+                                      <Label className="text-xs">Emoji</Label>
+                                      <Input
+                                        value={feature.icon || ''}
+                                        onChange={(e) => {
+                                          const newFeatures = [...section.content.features];
+                                          newFeatures[idx] = { ...feature, icon: e.target.value, iconUrl: '' };
+                                          updateSectionContent(section.id, { features: newFeatures });
+                                        }}
+                                        placeholder="⚡"
+                                        className="h-8 text-center"
+                                      />
+                                    </div>
+                                    <div className="relative">
+                                      <Button variant="outline" size="sm" className="w-full gap-2 h-8 text-xs">
+                                        <Upload className="h-3 w-3" />
+                                        Upload Image
+                                      </Button>
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                              const newFeatures = [...section.content.features];
+                                              newFeatures[idx] = { ...feature, iconUrl: reader.result as string };
+                                              updateSectionContent(section.id, { features: newFeatures });
+                                            };
+                                            reader.readAsDataURL(file);
+                                          }
+                                        }}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                      />
+                                    </div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={async () => {
+                                        setIsGenerating(`feature-icon-${idx}`);
+                                        await new Promise(resolve => setTimeout(resolve, 1500));
+                                        const icons = ['✨', '🚀', '💡', '🎯', '⚡', '🔥', '💎', '🌟'];
+                                        const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                                        const newFeatures = [...section.content.features];
+                                        newFeatures[idx] = { ...feature, icon: randomIcon, iconUrl: '' };
+                                        updateSectionContent(section.id, { features: newFeatures });
+                                        setIsGenerating(null);
+                                        toast.success('Icon generated!');
                                       }}
-                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    />
-                                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                                  </div>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={async () => {
-                                      setIsGenerating(`feature-icon-${idx}`);
-                                      await new Promise(resolve => setTimeout(resolve, 1500));
-                                      const newFeatures = [...section.content.features];
-                                      newFeatures[idx] = { ...feature, iconUrl: 'https://api.iconify.design/fluent-emoji-flat/sparkles.svg' };
-                                      updateSectionContent(section.id, { features: newFeatures });
-                                      setIsGenerating(null);
-                                      toast.success('Icon generated!');
-                                    }}
-                                    disabled={isGenerating === `feature-icon-${idx}`}
-                                    className="gap-1 h-8 text-xs"
-                                  >
-                                    {isGenerating === `feature-icon-${idx}` ? (
-                                      <RefreshCw className="h-3 w-3 animate-spin" />
-                                    ) : (
-                                      <Sparkles className="h-3 w-3" />
-                                    )}
-                                    AI Icon
-                                  </Button>
-                                </>
-                              )}
+                                      disabled={isGenerating === `feature-icon-${idx}`}
+                                      className="w-full gap-2 h-8 text-xs"
+                                    >
+                                      {isGenerating === `feature-icon-${idx}` ? (
+                                        <RefreshCw className="h-3 w-3 animate-spin" />
+                                      ) : (
+                                        <Sparkles className="h-3 w-3" />
+                                      )}
+                                      Generate With AI
+                                    </Button>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
                             </div>
+                            <Input
+                              value={feature.title}
+                              onChange={(e) => {
+                                const newFeatures = [...section.content.features];
+                                newFeatures[idx] = { ...feature, title: e.target.value };
+                                updateSectionContent(section.id, { features: newFeatures });
+                              }}
+                              placeholder="Feature title"
+                              className="flex-1"
+                            />
                           </div>
-                          
-                          <Input
-                            value={feature.title}
-                            onChange={(e) => {
-                              const newFeatures = [...section.content.features];
-                              newFeatures[idx] = { ...feature, title: e.target.value };
-                              updateSectionContent(section.id, { features: newFeatures });
-                            }}
-                            placeholder="Feature title"
-                          />
                           <Input
                             value={feature.description}
                             onChange={(e) => {
@@ -737,92 +769,100 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                             </Button>
                           </div>
                           
-                          {/* Icon Selection */}
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">Icon</Label>
-                            <div className="flex items-center gap-2">
-                              {card.iconUrl ? (
-                                <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-border shrink-0">
-                                  <img src={card.iconUrl} alt="Icon" className="w-full h-full object-cover" />
-                                  <button
-                                    onClick={() => {
-                                      const newCards = [...section.content.cards];
-                                      newCards[idx] = { ...card, iconUrl: '' };
-                                      updateSectionContent(section.id, { cards: newCards });
-                                    }}
-                                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-white flex items-center justify-center text-xs"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              ) : (
-                                <>
-                                  <div className="relative w-10 h-10 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-background hover:bg-muted/50 cursor-pointer shrink-0">
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                          const reader = new FileReader();
-                                          reader.onloadend = () => {
-                                            const newCards = [...section.content.cards];
-                                            newCards[idx] = { ...card, iconUrl: reader.result as string };
-                                            updateSectionContent(section.id, { cards: newCards });
-                                          };
-                                          reader.readAsDataURL(file);
-                                        }
+                          {/* Icon + Title Row */}
+                          <div className="flex items-center gap-3">
+                            <div className="relative group">
+                              <div className="w-12 h-12 rounded-lg border border-border flex items-center justify-center bg-muted/30 text-2xl shrink-0">
+                                {card.iconUrl ? (
+                                  <img src={card.iconUrl} alt="Icon" className="w-full h-full object-contain rounded-lg" />
+                                ) : (
+                                  <span>{card.icon || '✨'}</span>
+                                )}
+                              </div>
+                              {/* Replace overlay on hover */}
+                              <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <button className="text-white text-xs font-medium hover:underline">
+                                      Replace
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-48 p-2 space-y-2" align="start">
+                                    <div className="space-y-1">
+                                      <Label className="text-xs">Emoji</Label>
+                                      <Input
+                                        value={card.icon || ''}
+                                        onChange={(e) => {
+                                          const newCards = [...section.content.cards];
+                                          newCards[idx] = { ...card, icon: e.target.value, iconUrl: '' };
+                                          updateSectionContent(section.id, { cards: newCards });
+                                        }}
+                                        placeholder="✨"
+                                        className="h-8 text-center"
+                                      />
+                                    </div>
+                                    <div className="relative">
+                                      <Button variant="outline" size="sm" className="w-full gap-2 h-8 text-xs">
+                                        <Upload className="h-3 w-3" />
+                                        Upload Image
+                                      </Button>
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                              const newCards = [...section.content.cards];
+                                              newCards[idx] = { ...card, iconUrl: reader.result as string };
+                                              updateSectionContent(section.id, { cards: newCards });
+                                            };
+                                            reader.readAsDataURL(file);
+                                          }
+                                        }}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                      />
+                                    </div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={async () => {
+                                        setIsGenerating(`cap-icon-${idx}`);
+                                        await new Promise(resolve => setTimeout(resolve, 1500));
+                                        const icons = ['🚀', '📊', '👥', '🔗', '💡', '⚡', '🎯', '🌟'];
+                                        const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                                        const newCards = [...section.content.cards];
+                                        newCards[idx] = { ...card, icon: randomIcon, iconUrl: '' };
+                                        updateSectionContent(section.id, { cards: newCards });
+                                        setIsGenerating(null);
+                                        toast.success('Icon generated!');
                                       }}
-                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    />
-                                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                                  </div>
-                                  <Input
-                                    value={card.icon}
-                                    onChange={(e) => {
-                                      const newCards = [...section.content.cards];
-                                      newCards[idx] = { ...card, icon: e.target.value };
-                                      updateSectionContent(section.id, { cards: newCards });
-                                    }}
-                                    placeholder="Emoji"
-                                    className="w-14 text-center"
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={async () => {
-                                      setIsGenerating(`cap-icon-${idx}`);
-                                      await new Promise(resolve => setTimeout(resolve, 1500));
-                                      const newCards = [...section.content.cards];
-                                      newCards[idx] = { ...card, iconUrl: 'https://api.iconify.design/fluent-emoji-flat/rocket.svg' };
-                                      updateSectionContent(section.id, { cards: newCards });
-                                      setIsGenerating(null);
-                                      toast.success('Icon generated!');
-                                    }}
-                                    disabled={isGenerating === `cap-icon-${idx}`}
-                                    className="gap-1 h-8 text-xs"
-                                  >
-                                    {isGenerating === `cap-icon-${idx}` ? (
-                                      <RefreshCw className="h-3 w-3 animate-spin" />
-                                    ) : (
-                                      <Sparkles className="h-3 w-3" />
-                                    )}
-                                    AI
-                                  </Button>
-                                </>
-                              )}
+                                      disabled={isGenerating === `cap-icon-${idx}`}
+                                      className="w-full gap-2 h-8 text-xs"
+                                    >
+                                      {isGenerating === `cap-icon-${idx}` ? (
+                                        <RefreshCw className="h-3 w-3 animate-spin" />
+                                      ) : (
+                                        <Sparkles className="h-3 w-3" />
+                                      )}
+                                      Generate With AI
+                                    </Button>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
                             </div>
+                            <Input
+                              value={card.title}
+                              onChange={(e) => {
+                                const newCards = [...section.content.cards];
+                                newCards[idx] = { ...card, title: e.target.value };
+                                updateSectionContent(section.id, { cards: newCards });
+                              }}
+                              placeholder="Title"
+                              className="flex-1"
+                            />
                           </div>
-                          
-                          <Input
-                            value={card.title}
-                            onChange={(e) => {
-                              const newCards = [...section.content.cards];
-                              newCards[idx] = { ...card, title: e.target.value };
-                              updateSectionContent(section.id, { cards: newCards });
-                            }}
-                            placeholder="Title"
-                          />
                           <Textarea
                             value={card.description}
                             onChange={(e) => {

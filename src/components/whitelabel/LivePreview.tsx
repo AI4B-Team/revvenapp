@@ -667,6 +667,8 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           >
                             {feature.iconUrl ? (
                               <img src={feature.iconUrl} alt="" className="w-full h-full object-contain" />
+                            ) : feature.icon ? (
+                              <span className="text-xl">{feature.icon}</span>
                             ) : (
                               <Zap size={20} />
                             )}
