@@ -61,12 +61,20 @@ export function RichHeadlineEditor({
   const [isColorPickerOpen, setIsColorPickerOpen] = React.useState(false);
   const [customColor, setCustomColor] = React.useState('#000000');
 
-  // Initialize editor content
+  // Keep editor content in sync with external value changes.
+  // (Avoid clobbering the caret while the user is actively typing.)
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value) {
-      editorRef.current.innerHTML = value || '';
+    const el = editorRef.current;
+    if (!el) return;
+
+    const next = value || '';
+    const isFocused = document.activeElement === el;
+    if (isFocused) return;
+
+    if (el.innerHTML !== next) {
+      el.innerHTML = next;
     }
-  }, []);
+  }, [value]);
 
   const handleInput = useCallback(() => {
     if (editorRef.current) {
