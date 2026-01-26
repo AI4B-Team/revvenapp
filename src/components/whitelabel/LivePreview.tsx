@@ -863,7 +863,10 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                         </div>
                       </div>
                       <div className="space-y-2 py-3 border-t border-zinc-100">
-                        {['Unlimited AI Usage', 'Priority Support', `${checkoutConfig?.guaranteeDays || 14}-Day Money-Back Guarantee`].map((item, idx) => (
+                        {(license?.pricingSettings?.pricingFeatures?.length 
+                          ? license.pricingSettings.pricingFeatures 
+                          : ['Unlimited AI Usage', 'Priority Support', `${checkoutConfig?.guaranteeDays || 14}-Day Money-Back Guarantee`]
+                        ).map((item, idx) => (
                           <div key={idx} className="flex items-center gap-2 text-sm text-zinc-600">
                             <Check size={14} className="text-emerald-500" />
                             {item}
@@ -1236,10 +1239,16 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       const oneTimePrice = license?.pricingSettings?.oneTimePrice || 297;
                       const orderBumps = checkoutConfig?.orderBumps?.filter(b => b.enabled) || [];
                       
-                      // Generate compelling app-specific features
+                      // Get pricing features - use custom ones if available, otherwise default based on app
                       const getAppFeatures = () => {
+                        // First check if user has set custom features
+                        if (license?.pricingSettings?.pricingFeatures?.length) {
+                          return license.pricingSettings.pricingFeatures;
+                        }
+                        
+                        // Fall back to app-specific defaults
                         const appName = app?.name?.toLowerCase() || '';
-                        const features = {
+                        const features: Record<string, string[]> = {
                           'digital influencer': [
                             'Unlimited AI Content Generation',
                             'Advanced Audience Analytics',

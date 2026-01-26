@@ -77,6 +77,7 @@ export interface AppLicense {
     monthlyPrice: number;
     setupFee?: number;
     oneTimePrice?: number;
+    pricingFeatures?: string[];
   };
   publishStatus: 'draft' | 'live';
   activatedAt?: Date;
