@@ -30,6 +30,9 @@ const colorOptions = [
   { id: 'yellow', name: 'Yellow', hex: '#F1C40F', gradient: 'from-yellow-300 to-yellow-500', description: 'Sunshine, joy, happiness, intellect, cheerfulness, and energy' },
   { id: 'green', name: 'Green', hex: '#27AE60', gradient: 'from-green-300 to-green-500', description: 'Growth, nature, health, harmony, and freshness' },
   { id: 'teal', name: 'Teal', hex: '#1ABC9C', gradient: 'from-teal-300 to-teal-500', description: 'Clarity, balance, calmness, and sophistication' },
+  { id: 'cyan', name: 'Cyan', hex: '#00BCD4', gradient: 'from-cyan-300 to-cyan-500', description: 'Innovation, technology, freshness, and modernity' },
+  { id: 'white', name: 'White', hex: '#FFFFFF', gradient: 'from-gray-100 to-white', description: 'Purity, simplicity, cleanliness, minimalism, and elegance' },
+  { id: 'black', name: 'Black', hex: '#1a1a2e', gradient: 'from-gray-800 to-gray-900', description: 'Sophistication, luxury, power, elegance, and authority' },
   { id: 'grayscale', name: 'Greyscale', hex: '#7F8C8D', gradient: 'from-gray-400 to-gray-600', description: 'Power, elegance, reliability, intelligence, modesty, and maturity' },
 ];
 
