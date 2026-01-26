@@ -48,6 +48,15 @@ const AppLicense = () => {
     enableGuarantee: true,
     enableFAQs: true,
     checkoutFAQs: [{ q: 'Will I have access to all AIs?', a: 'Yes! You will have access to the main AIs on the market, all integrated in a single platform for you.' }],
+    enableConversionBooster: true,
+    discountPercent: 15,
+    discountDuration: 3,
+    enableUrgencyTimer: true,
+    enableSpotlightCard: true,
+    spotlightTitle: 'What You Get Immediately',
+    spotlightItems: ['Full Platform Access In 2 Minutes', 'Unlimited AI Usage Included', '14-Day Money-Back Guarantee'],
+    enableBadges: true,
+    selectedBadges: ['ssl', 'pci', 'stripe', 'gdpr'],
   });
 
   const handleAIVAToggle = () => {
