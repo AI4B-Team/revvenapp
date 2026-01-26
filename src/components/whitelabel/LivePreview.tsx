@@ -405,46 +405,27 @@ function HeroPreview({
   );
 }
 
-// Pricing Section with Order Bumps (with local state for bump selection)
-interface PricingSectionWithBumpsProps {
+// Pricing Section (without Order Bumps - those are on checkout only)
+interface PricingSectionProps {
   section: PageBlock;
   pricingModel: 'monthly' | 'one-time' | 'both' | undefined;
   setupFee: number;
   monthlyPrice: number;
   oneTimePrice: number;
   primaryColor: string;
-  orderBumps: Array<{
-    id: string;
-    enabled: boolean;
-    headline: string;
-    description: string;
-    price: number;
-    originalPrice?: number;
-  }>;
   getAppFeatures: () => string[];
 }
 
-function PricingSectionWithBumps({
+function PricingSection({
   section,
   pricingModel,
   setupFee,
   monthlyPrice,
   oneTimePrice,
   primaryColor,
-  orderBumps,
   getAppFeatures,
-}: PricingSectionWithBumpsProps) {
-  const [selectedBumps, setSelectedBumps] = React.useState<string[]>([]);
-  
-  const toggleBump = (bumpId: string) => {
-    setSelectedBumps(prev => 
-      prev.includes(bumpId) ? prev.filter(id => id !== bumpId) : [...prev, bumpId]
-    );
-  };
-  
+}: PricingSectionProps) {
   const basePrice = pricingModel === 'one-time' ? oneTimePrice : monthlyPrice;
-  const bumpTotal = orderBumps.filter(b => selectedBumps.includes(b.id)).reduce((sum, b) => sum + b.price, 0);
-  const totalPrice = basePrice + bumpTotal;
   
   return (
     <div className="px-6 md:px-12 lg:px-16 py-12">
@@ -472,14 +453,9 @@ function PricingSectionWithBumps({
             
             {/* Main Price Display */}
             <div className="text-4xl font-bold text-zinc-900 mb-4">
-              ${totalPrice.toFixed(0)}
+              ${basePrice.toFixed(0)}
               {pricingModel !== 'one-time' && (
                 <span className="text-lg font-normal text-zinc-500">/mo</span>
-              )}
-              {bumpTotal > 0 && (
-                <span className="text-sm font-normal text-emerald-600 ml-2">
-                  +${bumpTotal} add-ons
-                </span>
               )}
             </div>
             <ul className="text-left space-y-3 mb-6">
@@ -497,48 +473,6 @@ function PricingSectionWithBumps({
               Get Started Now
             </button>
           </div>
-          
-          {/* Order Bumps */}
-          {orderBumps.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-zinc-700 text-center">Enhance Your Purchase</p>
-              {orderBumps.map((bump) => {
-                const isSelected = selectedBumps.includes(bump.id);
-                return (
-                  <div 
-                    key={bump.id}
-                    onClick={() => toggleBump(bump.id)}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      isSelected 
-                        ? 'border-amber-500 bg-amber-50' 
-                        : 'border-zinc-200 bg-white hover:border-zinc-300'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                        isSelected ? 'border-amber-500 bg-amber-500' : 'border-zinc-300'
-                      }`}>
-                        {isSelected && <Check size={12} className="text-white" />}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-zinc-900 text-sm">{bump.headline}</span>
-                          <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">SPECIAL</span>
-                        </div>
-                        <p className="text-xs text-zinc-500 mb-2">{bump.description}</p>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-emerald-600">${bump.price}</span>
-                          {bump.originalPrice && (
-                            <span className="text-sm text-zinc-400 line-through">${bump.originalPrice}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -1233,7 +1167,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       };
                       
                       return (
-                        <PricingSectionWithBumps
+                        <PricingSection
                           key={section.id}
                           section={section}
                           pricingModel={pricingModel}
@@ -1241,7 +1175,6 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           monthlyPrice={monthlyPrice}
                           oneTimePrice={oneTimePrice}
                           primaryColor={primaryColor}
-                          orderBumps={orderBumps}
                           getAppFeatures={getAppFeatures}
                         />
                       );
