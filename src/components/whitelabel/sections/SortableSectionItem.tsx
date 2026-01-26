@@ -20,6 +20,7 @@ import {
 import { toast } from 'sonner';
 import AITextInput from '../AITextInput';
 import AIIconGenerator from '../AIIconGenerator';
+import { PricingBlockEditor } from './PricingBlockEditor';
 import type { PageBlock } from './PageSection';
 
 interface SortableSectionItemProps {
@@ -633,25 +634,10 @@ export function SortableSectionItem({
           )}
 
           {section.type === 'pricing' && (
-            <div className="space-y-4">
-              <AITextInput
-                label="Section Headline"
-                value={section.content.headline || ''}
-                onChange={(value) => updateSectionContent(section.id, { headline: value })}
-                placeholder="Simple, Transparent Pricing"
-                context="headline"
-              />
-              <AITextInput
-                label="Subheadline"
-                value={section.content.subheadline || ''}
-                onChange={(value) => updateSectionContent(section.id, { subheadline: value })}
-                placeholder="Start free, upgrade when you need more"
-                context="subheadline"
-              />
-              <p className="text-sm text-muted-foreground">
-                Pricing tiers are configured in the Pricing section of the sidebar.
-              </p>
-            </div>
+            <PricingBlockEditor
+              content={section.content}
+              onContentChange={(updates) => updateSectionContent(section.id, updates)}
+            />
           )}
 
           {section.type === 'cta' && (
