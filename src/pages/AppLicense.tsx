@@ -17,8 +17,6 @@ import {
   PageSection,
   CheckoutSection,
   DomainSection,
-  IntegrationsSection,
-  MarketingSection,
   LegalSection,
   SettingsSection,
   LivePreview,
@@ -281,8 +279,6 @@ const AppLicense = () => {
       case 'page': return <PageSection app={app} license={license} pageSections={pageSections} onPageSectionsChange={setPageSections} onPricingSettingsChange={handlePricingSettingsChange} />;
       case 'checkout': return <CheckoutSection license={license} checkoutConfig={checkoutConfig} onCheckoutConfigChange={setCheckoutConfig} />;
       case 'domain': return <DomainSection license={license} onUpdate={handleUpdateDomain} canUseCustomDomain={mockMarketplaceWorkspace.plan === 'apps_license'} />;
-      case 'integrations': return <IntegrationsSection />;
-      case 'marketing': return <MarketingSection />;
       case 'legal': return <LegalSection productName={license?.brandSettings?.appName || app?.name} legalDocs={legalDocs} onLegalDocsChange={setLegalDocs} />;
       case 'settings': return <SettingsSection onDeactivate={handleDeactivateLicense} />;
       default: return null;
@@ -333,35 +329,45 @@ const AppLicense = () => {
         />
       </div>
       
-      {/* Main Content Area - 2 Resizable Panels */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <div className="flex-1 overflow-hidden">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            {/* Content/Form Panel */}
-            <ResizablePanel defaultSize={45} minSize={30} maxSize={60}>
-              <div className="h-full overflow-y-auto p-6 bg-background">
-                <div className="max-w-2xl">
-                  {renderSection()}
-                </div>
+          {activeSection === 'settings' ? (
+            // Settings section takes full width - no live preview
+            <div className="h-full overflow-y-auto p-6 bg-background">
+              <div className="max-w-4xl mx-auto">
+                {renderSection()}
               </div>
-            </ResizablePanel>
-            
-            <ResizableHandle withHandle />
-            
-            {/* Live Preview Panel */}
-            <ResizablePanel defaultSize={55} minSize={40}>
-              <LivePreview 
-                app={app} 
-                license={license} 
-                activeSection={activeSection}
-                checkoutConfig={checkoutConfig}
-                legalDocs={legalDocs}
-                pageSections={pageSections}
-                pageStyle={pageStyle}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+            </div>
+          ) : (
+            // Other sections have resizable panels with live preview
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+              {/* Content/Form Panel */}
+              <ResizablePanel defaultSize={45} minSize={30} maxSize={60}>
+                <div className="h-full overflow-y-auto p-6 bg-background">
+                  <div className="max-w-2xl">
+                    {renderSection()}
+                  </div>
+                </div>
+              </ResizablePanel>
+              
+              <ResizableHandle withHandle />
+              
+              {/* Live Preview Panel */}
+              <ResizablePanel defaultSize={55} minSize={40}>
+                <LivePreview 
+                  app={app} 
+                  license={license} 
+                  activeSection={activeSection}
+                  checkoutConfig={checkoutConfig}
+                  legalDocs={legalDocs}
+                  pageSections={pageSections}
+                  pageStyle={pageStyle}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          )}
         </div>
       </div>
     </div>
