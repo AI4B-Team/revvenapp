@@ -502,11 +502,95 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
                         />
                         <p className="text-xs text-muted-foreground">{(section.content.description?.length || 0)}/300</p>
                       </div>
+                      
+                      {/* Hero Visual Image */}
+                      <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Hero Visual</Label>
+                          {section.content.heroImageUrl && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => updateSectionContent(section.id, { heroImageUrl: '' })}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Upload or generate an image for split layouts. Uses app thumbnail by default.
+                        </p>
+                        
+                        {section.content.heroImageUrl ? (
+                          <div className="relative w-full aspect-square max-w-[200px] rounded-xl overflow-hidden border border-border">
+                            <img 
+                              src={section.content.heroImageUrl} 
+                              alt="Hero visual" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-background hover:bg-muted/50 transition-colors cursor-pointer relative">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                      updateSectionContent(section.id, { heroImageUrl: reader.result as string });
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              />
+                              <ImageIcon className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                              <p className="font-medium text-sm text-foreground">Upload Image</p>
+                              <p className="text-xs text-muted-foreground">Click or drag to upload</p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              onClick={async () => {
+                                setIsGenerating('hero-image');
+                                await new Promise(resolve => setTimeout(resolve, 2000));
+                                // Mock AI-generated image placeholder
+                                updateSectionContent(section.id, { 
+                                  heroImageUrl: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=400&fit=crop' 
+                                });
+                                setIsGenerating(null);
+                                toast.success('AI image generated!');
+                              }}
+                              disabled={isGenerating === 'hero-image'}
+                              className="gap-2"
+                            >
+                              {isGenerating === 'hero-image' ? (
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Sparkles className="h-4 w-4" />
+                              )}
+                              Generate With AI
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </>
                   )}
 
                   {section.type === 'features' && (
                     <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Section Headline</Label>
+                        <Input
+                          value={section.content.headline || ''}
+                          onChange={(e) => updateSectionContent(section.id, { headline: e.target.value })}
+                          placeholder="Why Choose Us"
+                        />
+                      </div>
+                      
                       {(section.content.features || []).map((feature: any, idx: number) => (
                         <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
                           <div className="flex items-center justify-between">
@@ -559,6 +643,15 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
 
                   {section.type === 'capabilities' && (
                     <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Section Headline</Label>
+                        <Input
+                          value={section.content.headline || ''}
+                          onChange={(e) => updateSectionContent(section.id, { headline: e.target.value })}
+                          placeholder="What We Offer"
+                        />
+                      </div>
+                      
                       {(section.content.cards || []).map((card: any, idx: number) => (
                         <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
                           <div className="flex items-center justify-between">

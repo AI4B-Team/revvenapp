@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import type { CheckoutConfig } from './sections/CheckoutSection';
+import { getAppThumbnail } from '@/utils/appThumbnails';
 
 interface LegalDocument {
   id: string;
@@ -68,9 +69,11 @@ interface HeroPreviewProps {
   primaryColor: string;
   logoUrl?: string;
   selectedIcon: string;
+  heroImageUrl?: string;
+  appThumbnail?: string;
 }
 
-function HeroPreview({ style, badge, tagline, description, productName, primaryColor, logoUrl, selectedIcon }: HeroPreviewProps) {
+function HeroPreview({ style, badge, tagline, description, productName, primaryColor, logoUrl, selectedIcon, heroImageUrl, appThumbnail }: HeroPreviewProps) {
   const renderLogo = () => (
     logoUrl ? (
       <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
@@ -118,6 +121,32 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
     </div>
   );
 
+  // Render hero visual element (custom image, app thumbnail, or gradient fallback)
+  const renderHeroVisual = (size: 'sm' | 'lg' = 'lg') => {
+    const sizeClass = size === 'lg' ? 'w-32 h-32' : 'w-24 h-24';
+    
+    if (heroImageUrl) {
+      return (
+        <div className={`${sizeClass} rounded-2xl overflow-hidden shadow-lg shrink-0`}>
+          <img src={heroImageUrl} alt="Hero visual" className="w-full h-full object-cover" />
+        </div>
+      );
+    }
+    
+    if (appThumbnail) {
+      return (
+        <div className={`${sizeClass} rounded-2xl overflow-hidden shadow-lg shrink-0 bg-white`}>
+          <img src={appThumbnail} alt="App visual" className="w-full h-full object-cover" />
+        </div>
+      );
+    }
+    
+    // Fallback gradient
+    return (
+      <div className={`${sizeClass} rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-500 opacity-70 shrink-0`} />
+    );
+  };
+
   switch (style) {
     case 'split-left':
       return (
@@ -133,7 +162,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
             {description && <p className="text-sm text-zinc-500 mb-6">{description}</p>}
             {renderCTAButtons()}
           </div>
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 opacity-70 shrink-0" />
+          {renderHeroVisual('lg')}
         </div>
       );
     case 'split-right':
@@ -142,7 +171,7 @@ function HeroPreview({ style, badge, tagline, description, productName, primaryC
           className="px-8 py-16 flex items-center gap-8"
           style={{ background: `linear-gradient(135deg, ${primaryColor}10 0%, ${primaryColor}05 100%)` }}
         >
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 opacity-70 shrink-0" />
+          {renderHeroVisual('lg')}
           <div className="flex-1 text-right">
             <div className="mb-4 flex justify-end">{renderLogo()}</div>
             <div className="mb-4">{renderBadge()}</div>
@@ -576,6 +605,8 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     primaryColor={primaryColor}
                     logoUrl={logoUrl}
                     selectedIcon={selectedIcon}
+                    heroImageUrl={pageSections.find(s => s.id === 'hero')?.content?.heroImageUrl}
+                    appThumbnail={app ? getAppThumbnail(app.name) : undefined}
                   />
                 )}
 
@@ -583,7 +614,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                 {(pageSections.find(s => s.id === 'features')?.enabled !== false) && (
                   <div className="px-8 py-12 bg-zinc-50">
                     <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                      Why Choose Us
+                      {pageSections.find(s => s.id === 'features')?.content?.headline || 'Why Choose Us'}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {(pageSections.find(s => s.id === 'features')?.content?.features || [
@@ -610,7 +641,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                 {(pageSections.find(s => s.id === 'capabilities')?.enabled !== false) && (
                   <div className="px-8 py-12">
                     <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-                      What We Offer
+                      {pageSections.find(s => s.id === 'capabilities')?.content?.headline || 'What We Offer'}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {(pageSections.find(s => s.id === 'capabilities')?.content?.cards || [
