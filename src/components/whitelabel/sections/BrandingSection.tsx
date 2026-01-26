@@ -630,18 +630,6 @@ export function BrandingSection({ license, onUpdate }: BrandingSectionProps) {
                 </div>
               )}
             </div>
-
-            {/* Logo Generator Wizard Modal */}
-            <LogoGeneratorWizard
-              isOpen={isLogoWizardOpen}
-              onClose={() => setIsLogoWizardOpen(false)}
-              onSelectLogo={(url) => {
-                setLogoUrl(url);
-                setUseCustomLogo(true);
-                setGeneratedLogos([]);
-              }}
-              productName={license?.brandSettings?.appName}
-            />
           </div>
         )}
       </div>
