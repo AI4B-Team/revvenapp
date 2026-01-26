@@ -241,33 +241,36 @@ export function LogoGeneratorWizard({ isOpen, onClose, onSelectLogo, productName
           <div className="p-6">
             {step === 'colors' && (
               <div className="grid grid-cols-3 gap-4">
-                {colorOptions.map((color) => (
-                  <button
-                    key={color.id}
-                    onClick={() => toggleColor(color.id)}
-                    className={`group relative rounded-xl overflow-hidden transition-all ${
-                      selectedColors.includes(color.id)
-                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
-                        : 'hover:scale-105'
-                    }`}
-                  >
-                    <div 
-                      className={`h-28 bg-gradient-to-br ${color.gradient} flex items-end p-3`}
+                {colorOptions.map((color) => {
+                  const isWhite = color.id === 'white';
+                  return (
+                    <button
+                      key={color.id}
+                      onClick={() => toggleColor(color.id)}
+                      className={`group relative rounded-xl overflow-hidden transition-all ${
+                        selectedColors.includes(color.id)
+                          ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                          : 'hover:scale-105'
+                      } ${isWhite ? 'border-2 border-border' : ''}`}
                     >
-                      <div className="text-left">
-                        <p className="font-semibold text-white">{color.name}</p>
-                        <p className="text-xs text-white/80 mt-1 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {color.description}
-                        </p>
+                      <div 
+                        className={`h-28 bg-gradient-to-br ${color.gradient} flex items-end p-3`}
+                      >
+                        <div className="text-left">
+                          <p className={`font-semibold ${isWhite ? 'text-gray-800' : 'text-white'}`}>{color.name}</p>
+                          <p className={`text-xs mt-1 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity ${isWhite ? 'text-gray-600' : 'text-white/80'}`}>
+                            {color.description}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    {selectedColors.includes(color.id) && (
-                      <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                        <Check className="h-4 w-4 text-primary" />
-                      </div>
-                    )}
-                  </button>
-                ))}
+                      {selectedColors.includes(color.id) && (
+                        <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center ${isWhite ? 'bg-gray-800' : 'bg-white'}`}>
+                          <Check className={`h-4 w-4 ${isWhite ? 'text-white' : 'text-primary'}`} />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
 
