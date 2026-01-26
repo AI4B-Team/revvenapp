@@ -749,6 +749,27 @@ export function SortableSectionItem({
                 placeholder="Empowering businesses with AI"
                 context="tagline"
               />
+              
+              {/* Text Alignment */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Text Alignment</Label>
+                <div className="flex gap-2">
+                  {(['left', 'center', 'right'] as const).map((align) => (
+                    <button
+                      key={align}
+                      onClick={() => updateSectionContent(section.id, { textAlign: align })}
+                      className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-colors capitalize ${
+                        (section.content.textAlign || 'left') === align
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-background border-border hover:bg-muted'
+                      }`}
+                    >
+                      {align}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex items-center justify-between">
                 <Label>Show Social Links</Label>
                 <Switch

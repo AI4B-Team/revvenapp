@@ -1523,13 +1523,30 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       const socialLinks = footerContent.socialLinks || {};
                       const companyName = footerContent.companyName || productName;
                       const footerTagline = footerContent.tagline || 'Empowering businesses with AI';
+                      const textAlign = footerContent.textAlign || 'left';
+                      
+                      const getAlignClass = (align: string) => {
+                        switch (align) {
+                          case 'center': return 'text-center';
+                          case 'right': return 'text-right';
+                          default: return 'text-left';
+                        }
+                      };
+                      
+                      const getFlexJustify = (align: string) => {
+                        switch (align) {
+                          case 'center': return 'justify-center';
+                          case 'right': return 'justify-end';
+                          default: return 'justify-start';
+                        }
+                      };
                       
                       return (
                         <div key={section.id} className="px-6 md:px-12 lg:px-16 py-10 bg-zinc-900">
                           <div className="max-w-5xl mx-auto">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                              <div className="text-left">
-                                <div className="flex items-center gap-2 mb-3">
+                            <div className={`grid grid-cols-1 ${showNewsletter || showSocialLinks ? 'md:grid-cols-3' : ''} gap-8 mb-8`}>
+                              <div className={getAlignClass(textAlign)}>
+                                <div className={`flex items-center gap-2 mb-3 ${getFlexJustify(textAlign)}`}>
                                   {logoUrl ? (
                                     <img src={logoUrl} alt="Logo" className="h-8 object-contain brightness-0 invert" />
                                   ) : (
@@ -1546,18 +1563,18 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                               </div>
                               
                               {showNewsletter && (
-                                <div className="text-left">
+                                <div className={getAlignClass(textAlign)}>
                                   <h4 className="font-semibold text-white mb-3">
                                     {footerContent.newsletterHeadline || 'Stay Updated'}
                                   </h4>
                                   <p className="text-zinc-400 text-sm mb-3">
                                     {footerContent.newsletterDescription || 'Get the latest news and updates'}
                                   </p>
-                                  <div className="flex gap-2">
+                                  <div className={`flex gap-2 ${getFlexJustify(textAlign)}`}>
                                     <input 
                                       type="email"
                                       placeholder={footerContent.newsletterPlaceholder || 'Enter your email'}
-                                      className="flex-1 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white placeholder:text-zinc-500"
+                                      className="flex-1 max-w-xs px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white placeholder:text-zinc-500"
                                     />
                                     <button 
                                       className="px-4 py-2 rounded-lg text-sm font-medium text-white"
@@ -1570,9 +1587,9 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                               )}
                               
                               {showSocialLinks && (
-                                <div className="text-left md:text-right">
+                                <div className={getAlignClass(textAlign)}>
                                   <h4 className="font-semibold text-white mb-3">Follow Us</h4>
-                                  <div className="flex gap-3 md:justify-end flex-wrap">
+                                  <div className={`flex gap-3 flex-wrap ${getFlexJustify(textAlign)}`}>
                                     {(() => {
                                       const enabledLinks = Object.entries(socialLinks).filter(
                                         ([_, link]: [string, any]) => link?.enabled && link?.url
@@ -1630,7 +1647,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                             
                             <div className="border-t border-zinc-800 pt-6">
                               {legalDocs.filter(doc => doc.enabled).length > 0 && (
-                                <div className="flex items-center justify-center gap-4 flex-wrap mb-4">
+                                <div className={`flex items-center gap-4 flex-wrap mb-4 ${getFlexJustify(textAlign)}`}>
                                   {legalDocs.filter(doc => doc.enabled).map((doc) => (
                                     <a 
                                       key={doc.id}
@@ -1642,7 +1659,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                                   ))}
                                 </div>
                               )}
-                              <p className="text-zinc-500 text-sm text-center">
+                              <p className={`text-zinc-500 text-sm ${getAlignClass(textAlign)}`}>
                                 © {footerContent.copyrightYear || new Date().getFullYear()} {companyName}. All rights reserved.
                               </p>
                             </div>
