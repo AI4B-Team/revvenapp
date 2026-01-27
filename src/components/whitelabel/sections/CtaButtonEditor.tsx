@@ -3,11 +3,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
+  Plus, 
+  Trash2, 
   ExternalLink,
   Anchor,
   Play,
   ShoppingCart,
   Edit2,
+  ChevronDown,
+  ChevronUp,
   Sparkles,
   Loader2,
 } from 'lucide-react';
@@ -34,10 +38,11 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
-export interface PricingCtaButton {
+export interface CtaButton {
+  id: string;
   text: string;
   style: 'primary' | 'secondary' | 'outline' | 'ghost';
-  action: 'checkout' | 'link' | 'anchor' | 'video';
+  action: 'link' | 'anchor' | 'video' | 'checkout';
   url?: string;
   anchorId?: string;
   videoUrl?: string;
@@ -45,9 +50,10 @@ export interface PricingCtaButton {
   color?: string;
 }
 
-interface PricingCtaButtonEditorProps {
-  button: PricingCtaButton;
-  onChange: (button: PricingCtaButton) => void;
+interface CtaButtonEditorProps {
+  buttons: CtaButton[];
+  onChange: (buttons: CtaButton[]) => void;
+  maxButtons?: number;
 }
 
 const BUTTON_COLORS = [
@@ -59,17 +65,20 @@ const BUTTON_COLORS = [
   { value: '#f97316', label: 'Orange', color: '#f97316', border: false },
   { value: '#ef4444', label: 'Red', color: '#ef4444', border: false },
   { value: '#a855f7', label: 'Purple', color: '#a855f7', border: false },
+  { value: '#ec4899', label: 'Pink', color: '#ec4899', border: false },
+  { value: '#14b8a6', label: 'Teal', color: '#14b8a6', border: false },
+  { value: '#1e3a5f', label: 'Navy', color: '#1e3a5f', border: false },
+  { value: '#6b7280', label: 'Gray', color: '#6b7280', border: false },
+  { value: '#d4a574', label: 'Beige', color: '#d4a574', border: false },
 ];
 
-const defaultButton: PricingCtaButton = {
-  text: 'Get Started Now',
-  style: 'primary',
-  action: 'checkout',
-  color: '',
-};
+const defaultButtons: CtaButton[] = [
+  { id: '1', text: 'Start Your Free Trial', style: 'primary', action: 'checkout' },
+  { id: '2', text: 'Schedule a Demo', style: 'secondary', action: 'anchor', anchorId: 'features' },
+];
 
-export function PricingCtaButtonEditor({ button = defaultButton, onChange }: PricingCtaButtonEditorProps) {
-  const [editingButton, setEditingButton] = useState<PricingCtaButton | null>(null);
+export function CtaButtonEditor({ buttons = defaultButtons, onChange, maxButtons = 2 }: CtaButtonEditorProps) {
+  const [editingButton, setEditingButton] = useState<CtaButton | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isGeneratingText, setIsGeneratingText] = useState(false);
 
@@ -80,7 +89,7 @@ export function PricingCtaButtonEditor({ button = defaultButton, onChange }: Pri
     try {
       const { data, error } = await supabase.functions.invoke('editor-generate-text', {
         body: { 
-          prompt: `Generate 1 short, compelling call-to-action button text (2-4 words max) for a pricing page checkout button. Return ONLY the button text, nothing else. Examples: "Get Started Now", "Start Free Trial", "Choose Plan", "Buy Now", "Subscribe Today"`,
+          prompt: `Generate 1 short, compelling call-to-action button text (2-4 words max) for a ${editingButton.style === 'primary' ? 'primary CTA' : 'secondary'} button. Return ONLY the button text, nothing else. Examples: "Start Free Trial", "Get Started Now", "Schedule a Demo", "Learn More", "Book a Call"`,
           type: 'button'
         }
       });
@@ -103,36 +112,64 @@ export function PricingCtaButtonEditor({ button = defaultButton, onChange }: Pri
     }
   };
 
-  const openEditDialog = () => {
+  const addButton = () => {
+    if (buttons.length >= maxButtons) return;
+    const newButton: CtaButton = {
+      id: Date.now().toString(),
+      text: 'New Button',
+      style: buttons.length === 0 ? 'primary' : 'secondary',
+      action: 'anchor',
+      anchorId: 'pricing',
+    };
+    onChange([...buttons, newButton]);
+  };
+
+  const updateButton = (id: string, updates: Partial<CtaButton>) => {
+    onChange(buttons.map(btn => btn.id === id ? { ...btn, ...updates } : btn));
+  };
+
+  const deleteButton = (id: string) => {
+    onChange(buttons.filter(btn => btn.id !== id));
+  };
+
+  const moveButton = (index: number, direction: 'up' | 'down') => {
+    const newButtons = [...buttons];
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= buttons.length) return;
+    [newButtons[index], newButtons[newIndex]] = [newButtons[newIndex], newButtons[index]];
+    onChange(newButtons);
+  };
+
+  const openEditDialog = (button: CtaButton) => {
     setEditingButton({ ...button });
     setIsDialogOpen(true);
   };
 
   const saveEditDialog = () => {
     if (editingButton) {
-      onChange(editingButton);
+      updateButton(editingButton.id, editingButton);
       setIsDialogOpen(false);
       setEditingButton(null);
     }
   };
 
-  const getActionLabel = (action: string) => {
-    switch (action) {
-      case 'checkout': return 'Go To Checkout';
-      case 'link': return button.url || 'URL';
-      case 'anchor': return `#${button.anchorId || 'section'}`;
-      case 'video': return 'Video Popup';
-      default: return action;
-    }
-  };
-
   const getActionIcon = (action: string) => {
     switch (action) {
-      case 'checkout': return <ShoppingCart className="h-3 w-3" />;
       case 'link': return <ExternalLink className="h-3 w-3" />;
       case 'anchor': return <Anchor className="h-3 w-3" />;
       case 'video': return <Play className="h-3 w-3" />;
-      default: return null;
+      case 'checkout': return <ShoppingCart className="h-3 w-3" />;
+      default: return <ExternalLink className="h-3 w-3" />;
+    }
+  };
+
+  const getActionLabel = (button: CtaButton) => {
+    switch (button.action) {
+      case 'link': return button.url || 'URL';
+      case 'anchor': return `#${button.anchorId || 'section'}`;
+      case 'video': return 'Video Popup';
+      case 'checkout': return 'Go To Checkout';
+      default: return button.action;
     }
   };
 
@@ -147,36 +184,83 @@ export function PricingCtaButtonEditor({ button = defaultButton, onChange }: Pri
   };
 
   return (
-    <>
-      <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold text-foreground">CTA Button</Label>
-        </div>
-        
-        {/* Button Card - Matching HeroButtonEditor format */}
-        <div className="flex items-center gap-2 p-2 rounded-md border border-border bg-background">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm truncate">{button.text}</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                {getStyleLabel(button.style)}
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-              {getActionIcon(button.action)}
-              <span className="truncate">{getActionLabel(button.action)}</span>
-            </div>
-          </div>
-
+    <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-semibold">CTA Buttons</Label>
+        {buttons.length < maxButtons && (
           <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={openEditDialog}
+            variant="outline"
+            size="sm"
+            onClick={addButton}
+            className="gap-1 h-7 text-xs"
           >
-            <Edit2 className="h-3 w-3" />
+            <Plus className="h-3 w-3" />
+            Add Button
           </Button>
-        </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        {buttons.map((button, index) => (
+          <div 
+            key={button.id}
+            className="flex items-center gap-2 p-2 rounded-md border border-border bg-background group"
+          >
+            <div className="flex flex-col gap-0.5">
+              <button
+                onClick={() => moveButton(index, 'up')}
+                disabled={index === 0}
+                className="p-0.5 hover:bg-muted rounded disabled:opacity-30"
+              >
+                <ChevronUp className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => moveButton(index, 'down')}
+                disabled={index === buttons.length - 1}
+                className="p-0.5 hover:bg-muted rounded disabled:opacity-30"
+              >
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm truncate">{button.text}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                  {getStyleLabel(button.style)}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                {getActionIcon(button.action)}
+                <span className="truncate">{getActionLabel(button)}</span>
+              </div>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => openEditDialog(button)}
+            >
+              <Edit2 className="h-3 w-3" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-destructive hover:text-destructive"
+              onClick={() => deleteButton(button.id)}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        ))}
+
+        {buttons.length === 0 && (
+          <p className="text-xs text-muted-foreground text-center py-4">
+            No buttons yet. Click "Add Button" to create one.
+          </p>
+        )}
       </div>
 
       {/* Edit Button Dialog */}
@@ -229,7 +313,7 @@ export function PricingCtaButtonEditor({ button = defaultButton, onChange }: Pri
                   <Label>Style</Label>
                   <Select
                     value={editingButton.style}
-                    onValueChange={(value: PricingCtaButton['style']) => 
+                    onValueChange={(value: CtaButton['style']) => 
                       setEditingButton({ ...editingButton, style: value })
                     }
                   >
@@ -271,7 +355,7 @@ export function PricingCtaButtonEditor({ button = defaultButton, onChange }: Pri
                   <Label>Action</Label>
                   <Select
                     value={editingButton.action}
-                    onValueChange={(value: PricingCtaButton['action']) => 
+                    onValueChange={(value: CtaButton['action']) => 
                       setEditingButton({ ...editingButton, action: value })
                     }
                   >
@@ -321,12 +405,12 @@ export function PricingCtaButtonEditor({ button = defaultButton, onChange }: Pri
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        id="openInNewTabPricing"
+                        id="openInNewTabCta"
                         checked={editingButton.openInNewTab || false}
                         onChange={(e) => setEditingButton({ ...editingButton, openInNewTab: e.target.checked })}
                         className="rounded border-border"
                       />
-                      <Label htmlFor="openInNewTabPricing" className="text-sm cursor-pointer">
+                      <Label htmlFor="openInNewTabCta" className="text-sm cursor-pointer">
                         Open in new tab
                       </Label>
                     </div>
@@ -439,6 +523,6 @@ export function PricingCtaButtonEditor({ button = defaultButton, onChange }: Pri
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
