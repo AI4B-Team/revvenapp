@@ -3012,7 +3012,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           }
 
           // Get character image URL from the selected character
-          const characterImageUrl = motionSyncCharacters[0].image || motionSyncCharacters[0].image_url || motionSyncCharacters[0].avatar;
+          let characterImageUrl = motionSyncCharacters[0].image || motionSyncCharacters[0].image_url || motionSyncCharacters[0].avatar;
           if (!characterImageUrl) {
             toast({
               title: "Character image required",
@@ -3021,6 +3021,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             });
             setIsGenerating(false);
             return;
+          }
+
+          // Ensure image meets minimum size requirement (>300px) for KIE.AI API
+          // If it's an Unsplash URL with size params, increase to 600px minimum
+          if (characterImageUrl.includes('unsplash.com') && characterImageUrl.includes('w=')) {
+            characterImageUrl = characterImageUrl
+              .replace(/w=\d+/, 'w=600')
+              .replace(/h=\d+/, 'h=600');
           }
 
           console.log("Motion-Sync Mode: Starting video generation with kling-2.6/motion-control...");
