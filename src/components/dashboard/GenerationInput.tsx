@@ -390,6 +390,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [recastResolution, setRecastResolution] = useState<'480p' | '580p' | '720p'>('480p');
   const [recastModel, setRecastModel] = useState<'animate-move' | 'animate-replace'>('animate-replace');
   
+  // Motion-Sync mode state - requires video and image (character)
+  const [motionSyncVideo, setMotionSyncVideo] = useState<{ url: string; name: string; id?: string; duration?: number } | null>(null);
+  const [isUploadingMotionSyncVideo, setIsUploadingMotionSyncVideo] = useState(false);
+  const [motionSyncResolution, setMotionSyncResolution] = useState<'720p' | '1080p'>('720p');
+  const [motionSyncOrientation, setMotionSyncOrientation] = useState<'image' | 'video'>('video');
+  
   // Video history for Recast
   const [savedVideos, setSavedVideos] = useState<{ id: string; url: string; name: string; duration?: number }[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
@@ -1565,10 +1571,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Video mode: Track which frame to populate next
   const framePopulateIntentRef = useRef<'start' | 'end' | null>(null);
   
-  // Sync characters for Avatar Video, Lip-Sync, and Recast modes (no frame population)
+  // Sync characters for Avatar Video, Lip-Sync, Recast, and Motion-Sync modes (no frame population)
   useEffect(() => {
     if (!isVideoMode) return;
-    if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync' || selectedAnimateMode === 'Recast') {
+    if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync' || selectedAnimateMode === 'Recast' || selectedAnimateMode === 'Motion-Sync') {
       // Use externalVideoCharacters for video mode (from landing page or parent)
       const videoChars = externalVideoCharacters.length > 0 ? externalVideoCharacters : selectedCharacters;
       setVideoModeState(prev => ({
@@ -1582,8 +1588,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   useEffect(() => {
     if (!isVideoMode) return;
     
-    // Skip frame auto-population in Avatar Video, Lip-Sync, and Recast modes - character is only for API, not frames
-    if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync' || selectedAnimateMode === 'Recast') {
+    // Skip frame auto-population in Avatar Video, Lip-Sync, Recast, and Motion-Sync modes - character is only for API, not frames
+    if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync' || selectedAnimateMode === 'Recast' || selectedAnimateMode === 'Motion-Sync') {
       return;
     }
     
@@ -2980,7 +2986,83 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           return;
         }
 
-        // Check if Avatar Video or Lip-Sync mode requires audio
+        // MOTION-SYNC MODE: Use kling-2.6/motion-control model with video + character image
+        if (selectedAnimateMode === 'Motion-Sync') {
+          // Validate required inputs for Motion-Sync mode
+          if (!motionSyncVideo) {
+            toast({
+              title: "Video required",
+              description: "Please upload a reference video for Motion-Sync",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+          
+          // Use selectedCharacters prop directly for Motion-Sync mode character validation
+          const motionSyncCharacters = selectedCharacters.length > 0 ? selectedCharacters : currentCharacters;
+          if (!motionSyncCharacters.length) {
+            toast({
+              title: "Character required",
+              description: "Please select a character image for Motion-Sync",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+
+          // Get character image URL from the selected character
+          const characterImageUrl = motionSyncCharacters[0].image || motionSyncCharacters[0].image_url || motionSyncCharacters[0].avatar;
+          if (!characterImageUrl) {
+            toast({
+              title: "Character image required",
+              description: "Selected character must have an image",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+
+          console.log("Motion-Sync Mode: Starting video generation with kling-2.6/motion-control...");
+          
+          // Get the authenticated user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            throw new Error("User not authenticated");
+          }
+
+          // Call the generate-video edge function with Motion-Sync specific parameters
+          const motionSyncRequestBody = {
+            isMotionSync: true,
+            userId: user.id,
+            videoUrl: motionSyncVideo.url,
+            imageUrl: characterImageUrl,
+            prompt: prompt.trim() || undefined,
+            characterOrientation: motionSyncOrientation,
+            resolution: motionSyncResolution
+          };
+
+          const { data: motionSyncData, error: motionSyncError } = await supabase.functions.invoke('generate-video', {
+            body: motionSyncRequestBody
+          });
+
+          if (motionSyncError) throw motionSyncError;
+
+          toast({
+            title: "Motion-Sync video generating!",
+            description: "Your Motion-Sync video is being created. This may take a few minutes.",
+          });
+
+          console.log("Motion-Sync video generation started:", motionSyncData);
+          
+          // Clear Motion-Sync state after successful generation
+          setMotionSyncVideo(null);
+          
+          setIsGenerating(false);
+          return;
+        }
+
+
         // Avatar Video and Lip-Sync modes require character and script
         if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') {
           if (!currentCharacters.length) {
@@ -4549,6 +4631,143 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           variant: "destructive",
         });
         setIsUploadingRecastVideo(false);
+      }
+    };
+
+    video.onerror = () => {
+      URL.revokeObjectURL(videoUrl);
+      toast({
+        title: "Invalid video",
+        description: "Could not read video file",
+        variant: "destructive",
+      });
+    };
+
+    video.src = videoUrl;
+  };
+
+  // Motion-Sync video upload handler with duration validation (3-30s depending on orientation)
+  const handleMotionSyncVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a video file (MP4, MOV, MKV)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 100 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Video size must be less than 100MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check video duration (max 30 seconds for video orientation, 10 for image orientation)
+    const videoUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = async () => {
+      URL.revokeObjectURL(videoUrl);
+      const duration = video.duration;
+      
+      const maxDuration = motionSyncOrientation === 'image' ? 10 : 30;
+      if (duration > maxDuration) {
+        toast({
+          title: "Video too long",
+          description: `Video duration is ${Math.round(duration)}s. Maximum allowed is ${maxDuration} seconds for ${motionSyncOrientation} orientation.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (duration < 3) {
+        toast({
+          title: "Video too short",
+          description: `Video duration is ${Math.round(duration)}s. Minimum required is 3 seconds.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Duration is valid, proceed with upload
+      setIsUploadingMotionSyncVideo(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        
+        reader.onload = async () => {
+          const base64 = reader.result as string;
+
+          // Use dedicated video upload function (not image upload)
+          const { data, error } = await supabase.functions.invoke('upload-video', {
+            body: {
+              video: base64,
+              filename: file.name,
+              duration: Math.round(duration)
+            }
+          });
+
+          if (error) throw error;
+
+          const uploadedVideoUrl = data?.video?.url;
+          const cloudinaryPublicId = data?.video?.cloudinary_public_id;
+
+          // Save to user_videos table
+          const { data: savedVideo, error: saveError } = await supabase
+            .from('user_videos')
+            .insert({
+              user_id: user.id,
+              name: file.name,
+              url: uploadedVideoUrl,
+              cloudinary_public_id: cloudinaryPublicId,
+              duration: Math.round(duration)
+            })
+            .select()
+            .single();
+
+          if (saveError) {
+            console.error('Error saving video to history:', saveError);
+          } else {
+            // Add to local state
+            setSavedVideos(prev => [{ id: savedVideo.id, url: uploadedVideoUrl, name: file.name, duration: Math.round(duration) }, ...prev]);
+          }
+
+          setMotionSyncVideo({
+            id: savedVideo?.id,
+            url: uploadedVideoUrl,
+            name: file.name,
+            duration: Math.round(duration)
+          });
+
+          toast({
+            title: "Success",
+            description: `Video uploaded (${Math.round(duration)}s)`,
+          });
+          setIsUploadingMotionSyncVideo(false);
+        };
+
+        reader.onerror = () => {
+          throw new Error('Failed to read file');
+        };
+      } catch (error) {
+        console.error('Error uploading motion-sync video:', error);
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload video",
+          variant: "destructive",
+        });
+        setIsUploadingMotionSyncVideo(false);
       }
     };
 
@@ -6300,6 +6519,243 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <p>Frame</p>
                         </TooltipContent>
                       </Tooltip>
+                    </>
+                  ) : selectedAnimateMode === 'Motion-Sync' ? (
+                    <>
+                      {/* Motion-Sync Mode Controls - uses kling-2.6/motion-control */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap bg-secondary text-muted-foreground hover:brightness-90">
+                            <Video size={16} />
+                            <span>Kling Motion</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Model</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      {/* Video Upload for Motion-Sync */}
+                      <Popover>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                motionSyncVideo 
+                                  ? 'bg-brand-green/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                {isUploadingMotionSyncVideo ? (
+                                  <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                  <Video size={16} />
+                                )}
+                                {motionSyncVideo && <span>Video</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Reference Video</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <PopoverContent className="w-72 bg-background border-border z-50">
+                          <div className="space-y-3">
+                            <p className="text-sm font-medium">Upload Reference Video</p>
+                            <p className="text-xs text-muted-foreground">MP4, MOV, or MKV • Max 100MB • 3-{motionSyncOrientation === 'image' ? '10' : '30'}s</p>
+                            
+                            {motionSyncVideo && (
+                              <div className="space-y-2">
+                                <p className="text-xs text-muted-foreground">Current Selection</p>
+                                <div className="relative flex items-center gap-2 p-2 bg-muted rounded-md">
+                                  <Video size={16} className="text-muted-foreground" />
+                                  <span className="text-xs truncate flex-1">{motionSyncVideo.name}</span>
+                                  {motionSyncVideo.duration && (
+                                    <span className="text-xs text-muted-foreground">{motionSyncVideo.duration}s</span>
+                                  )}
+                                  <button 
+                                    onClick={() => setMotionSyncVideo(null)}
+                                    className="bg-red-500 text-white rounded-full p-1"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Upload New */}
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">Upload New</p>
+                              <label className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                                <Upload size={16} className="text-muted-foreground mb-1" />
+                                <span className="text-xs text-muted-foreground">Click to upload</span>
+                                <input 
+                                  type="file" 
+                                  accept="video/mp4,video/quicktime,video/x-matroska" 
+                                  className="hidden" 
+                                  onChange={handleMotionSyncVideoUpload}
+                                />
+                              </label>
+                            </div>
+
+                            {/* Saved Videos */}
+                            {savedVideos.length > 0 && (
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-2">My Videos</p>
+                                {isLoadingVideos ? (
+                                  <div className="flex justify-center py-2">
+                                    <Loader2 size={16} className="animate-spin text-muted-foreground" />
+                                  </div>
+                                ) : (
+                                  <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                                    {savedVideos.map((video) => {
+                                      const thumbnailUrl = video.url
+                                        .replace('/video/upload/', '/video/upload/so_0,w_80,h_60,c_fill,f_jpg/')
+                                      
+                                      return (
+                                        <div 
+                                          key={video.id} 
+                                          className={`relative group cursor-pointer rounded-md overflow-hidden transition ${
+                                            motionSyncVideo?.id === video.id ? 'ring-2 ring-emerald-500' : 'hover:ring-1 hover:ring-border'
+                                          }`}
+                                          onClick={() => setMotionSyncVideo({ id: video.id, url: video.url, name: video.name, duration: video.duration })}
+                                        >
+                                          <img 
+                                            src={thumbnailUrl} 
+                                            alt={video.name}
+                                            className="w-full h-12 object-cover bg-muted"
+                                            onError={(e) => {
+                                              e.currentTarget.style.display = 'none';
+                                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                            }}
+                                          />
+                                          <div className="hidden w-full h-12 bg-muted flex items-center justify-center">
+                                            <Video size={16} className="text-muted-foreground" />
+                                          </div>
+                                          {video.duration && (
+                                            <span className="absolute bottom-0.5 right-0.5 bg-black/70 text-white text-[10px] px-1 rounded">
+                                              {video.duration}s
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Character/Image Selection for Motion-Sync */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={onCharactersClick}
+                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                              selectedCharacters.length > 0 
+                                ? 'bg-brand-blue/15 text-muted-foreground' 
+                                : 'bg-secondary text-muted-foreground'
+                            }`}
+                          >
+                            {selectedCharacters.length > 0 ? (
+                              <>
+                                <img 
+                                  src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar} 
+                                  alt={selectedCharacters[0].name} 
+                                  className="w-5 h-5 rounded object-cover" 
+                                />
+                                <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
+                              </>
+                            ) : (
+                              <User size={16} />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Character</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      {/* Character Orientation Selector */}
+                      <Popover>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                motionSyncOrientation !== 'video' 
+                                  ? 'bg-brand-yellow/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                <ArrowRightLeft size={16} />
+                                {motionSyncOrientation !== 'video' && <span>Image</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Character Orientation</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <PopoverContent className="w-56 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setMotionSyncOrientation('video')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${motionSyncOrientation === 'video' ? 'bg-secondary' : ''}`}
+                            >
+                              <div className="font-medium">Video</div>
+                              <div className="text-xs text-muted-foreground">Match video orientation (max 30s)</div>
+                              {motionSyncOrientation === 'video' && <Check size={14} className="text-brand-green mt-1" />}
+                            </button>
+                            <button 
+                              onClick={() => setMotionSyncOrientation('image')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${motionSyncOrientation === 'image' ? 'bg-secondary' : ''}`}
+                            >
+                              <div className="font-medium">Image</div>
+                              <div className="text-xs text-muted-foreground">Match image orientation (max 10s)</div>
+                              {motionSyncOrientation === 'image' && <Check size={14} className="text-brand-green mt-1" />}
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Resolution Selector */}
+                      <Popover>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                motionSyncResolution !== '720p' 
+                                  ? 'bg-brand-yellow/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                <SlidersHorizontal size={16} />
+                                {motionSyncResolution !== '720p' && <span>{motionSyncResolution}</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Quality</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setMotionSyncResolution('720p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${motionSyncResolution === '720p' ? 'bg-secondary' : ''}`}
+                            >
+                              720p
+                              {motionSyncResolution === '720p' && <Check size={14} className="text-brand-green" />}
+                            </button>
+                            <button 
+                              onClick={() => setMotionSyncResolution('1080p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${motionSyncResolution === '1080p' ? 'bg-secondary' : ''}`}
+                            >
+                              1080p
+                              {motionSyncResolution === '1080p' && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </>
                   ) : selectedAnimateMode === 'Story' ? (
                     <>
