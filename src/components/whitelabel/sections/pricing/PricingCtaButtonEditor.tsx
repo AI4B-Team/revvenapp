@@ -51,7 +51,6 @@ interface PricingCtaButtonEditorProps {
 }
 
 const BUTTON_COLORS = [
-  { value: '', label: 'Default', color: 'hsl(var(--primary))', border: false },
   { value: '#000000', label: 'Black', color: '#000000', border: false },
   { value: '#ffffff', label: 'White', color: '#ffffff', border: true },
   { value: '#3b82f6', label: 'Blue', color: '#3b82f6', border: false },
@@ -59,6 +58,7 @@ const BUTTON_COLORS = [
   { value: '#eab308', label: 'Yellow', color: '#eab308', border: false },
   { value: '#f97316', label: 'Orange', color: '#f97316', border: false },
   { value: '#ef4444', label: 'Red', color: '#ef4444', border: false },
+  { value: '#a855f7', label: 'Purple', color: '#a855f7', border: false },
 ];
 
 const defaultButton: PricingCtaButton = {
