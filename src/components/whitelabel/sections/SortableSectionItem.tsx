@@ -23,6 +23,7 @@ import AITextInput from '../AITextInput';
 import AIIconGenerator from '../AIIconGenerator';
 import { PricingBlockEditor } from './PricingBlockEditor';
 import { HeroButtonEditor } from './HeroButtonEditor';
+import { CtaButtonEditor, CtaButton } from './CtaButtonEditor';
 import { RichHeadlineEditor } from './RichHeadlineEditor';
 import { SocialLinksEditor } from './SocialLinksEditor';
 import type { PageBlock } from './PageSection';
@@ -716,19 +717,20 @@ export function SortableSectionItem({
                 placeholder="Join thousands of businesses already using our platform"
                 context="cta_subheadline"
               />
-              <AITextInput
-                label="Primary Button Text"
-                value={section.content.buttonText || ''}
-                onChange={(value) => updateSectionContent(section.id, { buttonText: value })}
-                placeholder="Start Your Free Trial"
-                context="button_text"
-              />
-              <AITextInput
-                label="Secondary Button Text"
-                value={section.content.secondaryButtonText || ''}
-                onChange={(value) => updateSectionContent(section.id, { secondaryButtonText: value })}
-                placeholder="Schedule a Demo"
-                context="button_text"
+              
+              {/* CTA Buttons with card-based editor */}
+              <CtaButtonEditor
+                buttons={section.content.ctaButtons || [
+                  { id: '1', text: section.content.buttonText || 'Start Your Free Trial', style: 'primary', action: 'checkout' },
+                  { id: '2', text: section.content.secondaryButtonText || 'Schedule a Demo', style: 'secondary', action: 'anchor', anchorId: 'features' },
+                ]}
+                onChange={(buttons) => updateSectionContent(section.id, { 
+                  ctaButtons: buttons,
+                  // Keep legacy fields in sync for backwards compatibility
+                  buttonText: buttons[0]?.text || '',
+                  secondaryButtonText: buttons[1]?.text || ''
+                })}
+                maxButtons={2}
               />
             </div>
           )}

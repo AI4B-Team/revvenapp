@@ -80,6 +80,7 @@ interface LivePreviewProps {
   pageSections?: PageBlock[];
   pageStyle?: 'centered' | 'split-left' | 'split-right' | 'minimal' | 'gradient' | 'bold';
   onPageSectionsChange?: (sections: PageBlock[]) => void;
+  onNavigateToCheckout?: () => void;
 }
 
 // Hero Preview Component with style variations
@@ -89,7 +90,7 @@ interface HeroButton {
   id: string;
   text: string;
   style: 'primary' | 'secondary' | 'outline' | 'ghost';
-  action: 'link' | 'anchor' | 'video' | 'custom';
+  action: 'link' | 'anchor' | 'video' | 'checkout' | 'custom';
   url?: string;
   anchorId?: string;
   videoUrl?: string;
@@ -112,6 +113,7 @@ interface HeroPreviewProps {
   headlineFontFamily?: string;
   buttons?: HeroButton[];
   onHeadlineChange?: (value: string) => void;
+  onCheckoutClick?: () => void;
 }
 
 function HeroPreview({ 
@@ -129,7 +131,8 @@ function HeroPreview({
   headlineFontSize = '3xl',
   headlineFontFamily = 'inter',
   buttons = [],
-  onHeadlineChange
+  onHeadlineChange,
+  onCheckoutClick
 }: HeroPreviewProps) {
   const [videoModalUrl, setVideoModalUrl] = useState<string | null>(null);
   const renderLogo = () => (
@@ -186,7 +189,10 @@ function HeroPreview({
   };
 
   const handleButtonClick = (btn: HeroButton) => {
-    if (btn.action === 'video' && btn.videoUrl) {
+    if (btn.action === 'checkout') {
+      // Navigate to checkout section in preview
+      onCheckoutClick?.();
+    } else if (btn.action === 'video' && btn.videoUrl) {
       setVideoModalUrl(btn.videoUrl);
     } else if (btn.action === 'link' && btn.url) {
       if (btn.openInNewTab) {
@@ -428,7 +434,10 @@ interface PricingSectionProps {
     style: 'primary' | 'secondary' | 'outline' | 'ghost';
     action: 'checkout' | 'link' | 'anchor' | 'video';
     color?: string;
+    url?: string;
+    anchorId?: string;
   };
+  onCheckoutClick?: () => void;
 }
 
 function PricingSection({
@@ -441,6 +450,7 @@ function PricingSection({
   getAppFeatures,
   ctaButtonText,
   pricingCtaButton,
+  onCheckoutClick,
 }: PricingSectionProps) {
   const [isAnnual, setIsAnnual] = useState(false);
   const basePrice = pricingModel === 'one-time' ? oneTimePrice : monthlyPrice;
@@ -539,7 +549,8 @@ function PricingSection({
                   
                   {/* CTA Button */}
                   <button 
-                    className={`w-full py-3 rounded-lg font-medium transition-colors ${
+                    onClick={() => onCheckoutClick?.()}
+                    className={`w-full py-3 rounded-lg font-medium transition-colors cursor-pointer hover:opacity-90 ${
                       tier.isPopular 
                         ? 'text-white' 
                         : 'border-2 text-zinc-700 hover:bg-zinc-50'
@@ -655,7 +666,18 @@ function PricingSection({
 
             {/* CTA Button */}
             <button 
-              className={`w-full py-4 rounded-xl font-semibold text-lg transition-all hover:opacity-90 hover:shadow-md flex items-center justify-center gap-2 ${
+              onClick={() => {
+                // Handle button action based on pricingCtaButton configuration
+                if (pricingCtaButton?.action === 'checkout' || !pricingCtaButton?.action) {
+                  onCheckoutClick?.();
+                } else if (pricingCtaButton?.action === 'anchor' && pricingCtaButton?.anchorId) {
+                  const element = document.getElementById(pricingCtaButton.anchorId);
+                  if (element) element.scrollIntoView({ behavior: 'smooth' });
+                } else if (pricingCtaButton?.action === 'link' && pricingCtaButton?.url) {
+                  window.open(pricingCtaButton.url, '_blank');
+                }
+              }}
+              className={`w-full py-4 rounded-xl font-semibold text-lg transition-all hover:opacity-90 hover:shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                 pricingCtaButton?.color === '#ffffff' ? 'text-zinc-900' : 'text-white'
               }`}
               style={{ 
@@ -796,7 +818,7 @@ function CheckoutOrderBumps({ orderBumps, basePrice, pricingModel }: CheckoutOrd
   );
 }
 
-export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered', onPageSectionsChange }: LivePreviewProps) {
+export function LivePreview({ app, license, activeSection, checkoutConfig, legalDocs = [], pageSections = [], pageStyle = 'centered', onPageSectionsChange, onNavigateToCheckout }: LivePreviewProps) {
   const [viewMode, setViewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
@@ -1287,6 +1309,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                             headlineFontFamily={section.content?.headlineFontFamily}
                             buttons={section.content?.buttons}
                             onHeadlineChange={(value) => updateSectionContent('hero', { headline: value })}
+                            onCheckoutClick={onNavigateToCheckout}
                           />
                         );
                     
@@ -1524,6 +1547,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           getAppFeatures={getAppFeatures}
                           ctaButtonText={section.content?.ctaButtonText}
                           pricingCtaButton={section.content?.pricingCtaButton}
+                          onCheckoutClick={onNavigateToCheckout}
                         />
                       );
                     
@@ -1559,9 +1583,59 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                       );
                     
                     case 'cta':
+                      // Get CTA buttons with fallback to legacy format
+                      const ctaButtons = section.content?.ctaButtons || [
+                        { id: '1', text: section.content?.buttonText || 'Start Your Free Trial', style: 'primary', action: 'checkout' },
+                        { id: '2', text: section.content?.secondaryButtonText || 'Schedule a Demo', style: 'secondary', action: 'anchor', anchorId: 'features' },
+                      ];
+                      
+                      const handleCtaButtonClick = (btn: any) => {
+                        if (btn.action === 'checkout') {
+                          onNavigateToCheckout?.();
+                        } else if (btn.action === 'anchor' && btn.anchorId) {
+                          const element = document.getElementById(btn.anchorId);
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        } else if (btn.action === 'link' && btn.url) {
+                          if (btn.openInNewTab) {
+                            window.open(btn.url, '_blank');
+                          } else {
+                            window.location.href = btn.url;
+                          }
+                        }
+                      };
+                      
+                      const getCtaButtonStyle = (btn: any) => {
+                        const color = btn.color || primaryColor;
+                        switch (btn.style) {
+                          case 'primary':
+                            return {
+                              backgroundColor: color,
+                              color: color === '#ffffff' ? '#000000' : 'white',
+                            };
+                          case 'secondary':
+                            return { backgroundColor: '#f4f4f5', color: '#3f3f46' };
+                          case 'outline':
+                            return {
+                              backgroundColor: 'transparent',
+                              border: `1px solid ${color}`,
+                              color: color,
+                            };
+                          case 'ghost':
+                            return {
+                              backgroundColor: 'transparent',
+                              color: color,
+                            };
+                          default:
+                            return {};
+                        }
+                      };
+                      
                       return (
                         <div 
                           key={section.id}
+                          id="cta"
                           className="px-6 md:px-12 lg:px-16 py-16 text-center"
                           style={{ background: `linear-gradient(135deg, ${primaryColor}15 0%, ${primaryColor}05 100%)` }}
                         >
@@ -1573,15 +1647,16 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                               {section.content?.subheadline || 'Join thousands of successful businesses already using our platform'}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                              <button 
-                                className="px-8 py-3 rounded-lg font-medium text-white"
-                                style={{ backgroundColor: primaryColor }}
-                              >
-                                {section.content?.buttonText || 'Start Your Free Trial'}
-                              </button>
-                              <button className="px-8 py-3 rounded-lg font-medium text-zinc-700 bg-white border border-zinc-200">
-                                {section.content?.secondaryButtonText || 'Schedule a Demo'}
-                              </button>
+                              {ctaButtons.map((btn: any) => (
+                                <button 
+                                  key={btn.id}
+                                  onClick={() => handleCtaButtonClick(btn)}
+                                  className="px-8 py-3 rounded-lg font-medium transition-opacity hover:opacity-90 cursor-pointer"
+                                  style={getCtaButtonStyle(btn)}
+                                >
+                                  {btn.text}
+                                </button>
+                              ))}
                             </div>
                           </div>
                         </div>

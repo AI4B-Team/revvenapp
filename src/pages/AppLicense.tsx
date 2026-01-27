@@ -367,6 +367,7 @@ const AppLicense = () => {
                   pageSections={pageSections}
                   pageStyle={pageStyle}
                   onPageSectionsChange={setPageSections}
+                  onNavigateToCheckout={() => setActiveSection('checkout')}
                 />
               </ResizablePanel>
             </ResizablePanelGroup>
