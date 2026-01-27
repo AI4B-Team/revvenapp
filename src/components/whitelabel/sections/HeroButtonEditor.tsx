@@ -72,6 +72,11 @@ const BUTTON_COLORS = [
   { value: '#f97316', label: 'Orange', color: '#f97316', border: false },
   { value: '#ef4444', label: 'Red', color: '#ef4444', border: false },
   { value: '#a855f7', label: 'Purple', color: '#a855f7', border: false },
+  { value: '#ec4899', label: 'Pink', color: '#ec4899', border: false },
+  { value: '#14b8a6', label: 'Teal', color: '#14b8a6', border: false },
+  { value: '#1e3a5f', label: 'Navy', color: '#1e3a5f', border: false },
+  { value: '#6b7280', label: 'Gray', color: '#6b7280', border: false },
+  { value: '#d4a574', label: 'Beige', color: '#d4a574', border: false },
 ];
 
 export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroButtonEditorProps) {
