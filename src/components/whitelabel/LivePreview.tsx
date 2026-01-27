@@ -423,6 +423,12 @@ interface PricingSectionProps {
   primaryColor: string;
   getAppFeatures: () => string[];
   ctaButtonText?: string;
+  pricingCtaButton?: {
+    text: string;
+    style: 'primary' | 'secondary' | 'outline' | 'ghost';
+    action: 'checkout' | 'link' | 'anchor' | 'video';
+    color?: string;
+  };
 }
 
 function PricingSection({
@@ -434,6 +440,7 @@ function PricingSection({
   primaryColor,
   getAppFeatures,
   ctaButtonText,
+  pricingCtaButton,
 }: PricingSectionProps) {
   const [isAnnual, setIsAnnual] = useState(false);
   const basePrice = pricingModel === 'one-time' ? oneTimePrice : monthlyPrice;
@@ -648,10 +655,16 @@ function PricingSection({
 
             {/* CTA Button */}
             <button 
-              className="w-full py-4 rounded-xl font-semibold text-white text-lg transition-all hover:opacity-90 hover:shadow-md"
-              style={{ backgroundColor: primaryColor }}
+              className={`w-full py-4 rounded-xl font-semibold text-lg transition-all hover:opacity-90 hover:shadow-md flex items-center justify-center gap-2 ${
+                pricingCtaButton?.color === '#ffffff' ? 'text-zinc-900' : 'text-white'
+              }`}
+              style={{ 
+                backgroundColor: pricingCtaButton?.color || primaryColor,
+                borderColor: pricingCtaButton?.color === '#ffffff' ? '#e4e4e7' : undefined,
+                borderWidth: pricingCtaButton?.color === '#ffffff' ? '1px' : undefined,
+              }}
             >
-              {ctaButtonText || section.content?.ctaButtonText || 'Get Started Now'}
+              {pricingCtaButton?.text || ctaButtonText || section.content?.ctaButtonText || 'Get Started Now'}
             </button>
           </div>
         </div>
@@ -1510,6 +1523,7 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                           primaryColor={primaryColor}
                           getAppFeatures={getAppFeatures}
                           ctaButtonText={section.content?.ctaButtonText}
+                          pricingCtaButton={section.content?.pricingCtaButton}
                         />
                       );
                     

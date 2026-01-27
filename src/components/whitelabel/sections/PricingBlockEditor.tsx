@@ -17,6 +17,7 @@ import {
 import AITextInput from '../AITextInput';
 import { MultiTierPricingEditor } from './MultiTierPricingEditor';
 import { RevenueCalculator } from './pricing/RevenueCalculator';
+import { PricingCtaButtonEditor, type PricingCtaButton } from './pricing/PricingCtaButtonEditor';
 
 type PricingModel = 'monthly' | 'one-time' | 'setup-monthly';
 
@@ -499,17 +500,19 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
               </div>
             </div>
 
-            {/* CTA Button Text */}
-            <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
-              <Label className="text-sm font-medium text-foreground">Button Text</Label>
-              <Input
-                value={content.ctaButtonText || 'Get Started Now'}
-                onChange={(e) => onContentChange({ ctaButtonText: e.target.value })}
-                placeholder="Get Started Now"
-                className="h-9"
-              />
-              <p className="text-xs text-muted-foreground">Text shown on the pricing card button</p>
-            </div>
+            {/* CTA Button Editor */}
+            <PricingCtaButtonEditor
+              button={content.pricingCtaButton || {
+                text: content.ctaButtonText || 'Get Started Now',
+                style: 'primary',
+                action: 'checkout',
+                color: '',
+              }}
+              onChange={(btn) => onContentChange({ 
+                pricingCtaButton: btn, 
+                ctaButtonText: btn.text 
+              })}
+            />
 
             <RevenueCalculator pricing={revenuePricing} />
           </div>
