@@ -1316,14 +1316,21 @@ export function LivePreview({ app, license, activeSection, checkoutConfig, legal
                     case 'credibility':
                       const logos = section.content?.logos || [];
                       const headline = section.content?.headline || 'Trusted By Industry Leaders';
+                      const credibilitySubheadline = section.content?.subheadline || '';
                       if (logos.length === 0) return null;
                       const duplicatedLogos = [...logos, ...logos, ...logos];
                       return (
                         <div key={section.id} className="py-12 overflow-hidden bg-zinc-50/50">
                           <div className="max-w-6xl mx-auto">
-                            <h2 className="text-xl font-semibold text-zinc-600 text-center mb-8">
+                            <h2 className={`text-xl font-semibold text-zinc-600 text-center ${credibilitySubheadline ? 'mb-2' : 'mb-8'}`}>
                               {headline}
                             </h2>
+                            {credibilitySubheadline && (
+                              <p className="text-sm text-zinc-500 text-center mb-8 max-w-2xl mx-auto">
+                                {credibilitySubheadline}
+                              </p>
+                            )}
+                            {!credibilitySubheadline && <div className="mb-0" />}
                             <div className="relative overflow-hidden">
                               <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-50/50 to-transparent z-10" />
                               <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-50/50 to-transparent z-10" />

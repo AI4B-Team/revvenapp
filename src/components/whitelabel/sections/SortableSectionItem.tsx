@@ -479,6 +479,14 @@ export function SortableSectionItem({
                 placeholder="Trusted By Industry Leaders"
                 context="headline"
               />
+              
+              <AITextInput
+                label="Sub-Headline"
+                value={section.content.subheadline || ''}
+                onChange={(value) => updateSectionContent(section.id, { subheadline: value })}
+                placeholder="Join thousands of companies already growing with us"
+                context="subheadline"
+              />
 
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Partner Logos</Label>
