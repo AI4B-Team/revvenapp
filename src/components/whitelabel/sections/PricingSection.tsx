@@ -428,7 +428,7 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
         </div>
 
         {/* Customer Count Selector */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           {customerPresets.map((count) => (
             <button
               key={count}
@@ -436,7 +436,7 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
                 setSelectedCustomerCount(count);
                 setCustomCustomerCount('');
               }}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border transition-all text-xs sm:text-sm font-medium min-w-[40px] ${
+              className={`px-3 py-1.5 rounded-full border transition-all text-sm font-medium ${
                 selectedCustomerCount === count && customCustomerCount === ''
                   ? 'border-orange-400 bg-orange-400/20 text-orange-400'
                   : 'border-background/30 hover:border-background/50'
@@ -445,18 +445,16 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
               {count}
             </button>
           ))}
-          <div className="relative">
-            <Input
-              type="number"
-              placeholder="Custom"
-              value={customCustomerCount}
-              onChange={(e) => {
-                const val = parseInt(e.target.value);
-                setCustomCustomerCount(isNaN(val) ? '' : Math.max(1, val));
-              }}
-              className="w-24 sm:w-28 h-8 sm:h-9 text-center text-xs sm:text-sm bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
-          </div>
+          <Input
+            type="number"
+            placeholder="Custom"
+            value={customCustomerCount}
+            onChange={(e) => {
+              const val = parseInt(e.target.value);
+              setCustomCustomerCount(isNaN(val) ? '' : Math.max(1, val));
+            }}
+            className="w-20 h-8 text-center text-sm bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
         </div>
 
         {/* Revenue Display */}
