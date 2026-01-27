@@ -158,16 +158,30 @@ export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPr
   return (
     <div className="space-y-5">
       {/* Multi-Tier Toggle */}
-      <div className="p-4 rounded-lg border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-3">
+      <div 
+        className={`p-4 rounded-lg border-2 transition-all ${
+          enableMultiTier
+            ? 'border-emerald-500/50 bg-emerald-500/5 border-dashed'
+            : 'border-border'
+        }`}
+      >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Layers className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             <div>
               <p className="font-semibold text-foreground">Multi-Tier Pricing</p>
               <p className="text-xs text-muted-foreground">Offer up to 3 pricing plans</p>
             </div>
           </div>
-          <Switch checked={enableMultiTier} onCheckedChange={handleEnableMultiTier} />
+          <Switch 
+            checked={enableMultiTier} 
+            onCheckedChange={(checked) => {
+              handleEnableMultiTier(checked);
+              if (checked) {
+                onContentChange({ enableSinglePricing: false });
+              }
+            }} 
+          />
         </div>
       </div>
 

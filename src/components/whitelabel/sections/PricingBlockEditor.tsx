@@ -173,11 +173,39 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
         />
       </div>
 
+      {/* Single Pricing Toggle */}
+      <div 
+        className={`p-4 rounded-lg border-2 transition-all ${
+          content.enableSinglePricing !== false
+            ? 'border-emerald-500/50 bg-emerald-500/5 border-dashed'
+            : 'border-border'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <div>
+              <p className="font-semibold text-foreground">Single Pricing</p>
+              <p className="text-xs text-muted-foreground">One pricing option for your product</p>
+            </div>
+          </div>
+          <Switch 
+            checked={content.enableSinglePricing !== false}
+            onCheckedChange={(checked) => {
+              onContentChange({ enableSinglePricing: checked });
+              if (checked) {
+                onContentChange({ enableMultiTier: false });
+              }
+            }}
+          />
+        </div>
+      </div>
+
       {/* Multi-Tier Pricing */}
       <MultiTierPricingEditor content={content} onContentChange={onContentChange} />
 
-      {/* Single Tier Options (shown when multi-tier is disabled) */}
-      {!content.enableMultiTier && (
+      {/* Single Tier Options (shown when single pricing is enabled and multi-tier is disabled) */}
+      {content.enableSinglePricing !== false && !content.enableMultiTier && (
         <>
           {/* Divider */}
           <div className="border-t border-border pt-4">
