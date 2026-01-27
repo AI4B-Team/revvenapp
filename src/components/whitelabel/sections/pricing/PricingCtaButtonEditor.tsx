@@ -52,20 +52,13 @@ interface PricingCtaButtonEditorProps {
 
 const BUTTON_COLORS = [
   { value: '', label: 'Default', color: 'hsl(var(--primary))', border: false },
-  { value: '#ffffff', label: 'White', color: '#ffffff', border: true },
   { value: '#000000', label: 'Black', color: '#000000', border: false },
-  { value: '#10b981', label: 'Emerald', color: '#10b981', border: false },
-  { value: '#14b8a6', label: 'Teal', color: '#14b8a6', border: false },
-  { value: '#06b6d4', label: 'Cyan', color: '#06b6d4', border: false },
+  { value: '#ffffff', label: 'White', color: '#ffffff', border: true },
   { value: '#3b82f6', label: 'Blue', color: '#3b82f6', border: false },
-  { value: '#6366f1', label: 'Indigo', color: '#6366f1', border: false },
-  { value: '#8b5cf6', label: 'Purple', color: '#8b5cf6', border: false },
-  { value: '#a855f7', label: 'Violet', color: '#a855f7', border: false },
-  { value: '#ec4899', label: 'Pink', color: '#ec4899', border: false },
-  { value: '#f43f5e', label: 'Rose', color: '#f43f5e', border: false },
+  { value: '#22c55e', label: 'Green', color: '#22c55e', border: false },
+  { value: '#eab308', label: 'Yellow', color: '#eab308', border: false },
+  { value: '#f97316', label: 'Orange', color: '#f97316', border: false },
   { value: '#ef4444', label: 'Red', color: '#ef4444', border: false },
-  { value: '#f59e0b', label: 'Amber', color: '#f59e0b', border: false },
-  { value: '#84cc16', label: 'Lime', color: '#84cc16', border: false },
 ];
 
 const defaultButton: PricingCtaButton = {
