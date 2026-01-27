@@ -201,7 +201,7 @@ export function PricingBlockEditor({ content, onContentChange }: PricingBlockEdi
                     onClick={() => handlePricingModelChange(model.id)}
                     className={`p-3 rounded-lg border-2 transition-all text-left flex items-center gap-3 ${
                       pricingModel === model.id
-                        ? 'border-emerald-500 bg-emerald-500/10'
+                        ? 'border-emerald-500'
                         : 'border-border hover:border-muted-foreground/30'
                     }`}
                   >
