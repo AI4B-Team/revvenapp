@@ -483,7 +483,7 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                         : undefined,
                       color: editingButton.style === 'outline' || editingButton.style === 'ghost'
                         ? (editingButton.color || 'hsl(var(--primary))')
-                        : undefined,
+                        : editingButton.color === '#ffffff' ? '#000000' : undefined,
                     }}
                   >
                     {editingButton.action === 'video' && <Play className="h-4 w-4" />}
