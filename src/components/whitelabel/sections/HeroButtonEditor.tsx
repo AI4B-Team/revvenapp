@@ -338,7 +338,7 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                           (editingButton.color || '') === colorOption.value
                             ? 'ring-2 ring-offset-2 ring-foreground scale-110'
                             : 'hover:scale-105'
-                        } ${colorOption.border ? 'border border-border' : ''}`}
+                        } ${colorOption.border ? 'border-2 border-muted-foreground/40' : ''}`}
                         style={{ backgroundColor: colorOption.color }}
                         title={colorOption.label}
                       />
