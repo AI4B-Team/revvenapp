@@ -57,7 +57,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
         <p className="font-semibold text-sm">With {activeCustomerCount || 0} Customers</p>
       </div>
 
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 flex-wrap">
         {customerPresets.map((count) => (
           <button
             key={count}
@@ -77,13 +77,13 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
         ))}
         <Input
           type="number"
-          placeholder="#"
+          placeholder="Custom"
           value={customCustomerCount}
           onChange={(e) => {
             const val = parseInt(e.target.value);
             setCustomCustomerCount(Number.isNaN(val) ? "" : Math.max(1, val));
           }}
-          className="w-14 h-7 text-center text-xs bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-16 h-7 text-center text-xs bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </div>
 
