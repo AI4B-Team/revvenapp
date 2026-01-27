@@ -14,6 +14,7 @@ import {
   Layers,
 } from 'lucide-react';
 import AITextInput from '../AITextInput';
+import { RevenueCalculator } from './pricing/RevenueCalculator';
 
 export interface PricingTier {
   id: string;
@@ -84,11 +85,16 @@ export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPr
   }, []);
 
   const handleEnableMultiTier = (enabled: boolean) => {
-    // When enabling multi-tier, make sure tiers are saved to content
-    onContentChange({ 
-      enableMultiTier: enabled,
-      pricingTiers: content.pricingTiers || defaultTiers 
-    });
+    // Atomic update (prevents toggle states from clobbering each other)
+    if (enabled) {
+      onContentChange({
+        enableMultiTier: true,
+        enableSinglePricing: false,
+        pricingTiers: content.pricingTiers || defaultTiers,
+      });
+      return;
+    }
+    onContentChange({ enableMultiTier: false });
   };
 
   const handleTiersChange = (updatedTiers: PricingTier[]) => {
@@ -177,9 +183,6 @@ export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPr
             checked={enableMultiTier} 
             onCheckedChange={(checked) => {
               handleEnableMultiTier(checked);
-              if (checked) {
-                onContentChange({ enableSinglePricing: false });
-              }
             }} 
           />
         </div>
@@ -416,6 +419,14 @@ export function MultiTierPricingEditor({ content, onContentChange }: MultiTierPr
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Revenue Calculator (multi-tier) */}
+          {selectedTier && (
+            <RevenueCalculator
+              pricing={{ mode: 'monthly', monthlyPrice: selectedTier.monthlyPrice }}
+              title="Revenue Projections"
+            />
           )}
         </>
       )}
