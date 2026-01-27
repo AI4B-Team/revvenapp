@@ -604,36 +604,51 @@ function PricingSection({
         </p>
         <div className="max-w-md mx-auto space-y-4">
           {/* Main Price Card */}
-          <div className="bg-white rounded-2xl border-2 p-6 text-center" style={{ borderColor: primaryColor }}>
-            <div className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
-              {pricingModel === 'one-time' ? 'One-Time Payment' : pricingModel === 'both' ? 'Setup + Monthly' : 'Monthly'}
+          <div className="bg-white rounded-2xl border-2 p-8 text-center shadow-lg" style={{ borderColor: primaryColor }}>
+            {/* Pricing Model Badge */}
+            <div 
+              className="inline-block text-sm font-semibold mb-4 px-4 py-1.5 rounded-full"
+              style={{ color: primaryColor, backgroundColor: `${primaryColor}15` }}
+            >
+              {pricingModel === 'one-time' ? 'One-Time Payment' : pricingModel === 'both' ? 'Setup + Monthly' : 'Monthly Subscription'}
             </div>
             
-            {/* Setup Fee Display */}
+            {/* Setup Fee Display - Enhanced for both model */}
             {pricingModel === 'both' && setupFee > 0 && (
-              <div className="mb-3 pb-3 border-b border-zinc-100">
-                <div className="text-sm text-zinc-500">One-Time Setup</div>
-                <div className="text-2xl font-bold text-zinc-900">${setupFee}</div>
+              <div className="mb-6 pb-6 border-b-2 border-zinc-100">
+                <div className="text-xs uppercase tracking-wider text-zinc-400 font-medium mb-1">One-Time Setup</div>
+                <div className="text-3xl font-bold text-zinc-900">${setupFee}</div>
               </div>
             )}
             
             {/* Main Price Display */}
-            <div className="text-4xl font-bold text-zinc-900 mb-4">
-              ${basePrice.toFixed(0)}
-              {pricingModel !== 'one-time' && (
-                <span className="text-lg font-normal text-zinc-500">/mo</span>
-              )}
+            <div className="mb-6">
+              <div className="text-5xl font-bold text-zinc-900">
+                ${basePrice.toFixed(0)}
+                {pricingModel !== 'one-time' && (
+                  <span className="text-xl font-medium text-zinc-400">/mo</span>
+                )}
+              </div>
             </div>
-            <ul className="text-left space-y-3 mb-6">
+
+            {/* Features List */}
+            <ul className="text-left space-y-3 mb-8">
               {getAppFeatures().map((item, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-zinc-600">
-                  <Check size={16} style={{ color: primaryColor }} />
-                  {item}
+                <li key={idx} className="flex items-center gap-3 text-zinc-700">
+                  <div 
+                    className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: `${primaryColor}15` }}
+                  >
+                    <Check size={12} style={{ color: primaryColor }} strokeWidth={3} />
+                  </div>
+                  <span className="font-medium">{item}</span>
                 </li>
               ))}
             </ul>
+
+            {/* CTA Button */}
             <button 
-              className="w-full py-3 rounded-lg font-medium text-white"
+              className="w-full py-4 rounded-xl font-semibold text-white text-lg transition-all hover:opacity-90 hover:shadow-md"
               style={{ backgroundColor: primaryColor }}
             >
               {ctaButtonText || section.content?.ctaButtonText || 'Get Started Now'}
