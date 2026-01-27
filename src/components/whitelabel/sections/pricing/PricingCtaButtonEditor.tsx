@@ -3,20 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
-  Plus, 
-  Trash2, 
-  GripVertical, 
-  Link, 
-  Play, 
   ExternalLink,
   Anchor,
-  ChevronDown,
-  ChevronUp,
+  Play,
+  ShoppingCart,
   Edit2,
-  X,
   Sparkles,
   Loader2,
-  ShoppingCart,
 } from 'lucide-react';
 import {
   Select,
@@ -41,11 +34,10 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
-export interface HeroButton {
-  id: string;
+export interface PricingCtaButton {
   text: string;
   style: 'primary' | 'secondary' | 'outline' | 'ghost';
-  action: 'link' | 'anchor' | 'video' | 'checkout' | 'custom';
+  action: 'checkout' | 'link' | 'anchor' | 'video';
   url?: string;
   anchorId?: string;
   videoUrl?: string;
@@ -53,15 +45,10 @@ export interface HeroButton {
   color?: string;
 }
 
-interface HeroButtonEditorProps {
-  buttons: HeroButton[];
-  onChange: (buttons: HeroButton[]) => void;
+interface PricingCtaButtonEditorProps {
+  button: PricingCtaButton;
+  onChange: (button: PricingCtaButton) => void;
 }
-
-const defaultButtons: HeroButton[] = [
-  { id: '1', text: 'Get Started', style: 'primary', action: 'link', url: '#pricing' },
-  { id: '2', text: 'Learn More', style: 'secondary', action: 'anchor', anchorId: 'features' },
-];
 
 const BUTTON_COLORS = [
   { value: '', label: 'Default', color: 'hsl(var(--primary))', border: false },
@@ -81,8 +68,15 @@ const BUTTON_COLORS = [
   { value: '#84cc16', label: 'Lime', color: '#84cc16', border: false },
 ];
 
-export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroButtonEditorProps) {
-  const [editingButton, setEditingButton] = useState<HeroButton | null>(null);
+const defaultButton: PricingCtaButton = {
+  text: 'Get Started Now',
+  style: 'primary',
+  action: 'checkout',
+  color: '',
+};
+
+export function PricingCtaButtonEditor({ button = defaultButton, onChange }: PricingCtaButtonEditorProps) {
+  const [editingButton, setEditingButton] = useState<PricingCtaButton | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isGeneratingText, setIsGeneratingText] = useState(false);
 
@@ -93,7 +87,7 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
     try {
       const { data, error } = await supabase.functions.invoke('editor-generate-text', {
         body: { 
-          prompt: `Generate 1 short, compelling call-to-action button text (2-4 words max) for a ${editingButton.action === 'video' ? 'video popup' : editingButton.action === 'anchor' ? 'scroll to section' : 'link'} button. Return ONLY the button text, nothing else. Examples: "Get Started", "Learn More", "Watch Demo", "See Pricing", "Start Free Trial"`,
+          prompt: `Generate 1 short, compelling call-to-action button text (2-4 words max) for a pricing page checkout button. Return ONLY the button text, nothing else. Examples: "Get Started Now", "Start Free Trial", "Choose Plan", "Buy Now", "Subscribe Today"`,
           type: 'button'
         }
       });
@@ -115,162 +109,85 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
       setIsGeneratingText(false);
     }
   };
-  const addButton = () => {
-    const newButton: HeroButton = {
-      id: Date.now().toString(),
-      text: 'New Button',
-      style: 'secondary',
-      action: 'link',
-      url: '#',
-    };
-    onChange([...buttons, newButton]);
-  };
 
-  const updateButton = (id: string, updates: Partial<HeroButton>) => {
-    onChange(buttons.map(btn => btn.id === id ? { ...btn, ...updates } : btn));
-  };
-
-  const deleteButton = (id: string) => {
-    onChange(buttons.filter(btn => btn.id !== id));
-  };
-
-  const moveButton = (index: number, direction: 'up' | 'down') => {
-    const newButtons = [...buttons];
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= buttons.length) return;
-    [newButtons[index], newButtons[newIndex]] = [newButtons[newIndex], newButtons[index]];
-    onChange(newButtons);
-  };
-
-  const openEditDialog = (button: HeroButton) => {
+  const openEditDialog = () => {
     setEditingButton({ ...button });
     setIsDialogOpen(true);
   };
 
   const saveEditDialog = () => {
     if (editingButton) {
-      updateButton(editingButton.id, editingButton);
+      onChange(editingButton);
       setIsDialogOpen(false);
       setEditingButton(null);
     }
   };
 
-  const getActionIcon = (action: string) => {
+  const getActionLabel = (action: string) => {
     switch (action) {
-      case 'link': return <ExternalLink className="h-3 w-3" />;
-      case 'anchor': return <Anchor className="h-3 w-3" />;
-      case 'video': return <Play className="h-3 w-3" />;
-      case 'checkout': return <ShoppingCart className="h-3 w-3" />;
-      default: return <Link className="h-3 w-3" />;
+      case 'checkout': return 'Checkout';
+      case 'link': return button.url || 'Link';
+      case 'anchor': return `#${button.anchorId || 'section'}`;
+      case 'video': return 'Video';
+      default: return action;
     }
   };
 
-  const getStyleLabel = (style: string) => {
-    switch (style) {
-      case 'primary': return 'Primary';
-      case 'secondary': return 'Secondary';
-      case 'outline': return 'Outline';
-      case 'ghost': return 'Ghost';
-      default: return style;
+  const getActionIcon = (action: string) => {
+    switch (action) {
+      case 'checkout': return <ShoppingCart className="h-3 w-3" />;
+      case 'link': return <ExternalLink className="h-3 w-3" />;
+      case 'anchor': return <Anchor className="h-3 w-3" />;
+      case 'video': return <Play className="h-3 w-3" />;
+      default: return null;
     }
   };
 
   return (
-    <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/20">
-      <div className="flex items-center justify-between">
-        <Label className="text-sm font-semibold">CTA Buttons</Label>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={addButton}
-          className="gap-1 h-7 text-xs"
-        >
-          <Plus className="h-3 w-3" />
-          Add Button
-        </Button>
-      </div>
-
-      <div className="space-y-2">
-        {buttons.map((button, index) => (
-          <div 
-            key={button.id}
-            className="flex items-center gap-2 p-2 rounded-md border border-border bg-background group"
+    <>
+      <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium text-foreground">CTA Button</Label>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={openEditDialog}
+            className="gap-1 h-7 text-xs"
           >
-            <div className="flex flex-col gap-0.5">
-              <button
-                onClick={() => moveButton(index, 'up')}
-                disabled={index === 0}
-                className="p-0.5 hover:bg-muted rounded disabled:opacity-30"
-              >
-                <ChevronUp className="h-3 w-3" />
-              </button>
-              <button
-                onClick={() => moveButton(index, 'down')}
-                disabled={index === buttons.length - 1}
-                className="p-0.5 hover:bg-muted rounded disabled:opacity-30"
-              >
-                <ChevronDown className="h-3 w-3" />
-              </button>
+            <Edit2 className="h-3 w-3" />
+            Edit
+          </Button>
+        </div>
+        
+        {/* Button Preview */}
+        <div className="flex items-center gap-2 p-2 rounded-md border border-border bg-background">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm truncate">{button.text}</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground capitalize">
+                {button.style}
+              </span>
             </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm truncate">{button.text}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                  {getStyleLabel(button.style)}
-                </span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                {getActionIcon(button.action)}
-                <span className="truncate">
-                  {button.action === 'link' && button.url}
-                  {button.action === 'anchor' && `#${button.anchorId}`}
-                  {button.action === 'video' && 'Video Popup'}
-                  {button.action === 'checkout' && 'Go To Checkout'}
-                  {button.action === 'custom' && 'Custom Action'}
-                </span>
-              </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+              {getActionIcon(button.action)}
+              <span className="truncate">{getActionLabel(button.action)}</span>
             </div>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => openEditDialog(button)}
-            >
-              <Edit2 className="h-3 w-3" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-destructive hover:text-destructive"
-              onClick={() => deleteButton(button.id)}
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
           </div>
-        ))}
-
-        {buttons.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-4">
-            No buttons yet. Click "Add Button" to create one.
-          </p>
-        )}
+        </div>
       </div>
 
       {/* Edit Button Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Button</DialogTitle>
+            <DialogTitle>Edit CTA Button</DialogTitle>
           </DialogHeader>
 
           {editingButton && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
               {/* Form Fields */}
               <div className="space-y-4">
-              {/* Button Text */}
+                {/* Button Text */}
                 <div className="space-y-2">
                   <Label>Button Text</Label>
                   <div className="relative">
@@ -309,7 +226,7 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                   <Label>Style</Label>
                   <Select
                     value={editingButton.style}
-                    onValueChange={(value: HeroButton['style']) => 
+                    onValueChange={(value: PricingCtaButton['style']) => 
                       setEditingButton({ ...editingButton, style: value })
                     }
                   >
@@ -351,7 +268,7 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                   <Label>Action</Label>
                   <Select
                     value={editingButton.action}
-                    onValueChange={(value: HeroButton['action']) => 
+                    onValueChange={(value: PricingCtaButton['action']) => 
                       setEditingButton({ ...editingButton, action: value })
                     }
                   >
@@ -359,16 +276,16 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="anchor">
-                        <div className="flex items-center gap-2">
-                          <Anchor className="h-4 w-4" />
-                          Scroll To Section
-                        </div>
-                      </SelectItem>
                       <SelectItem value="checkout">
                         <div className="flex items-center gap-2">
                           <ShoppingCart className="h-4 w-4" />
                           Go To Checkout
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="anchor">
+                        <div className="flex items-center gap-2">
+                          <Anchor className="h-4 w-4" />
+                          Scroll To Section
                         </div>
                       </SelectItem>
                       <SelectItem value="link">
@@ -401,12 +318,12 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        id="openInNewTab"
+                        id="openInNewTabPricing"
                         checked={editingButton.openInNewTab || false}
                         onChange={(e) => setEditingButton({ ...editingButton, openInNewTab: e.target.checked })}
                         className="rounded border-border"
                       />
-                      <Label htmlFor="openInNewTab" className="text-sm cursor-pointer">
+                      <Label htmlFor="openInNewTabPricing" className="text-sm cursor-pointer">
                         Open in new tab
                       </Label>
                     </div>
@@ -483,18 +400,18 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                         : undefined,
                       color: editingButton.style === 'outline' || editingButton.style === 'ghost'
                         ? (editingButton.color || 'hsl(var(--primary))')
-                        : undefined,
+                        : editingButton.color === '#ffffff' ? '#000000' : undefined,
                     }}
                   >
                     {editingButton.action === 'video' && <Play className="h-4 w-4" />}
                     {editingButton.action === 'checkout' && <ShoppingCart className="h-4 w-4" />}
                     {editingButton.text || 'Button Text'}
-                    {editingButton.action === 'link' && editingButton.style === 'primary' && (
-                      <ExternalLink className="h-4 w-4" />
-                    )}
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
+                  {editingButton.action === 'checkout' && (
+                    <>Opens checkout page</>
+                  )}
                   {editingButton.action === 'link' && editingButton.url && (
                     <>Links to: <span className="font-mono">{editingButton.url}</span></>
                   )}
@@ -503,12 +420,6 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
                   )}
                   {editingButton.action === 'video' && (
                     <>Opens video popup</>
-                  )}
-                  {editingButton.action === 'checkout' && (
-                    <>Opens checkout page</>
-                  )}
-                  {!editingButton.url && !editingButton.anchorId && editingButton.action !== 'video' && editingButton.action !== 'checkout' && (
-                    <>Configure action below</>
                   )}
                 </p>
               </div>
@@ -525,6 +436,6 @@ export function HeroButtonEditor({ buttons = defaultButtons, onChange }: HeroBut
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
