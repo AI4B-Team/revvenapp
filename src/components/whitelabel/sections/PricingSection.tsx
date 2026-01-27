@@ -428,7 +428,7 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
         </div>
 
         {/* Customer Count Selector */}
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
           {customerPresets.map((count) => (
             <button
               key={count}
@@ -436,7 +436,7 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
                 setSelectedCustomerCount(count);
                 setCustomCustomerCount('');
               }}
-              className={`px-4 py-2 rounded-full border transition-all text-sm font-medium ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border transition-all text-xs sm:text-sm font-medium min-w-[40px] ${
                 selectedCustomerCount === count && customCustomerCount === ''
                   ? 'border-orange-400 bg-orange-400/20 text-orange-400'
                   : 'border-background/30 hover:border-background/50'
@@ -454,7 +454,7 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
                 const val = parseInt(e.target.value);
                 setCustomCustomerCount(isNaN(val) ? '' : Math.max(1, val));
               }}
-              className="w-20 h-9 text-center text-sm bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-24 sm:w-28 h-8 sm:h-9 text-center text-xs sm:text-sm bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
         </div>
@@ -463,12 +463,12 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
         {pricingModel === 'monthly' && (
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div className="text-center">
-              <p className="text-sm text-background/60 mb-1">MRR</p>
-              <p className="text-3xl font-bold">{formatCurrency(calculateMRR(monthlyPrice, activeCustomerCount as number))}</p>
+              <p className="text-xs sm:text-sm text-background/60 mb-1">MRR</p>
+              <p className="text-2xl sm:text-3xl font-bold leading-none">{formatCurrency(calculateMRR(monthlyPrice, activeCustomerCount as number))}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-background/60 mb-1">ARR</p>
-              <p className="text-3xl font-bold text-orange-400">{formatCurrency(calculateARR(monthlyPrice, activeCustomerCount as number))}</p>
+              <p className="text-xs sm:text-sm text-background/60 mb-1">ARR</p>
+              <p className="text-2xl sm:text-3xl font-bold leading-none text-orange-400">{formatCurrency(calculateARR(monthlyPrice, activeCustomerCount as number))}</p>
             </div>
           </div>
         )}
