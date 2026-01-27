@@ -560,7 +560,7 @@ export function PageSection({ app, license, pageSections: externalSections, onPa
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-foreground">Landing Page Builder</h2>
+        <h2 className="text-2xl font-bold text-foreground">Page Builder</h2>
         <p className="text-muted-foreground mt-1">
           Configure and customize your sales page sections. Changes are reflected in the live preview.
         </p>
