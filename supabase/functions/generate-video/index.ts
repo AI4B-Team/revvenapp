@@ -175,6 +175,117 @@ serve(async (req) => {
       );
     }
 
+    // Check if this is a Motion-Sync mode request (KIE.AI kling-2.6/motion-control)
+    if (requestData.isMotionSync) {
+      const { videoUrl, imageUrl, prompt, characterOrientation, resolution, userId } = requestData;
+      
+      console.log("Motion-Sync mode detected - using KIE.AI kling-2.6/motion-control");
+      console.log("videoUrl:", videoUrl);
+      console.log("imageUrl:", imageUrl);
+      console.log("prompt:", prompt);
+      console.log("characterOrientation:", characterOrientation);
+      console.log("resolution:", resolution);
+
+      if (!kieApiKey) {
+        throw new Error("KIE_AI_API_KEY is not configured");
+      }
+
+      if (!videoUrl || !imageUrl) {
+        throw new Error("Both videoUrl and imageUrl are required for Motion-Sync mode");
+      }
+
+      // Create a record in ai_videos table for tracking
+      const { data: videoRecord, error: insertError } = await supabase
+        .from('ai_videos')
+        .insert({
+          user_id: userId,
+          video_topic: 'Motion-Sync Video',
+          video_style: 'motion-sync',
+          video_generation_model: 'kling-2.6/motion-control',
+          character_name: 'Motion-Sync',
+          character_bio: prompt || '',
+          character_image_url: imageUrl,
+          status: 'processing'
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("Error creating video record:", insertError);
+        throw insertError;
+      }
+
+      console.log("Created Motion-Sync video record:", videoRecord.id);
+
+      // Build callback URL for KIE.AI
+      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie`;
+
+      // Call KIE.AI API for Motion-Sync
+      const kieRequestBody: any = {
+        model: "kling-2.6/motion-control",
+        callBackUrl: callbackUrl,
+        input: {
+          video_urls: [videoUrl],
+          input_urls: [imageUrl],
+          character_orientation: characterOrientation || 'video',
+          mode: resolution || '720p'
+        }
+      };
+
+      // Add prompt if provided
+      if (prompt && prompt.trim()) {
+        kieRequestBody.input.prompt = prompt.trim().substring(0, 2500); // Max 2500 chars
+      }
+
+      console.log("Calling KIE.AI with body:", JSON.stringify(kieRequestBody));
+
+      const kieResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${kieApiKey}`
+        },
+        body: JSON.stringify(kieRequestBody)
+      });
+
+      const kieResult = await kieResponse.json();
+      console.log("KIE.AI response:", JSON.stringify(kieResult));
+
+      if (kieResult.code !== 200) {
+        // Update status to error
+        await supabase
+          .from('ai_videos')
+          .update({ 
+            status: 'error', 
+            error_message: kieResult.message || 'KIE.AI API error' 
+          })
+          .eq('id', videoRecord.id);
+        
+        throw new Error(kieResult.message || 'KIE.AI API error');
+      }
+
+      // Update record with task ID
+      await supabase
+        .from('ai_videos')
+        .update({ 
+          webhook_response: { taskId: kieResult.data?.taskId }
+        })
+        .eq('id', videoRecord.id);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Motion-Sync video generation started. You will be notified when it completes.",
+          videoId: videoRecord.id,
+          taskId: kieResult.data?.taskId
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
     // Check if this is a Recast mode request (KIE.AI wan/2-2-animate-move or wan/2-2-animate-replace)
     if (requestData.isRecast) {
       const { videoUrl, imageUrl, resolution, userId, recastModel } = requestData;
