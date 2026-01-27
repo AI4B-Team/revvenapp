@@ -57,7 +57,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
         <p className="font-semibold text-sm">With {activeCustomerCount || 0} Customers</p>
       </div>
 
-      <div className="flex items-center justify-center gap-2 flex-wrap">
+      <div className="flex items-center justify-center gap-1.5 flex-wrap">
         {customerPresets.map((count) => (
           <button
             key={count}
@@ -66,7 +66,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
               setCustomCustomerCount("");
             }}
             className={cn(
-              "px-3 py-1.5 rounded-full border transition-all text-xs font-medium",
+              "px-2.5 py-1.5 rounded-full border transition-all text-xs font-medium min-w-[40px]",
               selectedCustomerCount === count && customCustomerCount === ""
                 ? "border-primary/60 bg-primary/20 text-primary"
                 : "border-background/30 hover:border-background/50",
@@ -83,7 +83,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
             const val = parseInt(e.target.value);
             setCustomCustomerCount(Number.isNaN(val) ? "" : Math.max(1, val));
           }}
-          className="w-16 h-7 text-center text-xs bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-20 h-7 text-center text-xs bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </div>
 
