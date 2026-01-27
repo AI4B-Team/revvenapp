@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { isStorageAccessible } from '@/utils/isStorageAccessible';
 
 export interface Space {
   id: string;
@@ -49,20 +50,33 @@ const SELECTED_SPACE_KEY = 'revven_selected_space';
 
 export function SpaceProvider({ children }: { children: ReactNode }) {
   const [spaces, setSpaces] = useState<Space[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : defaultSpaces;
+    try {
+      if (isStorageAccessible()) {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : defaultSpaces;
+      }
+    } catch {
+      // Ignore storage errors
+    }
+    return defaultSpaces;
   });
 
   const [selectedSpace, setSelectedSpaceState] = useState<Space | null>(() => {
-    const stored = localStorage.getItem(SELECTED_SPACE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      const storedSpaces = localStorage.getItem(STORAGE_KEY);
-      const spaceList = storedSpaces ? JSON.parse(storedSpaces) : defaultSpaces;
-      const found = spaceList.find((s: Space) => s.id === parsed.id);
-      return found || spaceList[0] || null;
+    try {
+      if (isStorageAccessible()) {
+        const stored = localStorage.getItem(SELECTED_SPACE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const storedSpaces = localStorage.getItem(STORAGE_KEY);
+          const spaceList = storedSpaces ? JSON.parse(storedSpaces) : defaultSpaces;
+          const found = spaceList.find((s: Space) => s.id === parsed.id);
+          return found || spaceList[0] || null;
+        }
+      }
+    } catch {
+      // Ignore storage errors
     }
-    return spaces[0] || null;
+    return defaultSpaces[0] || null;
   });
 
   const [isCreatingNewSpace, setIsCreatingNewSpace] = useState(false);
@@ -70,13 +84,23 @@ export function SpaceProvider({ children }: { children: ReactNode }) {
 
   // Persist spaces to localStorage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(spaces));
+    try {
+      if (isStorageAccessible()) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(spaces));
+      }
+    } catch {
+      // Ignore storage errors
+    }
   }, [spaces]);
 
   // Persist selected space to localStorage
   useEffect(() => {
-    if (selectedSpace) {
-      localStorage.setItem(SELECTED_SPACE_KEY, JSON.stringify(selectedSpace));
+    try {
+      if (selectedSpace && isStorageAccessible()) {
+        localStorage.setItem(SELECTED_SPACE_KEY, JSON.stringify(selectedSpace));
+      }
+    } catch {
+      // Ignore storage errors
     }
   }, [selectedSpace]);
 

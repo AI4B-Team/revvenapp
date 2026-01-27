@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { isStorageAccessible } from '@/utils/isStorageAccessible';
 
 export interface Brand {
   id: string;
@@ -41,21 +42,34 @@ const SELECTED_BRAND_KEY = 'revven_selected_brand';
 
 export function BrandProvider({ children }: { children: ReactNode }) {
   const [brands, setBrands] = useState<Brand[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : defaultBrands;
+    try {
+      if (isStorageAccessible()) {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : defaultBrands;
+      }
+    } catch {
+      // Ignore storage errors
+    }
+    return defaultBrands;
   });
 
   const [selectedBrand, setSelectedBrandState] = useState<Brand | null>(() => {
-    const stored = localStorage.getItem(SELECTED_BRAND_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // Make sure the stored brand still exists
-      const storedBrands = localStorage.getItem(STORAGE_KEY);
-      const brandList = storedBrands ? JSON.parse(storedBrands) : defaultBrands;
-      const found = brandList.find((b: Brand) => b.id === parsed.id);
-      return found || brandList[0] || null;
+    try {
+      if (isStorageAccessible()) {
+        const stored = localStorage.getItem(SELECTED_BRAND_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          // Make sure the stored brand still exists
+          const storedBrands = localStorage.getItem(STORAGE_KEY);
+          const brandList = storedBrands ? JSON.parse(storedBrands) : defaultBrands;
+          const found = brandList.find((b: Brand) => b.id === parsed.id);
+          return found || brandList[0] || null;
+        }
+      }
+    } catch {
+      // Ignore storage errors
     }
-    return brands[0] || null;
+    return defaultBrands[0] || null;
   });
 
   const [isCreatingNewBrand, setIsCreatingNewBrand] = useState(false);
@@ -63,13 +77,23 @@ export function BrandProvider({ children }: { children: ReactNode }) {
 
   // Persist brands to localStorage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(brands));
+    try {
+      if (isStorageAccessible()) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(brands));
+      }
+    } catch {
+      // Ignore storage errors
+    }
   }, [brands]);
 
   // Persist selected brand to localStorage
   useEffect(() => {
-    if (selectedBrand) {
-      localStorage.setItem(SELECTED_BRAND_KEY, JSON.stringify(selectedBrand));
+    try {
+      if (selectedBrand && isStorageAccessible()) {
+        localStorage.setItem(SELECTED_BRAND_KEY, JSON.stringify(selectedBrand));
+      }
+    } catch {
+      // Ignore storage errors
     }
   }, [selectedBrand]);
 
