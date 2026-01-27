@@ -462,11 +462,11 @@ export function PricingSection({ license, onUpdate }: PricingSectionProps) {
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div className="text-center">
               <p className="text-xs sm:text-sm text-background/60 mb-1">MRR</p>
-              <p className="text-2xl sm:text-3xl font-bold leading-none">{formatCurrency(calculateMRR(monthlyPrice, activeCustomerCount as number))}</p>
+              <p className="text-2xl sm:text-3xl font-bold leading-none text-emerald-400">{formatCurrency(calculateMRR(monthlyPrice, activeCustomerCount as number))}</p>
             </div>
             <div className="text-center">
               <p className="text-xs sm:text-sm text-background/60 mb-1">ARR</p>
-              <p className="text-2xl sm:text-3xl font-bold leading-none text-orange-400">{formatCurrency(calculateARR(monthlyPrice, activeCustomerCount as number))}</p>
+              <p className="text-2xl sm:text-3xl font-bold leading-none text-emerald-400">{formatCurrency(calculateARR(monthlyPrice, activeCustomerCount as number))}</p>
             </div>
           </div>
         )}

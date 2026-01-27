@@ -91,11 +91,11 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
         <div className="grid grid-cols-2 gap-3">
           <div className="text-center">
             <p className="text-xs text-background/60 mb-0.5">MRR</p>
-            <p className="text-xl font-bold">{formatCurrency(computed.mrr)}</p>
+            <p className="text-xl font-bold text-emerald-400">{formatCurrency(computed.mrr)}</p>
           </div>
           <div className="text-center">
             <p className="text-xs text-background/60 mb-0.5">ARR</p>
-            <p className="text-xl font-bold">{formatCurrency(computed.arr)}</p>
+            <p className="text-xl font-bold text-emerald-400">{formatCurrency(computed.arr)}</p>
           </div>
         </div>
       )}
