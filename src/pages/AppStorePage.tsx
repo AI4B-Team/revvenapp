@@ -305,7 +305,7 @@ const AppStorePage = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [screenshotStartIndex, setScreenshotStartIndex] = useState(0);
   const [showInstallPanel, setShowInstallPanel] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string>('all');
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(['all']);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   
@@ -350,8 +350,9 @@ const AppStorePage = () => {
   const handleInstall = () => {
     if (!appId) return;
     
-    const accessMode = selectedUserId === 'all' ? 'all_members' : 'select_users';
-    const userIds = selectedUserId === 'all' ? [] : [selectedUserId];
+    const hasAll = selectedUserIds.includes('all');
+    const accessMode = hasAll ? 'all_members' : 'select_users';
+    const userIds = hasAll ? [] : selectedUserIds;
     
     installApp(
       appId,
@@ -363,6 +364,27 @@ const AppStorePage = () => {
     );
     toast.success(`${app?.name} installed successfully!`);
     setShowInstallPanel(false);
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    if (userId === 'all') {
+      // If selecting "all", clear other selections
+      setSelectedUserIds(['all']);
+    } else {
+      setSelectedUserIds(prev => {
+        // Remove 'all' if it was selected
+        const withoutAll = prev.filter(id => id !== 'all');
+        if (prev.includes(userId)) {
+          // Remove user if already selected
+          const newSelection = withoutAll.filter(id => id !== userId);
+          // If no users selected, default to 'all'
+          return newSelection.length === 0 ? ['all'] : newSelection;
+        } else {
+          // Add user to selection
+          return [...withoutAll, userId];
+        }
+      });
+    }
   };
 
   const handleResell = () => {
@@ -559,18 +581,18 @@ const AppStorePage = () => {
                     <label
                       key={user.id}
                       className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedUserId === user.id 
+                        selectedUserIds.includes(user.id)
                           ? 'bg-primary/10 border border-primary/20' 
                           : 'bg-background border border-transparent hover:bg-muted'
                       }`}
                     >
                       <input
-                        type="radio"
+                        type={user.id === 'all' ? 'radio' : 'checkbox'}
                         name="access-user"
                         value={user.id}
-                        checked={selectedUserId === user.id}
-                        onChange={(e) => setSelectedUserId(e.target.value)}
-                        className="w-4 h-4 text-primary border-muted-foreground focus:ring-primary"
+                        checked={selectedUserIds.includes(user.id)}
+                        onChange={() => toggleUserSelection(user.id)}
+                        className="w-4 h-4 text-primary border-muted-foreground focus:ring-primary rounded"
                       />
                       <span className="text-foreground font-medium">{user.name}</span>
                     </label>
