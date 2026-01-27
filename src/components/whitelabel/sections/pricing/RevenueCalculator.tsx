@@ -68,7 +68,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
             className={cn(
               "px-2.5 py-1.5 rounded-full border transition-all text-xs font-medium min-w-[40px]",
               selectedCustomerCount === count && customCustomerCount === ""
-                ? "border-primary/60 bg-primary/20 text-primary"
+                ? "border-background/50 bg-background/10 text-background ring-1 ring-primary/30 ring-inset"
                 : "border-background/30 hover:border-background/50",
             )}
           >
@@ -83,7 +83,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
             const val = parseInt(e.target.value);
             setCustomCustomerCount(Number.isNaN(val) ? "" : Math.max(1, val));
           }}
-          className="w-20 h-7 text-center text-xs bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-24 h-7 text-center text-xs bg-background/10 border-background/30 text-background placeholder:text-background/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </div>
 
@@ -95,7 +95,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
           </div>
           <div className="text-center">
             <p className="text-xs text-background/60 mb-0.5">ARR</p>
-            <p className="text-xl font-bold text-primary">{formatCurrency(computed.arr)}</p>
+            <p className="text-xl font-bold">{formatCurrency(computed.arr)}</p>
           </div>
         </div>
       )}
@@ -103,7 +103,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
       {computed.mode === "one-time" && (
         <div className="text-center">
           <p className="text-xs text-background/60 mb-0.5">Total Revenue</p>
-          <p className="text-2xl font-bold text-primary">{formatCurrency(computed.total)}</p>
+          <p className="text-2xl font-bold">{formatCurrency(computed.total)}</p>
         </div>
       )}
 
@@ -121,7 +121,7 @@ export function RevenueCalculator({ pricing, title = "Revenue Projections", clas
           </div>
           <div className="text-center pt-2 border-t border-background/20">
             <p className="text-xs text-background/60 mb-0.5">First Year Total</p>
-            <p className="text-2xl font-bold text-primary">{formatCurrency(computed.total)}</p>
+            <p className="text-2xl font-bold">{formatCurrency(computed.total)}</p>
           </div>
         </div>
       )}
