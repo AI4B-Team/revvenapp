@@ -221,7 +221,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
 
   return (
     <TooltipProvider delayDuration={100}>
-      <div className={`flex items-center gap-1 ${className}`}>
+      <div className={`flex items-center gap-1 overflow-x-auto scrollbar-hide ${className}`}>
         {/* Render all open tabs */}
         {openTabApps.map((app) => {
           const isActive = app.id === activeAppId;
@@ -233,13 +233,13 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
               <button
                 key={app.id}
                 onClick={() => handleTabClick(app)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${app.bgColor} ${app.color}`}
+                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${app.bgColor} ${app.color} flex-shrink-0`}
               >
-                <Icon size={16} />
-                <span>{app.label}</span>
+                <Icon size={14} className="sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{app.label}</span>
                 <X 
-                  size={14} 
-                  className="ml-1 hover:bg-white/20 rounded p-0.5 cursor-pointer"
+                  size={12} 
+                  className="sm:w-3.5 sm:h-3.5 ml-0.5 sm:ml-1 hover:bg-white/20 rounded p-0.5 cursor-pointer"
                   onClick={(e) => handleCloseTab(e, app.id)}
                 />
               </button>
@@ -251,9 +251,9 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
                 <TooltipTrigger asChild>
                   <div
                     onClick={() => handleTabClick(app)}
-                    className="relative p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 transition-colors text-slate-500 group cursor-pointer"
+                    className="relative p-2 sm:p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 transition-colors text-slate-500 group cursor-pointer flex-shrink-0"
                   >
-                    <Icon size={18} />
+                    <Icon size={16} className="sm:w-[18px] sm:h-[18px]" />
                     <span
                       onClick={(e) => handleCloseTab(e, app.id)}
                       className="absolute -top-1 -right-1 p-0.5 rounded-full bg-slate-200 hover:bg-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
@@ -274,9 +274,9 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
             <TooltipTrigger asChild>
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="p-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition-colors text-slate-600 shadow-sm"
+                className="p-2 sm:p-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition-colors text-slate-600 shadow-sm flex-shrink-0"
               >
-                <Plus size={18} strokeWidth={2.5} />
+                <Plus size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
               </button>
             </TooltipTrigger>
             <TooltipContent>Explore Apps</TooltipContent>
@@ -292,7 +292,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
                   setSearchQuery('');
                 }}
               />
-              <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl min-w-[360px] z-50 overflow-hidden">
+              <div className="absolute top-full right-0 sm:left-0 sm:right-auto mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl w-[300px] sm:min-w-[360px] z-50 overflow-hidden">
                 {/* Search Bar */}
                 <div className="p-3 border-b border-slate-100">
                   <div className="relative">

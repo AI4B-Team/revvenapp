@@ -989,7 +989,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
   return (
     <div className="w-full">
       {/* Grid Layout - Dynamic columns based on zoom */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${getGridCols()} gap-4`}>
+      <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${getGridCols()} gap-3 md:gap-4`}>
         {items.map((item, index) => (
           <div
             key={item.id}

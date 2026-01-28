@@ -548,16 +548,16 @@ const Apps = () => {
           </div>
 
           {/* Main Content */}
-          <div className="px-4 md:px-8 py-6 md:py-12">
+          <div className="px-3 sm:px-4 md:px-8 py-4 md:py-12">
             {activeTab === 'marketplace' ? (
-              <div className="w-full space-y-16">
+              <div className="w-full space-y-10 md:space-y-16">
                 
                 {/* Trending Section */}
                 <section>
-                  <div className="mb-6 flex items-center justify-between">
+                  <div className="mb-4 md:mb-6 flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
-                      <p className="text-muted-foreground">The Hottest AI Apps Right Now</p>
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 md:mb-2">TRENDING</h2>
+                      <p className="text-muted-foreground text-sm md:text-base">The Hottest AI Apps Right Now</p>
                     </div>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
@@ -596,11 +596,11 @@ const Apps = () => {
                 </section>
 
                 {/* Top Picks Section */}
-                <section className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-3xl p-8 -mx-4">
-                  <div className="mb-6 flex items-center justify-between">
+                <section className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl md:rounded-3xl p-4 md:p-8 -mx-2 md:-mx-4">
+                  <div className="mb-4 md:mb-6 flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold mb-1">RECOMMENDED FOR YOU</h2>
-                      <p className="text-muted-foreground">Handpicked Apps Just For You - Ready To Use</p>
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-1">RECOMMENDED FOR YOU</h2>
+                      <p className="text-muted-foreground text-sm md:text-base">Handpicked Apps Just For You - Ready To Use</p>
                     </div>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, recommended: !expandedSections.recommended })}
@@ -647,8 +647,8 @@ const Apps = () => {
 
                 {/* Image Apps */}
                 <section>
-                  <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">IMAGE APPS</h2>
+                  <div className="mb-4 md:mb-6 flex items-center justify-between">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold">IMAGE APPS</h2>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, imageApps: !expandedSections.imageApps })}
                       className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
@@ -657,7 +657,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-8 md:mb-12' : `grid ${getGridCols()} gap-3 md:gap-4 mb-8 md:mb-12`}>
                     {filterApps(imageApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -679,8 +679,8 @@ const Apps = () => {
 
                 {/* Video Apps */}
                 <section>
-                  <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">VIDEO APPS</h2>
+                  <div className="mb-4 md:mb-6 flex items-center justify-between">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold">VIDEO APPS</h2>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, videoApps: !expandedSections.videoApps })}
                       className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
@@ -689,7 +689,7 @@ const Apps = () => {
                       <ChevronRight size={18} />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-8 md:mb-12' : `grid ${getGridCols()} gap-3 md:gap-4 mb-8 md:mb-12`}>
                     {filterApps(videoApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -711,17 +711,17 @@ const Apps = () => {
 
                 {/* Audio Apps */}
                 <section>
-                  <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">AUDIO APPS</h2>
+                  <div className="mb-4 md:mb-6 flex items-center justify-between">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold">AUDIO APPS</h2>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, audioApps: !expandedSections.audioApps })}
-                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1 text-sm md:text-base"
                     >
                       See All
-                      <ChevronRight size={18} />
+                      <ChevronRight size={16} className="md:w-[18px] md:h-[18px]" />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-8 md:mb-12' : `grid ${getGridCols()} gap-3 md:gap-4 mb-8 md:mb-12`}>
                     {filterApps(audioApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -743,17 +743,17 @@ const Apps = () => {
 
                 {/* Design Apps */}
                 <section>
-                  <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">DESIGN APPS</h2>
+                  <div className="mb-4 md:mb-6 flex items-center justify-between">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold">DESIGN APPS</h2>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, designApps: !expandedSections.designApps })}
-                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1 text-sm md:text-base"
                     >
                       See All
-                      <ChevronRight size={18} />
+                      <ChevronRight size={16} className="md:w-[18px] md:h-[18px]" />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-8 md:mb-12' : `grid ${getGridCols()} gap-3 md:gap-4 mb-8 md:mb-12`}>
                     {filterApps(designApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -775,17 +775,17 @@ const Apps = () => {
 
                 {/* Content Apps */}
                 <section>
-                  <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">CONTENT APPS</h2>
+                  <div className="mb-4 md:mb-6 flex items-center justify-between">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold">CONTENT APPS</h2>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, contentApps: !expandedSections.contentApps })}
-                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1 text-sm md:text-base"
                     >
                       See All
-                      <ChevronRight size={18} />
+                      <ChevronRight size={16} className="md:w-[18px] md:h-[18px]" />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-8 md:mb-12' : `grid ${getGridCols()} gap-3 md:gap-4 mb-8 md:mb-12`}>
                     {filterApps(contentApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);
@@ -807,17 +807,17 @@ const Apps = () => {
 
                 {/* Tools */}
                 <section>
-                  <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">TOOLS</h2>
+                  <div className="mb-4 md:mb-6 flex items-center justify-between">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold">TOOLS</h2>
                     <button 
                       onClick={() => setExpandedSections({ ...expandedSections, tools: !expandedSections.tools })}
-                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1 text-sm md:text-base"
                     >
                       See All
-                      <ChevronRight size={18} />
+                      <ChevronRight size={16} className="md:w-[18px] md:h-[18px]" />
                     </button>
                   </div>
-                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-12' : `grid ${getGridCols()} gap-4 mb-12`}>
+                  <div className={viewMode === 'list' ? 'flex flex-col gap-3 mb-8 md:mb-12' : `grid ${getGridCols()} gap-3 md:gap-4 mb-8 md:mb-12`}>
                     {filterApps(toolsApps).slice(0, 10).map((app, idx) => {
                       const appId = resolveAppId(app.name);
                       const installed = isInstalled(appId);

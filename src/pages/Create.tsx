@@ -532,7 +532,7 @@ const Create = () => {
         onClose={() => setIdentitySidebarOpen(false)}
       />
       
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} ${isAIVAPanelOpen ? (isSidebarCollapsed ? 'lg:pl-[400px]' : 'lg:pl-[400px]') : ''}`}>
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
         {/* Show Image Editing Canvas when in edit mode */}
@@ -551,8 +551,8 @@ const Create = () => {
           />
         ) : (
           <main className="flex-1 overflow-auto bg-slate-50">
-          <div className="px-4 md:px-8 py-4 md:py-8">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 md:mb-8">What Would You Like To Create Today?</h1>
+          <div className="px-3 sm:px-4 md:px-8 py-3 md:py-8">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-center mb-3 md:mb-8">What Would You Like To Create Today?</h1>
             
             <ContentTypeSelector selectedType={selectedType} onTypeChange={(type) => {
               setSelectedType(type);
