@@ -272,12 +272,28 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
 
                   {/* Selected sub-type chip OR Type button */}
                   {selectedSubType ? (
-                    <ControlChip 
-                      label={selectedSubType.label} 
-                      icon={selectedSubType.icon} 
-                      iconColor={selectedSubType.color} 
-                      onRemove={handleRemoveSubType} 
-                    />
+                    <>
+                      <ControlChip 
+                        label={selectedSubType.label} 
+                        icon={selectedSubType.icon} 
+                        iconColor={selectedSubType.color} 
+                        onRemove={handleRemoveSubType} 
+                      />
+                      
+                      {/* Control icons for the selected sub-type */}
+                      <div className="flex items-center gap-1 ml-2">
+                        {getControlIcons().map((control) => (
+                          <Tooltip key={control.id}>
+                            <TooltipTrigger asChild>
+                              <button className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors">
+                                <control.icon size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>{control.tooltip}</TooltipContent>
+                          </Tooltip>
+                        ))}
+                      </div>
+                    </>
                   ) : (
                     <button 
                       onClick={() => setShowTypeDropdown(!showTypeDropdown)}
