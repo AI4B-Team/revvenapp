@@ -5640,7 +5640,104 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           />
         )}
 
-        {/* UGC Mode - Display Product and Character Images side by side */}
+        {/* Motion-Sync Mode - Display selected Reference Image OR Character and Reference Video */}
+        {isVideoMode && selectedAnimateMode === 'Motion-Sync' && (motionSyncRefImage || selectedCharacters.length > 0 || motionSyncVideo) && (
+          <div className="mb-6 flex items-center gap-4 flex-wrap">
+            {/* Reference Image */}
+            {motionSyncRefImage && (
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-brand-green">
+                  <img 
+                    src={motionSyncRefImage.url} 
+                    alt={motionSyncRefImage.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <button
+                  onClick={() => setMotionSyncRefImage(null)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
+                >
+                  <X size={14} />
+                </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[96px]">
+                  Ref Image
+                </p>
+              </div>
+            )}
+
+            {/* Character Image (only show if no ref image) */}
+            {!motionSyncRefImage && selectedCharacters.length > 0 && (
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-brand-blue">
+                  <img 
+                    src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar} 
+                    alt={selectedCharacters[0].name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <button
+                  onClick={() => onCharactersSelect?.([])}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
+                >
+                  <X size={14} />
+                </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[96px]">
+                  {selectedCharacters[0].name}
+                </p>
+              </div>
+            )}
+
+            {/* Plus Arrow between image and video */}
+            {(motionSyncRefImage || selectedCharacters.length > 0) && motionSyncVideo && (
+              <div className="flex items-center justify-center">
+                <Plus size={20} className="text-muted-foreground" />
+              </div>
+            )}
+
+            {/* Reference Video */}
+            {motionSyncVideo && (
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-brand-yellow bg-muted flex items-center justify-center">
+                  {(() => {
+                    const thumbnailUrl = motionSyncVideo.url
+                      .replace('/video/upload/', '/video/upload/so_0,w_96,h_96,c_fill,f_jpg/');
+                    return (
+                      <>
+                        <img 
+                          src={thumbnailUrl} 
+                          alt={motionSyncVideo.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                        <div className="hidden w-full h-full flex items-center justify-center">
+                          <Video size={24} className="text-muted-foreground" />
+                        </div>
+                      </>
+                    );
+                  })()}
+                  {motionSyncVideo.duration && (
+                    <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
+                      {motionSyncVideo.duration}s
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => setMotionSyncVideo(null)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
+                >
+                  <X size={14} />
+                </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[96px]">
+                  Ref Video
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         {isVideoMode && selectedAnimateMode === 'UGC' && (ugcProductImage || videoModeState.characters.length > 0) && (
           <div className="mb-6 flex items-center gap-4 flex-wrap">
             {/* Character Image */}
