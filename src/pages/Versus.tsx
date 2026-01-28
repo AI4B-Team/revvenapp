@@ -16,7 +16,7 @@ const Versus = () => {
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
       <div className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}>
-        <Header />
+        <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         <main className="pt-0">
           <VersusComponent />
         </main>

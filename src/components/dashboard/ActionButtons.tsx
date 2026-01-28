@@ -24,19 +24,19 @@ const ActionButtons = ({ activeView, onViewChange, hasSelectedType = false }: Ac
   ];
 
   return (
-    <div className="w-full mt-8 mb-8">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+    <div className="w-full mt-4 md:mt-8 mb-4 md:mb-8">
+      <div className="flex items-center justify-between gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex items-center gap-2 md:gap-3">
           {buttons.map(({ view, icon: Icon, label }) => (
             <button
               key={view}
               onClick={() => onViewChange(view)}
-              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
+              className={`px-3 md:px-4 py-2 rounded-lg flex items-center gap-1.5 md:gap-2 transition whitespace-nowrap flex-shrink-0 ${
                 activeView === view ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'
               }`}
             >
-              <Icon size={18} />
-              <span className="font-medium text-sm">{label}</span>
+              <Icon size={16} className="md:w-[18px] md:h-[18px]" />
+              <span className="font-medium text-xs md:text-sm">{label}</span>
             </button>
           ))}
         </div>

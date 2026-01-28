@@ -19,8 +19,8 @@ const Sessions = () => {
         
         <main className="flex-1 overflow-auto bg-background">
           {/* Page Header */}
-          <div className="px-8 py-6 border-b border-border">
-            <div className="flex items-center gap-4">
+          <div className="px-4 md:px-8 py-4 md:py-6 border-b border-border">
+            <div className="flex items-center gap-3 md:gap-4">
               <Button
                 variant="ghost"
                 size="icon"
@@ -30,8 +30,8 @@ const Sessions = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Sessions</h1>
-                <p className="text-sm text-muted-foreground">Record and manage your creative sessions</p>
+                <h1 className="text-lg md:text-xl font-bold text-foreground">Sessions</h1>
+                <p className="text-xs md:text-sm text-muted-foreground">Record and manage your creative sessions</p>
               </div>
             </div>
           </div>

@@ -97,16 +97,16 @@ const FilterToolbar = ({
   }, []);
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 md:gap-3 flex-wrap">
       
       {/* Content Type Dropdown */}
       <div className="relative dropdown-container">
         <button
           onClick={() => setAllDropdownOpen(!allDropdownOpen)}
-          className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
         >
-          <span className="text-sm font-medium">{selectedContentType}</span>
-          <ChevronDown size={16} />
+          <span className="text-xs md:text-sm font-medium">{selectedContentType}</span>
+          <ChevronDown size={14} className="md:w-4 md:h-4" />
         </button>
 
         {allDropdownOpen && (
@@ -396,26 +396,26 @@ const FilterToolbar = ({
         </div>
       </TooltipProvider>
 
-      {/* Vertical Divider */}
-      <div className="h-6 w-px bg-border" />
+      {/* Vertical Divider - Hide on mobile */}
+      <div className="hidden sm:block h-6 w-px bg-border" />
 
-      {/* Zoom Slider */}
-      <div className="flex items-center gap-3 bg-white border border-gray-300 rounded-lg px-4 py-2">
+      {/* Zoom Slider - Hide on mobile */}
+      <div className="hidden sm:flex items-center gap-2 md:gap-3 bg-white border border-gray-300 rounded-lg px-3 md:px-4 py-2">
         <button
           onClick={() => onZoomChange?.(Math.max(0, zoom - 10))}
           className="text-gray-600 hover:text-gray-900 transition-colors"
         >
-          <ZoomOut size={18} />
+          <ZoomOut size={16} className="md:w-[18px] md:h-[18px]" />
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <input
             type="range"
             min="0"
             max="100"
             value={zoom}
             onChange={(e) => onZoomChange?.(Number(e.target.value))}
-            className="w-32 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gray-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-gray-600 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+            className="w-20 md:w-32 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gray-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-gray-600 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
           />
         </div>
 
@@ -423,7 +423,7 @@ const FilterToolbar = ({
           onClick={() => onZoomChange?.(Math.min(100, zoom + 10))}
           className="text-gray-600 hover:text-gray-900 transition-colors"
         >
-          <ZoomIn size={18} />
+          <ZoomIn size={16} className="md:w-[18px] md:h-[18px]" />
         </button>
       </div>
     </div>

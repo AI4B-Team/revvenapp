@@ -54,16 +54,16 @@ export function MarketplaceIndex({
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-background border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 md:mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">APPS Marketplace</h1>
-              <p className="text-muted-foreground mt-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">APPS Marketplace</h1>
+              <p className="text-muted-foreground mt-1 text-sm md:text-base">
                 Install apps to extend your REVVEN workspace
               </p>
             </div>
             {!hasLicense && (
-              <Button variant="outline">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <span className="mr-2">🔓</span>
                 Upgrade for White-Label
               </Button>
@@ -71,18 +71,18 @@ export function MarketplaceIndex({
           </div>
 
           {/* Search & Filter */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
               <MarketplaceInput
                 type="text"
                 placeholder="Search Apps"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
+                className="pl-9 md:pl-10"
               />
             </div>
-            <Button variant="secondary">
+            <Button variant="secondary" className="w-full sm:w-auto">
               <Filter className="h-4 w-4 mr-2" />
               Filters
             </Button>
@@ -92,7 +92,7 @@ export function MarketplaceIndex({
           <div className="flex items-center gap-2 mt-4 flex-wrap">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
                 !selectedCategory
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -104,7 +104,7 @@ export function MarketplaceIndex({
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
+                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors capitalize ${
                   selectedCategory === category
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -118,7 +118,7 @@ export function MarketplaceIndex({
       </div>
 
       {/* App Grid */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             {filteredApps.length} apps {selectedCategory && `in ${selectedCategory}`}

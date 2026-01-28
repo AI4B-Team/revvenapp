@@ -26,24 +26,24 @@ const Community = () => {
         onCollapseChange={setIsSidebarCollapsed}
       />
       
-      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <div className="flex-shrink-0">
-          <Header />
+          <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         </div>
         
         <main className="flex-1 overflow-y-auto bg-white">
           {/* Header - Sticky */}
-          <div className="px-8 py-6 bg-white sticky top-0 z-40 border-b border-border shadow-sm">
-            <div className="flex items-center justify-between">
+          <div className="px-4 md:px-8 py-4 md:py-6 bg-white sticky top-0 z-40 border-b border-border shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
-                <h1 className="text-3xl font-bold mb-2">COMMUNITY</h1>
-                <p className="text-muted-foreground">Explore creations from the community</p>
+                <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">COMMUNITY</h1>
+                <p className="text-muted-foreground text-sm md:text-base">Explore creations from the community</p>
               </div>
               <FilterToolbar zoom={zoom} onZoomChange={setZoom} onFiltersChange={setFilters} />
             </div>
           </div>
           
-          <div className="px-8 py-8">
+          <div className="px-4 md:px-8 py-4 md:py-8">
 
             {/* Gallery Content */}
             <CreationsGallery type="community" columnsPerRow={zoomLevel} filters={filters} />
