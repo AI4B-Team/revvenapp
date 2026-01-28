@@ -224,18 +224,30 @@ export default function LoginPage() {
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
     
+    // If session is already missing, just clear state and show success
+    if (error?.message?.includes('session missing') || error?.message?.includes('Auth session missing')) {
+      setSession(null);
+      setIsRedirecting(false);
+      toast({
+        title: t('auth.signedOut', 'Signed out successfully'),
+        description: t('auth.loggedOut', 'You have been logged out.'),
+      });
+      return;
+    }
+    
     if (error) {
       toast({
-        title: "Error signing out",
+        title: t('auth.errorSigningOut', 'Error signing out'),
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Signed out successfully",
-        description: "You have been logged out.",
+        title: t('auth.signedOut', 'Signed out successfully'),
+        description: t('auth.loggedOut', 'You have been logged out.'),
       });
       setSession(null);
+      setIsRedirecting(false);
     }
   };
 
