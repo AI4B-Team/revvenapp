@@ -3005,10 +3005,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           
           // Use selectedCharacters prop directly for Motion-Sync mode character validation
           const motionSyncCharacters = selectedCharacters.length > 0 ? selectedCharacters : currentCharacters;
-          if (!motionSyncCharacters.length) {
+          
+          // Motion-Sync requires either a reference image OR a character (at least one)
+          const hasRefImage = !!motionSyncRefImage?.url;
+          const hasCharacter = motionSyncCharacters.length > 0;
+          
+          if (!hasRefImage && !hasCharacter) {
             toast({
-              title: "Character required",
-              description: "Please select a character image for Motion-Sync",
+              title: "Image required",
+              description: "Please upload a reference image or select a character",
               variant: "destructive",
             });
             setIsGenerating(false);
@@ -3022,13 +3027,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             // Use dedicated reference image
             characterImageUrl = motionSyncRefImage.url;
             console.log("Motion-Sync Mode: Using dedicated reference image");
-          } else {
+          } else if (hasCharacter) {
             // Fall back to character image
             characterImageUrl = motionSyncCharacters[0].image || motionSyncCharacters[0].image_url || motionSyncCharacters[0].avatar;
             if (!characterImageUrl) {
               toast({
                 title: "Image required",
-                description: "Please upload a reference image or select a character with an image",
+                description: "The selected character doesn't have an image. Please upload a reference image instead.",
                 variant: "destructive",
               });
               setIsGenerating(false);
@@ -11175,7 +11180,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                           ? !prompt.trim() // Auto mode needs a prompt
                                           : !manualScenesAllFilled) // Manual mode needs all scenes filled
                                       )
-                                    : !prompt.trim()
+                                    : isVideoMode && selectedAnimateMode === 'Motion-Sync'
+                                      ? (
+                                          // Motion-Sync requires: (ref image OR character) AND reference video AND prompt
+                                          (!motionSyncRefImage && selectedCharacters.length === 0) || 
+                                          !motionSyncVideo || 
+                                          !prompt.trim()
+                                        )
+                                      : !prompt.trim()
                       )
                     }
                     className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
