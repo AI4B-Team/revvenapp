@@ -11,6 +11,7 @@ import toolMasterCloser from '@/assets/icons/tool-master-closer.png';
 import toolAiResponder from '@/assets/icons/tool-ai-responder.png';
 import toolInbox from '@/assets/icons/tool-inbox.png';
 import toolInvestorCalculator from '@/assets/icons/investor-calculator-icon.png';
+import toolDigitalSpy from '@/assets/icons/tool-digital-spy.png';
 
 // Import image tool icons
 import toolArtBlocks from '@/assets/icons/tool-art-blocks.png';
@@ -73,6 +74,7 @@ export const appIconMapping: Record<string, string> = {
   'Master Closer': toolMasterCloser,
   'Inbox': toolInbox,
   'Investor Calculator': toolInvestorCalculator,
+  'Digital Spy': toolDigitalSpy,
   
   // Image
   'Art Blocks': toolArtBlocks,
