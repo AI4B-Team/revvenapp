@@ -67,6 +67,7 @@ export default function LoginPage() {
   const [avatarPreview, setAvatarPreview] = useState<string>('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [emailNotFound, setEmailNotFound] = useState(false);
   const [languageSearch, setLanguageSearch] = useState('');
@@ -147,6 +148,7 @@ export default function LoginPage() {
     };
 
     const handleAuthRedirect = async (session: Session) => {
+      setIsRedirecting(true);
       const isValidated = await checkInviteCodeValidation(session.user.id);
       if (!isValidated) {
         navigate('/invite-verification');
@@ -489,9 +491,16 @@ export default function LoginPage() {
             <div className="w-full max-w-md">
 
           {/* Logout Button - Shows when user is logged in */}
-          {session && (
+          {session && isRedirecting && (
             <div className="mb-8 flex flex-col items-center gap-4">
-              <p className="text-gray-600">{t('auth.alreadyLoggedIn', 'You are already logged in')}</p>
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              <p className="text-muted-foreground">{t('auth.redirecting', 'Redirecting...')}</p>
+            </div>
+          )}
+          
+          {session && !isRedirecting && (
+            <div className="mb-8 flex flex-col items-center gap-4">
+              <p className="text-muted-foreground">{t('auth.alreadyLoggedIn', 'You are already logged in')}</p>
               <Button
                 onClick={handleSignOut}
                 variant="destructive"
