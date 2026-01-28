@@ -34,11 +34,11 @@ const DynamicToolsSection = ({ category, title, selectedType, onEditClick }: Dyn
 
   if (isLoading) {
     return (
-      <div className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">{title}</h2>
+      <div className="mb-8 md:mb-12">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold">{title}</h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
           {[...Array(6)].map((_, idx) => (
             <div key={idx} className="bg-muted/50 rounded-xl aspect-square animate-pulse" />
           ))}
@@ -52,14 +52,14 @@ const DynamicToolsSection = ({ category, title, selectedType, onEditClick }: Dyn
   }
 
   return (
-    <div className="mb-12">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">{title}</h2>
-        <button className="text-sm text-primary hover:underline flex items-center gap-1">
+    <div className="mb-8 md:mb-12">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold">{title}</h2>
+        <button className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1">
           See All <ChevronRight size={16} />
         </button>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
         {tools.map((tool) => (
           <ToolCard
             key={tool.id}

@@ -106,7 +106,7 @@ const CollectionCard: React.FC<{ collection: Collection; onClick: () => void }> 
         </div>
 
         {/* Collection Title */}
-        <h3 className="text-xl font-semibold text-foreground mt-3 group-hover:text-primary transition-colors">
+        <h3 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mt-2 md:mt-3 group-hover:text-primary transition-colors truncate">
           {collection.title}
         </h3>
       </div>
@@ -485,16 +485,16 @@ const CollectionsSection: React.FC<CollectionsSectionProps & { onCollectionClick
   onCollectionClick,
 }) => {
   return (
-    <section className="mb-20">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-foreground mb-2">
-          {title} <span className="text-base font-normal text-muted-foreground">| Curated By: Vicki Ravelle</span>
+    <section className="mb-12 md:mb-20">
+      <div className="mb-4 md:mb-8">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
+          {title} <span className="text-xs sm:text-sm md:text-base font-normal text-muted-foreground">| Curated By: Vicki Ravelle</span>
         </h2>
         {subtitle && (
-          <p className="text-base text-muted-foreground">{subtitle}</p>
+          <p className="text-sm md:text-base text-muted-foreground">{subtitle}</p>
         )}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {collections.map((collection) => (
           <CollectionCard 
             key={collection.id} 
@@ -598,15 +598,15 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
       <div className="min-h-screen bg-background">
         <div className="py-8 space-y-8">
           {/* Collection Title */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-foreground mb-2">
-              {expandedCollection.title} <span className="text-base font-normal text-muted-foreground">| Curated By: Vicki Ravelle</span>
+          <div className="mb-4 md:mb-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
+              {expandedCollection.title} <span className="text-xs sm:text-sm md:text-base font-normal text-muted-foreground">| Curated By: Vicki Ravelle</span>
             </h2>
-            <p className="text-base text-muted-foreground">{expandedCollection.totalCount} images</p>
+            <p className="text-sm md:text-base text-muted-foreground">{expandedCollection.totalCount} images</p>
           </div>
 
           {/* Gallery Grid */}
-          <div className={`grid grid-cols-1 md:grid-cols-2 ${getGridCols()} gap-4`}>
+          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${getGridCols()} gap-3 md:gap-4`}>
             {expandedCollection.images.map((image, index) => (
               <GalleryImageCard 
                 key={index} 
@@ -639,7 +639,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
   // Collections List View
   return (
     <div className="min-h-screen bg-background">
-      <div className="py-8 space-y-0">
+      <div className="py-4 md:py-8 space-y-0">
         {/* Popular Collections */}
         <CollectionsSection
           title={popularTitle}
