@@ -48,7 +48,20 @@ serve(async (req) => {
     const { data: videos, error: findError } = await query;
 
     if (findError) {
-      throw new Error(`Error finding videos: ${findError.message}`);
+      // Check if error message contains HTML (indicates infrastructure/Cloudflare error)
+      const errorMsg = findError.message || String(findError);
+      if (errorMsg.includes('<!DOCTYPE') || errorMsg.includes('<html')) {
+        console.error("Infrastructure error (Cloudflare/Supabase temporary outage)");
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: "Temporary infrastructure error. Please try again in a few moments.",
+            retryable: true 
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+        );
+      }
+      throw new Error(`Error finding videos: ${errorMsg}`);
     }
 
     if (!videos || videos.length === 0) {
