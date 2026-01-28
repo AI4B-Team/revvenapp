@@ -335,63 +335,64 @@ const Index = () => {
           <div className="p-6 lg:p-8">
             
             {/* Trial Banner */}
-            <div className="bg-white rounded-2xl p-5 mb-8 flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-emerald-500" />
+            <div className="bg-white rounded-2xl p-4 md:p-5 mb-6 md:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground text-lg">Start Your 14-Day Free Trial Of Our PRO Plan!</h3>
-                  <p className="text-muted-foreground text-sm">Access AI video creation, automated content, lead generation, and 50+ powerful business tools.</p>
+                  <h3 className="font-semibold text-foreground text-base md:text-lg">Start Your 14-Day Free Trial Of Our PRO Plan!</h3>
+                  <p className="text-muted-foreground text-xs md:text-sm">Access AI video creation, automated content, lead generation, and 50+ powerful business tools.</p>
                 </div>
               </div>
-              <button className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors">
+              <button className="w-full sm:w-auto px-4 md:px-6 py-2 md:py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors text-sm md:text-base">
                 Start Trial
               </button>
             </div>
 
             {/* Meet AIVA + Tutorials Carousel */}
             {showTutorialSection && (
-              <div className="bg-card rounded-2xl border border-border p-6 relative">
+              <div className="bg-card rounded-2xl border border-border p-4 md:p-6 relative">
                 {/* Close Button */}
                 <button
                   onClick={dismissTutorialSection}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-secondary hover:bg-muted flex items-center justify-center transition-colors z-10"
+                  className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 rounded-full bg-secondary hover:bg-muted flex items-center justify-center transition-colors z-10"
                   aria-label="Dismiss section"
                 >
-                  <X size={16} className="text-muted-foreground" />
+                  <X size={14} className="text-muted-foreground md:hidden" />
+                  <X size={16} className="text-muted-foreground hidden md:block" />
                 </button>
 
-                <div className="flex items-stretch gap-6">
+                <div className="flex flex-col lg:flex-row items-stretch gap-4 md:gap-6">
                   {/* Meet AIVA Card */}
-                  <div className="bg-card rounded-2xl shadow-sm p-6 border border-border flex-shrink-0 w-80">
+                  <div className="bg-card rounded-2xl shadow-sm p-4 md:p-6 border border-border flex-shrink-0 lg:w-80">
                     <div className="flex items-start gap-3 mb-4">
-                      <div className="w-10 h-10 bg-brand-green rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Sparkles className="w-5 h-5 text-white" />
+                      <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-green rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-foreground">Meet AIVA</h3>
-                        <p className="text-muted-foreground text-sm">
+                        <h3 className="text-base md:text-lg font-bold text-foreground">Meet AIVA</h3>
+                        <p className="text-muted-foreground text-xs md:text-sm">
                           Got questions? AIVA knows the platform inside and out.
                         </p>
                       </div>
                     </div>
 
                     {/* Avatar with soft green background */}
-                    <div className="relative flex items-center justify-center py-4 mb-4">
+                    <div className="relative flex items-center justify-center py-3 md:py-4 mb-4">
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-36 h-36 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full opacity-80"></div>
+                        <div className="w-28 h-28 md:w-36 md:h-36 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full opacity-80"></div>
                       </div>
                       <img 
                         src={aivaAvatar}
                         alt="AIVA Assistant"
-                        className="relative z-10 w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg"
+                        className="relative z-10 w-20 h-20 md:w-28 md:h-28 rounded-full object-cover border-4 border-white shadow-lg"
                       />
                     </div>
 
                     <button 
                       onClick={() => navigate('/create?openAIVA=true')}
-                      className="w-full bg-card hover:bg-secondary text-brand-green border border-brand-green py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                      className="w-full bg-card hover:bg-secondary text-brand-green border border-brand-green py-2 md:py-2.5 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm text-sm md:text-base"
                     >
                       Chat With AIVA
                       <span className="text-lg">→</span>
@@ -399,26 +400,60 @@ const Index = () => {
                   </div>
 
                   {/* Tutorial Carousel */}
-                  <div className="flex-1 flex items-center gap-4">
+                  <div className="flex-1 flex items-center gap-2 md:gap-4">
                     {/* Previous Arrow */}
                     <button 
                       onClick={prevTutorial}
-                      className="w-10 h-10 rounded-full border border-border bg-card hover:bg-secondary flex items-center justify-center flex-shrink-0 transition-colors"
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-border bg-card hover:bg-secondary flex items-center justify-center flex-shrink-0 transition-colors"
                     >
-                      <ChevronLeft size={20} className="text-muted-foreground" />
+                      <ChevronLeft size={16} className="text-muted-foreground md:hidden" />
+                      <ChevronLeft size={20} className="text-muted-foreground hidden md:block" />
                     </button>
 
                     {/* Tutorial Cards */}
-                    <div className="flex-1 grid grid-cols-2 gap-6">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       {[0, 1].map((offset) => {
                         const index = (currentTutorialIndex + offset) % tutorials.length;
                         const tutorial = tutorials[index];
+                        // On mobile, only show one card
+                        if (offset === 1) {
+                          return (
+                            <div key={tutorial.id} className="hidden md:block bg-card rounded-2xl shadow-sm p-4 md:p-6 border border-border">
+                              <h3 className="text-base md:text-lg font-bold text-foreground mb-2">
+                                {tutorial.title}
+                              </h3>
+                              <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4">
+                                {tutorial.description}
+                              </p>
+
+                              {/* Video Thumbnail */}
+                              <div 
+                                onClick={() => setIsVideoModalOpen(true)}
+                                className="relative aspect-video rounded-xl overflow-hidden bg-secondary group cursor-pointer"
+                              >
+                                <img
+                                  src={tutorial.thumbnail}
+                                  alt={tutorial.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                
+                                {/* Play Button Overlay */}
+                                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                                  <div className="w-10 h-10 md:w-14 md:h-14 bg-white/90 group-hover:bg-white rounded-full flex items-center justify-center transition-all transform group-hover:scale-110">
+                                    <Play size={18} className="text-brand-green ml-1 md:hidden" fill="currentColor" />
+                                    <Play size={24} className="text-brand-green ml-1 hidden md:block" fill="currentColor" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
                         return (
-                          <div key={tutorial.id} className="bg-card rounded-2xl shadow-sm p-6 border border-border">
-                            <h3 className="text-lg font-bold text-foreground mb-2">
+                          <div key={tutorial.id} className="bg-card rounded-2xl shadow-sm p-4 md:p-6 border border-border">
+                            <h3 className="text-base md:text-lg font-bold text-foreground mb-2">
                               {tutorial.title}
                             </h3>
-                            <p className="text-muted-foreground text-sm mb-4">
+                            <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4">
                               {tutorial.description}
                             </p>
 
@@ -435,8 +470,9 @@ const Index = () => {
                               
                               {/* Play Button Overlay */}
                               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                                <div className="w-14 h-14 bg-white/90 group-hover:bg-white rounded-full flex items-center justify-center transition-all transform group-hover:scale-110">
-                                  <Play size={24} className="text-brand-green ml-1" fill="currentColor" />
+                                <div className="w-10 h-10 md:w-14 md:h-14 bg-white/90 group-hover:bg-white rounded-full flex items-center justify-center transition-all transform group-hover:scale-110">
+                                  <Play size={18} className="text-brand-green ml-1 md:hidden" fill="currentColor" />
+                                  <Play size={24} className="text-brand-green ml-1 hidden md:block" fill="currentColor" />
                                 </div>
                               </div>
                             </div>
@@ -448,9 +484,10 @@ const Index = () => {
                     {/* Next Arrow */}
                     <button 
                       onClick={nextTutorial}
-                      className="w-10 h-10 rounded-full border border-border bg-card hover:bg-secondary flex items-center justify-center flex-shrink-0 transition-colors"
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-border bg-card hover:bg-secondary flex items-center justify-center flex-shrink-0 transition-colors"
                     >
-                      <ChevronRight size={20} className="text-muted-foreground" />
+                      <ChevronRight size={16} className="text-muted-foreground md:hidden" />
+                      <ChevronRight size={20} className="text-muted-foreground hidden md:block" />
                     </button>
                   </div>
                 </div>

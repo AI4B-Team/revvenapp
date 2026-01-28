@@ -551,8 +551,8 @@ const Create = () => {
           />
         ) : (
           <main className="flex-1 overflow-auto bg-slate-50">
-          <div className="px-8 py-8">
-            <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
+          <div className="px-4 md:px-8 py-4 md:py-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 md:mb-8">What Would You Like To Create Today?</h1>
             
             <ContentTypeSelector selectedType={selectedType} onTypeChange={(type) => {
               setSelectedType(type);
@@ -621,9 +621,9 @@ const Create = () => {
             
             {/* Gallery Views - Hidden when Content type is selected */}
             {selectedType !== 'Content' && activeView === 'creations' && (
-              <div className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">
+              <div className="mb-8 md:mb-12">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
+                  <h2 className="text-xl md:text-2xl font-bold">
                     {filters.contentType === 'Audio' ? 'AUDIO CREATIONS' : 'CREATIONS'}
                   </h2>
                   <FilterToolbar 
@@ -669,9 +669,9 @@ const Create = () => {
             )}
             
             {selectedType !== 'Content' && activeView === 'community' && (
-              <div className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">COMMUNITY</h2>
+              <div className="mb-8 md:mb-12">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
+                  <h2 className="text-xl md:text-2xl font-bold">COMMUNITY</h2>
                   <FilterToolbar 
                     zoom={zoom} 
                     onZoomChange={setZoom}
@@ -689,9 +689,9 @@ const Create = () => {
             )}
 
             {selectedType !== 'Content' && activeView === 'templates' && (
-              <div className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">TEMPLATES</h2>
+              <div className="mb-8 md:mb-12">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
+                  <h2 className="text-xl md:text-2xl font-bold">TEMPLATES</h2>
                   <FilterToolbar 
                     zoom={zoom} 
                     onZoomChange={setZoom}
@@ -700,7 +700,7 @@ const Create = () => {
                     onContentTypeChange={(type) => setFilters(prev => ({ ...prev, contentType: type }))}
                   />
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                   {[
                     { name: 'Product Showcase', category: 'E-commerce', emoji: '🛍️' },
                     { name: 'Social Story', category: 'Social Media', emoji: '📱' },

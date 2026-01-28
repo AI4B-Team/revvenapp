@@ -96,8 +96,8 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
   ];
 
   return (
-    <div className="max-w-5xl mx-auto mb-8">
-      <div className="flex items-center justify-center gap-3">
+    <div className="max-w-5xl mx-auto mb-4 md:mb-8">
+      <div className="flex items-center justify-start md:justify-center gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
         {contentTypes.map((type) => {
           const isSelected = selectedType === type.key;
 
@@ -108,14 +108,15 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
               aria-pressed={isSelected}
               onClick={() => onTypeChange(type.key)}
               className={cn(
-                'px-5 py-3 rounded-xl transition-colors flex items-center gap-2 border text-sm font-medium text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
+                'px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl transition-colors flex items-center gap-1.5 md:gap-2 border text-xs md:text-sm font-medium text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background whitespace-nowrap flex-shrink-0',
                 isSelected
                   ? cn(type.accentBg, type.accentBorder)
                   : cn('bg-white dark:bg-card border-slate-400 dark:border-border', type.accentHover, type.accentHoverBorder)
               )}
             >
-              <type.icon size={18} className={type.accentText} />
-              <span>{type.label}</span>
+              <type.icon size={16} className={cn(type.accentText, "md:w-[18px] md:h-[18px]")} />
+              <span className="hidden sm:inline">{type.label}</span>
+              <span className="sm:hidden">{type.key}</span>
             </button>
           );
         })}

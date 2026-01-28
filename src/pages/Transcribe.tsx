@@ -24,7 +24,7 @@ const Transcribe = () => {
       />
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} ${isAIVAPanelOpen ? 'lg:pl-[400px]' : ''}`}>
-        <Header />
+        <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         <TranscribeHeader 
           onDownloadClick={() => {}}
         />

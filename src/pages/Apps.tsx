@@ -410,18 +410,18 @@ const Apps = () => {
         isAIVAPanelOpen={isAIVAPanelOpen}
       />
       
-      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <div className="flex-shrink-0">
-          <Header />
+          <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         </div>
         
         <main className="flex-1 overflow-y-auto bg-background">
           {/* Header Section - Sticky */}
-          <div className="px-8 py-6 border-b border-border bg-background sticky top-0 z-40 shadow-sm">
+          <div className="px-4 md:px-8 py-4 md:py-6 border-b border-border bg-background sticky top-0 z-40 shadow-sm">
             <div className="w-full">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
-                  <h1 className="text-3xl font-bold">
+                  <h1 className="text-2xl md:text-3xl font-bold">
                     <span className="text-primary">APPS</span>
                   </h1>
                   {/* Collapse/Expand Button */}
@@ -443,7 +443,7 @@ const Apps = () => {
                 </div>
                 
                 {/* Filter Controls + View Toggle */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto overflow-x-auto">
                   <AppsFilterToolbar 
                     zoom={zoom}
                     onZoomChange={setZoom}
@@ -453,7 +453,7 @@ const Apps = () => {
                   />
                   
                   {/* View Toggle */}
-                  <div className="flex items-center border border-border rounded-lg overflow-hidden">
+                  <div className="flex items-center border border-border rounded-lg overflow-hidden flex-shrink-0">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -491,27 +491,28 @@ const Apps = () => {
               {/* Collapsible content */}
               {!isHeaderCollapsed && (
                 <>
-                  <p className="text-muted-foreground text-lg mb-6">
+                  <p className="text-muted-foreground text-sm md:text-lg mb-4 md:mb-6">
                     A full suite of intelligent AI Apps to help you create, monetize, and automate.
                   </p>
                   
                   {/* Tab Buttons - Separated */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div className="flex gap-2">
                       <button
                         onClick={() => setActiveTab('marketplace')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                        className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg font-semibold transition-all text-sm md:text-base ${
                           activeTab === 'marketplace'
                             ? 'bg-foreground text-background shadow-md'
                             : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
                         }`}
                       >
                         <Store size={14} />
-                        Marketplace
+                        <span className="hidden xs:inline">Marketplace</span>
+                        <span className="xs:hidden">Market</span>
                       </button>
                       <button
                         onClick={() => setActiveTab('apps')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                        className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg font-semibold transition-all text-sm md:text-base ${
                           activeTab === 'apps'
                             ? 'bg-foreground text-background shadow-md'
                             : 'bg-white text-muted-foreground hover:bg-gray-50 border border-border'
@@ -528,10 +529,11 @@ const Apps = () => {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => navigate('/app-builder')}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
+                            className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg font-semibold transition-all bg-primary text-primary-foreground hover:bg-primary/90 shadow-md text-sm md:text-base"
                           >
                             <Plus size={14} />
-                            Create App
+                            <span className="hidden sm:inline">Create App</span>
+                            <span className="sm:hidden">Create</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="left">
@@ -546,7 +548,7 @@ const Apps = () => {
           </div>
 
           {/* Main Content */}
-          <div className="px-8 py-12">
+          <div className="px-4 md:px-8 py-6 md:py-12">
             {activeTab === 'marketplace' ? (
               <div className="w-full space-y-16">
                 
