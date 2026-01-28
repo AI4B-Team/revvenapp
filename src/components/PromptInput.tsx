@@ -47,6 +47,16 @@ const videoControlIcons: ControlIcon[] = [
   { id: 'quality', icon: SlidersHorizontal, tooltip: 'Quality' },
 ];
 
+// Control icons for Motion-Sync type - includes reference image
+const motionSyncControlIcons: ControlIcon[] = [
+  { id: 'ref-image', icon: ImageIcon, tooltip: 'Reference Image' },
+  { id: 'model', icon: Box, tooltip: 'Model' },
+  { id: 'character', icon: User, tooltip: 'Character' },
+  { id: 'ratio', icon: Copy, tooltip: 'Ratio' },
+  { id: 'duration', icon: Clock, tooltip: 'Duration' },
+  { id: 'quality', icon: SlidersHorizontal, tooltip: 'Quality' },
+];
+
 // Video type options - matching screenshot exactly
 const videoTypes: SubOption[] = [
   { id: 'story', label: 'Story', icon: BookOpen, color: 'text-blue-500' },
@@ -186,8 +196,9 @@ const PromptInput = ({ onGenerate }: PromptInputProps) => {
     return [];
   };
 
-  // Get control icons based on selected option type
+  // Get control icons based on selected option type and sub-type
   const getControlIcons = (): ControlIcon[] => {
+    if (selectedSubType?.id === 'motion-sync') return motionSyncControlIcons;
     if (selectedOption?.id === 'video') return videoControlIcons;
     return imageControlIcons; // Default to image control icons
   };
