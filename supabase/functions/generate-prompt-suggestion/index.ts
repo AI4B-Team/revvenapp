@@ -91,6 +91,17 @@ Focus on: how the character should move, facial expressions to maintain, scene i
               type: "recast_video"
             };
 
+          case 'motion-sync':
+            return {
+              guidance: `Create prompts for MOTION-SYNC videos where a character/person is animated to match movements from a reference video.
+MUST describe: the type of motion/action the character should perform, the mood/style of the video, environment details.
+Focus on: describing motion quality (smooth, energetic, graceful), character expression, scene atmosphere.
+The prompt guides how the reference image character will move based on the reference video's motion.
+Keep prompts concise but descriptive (under 200 characters ideal).`,
+              example: "Graceful dance movements, flowing dress swaying with each turn, warm sunset lighting, confident and joyful expression",
+              type: "motion_sync_video"
+            };
+
           case 'draw':
             return {
               guidance: `Create prompts for ANIMATED/ARTISTIC style videos.

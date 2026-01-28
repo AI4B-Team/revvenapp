@@ -4091,17 +4091,36 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     try {
       // Check if we're in Avatar Video mode
       const isUGCMode = isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync');
+      const isMotionSyncMode = isVideoMode && selectedAnimateMode === 'Motion-Sync';
       
       // Get active characters and references based on content type
       const currentCharacters = isVideoMode ? videoModeState.characters : activeCharacters;
       const currentReferences = isVideoMode ? videoModeState.references : activeReferences;
       
       // Collect character and reference image URLs
-      const characterImages = currentCharacters.map(char => char.image_url || char.image).filter(Boolean);
-      const referenceImages = currentReferences.map(ref => ref.image_url || ref.url || ref.preview).filter(Boolean);
+      let characterImages = currentCharacters.map(char => char.image_url || char.image).filter(Boolean);
+      let referenceImages = currentReferences.map(ref => ref.image_url || ref.url || ref.preview).filter(Boolean);
 
-      // If in video mode, also include frame images
-      if (isVideoMode && !isUGCMode) {
+      // If in Motion-Sync mode, use the motion sync specific images
+      if (isMotionSyncMode) {
+        characterImages = [];
+        referenceImages = [];
+        
+        // Add motion sync reference image or selected character
+        if (motionSyncRefImage?.url) {
+          referenceImages.push(motionSyncRefImage.url);
+        } else if (selectedCharacters.length > 0) {
+          const charImg = selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar;
+          if (charImg) characterImages.push(charImg);
+        }
+        
+        // Add motion sync video thumbnail as reference context
+        if (motionSyncVideo?.url) {
+          const thumbnailUrl = motionSyncVideo.url.replace('/video/upload/', '/video/upload/so_0,w_400,h_400,c_fill,f_jpg/');
+          referenceImages.push(thumbnailUrl);
+        }
+      } else if (isVideoMode && !isUGCMode) {
+        // If in video mode, also include frame images
         if (videoModeState.startingFrame?.preview) {
           referenceImages.push(videoModeState.startingFrame.preview);
         }
