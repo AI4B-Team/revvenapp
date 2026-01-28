@@ -178,11 +178,14 @@ export default function LoginPage() {
       }
     );
 
-    // Check for existing session on mount
+    // Check for existing session on mount and redirect immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
-        handleAuthRedirect(session);
+        // Redirect immediately if already logged in
+        setTimeout(() => {
+          handleAuthRedirect(session);
+        }, 0);
       }
     });
 
