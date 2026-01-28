@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '@/components/dashboard/Sidebar';
@@ -481,7 +482,9 @@ const AIResponder = () => {
                               <div className="p-2 bg-gradient-to-br from-primary to-purple-600 rounded-lg shadow-lg">
                                 <Bot className="text-white" size={20} />
                               </div>
-                              <p className="text-foreground flex-1 leading-relaxed">{testResponse}</p>
+                              <div className="text-foreground flex-1 leading-relaxed prose prose-sm dark:prose-invert max-w-none">
+                                <ReactMarkdown>{testResponse}</ReactMarkdown>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
