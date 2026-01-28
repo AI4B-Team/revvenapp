@@ -396,6 +396,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [motionSyncResolution, setMotionSyncResolution] = useState<'720p' | '1080p'>('720p');
   const [motionSyncOrientation, setMotionSyncOrientation] = useState<'image' | 'video'>('video');
   
+  // Motion-Sync Reference Image - optional, overrides character image if provided
+  const [motionSyncRefImage, setMotionSyncRefImage] = useState<{ url: string; name: string; id?: string } | null>(null);
+  const [isUploadingMotionSyncRefImage, setIsUploadingMotionSyncRefImage] = useState(false);
+  
   // Video history for Recast
   const [savedVideos, setSavedVideos] = useState<{ id: string; url: string; name: string; duration?: number }[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
@@ -3011,16 +3015,26 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             return;
           }
 
-          // Get character image URL from the selected character
-          let characterImageUrl = motionSyncCharacters[0].image || motionSyncCharacters[0].image_url || motionSyncCharacters[0].avatar;
-          if (!characterImageUrl) {
-            toast({
-              title: "Character image required",
-              description: "Selected character must have an image",
-              variant: "destructive",
-            });
-            setIsGenerating(false);
-            return;
+          // Prioritize motionSyncRefImage if provided, otherwise use character image
+          let characterImageUrl: string | undefined;
+          
+          if (motionSyncRefImage?.url) {
+            // Use dedicated reference image
+            characterImageUrl = motionSyncRefImage.url;
+            console.log("Motion-Sync Mode: Using dedicated reference image");
+          } else {
+            // Fall back to character image
+            characterImageUrl = motionSyncCharacters[0].image || motionSyncCharacters[0].image_url || motionSyncCharacters[0].avatar;
+            if (!characterImageUrl) {
+              toast({
+                title: "Image required",
+                description: "Please upload a reference image or select a character with an image",
+                variant: "destructive",
+              });
+              setIsGenerating(false);
+              return;
+            }
+            console.log("Motion-Sync Mode: Using character image as reference");
           }
 
           // Ensure image meets minimum size requirement (>300px) for KIE.AI API
@@ -3065,6 +3079,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           
           // Clear Motion-Sync state after successful generation
           setMotionSyncVideo(null);
+          setMotionSyncRefImage(null);
           
           setIsGenerating(false);
           return;
@@ -4789,6 +4804,138 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     };
 
     video.src = videoUrl;
+  };
+
+  // Motion-Sync Reference Image upload handler with KIE.AI validation
+  const handleMotionSyncRefImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type (JPG, JPEG, PNG only)
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a JPG or PNG image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate image dimensions (>300px in both dimensions)
+    const imageUrl = URL.createObjectURL(file);
+    const img = new window.Image();
+    
+    img.onload = async () => {
+      URL.revokeObjectURL(imageUrl);
+      
+      if (img.width < 300 || img.height < 300) {
+        toast({
+          title: "Image too small",
+          description: "Image must be at least 300x300 pixels",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check aspect ratio (2:5 to 5:2)
+      const aspectRatio = img.width / img.height;
+      if (aspectRatio < 0.4 || aspectRatio > 2.5) {
+        toast({
+          title: "Invalid aspect ratio",
+          description: "Image aspect ratio must be between 2:5 and 5:2",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsUploadingMotionSyncRefImage(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        
+        reader.onload = async () => {
+          const base64 = reader.result as string;
+
+          const { data, error } = await supabase.functions.invoke('upload-image', {
+            body: {
+              image: base64,
+              filename: file.name,
+            }
+          });
+
+          if (error) throw error;
+
+          const uploadedImageUrl = data?.image?.url;
+
+          // Save to reference_images table
+          const { data: savedImage, error: saveError } = await supabase
+            .from('reference_images')
+            .insert({
+              user_id: user.id,
+              image_url: uploadedImageUrl,
+              original_filename: file.name,
+              cloudinary_public_id: data?.image?.cloudinary_public_id
+            })
+            .select()
+            .single();
+
+          if (saveError) {
+            console.error('Error saving reference image:', saveError);
+          } else {
+            setSavedReferenceImages(prev => [{ id: savedImage.id, url: uploadedImageUrl, name: file.name }, ...prev]);
+          }
+
+          setMotionSyncRefImage({
+            id: savedImage?.id,
+            url: uploadedImageUrl,
+            name: file.name
+          });
+
+          toast({
+            title: "Success",
+            description: "Reference image uploaded",
+          });
+          setIsUploadingMotionSyncRefImage(false);
+        };
+
+        reader.onerror = () => {
+          throw new Error('Failed to read file');
+        };
+      } catch (error) {
+        console.error('Error uploading motion-sync reference image:', error);
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload reference image",
+          variant: "destructive",
+        });
+        setIsUploadingMotionSyncRefImage(false);
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(imageUrl);
+      toast({
+        title: "Invalid image",
+        description: "Could not read image file",
+        variant: "destructive",
+      });
+    };
+
+    img.src = imageUrl;
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -6542,6 +6689,102 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <p>Model</p>
                         </TooltipContent>
                       </Tooltip>
+
+                      {/* Reference Image for Motion-Sync */}
+                      <Popover>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                motionSyncRefImage 
+                                  ? 'bg-brand-green/15 text-muted-foreground' 
+                                  : 'bg-secondary text-muted-foreground'
+                              }`}>
+                                {isUploadingMotionSyncRefImage ? (
+                                  <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                  <ImageIcon size={16} />
+                                )}
+                                {motionSyncRefImage && <span>Ref</span>}
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Reference Image</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <PopoverContent className="w-72 bg-background border-border z-50">
+                          <div className="space-y-3">
+                            <p className="text-sm font-medium">Reference Image</p>
+                            <p className="text-xs text-muted-foreground">JPG or PNG • Max 10MB • Min 300x300px</p>
+                            
+                            {motionSyncRefImage && (
+                              <div className="space-y-2">
+                                <p className="text-xs text-muted-foreground">Current Selection</p>
+                                <div className="relative flex items-center gap-2 p-2 bg-muted rounded-md">
+                                  <img 
+                                    src={motionSyncRefImage.url} 
+                                    alt={motionSyncRefImage.name}
+                                    className="w-10 h-10 rounded object-cover"
+                                  />
+                                  <span className="text-xs truncate flex-1">{motionSyncRefImage.name}</span>
+                                  <button 
+                                    onClick={() => setMotionSyncRefImage(null)}
+                                    className="bg-red-500 text-white rounded-full p-1"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Upload New */}
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">Upload New</p>
+                              <label className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                                <Upload size={16} className="text-muted-foreground mb-1" />
+                                <span className="text-xs text-muted-foreground">Click to upload</span>
+                                <input 
+                                  type="file" 
+                                  accept="image/jpeg,image/jpg,image/png" 
+                                  className="hidden" 
+                                  onChange={handleMotionSyncRefImageUpload}
+                                />
+                              </label>
+                            </div>
+
+                            {/* Saved Reference Images */}
+                            {savedReferenceImages.length > 0 && (
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-2">My Images</p>
+                                {isLoadingReferenceImages ? (
+                                  <div className="flex justify-center py-2">
+                                    <Loader2 size={16} className="animate-spin text-muted-foreground" />
+                                  </div>
+                                ) : (
+                                  <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+                                    {savedReferenceImages.map((image) => (
+                                      <div 
+                                        key={image.id} 
+                                        className={`relative cursor-pointer rounded-md overflow-hidden transition ${
+                                          motionSyncRefImage?.id === image.id ? 'ring-2 ring-emerald-500' : 'hover:ring-1 hover:ring-border'
+                                        }`}
+                                        onClick={() => setMotionSyncRefImage({ id: image.id, url: image.url, name: image.name })}
+                                      >
+                                        <img 
+                                          src={image.url} 
+                                          alt={image.name}
+                                          className="w-full h-12 object-cover bg-muted"
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
                       {/* Video Upload for Motion-Sync */}
                       <Popover>
