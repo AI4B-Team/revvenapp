@@ -6695,101 +6695,129 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      {/* Reference Image for Motion-Sync */}
-                      <Popover>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <PopoverTrigger asChild>
-                              <button className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                                motionSyncRefImage 
-                                  ? 'bg-brand-green/15 text-muted-foreground' 
-                                  : 'bg-secondary text-muted-foreground'
-                              }`}>
-                                {isUploadingMotionSyncRefImage ? (
-                                  <Loader2 size={16} className="animate-spin" />
-                                ) : (
-                                  <ImageIcon size={16} />
-                                )}
-                                {motionSyncRefImage && <span>Ref</span>}
-                              </button>
-                            </PopoverTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Reference Image</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <PopoverContent className="w-72 bg-background border-border z-50">
-                          <div className="space-y-3">
-                            <p className="text-sm font-medium">Reference Image</p>
-                            <p className="text-xs text-muted-foreground">JPG or PNG • Max 10MB • Min 300x300px</p>
-                            
-                            {motionSyncRefImage && (
-                              <div className="space-y-2">
-                                <p className="text-xs text-muted-foreground">Current Selection</p>
-                                <div className="relative flex items-center gap-2 p-2 bg-muted rounded-md">
-                                  <img 
-                                    src={motionSyncRefImage.url} 
-                                    alt={motionSyncRefImage.name}
-                                    className="w-10 h-10 rounded object-cover"
-                                  />
-                                  <span className="text-xs truncate flex-1">{motionSyncRefImage.name}</span>
-                                  <button 
-                                    onClick={() => setMotionSyncRefImage(null)}
-                                    className="bg-red-500 text-white rounded-full p-1"
-                                  >
-                                    <X size={12} />
-                                  </button>
+{/* Reference Image for Motion-Sync - mutually exclusive with Character */}
+                      <div className="relative">
+                        <Popover>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <PopoverTrigger asChild>
+                                <button 
+                                  onClick={(e) => {
+                                    if (selectedCharacters.length > 0) {
+                                      e.preventDefault();
+                                      toast({
+                                        title: "Clear character first",
+                                        description: "You can use either a reference image OR a character, not both.",
+                                        variant: "destructive",
+                                      });
+                                    }
+                                  }}
+                                  className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                    motionSyncRefImage 
+                                      ? 'bg-brand-green/15 text-muted-foreground pr-7' 
+                                      : selectedCharacters.length > 0
+                                        ? 'bg-secondary/50 text-muted-foreground/50 cursor-not-allowed'
+                                        : 'bg-secondary text-muted-foreground'
+                                  }`}
+                                >
+                                  {isUploadingMotionSyncRefImage ? (
+                                    <Loader2 size={16} className="animate-spin" />
+                                  ) : (
+                                    <ImageIcon size={16} />
+                                  )}
+                                  {motionSyncRefImage && <span>Ref</span>}
+                                </button>
+                              </PopoverTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Reference Image</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <PopoverContent className="w-72 bg-background border-border z-50">
+                            <div className="space-y-3">
+                              <p className="text-sm font-medium">Reference Image</p>
+                              <p className="text-xs text-muted-foreground">JPG or PNG • Max 10MB • Min 300x300px</p>
+                              
+                              {motionSyncRefImage && (
+                                <div className="space-y-2">
+                                  <p className="text-xs text-muted-foreground">Current Selection</p>
+                                  <div className="relative flex items-center gap-2 p-2 bg-muted rounded-md">
+                                    <img 
+                                      src={motionSyncRefImage.url} 
+                                      alt={motionSyncRefImage.name}
+                                      className="w-10 h-10 rounded object-cover"
+                                    />
+                                    <span className="text-xs truncate flex-1">{motionSyncRefImage.name}</span>
+                                    <button 
+                                      onClick={() => setMotionSyncRefImage(null)}
+                                      className="bg-red-500 text-white rounded-full p-1"
+                                    >
+                                      <X size={12} />
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                            
-                            {/* Upload New */}
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-2">Upload New</p>
-                              <label className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
-                                <Upload size={16} className="text-muted-foreground mb-1" />
-                                <span className="text-xs text-muted-foreground">Click to upload</span>
-                                <input 
-                                  type="file" 
-                                  accept="image/jpeg,image/jpg,image/png" 
-                                  className="hidden" 
-                                  onChange={handleMotionSyncRefImageUpload}
-                                />
-                              </label>
-                            </div>
-
-                            {/* Saved Reference Images */}
-                            {savedReferenceImages.length > 0 && (
+                              )}
+                              
+                              {/* Upload New */}
                               <div>
-                                <p className="text-xs text-muted-foreground mb-2">My Images</p>
-                                {isLoadingReferenceImages ? (
-                                  <div className="flex justify-center py-2">
-                                    <Loader2 size={16} className="animate-spin text-muted-foreground" />
-                                  </div>
-                                ) : (
-                                  <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
-                                    {savedReferenceImages.map((image) => (
-                                      <div 
-                                        key={image.id} 
-                                        className={`relative cursor-pointer rounded-md overflow-hidden transition ${
-                                          motionSyncRefImage?.id === image.id ? 'ring-2 ring-emerald-500' : 'hover:ring-1 hover:ring-border'
-                                        }`}
-                                        onClick={() => setMotionSyncRefImage({ id: image.id, url: image.url, name: image.name })}
-                                      >
-                                        <img 
-                                          src={image.url} 
-                                          alt={image.name}
-                                          className="w-full h-12 object-cover bg-muted"
-                                        />
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
+                                <p className="text-xs text-muted-foreground mb-2">Upload New</p>
+                                <label className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                                  <Upload size={16} className="text-muted-foreground mb-1" />
+                                  <span className="text-xs text-muted-foreground">Click to upload</span>
+                                  <input 
+                                    type="file" 
+                                    accept="image/jpeg,image/jpg,image/png" 
+                                    className="hidden" 
+                                    onChange={handleMotionSyncRefImageUpload}
+                                  />
+                                </label>
                               </div>
-                            )}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+
+                              {/* Saved Reference Images */}
+                              {savedReferenceImages.length > 0 && (
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-2">My Images</p>
+                                  {isLoadingReferenceImages ? (
+                                    <div className="flex justify-center py-2">
+                                      <Loader2 size={16} className="animate-spin text-muted-foreground" />
+                                    </div>
+                                  ) : (
+                                    <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+                                      {savedReferenceImages.map((image) => (
+                                        <div 
+                                          key={image.id} 
+                                          className={`relative cursor-pointer rounded-md overflow-hidden transition ${
+                                            motionSyncRefImage?.id === image.id ? 'ring-2 ring-emerald-500' : 'hover:ring-1 hover:ring-border'
+                                          }`}
+                                          onClick={() => setMotionSyncRefImage({ id: image.id, url: image.url, name: image.name })}
+                                        >
+                                          <img 
+                                            src={image.url} 
+                                            alt={image.name}
+                                            className="w-full h-12 object-cover bg-muted"
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        {/* X button to clear ref image - outside popover */}
+                        {motionSyncRefImage && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMotionSyncRefImage(null);
+                            }}
+                            className="absolute -right-1 -top-1 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition z-20 shadow-md"
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                      </div>
 
                       {/* Video Upload for Motion-Sync */}
                       <Popover>
@@ -6903,30 +6931,56 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      {/* Character/Image Selection for Motion-Sync */}
+                      {/* Character/Image Selection for Motion-Sync - mutually exclusive with Ref Image */}
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={onCharactersClick}
-                            className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
-                              selectedCharacters.length > 0 
-                                ? 'bg-brand-blue/15 text-muted-foreground' 
-                                : 'bg-secondary text-muted-foreground'
-                            }`}
-                          >
-                            {selectedCharacters.length > 0 ? (
-                              <>
-                                <img 
-                                  src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar} 
-                                  alt={selectedCharacters[0].name} 
-                                  className="w-5 h-5 rounded object-cover" 
-                                />
-                                <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
-                              </>
-                            ) : (
-                              <User size={16} />
+                          <div className="relative">
+                            <button 
+                              onClick={() => {
+                                if (motionSyncRefImage) {
+                                  toast({
+                                    title: "Clear reference image first",
+                                    description: "You can use either a character OR a reference image, not both.",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                onCharactersClick?.();
+                              }}
+                              className={`p-2 rounded-lg text-sm transition flex items-center gap-2 whitespace-nowrap hover:brightness-90 ${
+                                selectedCharacters.length > 0 
+                                  ? 'bg-brand-blue/15 text-muted-foreground pr-7' 
+                                  : motionSyncRefImage
+                                    ? 'bg-secondary/50 text-muted-foreground/50 cursor-not-allowed'
+                                    : 'bg-secondary text-muted-foreground'
+                              }`}
+                            >
+                              {selectedCharacters.length > 0 ? (
+                                <>
+                                  <img 
+                                    src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar} 
+                                    alt={selectedCharacters[0].name} 
+                                    className="w-5 h-5 rounded object-cover" 
+                                  />
+                                  <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
+                                </>
+                              ) : (
+                                <User size={16} />
+                              )}
+                            </button>
+                            {/* X button to clear character */}
+                            {selectedCharacters.length > 0 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onCharactersSelect?.([]);
+                                }}
+                                className="absolute -right-1 -top-1 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition z-20 shadow-md"
+                              >
+                                <X size={12} />
+                              </button>
                             )}
-                          </button>
+                          </div>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>Character</p>
