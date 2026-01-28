@@ -6905,7 +6905,39 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                           className={`relative cursor-pointer rounded-md overflow-hidden transition ${
                                             motionSyncRefImage?.id === image.id ? 'ring-2 ring-emerald-500' : 'hover:ring-1 hover:ring-border'
                                           }`}
-                                          onClick={() => setMotionSyncRefImage({ id: image.id, url: image.url, name: image.name })}
+                                          onClick={async () => {
+                                            // Validate image dimensions before selecting
+                                            const img = new window.Image();
+                                            img.crossOrigin = 'anonymous';
+                                            img.onload = () => {
+                                              if (img.width < 300 || img.height < 300) {
+                                                toast({
+                                                  title: "Image too small",
+                                                  description: "Image must be at least 300x300 pixels for Motion-Sync",
+                                                  variant: "destructive",
+                                                });
+                                                return;
+                                              }
+                                              const aspectRatio = img.width / img.height;
+                                              if (aspectRatio < 0.4 || aspectRatio > 2.5) {
+                                                toast({
+                                                  title: "Invalid aspect ratio",
+                                                  description: "Image aspect ratio must be between 2:5 and 5:2",
+                                                  variant: "destructive",
+                                                });
+                                                return;
+                                              }
+                                              setMotionSyncRefImage({ id: image.id, url: image.url, name: image.name });
+                                            };
+                                            img.onerror = () => {
+                                              toast({
+                                                title: "Validation failed",
+                                                description: "Could not validate image dimensions",
+                                                variant: "destructive",
+                                              });
+                                            };
+                                            img.src = image.url;
+                                          }}
                                         >
                                           <img 
                                             src={image.url} 
