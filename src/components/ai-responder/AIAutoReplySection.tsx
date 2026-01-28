@@ -255,11 +255,12 @@ const AIAutoReplySection = () => {
         }
         const base64 = btoa(binary);
         
-        // Call the PDF parser edge function
-        const { data: parseResult, error: parseError } = await supabase.functions.invoke('parse-pdf', {
+        // Call the AI-powered document parser edge function
+        const { data: parseResult, error: parseError } = await supabase.functions.invoke('parse-document', {
           body: { 
-            pdfBase64: base64,
-            fileName: file.name 
+            file: base64,
+            filename: file.name,
+            mimeType: file.type || 'application/pdf'
           }
         });
         
@@ -267,12 +268,12 @@ const AIAutoReplySection = () => {
           console.error('PDF parsing error:', parseError);
           toast.error('Failed to extract text from PDF');
           content = `[PDF File: ${file.name}] - Text extraction failed. Please try a different file format.`;
-        } else if (parseResult?.text) {
-          content = `=== ${file.name} ===\n\n${parseResult.text}`;
-          toast.success(`Extracted ${parseResult.charCount} characters from PDF`);
+        } else if (parseResult?.content) {
+          content = `=== ${file.name} ===\n\n${parseResult.content}`;
+          toast.success('Successfully extracted content from PDF');
         } else {
           content = `[PDF File: ${file.name}] - No text could be extracted.`;
-          toast.warning('PDF appears to be image-based. Consider using a text file.');
+          toast.warning('PDF appears to be image-based or encrypted.');
         }
       } else {
         // Plain text file
