@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, LayoutGrid, SlidersHorizontal, Search } from 'lucide-react';
 import { useReferenceImages } from '@/hooks/useReferenceImages';
+import { useTutorial } from '@/contexts/TutorialContext';
+import { createPageTutorialSteps } from '@/components/tutorial/tutorialSteps';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
@@ -56,6 +58,7 @@ import beachwear from '@/assets/collections/beachwear.jpg';
 const Create = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { startTutorial, hasCompletedTutorial } = useTutorial();
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [externalPromptText, setExternalPromptText] = useState<string | null>(null);
@@ -381,6 +384,17 @@ const Create = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Start tutorial for new users
+  useEffect(() => {
+    if (user && !hasCompletedTutorial('create-page')) {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        startTutorial('create-page', createPageTutorialSteps);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [user, hasCompletedTutorial, startTutorial]);
 
   // Track if this is the initial mount
   const [hasInitialized, setHasInitialized] = useState(false);

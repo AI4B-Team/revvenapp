@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ChevronRight, Store, LayoutGrid, Grid3X3, List,
@@ -14,6 +14,8 @@ import AppCard from '@/components/dashboard/AppCard';
 import AppsFilterToolbar, { type AppFilterState } from '@/components/dashboard/AppsFilterToolbar';
 import { useFavoriteApps } from '@/hooks/useFavoriteApps';
 import { useInstalledApps } from '@/hooks/useInstalledApps';
+import { useTutorial } from '@/contexts/TutorialContext';
+import { appsPageTutorialSteps } from '@/components/tutorial/tutorialSteps';
 import { InstallModal } from '@/components/marketplace';
 import { sampleMarketplaceApps, mockMembers, mockTeams, mockMarketplaceWorkspace, mockMarketplaceUser } from '@/lib/marketplace/data';
 import { MarketplaceApp } from '@/lib/marketplace/types';
@@ -37,6 +39,7 @@ const addToOpenTabs = (appId: string, navigate: ReturnType<typeof useNavigate>) 
 
 const Apps = () => {
   const navigate = useNavigate();
+  const { startTutorial, hasCompletedTutorial } = useTutorial();
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
@@ -61,6 +64,16 @@ const Apps = () => {
   
   const { isFavorite, toggleFavorite } = useFavoriteApps();
   const { isInstalled, installApp } = useInstalledApps();
+
+  // Start tutorial for new users
+  useEffect(() => {
+    if (!hasCompletedTutorial('apps-page')) {
+      const timer = setTimeout(() => {
+        startTutorial('apps-page', appsPageTutorialSteps);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasCompletedTutorial, startTutorial]);
 
   const handleInstall = async (
     accessMode: string,

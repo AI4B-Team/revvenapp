@@ -4,6 +4,8 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import { useTutorial } from '@/contexts/TutorialContext';
+import { dashboardTutorialSteps } from '@/components/tutorial/tutorialSteps';
 import { 
   Search, Plus, Settings, Zap, Trash2, MoreVertical, Loader2, Pencil,
   Sparkles, Play, ChevronLeft, ChevronRight, X
@@ -48,6 +50,7 @@ interface Project {
 
 const Index = () => {
   const navigate = useNavigate();
+  const { startTutorial, hasCompletedTutorial } = useTutorial();
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -196,6 +199,16 @@ const Index = () => {
     };
     getProfile();
   }, []);
+
+  // Start tutorial for new users
+  useEffect(() => {
+    if (userName && !hasCompletedTutorial('dashboard')) {
+      const timer = setTimeout(() => {
+        startTutorial('dashboard', dashboardTutorialSteps);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [userName, hasCompletedTutorial, startTutorial]);
 
   const formatTimeAgo = (timestamp: string) => {
     const date = new Date(timestamp);
