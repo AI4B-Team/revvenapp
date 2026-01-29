@@ -1929,6 +1929,39 @@ export type Database = {
         }
         Relationships: []
       }
+      whitepapers: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          prompt: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          prompt: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          prompt?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       youtube_channels: {
         Row: {
           access_token: string

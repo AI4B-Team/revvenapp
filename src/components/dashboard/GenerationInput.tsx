@@ -2663,6 +2663,122 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
 
+      // Generate Whitepaper using Gemini Pro via Lovable AI - save to database and show in gallery
+      if (documentType === 'Whitepaper') {
+        onGenerationStart?.();
+
+        try {
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            toast({
+              title: "Authentication required",
+              description: "Please sign in to generate whitepapers",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Extract title from prompt or use default
+          const whitepaperTitle = prompt.trim().substring(0, 100) || 'Whitepaper';
+
+          // Insert a "processing" record FIRST so it shows in the gallery immediately
+          const { data: insertedWhitepaper, error: insertError } = await supabase
+            .from('whitepapers')
+            .insert({
+              user_id: user.id,
+              title: whitepaperTitle,
+              content: '',
+              prompt: prompt.trim(),
+              status: 'processing'
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error creating whitepaper record:', insertError);
+            toast({
+              title: "Error",
+              description: "Failed to start whitepaper generation.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const whitepaperId = insertedWhitepaper.id;
+
+          toast({
+            title: "Generating whitepaper...",
+            description: "Creating your comprehensive whitepaper. This may take a moment.",
+          });
+
+          // Generate the whitepaper
+          console.log('Calling generate-whitepaper with:', { topic: prompt.trim() });
+          const { data, error } = await supabase.functions.invoke('generate-whitepaper', {
+            body: {
+              topic: prompt.trim(),
+              industry: '',
+              targetAudience: '',
+            }
+          });
+
+          console.log('Edge function response:', { data, error });
+
+          if (error) {
+            console.error('Edge function error:', error);
+            // Update the record to error status
+            await supabase
+              .from('whitepapers')
+              .update({ status: 'error' })
+              .eq('id', whitepaperId);
+            throw error;
+          }
+
+          if (data?.content) {
+            console.log('Whitepaper generated. Content length:', data.content.length);
+            
+            // Update the record with content and completed status
+            const { error: updateError } = await supabase
+              .from('whitepapers')
+              .update({
+                content: data.content,
+                status: 'completed'
+              })
+              .eq('id', whitepaperId);
+
+            if (updateError) {
+              console.error('Error updating whitepaper:', updateError);
+            }
+
+            console.log('Whitepaper saved successfully!');
+            toast({
+              title: "Whitepaper generated!",
+              description: "Your whitepaper is ready to view in your creations.",
+            });
+          } else {
+            console.error('No content in response:', data);
+            // Update the record to error status
+            await supabase
+              .from('whitepapers')
+              .update({ status: 'error' })
+              .eq('id', whitepaperId);
+            toast({
+              title: "Generation failed",
+              description: data?.error || "No content was generated. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } catch (error: any) {
+          console.error('Whitepaper generation error:', error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate whitepaper. Please try again.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
       // Other document types - placeholder for now
       toast({
         title: "Coming soon",
