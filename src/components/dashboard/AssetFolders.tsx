@@ -541,25 +541,70 @@ export const AssetFolderGrid: React.FC<AssetFolderGridProps> = ({
         </div>
       </div>
 
-      {/* Folder Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-4">
-        {filteredFolders.map((folder) => (
-          <AssetFolderCard
-            key={folder.id}
-            folder={folder}
-            isSelected={selectedFolderId === folder.id}
-            onSelect={(id) => setSelectedFolderId(id === selectedFolderId ? null : id)}
-            onOpen={handleOpenFolder}
-            onChangeColor={handleChangeColor}
-            onRename={handleRename}
-            onDuplicate={handleDuplicate}
-            onMoveTo={handleMoveTo}
-            onToggleFavorite={handleToggleFavorite}
-            onDownload={handleDownload}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
+      {/* Folder Grid/List */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-4">
+          {filteredFolders.map((folder) => (
+            <AssetFolderCard
+              key={folder.id}
+              folder={folder}
+              isSelected={selectedFolderId === folder.id}
+              onSelect={(id) => setSelectedFolderId(id === selectedFolderId ? null : id)}
+              onOpen={handleOpenFolder}
+              onChangeColor={handleChangeColor}
+              onRename={handleRename}
+              onDuplicate={handleDuplicate}
+              onMoveTo={handleMoveTo}
+              onToggleFavorite={handleToggleFavorite}
+              onDownload={handleDownload}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 pt-4">
+          {filteredFolders.map((folder) => {
+            const colors = getColorClasses(folder.color, false);
+            return (
+              <div
+                key={folder.id}
+                onClick={() => setSelectedFolderId(folder.id === selectedFolderId ? null : folder.id)}
+                onDoubleClick={() => handleOpenFolder(folder.id)}
+                className={`
+                  flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all duration-200
+                  ${selectedFolderId === folder.id 
+                    ? 'bg-primary/10 border-2 border-primary' 
+                    : 'bg-card border border-border hover:bg-muted'
+                  }
+                `}
+              >
+                {/* Folder Icon */}
+                <div className={`w-12 h-12 rounded-xl ${colors.tab} flex items-center justify-center`}>
+                  <span className="text-gray-700">{folderIcons[folder.type]}</span>
+                </div>
+                
+                {/* Folder Info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-foreground truncate">{toTitleCase(folder.name)}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {folder.fileCount} {folder.fileCount === 1 ? 'File' : 'Files'}
+                  </p>
+                </div>
+                
+                {/* Last Modified */}
+                <div className="text-sm text-muted-foreground hidden sm:block">
+                  {formatDate(folder.lastModified)}
+                </div>
+                
+                {/* Favorite Star */}
+                {folder.isFavorite && (
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {filteredFolders.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
