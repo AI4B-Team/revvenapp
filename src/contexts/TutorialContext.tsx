@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 interface TutorialStep {
   id: string;
@@ -49,30 +49,40 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
     localStorage.setItem('completedTutorials', JSON.stringify(completedTutorials));
   }, [completedTutorials]);
 
-  const startTutorial = (tutorialId: string, tutorialSteps: TutorialStep[]) => {
+  const startTutorial = useCallback((tutorialId: string, tutorialSteps: TutorialStep[]) => {
     if (!completedTutorials.includes(tutorialId)) {
       setCurrentTutorialId(tutorialId);
       setSteps(tutorialSteps);
       setCurrentStep(0);
       setIsActive(true);
     }
-  };
+  }, [completedTutorials]);
 
-  const nextStep = () => {
+  const completeTutorial = useCallback(() => {
+    if (currentTutorialId) {
+      setCompletedTutorials(prev => [...prev, currentTutorialId]);
+    }
+    setIsActive(false);
+    setCurrentStep(0);
+    setSteps([]);
+    setCurrentTutorialId(null);
+  }, [currentTutorialId]);
+
+  const nextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
       completeTutorial();
     }
-  };
+  }, [currentStep, steps.length, completeTutorial]);
 
-  const prevStep = () => {
+  const prevStep = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
     }
-  };
+  }, [currentStep]);
 
-  const skipTutorial = () => {
+  const skipTutorial = useCallback(() => {
     if (currentTutorialId) {
       setCompletedTutorials(prev => [...prev, currentTutorialId]);
     }
@@ -80,21 +90,11 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
     setCurrentStep(0);
     setSteps([]);
     setCurrentTutorialId(null);
-  };
+  }, [currentTutorialId]);
 
-  const completeTutorial = () => {
-    if (currentTutorialId) {
-      setCompletedTutorials(prev => [...prev, currentTutorialId]);
-    }
-    setIsActive(false);
-    setCurrentStep(0);
-    setSteps([]);
-    setCurrentTutorialId(null);
-  };
-
-  const hasCompletedTutorial = (tutorialId: string) => {
+  const hasCompletedTutorial = useCallback((tutorialId: string) => {
     return completedTutorials.includes(tutorialId);
-  };
+  }, [completedTutorials]);
 
   return (
     <TutorialContext.Provider
