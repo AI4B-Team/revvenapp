@@ -20,20 +20,44 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Extract data from callback
+    // Extract data from callback - KIE.AI nests metadata in stringified param
     const taskId = payload.data?.taskId || payload.taskId;
-    const status = payload.data?.status || payload.status;
-    const imageUrl = payload.data?.output?.image_url || 
-                     payload.data?.output?.images?.[0] ||
-                     payload.data?.result?.images?.[0] ||
-                     payload.data?.images?.[0] ||
-                     payload.output?.image_url ||
-                     payload.output?.images?.[0] ||
-                     payload.result?.images?.[0] ||
-                     payload.images?.[0];
+    const status = payload.data?.state || payload.data?.status || payload.status;
     
-    // Get whitepaper ID from metadata
-    const whitepaperId = payload.metadata?.db_id || payload.data?.metadata?.db_id;
+    // Parse resultJson to get image URL
+    let imageUrl: string | undefined;
+    try {
+      if (payload.data?.resultJson) {
+        const resultData = JSON.parse(payload.data.resultJson);
+        imageUrl = resultData.resultUrls?.[0];
+      }
+    } catch (e) {
+      console.error("Failed to parse resultJson:", e);
+    }
+    
+    // Fallback image URL extraction
+    if (!imageUrl) {
+      imageUrl = payload.data?.output?.image_url || 
+                 payload.data?.output?.images?.[0] ||
+                 payload.data?.result?.images?.[0] ||
+                 payload.data?.images?.[0];
+    }
+    
+    // Get whitepaper ID from metadata - KIE.AI puts it in stringified param
+    let whitepaperId: string | undefined;
+    try {
+      if (payload.data?.param) {
+        const paramData = JSON.parse(payload.data.param);
+        whitepaperId = paramData.metadata?.db_id;
+      }
+    } catch (e) {
+      console.error("Failed to parse param:", e);
+    }
+    
+    // Fallback metadata extraction
+    if (!whitepaperId) {
+      whitepaperId = payload.metadata?.db_id || payload.data?.metadata?.db_id;
+    }
     
     console.log("Parsed callback data:", { taskId, status, imageUrl, whitepaperId });
 
@@ -45,7 +69,7 @@ serve(async (req) => {
       });
     }
 
-    if (status === 'SUCCESS' || status === 'completed' || status === 'COMPLETED') {
+    if (status === 'SUCCESS' || status === 'success' || status === 'completed' || status === 'COMPLETED') {
       if (imageUrl) {
         // Update whitepaper with image URL as content
         const { error: updateError } = await supabase
