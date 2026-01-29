@@ -2735,29 +2735,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             throw error;
           }
 
-          if (data?.content) {
-            console.log('Whitepaper generated. Content length:', data.content.length);
+          if (data?.success) {
+            console.log('Whitepaper image generation started. TaskId:', data.taskId);
             
-            // Update the record with content and completed status
-            const { error: updateError } = await supabase
-              .from('whitepapers')
-              .update({
-                content: data.content,
-                status: 'completed'
-              })
-              .eq('id', whitepaperId);
-
-            if (updateError) {
-              console.error('Error updating whitepaper:', updateError);
-            }
-
-            console.log('Whitepaper saved successfully!');
+            // Image generation is async via callback - just show a message
             toast({
-              title: "Whitepaper generated!",
-              description: "Your whitepaper is ready to view in your creations.",
+              title: "Generating whitepaper image...",
+              description: "Your whitepaper image is being created. It will appear in your creations when ready.",
             });
           } else {
-            console.error('No content in response:', data);
+            console.error('No success in response:', data);
             // Update the record to error status
             await supabase
               .from('whitepapers')
@@ -2765,7 +2752,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               .eq('id', whitepaperId);
             toast({
               title: "Generation failed",
-              description: data?.error || "No content was generated. Please try again.",
+              description: data?.error || "Failed to start image generation. Please try again.",
               variant: "destructive",
             });
           }

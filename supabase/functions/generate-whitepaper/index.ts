@@ -1,10 +1,9 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
-const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const KIE_AI_API_KEY = Deno.env.get("KIE_AI_API_KEY");
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,127 +16,110 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, industry, targetAudience, whitepaperId } = await req.json();
+    const { topic, whitepaperId, aspectRatio = "16:9" } = await req.json();
 
     if (!topic) {
       throw new Error('Topic is required');
     }
 
-    console.log('Generating whitepaper for topic:', topic, 'whitepaperId:', whitepaperId);
+    if (!KIE_AI_API_KEY) {
+      throw new Error("KIE_AI_API_KEY not configured");
+    }
 
-    const systemPrompt = `You are an expert technical writer and industry analyst specializing in creating comprehensive, authoritative whitepapers. Your whitepapers are known for:
-- Deep technical insights backed by research
-- Clear, professional writing style
-- Logical structure with executive summary
-- Data-driven arguments and industry statistics
-- Actionable recommendations
+    console.log('Generating whitepaper IMAGE for topic:', topic, 'whitepaperId:', whitepaperId);
 
-Create whitepapers that establish thought leadership and provide genuine value to readers.`;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const userPrompt = `Create a comprehensive, professional whitepaper on the following topic:
+    // Build callback URL for async image generation
+    const callbackUrl = `${supabaseUrl}/functions/v1/whitepaper-image-callback`;
+    console.log("Callback URL:", callbackUrl);
 
-**Topic:** ${topic}
-${industry ? `**Industry:** ${industry}` : ''}
-${targetAudience ? `**Target Audience:** ${targetAudience}` : ''}
+    // Enhance prompt for whitepaper-style infographic image
+    const imagePrompt = `Professional whitepaper infographic design about: ${topic}. 
+Modern corporate presentation style with clean typography, data visualizations, charts, icons, and professional color scheme. 
+Business document layout with clear sections, executive summary highlights, key statistics displayed prominently.
+High quality, ultra detailed, professional business document aesthetic.`;
 
-Structure the whitepaper with the following sections:
+    // Use Nano Banana Pro model for image generation
+    const requestBody = {
+      model: 'nano-banana-pro',
+      callBackUrl: callbackUrl,
+      metadata: { db_id: whitepaperId },
+      input: {
+        prompt: imagePrompt,
+        aspect_ratio: aspectRatio,
+        resolution: "1K",
+        output_format: "png"
+      }
+    };
 
-1. **Executive Summary** - A concise overview of key findings and recommendations (200-300 words)
+    console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
-2. **Introduction** - Context, problem statement, and whitepaper objectives
-
-3. **Background & Market Analysis** - Current state of the industry, key trends, and challenges
-
-4. **Key Findings** - In-depth analysis with supporting data points and insights (this should be the longest section)
-
-5. **Solutions & Recommendations** - Practical strategies and actionable recommendations
-
-6. **Implementation Roadmap** - Step-by-step guide for implementation
-
-7. **Conclusion** - Summary of key takeaways and call to action
-
-8. **References** - List of sources (you can use placeholder citations)
-
-Requirements:
-- Write in a professional, authoritative tone
-- Include relevant statistics and data points (use realistic but placeholder data if needed)
-- Make it comprehensive (aim for 3000-4000 words)
-- Use clear headings and subheadings
-- Include bullet points and numbered lists where appropriate
-- Add callout boxes for key insights (use > blockquote format)
-
-Format the whitepaper using Markdown with proper headings (##, ###), lists, and emphasis.`;
-
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
+    const kieResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${KIE_AI_API_KEY}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-      }),
+      body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
+    if (!kieResponse.ok) {
+      const errorText = await kieResponse.text();
+      console.error("KIE.AI error:", kieResponse.status, errorText);
       
-      // Update the whitepaper record to error status if we have an ID
-      if (whitepaperId) {
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-        await supabase
-          .from('whitepapers')
-          .update({ status: 'error' })
-          .eq('id', whitepaperId);
-      }
+      // Update database with error
+      await supabase
+        .from("whitepapers")
+        .update({ status: "error" })
+        .eq("id", whitepaperId);
       
-      if (response.status === 429) {
+      if (kieResponse.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
           status: 429,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (response.status === 402) {
+      if (kieResponse.status === 402) {
         return new Response(JSON.stringify({ error: 'Credits exhausted. Please add more credits.' }), {
           status: 402,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      throw new Error(`Whitepaper generation failed: ${response.status}`);
+      throw new Error(`KIE.AI API error: ${kieResponse.status}`);
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '';
-
-    console.log('Whitepaper generation completed. Content length:', content.length);
-
-    // Update the whitepaper record directly in the edge function
-    if (whitepaperId && content) {
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-      const { error: updateError } = await supabase
-        .from('whitepapers')
-        .update({
-          content: content.trim(),
-          status: 'completed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', whitepaperId);
+    const kieData = await kieResponse.json();
+    
+    if (kieData.code !== 200) {
+      console.error("KIE.AI failed:", kieData.msg);
       
-      if (updateError) {
-        console.error('Error updating whitepaper in DB:', updateError);
-      } else {
-        console.log('Whitepaper updated in DB successfully');
-      }
+      await supabase
+        .from("whitepapers")
+        .update({ status: "error" })
+        .eq("id", whitepaperId);
+      
+      throw new Error(kieData.msg || "KIE.AI generation failed");
     }
+
+    const taskId = kieData.data.taskId;
+    console.log("KIE.AI taskId:", taskId);
+
+    // Update database with taskId
+    await supabase
+      .from("whitepapers")
+      .update({ 
+        status: "processing",
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", whitepaperId);
+
+    console.log('Whitepaper image generation started, callback will update when ready');
 
     return new Response(JSON.stringify({ 
-      content: content.trim(),
-      success: true
+      success: true,
+      taskId: taskId,
+      message: "Image generation started"
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

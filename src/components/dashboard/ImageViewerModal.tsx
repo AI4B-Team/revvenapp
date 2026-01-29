@@ -85,8 +85,34 @@ const ImageViewerModal = ({
   // Download functionality
   const handleDownload = async () => {
     if (image.type === 'document') {
-      // For documents, create a downloadable text file
       const content = image.content || 'No content available';
+      // Check if content is an image URL
+      const isImageUrl = content.startsWith('http') && (content.includes('.png') || content.includes('.jpg') || content.includes('.jpeg') || content.includes('.webp') || content.includes('cloudinary') || content.includes('kie.ai'));
+      
+      if (isImageUrl) {
+        // Download the image
+        setIsDownloading(true);
+        try {
+          const response = await fetch(content);
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${image.title || 'whitepaper'}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error('Download failed:', error);
+          window.open(content, '_blank');
+        } finally {
+          setIsDownloading(false);
+        }
+        return;
+      }
+      
+      // For text documents, create a downloadable text file
       const blob = new Blob([content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -416,55 +442,70 @@ const ImageViewerModal = ({
               }}
             >
               {image.type === 'document' ? (
-                <div className="w-full h-full overflow-y-auto bg-white rounded-lg p-6">
-                  <div 
-                    className="prose prose-sm md:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700"
-                    dangerouslySetInnerHTML={{ 
-                      __html: (() => {
-                        let content = image.content || 'No content available';
-                        
-                        // Parse markdown tables
-                        const tableRegex = /\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|\n?)+)/g;
-                        content = content.replace(tableRegex, (match, headerRow, bodyRows) => {
-                          const headers = headerRow.split('|').map((h: string) => h.trim()).filter((h: string) => h);
-                          const rows = bodyRows.trim().split('\n').map((row: string) => 
-                            row.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell !== '')
-                          );
-                          
-                          let tableHtml = '<div class="overflow-x-auto my-6"><table class="min-w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">';
-                          tableHtml += '<thead class="bg-gray-100"><tr>';
-                          headers.forEach((header: string) => {
-                            tableHtml += `<th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900 whitespace-nowrap">${header}</th>`;
-                          });
-                          tableHtml += '</tr></thead><tbody>';
-                          rows.forEach((row: string[], index: number) => {
-                            const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-                            tableHtml += `<tr class="${bgClass}">`;
-                            row.forEach((cell: string) => {
-                              tableHtml += `<td class="border border-gray-300 px-4 py-2 text-gray-700 whitespace-nowrap">${cell}</td>`;
-                            });
-                            tableHtml += '</tr>';
-                          });
-                          tableHtml += '</tbody></table></div>';
-                          return tableHtml;
-                        });
-                        
-                        // Parse other markdown elements
-                        return content
-                          .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold text-gray-900 mt-6 mb-2">$1</h3>')
-                          .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold text-gray-900 mt-8 mb-3">$1</h2>')
-                          .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h1>')
-                          .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
-                          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                          .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
-                          .replace(/^\d+\. (.*$)/gim, '<li class="ml-4 list-decimal">$1</li>')
-                          .replace(/\n\n/g, '</p><p class="my-4 text-gray-700">')
-                          .replace(/\n/g, '<br/>')
-                          .replace(/^---$/gim, '<hr class="my-6 border-gray-200"/>');
-                      })()
+                // Check if content is an image URL (for whitepapers generated as images)
+                image.content?.startsWith('http') && (image.content.includes('.png') || image.content.includes('.jpg') || image.content.includes('.jpeg') || image.content.includes('.webp') || image.content.includes('cloudinary') || image.content.includes('kie.ai')) ? (
+                  <img
+                    src={image.content}
+                    alt={image.title || 'Whitepaper'}
+                    className="rounded-lg max-w-full max-h-full object-contain select-none"
+                    style={{ 
+                      transform: `scale(${zoom / 100}) translate(${dragPosition.x}px, ${dragPosition.y}px)`,
+                      transformOrigin: 'center',
+                      transition: isDragging ? 'none' : 'transform 0.1s ease-out'
                     }}
+                    draggable={false}
                   />
-                </div>
+                ) : (
+                  <div className="w-full h-full overflow-y-auto bg-white rounded-lg p-6">
+                    <div 
+                      className="prose prose-sm md:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700"
+                      dangerouslySetInnerHTML={{ 
+                        __html: (() => {
+                          let content = image.content || 'No content available';
+                          
+                          // Parse markdown tables
+                          const tableRegex = /\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|\n?)+)/g;
+                          content = content.replace(tableRegex, (match, headerRow, bodyRows) => {
+                            const headers = headerRow.split('|').map((h: string) => h.trim()).filter((h: string) => h);
+                            const rows = bodyRows.trim().split('\n').map((row: string) => 
+                              row.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell !== '')
+                            );
+                            
+                            let tableHtml = '<div class="overflow-x-auto my-6"><table class="min-w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">';
+                            tableHtml += '<thead class="bg-gray-100"><tr>';
+                            headers.forEach((header: string) => {
+                              tableHtml += `<th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900 whitespace-nowrap">${header}</th>`;
+                            });
+                            tableHtml += '</tr></thead><tbody>';
+                            rows.forEach((row: string[], index: number) => {
+                              const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                              tableHtml += `<tr class="${bgClass}">`;
+                              row.forEach((cell: string) => {
+                                tableHtml += `<td class="border border-gray-300 px-4 py-2 text-gray-700 whitespace-nowrap">${cell}</td>`;
+                              });
+                              tableHtml += '</tr>';
+                            });
+                            tableHtml += '</tbody></table></div>';
+                            return tableHtml;
+                          });
+                          
+                          // Parse other markdown elements
+                          return content
+                            .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold text-gray-900 mt-6 mb-2">$1</h3>')
+                            .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold text-gray-900 mt-8 mb-3">$1</h2>')
+                            .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h1>')
+                            .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                            .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
+                            .replace(/^\d+\. (.*$)/gim, '<li class="ml-4 list-decimal">$1</li>')
+                            .replace(/\n\n/g, '</p><p class="my-4 text-gray-700">')
+                            .replace(/\n/g, '<br/>')
+                            .replace(/^---$/gim, '<hr class="my-6 border-gray-200"/>');
+                        })()
+                      }}
+                    />
+                  </div>
+                )
               ) : image.type === 'video' && imageData.url?.includes('.mp4') ? (
                 <video
                   src={imageData.url}
