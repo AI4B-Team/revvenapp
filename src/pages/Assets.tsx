@@ -108,6 +108,11 @@ const Assets = () => {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId);
 
+      const { count: whitepapersCount } = await supabase
+        .from('whitepapers')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
       // Also count from static data
       const staticImages = creationsData.filter(item => item.type === 'image').length;
       const staticVideos = creationsData.filter(item => item.type === 'video').length;
@@ -116,7 +121,7 @@ const Assets = () => {
         images: (imageCount || 0) + staticImages,
         videos: (aiVideoCount || 0) + (autoytVideoCount || 0) + (explainerVideoCount || 0) + staticVideos,
         music: (voicesCount || 0) + (audioAppCount || 0),
-        documents: (businessPlansCount || 0) + (proposalsCount || 0) + (caseStudiesCount || 0) + (coverLettersCount || 0) + (handbooksCount || 0)
+        documents: (businessPlansCount || 0) + (proposalsCount || 0) + (caseStudiesCount || 0) + (coverLettersCount || 0) + (handbooksCount || 0) + (whitepapersCount || 0)
       });
     };
 
