@@ -34,6 +34,7 @@ const TutorialOverlay: React.FC = () => {
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
               {/* Progress bar */}
@@ -117,8 +118,12 @@ const TutorialOverlay: React.FC = () => {
                   )}
                   <Button
                     size="sm"
-                    onClick={nextStep}
-                    className="gap-1 bg-gradient-to-r from-brand-pink to-brand-blue hover:opacity-90"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      nextStep();
+                    }}
+                    className="gap-1 bg-gradient-to-r from-brand-pink to-brand-blue hover:opacity-90 text-white"
                   >
                     {isLastStep ? "Get Started" : "Next"}
                     {!isLastStep && <ChevronRight className="w-4 h-4" />}
