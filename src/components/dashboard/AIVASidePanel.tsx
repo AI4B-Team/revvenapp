@@ -1260,10 +1260,10 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
 
   return (
     <div 
-      className={`fixed ${leftPosition} top-0 h-full bg-background border-r border-border shadow-xl z-40 flex flex-col transition-all duration-300 ${
+      className={`fixed ${leftPosition} top-0 h-full bg-background shadow-xl z-40 flex flex-col transition-all duration-300 hidden lg:flex ${
         isOpen 
-          ? (isExpanded ? 'w-[600px] translate-x-0' : 'w-[400px] translate-x-0')
-          : 'w-0 -translate-x-full'
+          ? `w-[400px] translate-x-0 border-r border-border ${isExpanded ? 'lg:w-[600px]' : 'lg:w-[400px]'}`
+          : 'w-0 -translate-x-full border-0'
       }`}
     >
       {isOpen && (
