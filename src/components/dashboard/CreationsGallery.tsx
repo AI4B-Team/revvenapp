@@ -865,7 +865,22 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       if (item.type === 'video') {
         deleteQuery = supabase.from('ai_videos').delete().eq('id', String(item.id));
       } else if (item.type === 'document') {
-        deleteQuery = supabase.from('business_plans').delete().eq('id', String(item.id));
+        // Check documentType to determine which table to delete from
+        const docType = item.documentType;
+        if (docType === 'Whitepaper') {
+          deleteQuery = supabase.from('whitepapers').delete().eq('id', String(item.id));
+        } else if (docType === 'Proposal') {
+          deleteQuery = supabase.from('proposals').delete().eq('id', String(item.id));
+        } else if (docType === 'Case Study') {
+          deleteQuery = supabase.from('case_studies').delete().eq('id', String(item.id));
+        } else if (docType === 'Cover Letter') {
+          deleteQuery = supabase.from('cover_letters').delete().eq('id', String(item.id));
+        } else if (docType === 'Handbook') {
+          deleteQuery = supabase.from('handbooks').delete().eq('id', String(item.id));
+        } else {
+          // Default to business_plans for Business Plan type
+          deleteQuery = supabase.from('business_plans').delete().eq('id', String(item.id));
+        }
       } else if (item.type === 'audio') {
         deleteQuery = supabase.from('user_voices').delete().eq('id', String(item.id));
       } else {
