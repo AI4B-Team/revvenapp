@@ -1,11 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Folder, Video, Image, Music, FileText, Plus, Search, Grid3X3, List, Filter, 
-  Menu, Pencil, Copy, FolderInput, Star, Download, Trash2, Palette, ChevronRight 
+  Menu, Pencil, Copy, FolderInput, Star, Download, Trash2, Palette, ChevronRight,
+  X, Check
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 // Types
 export type FolderType = 'photos' | 'videos' | 'music' | 'documents' | 'default';
@@ -435,9 +441,23 @@ export const AssetFolderGrid: React.FC<AssetFolderGridProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const filteredFolders = folders.filter(folder =>
-    folder.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [filterType, setFilterType] = useState<FolderType | 'all'>('all');
+  const [filterFavorites, setFilterFavorites] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const hasActiveFilters = filterType !== 'all' || filterFavorites;
+
+  const filteredFolders = folders.filter(folder => {
+    const matchesSearch = folder.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = filterType === 'all' || folder.type === filterType;
+    const matchesFavorite = !filterFavorites || folder.isFavorite;
+    return matchesSearch && matchesType && matchesFavorite;
+  });
+
+  const clearFilters = () => {
+    setFilterType('all');
+    setFilterFavorites(false);
+  };
 
   const handleChangeColor = (id: string, color: FolderColor) => {
     onFoldersChange(folders.map(f => f.id === id ? { ...f, color } : f));
@@ -525,9 +545,79 @@ export const AssetFolderGrid: React.FC<AssetFolderGridProps> = ({
             </div>
             
             {/* Filter */}
-            <button className="p-3 bg-muted rounded-xl text-muted-foreground hover:text-foreground hover:bg-background transition-colors">
-              <Filter className="w-5 h-5" />
-            </button>
+            <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <PopoverTrigger asChild>
+                <button className={`p-3 rounded-xl transition-colors relative ${hasActiveFilters ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-background'}`}>
+                  <Filter className="w-5 h-5" />
+                  {hasActiveFilters && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full" />
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0" align="end">
+                <div className="p-4 border-b border-border">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-foreground">Filter Folders</h4>
+                    {hasActiveFilters && (
+                      <button 
+                        onClick={clearFilters}
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Filter by Type */}
+                <div className="p-4 border-b border-border">
+                  <p className="text-sm font-medium text-muted-foreground mb-3">By Type</p>
+                  <div className="space-y-2">
+                    {[
+                      { value: 'all' as const, label: 'All Types', icon: <Folder className="w-4 h-4" /> },
+                      { value: 'photos' as const, label: 'Photos', icon: <Image className="w-4 h-4" /> },
+                      { value: 'videos' as const, label: 'Videos', icon: <Video className="w-4 h-4" /> },
+                      { value: 'music' as const, label: 'Music & Audio', icon: <Music className="w-4 h-4" /> },
+                      { value: 'documents' as const, label: 'Documents', icon: <FileText className="w-4 h-4" /> },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setFilterType(option.value)}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                          filterType === option.value 
+                            ? 'bg-primary/10 text-primary' 
+                            : 'hover:bg-muted text-foreground'
+                        }`}
+                      >
+                        {option.icon}
+                        <span>{option.label}</span>
+                        {filterType === option.value && (
+                          <Check className="w-4 h-4 ml-auto" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Filter by Favorites */}
+                <div className="p-4">
+                  <button
+                    onClick={() => setFilterFavorites(!filterFavorites)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      filterFavorites 
+                        ? 'bg-primary/10 text-primary' 
+                        : 'hover:bg-muted text-foreground'
+                    }`}
+                  >
+                    <Star className={`w-4 h-4 ${filterFavorites ? 'fill-current' : ''}`} />
+                    <span>Favorites Only</span>
+                    {filterFavorites && (
+                      <Check className="w-4 h-4 ml-auto" />
+                    )}
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
             
             {/* New Folder Button */}
             <Button
