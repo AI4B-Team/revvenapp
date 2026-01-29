@@ -12,6 +12,8 @@ import { EbookProvider } from "@/contexts/EbookContext";
 import { ArticleProvider } from "@/contexts/ArticleContext";
 import { BrandProvider } from "@/contexts/BrandContext";
 import { SpaceProvider } from "@/contexts/SpaceContext";
+import { TutorialProvider } from "@/contexts/TutorialContext";
+import TutorialOverlay from "@/components/tutorial/TutorialOverlay";
 
 // Preload-heavy route statically to avoid dynamic import fetch failures in preview.
 import Create from "./pages/Create";
@@ -124,14 +126,16 @@ const App = () => (
               <BrandProvider>
                 <EbookProvider>
                   <ArticleProvider>
-                    <VisitorTracker>
-                      <Suspense
-                        fallback={
-                          <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-                            <p className="text-muted-foreground">Loading…</p>
-                          </div>
-                        }
-                      >
+                    <TutorialProvider>
+                      <VisitorTracker>
+                        <TutorialOverlay />
+                        <Suspense
+                          fallback={
+                            <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+                              <p className="text-muted-foreground">Loading…</p>
+                            </div>
+                          }
+                        >
                         <Routes>
                           <Route path="/sales" element={<Landing />} />
                           <Route path="/landing" element={<LandingNew />} />
@@ -225,7 +229,8 @@ const App = () => (
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>
-                    </VisitorTracker>
+                      </VisitorTracker>
+                    </TutorialProvider>
                   </ArticleProvider>
                 </EbookProvider>
               </BrandProvider>
