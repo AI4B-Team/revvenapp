@@ -116,7 +116,7 @@ const FolderDropdownMenu: React.FC<DropdownMenuProps> = ({
   return (
     <div 
       ref={menuRef}
-      className="absolute top-16 right-4 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+      className="absolute top-16 right-4 w-56 bg-popover rounded-xl shadow-2xl border border-border py-2 z-[100] animate-in fade-in slide-in-from-top-2 duration-200"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Change Color */}
@@ -287,6 +287,7 @@ export const AssetFolderCard: React.FC<AssetFolderCardProps> = ({
           transition-all duration-300 ease-out
           transform hover:scale-[1.02] hover:-translate-y-1
           ${isSelected ? 'scale-[1.02] -translate-y-1' : ''}
+          ${isMenuOpen ? 'z-[90]' : 'z-0'}
         `}
       >
         {/* Folder Tab */}
