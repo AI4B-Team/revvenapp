@@ -1,7 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,13 +17,13 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, industry, targetAudience } = await req.json();
+    const { topic, industry, targetAudience, whitepaperId } = await req.json();
 
     if (!topic) {
       throw new Error('Topic is required');
     }
 
-    console.log('Generating whitepaper for topic:', topic);
+    console.log('Generating whitepaper for topic:', topic, 'whitepaperId:', whitepaperId);
 
     const systemPrompt = `You are an expert technical writer and industry analyst specializing in creating comprehensive, authoritative whitepapers. Your whitepapers are known for:
 - Deep technical insights backed by research
@@ -84,6 +87,15 @@ Format the whitepaper using Markdown with proper headings (##, ###), lists, and 
       const errorText = await response.text();
       console.error('AI gateway error:', response.status, errorText);
       
+      // Update the whitepaper record to error status if we have an ID
+      if (whitepaperId) {
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        await supabase
+          .from('whitepapers')
+          .update({ status: 'error' })
+          .eq('id', whitepaperId);
+      }
+      
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
           status: 429,
@@ -103,6 +115,25 @@ Format the whitepaper using Markdown with proper headings (##, ###), lists, and 
     const content = data.choices?.[0]?.message?.content || '';
 
     console.log('Whitepaper generation completed. Content length:', content.length);
+
+    // Update the whitepaper record directly in the edge function
+    if (whitepaperId && content) {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const { error: updateError } = await supabase
+        .from('whitepapers')
+        .update({
+          content: content.trim(),
+          status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', whitepaperId);
+      
+      if (updateError) {
+        console.error('Error updating whitepaper in DB:', updateError);
+      } else {
+        console.log('Whitepaper updated in DB successfully');
+      }
+    }
 
     return new Response(JSON.stringify({ 
       content: content.trim(),

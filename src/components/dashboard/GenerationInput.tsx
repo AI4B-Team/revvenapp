@@ -2712,13 +2712,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             description: "Creating your comprehensive whitepaper. This may take a moment.",
           });
 
-          // Generate the whitepaper
-          console.log('Calling generate-whitepaper with:', { topic: prompt.trim() });
+          // Generate the whitepaper - pass the whitepaper ID so the edge function can update the DB directly
+          console.log('Calling generate-whitepaper with:', { topic: prompt.trim(), whitepaperId });
           const { data, error } = await supabase.functions.invoke('generate-whitepaper', {
             body: {
               topic: prompt.trim(),
               industry: '',
               targetAudience: '',
+              whitepaperId: whitepaperId
             }
           });
 
