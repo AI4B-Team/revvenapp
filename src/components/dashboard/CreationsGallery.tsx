@@ -73,6 +73,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         caseStudiesResult,
         coverLettersResult,
         handbooksResult,
+        whitepapersResult,
         voicesResult,
         audioAppResult
       ] = await Promise.all([
@@ -83,6 +84,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         supabase.from('case_studies').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
         supabase.from('cover_letters').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
         supabase.from('handbooks').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('whitepapers').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
         supabase.from('user_voices').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
         supabase.from('audio_app_usage').select('*').eq('user_id', userId).order('created_at', { ascending: false })
       ]);
@@ -95,6 +97,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       const caseStudiesData = caseStudiesResult.data;
       const coverLettersData = coverLettersResult.data;
       const handbooksData = handbooksResult.data;
+      const whitepapersData = whitepapersResult.data;
       const voicesData = voicesResult.data;
       const audioAppData = audioAppResult.data;
 
@@ -105,6 +108,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       if (caseStudiesResult.error) console.error('Error fetching case studies:', caseStudiesResult.error);
       if (coverLettersResult.error) console.error('Error fetching cover letters:', coverLettersResult.error);
       if (handbooksResult.error) console.error('Error fetching handbooks:', handbooksResult.error);
+      if (whitepapersResult.error) console.error('Error fetching whitepapers:', whitepapersResult.error);
       if (voicesResult.error) console.error('Error fetching user voices:', voicesResult.error);
       if (audioAppResult.error) console.error('Error fetching audio app usage:', audioAppResult.error);
 
@@ -301,6 +305,27 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         content: handbook.content
       })) || [];
 
+      const mappedWhitepapers: GalleryItem[] = whitepapersData?.map((whitepaper: any) => ({
+        id: whitepaper.id,
+        title: whitepaper.title,
+        thumbnail: '/placeholder.svg',
+        type: 'document' as const,
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: whitepaper.created_at || new Date().toISOString(),
+        status: whitepaper.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: whitepaper.prompt,
+        model: 'Nano Banana Pro',
+        timestamp: formatTimestamp(whitepaper.created_at),
+        documentType: 'Whitepaper',
+        content: whitepaper.content
+      })) || [];
+
       // voicesData and audioAppData are already fetched in parallel above
 
       const mappedVoices: GalleryItem[] = voicesData?.map((voice: any) => ({
@@ -347,7 +372,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       })) || [];
 
       // Combine and sort by creation date
-      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals, ...mappedCaseStudies, ...mappedCoverLetters, ...mappedHandbooks, ...mappedVoices, ...mappedAudioApp].sort((a, b) => 
+      const allItems = [...mappedImages, ...mappedVideos, ...mappedBusinessPlans, ...mappedProposals, ...mappedCaseStudies, ...mappedCoverLetters, ...mappedHandbooks, ...mappedWhitepapers, ...mappedVoices, ...mappedAudioApp].sort((a, b) => 
         new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
       );
       
@@ -476,6 +501,23 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       )
       .subscribe();
 
+    // Real-time subscription for whitepapers
+    const whitepapersChannel = supabase
+      .channel('whitepapers_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'whitepapers'
+        },
+        (payload) => {
+          console.log('Whitepapers update:', payload);
+          fetchGeneratedContent();
+        }
+      )
+      .subscribe();
+
     // Real-time subscription for user voices (audio)
     const voicesChannel = supabase
       .channel('user_voices_updates')
@@ -537,6 +579,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       supabase.removeChannel(caseStudiesChannel);
       supabase.removeChannel(coverLettersChannel);
       supabase.removeChannel(handbooksChannel);
+      supabase.removeChannel(whitepapersChannel);
       supabase.removeChannel(voicesChannel);
       clearInterval(pollInterval);
     };
