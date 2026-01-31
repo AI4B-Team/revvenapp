@@ -458,21 +458,56 @@ const SubmitFeedbackModal = ({
         icon: Bug, 
         iconColor: 'text-red-500',
         titlePlaceholder: 'Brief description of the issue',
-        descPlaceholder: 'Steps to reproduce, expected behavior, actual behavior...'
+        descPlaceholder: `Example:
+**Steps to reproduce:**
+1. Go to the dashboard
+2. Click on "Create" button
+3. Select "Video" option
+
+**Expected behavior:**
+The video editor should open
+
+**Actual behavior:**
+Page shows a blank screen
+
+**Browser/Device:**
+Chrome on Windows 11`,
+        descExample: 'Describe the bug with steps to reproduce, expected vs actual behavior, and your browser/device info.'
       };
       case 'feature': return { 
         title: 'Request a Feature', 
         icon: Lightbulb, 
         iconColor: 'text-amber-500',
         titlePlaceholder: 'What feature would you like?',
-        descPlaceholder: 'Provide more details...'
+        descPlaceholder: `Example:
+**Feature description:**
+Add the ability to schedule posts for multiple platforms at once.
+
+**Use case:**
+As a content creator, I want to post the same content across Instagram, Twitter, and Facebook simultaneously to save time.
+
+**Proposed solution:**
+Add a "Post to all" checkbox in the scheduling modal.
+
+**Alternatives considered:**
+Currently I have to create separate posts for each platform.`,
+        descExample: 'Describe the feature, your use case, and how it would help you.'
       };
       default: return { 
         title: 'Submit Feedback', 
         icon: MessageSquare, 
         iconColor: 'text-blue-500',
         titlePlaceholder: "What's on your mind?",
-        descPlaceholder: 'Provide more details...'
+        descPlaceholder: `Example:
+**What I love:**
+The new dashboard design is much cleaner!
+
+**What could be improved:**
+The loading times for video previews feel slow.
+
+**Suggestions:**
+Consider adding keyboard shortcuts for common actions.`,
+        descExample: 'Share your thoughts, suggestions, or general feedback about the app.'
       };
     }
   };
@@ -513,12 +548,15 @@ const SubmitFeedbackModal = ({
 
           {/* Description */}
           <div>
-            <label className="text-sm font-medium mb-1.5 block">Description *</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-sm font-medium">Description *</label>
+              <span className="text-xs text-muted-foreground">{config.descExample}</span>
+            </div>
             <Textarea
               placeholder={config.descPlaceholder}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="min-h-[100px] resize-y"
+              className="min-h-[150px] resize-y font-mono text-sm"
             />
           </div>
 
