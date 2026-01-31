@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import NotificationBell from './NotificationBell';
+
 import HelpMenu from './HelpMenu';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import SearchDialog from './SearchDialog';
@@ -299,7 +299,6 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         </div>
 
         <NotificationsDropdown />
-        <NotificationBell />
         <HelpMenu />
         
         <DropdownMenu>
