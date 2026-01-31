@@ -533,13 +533,13 @@ export const AssetFolderGrid: React.FC<AssetFolderGridProps> = ({
             <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
               <button 
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
               >
                 <Grid3X3 className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
               >
                 <List className="w-5 h-5" />
               </button>
@@ -623,7 +623,7 @@ export const AssetFolderGrid: React.FC<AssetFolderGridProps> = ({
             {/* New Folder Button */}
             <Button
               onClick={onCreateFolder}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
             >
               <Plus className="w-5 h-5" />
               New Folder
