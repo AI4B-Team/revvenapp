@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Folder, Video, Image, Music, FileText, Plus, Search, Grid3X3, List, Filter, 
+  Folder, Video, Image, Music, FileText, Plus, Search, Grid3X3, List, SlidersHorizontal, 
   Menu, Pencil, Copy, FolderInput, Star, Download, Trash2, Palette, ChevronRight,
   X, Check
 } from 'lucide-react';
@@ -549,7 +549,7 @@ export const AssetFolderGrid: React.FC<AssetFolderGridProps> = ({
             <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
               <PopoverTrigger asChild>
                 <button className={`p-3 rounded-xl transition-colors relative ${hasActiveFilters ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-background'}`}>
-                  <Filter className="w-5 h-5" />
+                  <SlidersHorizontal className="w-5 h-5" />
                   {hasActiveFilters && (
                     <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full" />
                   )}
