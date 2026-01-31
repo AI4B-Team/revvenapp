@@ -1,17 +1,16 @@
-// Feedback Hub - General feedback, bug reports, and feature requests
+// Feedback Center - Share thoughts, report bugs, request features
 import { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
-  MessageSquare, Bug, Lightbulb, ArrowLeft, Upload, Camera, Video, 
-  ChevronUp, ChevronDown, MessageCircle, Plus, AlertTriangle, AlertCircle,
-  Info, Loader2, X, Image as ImageIcon
+  MessageSquare, Bug, Lightbulb, ArrowLeft, Upload, Camera,
+  ChevronUp, MessageCircle, Plus, AlertTriangle, AlertCircle,
+  Info, Loader2, X, Archive, ThumbsUp
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useFeedback, useFeedbackVotes, useFeedbackComments, useUploadFeedbackAttachment, FeedbackSubmission } from '@/hooks/useFeedback';
@@ -20,9 +19,16 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const severityConfig = {
-  low: { label: 'Low', icon: Info, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  medium: { label: 'Medium', icon: AlertCircle, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
-  high: { label: 'High', icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
+  low: { label: 'Low', icon: Info, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+  medium: { label: 'Medium', icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+  high: { label: 'High', icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+};
+
+const statusConfig = {
+  open: { label: 'open', className: 'bg-muted text-muted-foreground border-border' },
+  in_progress: { label: 'in progress', className: 'bg-primary/10 text-primary border-primary/20' },
+  resolved: { label: 'resolved', className: 'bg-green-500/10 text-green-600 border-green-500/20' },
+  closed: { label: 'closed', className: 'bg-muted text-muted-foreground border-border' },
 };
 
 const FeedbackCard = ({ feedback, onClick }: { feedback: FeedbackSubmission; onClick: () => void }) => {
@@ -33,52 +39,61 @@ const FeedbackCard = ({ feedback, onClick }: { feedback: FeedbackSubmission; onC
     toggleVote.mutate();
   };
 
+  const getSeverityIcon = () => {
+    if (feedback.type === 'bug' && feedback.severity) {
+      const config = severityConfig[feedback.severity];
+      const Icon = config.icon;
+      return <Icon className={cn("w-4 h-4", config.color)} />;
+    }
+    return null;
+  };
+
+  const status = statusConfig[feedback.status] || statusConfig.open;
+
   return (
     <div 
       onClick={onClick}
-      className="bg-card border border-border rounded-xl p-4 hover:border-primary/50 transition-all cursor-pointer group"
+      className="bg-card border border-border rounded-xl p-5 hover:shadow-md transition-all cursor-pointer"
     >
-      <div className="flex gap-4">
-        {/* Vote Section */}
-        <div className="flex flex-col items-center gap-1">
+      <div className="flex items-start justify-between gap-4 mb-2">
+        <div className="flex items-start gap-2 flex-1 min-w-0">
+          {getSeverityIcon()}
+          <h3 className="font-semibold text-foreground line-clamp-1">
+            {feedback.title}
+          </h3>
+        </div>
+        <Badge 
+          variant="outline" 
+          className={cn("shrink-0 text-xs font-normal", status.className)}
+        >
+          {status.label}
+        </Badge>
+      </div>
+      
+      <p className="text-sm text-muted-foreground line-clamp-2 mb-3 pl-6">
+        {feedback.description}
+      </p>
+      
+      <div className="flex items-center justify-between pl-6">
+        <p className="text-xs text-muted-foreground">
+          By <span className="font-medium">User</span> · {formatDistanceToNow(new Date(feedback.created_at), { addSuffix: true })}
+        </p>
+        <div className="flex items-center gap-4">
           <button
             onClick={handleVote}
             disabled={toggleVote.isPending}
             className={cn(
-              "p-2 rounded-lg transition-colors",
-              hasVoted ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+              "flex items-center gap-1.5 text-sm transition-colors",
+              hasVoted ? "text-primary" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <ChevronUp className="w-5 h-5" />
+            <ThumbsUp className={cn("w-4 h-4", hasVoted && "fill-primary")} />
+            <span>{feedback.votes_count}</span>
           </button>
-          <span className="font-semibold text-lg">{feedback.votes_count}</span>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-              {feedback.title}
-            </h3>
-            {feedback.severity && (
-              <Badge variant="outline" className={cn(severityConfig[feedback.severity].bg, severityConfig[feedback.severity].color, "shrink-0")}>
-                {severityConfig[feedback.severity].label}
-              </Badge>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-            {feedback.description}
-          </p>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>{formatDistanceToNow(new Date(feedback.created_at), { addSuffix: true })}</span>
-            <span className="flex items-center gap-1">
-              <MessageCircle className="w-3.5 h-3.5" />
-              {feedback.comments_count} comments
-            </span>
-            <Badge variant="outline" className="text-xs">
-              {feedback.status}
-            </Badge>
-          </div>
+          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <MessageCircle className="w-4 h-4" />
+            {feedback.comments_count}
+          </span>
         </div>
       </div>
     </div>
@@ -217,10 +232,12 @@ const FeedbackDetailModal = ({
 
 const SubmitFeedbackForm = ({ 
   type, 
-  onSuccess 
+  onSuccess,
+  onCancel
 }: { 
   type: 'general' | 'bug' | 'feature'; 
   onSuccess: () => void;
+  onCancel: () => void;
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -269,117 +286,171 @@ const SubmitFeedbackForm = ({
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
+  const getFormTitle = () => {
+    switch (type) {
+      case 'bug': return 'Report a Bug';
+      case 'feature': return 'Request a Feature';
+      default: return 'Share General Feedback';
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="text-sm font-medium mb-1.5 block">Title *</label>
-        <Input
-          placeholder={type === 'bug' ? "Describe the bug briefly..." : type === 'feature' ? "What feature would you like?" : "What's on your mind?"}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+    <div className="max-w-2xl mx-auto bg-card border border-border rounded-xl p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-semibold">{getFormTitle()}</h2>
+        <button onClick={onCancel} className="p-2 hover:bg-muted rounded-lg">
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
-      <div>
-        <label className="text-sm font-medium mb-1.5 block">Description *</label>
-        <Textarea
-          placeholder="Provide more details..."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="min-h-[120px]"
-        />
-      </div>
-
-      {type === 'bug' && (
+      <div className="space-y-4">
         <div>
-          <label className="text-sm font-medium mb-1.5 block">Severity</label>
-          <div className="flex gap-2">
-            {(['low', 'medium', 'high'] as const).map((s) => {
-              const config = severityConfig[s];
-              const Icon = config.icon;
-              return (
+          <label className="text-sm font-medium mb-1.5 block">Title *</label>
+          <Input
+            placeholder={type === 'bug' ? "Describe the bug briefly..." : type === 'feature' ? "What feature would you like?" : "What's on your mind?"}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium mb-1.5 block">Description *</label>
+          <Textarea
+            placeholder="Provide more details..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-h-[120px]"
+          />
+        </div>
+
+        {type === 'bug' && (
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Severity</label>
+            <div className="flex gap-2">
+              {(['low', 'medium', 'high'] as const).map((s) => {
+                const config = severityConfig[s];
+                const Icon = config.icon;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => setSeverity(s)}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all",
+                      severity === s 
+                        ? `${config.bg} ${config.border} ${config.color}` 
+                        : "border-border hover:border-muted-foreground/50"
+                    )}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="font-medium">{config.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Attachments */}
+        <div>
+          <label className="text-sm font-medium mb-1.5 block">Attachments</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {attachments.map((url, idx) => (
+              <div key={idx} className="relative group">
+                <div className="w-16 h-16 rounded-lg overflow-hidden border border-border">
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                </div>
                 <button
-                  key={s}
-                  onClick={() => setSeverity(s)}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all",
-                    severity === s 
-                      ? `${config.bg} border-current ${config.color}` 
-                      : "border-border hover:border-muted-foreground/50"
-                  )}
+                  onClick={() => removeAttachment(idx)}
+                  className="absolute -top-1 -right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <Icon className="w-4 h-4" />
-                  <span className="font-medium">{config.label}</span>
+                  <X className="w-3 h-3" />
                 </button>
-              );
-            })}
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+              Upload Image
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              Screenshot
+            </Button>
           </div>
         </div>
-      )}
 
-      {/* Attachments */}
-      <div>
-        <label className="text-sm font-medium mb-1.5 block">Attachments</label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {attachments.map((url, idx) => (
-            <div key={idx} className="relative group">
-              <div className="w-16 h-16 rounded-lg overflow-hidden border border-border">
-                <img src={url} alt="" className="w-full h-full object-cover" />
-              </div>
-              <button
-                onClick={() => removeAttachment(idx)}
-                className="absolute -top-1 -right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,video/*"
-            multiple
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
-            Upload Image
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-          >
-            <Camera className="w-4 h-4 mr-2" />
-            Screenshot
-          </Button>
-        </div>
+        <Button 
+          onClick={handleSubmit} 
+          disabled={createFeedback.isPending || !title.trim() || !description.trim()}
+          className="w-full"
+        >
+          {createFeedback.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+          ) : null}
+          Submit {type === 'bug' ? 'Bug Report' : type === 'feature' ? 'Feature Request' : 'Feedback'}
+        </Button>
       </div>
-
-      <Button 
-        onClick={handleSubmit} 
-        disabled={createFeedback.isPending || !title.trim() || !description.trim()}
-        className="w-full"
-      >
-        {createFeedback.isPending ? (
-          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-        ) : null}
-        Submit {type === 'bug' ? 'Bug Report' : type === 'feature' ? 'Feature Request' : 'Feedback'}
-      </Button>
     </div>
   );
 };
+
+// Category card component matching reference design
+const CategoryCard = ({ 
+  icon: Icon, 
+  iconBg, 
+  iconColor,
+  title, 
+  subtitle,
+  isActive,
+  onClick 
+}: { 
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+  title: string;
+  subtitle: string;
+  isActive: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "flex items-center gap-4 p-4 rounded-xl border transition-all text-left w-full",
+      isActive 
+        ? "border-primary bg-primary/5" 
+        : "border-border bg-card hover:border-primary/50"
+    )}
+  >
+    <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", iconBg)}>
+      <Icon className={cn("w-6 h-6", iconColor)} />
+    </div>
+    <div>
+      <h3 className="font-semibold text-foreground">{title}</h3>
+      <p className="text-sm text-muted-foreground">{subtitle}</p>
+    </div>
+  </button>
+);
 
 const Feedback = () => {
   const navigate = useNavigate();
@@ -406,16 +477,60 @@ const Feedback = () => {
     }
   };
 
+  const getFormType = (): 'general' | 'bug' | 'feature' => {
+    switch (activeTab) {
+      case 'bugs': return 'bug';
+      case 'features': return 'feature';
+      default: return 'general';
+    }
+  };
+
   const isLoading = activeTab === 'bugs' ? loadingBugs : activeTab === 'features' ? loadingFeatures : loadingGeneral;
   const currentFeedback = getCurrentFeedback();
 
-  // Group similar bug reports by title similarity
-  const groupedBugReports = bugReports?.reduce((acc, bug) => {
-    if (!bug.parent_id) {
-      acc.push({ ...bug, related: bugReports.filter(b => b.parent_id === bug.id) });
+  const renderFeedbackList = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </div>
+      );
     }
-    return acc;
-  }, [] as (FeedbackSubmission & { related: FeedbackSubmission[] })[]);
+
+    if (!currentFeedback || currentFeedback.length === 0) {
+      const emptyConfig = {
+        general: { icon: MessageSquare, title: 'No feedback yet', subtitle: 'Be the first to share your thoughts!' },
+        bugs: { icon: Bug, title: 'No bug reports', subtitle: 'Everything seems to be working great!' },
+        features: { icon: Lightbulb, title: 'No feature requests', subtitle: 'Got a great idea? Share it with us!' },
+      };
+      const config = emptyConfig[activeTab as keyof typeof emptyConfig] || emptyConfig.general;
+      const Icon = config.icon;
+
+      return (
+        <div className="text-center py-12">
+          <Icon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">{config.title}</h3>
+          <p className="text-muted-foreground mb-4">{config.subtitle}</p>
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Submit
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {currentFeedback.map((feedback) => (
+          <FeedbackCard
+            key={feedback.id}
+            feedback={feedback}
+            onClick={() => setSelectedFeedback(feedback)}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -430,173 +545,110 @@ const Feedback = () => {
       )}>
         <Header />
         
-        <main className="p-4 lg:p-6">
+        <main className="p-4 lg:p-6 max-w-5xl">
           {/* Page Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => navigate(-1)}
-                className="p-2 hover:bg-muted rounded-lg transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Feedback Hub</h1>
-                <p className="text-muted-foreground">Share your thoughts, report bugs, or request features</p>
-              </div>
-            </div>
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Submission
-            </Button>
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-foreground mb-1">Feedback Center</h1>
+            <p className="text-muted-foreground">Share your thoughts, report bugs, or request new features</p>
           </div>
 
-          {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-            <TabsList className="grid w-full max-w-md grid-cols-3">
-              <TabsTrigger value="general" className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                General
-              </TabsTrigger>
-              <TabsTrigger value="bugs" className="flex items-center gap-2">
-                <Bug className="w-4 h-4" />
-                Bug Reports
-              </TabsTrigger>
-              <TabsTrigger value="features" className="flex items-center gap-2">
-                <Lightbulb className="w-4 h-4" />
-                Features
-              </TabsTrigger>
-            </TabsList>
+          {/* Category Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <CategoryCard
+              icon={MessageSquare}
+              iconBg="bg-blue-500/10"
+              iconColor="text-blue-500"
+              title="General Feedback"
+              subtitle="Share your thoughts"
+              isActive={activeTab === 'general'}
+              onClick={() => handleTabChange('general')}
+            />
+            <CategoryCard
+              icon={Bug}
+              iconBg="bg-red-500/10"
+              iconColor="text-red-500"
+              title="Report a Bug"
+              subtitle="Something not working?"
+              isActive={activeTab === 'bugs'}
+              onClick={() => handleTabChange('bugs')}
+            />
+            <CategoryCard
+              icon={Lightbulb}
+              iconBg="bg-amber-500/10"
+              iconColor="text-amber-500"
+              title="Feature Request"
+              subtitle="Suggest an improvement"
+              isActive={activeTab === 'features'}
+              onClick={() => handleTabChange('features')}
+            />
+          </div>
 
-            {/* General Feedback Tab */}
-            <TabsContent value="general" className="space-y-4">
-              {showForm ? (
-                <div className="max-w-2xl mx-auto bg-card border border-border rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Submit General Feedback</h2>
-                    <button onClick={() => setShowForm(false)} className="p-2 hover:bg-muted rounded-lg">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <SubmitFeedbackForm type="general" onSuccess={() => setShowForm(false)} />
-                </div>
-              ) : (
-                <>
-                  {isLoading ? (
-                    <div className="flex justify-center py-12">
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : currentFeedback?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-lg font-semibold mb-2">No feedback yet</h3>
-                      <p className="text-muted-foreground mb-4">Be the first to share your thoughts!</p>
-                      <Button onClick={() => setShowForm(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Submit Feedback
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 max-w-3xl">
-                      {currentFeedback?.map((feedback) => (
-                        <FeedbackCard
-                          key={feedback.id}
-                          feedback={feedback}
-                          onClick={() => setSelectedFeedback(feedback)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </>
+          {/* Tab Pills */}
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
+            <button
+              onClick={() => handleTabChange('general')}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                activeTab === 'general'
+                  ? "bg-foreground text-background"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
               )}
-            </TabsContent>
+            >
+              <MessageSquare className="w-4 h-4" />
+              General
+            </button>
+            <button
+              onClick={() => handleTabChange('bugs')}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                activeTab === 'bugs'
+                  ? "bg-foreground text-background"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+            >
+              <Bug className="w-4 h-4" />
+              Bug Reports
+            </button>
+            <button
+              onClick={() => handleTabChange('features')}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                activeTab === 'features'
+                  ? "bg-foreground text-background"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+            >
+              <Lightbulb className="w-4 h-4" />
+              Feature Requests
+            </button>
+            <button
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors whitespace-nowrap"
+            >
+              <Archive className="w-4 h-4" />
+              Archived (0)
+            </button>
+          </div>
 
-            {/* Bug Reports Tab */}
-            <TabsContent value="bugs" className="space-y-4">
-              {showForm ? (
-                <div className="max-w-2xl mx-auto bg-card border border-border rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Report a Bug</h2>
-                    <button onClick={() => setShowForm(false)} className="p-2 hover:bg-muted rounded-lg">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <SubmitFeedbackForm type="bug" onSuccess={() => setShowForm(false)} />
-                </div>
-              ) : (
-                <>
-                  {loadingBugs ? (
-                    <div className="flex justify-center py-12">
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : bugReports?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Bug className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-lg font-semibold mb-2">No bug reports</h3>
-                      <p className="text-muted-foreground mb-4">Everything seems to be working great!</p>
-                      <Button onClick={() => setShowForm(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Report Bug
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 max-w-3xl">
-                      {bugReports?.map((feedback) => (
-                        <FeedbackCard
-                          key={feedback.id}
-                          feedback={feedback}
-                          onClick={() => setSelectedFeedback(feedback)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </TabsContent>
+          {/* New Submission Button */}
+          {!showForm && (
+            <div className="mb-6">
+              <Button onClick={() => setShowForm(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                New Submission
+              </Button>
+            </div>
+          )}
 
-            {/* Feature Requests Tab */}
-            <TabsContent value="features" className="space-y-4">
-              {showForm ? (
-                <div className="max-w-2xl mx-auto bg-card border border-border rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Request a Feature</h2>
-                    <button onClick={() => setShowForm(false)} className="p-2 hover:bg-muted rounded-lg">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <SubmitFeedbackForm type="feature" onSuccess={() => setShowForm(false)} />
-                </div>
-              ) : (
-                <>
-                  {loadingFeatures ? (
-                    <div className="flex justify-center py-12">
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : featureRequests?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Lightbulb className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-lg font-semibold mb-2">No feature requests</h3>
-                      <p className="text-muted-foreground mb-4">Got a great idea? Share it with us!</p>
-                      <Button onClick={() => setShowForm(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Request Feature
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 max-w-3xl">
-                      {featureRequests?.map((feedback) => (
-                        <FeedbackCard
-                          key={feedback.id}
-                          feedback={feedback}
-                          onClick={() => setSelectedFeedback(feedback)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </TabsContent>
-          </Tabs>
+          {/* Content */}
+          {showForm ? (
+            <SubmitFeedbackForm 
+              type={getFormType()} 
+              onSuccess={() => setShowForm(false)} 
+              onCancel={() => setShowForm(false)}
+            />
+          ) : (
+            renderFeedbackList()
+          )}
         </main>
       </div>
 
