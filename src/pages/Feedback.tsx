@@ -372,7 +372,7 @@ const SubmitFeedbackModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FormIcon className={cn("w-5 h-5", config.iconColor)} />
