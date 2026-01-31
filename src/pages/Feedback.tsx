@@ -19,6 +19,12 @@ import { useFeedback, useFeedbackVotes, useFeedbackComments, useUploadFeedbackAt
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { captureElementToPngBlob } from '@/utils/domCapture';
+import { revokePreviewUrl } from '@/utils/imageUtils';
+
+type AttachmentItem =
+  | { kind: 'remote'; url: string }
+  | { kind: 'local'; previewUrl: string; file: File };
 
 const severityOptions = [
   { value: 'low', label: 'Low - Minor issue, workaround available', icon: Info, color: 'text-blue-500' },
@@ -287,7 +293,7 @@ const SubmitFeedbackModal = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [severity, setSeverity] = useState<'low' | 'medium' | 'high'>('medium');
-  const [attachments, setAttachments] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -306,54 +312,33 @@ const SubmitFeedbackModal = ({
     for (const file of Array.from(files)) {
       const url = await uploadFile(file);
       if (url) {
-        setAttachments(prev => [...prev, url]);
+        setAttachments(prev => [...prev, { kind: 'remote', url }]);
       }
     }
   };
 
   const handleScreenshot = async () => {
+    setIsCapturing(true);
     try {
-      setIsCapturing(true);
-      
-      // Request screen capture
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { displaySurface: 'browser' } as any,
-        audio: false
-      });
-      
-      // Create video element to capture frame
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      await video.play();
-      
-      // Wait a moment for video to be ready
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Create canvas and capture frame
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(video, 0, 0);
-      
-      // Stop the stream
-      stream.getTracks().forEach(track => track.stop());
-      
-      // Convert to blob and upload
-      canvas.toBlob(async (blob) => {
-        if (blob) {
-          const file = new File([blob], `screenshot-${Date.now()}.png`, { type: 'image/png' });
-          const url = await uploadFile(file);
-          if (url) {
-            setAttachments(prev => [...prev, url]);
-            toast.success('Screenshot captured!');
-          }
-        }
-        setIsCapturing(false);
-      }, 'image/png');
+      // Capture the in-app page DOM (no auth required; no screen-sharing prompt).
+      // Prefer capturing <main> so the modal (ported) is typically excluded.
+      const target =
+        (document.querySelector('main') as HTMLElement | null) ||
+        (document.querySelector('#root') as HTMLElement | null) ||
+        (document.body as HTMLElement | null);
+
+      if (!target) throw new Error('No capture target found');
+
+      const blob = await captureElementToPngBlob(target);
+      const file = new File([blob], `screenshot-${Date.now()}.png`, { type: 'image/png' });
+      const previewUrl = URL.createObjectURL(blob);
+
+      setAttachments((prev) => [...prev, { kind: 'local', previewUrl, file }]);
+      toast.success('Screenshot added to attachments.');
     } catch (error) {
       console.error('Screenshot error:', error);
-      toast.error('Failed to capture screenshot. Please allow screen sharing.');
+      toast.error('Failed to capture screenshot in this browser.');
+    } finally {
       setIsCapturing(false);
     }
   };
@@ -389,7 +374,7 @@ const SubmitFeedbackModal = ({
         
         const url = await uploadFile(file);
         if (url) {
-          setAttachments(prev => [...prev, url]);
+          setAttachments((prev) => [...prev, { kind: 'remote', url }]);
           toast.success('Screen recording saved!');
         }
         
@@ -413,23 +398,45 @@ const SubmitFeedbackModal = ({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim() || !description.trim()) {
       toast.error('Please fill in all required fields');
       return;
+    }
+
+    // Never store local blob: URLs in the database.
+    // If the user is authenticated, try to upload local attachments at submit time.
+    const remoteUrls: string[] = attachments
+      .filter((a): a is { kind: 'remote'; url: string } => a.kind === 'remote')
+      .map((a) => a.url);
+
+    const localFiles = attachments.filter(
+      (a): a is { kind: 'local'; previewUrl: string; file: File } => a.kind === 'local',
+    );
+
+    if (localFiles.length > 0) {
+      for (const item of localFiles) {
+        const url = await uploadFile(item.file);
+        if (url) remoteUrls.push(url);
+      }
     }
 
     createFeedback.mutate({
       type,
       title,
       description,
-      attachments,
+      attachments: remoteUrls,
       severity: type === 'bug' ? severity : undefined,
     }, {
       onSuccess: () => {
         setTitle('');
         setDescription('');
-        setAttachments([]);
+        setAttachments((prev) => {
+          prev.forEach((a) => {
+            if (a.kind === 'local') revokePreviewUrl(a.previewUrl);
+          });
+          return [];
+        });
         onSuccess();
         onOpenChange(false);
       },
@@ -437,7 +444,11 @@ const SubmitFeedbackModal = ({
   };
 
   const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    setAttachments((prev) => {
+      const item = prev[index];
+      if (item?.kind === 'local') revokePreviewUrl(item.previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const getFormConfig = () => {
@@ -553,7 +564,9 @@ const SubmitFeedbackModal = ({
             <label className="text-sm font-medium mb-2 block">Attachments</label>
             {attachments.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3">
-                {attachments.map((url, idx) => (
+                {attachments.map((att, idx) => {
+                  const url = att.kind === 'remote' ? att.url : att.previewUrl;
+                  return (
                   <div key={idx} className="relative group">
                     <div className="w-16 h-16 rounded-lg overflow-hidden border border-border">
                       <img src={url} alt="" className="w-full h-full object-cover" />
@@ -565,7 +578,8 @@ const SubmitFeedbackModal = ({
                       <X className="w-3 h-3" />
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
             <div className="flex flex-wrap gap-2">
