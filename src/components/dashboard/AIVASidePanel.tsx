@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen, ChevronDown, Volume2, Download, History, Clock, ArrowLeft, Check, SquarePen } from 'lucide-react';
+import { X, MessageSquare, SlidersHorizontal, Maximize2, Minimize2, Mic, MicOff, Plus, Send, Sparkles, Loader2, Trash2, Image, Video, Music, Palette, FileText, BookOpen, ChevronDown, Volume2, Download, History, Clock, ArrowLeft, Check, SquarePen, Search } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -272,6 +272,7 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
   const [activeView, setActiveView] = useState<'chat' | 'history' | 'settings'>('chat');
   const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historySearchQuery, setHistorySearchQuery] = useState('');
   const [settings, setSettings] = useState<AIVASettings>({
     autoSave: true,
     showTimestamps: false,
@@ -1396,6 +1397,18 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                   <h3 className="text-lg font-semibold text-foreground">Chat History</h3>
                 </div>
                 
+                {/* Search Input */}
+                <div className="relative mb-4 shrink-0">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search conversations..."
+                    value={historySearchQuery}
+                    onChange={(e) => setHistorySearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 text-sm bg-muted/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green/50 transition placeholder:text-muted-foreground"
+                  />
+                </div>
+                
                 {loadingHistory ? (
                   <div className="flex-1 flex items-center justify-center">
                     <Loader2 className="animate-spin text-brand-green" size={24} />
@@ -1403,34 +1416,50 @@ const AIVASidePanel = ({ isOpen, onClose, sidebarCollapsed = false, onToolAction
                 ) : chatHistory.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center">
                     <History size={40} className="text-muted-foreground/50 mb-3" />
-                    <p className="text-muted-foreground text-sm">No chat history yet</p>
+                    <p className="text-muted-foreground text-sm">No Chat History Yet</p>
                     <p className="text-muted-foreground/70 text-xs mt-1">Your conversations will appear here</p>
                   </div>
                 ) : (
                   <ScrollArea className="flex-1 h-0 min-h-0">
                     <div className="space-y-2">
-                      {chatHistory.map((session) => (
-                        <div
-                          key={session.id}
-                          className="group relative w-full text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-brand-green/30 transition cursor-pointer"
-                          onClick={() => loadSessionMessages(session.sessionId)}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <Clock size={12} className="text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">{session.date}</span>
+                      {chatHistory
+                        .filter(session => 
+                          historySearchQuery.trim() === '' || 
+                          session.preview.toLowerCase().includes(historySearchQuery.toLowerCase())
+                        )
+                        .map((session) => (
+                          <div
+                            key={session.id}
+                            className="group relative w-full text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-brand-green/30 transition cursor-pointer"
+                            onClick={() => loadSessionMessages(session.sessionId)}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-2">
+                                <Clock size={12} className="text-muted-foreground" />
+                                <span className="text-xs text-muted-foreground">{session.date}</span>
+                              </div>
+                              <button
+                                onClick={(e) => deleteSession(session.sessionId, e)}
+                                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-destructive/20 transition"
+                              >
+                                <Trash2 size={14} className="text-destructive" />
+                              </button>
                             </div>
-                            <button
-                              onClick={(e) => deleteSession(session.sessionId, e)}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-destructive/20 transition"
-                            >
-                              <Trash2 size={14} className="text-destructive" />
-                            </button>
+                            <p className="text-sm text-foreground truncate pr-6">{session.preview}...</p>
+                            <p className="text-xs text-muted-foreground mt-1">{session.messageCount} messages</p>
                           </div>
-                          <p className="text-sm text-foreground truncate pr-6">{session.preview}...</p>
-                          <p className="text-xs text-muted-foreground mt-1">{session.messageCount} messages</p>
-                        </div>
-                      ))}
+                        ))}
+                      {chatHistory.length > 0 && 
+                        chatHistory.filter(session => 
+                          historySearchQuery.trim() === '' || 
+                          session.preview.toLowerCase().includes(historySearchQuery.toLowerCase())
+                        ).length === 0 && (
+                          <div className="flex flex-col items-center justify-center text-center py-8">
+                            <Search size={32} className="text-muted-foreground/50 mb-3" />
+                            <p className="text-muted-foreground text-sm">No results found</p>
+                            <p className="text-muted-foreground/70 text-xs mt-1">Try a different search term</p>
+                          </div>
+                        )}
                     </div>
                   </ScrollArea>
                 )}
