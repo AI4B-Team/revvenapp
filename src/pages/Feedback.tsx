@@ -465,7 +465,7 @@ const SubmitFeedbackModal = ({
   const getFormConfig = () => {
     switch (type) {
       case 'bug': return { 
-        title: 'Report A Bug', 
+        title: 'Bug Report', 
         icon: Bug, 
         iconColor: 'text-red-500',
         titlePlaceholder: 'Brief description of the issue',
@@ -1006,7 +1006,7 @@ const Feedback = () => {
               icon={Bug}
               iconBg="bg-red-500/10"
               iconColor="text-red-500"
-              title="Report A Bug"
+              title="Bug Report"
               subtitle="Something not working?"
               onClick={() => openFormModal('bug')}
             />
