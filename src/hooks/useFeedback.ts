@@ -27,6 +27,7 @@ export interface FeedbackComment {
   content: string;
   author_name: string;
   author_avatar: string | null;
+  is_admin_reply: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -187,7 +188,7 @@ export const useFeedbackComments = (feedbackId: string) => {
 
   // Add comment
   const addComment = useMutation({
-    mutationFn: async (content: string) => {
+    mutationFn: async ({ content, isAdminReply = false }: { content: string; isAdminReply?: boolean }) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
@@ -206,6 +207,7 @@ export const useFeedbackComments = (feedbackId: string) => {
           content,
           author_name: profile?.full_name || 'Anonymous',
           author_avatar: profile?.avatar_url || null,
+          is_admin_reply: isAdminReply,
         })
         .select()
         .single();
@@ -216,10 +218,10 @@ export const useFeedbackComments = (feedbackId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feedback-comments', feedbackId] });
       queryClient.invalidateQueries({ queryKey: ['feedback'] });
-      toast.success('Comment added!');
+      toast.success('Reply sent!');
     },
     onError: (error) => {
-      toast.error('Failed to add comment: ' + error.message);
+      toast.error('Failed to send reply: ' + error.message);
     },
   });
 

@@ -162,7 +162,7 @@ const FeedbackDetailModal = ({
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;
-    addComment.mutate(newComment, {
+    addComment.mutate({ content: newComment }, {
       onSuccess: () => setNewComment(''),
     });
   };
@@ -239,19 +239,27 @@ const FeedbackDetailModal = ({
             ) : (
               <div className="space-y-3">
                 {comments?.map((comment) => (
-                  <div key={comment.id} className="flex gap-3">
+                  <div key={comment.id} className={cn(
+                    "flex gap-3",
+                    comment.is_admin_reply && "bg-primary/5 -mx-2 px-2 py-2 rounded-lg border border-primary/20"
+                  )}>
                     <Avatar className="w-8 h-8">
                       <AvatarImage src={comment.author_avatar || undefined} />
                       <AvatarFallback>{comment.author_name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 bg-muted rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="font-medium text-sm">{comment.author_name}</span>
+                        {comment.is_admin_reply && (
+                          <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0">
+                            Official Reply
+                          </Badge>
+                        )}
                         <span className="text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                         </span>
                       </div>
-                      <p className="text-sm">{comment.content}</p>
+                      <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
                     </div>
                   </div>
                 ))}
@@ -262,15 +270,18 @@ const FeedbackDetailModal = ({
 
         {/* Add Comment */}
         <div className="p-4 border-t border-border">
+          <p className="text-xs text-muted-foreground mb-2">
+            💡 Reply to share updates, ask questions, or provide more details. The author will be notified.
+          </p>
           <div className="flex gap-2">
             <Input
-              placeholder="Add a comment..."
+              placeholder="Write a reply..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleAddComment()}
             />
             <Button onClick={handleAddComment} disabled={addComment.isPending || !newComment.trim()}>
-              {addComment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Post'}
+              {addComment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Reply'}
             </Button>
           </div>
         </div>
