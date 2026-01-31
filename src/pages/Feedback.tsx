@@ -21,9 +21,9 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const severityOptions = [
-  { value: 'low', label: 'Low - Minor issue', icon: Info, color: 'text-blue-500' },
+  { value: 'low', label: 'Low - Minor issue, workaround available', icon: Info, color: 'text-blue-500' },
   { value: 'medium', label: 'Medium - Affects functionality', icon: AlertCircle, color: 'text-amber-500' },
-  { value: 'high', label: 'High - Critical issue', icon: AlertTriangle, color: 'text-red-500' },
+  { value: 'high', label: 'High - Critical, blocking issue', icon: AlertTriangle, color: 'text-red-500' },
 ];
 
 const severityConfig = {
@@ -313,14 +313,14 @@ const SubmitFeedbackModal = ({
         icon: Lightbulb, 
         iconColor: 'text-amber-500',
         titlePlaceholder: 'What feature would you like?',
-        descPlaceholder: 'Describe the feature and how it would help you...'
+        descPlaceholder: 'Provide more details...'
       };
       default: return { 
-        title: 'Share General Feedback', 
+        title: 'Submit Feedback', 
         icon: MessageSquare, 
         iconColor: 'text-blue-500',
         titlePlaceholder: "What's on your mind?",
-        descPlaceholder: 'Share your thoughts with us...'
+        descPlaceholder: 'Provide more details...'
       };
     }
   };
