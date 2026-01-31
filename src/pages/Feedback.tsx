@@ -491,14 +491,13 @@ const SubmitFeedbackModal = ({
   );
 };
 
-// Category card component matching reference design
+// Category card component - white rectangular with rounded corners
 const CategoryCard = ({ 
   icon: Icon, 
   iconBg, 
   iconColor,
   title, 
   subtitle,
-  isActive,
   onClick 
 }: { 
   icon: React.ElementType;
@@ -506,19 +505,13 @@ const CategoryCard = ({
   iconColor: string;
   title: string;
   subtitle: string;
-  isActive: boolean;
   onClick: () => void;
 }) => (
   <button
     onClick={onClick}
-    className={cn(
-      "flex items-center gap-4 p-4 rounded-xl border transition-all text-left w-full",
-      isActive 
-        ? "border-primary bg-primary/5" 
-        : "border-border bg-card hover:border-primary/50"
-    )}
+    className="flex items-center gap-4 p-4 rounded-lg border border-border bg-background hover:border-primary/50 hover:shadow-sm transition-all text-left w-full"
   >
-    <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", iconBg)}>
+    <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
       <Icon className={cn("w-6 h-6", iconColor)} />
     </div>
     <div>
@@ -534,6 +527,7 @@ const Feedback = () => {
   const activeTab = searchParams.get('tab') || 'general';
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbackSubmission | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [formType, setFormType] = useState<'general' | 'bug' | 'feature'>('general');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const { feedbackList: generalFeedback, isLoading: loadingGeneral } = useFeedback('general');
@@ -542,7 +536,11 @@ const Feedback = () => {
 
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab });
-    setShowForm(false);
+  };
+
+  const openFormModal = (type: 'general' | 'bug' | 'feature') => {
+    setFormType(type);
+    setShowForm(true);
   };
 
   const getCurrentFeedback = () => {
@@ -553,13 +551,6 @@ const Feedback = () => {
     }
   };
 
-  const getFormType = (): 'general' | 'bug' | 'feature' => {
-    switch (activeTab) {
-      case 'bugs': return 'bug';
-      case 'features': return 'feature';
-      default: return 'general';
-    }
-  };
 
   const isLoading = activeTab === 'bugs' ? loadingBugs : activeTab === 'features' ? loadingFeatures : loadingGeneral;
   const currentFeedback = getCurrentFeedback();
@@ -628,7 +619,7 @@ const Feedback = () => {
             <p className="text-muted-foreground">Share your thoughts, report bugs, or request new features</p>
           </div>
 
-          {/* Category Cards */}
+          {/* Category Cards - clicking opens modal for that type */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <CategoryCard
               icon={MessageSquare}
@@ -636,8 +627,7 @@ const Feedback = () => {
               iconColor="text-blue-500"
               title="General Feedback"
               subtitle="Share your thoughts"
-              isActive={activeTab === 'general'}
-              onClick={() => handleTabChange('general')}
+              onClick={() => openFormModal('general')}
             />
             <CategoryCard
               icon={Bug}
@@ -645,8 +635,7 @@ const Feedback = () => {
               iconColor="text-red-500"
               title="Report a Bug"
               subtitle="Something not working?"
-              isActive={activeTab === 'bugs'}
-              onClick={() => handleTabChange('bugs')}
+              onClick={() => openFormModal('bug')}
             />
             <CategoryCard
               icon={Lightbulb}
@@ -654,8 +643,7 @@ const Feedback = () => {
               iconColor="text-amber-500"
               title="Feature Request"
               subtitle="Suggest an improvement"
-              isActive={activeTab === 'features'}
-              onClick={() => handleTabChange('features')}
+              onClick={() => openFormModal('feature')}
             />
           </div>
 
@@ -705,13 +693,6 @@ const Feedback = () => {
             </button>
           </div>
 
-          {/* New Submission Button */}
-          <div className="mb-6">
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Submission
-            </Button>
-          </div>
 
           {/* Feedback List */}
           {renderFeedbackList()}
@@ -720,7 +701,7 @@ const Feedback = () => {
 
       {/* Submit Feedback Modal */}
       <SubmitFeedbackModal
-        type={getFormType()}
+        type={formType}
         open={showForm}
         onOpenChange={setShowForm}
         onSuccess={() => {}}
