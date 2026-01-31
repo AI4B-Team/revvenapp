@@ -33,76 +33,111 @@ const severityConfig = {
 };
 
 const statusConfig = {
-  open: { label: 'open', className: 'bg-muted text-muted-foreground border-border' },
-  in_progress: { label: 'in progress', className: 'bg-primary/10 text-primary border-primary/20' },
-  resolved: { label: 'resolved', className: 'bg-green-500/10 text-green-600 border-green-500/20' },
-  closed: { label: 'closed', className: 'bg-muted text-muted-foreground border-border' },
+  open: { label: 'open', icon: Info, className: 'bg-muted text-muted-foreground border-border' },
+  in_progress: { label: 'in progress', icon: Loader2, className: 'bg-primary/10 text-primary border-primary/20' },
+  resolved: { label: 'resolved', icon: Info, className: 'bg-green-500/10 text-green-600 border-green-500/20' },
+  closed: { label: 'closed', icon: Info, className: 'bg-muted text-muted-foreground border-border' },
+  planned: { label: 'planned', icon: Info, className: 'bg-purple-500/10 text-purple-600 border-purple-500/20' },
 };
 
-const FeedbackCard = ({ feedback, onClick }: { feedback: FeedbackSubmission; onClick: () => void }) => {
+const FeedbackCard = ({ feedback, onClick, isArchived = false }: { feedback: FeedbackSubmission; onClick: () => void; isArchived?: boolean }) => {
   const { hasVoted, toggleVote } = useFeedbackVotes(feedback.id);
 
   const handleVote = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleVote.mutate();
+    if (!isArchived) {
+      toggleVote.mutate();
+    }
   };
 
   const getSeverityIcon = () => {
     if (feedback.type === 'bug' && feedback.severity) {
       const config = severityConfig[feedback.severity];
       const Icon = config.icon;
-      return <Icon className={cn("w-4 h-4", config.color)} />;
+      return <Icon className={cn("w-4 h-4 shrink-0", config.color)} />;
     }
     return null;
   };
 
   const status = statusConfig[feedback.status] || statusConfig.open;
 
+  // Show first attachment as image preview if available
+  const hasImageAttachment = feedback.attachments && feedback.attachments.length > 0;
+
   return (
     <div 
       onClick={onClick}
-      className="bg-card border border-border rounded-xl p-5 hover:shadow-md transition-all cursor-pointer"
+      className={cn(
+        "bg-card border border-border rounded-xl p-5 hover:shadow-md transition-all cursor-pointer",
+        isArchived && "opacity-60"
+      )}
     >
       <div className="flex items-start justify-between gap-4 mb-2">
         <div className="flex items-start gap-2 flex-1 min-w-0">
           {getSeverityIcon()}
-          <h3 className="font-semibold text-foreground line-clamp-1">
+          <h3 className={cn("font-semibold line-clamp-1", isArchived ? "text-muted-foreground" : "text-foreground")}>
             {feedback.title}
           </h3>
         </div>
-        <Badge 
-          variant="outline" 
-          className={cn("shrink-0 text-xs font-normal", status.className)}
-        >
-          {status.label}
-        </Badge>
+        {isArchived ? (
+          <span className="text-xs text-muted-foreground shrink-0">Archived</span>
+        ) : (
+          <Badge 
+            variant="outline" 
+            className={cn("shrink-0 text-xs font-normal", status.className)}
+          >
+            {status.label}
+          </Badge>
+        )}
       </div>
       
-      <p className="text-sm text-muted-foreground line-clamp-2 mb-3 pl-6">
+      <p className={cn(
+        "text-sm line-clamp-2 mb-2",
+        isArchived ? "text-muted-foreground/70" : "text-muted-foreground"
+      )}>
         {feedback.description}
       </p>
-      
-      <div className="flex items-center justify-between pl-6">
-        <p className="text-xs text-muted-foreground">
-          By <span className="font-medium">User</span> · {formatDistanceToNow(new Date(feedback.created_at), { addSuffix: true })}
-        </p>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleVote}
-            disabled={toggleVote.isPending}
-            className={cn(
-              "flex items-center gap-1.5 text-sm transition-colors",
-              hasVoted ? "text-primary" : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <ThumbsUp className={cn("w-4 h-4", hasVoted && "fill-primary")} />
-            <span>{feedback.votes_count}</span>
-          </button>
-          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MessageCircle className="w-4 h-4" />
-            {feedback.comments_count}
-          </span>
+
+      {/* Image attachment preview */}
+      {hasImageAttachment && (
+        <div className="mb-3">
+          <div className="w-16 h-16 rounded-lg overflow-hidden border border-border bg-muted">
+            <img 
+              src={feedback.attachments![0]} 
+              alt="" 
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
+      )}
+      
+      <p className="text-xs text-muted-foreground mb-3">
+        By <span className="font-medium text-foreground">User</span> · {formatDistanceToNow(new Date(feedback.created_at), { addSuffix: true })}
+      </p>
+      
+      <div className="flex items-center gap-4">
+        <button
+          onClick={handleVote}
+          disabled={toggleVote.isPending || isArchived}
+          className={cn(
+            "flex items-center gap-1.5 text-sm transition-colors",
+            isArchived 
+              ? "text-muted-foreground/50 cursor-default" 
+              : hasVoted 
+                ? "text-primary" 
+                : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <ThumbsUp className={cn("w-4 h-4", hasVoted && !isArchived && "fill-primary")} />
+          <span>{feedback.votes_count}</span>
+        </button>
+        <span className={cn(
+          "flex items-center gap-1.5 text-sm",
+          isArchived ? "text-muted-foreground/50" : "text-muted-foreground"
+        )}>
+          <MessageCircle className="w-4 h-4" />
+          {feedback.comments_count}
+        </span>
       </div>
     </div>
   );
@@ -545,15 +580,27 @@ const Feedback = () => {
 
   const getCurrentFeedback = () => {
     switch (activeTab) {
-      case 'bugs': return bugReports;
-      case 'features': return featureRequests;
-      default: return generalFeedback;
+      case 'bugs': return bugReports?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
+      case 'features': return featureRequests?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
+      case 'archived': return [...(generalFeedback || []), ...(bugReports || []), ...(featureRequests || [])].filter(f => f.status === 'closed' || f.status === 'resolved');
+      default: return generalFeedback?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
     }
   };
 
+  const getArchivedCount = () => {
+    const allFeedback = [...(generalFeedback || []), ...(bugReports || []), ...(featureRequests || [])];
+    return allFeedback.filter(f => f.status === 'closed' || f.status === 'resolved').length;
+  };
 
-  const isLoading = activeTab === 'bugs' ? loadingBugs : activeTab === 'features' ? loadingFeatures : loadingGeneral;
+  const isLoading = activeTab === 'archived' 
+    ? loadingGeneral || loadingBugs || loadingFeatures
+    : activeTab === 'bugs' 
+      ? loadingBugs 
+      : activeTab === 'features' 
+        ? loadingFeatures 
+        : loadingGeneral;
   const currentFeedback = getCurrentFeedback();
+  const isArchivedTab = activeTab === 'archived';
 
   const renderFeedbackList = () => {
     if (isLoading) {
@@ -569,6 +616,7 @@ const Feedback = () => {
         general: { icon: MessageSquare, title: 'No feedback yet', subtitle: 'Be the first to share your thoughts!' },
         bugs: { icon: Bug, title: 'No bug reports', subtitle: 'Everything seems to be working great!' },
         features: { icon: Lightbulb, title: 'No feature requests', subtitle: 'Got a great idea? Share it with us!' },
+        archived: { icon: Archive, title: 'No archived items', subtitle: 'Closed or resolved items will appear here.' },
       };
       const config = emptyConfig[activeTab as keyof typeof emptyConfig] || emptyConfig.general;
       const Icon = config.icon;
@@ -578,21 +626,29 @@ const Feedback = () => {
           <Icon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-semibold mb-2">{config.title}</h3>
           <p className="text-muted-foreground mb-4">{config.subtitle}</p>
-          <Button onClick={() => setShowForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Submit
-          </Button>
+          {!isArchivedTab && (
+            <Button onClick={() => setShowForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Submit
+            </Button>
+          )}
         </div>
       );
     }
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
+        {isArchivedTab && (
+          <p className="text-sm text-muted-foreground border-l-2 border-border pl-3 mb-4">
+            Archived items are closed for voting and new comments.
+          </p>
+        )}
         {currentFeedback.map((feedback) => (
           <FeedbackCard
             key={feedback.id}
             feedback={feedback}
             onClick={() => setSelectedFeedback(feedback)}
+            isArchived={isArchivedTab}
           />
         ))}
       </div>
@@ -686,10 +742,16 @@ const Feedback = () => {
               Feature Requests
             </button>
             <button
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors whitespace-nowrap"
+              onClick={() => handleTabChange('archived')}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                activeTab === 'archived'
+                  ? "bg-foreground text-background"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
             >
               <Archive className="w-4 h-4" />
-              Archived (0)
+              Archived ({getArchivedCount()})
             </button>
           </div>
 
