@@ -1,3 +1,4 @@
+// Feedback Hub - General feedback, bug reports, and feature requests
 import { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
