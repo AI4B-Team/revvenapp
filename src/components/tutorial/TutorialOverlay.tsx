@@ -33,9 +33,10 @@ const TutorialOverlay: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pl-[var(--app-sidebar-width,16rem)] pointer-events-none"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="w-full max-w-md pointer-events-auto">
             <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
               {/* Progress bar */}
               <div className="h-1 bg-muted">
@@ -130,6 +131,7 @@ const TutorialOverlay: React.FC = () => {
                   </Button>
                 </div>
               </div>
+            </div>
             </div>
           </motion.div>
         </>
