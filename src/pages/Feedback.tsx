@@ -2,9 +2,9 @@
 import { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
-  MessageSquare, Bug, Lightbulb, ArrowLeft, Upload, Camera,
+  MessageSquare, Bug, Lightbulb, Upload, Image as ImageIcon,
   ChevronUp, MessageCircle, Plus, AlertTriangle, AlertCircle,
-  Info, Loader2, X, Archive, ThumbsUp
+  Info, Loader2, X, Archive, ThumbsUp, Monitor, Video
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -13,10 +13,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useFeedback, useFeedbackVotes, useFeedbackComments, useUploadFeedbackAttachment, FeedbackSubmission } from '@/hooks/useFeedback';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+
+const severityOptions = [
+  { value: 'low', label: 'Low - Minor issue', icon: Info, color: 'text-blue-500' },
+  { value: 'medium', label: 'Medium - Affects functionality', icon: AlertCircle, color: 'text-amber-500' },
+  { value: 'high', label: 'High - Critical issue', icon: AlertTriangle, color: 'text-red-500' },
+];
 
 const severityConfig = {
   low: { label: 'Low', icon: Info, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
@@ -230,14 +238,16 @@ const FeedbackDetailModal = ({
   );
 };
 
-const SubmitFeedbackForm = ({ 
+const SubmitFeedbackModal = ({ 
   type, 
-  onSuccess,
-  onCancel
+  open,
+  onOpenChange,
+  onSuccess
 }: { 
   type: 'general' | 'bug' | 'feature'; 
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  onCancel: () => void;
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -247,6 +257,8 @@ const SubmitFeedbackForm = ({
   
   const { createFeedback } = useFeedback();
   const { uploadFile, uploading } = useUploadFeedbackAttachment();
+
+  const maxTitleLength = 100;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -278,6 +290,7 @@ const SubmitFeedbackForm = ({
         setDescription('');
         setAttachments([]);
         onSuccess();
+        onOpenChange(false);
       },
     });
   };
@@ -286,132 +299,195 @@ const SubmitFeedbackForm = ({
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
-  const getFormTitle = () => {
+  const getFormConfig = () => {
     switch (type) {
-      case 'bug': return 'Report a Bug';
-      case 'feature': return 'Request a Feature';
-      default: return 'Share General Feedback';
+      case 'bug': return { 
+        title: 'Report a Bug', 
+        icon: Bug, 
+        iconColor: 'text-red-500',
+        titlePlaceholder: 'Brief description of the issue',
+        descPlaceholder: 'Steps to reproduce, expected behavior, actual behavior...'
+      };
+      case 'feature': return { 
+        title: 'Request a Feature', 
+        icon: Lightbulb, 
+        iconColor: 'text-amber-500',
+        titlePlaceholder: 'What feature would you like?',
+        descPlaceholder: 'Describe the feature and how it would help you...'
+      };
+      default: return { 
+        title: 'Share General Feedback', 
+        icon: MessageSquare, 
+        iconColor: 'text-blue-500',
+        titlePlaceholder: "What's on your mind?",
+        descPlaceholder: 'Share your thoughts with us...'
+      };
+    }
+  };
+
+  const config = getFormConfig();
+  const FormIcon = config.icon;
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length <= maxTitleLength) {
+      setTitle(value);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-card border border-border rounded-xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold">{getFormTitle()}</h2>
-        <button onClick={onCancel} className="p-2 hover:bg-muted rounded-lg">
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FormIcon className={cn("w-5 h-5", config.iconColor)} />
+            {config.title}
+          </DialogTitle>
+        </DialogHeader>
 
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm font-medium mb-1.5 block">Title *</label>
-          <Input
-            placeholder={type === 'bug' ? "Describe the bug briefly..." : type === 'feature' ? "What feature would you like?" : "What's on your mind?"}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium mb-1.5 block">Description *</label>
-          <Textarea
-            placeholder="Provide more details..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="min-h-[120px]"
-          />
-        </div>
-
-        {type === 'bug' && (
+        <div className="space-y-4 pt-2">
+          {/* Title with character count */}
           <div>
-            <label className="text-sm font-medium mb-1.5 block">Severity</label>
-            <div className="flex gap-2">
-              {(['low', 'medium', 'high'] as const).map((s) => {
-                const config = severityConfig[s];
-                const Icon = config.icon;
-                return (
-                  <button
-                    key={s}
-                    onClick={() => setSeverity(s)}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all",
-                      severity === s 
-                        ? `${config.bg} ${config.border} ${config.color}` 
-                        : "border-border hover:border-muted-foreground/50"
-                    )}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="font-medium">{config.label}</span>
-                  </button>
-                );
-              })}
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-sm font-medium">Title *</label>
+              <span className="text-xs text-muted-foreground">{title.length}/{maxTitleLength}</span>
+            </div>
+            <Input
+              placeholder={config.titlePlaceholder}
+              value={title}
+              onChange={handleTitleChange}
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Description *</label>
+            <Textarea
+              placeholder={config.descPlaceholder}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="min-h-[100px] resize-y"
+            />
+          </div>
+
+          {/* Severity Dropdown for bugs */}
+          {type === 'bug' && (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Severity</label>
+              <Select value={severity} onValueChange={(val: 'low' | 'medium' | 'high') => setSeverity(val)}>
+                <SelectTrigger>
+                  <SelectValue>
+                    {(() => {
+                      const option = severityOptions.find(o => o.value === severity);
+                      if (!option) return null;
+                      const Icon = option.icon;
+                      return (
+                        <span className="flex items-center gap-2">
+                          <Icon className={cn("w-4 h-4", option.color)} />
+                          {option.label}
+                        </span>
+                      );
+                    })()}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {severityOptions.map((option) => {
+                    const Icon = option.icon;
+                    return (
+                      <SelectItem key={option.value} value={option.value}>
+                        <span className="flex items-center gap-2">
+                          <Icon className={cn("w-4 h-4", option.color)} />
+                          {option.label}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Attachments */}
+          <div>
+            <label className="text-sm font-medium mb-2 block">Attachments</label>
+            {attachments.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {attachments.map((url, idx) => (
+                  <div key={idx} className="relative group">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-border">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <button
+                      onClick={() => removeAttachment(idx)}
+                      className="absolute -top-1 -right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ImageIcon className="w-4 h-4 mr-2" />}
+                Upload Image
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                <Monitor className="w-4 h-4 mr-2" />
+                Screenshot Page
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                <Video className="w-4 h-4 mr-2" />
+                Record Screen
+              </Button>
             </div>
           </div>
-        )}
 
-        {/* Attachments */}
-        <div>
-          <label className="text-sm font-medium mb-1.5 block">Attachments</label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {attachments.map((url, idx) => (
-              <div key={idx} className="relative group">
-                <div className="w-16 h-16 rounded-lg overflow-hidden border border-border">
-                  <img src={url} alt="" className="w-full h-full object-cover" />
-                </div>
-                <button
-                  onClick={() => removeAttachment(idx)}
-                  className="absolute -top-1 -right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
             >
-              {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
-              Upload Image
+              Cancel
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
+            <Button 
+              onClick={handleSubmit} 
+              disabled={createFeedback.isPending || !title.trim() || !description.trim()}
             >
-              <Camera className="w-4 h-4 mr-2" />
-              Screenshot
+              {createFeedback.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              Submit
             </Button>
           </div>
         </div>
-
-        <Button 
-          onClick={handleSubmit} 
-          disabled={createFeedback.isPending || !title.trim() || !description.trim()}
-          className="w-full"
-        >
-          {createFeedback.isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-          ) : null}
-          Submit {type === 'bug' ? 'Bug Report' : type === 'feature' ? 'Feature Request' : 'Feedback'}
-        </Button>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -630,27 +706,25 @@ const Feedback = () => {
           </div>
 
           {/* New Submission Button */}
-          {!showForm && (
-            <div className="mb-6">
-              <Button onClick={() => setShowForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                New Submission
-              </Button>
-            </div>
-          )}
+          <div className="mb-6">
+            <Button onClick={() => setShowForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              New Submission
+            </Button>
+          </div>
 
-          {/* Content */}
-          {showForm ? (
-            <SubmitFeedbackForm 
-              type={getFormType()} 
-              onSuccess={() => setShowForm(false)} 
-              onCancel={() => setShowForm(false)}
-            />
-          ) : (
-            renderFeedbackList()
-          )}
+          {/* Feedback List */}
+          {renderFeedbackList()}
         </main>
       </div>
+
+      {/* Submit Feedback Modal */}
+      <SubmitFeedbackModal
+        type={getFormType()}
+        open={showForm}
+        onOpenChange={setShowForm}
+        onSuccess={() => {}}
+      />
 
       {/* Feedback Detail Modal */}
       {selectedFeedback && (
