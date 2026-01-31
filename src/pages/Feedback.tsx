@@ -613,10 +613,10 @@ const Feedback = () => {
 
     if (!currentFeedback || currentFeedback.length === 0) {
       const emptyConfig = {
-        general: { icon: MessageSquare, title: 'No feedback yet', subtitle: 'Be the first to share your thoughts!' },
-        bugs: { icon: Bug, title: 'No bug reports', subtitle: 'Everything seems to be working great!' },
-        features: { icon: Lightbulb, title: 'No feature requests', subtitle: 'Got a great idea? Share it with us!' },
-        archived: { icon: Archive, title: 'No archived items', subtitle: 'Closed or resolved items will appear here.' },
+        general: { icon: MessageSquare, title: 'No Feedback Yet', subtitle: 'Be the first to share your thoughts!' },
+        bugs: { icon: Bug, title: 'No Feedback Yet', subtitle: 'Everything seems to be working great!' },
+        features: { icon: Lightbulb, title: 'No Feedback Yet', subtitle: 'Got a great idea? Share it with us!' },
+        archived: { icon: Archive, title: 'No Feedback Yet', subtitle: 'Closed or resolved items will appear here.' },
       };
       const config = emptyConfig[activeTab as keyof typeof emptyConfig] || emptyConfig.general;
       const Icon = config.icon;
