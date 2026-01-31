@@ -569,6 +569,144 @@ const Feedback = () => {
   const { feedbackList: bugReports, isLoading: loadingBugs } = useFeedback('bug');
   const { feedbackList: featureRequests, isLoading: loadingFeatures } = useFeedback('feature');
 
+  // Sample data for demonstration
+  const sampleFeedback: FeedbackSubmission[] = [
+    {
+      id: 'sample-1',
+      user_id: 'demo',
+      title: 'Add dark mode support',
+      description: 'It would be great to have a dark mode option for the dashboard. Many users prefer working at night.',
+      type: 'feature',
+      status: 'in_progress',
+      severity: null,
+      votes_count: 24,
+      comments_count: 5,
+      attachments: null,
+      screen_recording_url: null,
+      parent_id: null,
+      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'sample-2',
+      user_id: 'demo',
+      title: 'Export functionality for reports',
+      description: 'Would love to be able to export analytics reports to PDF or Excel format.',
+      type: 'feature',
+      status: 'open',
+      severity: null,
+      votes_count: 18,
+      comments_count: 3,
+      attachments: null,
+      screen_recording_url: null,
+      parent_id: null,
+      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'sample-3',
+      user_id: 'demo',
+      title: 'Mobile app version',
+      description: 'A mobile app would make it easier to manage content on the go.',
+      type: 'feature',
+      status: 'open',
+      severity: null,
+      votes_count: 42,
+      comments_count: 12,
+      attachments: null,
+      screen_recording_url: null,
+      parent_id: null,
+      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'sample-4',
+      user_id: 'demo',
+      title: 'Keyboard shortcuts',
+      description: 'Add keyboard shortcuts for common actions like save, undo, and navigation.',
+      type: 'feature',
+      status: 'open',
+      severity: null,
+      votes_count: 15,
+      comments_count: 2,
+      attachments: null,
+      screen_recording_url: null,
+      parent_id: null,
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  ];
+
+  const sampleBugs: FeedbackSubmission[] = [
+    {
+      id: 'bug-1',
+      user_id: 'demo',
+      title: 'Video upload fails on large files',
+      description: 'When uploading videos larger than 500MB, the upload process fails without an error message.',
+      type: 'bug',
+      status: 'in_progress',
+      severity: 'high',
+      votes_count: 8,
+      comments_count: 4,
+      attachments: null,
+      screen_recording_url: null,
+      parent_id: null,
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'bug-2',
+      user_id: 'demo',
+      title: 'Sidebar flickering on page transition',
+      description: 'The sidebar flickers briefly when navigating between pages.',
+      type: 'bug',
+      status: 'open',
+      severity: 'low',
+      votes_count: 3,
+      comments_count: 1,
+      attachments: null,
+      screen_recording_url: null,
+      parent_id: null,
+      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  ];
+
+  const sampleGeneral: FeedbackSubmission[] = [
+    {
+      id: 'general-1',
+      user_id: 'demo',
+      title: 'Love the new dashboard design!',
+      description: 'The recent UI update looks amazing. Great job on the modern look and feel.',
+      type: 'general',
+      status: 'open',
+      severity: null,
+      votes_count: 12,
+      comments_count: 2,
+      attachments: null,
+      screen_recording_url: null,
+      parent_id: null,
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'general-2',
+      user_id: 'demo',
+      title: 'Documentation could be improved',
+      description: 'Some sections of the documentation are outdated. Would be helpful to have more examples.',
+      type: 'general',
+      status: 'open',
+      severity: null,
+      votes_count: 7,
+      comments_count: 3,
+      attachments: null,
+      screen_recording_url: null,
+      parent_id: null,
+      created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  ];
+
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab });
   };
@@ -580,10 +718,17 @@ const Feedback = () => {
 
   const getCurrentFeedback = () => {
     switch (activeTab) {
-      case 'bugs': return bugReports?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
-      case 'features': return featureRequests?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
-      case 'archived': return [...(generalFeedback || []), ...(bugReports || []), ...(featureRequests || [])].filter(f => f.status === 'closed' || f.status === 'resolved');
-      default: return generalFeedback?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
+      case 'bugs': 
+        const bugs = bugReports?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
+        return bugs && bugs.length > 0 ? bugs : sampleBugs;
+      case 'features': 
+        const features = featureRequests?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
+        return features && features.length > 0 ? features : sampleFeedback;
+      case 'archived': 
+        return [...(generalFeedback || []), ...(bugReports || []), ...(featureRequests || [])].filter(f => f.status === 'closed' || f.status === 'resolved');
+      default: 
+        const general = generalFeedback?.filter(f => f.status !== 'closed' && f.status !== 'resolved');
+        return general && general.length > 0 ? general : sampleGeneral;
     }
   };
 
