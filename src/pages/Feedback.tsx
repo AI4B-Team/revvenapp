@@ -470,18 +470,19 @@ const SubmitFeedbackModal = ({
         iconColor: 'text-red-500',
         titlePlaceholder: 'Brief description of the issue',
         descPlaceholder: `Example:
-**Steps to reproduce:**
+
+Steps to reproduce:
 1. Go to the dashboard
 2. Click on "Create" button
 3. Select "Video" option
 
-**Expected behavior:**
+Expected behavior:
 The video editor should open
 
-**Actual behavior:**
+Actual behavior:
 Page shows a blank screen
 
-**Browser/Device:**
+Browser/Device:
 Chrome on Windows 11`,
         descExample: 'Describe the bug with steps to reproduce, expected vs actual behavior, and your browser/device info.'
       };
@@ -491,16 +492,17 @@ Chrome on Windows 11`,
         iconColor: 'text-amber-500',
         titlePlaceholder: 'What feature would you like?',
         descPlaceholder: `Example:
-**Feature description:**
+
+Feature description:
 Add the ability to schedule posts for multiple platforms at once.
 
-**Use case:**
+Use case:
 As a content creator, I want to post the same content across Instagram, Twitter, and Facebook simultaneously to save time.
 
-**Proposed solution:**
+Proposed solution:
 Add a "Post to all" checkbox in the scheduling modal.
 
-**Alternatives considered:**
+Alternatives considered:
 Currently I have to create separate posts for each platform.`,
         descExample: 'Describe the feature, your use case, and how it would help you.'
       };
@@ -510,13 +512,14 @@ Currently I have to create separate posts for each platform.`,
         iconColor: 'text-blue-500',
         titlePlaceholder: "What's on your mind?",
         descPlaceholder: `Example:
-**What I love:**
+
+What I love:
 The new dashboard design is much cleaner!
 
-**What could be improved:**
+What could be improved:
 The loading times for video previews feel slow.
 
-**Suggestions:**
+Suggestions:
 Consider adding keyboard shortcuts for common actions.`,
         descExample: 'Share your thoughts, suggestions, or general feedback about the app.'
       };
