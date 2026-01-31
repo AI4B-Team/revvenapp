@@ -3,142 +3,142 @@
 export const createPageTutorialSteps = [
   {
     id: 'welcome',
-    title: 'Welcome to Create! 🎨',
-    description: 'This is your creative hub where you can generate amazing AI-powered content including images, videos, documents, and more. Let\'s take a quick tour!',
+    title: 'Welcome To Create! 🎨',
+    description: 'This Is Your Creative Hub Where You Can Generate Amazing AI-Powered Content Including Images, Videos, Documents, And More. Let\'s Take A Quick Tour!',
   },
   {
     id: 'categories',
     title: 'Content Categories',
-    description: 'Use the tabs at the top to switch between different content types: All creations, Images, Videos, Audio, and Documents. Each category has unique AI tools.',
+    description: 'Use The Tabs At The Top To Switch Between Different Content Types: All Creations, Images, Videos, Audio, And Documents. Each Category Has Unique AI Tools.',
   },
   {
     id: 'ai-tools',
     title: 'AI Creation Tools',
-    description: 'Click on any tool card to start creating. Each tool is powered by advanced AI to help you generate professional content in seconds.',
+    description: 'Click On Any Tool Card To Start Creating. Each Tool Is Powered By Advanced AI To Help You Generate Professional Content In Seconds.',
   },
   {
     id: 'gallery',
     title: 'Your Creations Gallery',
-    description: 'All your generated content appears in the gallery below. You can view, download, share, or delete your creations anytime.',
+    description: 'All Your Generated Content Appears In The Gallery Below. You Can View, Download, Share, Or Delete Your Creations Anytime.',
   },
   {
     id: 'aiva',
     title: 'Meet AIVA - Your AI Assistant',
-    description: 'Click the AIVA button in the bottom corner to chat with your AI assistant. AIVA can help you with ideas, answer questions, and guide you through the creation process.',
+    description: 'Click The AIVA Button In The Bottom Corner To Chat With Your AI Assistant. AIVA Can Help You With Ideas, Answer Questions, And Guide You Through The Creation Process.',
   },
 ];
 
 export const dashboardTutorialSteps = [
   {
     id: 'dashboard-welcome',
-    title: 'Welcome to Your Dashboard! 📊',
-    description: 'This is your home base where you can see an overview of your activity, quick stats, and access all the main features of the app.',
+    title: 'Welcome To Your Dashboard! 📊',
+    description: 'This Is Your Home Base Where You Can See An Overview Of Your Activity, Quick Stats, And Access All The Main Features Of The App.',
   },
   {
     id: 'sidebar',
     title: 'Navigation Sidebar',
-    description: 'Use the sidebar on the left to navigate between different sections: Dashboard, Create, Apps, Calendar, Analytics, and Settings.',
+    description: 'Use The Sidebar On The Left To Navigate Between Different Sections: Dashboard, Create, Apps, Calendar, Analytics, And Settings.',
   },
   {
     id: 'quick-actions',
     title: 'Quick Actions',
-    description: 'The dashboard shows your recent creations and provides quick access to frequently used tools. Click any card to jump right in!',
+    description: 'The Dashboard Shows Your Recent Creations And Provides Quick Access To Frequently Used Tools. Click Any Card To Jump Right In!',
   },
   {
     id: 'stats',
     title: 'Your Stats',
-    description: 'Track your content performance with real-time analytics showing views, engagement, and content created over time.',
+    description: 'Track Your Content Performance With Real-Time Analytics Showing Views, Engagement, And Content Created Over Time.',
   },
 ];
 
 export const appsPageTutorialSteps = [
   {
     id: 'apps-welcome',
-    title: 'Welcome to Apps! 🚀',
-    description: 'Discover a collection of specialized AI-powered tools designed to help you with specific tasks like lead generation, social media, and more.',
+    title: 'Welcome To Apps! 🚀',
+    description: 'Discover A Collection Of Specialized AI-Powered Tools Designed To Help You With Specific Tasks Like Lead Generation, Social Media, And More.',
   },
   {
     id: 'app-categories',
-    title: 'Browse by Category',
-    description: 'Apps are organized into categories to help you find the right tool quickly. From content creation to analytics, there\'s an app for everything.',
+    title: 'Browse By Category',
+    description: 'Apps Are Organized Into Categories To Help You Find The Right Tool Quickly. From Content Creation To Analytics, There\'s An App For Everything.',
   },
   {
     id: 'app-details',
     title: 'Using Apps',
-    description: 'Click on any app card to open it. Each app has its own interface tailored to its specific purpose. Some apps are marked as "New" - try them out!',
+    description: 'Click On Any App Card To Open It. Each App Has Its Own Interface Tailored To Its Specific Purpose. Some Apps Are Marked As "New" - Try Them Out!',
   },
 ];
 
 export const calendarTutorialSteps = [
   {
     id: 'calendar-welcome',
-    title: 'Welcome to Calendar! 📅',
-    description: 'Plan and schedule your content with the visual calendar. See all your upcoming posts and manage your content schedule in one place.',
+    title: 'Welcome To Calendar! 📅',
+    description: 'Plan And Schedule Your Content With The Visual Calendar. See All Your Upcoming Posts And Manage Your Content Schedule In One Place.',
   },
   {
     id: 'calendar-views',
     title: 'Calendar Views',
-    description: 'Switch between month, week, and day views to see your scheduled content at different levels of detail.',
+    description: 'Switch Between Month, Week, And Day Views To See Your Scheduled Content At Different Levels Of Detail.',
   },
   {
     id: 'schedule-post',
     title: 'Scheduling Content',
-    description: 'Click on any date to schedule new content or drag existing posts to reschedule them. Your content will be automatically published at the scheduled time.',
+    description: 'Click On Any Date To Schedule New Content Or Drag Existing Posts To Reschedule Them. Your Content Will Be Automatically Published At The Scheduled Time.',
   },
 ];
 
 export const brandWizardTutorialSteps = [
   {
     id: 'brand-welcome',
-    title: 'Welcome to Brand Setup! ✨',
-    description: 'Create a comprehensive brand profile to ensure all your AI-generated content matches your brand\'s unique identity and voice.',
+    title: 'Welcome To Brand Setup! ✨',
+    description: 'Create A Comprehensive Brand Profile To Ensure All Your AI-Generated Content Matches Your Brand\'s Unique Identity And Voice.',
   },
   {
     id: 'brand-identity',
     title: 'Brand Identity',
-    description: 'Start by uploading your logo and setting your brand colors and fonts. This visual identity will be applied across all your generated content.',
+    description: 'Start By Uploading Your Logo And Setting Your Brand Colors And Fonts. This Visual Identity Will Be Applied Across All Your Generated Content.',
   },
   {
     id: 'brand-voice',
     title: 'Brand Voice',
-    description: 'Define your tone of voice, writing style, and communication guidelines. The AI will use these to match your brand\'s personality.',
+    description: 'Define Your Tone Of Voice, Writing Style, And Communication Guidelines. The AI Will Use These To Match Your Brand\'s Personality.',
   },
   {
     id: 'brand-knowledge',
     title: 'Knowledge Base',
-    description: 'Upload documents and add data sources to teach the AI about your products, services, and industry-specific information.',
+    description: 'Upload Documents And Add Data Sources To Teach The AI About Your Products, Services, And Industry-Specific Information.',
   },
   {
     id: 'brand-complete',
     title: 'Complete Your Profile',
-    description: 'Once you\'ve filled in all sections, your brand profile will power personalized content generation across the entire platform.',
+    description: 'Once You\'ve Filled In All Sections, Your Brand Profile Will Power Personalized Content Generation Across The Entire Platform.',
   },
 ];
 
 export const whiteLabelTutorialSteps = [
   {
     id: 'whitelabel-welcome',
-    title: 'Welcome to Page Builder! 🎯',
-    description: 'Create a stunning custom landing page for your brand. Customize every section to match your style and message.',
+    title: 'Welcome To Page Builder! 🎯',
+    description: 'Create A Stunning Custom Landing Page For Your Brand. Customize Every Section To Match Your Style And Message.',
   },
   {
     id: 'whitelabel-sections',
     title: 'Page Sections',
-    description: 'Your page is built from modular sections: Hero, Features, Testimonials, Pricing, and more. Enable or disable sections as needed.',
+    description: 'Your Page Is Built From Modular Sections: Hero, Features, Testimonials, Pricing, And More. Enable Or Disable Sections As Needed.',
   },
   {
     id: 'whitelabel-customize',
     title: 'Customization',
-    description: 'Click on any section to customize its content, colors, and layout. See your changes instantly in the live preview.',
+    description: 'Click On Any Section To Customize Its Content, Colors, And Layout. See Your Changes Instantly In The Live Preview.',
   },
   {
     id: 'whitelabel-preview',
     title: 'Live Preview',
-    description: 'Toggle between mobile and desktop views to ensure your page looks great on all devices.',
+    description: 'Toggle Between Mobile And Desktop Views To Ensure Your Page Looks Great On All Devices.',
   },
   {
     id: 'whitelabel-publish',
     title: 'Publish Your Page',
-    description: 'When you\'re happy with your design, click Publish to make your landing page live and share it with the world!',
+    description: 'When You\'re Happy With Your Design, Click Publish To Make Your Landing Page Live And Share It With The World!',
   },
 ];
