@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import NotificationBell from './NotificationBell';
 import HelpMenu from './HelpMenu';
+import { NotificationsDropdown } from './NotificationsDropdown';
 import SearchDialog from './SearchDialog';
 import InviteRewardsModalUpdated from './InviteRewardsModal';
 import AppTabs from './AppTabs';
@@ -297,6 +298,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           </TooltipProvider>
         </div>
 
+        <NotificationsDropdown />
         <NotificationBell />
         <HelpMenu />
         
