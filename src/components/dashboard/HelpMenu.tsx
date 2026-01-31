@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   HelpCircle, BookOpen, Map, Video, MessageSquare, ExternalLink
 } from 'lucide-react';
@@ -6,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const HelpMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const helpOptions = [
     {
@@ -48,8 +50,7 @@ const HelpMenu = () => {
       description: 'Share your thoughts and help us improve Revven',
       showArrow: true,
       action: () => {
-        console.log('Opening feedback form');
-        // window.location.href = '/feedback';
+        navigate('/feedback');
       }
     }
   ];

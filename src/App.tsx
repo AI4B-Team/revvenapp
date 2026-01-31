@@ -109,6 +109,7 @@ const InvestorCalculator = lazy(() => import("./pages/InvestorCalculator"));
 const DigitalSpy = lazy(() => import("./pages/DigitalSpy"));
 const CreatorVault = lazy(() => import("./pages/CreatorVault"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
+const Feedback = lazy(() => import("./pages/Feedback"));
 
 
 
@@ -224,6 +225,7 @@ const App = () => (
                           <Route path="/investor-calculator" element={<InvestorCalculator />} />
                           <Route path="/digital-spy" element={<DigitalSpy />} />
                           <Route path="/app-license/:appId" element={<AppLicense />} />
+                          <Route path="/feedback" element={<Feedback />} />
                           {/* Admin is now accessible via /account?tab=admin */}
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
