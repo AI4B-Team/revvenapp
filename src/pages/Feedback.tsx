@@ -813,7 +813,7 @@ const Feedback = () => {
       )}>
         <Header />
         
-        <main className="p-4 lg:p-6 max-w-5xl">
+        <main className="p-4 lg:p-6 max-w-5xl mx-auto">
           {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-foreground mb-1">Feedback Center</h1>
