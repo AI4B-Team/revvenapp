@@ -704,7 +704,7 @@ const Feedback = () => {
           </div>
 
           {/* Tab Buttons */}
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
+          <div className="flex items-center justify-center gap-2 mb-6 overflow-x-auto pb-2">
             <button
               onClick={() => handleTabChange('general')}
               className={cn(
