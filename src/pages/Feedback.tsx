@@ -703,15 +703,15 @@ const Feedback = () => {
             />
           </div>
 
-          {/* Tab Pills */}
+          {/* Tab Buttons */}
           <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
             <button
               onClick={() => handleTabChange('general')}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap border",
                 activeTab === 'general'
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-background text-foreground border-border hover:border-foreground/30"
               )}
             >
               <MessageSquare className="w-4 h-4" />
@@ -720,10 +720,10 @@ const Feedback = () => {
             <button
               onClick={() => handleTabChange('bugs')}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap border",
                 activeTab === 'bugs'
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-background text-foreground border-border hover:border-foreground/30"
               )}
             >
               <Bug className="w-4 h-4" />
@@ -732,10 +732,10 @@ const Feedback = () => {
             <button
               onClick={() => handleTabChange('features')}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap border",
                 activeTab === 'features'
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-background text-foreground border-border hover:border-foreground/30"
               )}
             >
               <Lightbulb className="w-4 h-4" />
@@ -744,10 +744,10 @@ const Feedback = () => {
             <button
               onClick={() => handleTabChange('archived')}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap border",
                 activeTab === 'archived'
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-background text-foreground border-border hover:border-foreground/30"
               )}
             >
               <Archive className="w-4 h-4" />
