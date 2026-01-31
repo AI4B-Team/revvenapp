@@ -288,7 +288,11 @@ const SubmitFeedbackModal = ({
   const [description, setDescription] = useState('');
   const [severity, setSeverity] = useState<'low' | 'medium' | 'high'>('medium');
   const [attachments, setAttachments] = useState<string[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
   
   const { createFeedback } = useFeedback();
   const { uploadFile, uploading } = useUploadFeedbackAttachment();
@@ -304,6 +308,108 @@ const SubmitFeedbackModal = ({
       if (url) {
         setAttachments(prev => [...prev, url]);
       }
+    }
+  };
+
+  const handleScreenshot = async () => {
+    try {
+      setIsCapturing(true);
+      
+      // Request screen capture
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'browser' } as any,
+        audio: false
+      });
+      
+      // Create video element to capture frame
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      await video.play();
+      
+      // Wait a moment for video to be ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Create canvas and capture frame
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(video, 0, 0);
+      
+      // Stop the stream
+      stream.getTracks().forEach(track => track.stop());
+      
+      // Convert to blob and upload
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          const file = new File([blob], `screenshot-${Date.now()}.png`, { type: 'image/png' });
+          const url = await uploadFile(file);
+          if (url) {
+            setAttachments(prev => [...prev, url]);
+            toast.success('Screenshot captured!');
+          }
+        }
+        setIsCapturing(false);
+      }, 'image/png');
+    } catch (error) {
+      console.error('Screenshot error:', error);
+      toast.error('Failed to capture screenshot. Please allow screen sharing.');
+      setIsCapturing(false);
+    }
+  };
+
+  const handleRecordScreen = async () => {
+    if (isRecording) {
+      // Stop recording
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'browser' } as any,
+        audio: true
+      });
+      
+      chunksRef.current = [];
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm;codecs=vp9'
+      });
+      
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+      
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const file = new File([blob], `recording-${Date.now()}.webm`, { type: 'video/webm' });
+        
+        const url = await uploadFile(file);
+        if (url) {
+          setAttachments(prev => [...prev, url]);
+          toast.success('Screen recording saved!');
+        }
+        
+        stream.getTracks().forEach(track => track.stop());
+        setIsRecording(false);
+      };
+      
+      // Also stop when user stops sharing
+      stream.getVideoTracks()[0].onended = () => {
+        mediaRecorderRef.current?.stop();
+      };
+      
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecording(true);
+      toast.info('Recording started. Click "Stop Recording" when done.');
+    } catch (error) {
+      console.error('Recording error:', error);
+      toast.error('Failed to start recording. Please allow screen sharing.');
+      setIsRecording(false);
     }
   };
 
@@ -485,21 +591,21 @@ const SubmitFeedbackModal = ({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+                onClick={handleScreenshot}
+                disabled={uploading || isCapturing || isRecording}
               >
-                <Monitor className="w-4 h-4 mr-2" />
-                Screenshot Page
+                {isCapturing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Monitor className="w-4 h-4 mr-2" />}
+                {isCapturing ? 'Capturing...' : 'Screenshot Page'}
               </Button>
               <Button
                 type="button"
-                variant="outline"
+                variant={isRecording ? "destructive" : "outline"}
                 size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+                onClick={handleRecordScreen}
+                disabled={uploading || isCapturing}
               >
-                <Video className="w-4 h-4 mr-2" />
-                Record Screen
+                {isRecording ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Video className="w-4 h-4 mr-2" />}
+                {isRecording ? 'Stop Recording' : 'Record Screen'}
               </Button>
             </div>
           </div>
