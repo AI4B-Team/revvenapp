@@ -99,7 +99,7 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
     <div className="p-8 max-w-screen-2xl mx-auto">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome Back, Alex! 👋</h1>
+        <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome Back, Dolmar! 👋</h1>
         <p className="text-muted-foreground">Your AI co-pilot is ready to help you close more deals</p>
       </div>
 
