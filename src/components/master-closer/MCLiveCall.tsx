@@ -151,16 +151,16 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
           { id: 'p0-2', speaker: 'prospect', text: "Uh... I'm pretty slammed right now. What is this about?", timestamp: '00:04', confidence: 88 }
         ],
         1: [
-          { id: 'p1-1', speaker: speakerType, text: "Fair enough, I'll be quick. I saw you guys just expanded your sales team. Usually that means more pipeline chaos. Am I off base?", timestamp: '00:30', confidence: 91 },
-          { id: 'p1-2', speaker: 'prospect', text: "Ha, no you're right. It's been... a lot. What do you have in mind?", timestamp: '00:45', confidence: 89 }
+          { id: 'p1-1', speaker: speakerType, text: "Fair enough, I'll be quick. I noticed you have a property on Maple Street. Are you still looking to sell, or has your situation changed?", timestamp: '00:30', confidence: 91 },
+          { id: 'p1-2', speaker: 'prospect', text: "Yeah, I still need to sell. It's been sitting for a while and I'm getting frustrated honestly.", timestamp: '00:45', confidence: 89 }
         ],
         2: [
-          { id: 'p2-1', speaker: speakerType, text: "We help teams like yours scale without the chaos. Just helped a 50-person sales team cut ramp time in half.", timestamp: '02:00', confidence: 94 },
-          { id: 'p2-2', speaker: 'prospect', text: "Okay, that's interesting. How'd they do that?", timestamp: '02:12', confidence: 91 }
+          { id: 'p2-1', speaker: speakerType, text: "I totally understand. We work with homeowners in situations like yours every day. We can close in as little as 14 days, cash, no repairs needed. Would that timeline work for you?", timestamp: '02:00', confidence: 94 },
+          { id: 'p2-2', speaker: 'prospect', text: "14 days? That fast? What's the catch?", timestamp: '02:12', confidence: 91 }
         ],
         3: [
-          { id: 'p3-1', speaker: speakerType, text: "I can send you the breakdown. Worth 15 minutes next week to see if it fits your situation?", timestamp: '05:00', confidence: 93 },
-          { id: 'p3-2', speaker: 'prospect', text: "Yeah, send it over. If it looks good, let's talk Tuesday.", timestamp: '05:10', confidence: 90 }
+          { id: 'p3-1', speaker: speakerType, text: "No catch. We buy as-is. I'd love to come take a quick look at the property and give you a fair cash offer. Does tomorrow or Thursday work better for you?", timestamp: '05:00', confidence: 93 },
+          { id: 'p3-2', speaker: 'prospect', text: "Thursday afternoon works. Let me give you the address.", timestamp: '05:10', confidence: 90 }
         ]
       },
       'high-ticket-sales': {
@@ -481,7 +481,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="font-bold text-lg text-foreground">Sarah Johnson</h2>
+                  <h2 className="font-bold text-lg text-foreground">Marcus Williams</h2>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${modeColors.light} ${modeColors.text}`}>
                     {callMode === 'listen' 
                       ? '🎧 Listen Mode' 
@@ -500,7 +500,7 @@ const MCLiveCall: React.FC<MCLiveCallProps> = ({ isActive, onEndCall, callMode, 
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">VP of Marketing • Acme Corp</p>
+                <p className="text-sm text-muted-foreground">Motivated Seller • 1847 Maple Street</p>
               </div>
             </div>
 
