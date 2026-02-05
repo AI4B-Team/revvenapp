@@ -64,7 +64,7 @@ export type CallMode = 'start-call' | 'voice-agent' | 'listen';
 const MasterCloser = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [isCallActive, setIsCallActive] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isInnerSidebarCollapsed, setIsInnerSidebarCollapsed] = useState(false);
   const [callMode, setCallMode] = useState<CallMode>('start-call');
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
