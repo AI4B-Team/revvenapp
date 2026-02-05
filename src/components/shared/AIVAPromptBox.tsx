@@ -1370,7 +1370,7 @@ const AIVAPromptBox = ({
                     
                     {/* Model Dropdown */}
                     {activeDropdown === 'model' && (
-                      <div data-dropdown className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[280px] max-h-[400px] overflow-y-auto">
+                      <div data-dropdown className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[280px] max-h-[400px] overflow-y-auto">
                         {currentModelOptions.map((model) => (
                           <button
                             key={model.id}
@@ -1475,7 +1475,7 @@ const AIVAPromptBox = ({
                               <TooltipContent>Language</TooltipContent>
                             </Tooltip>
                             {activeDropdown === 'from-language' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
                                 {languageOptions.map((lang) => (
                                   <button
                                     key={lang}
@@ -1513,7 +1513,7 @@ const AIVAPromptBox = ({
                               <TooltipContent>Speed</TooltipContent>
                             </Tooltip>
                             {activeDropdown === 'sfx-speed' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[120px]">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[120px]">
                                 {sfxSpeedOptions.map((speed) => (
                                   <button
                                     key={speed}
@@ -1607,7 +1607,7 @@ const AIVAPromptBox = ({
                               <ChevronDown size={14} className="text-slate-400" />
                             </button>
                             {activeDropdown === 'from-language' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
                                 {languageOptions.map((lang) => (
                                   <button
                                     key={lang}
@@ -1641,7 +1641,7 @@ const AIVAPromptBox = ({
                               <ChevronDown size={14} className="text-slate-400" />
                             </button>
                             {activeDropdown === 'to-language' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
                                 {languageOptions.filter(l => l !== 'Auto').map((lang) => (
                                   <button
                                     key={lang}
@@ -1686,7 +1686,7 @@ const AIVAPromptBox = ({
                               <TooltipContent>Language</TooltipContent>
                             </Tooltip>
                             {activeDropdown === 'from-language' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
                                 {languageOptions.map((lang) => (
                                   <button
                                     key={lang}
@@ -1765,7 +1765,7 @@ const AIVAPromptBox = ({
                               <ChevronDown size={14} className="text-slate-400" />
                             </button>
                             {activeDropdown === 'sfx-speed' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[120px]">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[120px]">
                                 {sfxSpeedOptions.map((speed) => (
                                   <button
                                     key={speed}
@@ -1811,7 +1811,7 @@ const AIVAPromptBox = ({
                               <ChevronDown size={14} className="text-slate-400" />
                             </button>
                             {activeDropdown === 'sfx-influence' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
                                 {sfxInfluenceOptions.map((inf) => (
                                   <button
                                     key={inf}
@@ -1844,7 +1844,7 @@ const AIVAPromptBox = ({
                               <ChevronDown size={14} className="text-slate-400" />
                             </button>
                             {activeDropdown === 'sfx-format' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
                                 {sfxFormatOptions.map((fmt) => (
                                   <button
                                     key={fmt}
@@ -1888,7 +1888,7 @@ const AIVAPromptBox = ({
                               <span>{musicVocal}</span>
                             </button>
                             {activeDropdown === 'music-vocal' && (
-                              <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px]">
+                              <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px]">
                                 {musicVocalOptions.map((opt) => (
                                   <button
                                     key={opt}
@@ -2019,7 +2019,7 @@ const AIVAPromptBox = ({
                           <TooltipContent>Post Type</TooltipContent>
                         </Tooltip>
                         {activeDropdown === 'content-post-type' && (
-                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px]">
+                          <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px]">
                             {[
                               { value: 'Single Image', icon: ImageIcon, color: 'text-muted-foreground' },
                               { value: 'Carousel', icon: GalleryHorizontal, color: 'text-muted-foreground' },
@@ -2058,7 +2058,7 @@ const AIVAPromptBox = ({
                           <TooltipContent>Goal</TooltipContent>
                         </Tooltip>
                         {activeDropdown === 'content-goal' && (
-                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
+                          <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[140px] max-h-[280px] overflow-y-auto">
                             {['Engagement', 'Awareness', 'Traffic', 'Followers', 'Community', 'Education', 'Entertainment', 'Authority', 'Leads', 'Sales'].map((goal) => (
                               <button 
                                 key={goal}
@@ -2090,7 +2090,7 @@ const AIVAPromptBox = ({
                           <TooltipContent>Language</TooltipContent>
                         </Tooltip>
                         {activeDropdown === 'content-language' && (
-                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[160px] max-h-[280px] overflow-y-auto">
+                          <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[160px] max-h-[280px] overflow-y-auto">
                             {[
                               { name: 'English', flag: '🇺🇸' },
                               { name: 'Spanish', flag: '🇪🇸' },
@@ -2135,7 +2135,7 @@ const AIVAPromptBox = ({
                           <TooltipContent>Frequency</TooltipContent>
                         </Tooltip>
                         {activeDropdown === 'content-days' && (
-                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-4 z-[9999] min-w-[240px]">
+                          <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-4 z-[9999] min-w-[240px]">
                             <p className="text-sm font-medium text-slate-800 mb-3">Content Frequency</p>
                             <div className="grid grid-cols-3 gap-2">
                               {[7, 14, 21, 30, 60, 90].map((days) => (
@@ -2171,7 +2171,7 @@ const AIVAPromptBox = ({
                           <TooltipContent>Time</TooltipContent>
                         </Tooltip>
                         {activeDropdown === 'content-time' && (
-                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px]">
+                          <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[180px]">
                             <button 
                               onClick={() => { setContentTime('Auto'); setActiveDropdown(null); }}
                               className={cn(
@@ -2222,7 +2222,7 @@ const AIVAPromptBox = ({
                           <TooltipContent>Style</TooltipContent>
                         </Tooltip>
                         {activeDropdown === 'content-style' && (
-                          <div className="absolute left-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[160px]">
+                          <div className="absolute left-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[160px]">
                             <button 
                               onClick={() => { setContentStyle('AI Generated'); setActiveDropdown(null); }}
                               className={cn(
@@ -2369,7 +2369,7 @@ const AIVAPromptBox = ({
                         
                         {/* Dropdowns - rendered inside the relative container */}
                         {activeDropdown === 'ratio' && (
-                          <div data-dropdown className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
+                          <div data-dropdown className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
                             {(modelAspectRatios[selectedModel] || (selectedOption?.id === 'video' ? defaultVideoRatioOptions : defaultRatioOptions)).map((ratio) => (
                               <button
                                 key={ratio}
@@ -2390,7 +2390,7 @@ const AIVAPromptBox = ({
                         )}
                         
                         {activeDropdown === 'number' && (
-                          <div data-dropdown className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[80px]">
+                          <div data-dropdown className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[80px]">
                             {numberOptions.map((num) => (
                               <button
                                 key={num}
@@ -2411,7 +2411,7 @@ const AIVAPromptBox = ({
                         )}
                         
                         {activeDropdown === 'duration' && (
-                          <div data-dropdown className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[80px]">
+                          <div data-dropdown className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[80px]">
                             {durationOptions.map((dur) => (
                               <button
                                 key={dur}
@@ -2431,7 +2431,7 @@ const AIVAPromptBox = ({
                         )}
                         
                         {activeDropdown === 'quality' && (
-                          <div data-dropdown className="absolute right-0 bottom-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
+                          <div data-dropdown className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[9999] min-w-[100px]">
                             {qualityOptions.map((quality) => (
                               <button
                                 key={quality}
