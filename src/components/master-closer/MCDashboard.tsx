@@ -97,12 +97,6 @@ const MCDashboard: React.FC<MCDashboardProps> = ({ onStartCall }) => {
 
   return (
     <div className="p-8 max-w-screen-2xl mx-auto">
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome Back, Dolmar! 👋</h1>
-        <p className="text-muted-foreground">Your AI co-pilot is ready to help you close more deals</p>
-      </div>
-
       {/* Quick Start Card */}
       <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
         <div className="flex items-center gap-4 mb-6">
