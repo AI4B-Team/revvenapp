@@ -2446,6 +2446,8 @@ const EbookDesignSidebar = ({
                 setActiveEditor(null);
                 toast.success('Flashcard deck added to page');
               }}
+              bookTitle={bookTitle}
+              chapterTitles={chapters.map(c => c.title)}
             />
           </div>
         </DialogContent>
