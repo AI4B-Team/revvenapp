@@ -2472,6 +2472,8 @@ const EbookDesignSidebar = ({
                 setActiveEditor(null);
                 toast.success('Quiz added to page');
               }}
+              bookTitle={bookTitle}
+              chapterTitles={chapters.map(c => c.title)}
             />
           </div>
         </DialogContent>
