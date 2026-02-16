@@ -894,7 +894,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                       onClick={() => handleOrientationChange('portrait')}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
                         pageOrientation === 'portrait' 
-                          ? 'bg-teal-500 text-white border-teal-500' 
+                          ? 'bg-emerald-500 text-white border-emerald-500' 
                           : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
                       }`}
                     >
@@ -905,7 +905,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                       onClick={() => handleOrientationChange('landscape')}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
                         pageOrientation === 'landscape' 
-                          ? 'bg-teal-500 text-white border-teal-500' 
+                          ? 'bg-emerald-500 text-white border-emerald-500' 
                           : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
                       }`}
                     >
@@ -929,7 +929,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                   </div>
                   <button 
                     onClick={() => setLinkDimensions(!linkDimensions)}
-                    className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                    className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
                   >
                     <Link2 className="w-3.5 h-3.5" />
                   </button>
@@ -977,7 +977,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                 </div>
                 
                 {/* Confirm Button */}
-                <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
+                <Button className="w-full h-8 bg-emerald-500 hover:bg-emerald-600 text-white text-xs rounded-sm">
                   Confirm
                 </Button>
               </div>
@@ -996,7 +996,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                       onClick={() => setSelectedLayout(style.id)}
                       className={`p-2 rounded-lg border-2 transition-all ${
                         selectedLayout === style.id
-                          ? 'border-teal-500 bg-teal-50'
+                          ? 'border-emerald-500 bg-emerald-50'
                           : 'border-gray-200 hover:border-gray-300 bg-white'
                       }`}
                     >
@@ -1067,7 +1067,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                     onClick={() => setBackgroundTab('color')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
                       backgroundTab === 'color' 
-                        ? 'bg-teal-500 text-white border-teal-500' 
+                        ? 'bg-emerald-500 text-white border-emerald-500' 
                         : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -1077,7 +1077,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                     onClick={() => setBackgroundTab('pattern')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
                       backgroundTab === 'pattern' 
-                        ? 'bg-teal-500 text-white border-teal-500' 
+                        ? 'bg-emerald-500 text-white border-emerald-500' 
                         : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -1087,7 +1087,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                     onClick={() => setBackgroundTab('image')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
                       backgroundTab === 'image' 
-                        ? 'bg-teal-500 text-white border-teal-500' 
+                        ? 'bg-emerald-500 text-white border-emerald-500' 
                         : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -1106,7 +1106,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                             <button 
                               className={`w-7 h-7 rounded-full border-2 border-dashed flex items-center justify-center transition-all ${
                                 showColorPicker 
-                                  ? 'border-teal-500 text-teal-500' 
+                                  ? 'border-emerald-500 text-emerald-500' 
                                   : 'border-gray-300 text-gray-400 hover:border-gray-400'
                               }`}
                             >
@@ -1173,7 +1173,7 @@ const PageSettingsPanel = ({ pageNumber, totalPages = 5, onClose, onSettingsChan
                                         </TooltipContent>
                                       </Tooltip>
                                     </div>
-                                    <button className="text-sm text-teal-500 hover:text-teal-600">Apply To All Pages</button>
+                                    <button className="text-sm text-emerald-500 hover:text-emerald-600">Apply To All Pages</button>
                                   </div>
                                   <div className="space-y-1">
                                     {THEME_COLORS.map((row, rowIdx) => (
