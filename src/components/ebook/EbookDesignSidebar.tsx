@@ -2103,6 +2103,155 @@ const EbookDesignSidebar = ({
             </div>
           )}
 
+          {/* Learning Tools Section */}
+          <SectionHeader id="learning" title="Interactive" icon={GraduationCap} />
+          {expandedSections.has('learning') && (
+            <div className="p-4 border-b border-gray-200 bg-white">
+              <p className="text-xs text-gray-500 mb-4">
+                Add interactive learning elements to your eBook
+              </p>
+
+              {/* Learning Tool Types Grid */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {/* Flashcards */}
+                <button
+                  onClick={() => setActiveEditor('flashcard')}
+                  className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 transition-all"
+                >
+                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <Brain className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div className="text-center">
+                    <span className="block text-sm font-semibold text-gray-800 group-hover:text-amber-700">Flashcards</span>
+                    <span className="text-xs text-gray-500">Study cards</span>
+                  </div>
+                </button>
+
+                {/* Quizzes */}
+                <button
+                  onClick={() => setActiveEditor('quiz')}
+                  className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50/50 transition-all"
+                >
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <CheckSquare className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="text-center">
+                    <span className="block text-sm font-semibold text-gray-800 group-hover:text-purple-700">Quizzes</span>
+                    <span className="text-xs text-gray-500">Test knowledge</span>
+                  </div>
+                </button>
+
+                {/* Courses */}
+                <button
+                  onClick={() => setActiveEditor('course')}
+                  className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all"
+                >
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <BookOpen className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="text-center">
+                    <span className="block text-sm font-semibold text-gray-800 group-hover:text-blue-700">Courses</span>
+                    <span className="text-xs text-gray-500">Structured lessons</span>
+                  </div>
+                </button>
+
+                {/* Certificates */}
+                <button
+                  onClick={() => setActiveEditor('certificate')}
+                  className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/50 transition-all"
+                >
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <Award className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div className="text-center">
+                    <span className="block text-sm font-semibold text-gray-800 group-hover:text-emerald-700">Certificates</span>
+                    <span className="text-xs text-gray-500">Completion awards</span>
+                  </div>
+                </button>
+              </div>
+
+              {/* Quick Add Elements */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-gray-800 mb-3">Quick Add Elements</h4>
+                <div className="space-y-2">
+                  <button
+                    onClick={handleAddProgressTracker}
+                    disabled={isGeneratingLearning}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center">
+                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <TrendingUp className="w-4 h-4 text-white" />}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Progress Tracker</span>
+                      <span className="text-xs text-gray-500">Show learning progress</span>
+                    </div>
+                    <Plus className="w-4 h-4 text-gray-400 group-hover:text-emerald-500" />
+                  </button>
+
+                  <button
+                    onClick={handleAddKnowledgeCheck}
+                    disabled={isGeneratingLearning}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
+                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <HelpCircle className="w-4 h-4 text-white" />}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Knowledge Check</span>
+                      <span className="text-xs text-gray-500">Quick comprehension test</span>
+                    </div>
+                    <Plus className="w-4 h-4 text-gray-400 group-hover:text-emerald-500" />
+                  </button>
+
+                  <button
+                    onClick={handleAddInteractiveExercise}
+                    disabled={isGeneratingLearning}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
+                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <MousePointerClick className="w-4 h-4 text-white" />}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Interactive Exercise</span>
+                      <span className="text-xs text-gray-500">Hands-on practice</span>
+                    </div>
+                    <Plus className="w-4 h-4 text-gray-400 group-hover:text-emerald-500" />
+                  </button>
+                </div>
+              </div>
+
+              {/* AI Generate Section */}
+              <div className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-4 h-4 text-violet-600" />
+                  <h4 className="text-sm font-semibold text-violet-800">AI Generate</h4>
+                </div>
+                <p className="text-xs text-violet-600 mb-3">
+                  Automatically generate learning content from your eBook text
+                </p>
+                <div className="space-y-2">
+                  <button
+                    onClick={handleGenerateFlashcards}
+                    disabled={isGeneratingLearning}
+                    className="w-full px-3 py-2 text-sm font-medium text-violet-700 bg-white border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isGeneratingLearning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
+                    Generate Flashcards
+                  </button>
+                  <button
+                    onClick={handleGenerateQuiz}
+                    disabled={isGeneratingLearning}
+                    className="w-full px-3 py-2 text-sm font-medium text-violet-700 bg-white border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isGeneratingLearning ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckSquare className="w-4 h-4" />}
+                    Generate Quiz
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Mockups Section */}
           <SectionHeader id="mockups" title="Mockups" icon={Presentation} />
           {expandedSections.has('mockups') && (
@@ -2274,155 +2423,6 @@ const EbookDesignSidebar = ({
                   </button>
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Learning Tools Section */}
-          <SectionHeader id="learning" title="Interactive" icon={GraduationCap} />
-          {expandedSections.has('learning') && (
-            <div className="p-4 border-b border-gray-200 bg-white">
-              <p className="text-xs text-gray-500 mb-4">
-                Add interactive learning elements to your eBook
-              </p>
-
-              {/* Learning Tool Types Grid */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                {/* Flashcards */}
-                <button
-                  onClick={() => setActiveEditor('flashcard')}
-                  className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 transition-all"
-                >
-                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
-                    <Brain className="w-6 h-6 text-amber-600" />
-                  </div>
-                  <div className="text-center">
-                    <span className="block text-sm font-semibold text-gray-800 group-hover:text-amber-700">Flashcards</span>
-                    <span className="text-xs text-gray-500">Study cards</span>
-                  </div>
-                </button>
-
-                {/* Quizzes */}
-                <button
-                  onClick={() => setActiveEditor('quiz')}
-                  className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50/50 transition-all"
-                >
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
-                    <CheckSquare className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div className="text-center">
-                    <span className="block text-sm font-semibold text-gray-800 group-hover:text-purple-700">Quizzes</span>
-                    <span className="text-xs text-gray-500">Test knowledge</span>
-                  </div>
-                </button>
-
-                {/* Courses */}
-                <button
-                  onClick={() => setActiveEditor('course')}
-                  className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all"
-                >
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
-                    <BookOpen className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div className="text-center">
-                    <span className="block text-sm font-semibold text-gray-800 group-hover:text-blue-700">Courses</span>
-                    <span className="text-xs text-gray-500">Structured lessons</span>
-                  </div>
-                </button>
-
-                {/* Certificates */}
-                <button
-                  onClick={() => setActiveEditor('certificate')}
-                  className="group flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/50 transition-all"
-                >
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
-                    <Award className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <div className="text-center">
-                    <span className="block text-sm font-semibold text-gray-800 group-hover:text-emerald-700">Certificates</span>
-                    <span className="text-xs text-gray-500">Completion awards</span>
-                  </div>
-                </button>
-              </div>
-
-              {/* Quick Add Elements */}
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold text-gray-800 mb-3">Quick Add Elements</h4>
-                <div className="space-y-2">
-                  <button
-                    onClick={handleAddProgressTracker}
-                    disabled={isGeneratingLearning}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center">
-                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <TrendingUp className="w-4 h-4 text-white" />}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Progress Tracker</span>
-                      <span className="text-xs text-gray-500">Show learning progress</span>
-                    </div>
-                    <Plus className="w-4 h-4 text-gray-400 group-hover:text-emerald-500" />
-                  </button>
-
-                  <button
-                    onClick={handleAddKnowledgeCheck}
-                    disabled={isGeneratingLearning}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
-                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <HelpCircle className="w-4 h-4 text-white" />}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Knowledge Check</span>
-                      <span className="text-xs text-gray-500">Quick comprehension test</span>
-                    </div>
-                    <Plus className="w-4 h-4 text-gray-400 group-hover:text-emerald-500" />
-                  </button>
-
-                  <button
-                    onClick={handleAddInteractiveExercise}
-                    disabled={isGeneratingLearning}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
-                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <MousePointerClick className="w-4 h-4 text-white" />}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Interactive Exercise</span>
-                      <span className="text-xs text-gray-500">Hands-on practice</span>
-                    </div>
-                    <Plus className="w-4 h-4 text-gray-400 group-hover:text-emerald-500" />
-                  </button>
-                </div>
-              </div>
-
-              {/* AI Generate Section */}
-              <div className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-4 h-4 text-violet-600" />
-                  <h4 className="text-sm font-semibold text-violet-800">AI Generate</h4>
-                </div>
-                <p className="text-xs text-violet-600 mb-3">
-                  Automatically generate learning content from your eBook text
-                </p>
-                <div className="space-y-2">
-                  <button
-                    onClick={handleGenerateFlashcards}
-                    disabled={isGeneratingLearning}
-                    className="w-full px-3 py-2 text-sm font-medium text-violet-700 bg-white border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isGeneratingLearning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
-                    Generate Flashcards
-                  </button>
-                  <button
-                    onClick={handleGenerateQuiz}
-                    disabled={isGeneratingLearning}
-                    className="w-full px-3 py-2 text-sm font-medium text-violet-700 bg-white border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isGeneratingLearning ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckSquare className="w-4 h-4" />}
-                    Generate Quiz
-                  </button>
-                </div>
-              </div>
             </div>
           )}
         </div>
