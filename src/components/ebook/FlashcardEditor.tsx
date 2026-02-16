@@ -31,9 +31,10 @@ interface FlashcardEditorProps {
   onClose?: () => void;
   bookTitle?: string;
   chapterTitles?: string[];
+  chapterContents?: string;
 }
 
-const FlashcardEditor = ({ deck, onDeckUpdate, onClose, bookTitle, chapterTitles }: FlashcardEditorProps) => {
+const FlashcardEditor = ({ deck, onDeckUpdate, onClose, bookTitle, chapterTitles, chapterContents }: FlashcardEditorProps) => {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(
     deck.cards.length > 0 ? deck.cards[0].id : null
   );
@@ -114,7 +115,7 @@ const FlashcardEditor = ({ deck, onDeckUpdate, onClose, bookTitle, chapterTitles
     toast.info('Generating flashcards with AI...');
     try {
       const { data, error } = await supabase.functions.invoke('generate-learning-content', {
-        body: { type: 'flashcards', bookTitle: bookTitle || deck.title, chapterTitles: chapterTitles || [] }
+        body: { type: 'flashcards', bookTitle: bookTitle || deck.title, chapterTitles: chapterTitles || [], chapterContents: chapterContents || '' }
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);

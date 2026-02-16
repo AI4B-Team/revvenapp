@@ -71,6 +71,7 @@ interface EbookDesignSidebarProps {
   onChapterReorder?: (fromIndex: number, toIndex: number) => void;
   onContentSectionChange?: (isExpanded: boolean) => void;
   openImageSectionRef?: React.MutableRefObject<(() => void) | null>;
+  pageTextContents?: Record<string, string>;
 }
 
 // Template options with pages and images
@@ -327,6 +328,7 @@ const EbookDesignSidebar = ({
   onChapterReorder,
   onContentSectionChange,
   openImageSectionRef,
+  pageTextContents,
 }: EbookDesignSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set(['content']));
@@ -2448,6 +2450,7 @@ const EbookDesignSidebar = ({
               }}
               bookTitle={bookTitle}
               chapterTitles={chapters.map(c => c.title)}
+              chapterContents={pageTextContents ? Object.values(pageTextContents).join('\n\n') : ''}
             />
           </div>
         </DialogContent>
@@ -2474,6 +2477,7 @@ const EbookDesignSidebar = ({
               }}
               bookTitle={bookTitle}
               chapterTitles={chapters.map(c => c.title)}
+              chapterContents={pageTextContents ? Object.values(pageTextContents).join('\n\n') : ''}
             />
           </div>
         </DialogContent>

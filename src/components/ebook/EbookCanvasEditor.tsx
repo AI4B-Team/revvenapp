@@ -106,6 +106,7 @@ interface EbookCanvasEditorProps {
   onGridViewChange?: (isGridView: boolean) => void;
   onOpenImageSection?: () => void;
   onCoverImageChange?: (coverImageUrl: string) => void;
+  onContentExtract?: (contents: Record<string, string>) => void;
   zoom?: number;
   onZoomChange?: (zoom: number) => void;
 }
@@ -453,7 +454,8 @@ const EbookCanvasEditor = ({
   onOpenImageSection,
   onCoverImageChange,
   zoom: externalZoom,
-  onZoomChange
+  onZoomChange,
+  onContentExtract
 }: EbookCanvasEditorProps) => {
   // Internal pages state if no onPagesChange is provided
   const [internalPages, setInternalPages] = useState<Page[]>(pages);
@@ -697,6 +699,25 @@ const EbookCanvasEditor = ({
       }
     }
   }, [pageElementsState, currentPages, onCoverImageChange]);
+
+  // Extract and push all text content to parent for quiz/flashcard generation
+  useEffect(() => {
+    if (!onContentExtract) return;
+    const contents: Record<string, string> = {};
+    for (const page of currentPages) {
+      const elements = pageElementsState[page.id];
+      if (elements) {
+        const text = elements
+          .filter(el => el.type === 'text' && el.content)
+          .map(el => el.content!)
+          .join('\n');
+        if (text.trim()) {
+          contents[page.id] = text;
+        }
+      }
+    }
+    onContentExtract(contents);
+  }, [pageElementsState, currentPages, onContentExtract]);
   
   // Undo/Redo history
   const [undoStack, setUndoStack] = useState<Record<string, CanvasElement[]>[]>([]);

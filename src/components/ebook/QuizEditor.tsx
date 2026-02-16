@@ -53,6 +53,7 @@ interface QuizEditorProps {
   onClose?: () => void;
   bookTitle?: string;
   chapterTitles?: string[];
+  chapterContents?: string;
 }
 
 const QUESTION_TYPES: { value: QuestionType; label: string }[] = [
@@ -62,7 +63,7 @@ const QUESTION_TYPES: { value: QuestionType; label: string }[] = [
   { value: 'short-answer', label: 'Short Answer' },
 ];
 
-const QuizEditor = ({ quiz, onQuizUpdate, onClose, bookTitle, chapterTitles }: QuizEditorProps) => {
+const QuizEditor = ({ quiz, onQuizUpdate, onClose, bookTitle, chapterTitles, chapterContents }: QuizEditorProps) => {
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
     quiz.questions.length > 0 ? quiz.questions[0].id : null
   );
@@ -196,7 +197,7 @@ const QuizEditor = ({ quiz, onQuizUpdate, onClose, bookTitle, chapterTitles }: Q
     toast.info('Generating quiz questions with AI...');
     try {
       const { data, error } = await supabase.functions.invoke('generate-learning-content', {
-        body: { type: 'quiz', bookTitle: bookTitle || quiz.title, chapterTitles: chapterTitles || [] }
+        body: { type: 'quiz', bookTitle: bookTitle || quiz.title, chapterTitles: chapterTitles || [], chapterContents: chapterContents || '' }
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
