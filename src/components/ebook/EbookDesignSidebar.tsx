@@ -1036,7 +1036,7 @@ const EbookDesignSidebar = ({
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>Learning Tools</p>
+                <p>Interactive</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -2276,7 +2276,7 @@ const EbookDesignSidebar = ({
           )}
 
           {/* Learning Tools Section */}
-          <SectionHeader id="learning" title="Learning Tools" icon={GraduationCap} />
+          <SectionHeader id="learning" title="Interactive" icon={GraduationCap} />
           {expandedSections.has('learning') && (
             <div className="p-4 border-b border-gray-200 bg-white">
               <p className="text-xs text-gray-500 mb-4">
