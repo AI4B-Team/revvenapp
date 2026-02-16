@@ -1771,7 +1771,7 @@ const EbookCanvasEditor = ({
                   toast.success(`Link applied: ${linkUrl}`);
                 }
               }}
-              className="h-9 px-4 bg-teal-500 hover:bg-teal-600 text-white text-sm"
+              className="h-9 px-4 bg-emerald-500 hover:bg-emerald-600 text-white text-sm"
             >
               Apply
             </Button>
