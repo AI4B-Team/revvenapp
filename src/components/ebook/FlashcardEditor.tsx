@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Plus, Trash2, GripVertical, Sparkles, RotateCcw, Eye, Pencil, Copy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,22 +104,34 @@ const FlashcardEditor = ({ deck, onDeckUpdate, onClose }: FlashcardEditorProps) 
     });
   };
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const handleGenerateWithAI = async () => {
+    setIsGenerating(true);
     toast.info('Generating flashcards with AI...');
-    // AI generation would be implemented here
-    setTimeout(() => {
-      const newCards: Flashcard[] = [
-        { id: crypto.randomUUID(), front: 'What is the main concept?', back: 'The main concept is...', difficulty: 'easy' },
-        { id: crypto.randomUUID(), front: 'Define the key term', back: 'The key term means...', difficulty: 'medium' },
-        { id: crypto.randomUUID(), front: 'What are the benefits?', back: 'The benefits include...', difficulty: 'medium' },
-      ];
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-learning-content', {
+        body: { type: 'flashcards', bookTitle: deck.title, chapterTitles: [] }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const newCards: Flashcard[] = data.result.map((c: any) => ({
+        id: crypto.randomUUID(),
+        front: c.front,
+        back: c.back,
+        difficulty: c.difficulty || 'medium',
+      }));
       onDeckUpdate({
         ...deck,
-        cards: [...deck.cards, ...newCards],
+        cards: [...deck.cards.filter(c => c.front), ...newCards],
         updatedAt: new Date()
       });
-      toast.success('3 flashcards generated!');
-    }, 1500);
+      toast.success(`${newCards.length} flashcards generated!`);
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to generate flashcards');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const nextPreviewCard = () => {
@@ -238,8 +251,8 @@ const FlashcardEditor = ({ deck, onDeckUpdate, onClose }: FlashcardEditorProps) 
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-gray-600">{deck.cards.length} Cards</span>
             <div className="flex gap-1">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleGenerateWithAI}>
-                <Sparkles className="w-4 h-4 text-amber-500" />
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleGenerateWithAI} disabled={isGenerating}>
+                <Sparkles className={`w-4 h-4 text-amber-500 ${isGenerating ? 'animate-spin' : ''}`} />
               </Button>
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleAddCard}>
                 <Plus className="w-4 h-4" />

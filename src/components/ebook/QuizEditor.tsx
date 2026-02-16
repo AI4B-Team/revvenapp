@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Plus, Trash2, GripVertical, Sparkles, Eye, Pencil, Check, X, ChevronDown, ChevronUp, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -185,41 +186,37 @@ const QuizEditor = ({ quiz, onQuizUpdate, onClose }: QuizEditorProps) => {
     });
   };
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const handleGenerateWithAI = async () => {
+    setIsGenerating(true);
     toast.info('Generating quiz questions with AI...');
-    setTimeout(() => {
-      const newQuestions: QuizQuestion[] = [
-        {
-          id: crypto.randomUUID(),
-          type: 'multiple-choice',
-          question: 'What is the primary benefit discussed in this chapter?',
-          points: 1,
-          options: [
-            { id: crypto.randomUUID(), text: 'Increased efficiency', isCorrect: true },
-            { id: crypto.randomUUID(), text: 'Lower costs', isCorrect: false },
-            { id: crypto.randomUUID(), text: 'Better design', isCorrect: false },
-            { id: crypto.randomUUID(), text: 'Faster delivery', isCorrect: false },
-          ]
-        },
-        {
-          id: crypto.randomUUID(),
-          type: 'true-false',
-          question: 'The main concept can be applied to all industries.',
-          points: 1,
-          correctAnswer: 'true',
-          options: [
-            { id: crypto.randomUUID(), text: 'True', isCorrect: true },
-            { id: crypto.randomUUID(), text: 'False', isCorrect: false },
-          ]
-        },
-      ];
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-learning-content', {
+        body: { type: 'quiz', bookTitle: quiz.title, chapterTitles: [] }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const newQuestions: QuizQuestion[] = data.result.map((q: any) => ({
+        id: crypto.randomUUID(),
+        type: q.type || 'multiple-choice',
+        question: q.question,
+        points: q.points || 1,
+        explanation: q.explanation || '',
+        correctAnswer: q.type === 'true-false' ? (q.options?.find((o: any) => o.isCorrect)?.text?.toLowerCase() || 'true') : '',
+        options: q.options?.map((o: any) => ({ id: crypto.randomUUID(), text: o.text, isCorrect: o.isCorrect })),
+      }));
       onQuizUpdate({
         ...quiz,
         questions: [...quiz.questions, ...newQuestions],
         updatedAt: new Date()
       });
-      toast.success('2 questions generated!');
-    }, 1500);
+      toast.success(`${newQuestions.length} questions generated!`);
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to generate quiz');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const calculateScore = () => {
@@ -400,8 +397,8 @@ const QuizEditor = ({ quiz, onQuizUpdate, onClose }: QuizEditorProps) => {
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-gray-600">{quiz.questions.length} Questions</span>
             <div className="flex gap-1">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleGenerateWithAI}>
-                <Sparkles className="w-4 h-4 text-amber-500" />
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleGenerateWithAI} disabled={isGenerating}>
+                <Sparkles className={`w-4 h-4 text-amber-500 ${isGenerating ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>

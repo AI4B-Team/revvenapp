@@ -438,6 +438,112 @@ const EbookDesignSidebar = ({
     updatedAt: new Date()
   });
   
+  const [isGeneratingLearning, setIsGeneratingLearning] = useState(false);
+
+  const generateLearningContent = async (type: string) => {
+    setIsGeneratingLearning(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-learning-content', {
+        body: { type, bookTitle, chapterTitles: chapters.map(c => c.title) }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data.result;
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to generate content');
+      return null;
+    } finally {
+      setIsGeneratingLearning(false);
+    }
+  };
+
+  const handleGenerateFlashcards = async () => {
+    toast.info('Generating flashcards with AI...');
+    const result = await generateLearningContent('flashcards');
+    if (!result) return;
+    const newCards = result.map((c: any) => ({
+      id: crypto.randomUUID(),
+      front: c.front,
+      back: c.back,
+      difficulty: c.difficulty || 'medium',
+    }));
+    setCurrentDeck(prev => ({ ...prev, cards: [...prev.cards.filter(c => c.front), ...newCards], updatedAt: new Date() }));
+    setActiveEditor('flashcard');
+    toast.success(`${newCards.length} flashcards generated!`);
+  };
+
+  const handleGenerateQuiz = async () => {
+    toast.info('Generating quiz with AI...');
+    const result = await generateLearningContent('quiz');
+    if (!result) return;
+    const newQuestions = result.map((q: any) => ({
+      id: crypto.randomUUID(),
+      type: q.type || 'multiple-choice',
+      question: q.question,
+      points: q.points || 1,
+      explanation: q.explanation || '',
+      correctAnswer: q.type === 'true-false' ? (q.options?.find((o: any) => o.isCorrect)?.text?.toLowerCase() || 'true') : '',
+      options: q.options?.map((o: any) => ({ id: crypto.randomUUID(), text: o.text, isCorrect: o.isCorrect })),
+    }));
+    setCurrentQuiz(prev => ({ ...prev, questions: [...prev.questions, ...newQuestions], updatedAt: new Date() }));
+    setActiveEditor('quiz');
+    toast.success(`${newQuestions.length} quiz questions generated!`);
+  };
+
+  const handleAddProgressTracker = async () => {
+    toast.info('Generating progress milestones...');
+    const result = await generateLearningContent('progress-tracker');
+    if (!result) return;
+    toast.success(`Progress tracker created with ${result.milestones?.length || 0} milestones!`, {
+      description: result.milestones?.map((m: any) => `✓ ${m.label}`).join('\n'),
+      duration: 5000,
+    });
+  };
+
+  const handleAddKnowledgeCheck = async () => {
+    toast.info('Generating knowledge check...');
+    const result = await generateLearningContent('knowledge-check');
+    if (!result) return;
+    const newQuestions = result.questions?.map((q: any) => ({
+      id: crypto.randomUUID(),
+      type: 'multiple-choice' as const,
+      question: q.question,
+      points: 1,
+      explanation: q.explanation || '',
+      options: q.options?.map((text: string, i: number) => ({ id: crypto.randomUUID(), text, isCorrect: i === q.correctIndex })),
+    })) || [];
+    setCurrentQuiz(prev => ({
+      ...prev,
+      title: result.title || 'Knowledge Check',
+      questions: newQuestions,
+      updatedAt: new Date()
+    }));
+    setActiveEditor('quiz');
+    toast.success(`Knowledge check with ${newQuestions.length} questions created!`);
+  };
+
+  const handleAddInteractiveExercise = async () => {
+    toast.info('Generating interactive exercise...');
+    const result = await generateLearningContent('interactive-exercise');
+    if (!result) return;
+    const steps = result.steps || [];
+    const newCards = steps.map((s: any, i: number) => ({
+      id: crypto.randomUUID(),
+      front: `Step ${i + 1}: ${s.instruction}`,
+      back: `Expected outcome: ${s.expectedOutcome}\n\nHint: ${s.hint}`,
+      difficulty: 'medium' as const,
+    }));
+    setCurrentDeck(prev => ({
+      ...prev,
+      title: result.title || 'Interactive Exercise',
+      description: result.description || '',
+      cards: newCards,
+      updatedAt: new Date()
+    }));
+    setActiveEditor('flashcard');
+    toast.success(`Interactive exercise with ${steps.length} steps created!`);
+  };
+
   // Pexels API key moved to edge function for security
 
   // Expose openImageSection function via ref
@@ -2241,11 +2347,12 @@ const EbookDesignSidebar = ({
                 <h4 className="text-sm font-semibold text-gray-800 mb-3">Quick Add Elements</h4>
                 <div className="space-y-2">
                   <button
-                    onClick={() => toast.success('Progress tracker added')}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group"
+                    onClick={handleAddProgressTracker}
+                    disabled={isGeneratingLearning}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
                   >
                     <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-white" />
+                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <TrendingUp className="w-4 h-4 text-white" />}
                     </div>
                     <div className="flex-1 text-left">
                       <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Progress Tracker</span>
@@ -2255,11 +2362,12 @@ const EbookDesignSidebar = ({
                   </button>
 
                   <button
-                    onClick={() => toast.success('Knowledge check added')}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group"
+                    onClick={handleAddKnowledgeCheck}
+                    disabled={isGeneratingLearning}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
                   >
                     <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
-                      <HelpCircle className="w-4 h-4 text-white" />
+                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <HelpCircle className="w-4 h-4 text-white" />}
                     </div>
                     <div className="flex-1 text-left">
                       <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Knowledge Check</span>
@@ -2269,11 +2377,12 @@ const EbookDesignSidebar = ({
                   </button>
 
                   <button
-                    onClick={() => toast.success('Interactive exercise added')}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group"
+                    onClick={handleAddInteractiveExercise}
+                    disabled={isGeneratingLearning}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group disabled:opacity-50"
                   >
                     <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
-                      <MousePointerClick className="w-4 h-4 text-white" />
+                      {isGeneratingLearning ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <MousePointerClick className="w-4 h-4 text-white" />}
                     </div>
                     <div className="flex-1 text-left">
                       <span className="block text-sm font-medium text-gray-800 group-hover:text-emerald-700">Interactive Exercise</span>
@@ -2295,17 +2404,19 @@ const EbookDesignSidebar = ({
                 </p>
                 <div className="space-y-2">
                   <button
-                    onClick={() => toast.success('Generating flashcards from content...')}
-                    className="w-full px-3 py-2 text-sm font-medium text-violet-700 bg-white border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors flex items-center justify-center gap-2"
+                    onClick={handleGenerateFlashcards}
+                    disabled={isGeneratingLearning}
+                    className="w-full px-3 py-2 text-sm font-medium text-violet-700 bg-white border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <Brain className="w-4 h-4" />
+                    {isGeneratingLearning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
                     Generate Flashcards
                   </button>
                   <button
-                    onClick={() => toast.success('Generating quiz from content...')}
-                    className="w-full px-3 py-2 text-sm font-medium text-violet-700 bg-white border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors flex items-center justify-center gap-2"
+                    onClick={handleGenerateQuiz}
+                    disabled={isGeneratingLearning}
+                    className="w-full px-3 py-2 text-sm font-medium text-violet-700 bg-white border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <CheckSquare className="w-4 h-4" />
+                    {isGeneratingLearning ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckSquare className="w-4 h-4" />}
                     Generate Quiz
                   </button>
                 </div>
