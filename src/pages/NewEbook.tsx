@@ -502,6 +502,7 @@ const NewEbook = () => {
   ];
   
   const [ebookPages, setEbookPages] = useState<UnifiedPage[]>(getDefaultPages);
+  const [pageTextContents, setPageTextContents] = useState<Record<string, string>>({});
   
   // Convert unified pages to sidebar chapter format
   // Filter out 'chapter-page' types - only show main pages in sidebar
@@ -1600,6 +1601,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   }}
                   onContentSectionChange={setShowPagesPanel}
                   openImageSectionRef={openImageSectionRef}
+                  pageTextContents={pageTextContents}
                 />
               )}
 
@@ -1629,6 +1631,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     updateEbook(currentBookId, { coverImage: coverImageUrl });
                   }
                 }}
+                onContentExtract={setPageTextContents}
                 zoom={zoom}
                 onZoomChange={setZoom}
               />

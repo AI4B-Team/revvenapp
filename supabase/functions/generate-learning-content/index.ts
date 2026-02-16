@@ -9,21 +9,29 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { type, bookTitle, chapterTitles } = await req.json();
+    const { type, bookTitle, chapterTitles, chapterContents } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const context = `Book: "${bookTitle}". Chapters: ${(chapterTitles || []).join(", ")}`;
+    const hasContent = chapterContents && chapterContents.trim().length > 0;
+    const truncatedContent = hasContent ? chapterContents.substring(0, 3000) : '';
+    const context = hasContent
+      ? `Book: "${bookTitle}". Chapters: ${(chapterTitles || []).join(", ")}.\n\nActual book content:\n${truncatedContent}`
+      : `Book: "${bookTitle}". Chapters: ${(chapterTitles || []).join(", ")}`;
 
     let systemPrompt = "";
     let userPrompt = "";
 
     if (type === "flashcards") {
       systemPrompt = "You are an educational content creator. Generate flashcards from ebook content. Return ONLY a valid JSON array of objects with 'front', 'back', and 'difficulty' (easy/medium/hard) fields. No markdown, no explanation.";
-      userPrompt = `Create 6 high-quality flashcards covering key concepts from this ebook. ${context}`;
+      userPrompt = hasContent
+        ? `Create 6 high-quality flashcards based on the following actual text content from the ebook. Focus on the key facts, terms, and concepts found in the text. ${context}`
+        : `Create 6 high-quality flashcards covering key concepts from this ebook. ${context}`;
     } else if (type === "quiz") {
       systemPrompt = "You are a quiz creator. Generate quiz questions from ebook content. Return ONLY a valid JSON array of objects with: 'type' (multiple-choice or true-false), 'question', 'options' (array of {text, isCorrect}), 'explanation', 'points' (1). No markdown.";
-      userPrompt = `Create 5 quiz questions (mix of multiple-choice and true-false) testing understanding of this ebook. ${context}`;
+      userPrompt = hasContent
+        ? `Create 5 quiz questions (mix of multiple-choice and true-false) based on the following actual text content. Questions should test comprehension of specific facts and concepts from the text. ${context}`
+        : `Create 5 quiz questions (mix of multiple-choice and true-false) testing understanding of this ebook. ${context}`;
     } else if (type === "knowledge-check") {
       systemPrompt = "You are an educational content creator. Generate a quick knowledge check. Return ONLY a valid JSON object with: 'title', 'questions' (array of {question, options: string[], correctIndex: number, explanation: string}). No markdown.";
       userPrompt = `Create a quick 3-question knowledge check for this ebook. ${context}`;
