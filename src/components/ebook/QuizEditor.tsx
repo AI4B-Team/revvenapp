@@ -273,7 +273,7 @@ const QuizEditor = ({ quiz, onQuizUpdate, onClose, bookTitle, chapterTitles, cha
               Score: <span className="font-bold">{score.correct}/{score.total}</span> ({score.percentage}%)
             </p>
             <p className="text-sm text-gray-600 mt-1">
-              Passing score: {quiz.passingScore}%
+              Passing Score: {quiz.passingScore}%
             </p>
           </div>
         )}
@@ -338,7 +338,7 @@ const QuizEditor = ({ quiz, onQuizUpdate, onClose, bookTitle, chapterTitles, cha
                   />
                   {showResults && question.correctAnswer && (
                     <p className="mt-2 text-sm text-green-600">
-                      Correct answer: {question.correctAnswer}
+                      Correct Answer: {question.correctAnswer}
                     </p>
                   )}
                 </div>
@@ -383,7 +383,7 @@ const QuizEditor = ({ quiz, onQuizUpdate, onClose, bookTitle, chapterTitles, cha
         {/* Quiz Settings */}
         <div className="flex items-center gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-gray-500">Passing:</span>
+            <span className="text-gray-500">Passing Score:</span>
             <Input
               type="number"
               value={quiz.passingScore}
