@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Award, Download, Palette, Type, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Award, Download, Palette, Type, Image as ImageIcon, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { toPng } from 'html-to-image';
 import {
   Select,
   SelectContent,
@@ -92,6 +93,8 @@ const CertificateEditor = ({
   completionDate = new Date()
 }: CertificateEditorProps) => {
   const [activeTab, setActiveTab] = useState<'design' | 'content'>('design');
+  const [isDownloading, setIsDownloading] = useState(false);
+  const certRef = useRef<HTMLDivElement>(null);
 
   const handleTemplateChange = (templateId: string) => {
     const template = TEMPLATES.find(t => t.id === templateId);
@@ -112,9 +115,21 @@ const CertificateEditor = ({
     });
   };
 
-  const handleDownload = () => {
-    toast.success('Certificate downloaded!');
-    // Actual download logic would be implemented here
+  const handleDownload = async () => {
+    if (!certRef.current) return;
+    setIsDownloading(true);
+    try {
+      const dataUrl = await toPng(certRef.current, { quality: 1, pixelRatio: 2 });
+      const link = document.createElement('a');
+      link.download = `${certificate.title || 'certificate'}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success('Certificate downloaded!');
+    } catch (e) {
+      toast.error('Failed to download certificate');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const isElegant = certificate.template.layout === 'elegant';
@@ -129,9 +144,9 @@ const CertificateEditor = ({
           <Award className="w-6 h-6 text-amber-500" />
           <h2 className="text-lg font-semibold text-gray-800">Certificate Designer</h2>
         </div>
-        <Button onClick={handleDownload}>
-          <Download className="w-4 h-4 mr-2" />
-          Download
+        <Button onClick={handleDownload} disabled={isDownloading}>
+          {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+          {isDownloading ? 'Exporting...' : 'Download'}
         </Button>
       </div>
 
@@ -364,6 +379,7 @@ const CertificateEditor = ({
         {/* Preview */}
         <div className="flex-1 p-8 overflow-auto bg-gray-100 flex items-center justify-center">
           <div
+            ref={certRef}
             className="w-full max-w-3xl aspect-[1.414/1] rounded-lg shadow-2xl p-8 relative"
             style={{
               backgroundColor: certificate.template.backgroundColor,
