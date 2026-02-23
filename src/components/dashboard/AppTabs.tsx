@@ -221,7 +221,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
 
   return (
     <TooltipProvider delayDuration={100}>
-      <div className={`flex items-center gap-1 overflow-x-auto scrollbar-hide ${className}`}>
+      <div className={`flex items-center gap-1 overflow-x-auto overflow-y-visible scrollbar-hide py-2 ${className}`}>
         {/* Render all open tabs */}
         {openTabApps.map((app) => {
           const isActive = app.id === activeAppId;
@@ -256,7 +256,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
                     <Icon size={16} className="sm:w-[18px] sm:h-[18px]" />
                     <span
                       onClick={(e) => handleCloseTab(e, app.id)}
-                      className="absolute -top-1 -right-1 p-0.5 rounded-full bg-slate-200 hover:bg-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      className="absolute -top-1.5 -right-1.5 p-0.5 rounded-full bg-slate-200 hover:bg-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10"
                     >
                       <X size={10} />
                     </span>
