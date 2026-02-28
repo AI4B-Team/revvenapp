@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 
 export default function OnboardingDashboard() {
   const navigate = useNavigate();
-  const userName = 'Brian'; // This would come from your auth context
+  const userName = 'Dolmar'; // This would come from your auth context
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
