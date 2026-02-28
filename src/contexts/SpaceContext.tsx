@@ -38,8 +38,8 @@ const getRandomBgColor = () => bgColors[Math.floor(Math.random() * bgColors.leng
 const defaultSpaces: Space[] = [
   { 
     id: '1', 
-    name: "Brian's Space", 
-    initial: 'B', 
+    name: "Dolmar's Space", 
+    initial: 'D', 
     bgColor: 'bg-brand-green',
     createdAt: new Date().toISOString()
   },
