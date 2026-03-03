@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Wand2, Calendar, Users, DollarSign, Heart, Plus, X,
@@ -71,6 +71,7 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { favorites, toggleFavorite } = useFavoriteApps();
+  const plusButtonRef = useRef<HTMLButtonElement>(null);
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -269,10 +270,11 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
         })}
 
         {/* Add app button with dropdown */}
-        <div className="relative">
+        <div className="relative" style={{ flexShrink: 0 }}>
           <Tooltip>
             <TooltipTrigger asChild>
               <button 
+                ref={plusButtonRef}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="p-2 sm:p-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 transition-colors text-slate-600 shadow-sm flex-shrink-0"
               >
@@ -292,7 +294,14 @@ const AppTabs = ({ className = '' }: AppTabsProps) => {
                   setSearchQuery('');
                 }}
               />
-              <div className="absolute top-full right-0 sm:left-0 sm:right-auto mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl w-[300px] sm:min-w-[360px] z-50 overflow-hidden">
+              <div 
+                className="fixed bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden"
+                style={{ 
+                  width: '360px',
+                  top: plusButtonRef.current ? plusButtonRef.current.getBoundingClientRect().bottom + 8 : 60,
+                  left: plusButtonRef.current ? plusButtonRef.current.getBoundingClientRect().left : 240,
+                }}
+              >
                 {/* Search Bar */}
                 <div className="p-3 border-b border-slate-100">
                   <div className="relative">
