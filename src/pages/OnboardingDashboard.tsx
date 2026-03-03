@@ -1,12 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Play, Users, BookOpen, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function OnboardingDashboard() {
   const navigate = useNavigate();
-  const userName = 'Dolmar'; // This would come from your auth context
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const fetchName = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        if (profile?.full_name) {
+          setUserName(profile.full_name.split(' ')[0]);
+        } else {
+          const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
+          setUserName(name.split(' ')[0]);
+        }
+      }
+    };
+    fetchName();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
