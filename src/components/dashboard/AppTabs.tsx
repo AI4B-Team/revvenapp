@@ -40,7 +40,7 @@ export const allApps: AppTab[] = [
   { id: 'image-upscaler', label: 'Image Upscaler', icon: ArrowUpCircle, color: 'text-white', bgColor: 'bg-lime-600', path: '/image-upscaler' },
   { id: 'video-downloader', label: 'Video Downloader', icon: Download, color: 'text-white', bgColor: 'bg-sky-500', path: '/video-downloader' },
   { id: 'explainer-video', label: 'Explainer Video', icon: Video, color: 'text-white', bgColor: 'bg-fuchsia-500', path: '/explainer-video' },
-  { id: 'ebook-creator', label: 'Ghost Ink', icon: BookOpen, color: 'text-white', bgColor: 'bg-amber-600', path: '/ebook-creator' },
+  { id: 'ghost-ink', label: 'Ghost Ink', icon: BookOpen, color: 'text-white', bgColor: 'bg-amber-600', path: '/ghost-ink' },
   { id: 'blog-writer', label: 'Blog Writer', icon: FileEdit, color: 'text-white', bgColor: 'bg-green-500', path: '/blog-writer' },
   { id: 'social-posts', label: 'Social Posts', icon: Calendar, color: 'text-white', bgColor: 'bg-blue-600', path: '/social-posts' },
   { id: 'newsletter', label: 'Newsletter', icon: Mail, color: 'text-white', bgColor: 'bg-red-600', path: '/newsletter' },

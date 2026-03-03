@@ -19,7 +19,8 @@ export const appRoutes: Record<string, string> = {
   'image-upscaler': '/image-upscaler',
   'video-downloader': '/video-downloader',
   'explainer-video': '/explainer-video',
-  'ebook-creator': '/ebook-creator',
+  'ghost-ink': '/ghost-ink',
+  'ebook-creator': '/ghost-ink',
   'blog-writer': '/blog-writer',
   'social-posts': '/social-posts',
   newsletter: '/newsletter',
@@ -62,6 +63,7 @@ export const appIdByName: Record<string, string> = {
   'AI Responder': 'ai-responder',
   'Investor Calculator': 'investor-calculator',
   'Digital Spy': 'digital-spy',
+  'Ghost Ink': 'ghost-ink',
   'Creator Vault': 'creator-vault',
 };
 

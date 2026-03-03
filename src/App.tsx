@@ -183,7 +183,9 @@ const App = () => (
                           <Route path="/script-writer" element={<ScriptWriter />} />
                           <Route path="/seo-optimizer" element={<SEOOptimizer />} />
                           <Route path="/ebook-creator" element={<EbookCreator />} />
+                          <Route path="/ghost-ink" element={<EbookCreator />} />
                           <Route path="/ebook-creator/new" element={<NewEbook />} />
+                          <Route path="/ghost-ink/new" element={<NewEbook />} />
                           <Route path="/document/:type" element={<DocumentCreator />} />
                           <Route path="/explainer-video" element={<ExplainerVideo />} />
                           <Route path="/viral-shorts" element={<ViralShorts />} />

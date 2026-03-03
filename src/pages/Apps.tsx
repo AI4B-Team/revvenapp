@@ -309,7 +309,7 @@ const Apps = () => {
     { name: 'Ad Copy Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop', rating: 4.4, onClick: () => navigate('/ad-copy-writer') },
     { name: 'Script Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=400&h=300&fit=crop', rating: 4.5, onClick: () => navigate('/script-writer') },
     { name: 'SEO Optimizer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400&h=300&fit=crop', badge: 'NEW', rating: 4.7, onClick: () => navigate('/seo-optimizer') },
-    { name: 'Ghost Ink', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=300&fit=crop', rating: 4.6, onClick: () => navigate('/ebook-creator') },
+    { name: 'Ghost Ink', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=300&fit=crop', rating: 4.6, onClick: () => navigate('/ghost-ink') },
   ];
 
   const toolsApps = [
