@@ -42,7 +42,8 @@ export default function Settings() {
   const [profilePhoto, setProfilePhoto] = useState('');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [userFullName, setUserFullName] = useState('');
+  const [userFirstName, setUserFirstName] = useState('');
+  const [userLastName, setUserLastName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [accountStatus, setAccountStatus] = useState<string>('active');
   const [isCancellationOpen, setIsCancellationOpen] = useState(false);
@@ -70,7 +71,9 @@ export default function Settings() {
         const fullName = user.user_metadata?.full_name || 
                         user.user_metadata?.name ||
                         user.email?.split('@')[0] || '';
-        setUserFullName(fullName);
+        const nameParts = fullName.split(' ');
+        setUserFirstName(nameParts[0] || '');
+        setUserLastName(nameParts.slice(1).join(' ') || '');
         
         // Get avatar from Google OAuth or user metadata
         const avatarUrl = user.user_metadata?.avatar_url || 
@@ -87,7 +90,11 @@ export default function Settings() {
         
         if (profile) {
           // Use profile data if available, otherwise keep the metadata values
-          if (profile.full_name) setUserFullName(profile.full_name);
+          if (profile.full_name) {
+            const parts = profile.full_name.split(' ');
+            setUserFirstName(parts[0] || '');
+            setUserLastName(parts.slice(1).join(' ') || '');
+          }
           if (profile.email) setUserEmail(profile.email);
           if (profile.avatar_url) setProfilePhoto(profile.avatar_url);
           if (profile.account_status) setAccountStatus(profile.account_status);
@@ -415,7 +422,7 @@ export default function Settings() {
                     <Avatar className="w-16 h-16">
                       <AvatarImage src={profilePhoto} alt="Profile" />
                       <AvatarFallback className="bg-gray-100 text-gray-600 text-lg">
-                        {userFullName ? userFullName.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
+                        {userFirstName ? userFirstName.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex gap-3">
@@ -593,7 +600,7 @@ export default function Settings() {
                         <Avatar className="w-20 h-20 border-2 border-gray-200">
                           <AvatarImage src={profilePhoto} alt="Profile" />
                           <AvatarFallback className="bg-gray-100 text-gray-600 text-xl">
-                            {userFullName ? userFullName.charAt(0).toUpperCase() : <User className="w-8 h-8" />}
+                            {userFirstName ? userFirstName.charAt(0).toUpperCase() : <User className="w-8 h-8" />}
                           </AvatarFallback>
                         </Avatar>
                         <button
@@ -640,16 +647,30 @@ export default function Settings() {
                   </div>
                 </div>
 
-                {/* Full Name */}
+                {/* First Name & Last Name */}
                 <div className="grid grid-cols-3 gap-4 items-start">
                   <Label className="text-sm font-medium text-gray-700 pt-2">
-                    Full Name
+                    First Name
                   </Label>
                   <div className="col-span-2">
                     <Input
-                      value={userFullName}
-                      onChange={(e) => setUserFullName(e.target.value)}
-                      placeholder="John Doe"
+                      value={userFirstName}
+                      onChange={(e) => setUserFirstName(e.target.value)}
+                      placeholder="First Name"
+                      className="bg-white border-gray-200"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 items-start">
+                  <Label className="text-sm font-medium text-gray-700 pt-2">
+                    Last Name
+                  </Label>
+                  <div className="col-span-2">
+                    <Input
+                      value={userLastName}
+                      onChange={(e) => setUserLastName(e.target.value)}
+                      placeholder="Last Name"
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -726,7 +747,23 @@ export default function Settings() {
                   <Button variant="outline" className="text-gray-700 border-gray-200">
                     Cancel
                   </Button>
-                  <Button className="bg-brand-green hover:bg-brand-green/90 text-white">
+                  <Button 
+                    className="bg-brand-green hover:bg-brand-green/90 text-white"
+                    onClick={async () => {
+                      const { data: { user } } = await supabase.auth.getUser();
+                      if (!user) return;
+                      const fullName = `${userFirstName} ${userLastName}`.trim();
+                      const { error } = await supabase
+                        .from('profiles')
+                        .update({ full_name: fullName, email: userEmail })
+                        .eq('id', user.id);
+                      if (error) {
+                        toast({ title: 'Error', description: 'Failed to save changes.', variant: 'destructive' });
+                      } else {
+                        toast({ title: 'Saved', description: 'Your profile has been updated.' });
+                      }
+                    }}
+                  >
                     Save Changes
                   </Button>
                 </div>
