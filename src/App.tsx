@@ -110,6 +110,7 @@ const DigitalSpy = lazy(() => import("./pages/DigitalSpy"));
 const CreatorVault = lazy(() => import("./pages/CreatorVault"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const Feedback = lazy(() => import("./pages/Feedback"));
+const HomesDaily = lazy(() => import("./pages/HomesDaily"));
 
 
 
@@ -205,6 +206,7 @@ const App = () => (
                           <Route path="/privacy" element={<PrivacyPolicy />} />
                           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                           <Route path="/oauth/callback" element={<OAuthCallback />} />
+                          <Route path="/homes-daily" element={<HomesDaily />} />
                           <Route path="/assets" element={<Assets />} />
                           <Route path="/integrations" element={<Integrations />} />
                           <Route path="/login" element={<Login />} />
