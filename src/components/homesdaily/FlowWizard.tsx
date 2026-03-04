@@ -4,7 +4,7 @@ import {
   CheckCircle, Home, Tag, Search, DollarSign, Wrench,
   MapPin, Clock, Zap, Users, FileText
 } from "lucide-react";
-import { ALL_FLOWS, buildLeadFromFlow } from "./flowConfig.js";
+import { ALL_FLOWS, buildLeadFromFlow, type Lead } from "./flowConfig";
 
 const C = {
   ink:"#0d1117", inkMid:"#161c26",
@@ -20,7 +20,7 @@ const C = {
   green:"#4a9e5c", greenXL:"#eef6eb",
 };
 
-const FLOW_COLORS = {
+const FLOW_COLORS: Record<string, { primary: string; light: string; icon: React.ReactNode; bg: string }> = {
   sell:    { primary:C.teal,  light:C.tealXL,  icon:<Tag size={15}/>,        bg:"url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=900&q=75') center/cover" },
   buy:     { primary:"#2d6fa8",light:"#eff5fd", icon:<Home size={15}/>,       bg:"url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=900&q=75') center/cover" },
   rent:    { primary:"#6b5ca5",light:"#f3f0fb", icon:<Search size={15}/>,     bg:"url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=75') center/cover" },
@@ -28,7 +28,7 @@ const FLOW_COLORS = {
   service: { primary:C.teal,  light:C.tealXL,  icon:<Wrench size={15}/>,     bg:"url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=900&q=75') center/cover" },
 };
 
-const FLOW_LEFT_COPY = {
+const FLOW_LEFT_COPY: Record<string, { h: string; sub: string }> = {
   sell:    { h:"Your Home Sold.",    sub:"Thousands of verified buyers are already waiting. Competing offers in 24 hours. Zero guesswork." },
   buy:     { h:"Your Perfect Home.", sub:"AI matches you to homes before they hit the market. Search smarter, move faster." },
   rent:    { h:"Your New Place.",    sub:"Curated listings from verified landlords. No ghost listings. No spam." },
@@ -37,11 +37,11 @@ const FLOW_LEFT_COPY = {
 };
 
 // ── Shared field components ───────────────────────────────────
-function FieldRadio({ field, value, onChange, accentColor }) {
+function FieldRadio({ field, value, onChange, accentColor }: { field: any; value: any; onChange: (v: any) => void; accentColor?: string }) {
   const ac = accentColor || C.teal;
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:".52rem" }}>
-      {field.options.map(opt => {
+      {field.options.map((opt: any) => {
         const val = typeof opt === "string" ? opt : opt.value;
         const lbl = typeof opt === "string" ? opt : opt.label;
         const sub = typeof opt === "object"  ? opt.sub : null;
@@ -76,15 +76,15 @@ function FieldRadio({ field, value, onChange, accentColor }) {
   );
 }
 
-function FieldMultiselect({ field, value = [], onChange, accentColor }) {
+function FieldMultiselect({ field, value = [], onChange, accentColor }: { field: any; value: any; onChange: (v: any) => void; accentColor?: string }) {
   const ac = accentColor || C.teal;
-  const toggle = opt => {
+  const toggle = (opt: string) => {
     const v = Array.isArray(value) ? value : [];
-    onChange(v.includes(opt) ? v.filter(x => x !== opt) : [...v, opt]);
+    onChange(v.includes(opt) ? v.filter((x: string) => x !== opt) : [...v, opt]);
   };
   return (
     <div style={{ display:"flex", flexWrap:"wrap", gap:".45rem" }}>
-      {field.options.map(opt => {
+      {field.options.map((opt: string) => {
         const sel = Array.isArray(value) && value.includes(opt);
         return (
           <button key={opt} onClick={() => toggle(opt)} style={{
@@ -107,7 +107,7 @@ function FieldMultiselect({ field, value = [], onChange, accentColor }) {
   );
 }
 
-function FieldSelect({ field, value, onChange }) {
+function FieldSelect({ field, value, onChange }: { field: any; value: any; onChange: (v: any) => void }) {
   return (
     <div>
       {field.label && (
@@ -124,19 +124,19 @@ function FieldSelect({ field, value, onChange }) {
           fontFamily:"'DM Sans',sans-serif",
           color:value?C.ink:C.steelL,
           outline:"none", cursor:"pointer",
-          appearance:"none",
+          appearance:"none" as const,
           backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%238a94a6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
           backgroundRepeat:"no-repeat",
           backgroundPosition:"right 12px center",
         }}>
         <option value="" disabled>Select…</option>
-        {field.options?.map(o => <option key={o} value={o}>{o}</option>)}
+        {field.options?.map((o: string) => <option key={o} value={o}>{o}</option>)}
       </select>
     </div>
   );
 }
 
-function FieldText({ field, value, onChange }) {
+function FieldText({ field, value, onChange }: { field: any; value: any; onChange: (v: any) => void }) {
   return (
     <div>
       {field.label && (
@@ -161,7 +161,7 @@ function FieldText({ field, value, onChange }) {
   );
 }
 
-function FieldTextarea({ field, value, onChange }) {
+function FieldTextarea({ field, value, onChange }: { field: any; value: any; onChange: (v: any) => void }) {
   return (
     <div>
       {field.label && (
@@ -185,9 +185,9 @@ function FieldTextarea({ field, value, onChange }) {
   );
 }
 
-function RenderField({ field, stepAnswers, onChange, accentColor }) {
+function RenderField({ field, stepAnswers, onChange, accentColor }: { field: any; stepAnswers: any; onChange: (id: string, v: any) => void; accentColor?: string }) {
   const val = stepAnswers?.[field.id];
-  const set = v => onChange(field.id, v);
+  const set = (v: any) => onChange(field.id, v);
   if (field.type === "radio")       return <FieldRadio       field={field} value={val} onChange={set} accentColor={accentColor}/>;
   if (field.type === "multiselect") return <FieldMultiselect field={field} value={val} onChange={set} accentColor={accentColor}/>;
   if (field.type === "select")      return <FieldSelect      field={field} value={val} onChange={set}/>;
@@ -196,15 +196,15 @@ function RenderField({ field, stepAnswers, onChange, accentColor }) {
 }
 
 // ── Contact step ──────────────────────────────────────────────
-function ContactStep({ step, answers, onChange }) {
+function ContactStep({ step, answers, onChange }: { step: any; answers: any; onChange: (id: string, v: any) => void }) {
   return (
     <div>
-      {step.fields.map(field => (
+      {step.fields.map((field: any) => (
         <div key={field.id} style={{marginBottom:".9rem"}}>
           <label style={{display:"block",fontSize:".84rem",fontWeight:700,color:C.ink,marginBottom:5}}>
             {field.label}<span style={{color:C.red,marginLeft:2}}>*</span>
           </label>
-          <RenderField field={field} stepAnswers={answers} onChange={onChange}/>
+          <RenderField field={field} stepAnswers={answers} onChange={onChange} accentColor={C.teal}/>
         </div>
       ))}
       <div style={{
@@ -223,8 +223,8 @@ function ContactStep({ step, answers, onChange }) {
 }
 
 // ── Confirmation screen ───────────────────────────────────────
-function ConfirmScreen({ lead, flowColor, onGoToDashboard, onNewRequest }) {
-  const NEXT_STEPS = {
+function ConfirmScreen({ lead, flowColor, onGoToDashboard, onNewRequest }: { lead: Lead; flowColor: any; onGoToDashboard: () => void; onNewRequest: () => void }) {
+  const NEXT_STEPS: Record<string, string[]> = {
     sell:    ["Your listing profile is being built","Verified buyers in your area are being matched","Expect your first buyer inquiry within 24 hours","Review all offers in your Seller Dashboard"],
     buy:     ["Your buy criteria have been saved","Matching listings are being surfaced now","Your agent match queue is ready to review","Set up alerts for new matches in your dashboard"],
     rent:    ["Your rental search is saved","Matching listings are loading into your dashboard","Landlords will be able to send you inquiries","You can message any landlord directly"],
@@ -236,7 +236,6 @@ function ConfirmScreen({ lead, flowColor, onGoToDashboard, onNewRequest }) {
 
   return (
     <div style={{animation:"fadeUp .3s ease"}}>
-      {/* Success banner */}
       <div style={{
         background:`linear-gradient(135deg,${ac},${C.tealM})`,
         borderRadius:"14px 14px 0 0",
@@ -262,7 +261,6 @@ function ConfirmScreen({ lead, flowColor, onGoToDashboard, onNewRequest }) {
         </p>
       </div>
 
-      {/* Summary card */}
       <div style={{
         background:C.creamD,borderRadius:12,
         padding:".9rem 1.05rem",marginBottom:"1.15rem",
@@ -279,7 +277,6 @@ function ConfirmScreen({ lead, flowColor, onGoToDashboard, onNewRequest }) {
         )}
       </div>
 
-      {/* Next steps */}
       <div style={{
         background:C.inkMid,borderRadius:13,
         padding:"1rem 1.15rem",marginBottom:"1.15rem",
@@ -302,7 +299,6 @@ function ConfirmScreen({ lead, flowColor, onGoToDashboard, onNewRequest }) {
         ))}
       </div>
 
-      {/* Actions */}
       <div style={{display:"flex",flexDirection:"column",gap:".55rem"}}>
         <button onClick={onGoToDashboard} style={{
           width:"100%",padding:".75rem",
@@ -326,21 +322,27 @@ function ConfirmScreen({ lead, flowColor, onGoToDashboard, onNewRequest }) {
 }
 
 // ── Main wizard ───────────────────────────────────────────────
+interface FlowWizardProps {
+  flowId?: string;
+  prefill?: Record<string, any>;
+  onComplete?: (lead: Lead, action?: string) => void;
+  onBack?: () => void;
+}
+
 export default function FlowWizard({
   flowId       = "sell",
-  prefill      = {},   // { address, goal } from hero capture
-  onComplete,          // (lead) => void
-  onBack,              // () => void
-}) {
+  prefill      = {},
+  onComplete,
+  onBack,
+}: FlowWizardProps) {
   const flow        = ALL_FLOWS[flowId];
   const flowColor   = FLOW_COLORS[flowId] || FLOW_COLORS.sell;
   const leftCopy    = FLOW_LEFT_COPY[flowId] || FLOW_LEFT_COPY.sell;
   const totalSteps  = flow.steps.length;
 
   const [stepIdx,   setStepIdx]  = useState(0);
-  const [answers,   setAnswers]  = useState(() => {
-    // Pre-seed with hero capture data
-    const seed = {};
+  const [answers,   setAnswers]  = useState<Record<string, Record<string, any>>>(() => {
+    const seed: Record<string, Record<string, any>> = {};
     if (prefill.address) {
       seed.property  = { address: prefill.address };
       seed.details   = { address: prefill.address };
@@ -348,10 +350,10 @@ export default function FlowWizard({
     }
     return seed;
   });
-  const [errors,    setErrors]   = useState([]);
+  const [errors,    setErrors]   = useState<string[]>([]);
   const [submitted, setSubmit]   = useState(false);
-  const [lead,      setLead]     = useState(null);
-  const scrollRef = useRef(null);
+  const [lead,      setLead]     = useState<Lead | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentStep  = flow.steps[stepIdx];
   const stepAnswers  = answers[currentStep.id] || {};
@@ -359,7 +361,7 @@ export default function FlowWizard({
   const progress     = Math.round((stepIdx / totalSteps) * 100);
   const ac           = flowColor.primary;
 
-  const setField = (fieldId, value) => {
+  const setField = (fieldId: string, value: any) => {
     setAnswers(a => ({
       ...a,
       [currentStep.id]: { ...a[currentStep.id], [fieldId]: value },
@@ -368,8 +370,8 @@ export default function FlowWizard({
   };
 
   const validate = () => {
-    const errs = [];
-    currentStep.fields?.forEach(f => {
+    const errs: string[] = [];
+    currentStep.fields?.forEach((f: any) => {
       if (!f.required) return;
       const v = stepAnswers[f.id];
       if (!v || (Array.isArray(v) && v.length === 0) || v === "") errs.push(f.id);
@@ -422,7 +424,6 @@ export default function FlowWizard({
         display:"flex",flexDirection:"column",justifyContent:"flex-end",
         background:`linear-gradient(180deg,rgba(0,0,0,.12) 0%,rgba(0,0,0,.65) 100%), ${flowColor.bg}`,
       }}>
-        {/* Logo */}
         <div style={{
           position:"absolute",top:28,left:28,
           display:"flex",alignItems:"center",gap:9,
@@ -438,7 +439,6 @@ export default function FlowWizard({
             fontSize:".95rem",fontWeight:700,color:"white"}}>HomesDaily</span>
         </div>
 
-        {/* Progress dots */}
         <div style={{
           position:"absolute",bottom:120,left:28,
           display:"flex",gap:5,
@@ -453,7 +453,6 @@ export default function FlowWizard({
           ))}
         </div>
 
-        {/* Bottom copy */}
         <div style={{padding:"0 2rem 2.5rem"}}>
           <h2 style={{
             fontFamily:"'Playfair Display',serif",
@@ -485,7 +484,6 @@ export default function FlowWizard({
 
       {/* Right form panel */}
       <div style={{flex:1,display:"flex",flexDirection:"column",background:C.white,overflow:"hidden"}}>
-        {/* Header bar */}
         <div style={{
           display:"flex",alignItems:"center",justifyContent:"space-between",
           padding:"1.15rem 2rem",borderBottom:`1px solid ${C.border}`,flexShrink:0,
@@ -510,7 +508,6 @@ export default function FlowWizard({
           )}
         </div>
 
-        {/* Progress bar */}
         <div style={{height:3,background:C.creamD,flexShrink:0}}>
           <div style={{
             height:"100%",
@@ -520,7 +517,6 @@ export default function FlowWizard({
           }}/>
         </div>
 
-        {/* Scrollable content */}
         <div ref={scrollRef} style={{flex:1,overflowY:"auto",padding:"1.75rem 2rem"}}>
           {submitted && lead ? (
             <ConfirmScreen
@@ -530,7 +526,6 @@ export default function FlowWizard({
               onNewRequest={() => { setSubmit(false); setStepIdx(0); setAnswers({}); setLead(null); }}/>
           ) : (
             <div key={stepIdx} style={{animation:"fadeUp .2s ease"}}>
-              {/* Step heading */}
               <h2 style={{
                 fontFamily:"'Playfair Display',serif",
                 fontSize:"1.4rem",fontWeight:700,
@@ -543,11 +538,10 @@ export default function FlowWizard({
               )}
               {!currentStep.subtitle && <div style={{marginBottom:"1.25rem"}}/>}
 
-              {/* Fields */}
               {currentStep.id === "contact" ? (
                 <ContactStep step={currentStep} answers={stepAnswers} onChange={setField}/>
               ) : (
-                currentStep.fields?.map((field, fi) => (
+                currentStep.fields?.map((field: any) => (
                   <div key={field.id} style={{marginBottom:"1.15rem"}}>
                     {field.label && (field.type==="radio"||field.type==="multiselect") && (
                       <label style={{display:"block",fontSize:".8rem",fontWeight:700,
@@ -574,7 +568,6 @@ export default function FlowWizard({
           )}
         </div>
 
-        {/* Nav buttons */}
         {!submitted && (
           <div style={{
             display:"flex",alignItems:"center",justifyContent:"space-between",

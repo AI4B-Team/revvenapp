@@ -5,8 +5,8 @@ import {
   Zap, Shield, Users, FileText, Star, TrendingUp,
   BarChart2, MessageSquare, X, Plus, Eye
 } from "lucide-react";
-import FlowWizard from "./FlowWizard.jsx";
-import { ALL_FLOWS, FLOW_ORDER } from "./flowConfig.js";
+import FlowWizard from "./FlowWizard";
+import { ALL_FLOWS, FLOW_ORDER, type Lead } from "./flowConfig";
 
 const C = {
   ink:"#0d1117", inkMid:"#161c26",
@@ -23,7 +23,12 @@ const C = {
   blue:"#3b7fc4",
 };
 
-function dataReducer(state, action) {
+interface DataState {
+  leads: Lead[];
+  [key: string]: Lead[] | any;
+}
+
+function dataReducer(state: DataState, action: { type: string; payload: Lead }): DataState {
   switch (action.type) {
     case "ADD_LEAD":
       return {
@@ -39,13 +44,13 @@ function dataReducer(state, action) {
   }
 }
 
-const initialData = {
+const initialData: DataState = {
   leads:[],
   sell_leads:[], buy_leads:[], rent_leads:[],
   finance_leads:[], service_leads:[],
 };
 
-const TAB_META = {
+const TAB_META: Record<string, { icon: React.ReactNode; color: string }> = {
   sell:    { icon:<Tag size={14}/>,        color:C.teal  },
   buy:     { icon:<Search size={14}/>,     color:C.blue  },
   rent:    { icon:<Home size={14}/>,       color:"#6b5ca5"},
@@ -53,7 +58,7 @@ const TAB_META = {
   service: { icon:<Wrench size={14}/>,     color:C.teal  },
 };
 
-const HERO_HEADLINES = {
+const HERO_HEADLINES: Record<string, { top: string; italic: string; sub: string }> = {
   sell:    { top:"YOUR HOME SOLD.",        italic:"Your Buyer Is Already Here.",    sub:"Thousands of verified buyers are already waiting. Competing offers in 24 hours. Zero guesswork." },
   buy:     { top:"YOUR PERFECT HOME.",     italic:"Already Waiting For You.",       sub:"AI matches you to listings before they hit the public market. First access wins." },
   rent:    { top:"YOUR NEXT HOME.",        italic:"No Agents. No Spam. No Delays.", sub:"Curated rentals from verified landlords. Move in faster." },
@@ -61,7 +66,7 @@ const HERO_HEADLINES = {
   service: { top:"YOUR PRO. FOUND.",       italic:"Background-Checked. Guaranteed.",sub:"AI matches you to the highest-rated, verified professional in your area. Quotes in hours." },
 };
 
-const HERO_BGS = {
+const HERO_BGS: Record<string, string> = {
   sell:    "url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1400&q=80') center/cover",
   buy:     "url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1400&q=80') center/cover",
   rent:    "url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1400&q=80') center/cover",
@@ -69,7 +74,7 @@ const HERO_BGS = {
   service: "url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1400&q=80') center/cover",
 };
 
-function HeroWidget({ onStart, activeTab, setActiveTab }) {
+function HeroWidget({ onStart, activeTab, setActiveTab }: { onStart: (flowId: string, data: any) => void; activeTab: string; setActiveTab: (t: string) => void }) {
   const [address, setAddress] = useState("");
   const [goal, setGoal]       = useState("");
   const flow    = ALL_FLOWS[activeTab];
@@ -160,7 +165,7 @@ function HeroWidget({ onStart, activeTab, setActiveTab }) {
                 fontFamily:"'DM Sans',sans-serif",
                 color:goal?C.ink:C.steelL,
                 outline:"none",cursor:"pointer",
-                appearance:"none",
+                appearance:"none" as const,
                 backgroundImage:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%238a94a6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E\")",
                 backgroundRepeat:"no-repeat",
                 backgroundPosition:"right 10px center",
@@ -211,7 +216,7 @@ function HeroWidget({ onStart, activeTab, setActiveTab }) {
   );
 }
 
-function DashboardLeadCard({ lead, index }) {
+function DashboardLeadCard({ lead, index }: { lead: Lead; index: number }) {
   const [open, setOpen] = useState(false);
   const ac = TAB_META[lead.flowId]?.color || C.teal;
 
@@ -272,9 +277,9 @@ function DashboardLeadCard({ lead, index }) {
           <div style={{fontSize:".58rem",fontWeight:800,textTransform:"uppercase",
             letterSpacing:1,color:C.steelL,marginBottom:".6rem"}}>Full Submission</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:".3rem .85rem",marginBottom:".75rem"}}>
-            {[["ID",lead.id],["Name",lead.contact?.name],["Email",lead.contact?.email],
+            {([["ID",lead.id],["Name",lead.contact?.name],["Email",lead.contact?.email],
               ["Phone",lead.contact?.phone],["Submitted",new Date(lead.submittedAt).toLocaleTimeString()]
-            ].filter(([,v])=>v).map(([k,v])=>(
+            ] as [string, string | undefined][]).filter(([,v])=>v).map(([k,v])=>(
               <div key={k} style={{display:"flex",justifyContent:"space-between",
                 padding:".2rem 0",borderBottom:`1px solid ${C.border}`,fontSize:".71rem"}}>
                 <span style={{color:C.steelL}}>{k}</span>
@@ -289,12 +294,12 @@ function DashboardLeadCard({ lead, index }) {
                 letterSpacing:.8,color:C.steelL,marginBottom:".35rem"}}>
                 {stepId.replace(/_/g," ")}
               </div>
-              {Object.entries(stepData||{}).filter(([,v])=>v).map(([k,v])=>(
+              {Object.entries((stepData as Record<string, any>)||{}).filter(([,v])=>v).map(([k,v])=>(
                 <div key={k} style={{display:"flex",justifyContent:"space-between",
                   padding:".18rem 0",borderBottom:`1px solid ${C.border}`,fontSize:".7rem"}}>
                   <span style={{color:C.steelL,textTransform:"capitalize"}}>{k.replace(/_/g," ")}</span>
                   <span style={{fontWeight:600,color:C.ink,textAlign:"right",maxWidth:260}}>
-                    {Array.isArray(v)?v.join(", "):v}
+                    {Array.isArray(v)?(v as string[]).join(", "):String(v)}
                   </span>
                 </div>
               ))}
@@ -306,7 +311,7 @@ function DashboardLeadCard({ lead, index }) {
   );
 }
 
-function Dashboard({ data, onNewRequest }) {
+function Dashboard({ data, onNewRequest }: { data: DataState; onNewRequest: () => void }) {
   const [activeRole, setActiveRole] = useState("all");
   const allLeads = data.leads;
   const roles    = ["all",...[...new Set(allLeads.map(l=>l.flowId))]];
@@ -379,9 +384,9 @@ function Dashboard({ data, onNewRequest }) {
         }}>
           {[
             {l:"Total",v:allLeads.length,c:C.teal,i:<FileText size={14}/>},
-            {l:"Sell",v:data.sell_leads.length,c:C.teal,i:<Tag size={14}/>},
-            {l:"Buy / Rent",v:data.buy_leads.length+data.rent_leads.length,c:C.blue,i:<Home size={14}/>},
-            {l:"Finance / Service",v:data.finance_leads.length+data.service_leads.length,c:C.gold,i:<DollarSign size={14}/>},
+            {l:"Sell",v:(data.sell_leads as Lead[]).length,c:C.teal,i:<Tag size={14}/>},
+            {l:"Buy / Rent",v:(data.buy_leads as Lead[]).length+(data.rent_leads as Lead[]).length,c:C.blue,i:<Home size={14}/>},
+            {l:"Finance / Service",v:(data.finance_leads as Lead[]).length+(data.service_leads as Lead[]).length,c:C.gold,i:<DollarSign size={14}/>},
           ].map((s,i)=>(
             <div key={s.l} style={{
               background:C.white,border:`1.5px solid ${C.border}`,
@@ -455,7 +460,7 @@ function Dashboard({ data, onNewRequest }) {
   );
 }
 
-function HeroPage({ activeTab, setActiveTab, onStart }) {
+function HeroPage({ activeTab, setActiveTab, onStart }: { activeTab: string; setActiveTab: (t: string) => void; onStart: (flowId: string, data: any) => void }) {
   const hl = HERO_HEADLINES[activeTab]||HERO_HEADLINES.sell;
   const bg = HERO_BGS[activeTab]||HERO_BGS.sell;
 
@@ -598,15 +603,15 @@ export default function HomesDailyApp() {
   const [page, setPage]     = useState("home");
   const [activeTab, setActiveTab] = useState("sell");
   const [wizardFlow, setFlow]     = useState("sell");
-  const [prefill, setPrefill]     = useState({});
+  const [prefill, setPrefill]     = useState<Record<string, any>>({});
 
-  const handleStart = (flowId, captureData) => {
+  const handleStart = (flowId: string, captureData: any) => {
     setFlow(flowId);
     setPrefill(captureData);
     setPage("wizard");
   };
 
-  const handleComplete = (lead) => {
+  const handleComplete = (lead: Lead) => {
     dispatch({ type:"ADD_LEAD", payload:lead });
     setPage("dashboard");
   };

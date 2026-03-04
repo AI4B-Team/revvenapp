@@ -1,11 +1,60 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  HomesDaily — Universal Flow Config
-//  Drives every opt-in form on every page.
-//  Each flow produces a typed lead object that routes to the correct dashboard.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Shared steps ─────────────────────────────────────────────
-const CONTACT_STEP = {
+export interface FlowField {
+  id: string;
+  type: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: any[];
+  sub?: string;
+}
+
+export interface FlowStep {
+  id: string;
+  title: string;
+  subtitle?: string;
+  privacy?: boolean;
+  fields: FlowField[];
+}
+
+export interface HeroCapture {
+  addressLabel: string;
+  addressPlaceholder: string;
+  goalLabel: string;
+  goalOptions: string[];
+  cta: string;
+  situations: string[];
+  ctaNote: string;
+}
+
+export interface Flow {
+  id: string;
+  label: string;
+  dashboardRole: string;
+  heroCapture: HeroCapture;
+  steps: FlowStep[];
+}
+
+export interface Lead {
+  id: string;
+  flowId: string;
+  role: string;
+  label: string;
+  status: string;
+  submittedAt: string;
+  contact: Record<string, string>;
+  answers: Record<string, Record<string, any>>;
+  address: string;
+  name: string;
+  email: string;
+  phone: string;
+  summary: string;
+}
+
+const CONTACT_STEP: FlowStep = {
   id: "contact",
   title: "How can we reach you?",
   subtitle: "Your info is private. Only shared with verified matches you approve.",
@@ -18,18 +67,18 @@ const CONTACT_STEP = {
 };
 
 // ── SELL flow ─────────────────────────────────────────────────
-export const SELL_FLOW = {
-  id:          "sell",
-  label:       "Sell",
-  dashboardRole:"seller",
+export const SELL_FLOW: Flow = {
+  id: "sell",
+  label: "Sell",
+  dashboardRole: "seller",
   heroCapture: {
     addressLabel: "YOUR PROPERTY ADDRESS",
     addressPlaceholder: "4821 Bay Boulevard, Tampa FL 33611",
-    goalLabel:    "YOUR GOAL",
-    goalOptions:  ["Get Cash Offers","List with Agent","Get Home Value","FSBO Guidance"],
-    cta:          "See My Buyers",
-    situations:   ["Foreclosure","Inherited Property","Relocating","As-Is Sale"],
-    ctaNote:      "No Obligation · Private & Secure",
+    goalLabel: "YOUR GOAL",
+    goalOptions: ["Get Cash Offers","List with Agent","Get Home Value","FSBO Guidance"],
+    cta: "See My Buyers",
+    situations: ["Foreclosure","Inherited Property","Relocating","As-Is Sale"],
+    ctaNote: "No Obligation · Private & Secure",
   },
   steps: [
     {
@@ -105,18 +154,18 @@ export const SELL_FLOW = {
 };
 
 // ── BUY flow ──────────────────────────────────────────────────
-export const BUY_FLOW = {
-  id:          "buy",
-  label:       "Buy",
-  dashboardRole:"buyer",
+export const BUY_FLOW: Flow = {
+  id: "buy",
+  label: "Buy",
+  dashboardRole: "buyer",
   heroCapture: {
     addressLabel: "SEARCH LOCATION",
     addressPlaceholder: "City, zip, or neighborhood",
-    goalLabel:    "BUYER TYPE",
-    goalOptions:  ["Primary Home","Investment Property","Vacation Home","Relocating"],
-    cta:          "Find My Home",
-    situations:   ["First-time Buyer","Move-Up Buyer","Cash Buyer","Pre-Approved"],
-    ctaNote:      "Free · No Obligation",
+    goalLabel: "BUYER TYPE",
+    goalOptions: ["Primary Home","Investment Property","Vacation Home","Relocating"],
+    cta: "Find My Home",
+    situations: ["First-time Buyer","Move-Up Buyer","Cash Buyer","Pre-Approved"],
+    ctaNote: "Free · No Obligation",
   },
   steps: [
     {
@@ -177,18 +226,18 @@ export const BUY_FLOW = {
 };
 
 // ── RENT flow ─────────────────────────────────────────────────
-export const RENT_FLOW = {
-  id:          "rent",
-  label:       "Rent",
-  dashboardRole:"renter",
+export const RENT_FLOW: Flow = {
+  id: "rent",
+  label: "Rent",
+  dashboardRole: "renter",
   heroCapture: {
     addressLabel: "WHERE DO YOU WANT TO LIVE?",
     addressPlaceholder: "Tampa, FL or zip code",
-    goalLabel:    "I AM A",
-    goalOptions:  ["Looking to Rent","Listing My Rental","Corporate Housing","Short-term"],
-    cta:          "Find Rentals",
-    situations:   ["Pet Friendly","No Credit Check","Month-to-Month","Furnished"],
-    ctaNote:      "Free to Search",
+    goalLabel: "I AM A",
+    goalOptions: ["Looking to Rent","Listing My Rental","Corporate Housing","Short-term"],
+    cta: "Find Rentals",
+    situations: ["Pet Friendly","No Credit Check","Month-to-Month","Furnished"],
+    ctaNote: "Free to Search",
   },
   steps: [
     {
@@ -225,18 +274,18 @@ export const RENT_FLOW = {
 };
 
 // ── FINANCE flow ──────────────────────────────────────────────
-export const FINANCE_FLOW = {
-  id:          "finance",
-  label:       "Finance",
-  dashboardRole:"borrower",
+export const FINANCE_FLOW: Flow = {
+  id: "finance",
+  label: "Finance",
+  dashboardRole: "borrower",
   heroCapture: {
     addressLabel: "PROPERTY ADDRESS (IF KNOWN)",
     addressPlaceholder: "Leave blank if still shopping",
-    goalLabel:    "LOAN TYPE",
-    goalOptions:  ["Purchase Loan","Refinance","Cash-Out Refi","HELOC","Hard Money"],
-    cta:          "Get My Rates",
-    situations:   ["First-time Buyer","VA Loan","FHA Loan","Self-Employed"],
-    ctaNote:      "Soft credit pull only · Won't affect your score",
+    goalLabel: "LOAN TYPE",
+    goalOptions: ["Purchase Loan","Refinance","Cash-Out Refi","HELOC","Hard Money"],
+    cta: "Get My Rates",
+    situations: ["First-time Buyer","VA Loan","FHA Loan","Self-Employed"],
+    ctaNote: "Soft credit pull only · Won't affect your score",
   },
   steps: [
     {
@@ -292,19 +341,19 @@ export const FINANCE_FLOW = {
   ],
 };
 
-// ── SERVICE flow (short — redirects to ServiceIntakeWizard) ──
-export const SERVICE_FLOW = {
-  id:          "service",
-  label:       "Services",
-  dashboardRole:"homeowner",
+// ── SERVICE flow ──────────────────────────────────────────────
+export const SERVICE_FLOW: Flow = {
+  id: "service",
+  label: "Services",
+  dashboardRole: "homeowner",
   heroCapture: {
     addressLabel: "YOUR PROPERTY",
     addressPlaceholder: "Property address",
-    goalLabel:    "SERVICE NEEDED",
-    goalOptions:  ["Plumbing","HVAC","Roofing","Electrical","Cleaning","Handyman"],
-    cta:          "Find Pros",
-    situations:   ["Emergency","Licensed Only","Background Checked","Free Estimates"],
-    ctaNote:      "Free · No Obligation",
+    goalLabel: "SERVICE NEEDED",
+    goalOptions: ["Plumbing","HVAC","Roofing","Electrical","Cleaning","Handyman"],
+    cta: "Find Pros",
+    situations: ["Emergency","Licensed Only","Background Checked","Free Estimates"],
+    ctaNote: "Free · No Obligation",
   },
   steps: [
     {
@@ -349,7 +398,7 @@ export const SERVICE_FLOW = {
 };
 
 // ── Registry ─────────────────────────────────────────────────
-export const ALL_FLOWS = {
+export const ALL_FLOWS: Record<string, Flow> = {
   sell:    SELL_FLOW,
   buy:     BUY_FLOW,
   rent:    RENT_FLOW,
@@ -357,10 +406,10 @@ export const ALL_FLOWS = {
   service: SERVICE_FLOW,
 };
 
-export const FLOW_ORDER = ["sell","buy","rent","finance","service"];
+export const FLOW_ORDER = ["sell","buy","rent","finance","service"] as const;
 
 // ── Build lead from wizard answers ───────────────────────────
-export function buildLeadFromFlow(flowId, answers) {
+export function buildLeadFromFlow(flowId: string, answers: Record<string, Record<string, any>>): Lead {
   const flow    = ALL_FLOWS[flowId];
   const contact = findContactAnswers(answers);
   return {
@@ -372,7 +421,6 @@ export function buildLeadFromFlow(flowId, answers) {
     submittedAt: new Date().toISOString(),
     contact,
     answers,
-    // convenience fields for dashboard display
     address:     contact.address || extractAddress(answers) || "Address not provided",
     name:        contact.name    || "Homeowner",
     email:       contact.email   || "",
@@ -381,19 +429,20 @@ export function buildLeadFromFlow(flowId, answers) {
   };
 }
 
-function findContactAnswers(answers) {
+function findContactAnswers(answers: Record<string, any>): Record<string, string> {
   return answers.contact || {};
 }
 
-function extractAddress(answers) {
+function extractAddress(answers: Record<string, any>): string {
   for (const step of Object.values(answers)) {
-    if (step?.address) return step.address;
-    if (step?.location) return step.location;
+    const s = step as Record<string, any> | null;
+    if (s?.address) return s.address;
+    if (s?.location) return s.location;
   }
   return "";
 }
 
-function buildSummary(flowId, answers) {
+function buildSummary(flowId: string, answers: Record<string, any>): string {
   const a = answers;
   if (flowId === "sell") {
     const prop = a.property || {};
