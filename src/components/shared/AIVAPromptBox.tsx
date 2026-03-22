@@ -702,7 +702,7 @@ const AIVAPromptBox = ({
   const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   // Social content mode state
   const [contentPostType, setContentPostType] = useState('Single Image');

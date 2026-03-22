@@ -102,8 +102,8 @@ export default function RecordModal({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
-  const teleprompterIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const transcriptionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const teleprompterIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const transcriptionIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Open prompter in a separate window
   const openPrompterWindow = () => {
@@ -352,7 +352,7 @@ export default function RecordModal({
 
   // Recording timer
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isRecording) {
       interval = setInterval(() => {
         setRecordingTime(prev => prev + 1);

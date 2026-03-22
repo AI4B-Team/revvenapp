@@ -28,7 +28,7 @@ export function ProductSection({ app, license, onUpdate }: ProductSectionProps) 
   const [isNameWizardOpen, setIsNameWizardOpen] = useState(false);
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const debouncedSave = useCallback((settings: Partial<AppLicense['brandSettings']>) => {
     // Clear any existing timeout
