@@ -339,7 +339,7 @@ const Create = () => {
   }, [location, navigate]);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [externalStartingFrame, setExternalStartingFrame] = useState<{ preview: string; name: string } | null>(null);
   const [socialGeneratedContent, setSocialGeneratedContent] = useState<any[]>([]);
   const [isSocialGenerating, setIsSocialGenerating] = useState(false);
