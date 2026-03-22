@@ -205,7 +205,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
      activeTab === 'Content' ? contentNavItems :
      createNavItems);
 
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed ?? collapsed ?? defaultCollapsed ?? false);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed ?? collapsed ?? defaultCollapsed ?? true);
   const [userExpandedSidebar, setUserExpandedSidebar] = useState(false);
 
   useEffect(() => {
