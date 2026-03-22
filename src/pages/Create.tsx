@@ -505,6 +505,7 @@ const Create = () => {
         }}
         onAIVAPanelToggle={() => setIsAIVAPanelOpen(!isAIVAPanelOpen)}
         isAIVAPanelOpen={isAIVAPanelOpen}
+        defaultCollapsed={true}
       />
 
       <AIVASidePanel 
