@@ -166,7 +166,7 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
   return (
     <div className="w-full font-sans">
       {/* Dropdown Section */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200">
         {/* Header with Scene Count Dropdown */}
         <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
           {/* Scene Count Dropdown */}
