@@ -637,7 +637,7 @@ const EbookCanvasEditor = ({
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
   const gridContainerRef = useRef<HTMLDivElement>(null);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Notify parent when grid view changes
   useEffect(() => {

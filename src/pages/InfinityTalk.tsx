@@ -35,7 +35,7 @@ const InfinityTalk = () => {
   
   const imageInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
 
   const { height: promptHeight, isResizing: isPromptResizing, handleResizeStart: handlePromptResizeStart } = useResizableTextarea({

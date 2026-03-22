@@ -420,7 +420,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   const cloneAudioRef = useRef<HTMLAudioElement | null>(null);
   const cloneMediaRecorderRef = useRef<MediaRecorder | null>(null);
   const cloneAudioChunksRef = useRef<Blob[]>([]);
-  const cloneRecordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const cloneRecordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Load saved voices when modal opens
   useEffect(() => {
