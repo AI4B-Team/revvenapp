@@ -247,7 +247,7 @@ export default function AccountSidebar({
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-56 p-0 bg-white border border-border shadow-lg z-50" align="end">
+            <PopoverContent className="w-56 p-0 bg-white border border-border shadow-lg z-50" align="start" side="bottom" sideOffset={8}>
               <div className="p-2 border-b border-border">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
