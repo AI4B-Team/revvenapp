@@ -57,7 +57,7 @@ export default function VoiceRecordingModal({
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const recognitionRef = useRef<any>(null);
-  const teleprompterIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const teleprompterIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Get available microphones
   useEffect(() => {
