@@ -216,24 +216,29 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         <AppTabs className="flex-1" />
 
       <div className="flex items-center justify-end gap-2 h-10">
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="sm" 
-                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground hidden sm:flex items-center gap-1.5 pl-3 pr-4 h-9 text-sm rounded-full border-0 shadow-sm"
-                onClick={() => navigate('/pricing')}
-              >
-                <Zap className="w-4 h-4 fill-current" />
-                <span className="font-semibold">{t('nav.upgrade')}</span>
-                <span className="bg-white/20 text-xs font-medium px-2 py-0.5 rounded-full ml-1">10,000</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{t('nav.upgrade')}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        {/* Credits pill with Upgrade button */}
+        <div className="hidden sm:flex items-center bg-foreground/[0.06] rounded-full pl-3 pr-1 py-1 gap-2">
+          <span className="text-brand-green text-[0.8rem]">◆</span>
+          <span className="text-[0.82rem] font-semibold tabular-nums text-foreground">10,000</span>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="text-muted-foreground hover:text-foreground transition-colors" title="Credit info">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Your monthly credits will be refilled when your subscription renews.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Link 
+            to="/pricing" 
+            className="bg-destructive text-destructive-foreground text-[0.76rem] font-semibold px-3 py-1 rounded-full hover:bg-destructive/85 transition-colors no-underline"
+          >
+            {t('nav.upgrade')}
+          </Link>
+        </div>
 
         <TooltipProvider delayDuration={100}>
           <Tooltip>
