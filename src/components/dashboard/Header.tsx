@@ -221,10 +221,12 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             <TooltipTrigger asChild>
               <Button 
                 size="sm" 
-                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground hidden sm:flex items-center gap-1.5 px-5 h-9 text-sm rounded-full border-0 shadow-sm"
+                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground hidden sm:flex items-center gap-1.5 pl-3 pr-4 h-9 text-sm rounded-full border-0 shadow-sm"
                 onClick={() => navigate('/pricing')}
               >
+                <Zap className="w-4 h-4 fill-current" />
                 <span className="font-semibold">{t('nav.upgrade')}</span>
+                <span className="bg-white/20 text-xs font-medium px-2 py-0.5 rounded-full ml-1">10,000</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
