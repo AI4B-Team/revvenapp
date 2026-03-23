@@ -234,7 +234,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           </TooltipProvider>
           <Link 
             to="/pricing" 
-            className="bg-destructive text-destructive-foreground text-[0.76rem] font-semibold px-3 py-1 rounded-full hover:bg-destructive/85 transition-colors no-underline"
+            className="bg-destructive text-destructive-foreground text-[0.76rem] font-semibold px-3 py-1 rounded-lg hover:bg-destructive/85 transition-colors no-underline"
           >
             {t('nav.upgrade')}
           </Link>
