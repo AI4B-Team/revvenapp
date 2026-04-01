@@ -540,55 +540,8 @@ const AppStorePage = () => {
               </div>
             </div>
 
-            {/* Install Panel */}
-            {showInstallPanel && (
-              <div className="mb-8 p-6 bg-muted/50 rounded-2xl border border-border">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Who Should Have Access?</h3>
-                <div className="space-y-3">
-                  {accessUsers.map((user) => (
-                    <label
-                      key={user.id}
-                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedUserIds.includes(user.id)
-                          ? 'bg-primary/10 border border-primary/20' 
-                          : 'bg-background border border-transparent hover:bg-muted'
-                      }`}
-                    >
-                      <input
-                        type={user.id === 'all' ? 'radio' : 'checkbox'}
-                        name="access-user"
-                        value={user.id}
-                        checked={selectedUserIds.includes(user.id)}
-                        onChange={() => toggleUserSelection(user.id)}
-                        className="w-4 h-4 text-primary border-muted-foreground focus:ring-primary rounded"
-                      />
-                      <span className="text-foreground font-medium">{user.name}</span>
-                    </label>
-                  ))}
-                </div>
-                
-                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                    <strong>NOTE:</strong> You can change access permissions later from the app settings.
-                  </p>
-                </div>
-                
-                <div className="flex gap-3 mt-6">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowInstallPanel(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                    onClick={handleInstall}
-                  >
-                    Install App
-                  </Button>
-                </div>
-              </div>
-            )}
+
+
 
             {/* Screenshots Carousel - 4 in a row */}
             <div className="mb-12">
