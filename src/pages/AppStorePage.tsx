@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { InstallModal } from '@/components/marketplace/InstallModal';
+import { mockTeams } from '@/lib/marketplace/data';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
