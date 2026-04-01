@@ -339,30 +339,15 @@ const AppStorePage = () => {
   
   const visibleCount = 4; // Number of screenshots visible at once
 
-  // Mock users for access control
-  const accessUsers = [
-    { id: 'all', name: 'Everyone In This Workspace' },
-    { id: 'brian', name: 'Brian' },
-    { id: 'francis', name: 'Francis' },
-    { id: 'rich', name: 'Rich' },
-    { id: 'damoi', name: 'Damoi' },
-    { id: 'keisha', name: 'Keisha' },
-  ];
-
-  const handleInstall = () => {
+  const handleInstall = (accessMode: string, userIds: string[], teamIds: string[]) => {
     if (!appId) return;
-    
-    const hasAll = selectedUserIds.includes('all');
-    const accessMode = hasAll ? 'all_members' : 'select_users';
-    const userIds = hasAll ? [] : selectedUserIds;
-    
     installApp(
       appId,
       mockMarketplaceWorkspace.id,
       mockMarketplaceUser.id,
       accessMode as any,
       userIds,
-      []
+      teamIds
     );
     toast.success(`${app?.name} installed successfully!`);
     setShowInstallPanel(false);
