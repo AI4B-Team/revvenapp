@@ -921,6 +921,18 @@ const AppStorePage = () => {
           </div>
         </main>
       </div>
+
+      {/* Install Modal */}
+      {app && showInstallPanel && (
+        <InstallModal
+          isOpen={showInstallPanel}
+          onClose={() => setShowInstallPanel(false)}
+          app={getCatalogApp(appId!)}
+          members={mockMembers}
+          teams={mockTeams}
+          onInstall={handleInstall}
+        />
+      )}
     </div>
   );
 };
