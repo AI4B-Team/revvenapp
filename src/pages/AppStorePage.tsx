@@ -352,26 +352,8 @@ const AppStorePage = () => {
     setShowInstallPanel(false);
   };
 
-  const toggleUserSelection = (userId: string) => {
-    if (userId === 'all') {
-      // If selecting "all", clear other selections
-      setSelectedUserIds(['all']);
-    } else {
-      setSelectedUserIds(prev => {
-        // Remove 'all' if it was selected
-        const withoutAll = prev.filter(id => id !== 'all');
-        if (prev.includes(userId)) {
-          // Remove user if already selected
-          const newSelection = withoutAll.filter(id => id !== userId);
-          // If no users selected, default to 'all'
-          return newSelection.length === 0 ? ['all'] : newSelection;
-        } else {
-          // Add user to selection
-          return [...withoutAll, userId];
-        }
-      });
-    }
-  };
+
+
 
   const handleResell = () => {
     if (appId) {
