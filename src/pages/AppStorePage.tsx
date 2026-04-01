@@ -307,7 +307,6 @@ const AppStorePage = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [screenshotStartIndex, setScreenshotStartIndex] = useState(0);
   const [showInstallPanel, setShowInstallPanel] = useState(false);
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(['all']);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   
