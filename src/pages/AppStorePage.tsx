@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { InstallModal } from '@/components/marketplace/InstallModal';
+import { mockTeams } from '@/lib/marketplace/data';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -305,7 +307,6 @@ const AppStorePage = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [screenshotStartIndex, setScreenshotStartIndex] = useState(0);
   const [showInstallPanel, setShowInstallPanel] = useState(false);
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(['all']);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   
@@ -337,55 +338,22 @@ const AppStorePage = () => {
   
   const visibleCount = 4; // Number of screenshots visible at once
 
-  // Mock users for access control
-  const accessUsers = [
-    { id: 'all', name: 'Everyone In This Workspace' },
-    { id: 'brian', name: 'Brian' },
-    { id: 'francis', name: 'Francis' },
-    { id: 'rich', name: 'Rich' },
-    { id: 'damoi', name: 'Damoi' },
-    { id: 'keisha', name: 'Keisha' },
-  ];
-
-  const handleInstall = () => {
+  const handleInstall = (accessMode: string, userIds: string[], teamIds: string[]) => {
     if (!appId) return;
-    
-    const hasAll = selectedUserIds.includes('all');
-    const accessMode = hasAll ? 'all_members' : 'select_users';
-    const userIds = hasAll ? [] : selectedUserIds;
-    
     installApp(
       appId,
       mockMarketplaceWorkspace.id,
       mockMarketplaceUser.id,
       accessMode as any,
       userIds,
-      []
+      teamIds
     );
     toast.success(`${app?.name} installed successfully!`);
     setShowInstallPanel(false);
   };
 
-  const toggleUserSelection = (userId: string) => {
-    if (userId === 'all') {
-      // If selecting "all", clear other selections
-      setSelectedUserIds(['all']);
-    } else {
-      setSelectedUserIds(prev => {
-        // Remove 'all' if it was selected
-        const withoutAll = prev.filter(id => id !== 'all');
-        if (prev.includes(userId)) {
-          // Remove user if already selected
-          const newSelection = withoutAll.filter(id => id !== userId);
-          // If no users selected, default to 'all'
-          return newSelection.length === 0 ? ['all'] : newSelection;
-        } else {
-          // Add user to selection
-          return [...withoutAll, userId];
-        }
-      });
-    }
-  };
+
+
 
   const handleResell = () => {
     if (appId) {
@@ -572,55 +540,8 @@ const AppStorePage = () => {
               </div>
             </div>
 
-            {/* Install Panel */}
-            {showInstallPanel && (
-              <div className="mb-8 p-6 bg-muted/50 rounded-2xl border border-border">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Who Should Have Access?</h3>
-                <div className="space-y-3">
-                  {accessUsers.map((user) => (
-                    <label
-                      key={user.id}
-                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedUserIds.includes(user.id)
-                          ? 'bg-primary/10 border border-primary/20' 
-                          : 'bg-background border border-transparent hover:bg-muted'
-                      }`}
-                    >
-                      <input
-                        type={user.id === 'all' ? 'radio' : 'checkbox'}
-                        name="access-user"
-                        value={user.id}
-                        checked={selectedUserIds.includes(user.id)}
-                        onChange={() => toggleUserSelection(user.id)}
-                        className="w-4 h-4 text-primary border-muted-foreground focus:ring-primary rounded"
-                      />
-                      <span className="text-foreground font-medium">{user.name}</span>
-                    </label>
-                  ))}
-                </div>
-                
-                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                    <strong>NOTE:</strong> You can change access permissions later from the app settings.
-                  </p>
-                </div>
-                
-                <div className="flex gap-3 mt-6">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowInstallPanel(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                    onClick={handleInstall}
-                  >
-                    Install App
-                  </Button>
-                </div>
-              </div>
-            )}
+
+
 
             {/* Screenshots Carousel - 4 in a row */}
             <div className="mb-12">
@@ -1000,6 +921,18 @@ const AppStorePage = () => {
           </div>
         </main>
       </div>
+
+      {/* Install Modal */}
+      {app && showInstallPanel && (
+        <InstallModal
+          isOpen={showInstallPanel}
+          onClose={() => setShowInstallPanel(false)}
+          app={getCatalogApp(appId!)}
+          members={mockMembers}
+          teams={mockTeams}
+          onInstall={handleInstall}
+        />
+      )}
     </div>
   );
 };
