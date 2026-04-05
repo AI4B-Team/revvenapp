@@ -217,7 +217,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
 
       <div className="flex items-center justify-end gap-2 h-10">
         {/* Credits pill with Upgrade button */}
-        <div className="hidden sm:flex items-center bg-foreground/[0.06] rounded-full pl-3 pr-1 py-1 gap-2">
+        <div className="hidden sm:flex items-center bg-foreground/[0.06] rounded-lg pl-3 pr-1 py-1 gap-2">
           <span className="text-brand-green text-[0.8rem]">◆</span>
           <span className="text-[0.82rem] font-semibold tabular-nums text-foreground">10,000</span>
           <TooltipProvider delayDuration={100}>
