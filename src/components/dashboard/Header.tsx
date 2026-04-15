@@ -119,7 +119,20 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Helper function to check if a top menu item should be active
+  // Close search on click outside
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchExpanded(false);
+        setSearchQuery('');
+      }
+    };
+    if (isSearchExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isSearchExpanded]);
+
   const isMenuActive = (menuType: 'create' | 'monetize' | 'automate') => {
     const path = location.pathname;
     
