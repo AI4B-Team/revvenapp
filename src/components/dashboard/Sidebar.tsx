@@ -1274,6 +1274,13 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Drive Drawer */}
+      <DriveDrawer
+        isOpen={isDriveOpen}
+        onClose={() => setIsDriveOpen(false)}
+        sidebarWidth={isCollapsed ? 64 : 256}
+      />
     </>
   );
 };
