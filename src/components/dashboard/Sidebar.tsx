@@ -7,8 +7,9 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus, Trash2
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus, Trash2, HardDrive
 } from 'lucide-react';
+import DriveDrawer from './DriveDrawer';
 import RevvenLogo from '@/components/RevvenLogo';
 import { useUserRole } from '@/hooks/useUserRole';
 import {
@@ -207,6 +208,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed ?? collapsed ?? defaultCollapsed ?? true);
   const [userExpandedSidebar, setUserExpandedSidebar] = useState(false);
+  const [isDriveOpen, setIsDriveOpen] = useState(false);
 
   useEffect(() => {
     // Only apply forceCollapsed if user hasn't manually expanded
@@ -1180,6 +1182,39 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       </nav>
 
+      {/* Drive Icon */}
+      <div className="px-4 pt-2">
+        {isCollapsed ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setIsDriveOpen(true)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${isDriveOpen ? 'bg-sidebar-active' : ''}`}
+                >
+                  <span className="text-sidebar-muted">
+                    <HardDrive size={18} />
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Drive</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <button
+            onClick={() => setIsDriveOpen(true)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${isDriveOpen ? 'bg-sidebar-active' : ''}`}
+          >
+            <span className="text-sidebar-muted">
+              <HardDrive size={18} />
+            </span>
+            <span className="flex-1 text-left text-sm">Drive</span>
+          </button>
+        )}
+      </div>
+
       {/* Bottom Section */}
       <div className="mt-auto">
         {/* Onboarding Progress */}
@@ -1239,6 +1274,13 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Drive Drawer */}
+      <DriveDrawer
+        isOpen={isDriveOpen}
+        onClose={() => setIsDriveOpen(false)}
+        sidebarWidth={isCollapsed ? 64 : 256}
+      />
     </>
   );
 };
