@@ -446,7 +446,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         onClick={() => setIsCollapsed(true)}
       />
       
-      <div className={`${isCollapsed ? 'w-16 -translate-x-full lg:translate-x-0' : 'w-64 translate-x-0'} bg-sidebar text-sidebar-text flex flex-col h-screen transition-all duration-300 fixed left-0 top-0 overflow-y-auto scrollbar-thin scrollbar-thumb-white scrollbar-track-gray-800 z-50`}>
+      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col h-screen transition-all duration-300 fixed left-0 top-0 overflow-y-auto z-[55]`} style={{ border: '2px solid red' }}>
         {/* Logo & Collapse Toggle */}
         <div className="p-4 relative flex items-center gap-3 flex-shrink-0">
           {/* Logo Icon - always visible, clickable to expand sidebar when collapsed or go to home when expanded */}
