@@ -261,27 +261,116 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           </Tooltip>
         </TooltipProvider>
 
-        {/* Expandable Search */}
-        <div className="relative flex items-center">
+        {/* Expandable Search with Dropdown */}
+        <div className="relative flex items-center" ref={searchContainerRef}>
           <div 
             className={`flex items-center overflow-hidden min-w-0 transition-all duration-300 ease-in-out ${
-              isSearchExpanded ? 'w-48 md:w-64' : 'w-0'
+              isSearchExpanded ? 'w-48 md:w-72' : 'w-0'
             }`}
           >
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search..."
-              className="w-full h-10 px-3 text-sm bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring"
-              onBlur={() => setIsSearchExpanded(false)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setIsSearchOpen(true);
-                  setIsSearchExpanded(false);
-                }
-              }}
-            />
+            <div className="relative w-full">
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder={searchFilter === 'all' ? 'Search everything...' : `Search ${searchFilter}...`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-10 pl-3 pr-24 text-sm bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring"
+                onFocus={() => setIsSearchExpanded(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setIsSearchOpen(true);
+                    setIsSearchExpanded(false);
+                    setSearchQuery('');
+                  }
+                  if (e.key === 'Escape') {
+                    setIsSearchExpanded(false);
+                    setSearchQuery('');
+                  }
+                }}
+              />
+              {/* Filter dropdown inside input */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-muted hover:bg-muted/80 transition text-muted-foreground capitalize">
+                    {searchFilter === 'all' ? 'All' : searchFilter}
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2.5 4L5 6.5L7.5 4H2.5Z"/></svg>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  {[
+                    { id: 'all', label: 'All', icon: <Search size={14} /> },
+                    { id: 'recents', label: 'Recents', icon: <Command size={14} /> },
+                    { id: 'apps', label: 'Apps', icon: <Search size={14} /> },
+                    { id: 'files', label: 'Files', icon: <Search size={14} /> },
+                    { id: 'creations', label: 'Creations', icon: <Sparkles size={14} /> },
+                    { id: 'settings', label: 'Settings', icon: <Settings size={14} /> },
+                  ].map((filter) => (
+                    <DropdownMenuItem
+                      key={filter.id}
+                      onClick={() => {
+                        setSearchFilter(filter.id);
+                        setTimeout(() => searchInputRef.current?.focus(), 50);
+                      }}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      {filter.icon}
+                      <span>{filter.label}</span>
+                      {searchFilter === filter.id && <Check size={14} className="ml-auto text-primary" />}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
+
+          {/* Quick results dropdown */}
+          {isSearchExpanded && searchQuery.length > 0 && (
+            <div className="absolute top-full right-0 mt-2 w-72 bg-popover border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+              <div className="p-2 text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 pt-3">
+                Quick Results
+              </div>
+              <div className="max-h-64 overflow-y-auto p-1">
+                {['Dashboard', 'Create Image', 'Video Editor', 'Social Posts', 'Brand Settings'].filter(
+                  item => item.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length > 0 ? (
+                  ['Dashboard', 'Create Image', 'Video Editor', 'Social Posts', 'Brand Settings'].filter(
+                    item => item.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).map((item) => (
+                    <button
+                      key={item}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition text-left text-sm"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setIsSearchExpanded(false);
+                        setSearchQuery('');
+                      }}
+                    >
+                      <Search size={14} className="text-muted-foreground" />
+                      <span>{item}</span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-3 py-4 text-sm text-muted-foreground text-center">No results found</div>
+                )}
+              </div>
+              <div className="border-t border-border p-2">
+                <button
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition text-sm text-primary font-medium"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setIsSearchOpen(true);
+                    setIsSearchExpanded(false);
+                    setSearchQuery('');
+                  }}
+                >
+                  View all results
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+
           <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -290,6 +379,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                     if (isSearchExpanded) {
                       setIsSearchOpen(true);
                       setIsSearchExpanded(false);
+                      setSearchQuery('');
                     } else {
                       setIsSearchExpanded(true);
                       setTimeout(() => searchInputRef.current?.focus(), 100);
