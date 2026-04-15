@@ -1182,6 +1182,39 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       </nav>
 
+      {/* Drive Icon */}
+      <div className="px-4 pt-2">
+        {isCollapsed ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setIsDriveOpen(true)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${isDriveOpen ? 'bg-sidebar-active' : ''}`}
+                >
+                  <span className="text-sidebar-muted">
+                    <HardDrive size={18} />
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Drive</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <button
+            onClick={() => setIsDriveOpen(true)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${isDriveOpen ? 'bg-sidebar-active' : ''}`}
+          >
+            <span className="text-sidebar-muted">
+              <HardDrive size={18} />
+            </span>
+            <span className="flex-1 text-left text-sm">Drive</span>
+          </button>
+        )}
+      </div>
+
       {/* Bottom Section */}
       <div className="mt-auto">
         {/* Onboarding Progress */}
