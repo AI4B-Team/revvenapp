@@ -7,8 +7,9 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus, Trash2
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus, Trash2, HardDrive
 } from 'lucide-react';
+import DriveDrawer from './DriveDrawer';
 import RevvenLogo from '@/components/RevvenLogo';
 import { useUserRole } from '@/hooks/useUserRole';
 import {
