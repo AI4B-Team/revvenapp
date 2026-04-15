@@ -208,6 +208,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed ?? collapsed ?? defaultCollapsed ?? true);
   const [userExpandedSidebar, setUserExpandedSidebar] = useState(false);
+  const [isDriveOpen, setIsDriveOpen] = useState(false);
 
   useEffect(() => {
     // Only apply forceCollapsed if user hasn't manually expanded
