@@ -111,6 +111,7 @@ const CreatorVault = lazy(() => import("./pages/CreatorVault"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 const HomesDaily = lazy(() => import("./pages/HomesDaily"));
+const Drive = lazy(() => import("./pages/Drive"));
 
 
 
