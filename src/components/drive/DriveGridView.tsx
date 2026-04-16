@@ -14,27 +14,25 @@ import DriveContextMenu from './DriveContextMenu';
 // ============================================
 type FolderColor = 'gray' | 'blue' | 'purple' | 'pink' | 'red' | 'orange' | 'amber' | 'green' | 'teal';
 
-const colorOptions: { name: string; value: FolderColor; tab: string; front: string; selected: string }[] = [
-  { name: 'Gray', value: 'gray', tab: 'bg-gray-200', front: 'bg-white', selected: 'bg-gradient-to-br from-gray-500 via-gray-600 to-gray-700' },
-  { name: 'Blue', value: 'blue', tab: 'bg-blue-200', front: 'bg-blue-50', selected: 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700' },
-  { name: 'Purple', value: 'purple', tab: 'bg-purple-200', front: 'bg-purple-50', selected: 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700' },
-  { name: 'Pink', value: 'pink', tab: 'bg-pink-200', front: 'bg-pink-50', selected: 'bg-gradient-to-br from-pink-500 via-pink-600 to-pink-700' },
-  { name: 'Red', value: 'red', tab: 'bg-red-200', front: 'bg-red-50', selected: 'bg-gradient-to-br from-red-500 via-red-600 to-red-700' },
-  { name: 'Orange', value: 'orange', tab: 'bg-orange-200', front: 'bg-orange-50', selected: 'bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700' },
-  { name: 'Amber', value: 'amber', tab: 'bg-amber-200', front: 'bg-amber-50', selected: 'bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700' },
-  { name: 'Green', value: 'green', tab: 'bg-green-200', front: 'bg-green-50', selected: 'bg-gradient-to-br from-green-500 via-green-600 to-green-700' },
-  { name: 'Teal', value: 'teal', tab: 'bg-teal-200', front: 'bg-teal-50', selected: 'bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700' },
+const colorOptions: { name: string; value: FolderColor; tab: string; front: string; hoverTab: string; hoverFront: string }[] = [
+  { name: 'White',  value: 'gray',   tab: 'bg-gray-200',   front: 'bg-white', hoverTab: 'bg-gray-300',   hoverFront: 'bg-gray-100' },
+  { name: 'Blue',   value: 'blue',   tab: 'bg-blue-200',   front: 'bg-white', hoverTab: 'bg-blue-300',   hoverFront: 'bg-blue-100' },
+  { name: 'Purple', value: 'purple', tab: 'bg-purple-200', front: 'bg-white', hoverTab: 'bg-purple-300', hoverFront: 'bg-purple-100' },
+  { name: 'Pink',   value: 'pink',   tab: 'bg-pink-200',   front: 'bg-white', hoverTab: 'bg-pink-300',   hoverFront: 'bg-pink-100' },
+  { name: 'Red',    value: 'red',    tab: 'bg-red-200',    front: 'bg-white', hoverTab: 'bg-red-300',    hoverFront: 'bg-red-100' },
+  { name: 'Orange', value: 'orange', tab: 'bg-orange-200', front: 'bg-white', hoverTab: 'bg-orange-300', hoverFront: 'bg-orange-100' },
+  { name: 'Amber',  value: 'amber',  tab: 'bg-amber-200',  front: 'bg-white', hoverTab: 'bg-amber-300',  hoverFront: 'bg-amber-100' },
+  { name: 'Green',  value: 'green',  tab: 'bg-green-200',  front: 'bg-white', hoverTab: 'bg-green-300',  hoverFront: 'bg-green-100' },
+  { name: 'Teal',   value: 'teal',   tab: 'bg-teal-200',   front: 'bg-white', hoverTab: 'bg-teal-300',   hoverFront: 'bg-teal-100' },
 ];
 
 const getColorClasses = (colorValue: string, isHovered: boolean) => {
+  // All folders are white by default; on hover, apply a soft (non-bold, non-gradient) tint based on the selected color.
   const color = colorOptions.find(c => c.value === colorValue) || colorOptions[0];
   if (isHovered) {
-    return {
-      tab: color.selected.replace('bg-gradient-to-br', 'bg-gradient-to-r'),
-      front: color.selected,
-    };
+    return { tab: color.hoverTab, front: color.hoverFront };
   }
-  return { tab: color.tab, front: color.front };
+  return { tab: colorOptions[0].tab, front: 'bg-white' };
 };
 
 const formatDate = (dateStr: string): string => {
