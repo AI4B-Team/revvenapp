@@ -45,8 +45,9 @@ export const useDrive = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const { toast } = useToast();
 
-  const getDemoData = useCallback(() => {
-    const demoFolders: DriveFolder[] = [
+  const getDemoData = useCallback((parentId: string | null = null) => {
+    // Root folders
+    const rootFolders: DriveFolder[] = [
       { id: 'demo-1', user_id: 'demo', name: 'Marketing Assets', parent_folder_id: null, color: 'blue', is_favorite: true, created_at: '2026-04-10T10:00:00Z', updated_at: '2026-04-15T14:30:00Z' },
       { id: 'demo-2', user_id: 'demo', name: 'Client Projects', parent_folder_id: null, color: 'purple', is_favorite: false, created_at: '2026-04-08T09:00:00Z', updated_at: '2026-04-14T11:00:00Z' },
       { id: 'demo-3', user_id: 'demo', name: 'Brand Guidelines', parent_folder_id: null, color: 'green', is_favorite: false, created_at: '2026-03-20T08:00:00Z', updated_at: '2026-04-12T16:45:00Z' },
@@ -56,7 +57,7 @@ export const useDrive = () => {
       { id: 'demo-7', user_id: 'demo', name: 'Social Media', parent_folder_id: null, color: 'pink', is_favorite: false, created_at: '2026-04-05T10:00:00Z', updated_at: '2026-04-15T17:00:00Z' },
       { id: 'demo-8', user_id: 'demo', name: 'Presentations', parent_folder_id: null, color: 'teal', is_favorite: false, created_at: '2026-04-02T10:00:00Z', updated_at: '2026-04-13T13:00:00Z' },
     ];
-    const demoFiles: DriveFile[] = [
+    const rootFiles: DriveFile[] = [
       { id: 'file-1', user_id: 'demo', folder_id: null, name: 'Q2 Strategy Deck.pdf', file_size: 4500000, mime_type: 'application/pdf', storage_path: '', file_url: '', color: null, is_favorite: true, created_at: '2026-04-14T10:00:00Z', updated_at: '2026-04-15T09:00:00Z' },
       { id: 'file-2', user_id: 'demo', folder_id: null, name: 'Hero Banner.png', file_size: 2300000, mime_type: 'image/png', storage_path: '', file_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400', color: 'blue', is_favorite: false, created_at: '2026-04-12T14:00:00Z', updated_at: '2026-04-12T14:00:00Z' },
       { id: 'file-3', user_id: 'demo', folder_id: null, name: 'Product Demo.mp4', file_size: 85000000, mime_type: 'video/mp4', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-11T16:00:00Z', updated_at: '2026-04-11T16:00:00Z' },
@@ -66,7 +67,72 @@ export const useDrive = () => {
       { id: 'file-7', user_id: 'demo', folder_id: null, name: 'Meeting Notes.docx', file_size: 45000, mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-07T10:00:00Z', updated_at: '2026-04-07T10:00:00Z' },
       { id: 'file-8', user_id: 'demo', folder_id: null, name: 'Logo Final.svg', file_size: 12000, mime_type: 'image/svg+xml', storage_path: '', file_url: '', color: 'purple', is_favorite: false, created_at: '2026-04-06T13:00:00Z', updated_at: '2026-04-06T13:00:00Z' },
     ];
-    return { demoFolders, demoFiles };
+
+    // Nested content per parent folder
+    const nestedFoldersByParent: Record<string, DriveFolder[]> = {
+      'demo-1': [
+        { id: 'demo-1-a', user_id: 'demo', name: 'Email Campaigns', parent_folder_id: 'demo-1', color: 'blue', is_favorite: false, created_at: '2026-04-01T10:00:00Z', updated_at: '2026-04-12T10:00:00Z' },
+        { id: 'demo-1-b', user_id: 'demo', name: 'Ad Creatives', parent_folder_id: 'demo-1', color: 'pink', is_favorite: true, created_at: '2026-04-02T10:00:00Z', updated_at: '2026-04-14T10:00:00Z' },
+      ],
+      'demo-2': [
+        { id: 'demo-2-a', user_id: 'demo', name: 'Acme Corp', parent_folder_id: 'demo-2', color: 'purple', is_favorite: true, created_at: '2026-03-01T10:00:00Z', updated_at: '2026-04-10T10:00:00Z' },
+        { id: 'demo-2-b', user_id: 'demo', name: 'Globex Inc', parent_folder_id: 'demo-2', color: 'teal', is_favorite: false, created_at: '2026-03-05T10:00:00Z', updated_at: '2026-04-09T10:00:00Z' },
+        { id: 'demo-2-c', user_id: 'demo', name: 'Initech', parent_folder_id: 'demo-2', color: 'amber', is_favorite: false, created_at: '2026-03-10T10:00:00Z', updated_at: '2026-04-08T10:00:00Z' },
+      ],
+      'demo-4': [
+        { id: 'demo-4-a', user_id: 'demo', name: 'Raw Footage', parent_folder_id: 'demo-4', color: 'red', is_favorite: false, created_at: '2026-03-15T10:00:00Z', updated_at: '2026-04-12T10:00:00Z' },
+        { id: 'demo-4-b', user_id: 'demo', name: 'Final Edits', parent_folder_id: 'demo-4', color: 'green', is_favorite: true, created_at: '2026-03-20T10:00:00Z', updated_at: '2026-04-15T10:00:00Z' },
+      ],
+      'demo-7': [
+        { id: 'demo-7-a', user_id: 'demo', name: 'Instagram', parent_folder_id: 'demo-7', color: 'pink', is_favorite: false, created_at: '2026-03-25T10:00:00Z', updated_at: '2026-04-14T10:00:00Z' },
+        { id: 'demo-7-b', user_id: 'demo', name: 'TikTok', parent_folder_id: 'demo-7', color: 'gray', is_favorite: false, created_at: '2026-03-26T10:00:00Z', updated_at: '2026-04-13T10:00:00Z' },
+        { id: 'demo-7-c', user_id: 'demo', name: 'LinkedIn', parent_folder_id: 'demo-7', color: 'blue', is_favorite: false, created_at: '2026-03-27T10:00:00Z', updated_at: '2026-04-12T10:00:00Z' },
+      ],
+    };
+
+    const nestedFilesByParent: Record<string, DriveFile[]> = {
+      'demo-1': [
+        { id: 'f-m1', user_id: 'demo', folder_id: 'demo-1', name: 'Brand Pitch.pdf', file_size: 3200000, mime_type: 'application/pdf', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-10T10:00:00Z', updated_at: '2026-04-12T10:00:00Z' },
+        { id: 'f-m2', user_id: 'demo', folder_id: 'demo-1', name: 'Spring Banner.png', file_size: 1900000, mime_type: 'image/png', storage_path: '', file_url: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=400', color: 'blue', is_favorite: true, created_at: '2026-04-09T10:00:00Z', updated_at: '2026-04-09T10:00:00Z' },
+        { id: 'f-m3', user_id: 'demo', folder_id: 'demo-1', name: 'Promo Reel.mp4', file_size: 42000000, mime_type: 'video/mp4', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-08T10:00:00Z', updated_at: '2026-04-08T10:00:00Z' },
+      ],
+      'demo-2': [
+        { id: 'f-c1', user_id: 'demo', folder_id: 'demo-2', name: 'Project Brief.docx', file_size: 65000, mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-05T10:00:00Z', updated_at: '2026-04-05T10:00:00Z' },
+        { id: 'f-c2', user_id: 'demo', folder_id: 'demo-2', name: 'Contract.pdf', file_size: 850000, mime_type: 'application/pdf', storage_path: '', file_url: '', color: 'purple', is_favorite: true, created_at: '2026-04-03T10:00:00Z', updated_at: '2026-04-03T10:00:00Z' },
+      ],
+      'demo-3': [
+        { id: 'f-b1', user_id: 'demo', folder_id: 'demo-3', name: 'Logo Pack.zip', file_size: 5500000, mime_type: 'application/zip', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-03-22T10:00:00Z', updated_at: '2026-03-22T10:00:00Z' },
+        { id: 'f-b2', user_id: 'demo', folder_id: 'demo-3', name: 'Color Palette.png', file_size: 320000, mime_type: 'image/png', storage_path: '', file_url: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=400', color: 'green', is_favorite: false, created_at: '2026-03-21T10:00:00Z', updated_at: '2026-03-21T10:00:00Z' },
+        { id: 'f-b3', user_id: 'demo', folder_id: 'demo-3', name: 'Brand Guide.pdf', file_size: 8200000, mime_type: 'application/pdf', storage_path: '', file_url: '', color: null, is_favorite: true, created_at: '2026-03-20T10:00:00Z', updated_at: '2026-03-20T10:00:00Z' },
+      ],
+      'demo-4': [
+        { id: 'f-v1', user_id: 'demo', folder_id: 'demo-4', name: 'Intro Sequence.mp4', file_size: 120000000, mime_type: 'video/mp4', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-01T10:00:00Z', updated_at: '2026-04-01T10:00:00Z' },
+        { id: 'f-v2', user_id: 'demo', folder_id: 'demo-4', name: 'Tutorial Cut.mp4', file_size: 95000000, mime_type: 'video/mp4', storage_path: '', file_url: '', color: 'red', is_favorite: false, created_at: '2026-04-02T10:00:00Z', updated_at: '2026-04-02T10:00:00Z' },
+      ],
+      'demo-5': [
+        { id: 'f-t1', user_id: 'demo', folder_id: 'demo-5', name: 'Invoice Template.xlsx', file_size: 45000, mime_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', storage_path: '', file_url: '', color: 'green', is_favorite: false, created_at: '2026-03-18T10:00:00Z', updated_at: '2026-03-18T10:00:00Z' },
+        { id: 'f-t2', user_id: 'demo', folder_id: 'demo-5', name: 'Proposal Template.docx', file_size: 78000, mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', storage_path: '', file_url: '', color: null, is_favorite: true, created_at: '2026-03-17T10:00:00Z', updated_at: '2026-03-17T10:00:00Z' },
+      ],
+      'demo-6': [
+        { id: 'f-a1', user_id: 'demo', folder_id: 'demo-6', name: '2024 Recap.pdf', file_size: 2100000, mime_type: 'application/pdf', storage_path: '', file_url: '', color: 'gray', is_favorite: false, created_at: '2026-02-15T10:00:00Z', updated_at: '2026-02-15T10:00:00Z' },
+      ],
+      'demo-7': [
+        { id: 'f-s1', user_id: 'demo', folder_id: 'demo-7', name: 'IG Post 1.jpg', file_size: 1200000, mime_type: 'image/jpeg', storage_path: '', file_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400', color: 'pink', is_favorite: true, created_at: '2026-04-10T10:00:00Z', updated_at: '2026-04-10T10:00:00Z' },
+        { id: 'f-s2', user_id: 'demo', folder_id: 'demo-7', name: 'Reel Script.docx', file_size: 28000, mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-09T10:00:00Z', updated_at: '2026-04-09T10:00:00Z' },
+      ],
+      'demo-8': [
+        { id: 'f-p1', user_id: 'demo', folder_id: 'demo-8', name: 'Sales Deck.pptx', file_size: 6800000, mime_type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', storage_path: '', file_url: '', color: 'teal', is_favorite: false, created_at: '2026-04-04T10:00:00Z', updated_at: '2026-04-04T10:00:00Z' },
+        { id: 'f-p2', user_id: 'demo', folder_id: 'demo-8', name: 'Investor Pitch.pdf', file_size: 4200000, mime_type: 'application/pdf', storage_path: '', file_url: '', color: null, is_favorite: true, created_at: '2026-04-03T10:00:00Z', updated_at: '2026-04-03T10:00:00Z' },
+      ],
+    };
+
+    if (parentId === null) {
+      return { demoFolders: rootFolders, demoFiles: rootFiles };
+    }
+    return {
+      demoFolders: nestedFoldersByParent[parentId] || [],
+      demoFiles: nestedFilesByParent[parentId] || [],
+    };
   }, []);
 
   const fetchContents = useCallback(async () => {
