@@ -154,10 +154,10 @@ const DriveToolbar = ({
             New Folder
           </Button>
 
-          {/* Upload */}
+          {/* Upload (brand color, no gradient) */}
           <Button
             onClick={onUpload}
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+            className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Upload className="w-5 h-5" />
             Upload
