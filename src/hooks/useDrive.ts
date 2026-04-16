@@ -140,7 +140,7 @@ export const useDrive = () => {
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user) {
       // Show demo data when not authenticated
-      const { demoFolders, demoFiles } = getDemoData();
+      const { demoFolders, demoFiles } = getDemoData(currentFolderId);
       setFolders(demoFolders);
       setFiles(demoFiles);
       setLoading(false);
@@ -166,8 +166,8 @@ export const useDrive = () => {
     const [foldersRes, filesRes] = await Promise.all([folderQuery, fileQuery]);
     const dbFolders = (foldersRes.data as DriveFolder[]) || [];
     const dbFiles = (filesRes.data as DriveFile[]) || [];
-    if (dbFolders.length === 0 && dbFiles.length === 0 && !currentFolderId) {
-      const { demoFolders, demoFiles } = getDemoData();
+    if (dbFolders.length === 0 && dbFiles.length === 0) {
+      const { demoFolders, demoFiles } = getDemoData(currentFolderId);
       setFolders(demoFolders);
       setFiles(demoFiles);
     } else {
