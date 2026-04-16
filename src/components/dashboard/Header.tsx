@@ -21,6 +21,7 @@ import { Progress } from '@/components/ui/progress';
 import HelpMenu from './HelpMenu';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import SearchDialog from './SearchDialog';
+import SearchDropdown from './SearchDropdown';
 import InviteRewardsModalUpdated from './InviteRewardsModal';
 import AppTabs from './AppTabs';
 import { supabase } from '@/integrations/supabase/client';
