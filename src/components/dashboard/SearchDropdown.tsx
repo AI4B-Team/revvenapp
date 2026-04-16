@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Clock, TrendingUp, Sparkles, Image, Video, FileText, Zap, ArrowRight, X, History, Briefcase, Music } from 'lucide-react';
+import { Search, Clock, Heart, Zap, Image, Video, FileText, ArrowRight, X, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SearchDropdownProps {
@@ -8,31 +8,46 @@ interface SearchDropdownProps {
   onOpenFullSearch: () => void;
 }
 
-const recentSearches = [
-  'logo design',
-  'marketing video',
-  'brand guidelines',
-  'social media posts',
+type Tab = 'saved' | 'recent' | 'quick' | 'categories';
+
+const savedSearches = [
+  { label: 'Logo designs for startups', count: 12 },
+  { label: 'Marketing video templates', count: 34 },
+  { label: 'Brand identity assets', count: 8 },
 ];
 
-const trendingSearches = [
-  { label: 'AI image generation', icon: Image },
-  { label: 'Video templates', icon: Video },
-  { label: 'Brand kit', icon: Briefcase },
-  { label: 'Content calendar', icon: FileText },
-  { label: 'Voice cloning', icon: Music },
+const recentSearches = [
+  { label: 'AI image generation', time: '2 min ago' },
+  { label: 'Social media posts', time: '1 hour ago' },
+  { label: 'Video templates', time: '3 hours ago' },
+  { label: 'Brand guidelines', time: 'Yesterday' },
 ];
 
 const quickActions = [
-  { label: 'Create new image', icon: Image, color: 'text-emerald-500 bg-emerald-50' },
-  { label: 'Generate video', icon: Video, color: 'text-blue-500 bg-blue-50' },
-  { label: 'Write content', icon: FileText, color: 'text-amber-500 bg-amber-50' },
-  { label: 'Browse apps', icon: Zap, color: 'text-purple-500 bg-purple-50' },
+  { label: 'Create new image', icon: Image },
+  { label: 'Generate video', icon: Video },
+  { label: 'Write content', icon: FileText },
+  { label: 'Browse all apps', icon: Zap },
+];
+
+const categories = [
+  { label: 'Images & Design', count: 156 },
+  { label: 'Video & Animation', count: 89 },
+  { label: 'Audio & Voice', count: 42 },
+  { label: 'Documents & Writing', count: 67 },
+];
+
+const tabs: { label: string; value: Tab; icon: React.ElementType }[] = [
+  { label: 'Saved', value: 'saved', icon: Heart },
+  { label: 'Recent', value: 'recent', icon: Clock },
+  { label: 'Quick', value: 'quick', icon: Zap },
+  { label: 'Categories', value: 'categories', icon: MapPin },
 ];
 
 const SearchDropdown = ({ isExpanded, onExpandChange, onOpenFullSearch }: SearchDropdownProps) => {
   const [query, setQuery] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('saved');
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -65,9 +80,7 @@ const SearchDropdown = ({ isExpanded, onExpandChange, onOpenFullSearch }: Search
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      onOpenFullSearch();
-    }
+    if (e.key === 'Enter') onOpenFullSearch();
     if (e.key === 'Escape') {
       setShowDropdown(false);
       onExpandChange(false);
@@ -105,80 +118,128 @@ const SearchDropdown = ({ isExpanded, onExpandChange, onOpenFullSearch }: Search
         </div>
       </div>
 
-      {/* Dropdown */}
       {showDropdown && isExpanded && (
-        <div className="absolute top-full right-0 mt-2 w-72 md:w-80 bg-popover border border-border rounded-xl shadow-lg z-[100] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
-          {/* Recent Searches */}
-          <div className="px-3 pt-3 pb-2">
-            <div className="flex items-center gap-1.5 mb-2">
-              <History size={12} className="text-muted-foreground" />
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Recent</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {recentSearches.map((term) => (
+        <div className="absolute top-full right-0 mt-2 w-80 bg-popover border border-border rounded-xl shadow-lg z-[100] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+          {/* Tabs */}
+          <div className="flex border-b">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.value;
+              return (
                 <button
-                  key={term}
-                  onMouseDown={(e) => { e.preventDefault(); handleSearchClick(term); }}
-                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-muted/50 hover:bg-muted rounded-md transition-colors"
+                  key={tab.value}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setActiveTab(tab.value)}
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px',
+                    isActive
+                      ? 'text-primary border-primary'
+                      : 'text-muted-foreground border-transparent hover:text-foreground'
+                  )}
                 >
-                  <Clock size={10} className="text-muted-foreground" />
-                  <span>{term}</span>
+                  <Icon size={13} />
+                  {tab.label}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
 
-          <div className="border-t" />
-
-          {/* Trending */}
-          <div className="px-3 py-2">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <TrendingUp size={12} className="text-muted-foreground" />
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Trending</span>
-            </div>
-            <div className="space-y-0.5">
-              {trendingSearches.slice(0, 4).map((item) => {
-                const Icon = item.icon;
-                return (
+          {/* Tab Content */}
+          <div className="p-3">
+            {activeTab === 'saved' && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Saved Searches</span>
                   <button
-                    key={item.label}
-                    onMouseDown={(e) => { e.preventDefault(); handleSearchClick(item.label); }}
-                    className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md hover:bg-muted/50 transition-colors text-left group"
-                  >
-                    <Icon size={13} className="text-muted-foreground" />
-                    <span className="text-xs flex-1">{item.label}</span>
-                    <ArrowRight size={12} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="border-t" />
-
-          {/* Quick Actions */}
-          <div className="px-3 py-2">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <Sparkles size={12} className="text-muted-foreground" />
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Quick Actions</span>
-            </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              {quickActions.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <button
-                    key={action.label}
                     onMouseDown={(e) => e.preventDefault()}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors text-left"
+                    className="text-xs text-primary font-medium hover:text-primary/80"
                   >
-                    <div className={cn('p-1 rounded', action.color)}>
-                      <Icon size={12} />
-                    </div>
-                    <span className="text-[11px] font-medium">{action.label}</span>
+                    + New
                   </button>
-                );
-              })}
-            </div>
+                </div>
+                <div className="space-y-0.5">
+                  {savedSearches.map((item) => (
+                    <button
+                      key={item.label}
+                      onMouseDown={(e) => { e.preventDefault(); handleSearchClick(item.label); }}
+                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                    >
+                      <Heart size={14} className="text-red-400 fill-red-400 shrink-0" />
+                      <span className="text-sm flex-1 truncate">{item.label}</span>
+                      <span className="text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{item.count}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'recent' && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Recent Searches</span>
+                  <button
+                    onMouseDown={(e) => e.preventDefault()}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="space-y-0.5">
+                  {recentSearches.map((item) => (
+                    <button
+                      key={item.label}
+                      onMouseDown={(e) => { e.preventDefault(); handleSearchClick(item.label); }}
+                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                    >
+                      <Clock size={14} className="text-muted-foreground shrink-0" />
+                      <span className="text-sm flex-1 truncate">{item.label}</span>
+                      <span className="text-[11px] text-muted-foreground">{item.time}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'quick' && (
+              <div>
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Quick Actions</span>
+                <div className="space-y-0.5">
+                  {quickActions.map((action) => {
+                    const Icon = action.icon;
+                    return (
+                      <button
+                        key={action.label}
+                        onMouseDown={(e) => e.preventDefault()}
+                        className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                      >
+                        <Icon size={14} className="text-muted-foreground shrink-0" />
+                        <span className="text-sm flex-1">{action.label}</span>
+                        <ArrowRight size={13} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'categories' && (
+              <div>
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Browse Categories</span>
+                <div className="space-y-0.5">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.label}
+                      onMouseDown={(e) => { e.preventDefault(); handleSearchClick(cat.label); }}
+                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                    >
+                      <MapPin size={14} className="text-muted-foreground shrink-0" />
+                      <span className="text-sm flex-1">{cat.label}</span>
+                      <span className="text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{cat.count}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
