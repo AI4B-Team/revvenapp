@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { 
-  Plus, Settings, Instagram, ChevronRight, Circle
+  Plus, Settings, Instagram, ChevronRight, Circle, HardDrive
 } from 'lucide-react';
+import { IconTooltip } from '@/components/ui/IconTooltip';
 
 const ChatHistorySidebar = () => {
   const [recentChats] = useState([
