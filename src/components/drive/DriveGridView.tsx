@@ -199,20 +199,20 @@ const DriveFolderCard = ({
         />
 
         {/* Main Card */}
-        <div className={`relative rounded-2xl p-5 pt-6 transition-all duration-300 ${isHovered ? `${colors.front} text-white shadow-xl` : `${colors.front} text-gray-800 shadow-lg`}`}>
+        <div className={`relative rounded-2xl p-5 pt-6 transition-all duration-300 ${colors.front} text-gray-800 ${isHovered ? 'shadow-xl' : 'shadow-lg'}`}>
           {/* Favorite Star */}
           {folder.is_favorite && (
             <div className="absolute top-4 left-4">
-              <Star className={`w-4 h-4 fill-current ${isHovered ? 'text-yellow-300' : 'text-yellow-500'}`} />
+              <Star className="w-4 h-4 fill-current text-yellow-500" />
             </div>
           )}
 
           {/* Menu Button */}
           <button
             onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
-            className={`absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isHovered ? 'bg-white/20 hover:bg-white/30' : 'bg-gray-100 hover:bg-gray-200'}`}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 bg-gray-100 hover:bg-gray-200"
           >
-            <Menu className={`w-[18px] h-[18px] ${isHovered ? 'text-white' : 'text-gray-500'}`} />
+            <Menu className="w-[18px] h-[18px] text-gray-500" />
           </button>
 
           {/* Dropdown Menu */}
@@ -231,19 +231,17 @@ const DriveFolderCard = ({
           {/* Folder Info */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-1">
-              <span className={isHovered ? 'text-white' : 'text-gray-700'}>
+              <span className="text-gray-700">
                 <Folder className="w-5 h-5" />
               </span>
               <h3 className="text-xl font-semibold tracking-tight">{folder.name}</h3>
             </div>
-            <p className={`text-sm ${isHovered ? 'text-white/80' : 'text-gray-500'}`}>
-              Folder
-            </p>
+            <p className="text-sm text-gray-500">Folder</p>
           </div>
 
           {/* Last Modified Badge */}
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm ${isHovered ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
-            <span className={isHovered ? 'text-white/70' : 'text-gray-400'}>Last Modified:</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm bg-gray-100 text-gray-600">
+            <span className="text-gray-400">Last Modified:</span>
             <span className="font-medium">{formatDate(folder.updated_at)}</span>
           </div>
         </div>
