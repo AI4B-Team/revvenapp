@@ -98,8 +98,16 @@ export const useDrive = () => {
     }
 
     const [foldersRes, filesRes] = await Promise.all([folderQuery, fileQuery]);
-    setFolders((foldersRes.data as DriveFolder[]) || []);
-    setFiles((filesRes.data as DriveFile[]) || []);
+    const dbFolders = (foldersRes.data as DriveFolder[]) || [];
+    const dbFiles = (filesRes.data as DriveFile[]) || [];
+    if (dbFolders.length === 0 && dbFiles.length === 0 && !currentFolderId) {
+      const { demoFolders, demoFiles } = getDemoData();
+      setFolders(demoFolders);
+      setFiles(demoFiles);
+    } else {
+      setFolders(dbFolders);
+      setFiles(dbFiles);
+    }
     setLoading(false);
   }, [currentFolderId, getDemoData]);
 
