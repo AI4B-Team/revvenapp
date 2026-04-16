@@ -26,11 +26,11 @@ const colorOptions: { name: string; value: FolderColor; tab: string; front: stri
   { name: 'Teal',   value: 'teal',   tab: 'bg-teal-200',   front: 'bg-white', hoverTab: 'bg-teal-300',   hoverFront: 'bg-teal-100' },
 ];
 
-const getColorClasses = (colorValue: string, isHovered: boolean) => {
-  // All folders are white by default; on hover, apply a soft (non-bold, non-gradient) tint based on the selected color.
-  const color = colorOptions.find(c => c.value === colorValue) || colorOptions[0];
+const getColorClasses = (colorValue: string | null | undefined, isHovered: boolean) => {
+  // White by default. Hover defaults to blue tint unless the user picked a different color.
+  const hoverColor = colorOptions.find(c => c.value === (colorValue || 'blue')) || colorOptions[1];
   if (isHovered) {
-    return { tab: color.hoverTab, front: color.hoverFront };
+    return { tab: hoverColor.hoverTab, front: hoverColor.hoverFront };
   }
   return { tab: colorOptions[0].tab, front: 'bg-white' };
 };
