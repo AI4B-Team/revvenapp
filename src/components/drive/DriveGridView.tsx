@@ -235,7 +235,7 @@ const DriveFolderCard = ({
               </button>
               <h3 className="text-xl font-semibold tracking-tight">{folder.name}</h3>
             </div>
-            <p className="text-sm text-gray-500">Folder</p>
+            
           </div>
 
           {/* Last Modified Badge */}
