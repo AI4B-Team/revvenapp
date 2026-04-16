@@ -302,7 +302,7 @@ const DriveGridView = ({
       {/* Folders */}
       {folders.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Folders</h3>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-4">
             {folders.map(folder => (
               <DriveFolderCard
