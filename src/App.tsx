@@ -209,6 +209,7 @@ const App = () => (
                           <Route path="/oauth/callback" element={<OAuthCallback />} />
                           <Route path="/homes-daily" element={<HomesDaily />} />
                           <Route path="/assets" element={<Assets />} />
+                          <Route path="/drive" element={<Drive />} />
                           <Route path="/integrations" element={<Integrations />} />
                           <Route path="/login" element={<Login />} />
                           <Route path="/signup" element={<Signup />} />
