@@ -14,27 +14,25 @@ import DriveContextMenu from './DriveContextMenu';
 // ============================================
 type FolderColor = 'gray' | 'blue' | 'purple' | 'pink' | 'red' | 'orange' | 'amber' | 'green' | 'teal';
 
-const colorOptions: { name: string; value: FolderColor; tab: string; front: string; selected: string }[] = [
-  { name: 'Gray', value: 'gray', tab: 'bg-gray-200', front: 'bg-white', selected: 'bg-gradient-to-br from-gray-500 via-gray-600 to-gray-700' },
-  { name: 'Blue', value: 'blue', tab: 'bg-blue-200', front: 'bg-blue-50', selected: 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700' },
-  { name: 'Purple', value: 'purple', tab: 'bg-purple-200', front: 'bg-purple-50', selected: 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700' },
-  { name: 'Pink', value: 'pink', tab: 'bg-pink-200', front: 'bg-pink-50', selected: 'bg-gradient-to-br from-pink-500 via-pink-600 to-pink-700' },
-  { name: 'Red', value: 'red', tab: 'bg-red-200', front: 'bg-red-50', selected: 'bg-gradient-to-br from-red-500 via-red-600 to-red-700' },
-  { name: 'Orange', value: 'orange', tab: 'bg-orange-200', front: 'bg-orange-50', selected: 'bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700' },
-  { name: 'Amber', value: 'amber', tab: 'bg-amber-200', front: 'bg-amber-50', selected: 'bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700' },
-  { name: 'Green', value: 'green', tab: 'bg-green-200', front: 'bg-green-50', selected: 'bg-gradient-to-br from-green-500 via-green-600 to-green-700' },
-  { name: 'Teal', value: 'teal', tab: 'bg-teal-200', front: 'bg-teal-50', selected: 'bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700' },
+const colorOptions: { name: string; value: FolderColor; tab: string; front: string; hoverTab: string; hoverFront: string }[] = [
+  { name: 'White',  value: 'gray',   tab: 'bg-gray-200',   front: 'bg-white', hoverTab: 'bg-gray-300',   hoverFront: 'bg-gray-100' },
+  { name: 'Blue',   value: 'blue',   tab: 'bg-blue-200',   front: 'bg-white', hoverTab: 'bg-blue-300',   hoverFront: 'bg-blue-100' },
+  { name: 'Purple', value: 'purple', tab: 'bg-purple-200', front: 'bg-white', hoverTab: 'bg-purple-300', hoverFront: 'bg-purple-100' },
+  { name: 'Pink',   value: 'pink',   tab: 'bg-pink-200',   front: 'bg-white', hoverTab: 'bg-pink-300',   hoverFront: 'bg-pink-100' },
+  { name: 'Red',    value: 'red',    tab: 'bg-red-200',    front: 'bg-white', hoverTab: 'bg-red-300',    hoverFront: 'bg-red-100' },
+  { name: 'Orange', value: 'orange', tab: 'bg-orange-200', front: 'bg-white', hoverTab: 'bg-orange-300', hoverFront: 'bg-orange-100' },
+  { name: 'Amber',  value: 'amber',  tab: 'bg-amber-200',  front: 'bg-white', hoverTab: 'bg-amber-300',  hoverFront: 'bg-amber-100' },
+  { name: 'Green',  value: 'green',  tab: 'bg-green-200',  front: 'bg-white', hoverTab: 'bg-green-300',  hoverFront: 'bg-green-100' },
+  { name: 'Teal',   value: 'teal',   tab: 'bg-teal-200',   front: 'bg-white', hoverTab: 'bg-teal-300',   hoverFront: 'bg-teal-100' },
 ];
 
 const getColorClasses = (colorValue: string, isHovered: boolean) => {
+  // All folders are white by default; on hover, apply a soft (non-bold, non-gradient) tint based on the selected color.
   const color = colorOptions.find(c => c.value === colorValue) || colorOptions[0];
   if (isHovered) {
-    return {
-      tab: color.selected.replace('bg-gradient-to-br', 'bg-gradient-to-r'),
-      front: color.selected,
-    };
+    return { tab: color.hoverTab, front: color.hoverFront };
   }
-  return { tab: color.tab, front: color.front };
+  return { tab: colorOptions[0].tab, front: 'bg-white' };
 };
 
 const formatDate = (dateStr: string): string => {
@@ -201,20 +199,20 @@ const DriveFolderCard = ({
         />
 
         {/* Main Card */}
-        <div className={`relative rounded-2xl p-5 pt-6 transition-all duration-300 ${isHovered ? `${colors.front} text-white shadow-xl` : `${colors.front} text-gray-800 shadow-lg`}`}>
+        <div className={`relative rounded-2xl p-5 pt-6 transition-all duration-300 ${colors.front} text-gray-800 ${isHovered ? 'shadow-xl' : 'shadow-lg'}`}>
           {/* Favorite Star */}
           {folder.is_favorite && (
             <div className="absolute top-4 left-4">
-              <Star className={`w-4 h-4 fill-current ${isHovered ? 'text-yellow-300' : 'text-yellow-500'}`} />
+              <Star className="w-4 h-4 fill-current text-yellow-500" />
             </div>
           )}
 
           {/* Menu Button */}
           <button
             onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
-            className={`absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isHovered ? 'bg-white/20 hover:bg-white/30' : 'bg-gray-100 hover:bg-gray-200'}`}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 bg-gray-100 hover:bg-gray-200"
           >
-            <Menu className={`w-[18px] h-[18px] ${isHovered ? 'text-white' : 'text-gray-500'}`} />
+            <Menu className="w-[18px] h-[18px] text-gray-500" />
           </button>
 
           {/* Dropdown Menu */}
@@ -233,19 +231,17 @@ const DriveFolderCard = ({
           {/* Folder Info */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-1">
-              <span className={isHovered ? 'text-white' : 'text-gray-700'}>
+              <span className="text-gray-700">
                 <Folder className="w-5 h-5" />
               </span>
               <h3 className="text-xl font-semibold tracking-tight">{folder.name}</h3>
             </div>
-            <p className={`text-sm ${isHovered ? 'text-white/80' : 'text-gray-500'}`}>
-              Folder
-            </p>
+            <p className="text-sm text-gray-500">Folder</p>
           </div>
 
           {/* Last Modified Badge */}
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm ${isHovered ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
-            <span className={isHovered ? 'text-white/70' : 'text-gray-400'}>Last Modified:</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm bg-gray-100 text-gray-600">
+            <span className="text-gray-400">Last Modified:</span>
             <span className="font-medium">{formatDate(folder.updated_at)}</span>
           </div>
         </div>
