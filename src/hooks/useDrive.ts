@@ -45,10 +45,41 @@ export const useDrive = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const { toast } = useToast();
 
+  const getDemoData = useCallback(() => {
+    const demoFolders: DriveFolder[] = [
+      { id: 'demo-1', user_id: 'demo', name: 'Marketing Assets', parent_folder_id: null, color: 'blue', is_favorite: true, created_at: '2026-04-10T10:00:00Z', updated_at: '2026-04-15T14:30:00Z' },
+      { id: 'demo-2', user_id: 'demo', name: 'Client Projects', parent_folder_id: null, color: 'purple', is_favorite: false, created_at: '2026-04-08T09:00:00Z', updated_at: '2026-04-14T11:00:00Z' },
+      { id: 'demo-3', user_id: 'demo', name: 'Brand Guidelines', parent_folder_id: null, color: 'green', is_favorite: false, created_at: '2026-03-20T08:00:00Z', updated_at: '2026-04-12T16:45:00Z' },
+      { id: 'demo-4', user_id: 'demo', name: 'Video Content', parent_folder_id: null, color: 'red', is_favorite: true, created_at: '2026-04-01T12:00:00Z', updated_at: '2026-04-16T09:00:00Z' },
+      { id: 'demo-5', user_id: 'demo', name: 'Templates', parent_folder_id: null, color: 'amber', is_favorite: false, created_at: '2026-03-15T10:00:00Z', updated_at: '2026-04-10T08:30:00Z' },
+      { id: 'demo-6', user_id: 'demo', name: 'Archived', parent_folder_id: null, color: 'gray', is_favorite: false, created_at: '2026-02-10T10:00:00Z', updated_at: '2026-03-28T10:00:00Z' },
+      { id: 'demo-7', user_id: 'demo', name: 'Social Media', parent_folder_id: null, color: 'pink', is_favorite: false, created_at: '2026-04-05T10:00:00Z', updated_at: '2026-04-15T17:00:00Z' },
+      { id: 'demo-8', user_id: 'demo', name: 'Presentations', parent_folder_id: null, color: 'teal', is_favorite: false, created_at: '2026-04-02T10:00:00Z', updated_at: '2026-04-13T13:00:00Z' },
+    ];
+    const demoFiles: DriveFile[] = [
+      { id: 'file-1', user_id: 'demo', folder_id: null, name: 'Q2 Strategy Deck.pdf', file_size: 4500000, mime_type: 'application/pdf', storage_path: '', file_url: '', color: null, is_favorite: true, created_at: '2026-04-14T10:00:00Z', updated_at: '2026-04-15T09:00:00Z' },
+      { id: 'file-2', user_id: 'demo', folder_id: null, name: 'Hero Banner.png', file_size: 2300000, mime_type: 'image/png', storage_path: '', file_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400', color: 'blue', is_favorite: false, created_at: '2026-04-12T14:00:00Z', updated_at: '2026-04-12T14:00:00Z' },
+      { id: 'file-3', user_id: 'demo', folder_id: null, name: 'Product Demo.mp4', file_size: 85000000, mime_type: 'video/mp4', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-11T16:00:00Z', updated_at: '2026-04-11T16:00:00Z' },
+      { id: 'file-4', user_id: 'demo', folder_id: null, name: 'Podcast Episode 12.mp3', file_size: 35000000, mime_type: 'audio/mpeg', storage_path: '', file_url: '', color: 'orange', is_favorite: false, created_at: '2026-04-10T09:00:00Z', updated_at: '2026-04-10T09:00:00Z' },
+      { id: 'file-5', user_id: 'demo', folder_id: null, name: 'Team Photo.jpg', file_size: 1800000, mime_type: 'image/jpeg', storage_path: '', file_url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400', color: null, is_favorite: true, created_at: '2026-04-09T11:00:00Z', updated_at: '2026-04-09T11:00:00Z' },
+      { id: 'file-6', user_id: 'demo', folder_id: null, name: 'Budget Report.xlsx', file_size: 520000, mime_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', storage_path: '', file_url: '', color: 'green', is_favorite: false, created_at: '2026-04-08T15:00:00Z', updated_at: '2026-04-08T15:00:00Z' },
+      { id: 'file-7', user_id: 'demo', folder_id: null, name: 'Meeting Notes.docx', file_size: 45000, mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', storage_path: '', file_url: '', color: null, is_favorite: false, created_at: '2026-04-07T10:00:00Z', updated_at: '2026-04-07T10:00:00Z' },
+      { id: 'file-8', user_id: 'demo', folder_id: null, name: 'Logo Final.svg', file_size: 12000, mime_type: 'image/svg+xml', storage_path: '', file_url: '', color: 'purple', is_favorite: false, created_at: '2026-04-06T13:00:00Z', updated_at: '2026-04-06T13:00:00Z' },
+    ];
+    return { demoFolders, demoFiles };
+  }, []);
+
   const fetchContents = useCallback(async () => {
     setLoading(true);
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) { setLoading(false); return; }
+    if (!session?.session?.user) {
+      // Show demo data when not authenticated
+      const { demoFolders, demoFiles } = getDemoData();
+      setFolders(demoFolders);
+      setFiles(demoFiles);
+      setLoading(false);
+      return;
+    }
 
     const folderQuery = supabase.from('drive_folders').select('*')
       .eq('user_id', session.session.user.id);
@@ -70,7 +101,7 @@ export const useDrive = () => {
     setFolders((foldersRes.data as DriveFolder[]) || []);
     setFiles((filesRes.data as DriveFile[]) || []);
     setLoading(false);
-  }, [currentFolderId]);
+  }, [currentFolderId, getDemoData]);
 
   useEffect(() => { fetchContents(); }, [fetchContents]);
 
