@@ -118,7 +118,7 @@ const DriveFolderMenu = ({ folder, onClose, onOpen, onRename, onDelete, onToggle
 
       <button onClick={onToggleFavorite} className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-muted transition-colors text-left">
         <Star className={`w-[18px] h-[18px] ${folder.is_favorite ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`} />
-        <span className="text-foreground font-medium">{folder.is_favorite ? 'Remove From Favorites' : 'Add To Favorites'}</span>
+        <span className="text-foreground font-medium">{folder.is_favorite ? 'Unfavorite' : 'Favorite'}</span>
       </button>
 
       <div className="border-t border-border my-2" />
