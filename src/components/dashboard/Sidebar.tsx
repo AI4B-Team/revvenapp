@@ -4,7 +4,7 @@ import { NavLink } from '@/components/NavLink';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
-  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
+  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase, HardDrive,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
   PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Shield, Check, Plus, Trash2
@@ -1002,6 +1002,42 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 <Users size={18} />
               </span>
               <span className="flex-1 text-left text-sm">Community</span>
+            </NavLink>
+          )}
+        </div>
+
+        {/* Drive Link */}
+        <div className="pt-2">
+          {isCollapsed ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <NavLink
+                    to="/drive"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+                    activeClassName="bg-sidebar-active"
+                  >
+                    <span className="text-sidebar-muted">
+                      <HardDrive size={18} />
+                    </span>
+                    {!isCollapsed && <span className="flex-1 text-left text-sm">Drive</span>}
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Drive</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <NavLink
+              to="/drive"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+              activeClassName="bg-sidebar-active"
+            >
+              <span className="text-sidebar-muted">
+                <HardDrive size={18} />
+              </span>
+              <span className="flex-1 text-left text-sm">Drive</span>
             </NavLink>
           )}
         </div>
