@@ -21,6 +21,7 @@ import { Progress } from '@/components/ui/progress';
 import HelpMenu from './HelpMenu';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import SearchDialog from './SearchDialog';
+import SearchDropdown from './SearchDropdown';
 import InviteRewardsModalUpdated from './InviteRewardsModal';
 import AppTabs from './AppTabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,7 +63,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   const [languageSearch, setLanguageSearch] = React.useState('');
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
+  
   const [isRewardsModalOpen, setIsRewardsModalOpen] = React.useState(false);
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
@@ -258,51 +259,37 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           </Tooltip>
         </TooltipProvider>
 
-        {/* Expandable Search */}
-        <div className="relative flex items-center">
-          <div 
-            className={`flex items-center overflow-hidden min-w-0 transition-all duration-300 ease-in-out ${
-              isSearchExpanded ? 'w-48 md:w-64' : 'w-0'
-            }`}
-          >
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search..."
-              className="w-full h-10 px-3 text-sm bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring"
-              onBlur={() => setIsSearchExpanded(false)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setIsSearchOpen(true);
-                  setIsSearchExpanded(false);
-                }
-              }}
-            />
-          </div>
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => {
-                    if (isSearchExpanded) {
-                      setIsSearchOpen(true);
-                      setIsSearchExpanded(false);
-                    } else {
-                      setIsSearchExpanded(true);
-                      setTimeout(() => searchInputRef.current?.focus(), 100);
-                    }
-                  }}
-                  className="inline-flex items-center justify-center p-2.5 rounded-full hover:bg-muted transition-colors"
-                >
-                  <Search size={20} className="text-muted-foreground" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Search</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        {/* Expandable Search with Dropdown */}
+        <SearchDropdown
+          isExpanded={isSearchExpanded}
+          onExpandChange={setIsSearchExpanded}
+          onOpenFullSearch={() => {
+            setIsSearchOpen(true);
+            setIsSearchExpanded(false);
+          }}
+        />
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => {
+                  if (isSearchExpanded) {
+                    setIsSearchOpen(true);
+                    setIsSearchExpanded(false);
+                  } else {
+                    setIsSearchExpanded(true);
+                  }
+                }}
+                className="inline-flex items-center justify-center p-2.5 rounded-full hover:bg-muted transition-colors"
+              >
+                <Search size={20} className="text-muted-foreground" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Search</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <NotificationsDropdown />
         <HelpMenu />
