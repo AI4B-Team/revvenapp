@@ -111,6 +111,7 @@ const CreatorVault = lazy(() => import("./pages/CreatorVault"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 const HomesDaily = lazy(() => import("./pages/HomesDaily"));
+const Drive = lazy(() => import("./pages/Drive"));
 
 
 
@@ -208,6 +209,7 @@ const App = () => (
                           <Route path="/oauth/callback" element={<OAuthCallback />} />
                           <Route path="/homes-daily" element={<HomesDaily />} />
                           <Route path="/assets" element={<Assets />} />
+                          <Route path="/drive" element={<Drive />} />
                           <Route path="/integrations" element={<Integrations />} />
                           <Route path="/login" element={<Login />} />
                           <Route path="/signup" element={<Signup />} />
