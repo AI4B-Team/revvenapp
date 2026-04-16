@@ -64,7 +64,7 @@ const DriveToolbar = ({
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search files & folders..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-12 w-64"
