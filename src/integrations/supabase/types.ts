@@ -707,6 +707,100 @@ export type Database = {
         }
         Relationships: []
       }
+      drive_files: {
+        Row: {
+          color: string | null
+          created_at: string
+          file_size: number | null
+          file_url: string
+          folder_id: string | null
+          id: string
+          is_favorite: boolean | null
+          mime_type: string | null
+          name: string
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_url: string
+          folder_id?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          mime_type?: string | null
+          name: string
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_url?: string
+          folder_id?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          mime_type?: string | null
+          name?: string
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drive_files_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "drive_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drive_folders: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          is_favorite: boolean | null
+          name: string
+          parent_folder_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_favorite?: boolean | null
+          name?: string
+          parent_folder_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_favorite?: boolean | null
+          name?: string
+          parent_folder_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drive_folders_parent_folder_id_fkey"
+            columns: ["parent_folder_id"]
+            isOneToOne: false
+            referencedRelation: "drive_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       editor_chat_messages: {
         Row: {
           content: string
