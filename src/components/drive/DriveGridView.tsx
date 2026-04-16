@@ -198,17 +198,6 @@ const DriveFolderCard = ({
           style={{ clipPath: 'polygon(0 100%, 0 30%, 8% 0, 45% 0, 55% 30%, 100% 30%, 100% 100%)' }}
         />
 
-        {/* Favorite Star Toggle (on the tab) */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-          className="absolute top-0 left-6 w-7 h-7 flex items-center justify-center rounded-full hover:scale-110 transition-transform z-10"
-          title={folder.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
-        >
-          <Star
-            className={`w-4 h-4 transition-colors ${folder.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-500 hover:text-yellow-400'}`}
-          />
-        </button>
-
         {/* Main Card */}
         <div className={`relative rounded-2xl p-5 pt-6 transition-all duration-300 ${colors.front} text-gray-800 ${isHovered ? 'shadow-xl' : 'shadow-lg'}`}>
           {/* Menu Button */}
@@ -235,9 +224,15 @@ const DriveFolderCard = ({
           {/* Folder Info */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-gray-700">
-                <Folder className="w-5 h-5" />
-              </span>
+              <button
+                onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+                className="flex items-center justify-center hover:scale-110 transition-transform"
+                title={folder.is_favorite ? 'Unfavorite' : 'Favorite'}
+              >
+                <Star
+                  className={`w-5 h-5 transition-colors ${folder.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`}
+                />
+              </button>
               <h3 className="text-xl font-semibold tracking-tight">{folder.name}</h3>
             </div>
             <p className="text-sm text-gray-500">Folder</p>
