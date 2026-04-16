@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { useDrive } from '@/hooks/useDrive';
@@ -13,6 +13,8 @@ const Drive = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const drive = useDrive();
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterFavorites, setFilterFavorites] = useState(false);
 
   const totalUsed = useMemo(() => drive.files.reduce((sum, f) => sum + (f.file_size || 0), 0), [drive.files]);
 
@@ -25,9 +27,7 @@ const Drive = () => {
     }
   };
 
-  // Drag & drop
   const [isDragging, setIsDragging] = useState(false);
-
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = () => setIsDragging(false);
   const handleDrop = (e: React.DragEvent) => {
@@ -38,9 +38,27 @@ const Drive = () => {
     }
   };
 
+  const matchesType = (mime: string | null | undefined) => {
+    if (filterType === 'all') return true;
+    if (!mime) return false;
+    if (filterType === 'images') return mime.startsWith('image/');
+    if (filterType === 'videos') return mime.startsWith('video/');
+    if (filterType === 'audio') return mime.startsWith('audio/');
+    if (filterType === 'documents') return !mime.startsWith('image/') && !mime.startsWith('video/') && !mime.startsWith('audio/');
+    return true;
+  };
+
+  // Folders only show when no type filter active (folders have no mime)
+  const visibleFolders = drive.folders
+    .filter(f => !filterFavorites || f.is_favorite)
+    .filter(() => filterType === 'all');
+  const visibleFiles = drive.files
+    .filter(f => !filterFavorites || f.is_favorite)
+    .filter(f => matchesType(f.mime_type));
+
   const sharedProps = {
-    folders: drive.folders,
-    files: drive.files,
+    folders: visibleFolders,
+    files: visibleFiles,
     onOpenFolder: (id: string, name: string) => drive.navigateToFolder(id, name),
     onRenameFolder: drive.renameFolder,
     onRenameFile: drive.renameFile,
@@ -69,27 +87,7 @@ const Drive = () => {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <div className="px-8 py-8 max-w-[1600px] mx-auto">
-            {/* Page Header */}
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <HardDrive className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">Drive</h1>
-                <p className="text-sm text-muted-foreground">Your paperless cloud storage</p>
-              </div>
-            </div>
-
-            {/* Storage Bar */}
-            <div className="mb-6 mt-4">
-              <DriveStorageBar usedBytes={totalUsed} totalBytes={5 * 1024 * 1024 * 1024} />
-            </div>
-
-            {/* Breadcrumbs */}
-            <DriveBreadcrumbs breadcrumbs={drive.breadcrumbs} onNavigate={drive.navigateToFolder} />
-
-            {/* Toolbar */}
+          <div className="px-8 py-8">
             <DriveToolbar
               viewMode={drive.viewMode}
               onViewModeChange={drive.setViewMode}
@@ -101,9 +99,18 @@ const Drive = () => {
               onSearchChange={drive.setSearchQuery}
               onNewFolder={() => drive.createFolder()}
               onUpload={handleUploadClick}
+              filterType={filterType}
+              onFilterTypeChange={setFilterType}
+              filterFavorites={filterFavorites}
+              onFilterFavoritesChange={setFilterFavorites}
             />
 
-            {/* Drag overlay */}
+            <div className="mb-6">
+              <DriveStorageBar usedBytes={totalUsed} totalBytes={5 * 1024 * 1024 * 1024} />
+            </div>
+
+            <DriveBreadcrumbs breadcrumbs={drive.breadcrumbs} onNavigate={drive.navigateToFolder} />
+
             {isDragging && (
               <div className="fixed inset-0 z-50 bg-primary/5 border-2 border-dashed border-primary rounded-xl flex items-center justify-center pointer-events-none">
                 <div className="bg-background rounded-2xl shadow-xl p-8 text-center">
@@ -114,7 +121,6 @@ const Drive = () => {
               </div>
             )}
 
-            {/* Loading */}
             {drive.loading ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -126,7 +132,6 @@ const Drive = () => {
               </div>
             ) : null}
 
-            {/* Content */}
             {!drive.loading && (
               <>
                 {drive.viewMode === 'grid' || drive.viewMode === 'columns' ? (
