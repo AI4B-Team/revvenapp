@@ -63,7 +63,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   const [languageSearch, setLanguageSearch] = React.useState('');
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
+  
   const [isRewardsModalOpen, setIsRewardsModalOpen] = React.useState(false);
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
