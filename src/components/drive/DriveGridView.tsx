@@ -26,11 +26,11 @@ const colorOptions: { name: string; value: FolderColor; tab: string; front: stri
   { name: 'Teal',   value: 'teal',   tab: 'bg-teal-200',   front: 'bg-white', hoverTab: 'bg-teal-300',   hoverFront: 'bg-teal-100' },
 ];
 
-const getColorClasses = (colorValue: string, isHovered: boolean) => {
-  // All folders are white by default; on hover, apply a soft (non-bold, non-gradient) tint based on the selected color.
-  const color = colorOptions.find(c => c.value === colorValue) || colorOptions[0];
+const getColorClasses = (colorValue: string | null | undefined, isHovered: boolean) => {
+  // White by default. Hover defaults to blue tint unless the user picked a different color.
+  const hoverColor = colorOptions.find(c => c.value === (colorValue || 'blue')) || colorOptions[1];
   if (isHovered) {
-    return { tab: color.hoverTab, front: color.hoverFront };
+    return { tab: hoverColor.hoverTab, front: hoverColor.hoverFront };
   }
   return { tab: colorOptions[0].tab, front: 'bg-white' };
 };
@@ -198,15 +198,19 @@ const DriveFolderCard = ({
           style={{ clipPath: 'polygon(0 100%, 0 30%, 8% 0, 45% 0, 55% 30%, 100% 30%, 100% 100%)' }}
         />
 
+        {/* Favorite Star Toggle (on the tab) */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+          className="absolute top-0 left-6 w-7 h-7 flex items-center justify-center rounded-full hover:scale-110 transition-transform z-10"
+          title={folder.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Star
+            className={`w-4 h-4 transition-colors ${folder.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-500 hover:text-yellow-400'}`}
+          />
+        </button>
+
         {/* Main Card */}
         <div className={`relative rounded-2xl p-5 pt-6 transition-all duration-300 ${colors.front} text-gray-800 ${isHovered ? 'shadow-xl' : 'shadow-lg'}`}>
-          {/* Favorite Star */}
-          {folder.is_favorite && (
-            <div className="absolute top-4 left-4">
-              <Star className="w-4 h-4 fill-current text-yellow-500" />
-            </div>
-          )}
-
           {/* Menu Button */}
           <button
             onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
