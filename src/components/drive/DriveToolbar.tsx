@@ -71,13 +71,17 @@ const DriveToolbar = ({
             />
           </div>
 
-          {/* View Toggle (Grid / List / Columns) */}
-          <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
+          {/* View Toggle (separate, individual buttons) */}
+          <div className="flex items-center gap-2">
             {viewOptions.map(({ mode, icon: Icon }) => (
               <button
                 key={mode}
                 onClick={() => onViewModeChange(mode)}
-                className={`p-2 rounded-lg transition-colors ${viewMode === mode ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+                className={`p-2.5 rounded-xl transition-colors border ${
+                  viewMode === mode
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-muted text-muted-foreground border-border hover:text-foreground hover:bg-background'
+                }`}
               >
                 <Icon className="w-5 h-5" />
               </button>
