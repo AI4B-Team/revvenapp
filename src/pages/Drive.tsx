@@ -16,6 +16,12 @@ const Drive = () => {
   const drive = useDrive();
   const [filterType, setFilterType] = useState<string>('all');
   const [filterFavorites, setFilterFavorites] = useState(false);
+  const [pendingRenameFolderId, setPendingRenameFolderId] = useState<string | null>(null);
+
+  const handleCreateFolder = async () => {
+    const id = await drive.createFolder();
+    if (id) setPendingRenameFolderId(id);
+  };
 
   const totalUsed = useMemo(() => drive.files.reduce((sum, f) => sum + (f.file_size || 0), 0), [drive.files]);
 
