@@ -165,9 +165,13 @@ const RenameModal = ({ isOpen, currentName, onClose, onConfirm }: { isOpen: bool
 // Drive Folder Card (matching AssetFolderCard)
 // ============================================
 const DriveFolderCard = ({
-  folder, onOpen, onRename, onDelete, onToggleFavorite, onSetColor,
+  folder, fileCount, autoEdit, onAutoEditDone,
+  onOpen, onRename, onDelete, onToggleFavorite, onSetColor,
 }: {
   folder: DriveFolder;
+  fileCount: number;
+  autoEdit?: boolean;
+  onAutoEditDone?: () => void;
   onOpen: () => void;
   onRename: (name: string) => void;
   onDelete: () => void;
@@ -177,7 +181,34 @@ const DriveFolderCard = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [inlineValue, setInlineValue] = useState(folder.name);
+  const inlineInputRef = useRef<HTMLInputElement>(null);
   const colors = getColorClasses(folder.color || 'blue', isHovered);
+
+  useEffect(() => {
+    if (autoEdit) {
+      setIsInlineEditing(true);
+      setInlineValue(folder.name);
+      setTimeout(() => {
+        inlineInputRef.current?.focus();
+        inlineInputRef.current?.select();
+      }, 50);
+    }
+  }, [autoEdit, folder.name]);
+
+  const commitInline = () => {
+    const trimmed = inlineValue.trim();
+    if (trimmed && trimmed !== folder.name) onRename(trimmed);
+    setIsInlineEditing(false);
+    onAutoEditDone?.();
+  };
+
+  const cancelInline = () => {
+    setInlineValue(folder.name);
+    setIsInlineEditing(false);
+    onAutoEditDone?.();
+  };
 
   return (
     <>
@@ -214,7 +245,7 @@ const DriveFolderCard = ({
               folder={folder}
               onClose={() => setIsMenuOpen(false)}
               onOpen={() => { setIsMenuOpen(false); onOpen(); }}
-              onRename={() => { setIsMenuOpen(false); setIsRenameOpen(true); }}
+              onRename={() => { setIsMenuOpen(false); setIsInlineEditing(true); setInlineValue(folder.name); setTimeout(() => { inlineInputRef.current?.focus(); inlineInputRef.current?.select(); }, 50); }}
               onDelete={() => { setIsMenuOpen(false); onDelete(); }}
               onToggleFavorite={() => { setIsMenuOpen(false); onToggleFavorite(); }}
               onChangeColor={(color) => { setIsMenuOpen(false); onSetColor(color); }}
@@ -233,9 +264,27 @@ const DriveFolderCard = ({
                   className={`w-5 h-5 transition-colors ${folder.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`}
                 />
               </button>
-              <h3 className="text-xl font-semibold tracking-tight">{folder.name}</h3>
+              {isInlineEditing ? (
+                <input
+                  ref={inlineInputRef}
+                  value={inlineValue}
+                  onChange={(e) => setInlineValue(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  onBlur={commitInline}
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                    if (e.key === 'Enter') commitInline();
+                    if (e.key === 'Escape') cancelInline();
+                  }}
+                  className="text-xl font-semibold tracking-tight bg-white border border-blue-400 rounded px-2 py-0.5 outline-none flex-1 min-w-0"
+                />
+              ) : (
+                <h3 className="text-xl font-semibold tracking-tight">{folder.name}</h3>
+              )}
             </div>
-            
+            <p className="text-sm text-gray-500 ml-7">
+              {fileCount} {fileCount === 1 ? 'item' : 'items'}
+            </p>
           </div>
 
           {/* Last Modified Badge */}
@@ -274,6 +323,9 @@ interface DriveGridViewProps {
   onDownloadFile: (file: DriveFile) => void;
   onNewFolder: () => void;
   onUpload: () => void;
+  folderCounts?: Record<string, number>;
+  pendingRenameFolderId?: string | null;
+  onPendingRenameDone?: () => void;
 }
 
 const DriveGridView = ({
@@ -281,6 +333,7 @@ const DriveGridView = ({
   onOpenFolder, onRenameFolder, onRenameFile, onDeleteFolder, onDeleteFile,
   onToggleFavoriteFolder, onToggleFavoriteFile, onSetFolderColor, onSetFileColor,
   onDownloadFile, onNewFolder, onUpload,
+  folderCounts = {}, pendingRenameFolderId, onPendingRenameDone,
 }: DriveGridViewProps) => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; type: 'folder' | 'file' | 'background'; item?: DriveFolder | DriveFile } | null>(null);
   const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
@@ -303,6 +356,9 @@ const DriveGridView = ({
               <DriveFolderCard
                 key={folder.id}
                 folder={folder}
+                fileCount={folderCounts[folder.id] ?? 0}
+                autoEdit={pendingRenameFolderId === folder.id}
+                onAutoEditDone={onPendingRenameDone}
                 onOpen={() => onOpenFolder(folder.id, folder.name)}
                 onRename={(name) => onRenameFolder(folder.id, name)}
                 onDelete={() => onDeleteFolder(folder.id)}

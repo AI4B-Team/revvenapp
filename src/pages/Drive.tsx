@@ -16,6 +16,12 @@ const Drive = () => {
   const drive = useDrive();
   const [filterType, setFilterType] = useState<string>('all');
   const [filterFavorites, setFilterFavorites] = useState(false);
+  const [pendingRenameFolderId, setPendingRenameFolderId] = useState<string | null>(null);
+
+  const handleCreateFolder = async () => {
+    const id = await drive.createFolder();
+    if (id) setPendingRenameFolderId(id);
+  };
 
   const totalUsed = useMemo(() => drive.files.reduce((sum, f) => sum + (f.file_size || 0), 0), [drive.files]);
 
@@ -70,7 +76,7 @@ const Drive = () => {
     onSetFolderColor: drive.setFolderColor,
     onSetFileColor: drive.setFileColor,
     onDownloadFile: drive.downloadFile,
-    onNewFolder: () => drive.createFolder(),
+    onNewFolder: handleCreateFolder,
     onUpload: handleUploadClick,
   };
 
@@ -98,7 +104,7 @@ const Drive = () => {
               onSortDirectionChange={drive.setSortDirection}
               searchQuery={drive.searchQuery}
               onSearchChange={drive.setSearchQuery}
-              onNewFolder={() => drive.createFolder()}
+              onNewFolder={handleCreateFolder}
               onUpload={handleUploadClick}
               filterType={filterType}
               onFilterTypeChange={setFilterType}
@@ -136,7 +142,12 @@ const Drive = () => {
             {!drive.loading && (
               <>
                 {drive.viewMode === 'grid' ? (
-                  <DriveGridView {...sharedProps} />
+                  <DriveGridView
+                    {...sharedProps}
+                    folderCounts={drive.folderCounts}
+                    pendingRenameFolderId={pendingRenameFolderId}
+                    onPendingRenameDone={() => setPendingRenameFolderId(null)}
+                  />
                 ) : drive.viewMode === 'columns' ? (
                   <DriveColumnsView
                     rootFolders={visibleFolders}

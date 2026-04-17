@@ -35,6 +35,7 @@ export type ViewMode = 'grid' | 'list' | 'columns';
 export const useDrive = () => {
   const [folders, setFolders] = useState<DriveFolder[]>([]);
   const [files, setFiles] = useState<DriveFile[]>([]);
+  const [folderCounts, setFolderCounts] = useState<Record<string, number>>({});
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<{ id: string | null; name: string }[]>([{ id: null, name: 'My Drive' }]);
   const [loading, setLoading] = useState(true);
@@ -166,14 +167,34 @@ export const useDrive = () => {
     const [foldersRes, filesRes] = await Promise.all([folderQuery, fileQuery]);
     const dbFolders = (foldersRes.data as DriveFolder[]) || [];
     const dbFiles = (filesRes.data as DriveFile[]) || [];
+    let activeFolders: DriveFolder[];
+    let activeFiles: DriveFile[];
     if (dbFolders.length === 0 && dbFiles.length === 0) {
       const { demoFolders, demoFiles } = getDemoData(currentFolderId);
-      setFolders(demoFolders);
-      setFiles(demoFiles);
+      activeFolders = demoFolders;
+      activeFiles = demoFiles;
     } else {
-      setFolders(dbFolders);
-      setFiles(dbFiles);
+      activeFolders = dbFolders;
+      activeFiles = dbFiles;
     }
+    setFolders(activeFolders);
+    setFiles(activeFiles);
+
+    // Compute child counts (folders + files) per visible folder
+    const counts: Record<string, number> = {};
+    await Promise.all(activeFolders.map(async (f) => {
+      if (f.id.startsWith('demo')) {
+        const { demoFolders: cf, demoFiles: cfi } = getDemoData(f.id);
+        counts[f.id] = cf.length + cfi.length;
+      } else {
+        const [{ count: fc }, { count: fic }] = await Promise.all([
+          supabase.from('drive_folders').select('id', { count: 'exact', head: true }).eq('parent_folder_id', f.id),
+          supabase.from('drive_files').select('id', { count: 'exact', head: true }).eq('folder_id', f.id),
+        ]);
+        counts[f.id] = (fc || 0) + (fic || 0);
+      }
+    }));
+    setFolderCounts(counts);
     setLoading(false);
   }, [currentFolderId, getDemoData]);
 
@@ -193,22 +214,32 @@ export const useDrive = () => {
     setCurrentFolderId(folderId);
   }, [breadcrumbs]);
 
-  const createFolder = useCallback(async (name: string = 'New Folder') => {
+  const createFolder = useCallback(async (name: string = 'New Folder'): Promise<string | null> => {
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return;
+    if (!session?.session?.user) {
+      // Demo mode: add a local folder
+      const newId = `demo-new-${Date.now()}`;
+      const now = new Date().toISOString();
+      setFolders((prev) => [
+        { id: newId, user_id: 'demo', name, parent_folder_id: currentFolderId, color: 'blue', is_favorite: false, created_at: now, updated_at: now },
+        ...prev,
+      ]);
+      return newId;
+    }
 
-    const { error } = await supabase.from('drive_folders').insert({
+    const { data, error } = await supabase.from('drive_folders').insert({
       user_id: session.session.user.id,
       name,
       parent_folder_id: currentFolderId,
-    });
+    }).select('id').single();
 
     if (error) {
       toast({ title: 'Error', description: 'Failed to create folder', variant: 'destructive' });
-    } else {
-      toast({ title: 'Folder created' });
-      fetchContents();
+      return null;
     }
+    toast({ title: 'Folder created' });
+    fetchContents();
+    return data?.id ?? null;
   }, [currentFolderId, fetchContents, toast]);
 
   const renameFolder = useCallback(async (folderId: string, newName: string) => {
@@ -354,6 +385,7 @@ export const useDrive = () => {
   return {
     folders: sortedFolders,
     files: sortedFiles,
+    folderCounts,
     currentFolderId,
     breadcrumbs,
     loading,
