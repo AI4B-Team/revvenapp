@@ -216,10 +216,10 @@ export const useDrive = () => {
 
   const createFolder = useCallback(async (name: string = 'New Folder'): Promise<string | null> => {
     const { data: session } = await supabase.auth.getSession();
+    const now = new Date().toISOString();
     if (!session?.session?.user) {
       // Demo mode: add a local folder
       const newId = `demo-new-${Date.now()}`;
-      const now = new Date().toISOString();
       setFolders((prev) => [
         { id: newId, user_id: 'demo', name, parent_folder_id: currentFolderId, color: 'blue', is_favorite: false, created_at: now, updated_at: now },
         ...prev,
@@ -231,63 +231,69 @@ export const useDrive = () => {
       user_id: session.session.user.id,
       name,
       parent_folder_id: currentFolderId,
-    }).select('id').single();
+    }).select('*').single();
 
-    if (error) {
+    if (error || !data) {
       toast({ title: 'Error', description: 'Failed to create folder', variant: 'destructive' });
       return null;
     }
+    // Optimistic insert — no full refetch
+    setFolders((prev) => [data as DriveFolder, ...prev]);
+    setFolderCounts((prev) => ({ ...prev, [data.id]: 0 }));
     toast({ title: 'Folder created' });
-    fetchContents();
-    return data?.id ?? null;
-  }, [currentFolderId, fetchContents, toast]);
+    return data.id;
+  }, [currentFolderId, toast]);
 
   const renameFolder = useCallback(async (folderId: string, newName: string) => {
-    const { error } = await supabase.from('drive_folders').update({ name: newName }).eq('id', folderId);
-    if (!error) fetchContents();
-  }, [fetchContents]);
+    setFolders((prev) => prev.map((f) => f.id === folderId ? { ...f, name: newName, updated_at: new Date().toISOString() } : f));
+    if (folderId.startsWith('demo')) return;
+    await supabase.from('drive_folders').update({ name: newName }).eq('id', folderId);
+  }, []);
 
   const renameFile = useCallback(async (fileId: string, newName: string) => {
-    const { error } = await supabase.from('drive_files').update({ name: newName }).eq('id', fileId);
-    if (!error) fetchContents();
-  }, [fetchContents]);
+    setFiles((prev) => prev.map((f) => f.id === fileId ? { ...f, name: newName, updated_at: new Date().toISOString() } : f));
+    if (fileId.startsWith('file-') || fileId.startsWith('f-')) return;
+    await supabase.from('drive_files').update({ name: newName }).eq('id', fileId);
+  }, []);
 
   const deleteFolder = useCallback(async (folderId: string) => {
-    const { error } = await supabase.from('drive_folders').delete().eq('id', folderId);
-    if (!error) {
-      toast({ title: 'Folder deleted' });
-      fetchContents();
-    }
-  }, [fetchContents, toast]);
+    setFolders((prev) => prev.filter((f) => f.id !== folderId));
+    toast({ title: 'Folder deleted' });
+    if (folderId.startsWith('demo')) return;
+    await supabase.from('drive_folders').delete().eq('id', folderId);
+  }, [toast]);
 
   const deleteFile = useCallback(async (file: DriveFile) => {
+    setFiles((prev) => prev.filter((f) => f.id !== file.id));
+    toast({ title: 'File deleted' });
+    if (file.id.startsWith('file-') || file.id.startsWith('f-')) return;
     await supabase.storage.from('drive-files').remove([file.storage_path]);
-    const { error } = await supabase.from('drive_files').delete().eq('id', file.id);
-    if (!error) {
-      toast({ title: 'File deleted' });
-      fetchContents();
-    }
-  }, [fetchContents, toast]);
+    await supabase.from('drive_files').delete().eq('id', file.id);
+  }, [toast]);
 
   const toggleFavoriteFolder = useCallback(async (folderId: string, current: boolean) => {
+    setFolders((prev) => prev.map((f) => f.id === folderId ? { ...f, is_favorite: !current } : f));
+    if (folderId.startsWith('demo')) return;
     await supabase.from('drive_folders').update({ is_favorite: !current }).eq('id', folderId);
-    fetchContents();
-  }, [fetchContents]);
+  }, []);
 
   const toggleFavoriteFile = useCallback(async (fileId: string, current: boolean) => {
+    setFiles((prev) => prev.map((f) => f.id === fileId ? { ...f, is_favorite: !current } : f));
+    if (fileId.startsWith('file-') || fileId.startsWith('f-')) return;
     await supabase.from('drive_files').update({ is_favorite: !current }).eq('id', fileId);
-    fetchContents();
-  }, [fetchContents]);
+  }, []);
 
   const setFolderColor = useCallback(async (folderId: string, color: string) => {
+    setFolders((prev) => prev.map((f) => f.id === folderId ? { ...f, color } : f));
+    if (folderId.startsWith('demo')) return;
     await supabase.from('drive_folders').update({ color }).eq('id', folderId);
-    fetchContents();
-  }, [fetchContents]);
+  }, []);
 
   const setFileColor = useCallback(async (fileId: string, color: string) => {
+    setFiles((prev) => prev.map((f) => f.id === fileId ? { ...f, color } : f));
+    if (fileId.startsWith('file-') || fileId.startsWith('f-')) return;
     await supabase.from('drive_files').update({ color }).eq('id', fileId);
-    fetchContents();
-  }, [fetchContents]);
+  }, []);
 
   const uploadFiles = useCallback(async (fileList: FileList) => {
     const { data: session } = await supabase.auth.getSession();
