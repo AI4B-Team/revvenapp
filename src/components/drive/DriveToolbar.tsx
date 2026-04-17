@@ -33,10 +33,10 @@ const DriveToolbar = ({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const hasActiveFilters = filterType !== 'all' || filterFavorites;
 
-  const viewOptions: { mode: ViewMode; icon: typeof Grid3X3 }[] = [
-    { mode: 'grid', icon: Grid3X3 },
-    { mode: 'list', icon: List },
-    { mode: 'columns', icon: Columns },
+  const viewOptions: { mode: ViewMode; icon: typeof Grid3X3; label: string }[] = [
+    { mode: 'grid', icon: Grid3X3, label: 'Grid view' },
+    { mode: 'list', icon: List, label: 'List view' },
+    { mode: 'columns', icon: Columns, label: 'Columns view' },
   ];
 
   const typeOptions = [
