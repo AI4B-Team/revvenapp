@@ -385,6 +385,7 @@ export const useDrive = () => {
   return {
     folders: sortedFolders,
     files: sortedFiles,
+    folderCounts,
     currentFolderId,
     breadcrumbs,
     loading,
