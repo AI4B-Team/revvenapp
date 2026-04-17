@@ -76,7 +76,7 @@ const Drive = () => {
     onSetFolderColor: drive.setFolderColor,
     onSetFileColor: drive.setFileColor,
     onDownloadFile: drive.downloadFile,
-    onNewFolder: () => drive.createFolder(),
+    onNewFolder: handleCreateFolder,
     onUpload: handleUploadClick,
   };
 
@@ -104,7 +104,7 @@ const Drive = () => {
               onSortDirectionChange={drive.setSortDirection}
               searchQuery={drive.searchQuery}
               onSearchChange={drive.setSearchQuery}
-              onNewFolder={() => drive.createFolder()}
+              onNewFolder={handleCreateFolder}
               onUpload={handleUploadClick}
               filterType={filterType}
               onFilterTypeChange={setFilterType}
@@ -142,7 +142,12 @@ const Drive = () => {
             {!drive.loading && (
               <>
                 {drive.viewMode === 'grid' ? (
-                  <DriveGridView {...sharedProps} />
+                  <DriveGridView
+                    {...sharedProps}
+                    folderCounts={drive.folderCounts}
+                    pendingRenameFolderId={pendingRenameFolderId}
+                    onPendingRenameDone={() => setPendingRenameFolderId(null)}
+                  />
                 ) : drive.viewMode === 'columns' ? (
                   <DriveColumnsView
                     rootFolders={visibleFolders}
