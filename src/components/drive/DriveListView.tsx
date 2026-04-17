@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Folder, FileText, Image, Video, Music, File, Star, Check, X, MoreHorizontal } from 'lucide-react';
+import { Folder, FileText, Image, Video, Music, File, Star, Check, X, MoreHorizontal, Download, Pencil, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import type { DriveFolder, DriveFile } from '@/hooks/useDrive';
 import DriveContextMenu from './DriveContextMenu';
@@ -123,7 +123,7 @@ const DriveListView = ({
         return (
           <div
             key={file.id}
-            className="grid grid-cols-[1fr_120px_120px_80px] gap-4 px-4 py-2.5 items-center hover:bg-muted/40 cursor-pointer transition-colors border-b border-border/20"
+            className="group grid grid-cols-[1fr_120px_120px_80px] gap-4 px-4 py-2.5 items-center hover:bg-muted/40 cursor-pointer transition-colors border-b border-border/20 relative"
             onContextMenu={(e) => handleContextMenu(e, 'file', file)}
             onDoubleClick={() => onDownloadFile(file)}
           >
@@ -142,7 +142,46 @@ const DriveListView = ({
             </div>
             <span className="text-xs text-muted-foreground">{formatDate(file.updated_at)}</span>
             <span className="text-xs text-muted-foreground">{formatDate(file.created_at)}</span>
-            <span className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</span>
+              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onToggleFavoriteFile(file.id, file.is_favorite); }}
+                  className="p-1.5 rounded-md hover:bg-muted-foreground/10 transition-colors"
+                  title={file.is_favorite ? 'Unfavorite' : 'Favorite'}
+                >
+                  <Star className={`w-3.5 h-3.5 ${file.is_favorite ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'}`} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDownloadFile(file); }}
+                  className="p-1.5 rounded-md hover:bg-muted-foreground/10 transition-colors"
+                  title="Download"
+                >
+                  <Download className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); startRename(file.id, file.name, 'file'); }}
+                  className="p-1.5 rounded-md hover:bg-muted-foreground/10 transition-colors"
+                  title="Rename"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDeleteFile(file); }}
+                  className="p-1.5 rounded-md hover:bg-red-500/10 transition-colors"
+                  title="Move to Trash"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setContextMenu({ x: e.clientX, y: e.clientY, type: 'file', item: file }); }}
+                  className="p-1.5 rounded-md hover:bg-muted-foreground/10 transition-colors"
+                  title="More"
+                >
+                  <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
           </div>
         );
       })}
