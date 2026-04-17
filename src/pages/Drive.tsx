@@ -6,6 +6,7 @@ import DriveToolbar from '@/components/drive/DriveToolbar';
 import DriveBreadcrumbs from '@/components/drive/DriveBreadcrumbs';
 import DriveGridView from '@/components/drive/DriveGridView';
 import DriveListView from '@/components/drive/DriveListView';
+import DriveColumnsView from '@/components/drive/DriveColumnsView';
 import DriveStorageBar from '@/components/drive/DriveStorageBar';
 import { Loader2, HardDrive } from 'lucide-react';
 
@@ -134,8 +135,15 @@ const Drive = () => {
 
             {!drive.loading && (
               <>
-                {drive.viewMode === 'grid' || drive.viewMode === 'columns' ? (
+                {drive.viewMode === 'grid' ? (
                   <DriveGridView {...sharedProps} />
+                ) : drive.viewMode === 'columns' ? (
+                  <DriveColumnsView
+                    rootFolders={visibleFolders}
+                    rootFiles={visibleFiles}
+                    fetchFolderContents={drive.fetchFolderContents}
+                    onDownloadFile={drive.downloadFile}
+                  />
                 ) : (
                   <DriveListView {...sharedProps} />
                 )}

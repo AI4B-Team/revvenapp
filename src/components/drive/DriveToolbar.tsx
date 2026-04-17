@@ -80,7 +80,7 @@ const DriveToolbar = ({
                 className={`p-2.5 rounded-xl transition-colors border ${
                   viewMode === mode
                     ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-muted text-muted-foreground border-border hover:text-foreground hover:bg-background'
+                    : 'bg-white text-muted-foreground border-border hover:text-foreground hover:bg-gray-50'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -91,7 +91,7 @@ const DriveToolbar = ({
           {/* Filter */}
           <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <PopoverTrigger asChild>
-              <button className={`p-3 rounded-xl transition-colors relative ${hasActiveFilters ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-background'}`}>
+              <button className={`p-3 rounded-xl transition-colors relative border ${hasActiveFilters ? 'bg-primary text-primary-foreground border-primary' : 'bg-white text-muted-foreground border-border hover:text-foreground hover:bg-gray-50'}`}>
                 <SlidersHorizontal className="w-5 h-5" />
                 {hasActiveFilters && (
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full" />

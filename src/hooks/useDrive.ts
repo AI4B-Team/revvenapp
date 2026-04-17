@@ -307,6 +307,27 @@ export const useDrive = () => {
     URL.revokeObjectURL(url);
   }, [toast]);
 
+  // Fetch contents of an arbitrary folder (used by columns view)
+  const fetchFolderContents = useCallback(async (parentId: string | null): Promise<{ folders: DriveFolder[]; files: DriveFile[] }> => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
+      const { demoFolders, demoFiles } = getDemoData(parentId);
+      return { folders: demoFolders, files: demoFiles };
+    }
+    const folderQuery = supabase.from('drive_folders').select('*').eq('user_id', session.session.user.id);
+    const fileQuery = supabase.from('drive_files').select('*').eq('user_id', session.session.user.id);
+    if (parentId) { folderQuery.eq('parent_folder_id', parentId); fileQuery.eq('folder_id', parentId); }
+    else { folderQuery.is('parent_folder_id', null); fileQuery.is('folder_id', null); }
+    const [fr, fi] = await Promise.all([folderQuery, fileQuery]);
+    const dbFolders = (fr.data as DriveFolder[]) || [];
+    const dbFiles = (fi.data as DriveFile[]) || [];
+    if (dbFolders.length === 0 && dbFiles.length === 0) {
+      const { demoFolders, demoFiles } = getDemoData(parentId);
+      return { folders: demoFolders, files: demoFiles };
+    }
+    return { folders: dbFolders, files: dbFiles };
+  }, [getDemoData]);
+
   // Sort & filter
   const sortedFolders = [...folders]
     .filter(f => !searchQuery || f.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -358,5 +379,6 @@ export const useDrive = () => {
     uploadFiles,
     downloadFile,
     fetchContents,
+    fetchFolderContents,
   };
 };
