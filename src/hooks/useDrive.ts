@@ -198,7 +198,7 @@ export const useDrive = () => {
     setLoading(false);
   }, [currentFolderId, getDemoData]);
 
-  useEffect(() => { fetchContents(); }, [fetchContents]);
+  useEffect(() => { fetchContents(true); }, [fetchContents]);
 
   const navigateToFolder = useCallback(async (folderId: string | null, folderName?: string) => {
     if (folderId === null) {
