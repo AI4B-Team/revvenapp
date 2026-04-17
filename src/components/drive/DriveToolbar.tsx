@@ -2,6 +2,7 @@ import { Search, Grid3X3, List, Columns, Plus, Upload, SlidersHorizontal, Check,
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useState } from 'react';
 import type { ViewMode, SortField, SortDirection } from '@/hooks/useDrive';
 
