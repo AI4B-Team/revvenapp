@@ -136,8 +136,8 @@ export const useDrive = () => {
     };
   }, []);
 
-  const fetchContents = useCallback(async () => {
-    setLoading(true);
+  const fetchContents = useCallback(async (showLoading: boolean = false) => {
+    if (showLoading) setLoading(true);
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user) {
       // Show demo data when not authenticated
