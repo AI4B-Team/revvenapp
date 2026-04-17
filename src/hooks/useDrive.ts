@@ -57,6 +57,14 @@ const buildDummyContents = (parentId: string): { folders: DriveFolder[]; files: 
   };
 };
 
+const ensureDummyContents = (parentId: string) => {
+  if (!newFolderDummyCache[parentId]) {
+    newFolderDummyCache[parentId] = buildDummyContents(parentId);
+  }
+
+  return newFolderDummyCache[parentId];
+};
+
 export const useDrive = () => {
   const [folders, setFolders] = useState<DriveFolder[]>([]);
   const [files, setFiles] = useState<DriveFile[]>([]);
@@ -201,9 +209,15 @@ export const useDrive = () => {
     let activeFolders: DriveFolder[];
     let activeFiles: DriveFile[];
     if (dbFolders.length === 0 && dbFiles.length === 0) {
-      const { demoFolders, demoFiles } = getDemoData(currentFolderId);
-      activeFolders = demoFolders;
-      activeFiles = demoFiles;
+      if (currentFolderId && !currentFolderId.startsWith('demo')) {
+        const dummyContents = ensureDummyContents(currentFolderId);
+        activeFolders = dummyContents.folders;
+        activeFiles = dummyContents.files;
+      } else {
+        const { demoFolders, demoFiles } = getDemoData(currentFolderId);
+        activeFolders = demoFolders;
+        activeFiles = demoFiles;
+      }
     } else {
       activeFolders = dbFolders;
       activeFiles = dbFiles;
@@ -222,7 +236,13 @@ export const useDrive = () => {
           supabase.from('drive_folders').select('id', { count: 'exact', head: true }).eq('parent_folder_id', f.id),
           supabase.from('drive_files').select('id', { count: 'exact', head: true }).eq('folder_id', f.id),
         ]);
-        counts[f.id] = (fc || 0) + (fic || 0);
+        const totalCount = (fc || 0) + (fic || 0);
+        if (totalCount === 0) {
+          const dummyContents = ensureDummyContents(f.id);
+          counts[f.id] = dummyContents.folders.length + dummyContents.files.length;
+        } else {
+          counts[f.id] = totalCount;
+        }
       }
     }));
     setFolderCounts(counts);
@@ -271,9 +291,13 @@ export const useDrive = () => {
       toast({ title: 'Error', description: 'Failed to create folder', variant: 'destructive' });
       return null;
     }
+
+    const dummyContents = ensureDummyContents(data.id);
+    const dummyCount = dummyContents.folders.length + dummyContents.files.length;
+
     // Optimistic insert — no full refetch
     setFolders((prev) => [data as DriveFolder, ...prev]);
-    setFolderCounts((prev) => ({ ...prev, [data.id]: 0 }));
+    setFolderCounts((prev) => ({ ...prev, [data.id]: dummyCount }));
     toast({ title: 'Folder created' });
     return data.id;
   }, [currentFolderId, toast]);
@@ -393,6 +417,10 @@ export const useDrive = () => {
     const dbFolders = (fr.data as DriveFolder[]) || [];
     const dbFiles = (fi.data as DriveFile[]) || [];
     if (dbFolders.length === 0 && dbFiles.length === 0) {
+      if (parentId && !parentId.startsWith('demo')) {
+        const dummyContents = ensureDummyContents(parentId);
+        return { folders: dummyContents.folders, files: dummyContents.files };
+      }
       const { demoFolders, demoFiles } = getDemoData(parentId);
       return { folders: demoFolders, files: demoFiles };
     }
