@@ -193,22 +193,32 @@ export const useDrive = () => {
     setCurrentFolderId(folderId);
   }, [breadcrumbs]);
 
-  const createFolder = useCallback(async (name: string = 'New Folder') => {
+  const createFolder = useCallback(async (name: string = 'New Folder'): Promise<string | null> => {
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return;
+    if (!session?.session?.user) {
+      // Demo mode: add a local folder
+      const newId = `demo-new-${Date.now()}`;
+      const now = new Date().toISOString();
+      setFolders((prev) => [
+        { id: newId, user_id: 'demo', name, parent_folder_id: currentFolderId, color: 'blue', is_favorite: false, created_at: now, updated_at: now },
+        ...prev,
+      ]);
+      return newId;
+    }
 
-    const { error } = await supabase.from('drive_folders').insert({
+    const { data, error } = await supabase.from('drive_folders').insert({
       user_id: session.session.user.id,
       name,
       parent_folder_id: currentFolderId,
-    });
+    }).select('id').single();
 
     if (error) {
       toast({ title: 'Error', description: 'Failed to create folder', variant: 'destructive' });
-    } else {
-      toast({ title: 'Folder created' });
-      fetchContents();
+      return null;
     }
+    toast({ title: 'Folder created' });
+    fetchContents();
+    return data?.id ?? null;
   }, [currentFolderId, fetchContents, toast]);
 
   const renameFolder = useCallback(async (folderId: string, newName: string) => {
