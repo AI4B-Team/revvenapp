@@ -35,6 +35,7 @@ export type ViewMode = 'grid' | 'list' | 'columns';
 export const useDrive = () => {
   const [folders, setFolders] = useState<DriveFolder[]>([]);
   const [files, setFiles] = useState<DriveFile[]>([]);
+  const [folderCounts, setFolderCounts] = useState<Record<string, number>>({});
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<{ id: string | null; name: string }[]>([{ id: null, name: 'My Drive' }]);
   const [loading, setLoading] = useState(true);
