@@ -32,6 +32,31 @@ export type SortField = 'name' | 'created_at' | 'updated_at' | 'file_size' | 'mi
 export type SortDirection = 'asc' | 'desc';
 export type ViewMode = 'grid' | 'list' | 'columns';
 
+// Module-level cache so newly created demo folders keep their dummy contents
+// across re-renders / navigation.
+const newFolderDummyCache: Record<string, { folders: DriveFolder[]; files: DriveFile[] }> = {};
+
+const buildDummyContents = (parentId: string): { folders: DriveFolder[]; files: DriveFile[] } => {
+  const now = new Date().toISOString();
+  const mk = (suffix: string, name: string, mime: string, size: number, url = ''): DriveFile => ({
+    id: `${parentId}-f-${suffix}`, user_id: 'demo', folder_id: parentId, name,
+    file_size: size, mime_type: mime, storage_path: '', file_url: url,
+    color: null, is_favorite: false, created_at: now, updated_at: now,
+  });
+  return {
+    folders: [
+      { id: `${parentId}-sub-1`, user_id: 'demo', name: 'Drafts', parent_folder_id: parentId, color: 'blue', is_favorite: false, created_at: now, updated_at: now },
+      { id: `${parentId}-sub-2`, user_id: 'demo', name: 'Final', parent_folder_id: parentId, color: 'green', is_favorite: false, created_at: now, updated_at: now },
+    ],
+    files: [
+      mk('1', 'Welcome.pdf', 'application/pdf', 380000),
+      mk('2', 'Reference Image.jpg', 'image/jpeg', 1450000, 'https://images.unsplash.com/photo-1517842645767-c639042777db?w=400'),
+      mk('3', 'Notes.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 52000),
+      mk('4', 'Quick Demo.mp4', 'video/mp4', 18000000),
+    ],
+  };
+};
+
 export const useDrive = () => {
   const [folders, setFolders] = useState<DriveFolder[]>([]);
   const [files, setFiles] = useState<DriveFile[]>([]);
