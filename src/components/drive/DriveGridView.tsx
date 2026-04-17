@@ -323,6 +323,9 @@ interface DriveGridViewProps {
   onDownloadFile: (file: DriveFile) => void;
   onNewFolder: () => void;
   onUpload: () => void;
+  folderCounts?: Record<string, number>;
+  pendingRenameFolderId?: string | null;
+  onPendingRenameDone?: () => void;
 }
 
 const DriveGridView = ({
@@ -330,6 +333,7 @@ const DriveGridView = ({
   onOpenFolder, onRenameFolder, onRenameFile, onDeleteFolder, onDeleteFile,
   onToggleFavoriteFolder, onToggleFavoriteFile, onSetFolderColor, onSetFileColor,
   onDownloadFile, onNewFolder, onUpload,
+  folderCounts = {}, pendingRenameFolderId, onPendingRenameDone,
 }: DriveGridViewProps) => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; type: 'folder' | 'file' | 'background'; item?: DriveFolder | DriveFile } | null>(null);
   const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
@@ -352,6 +356,9 @@ const DriveGridView = ({
               <DriveFolderCard
                 key={folder.id}
                 folder={folder}
+                fileCount={folderCounts[folder.id] ?? 0}
+                autoEdit={pendingRenameFolderId === folder.id}
+                onAutoEditDone={onPendingRenameDone}
                 onOpen={() => onOpenFolder(folder.id, folder.name)}
                 onRename={(name) => onRenameFolder(folder.id, name)}
                 onDelete={() => onDeleteFolder(folder.id)}
