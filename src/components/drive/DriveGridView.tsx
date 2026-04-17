@@ -253,34 +253,39 @@ const DriveFolderCard = ({
           )}
 
           {/* Folder Info */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-1">
+          <div className="mb-8 pr-14">
+            <div className="flex items-center gap-2 mb-1 min-w-0">
               <button
                 onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-                className="flex items-center justify-center hover:scale-110 transition-transform"
+                className="flex items-center justify-center hover:scale-110 transition-transform shrink-0"
                 title={folder.is_favorite ? 'Unfavorite' : 'Favorite'}
               >
                 <Star
                   className={`w-5 h-5 transition-colors ${folder.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`}
                 />
               </button>
-              {isInlineEditing ? (
-                <input
-                  ref={inlineInputRef}
-                  value={inlineValue}
-                  onChange={(e) => setInlineValue(e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  onBlur={commitInline}
-                  onKeyDown={(e) => {
-                    e.stopPropagation();
-                    if (e.key === 'Enter') commitInline();
-                    if (e.key === 'Escape') cancelInline();
-                  }}
-                  className="text-xl font-semibold tracking-tight bg-white border border-blue-400 rounded px-2 py-0.5 outline-none flex-1 min-w-0"
-                />
-              ) : (
-                <h3 className="text-xl font-semibold tracking-tight">{folder.name}</h3>
-              )}
+              {(() => {
+                const displayName = isInlineEditing ? inlineValue : folder.name;
+                const len = displayName.length;
+                const sizeClass = len > 28 ? 'text-sm' : len > 20 ? 'text-base' : len > 14 ? 'text-lg' : 'text-xl';
+                return isInlineEditing ? (
+                  <input
+                    ref={inlineInputRef}
+                    value={inlineValue}
+                    onChange={(e) => setInlineValue(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onBlur={commitInline}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                      if (e.key === 'Enter') commitInline();
+                      if (e.key === 'Escape') cancelInline();
+                    }}
+                    className={`${sizeClass} font-semibold tracking-tight bg-white border border-blue-400 rounded px-2 py-0.5 outline-none flex-1 min-w-0`}
+                  />
+                ) : (
+                  <h3 className={`${sizeClass} font-semibold tracking-tight truncate min-w-0 flex-1`}>{folder.name}</h3>
+                );
+              })()}
             </div>
             <p className="text-sm text-gray-500 ml-7">
               {fileCount} {fileCount === 1 ? 'item' : 'items'}
