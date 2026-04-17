@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Folder, FileText, Image, Video, Music, File, Star, Check, X, MoreHorizontal } from 'lucide-react';
+import { Folder, FileText, Image, Video, Music, File, Star, Check, X, MoreHorizontal, Download, Pencil, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import type { DriveFolder, DriveFile } from '@/hooks/useDrive';
 import DriveContextMenu from './DriveContextMenu';
