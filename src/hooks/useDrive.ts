@@ -155,6 +155,12 @@ export const useDrive = () => {
     if (parentId === null) {
       return { demoFolders: rootFolders, demoFiles: rootFiles };
     }
+    if (newFolderDummyCache[parentId]) {
+      return {
+        demoFolders: newFolderDummyCache[parentId].folders,
+        demoFiles: newFolderDummyCache[parentId].files,
+      };
+    }
     return {
       demoFolders: nestedFoldersByParent[parentId] || [],
       demoFiles: nestedFilesByParent[parentId] || [],
