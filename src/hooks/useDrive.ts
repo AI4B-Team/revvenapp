@@ -271,9 +271,13 @@ export const useDrive = () => {
       toast({ title: 'Error', description: 'Failed to create folder', variant: 'destructive' });
       return null;
     }
+
+    newFolderDummyCache[data.id] = buildDummyContents(data.id);
+    const dummyCount = newFolderDummyCache[data.id].folders.length + newFolderDummyCache[data.id].files.length;
+
     // Optimistic insert — no full refetch
     setFolders((prev) => [data as DriveFolder, ...prev]);
-    setFolderCounts((prev) => ({ ...prev, [data.id]: 0 }));
+    setFolderCounts((prev) => ({ ...prev, [data.id]: dummyCount }));
     toast({ title: 'Folder created' });
     return data.id;
   }, [currentFolderId, toast]);
