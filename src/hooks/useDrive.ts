@@ -167,14 +167,34 @@ export const useDrive = () => {
     const [foldersRes, filesRes] = await Promise.all([folderQuery, fileQuery]);
     const dbFolders = (foldersRes.data as DriveFolder[]) || [];
     const dbFiles = (filesRes.data as DriveFile[]) || [];
+    let activeFolders: DriveFolder[];
+    let activeFiles: DriveFile[];
     if (dbFolders.length === 0 && dbFiles.length === 0) {
       const { demoFolders, demoFiles } = getDemoData(currentFolderId);
-      setFolders(demoFolders);
-      setFiles(demoFiles);
+      activeFolders = demoFolders;
+      activeFiles = demoFiles;
     } else {
-      setFolders(dbFolders);
-      setFiles(dbFiles);
+      activeFolders = dbFolders;
+      activeFiles = dbFiles;
     }
+    setFolders(activeFolders);
+    setFiles(activeFiles);
+
+    // Compute child counts (folders + files) per visible folder
+    const counts: Record<string, number> = {};
+    await Promise.all(activeFolders.map(async (f) => {
+      if (f.id.startsWith('demo')) {
+        const { demoFolders: cf, demoFiles: cfi } = getDemoData(f.id);
+        counts[f.id] = cf.length + cfi.length;
+      } else {
+        const [{ count: fc }, { count: fic }] = await Promise.all([
+          supabase.from('drive_folders').select('id', { count: 'exact', head: true }).eq('parent_folder_id', f.id),
+          supabase.from('drive_files').select('id', { count: 'exact', head: true }).eq('folder_id', f.id),
+        ]);
+        counts[f.id] = (fc || 0) + (fic || 0);
+      }
+    }));
+    setFolderCounts(counts);
     setLoading(false);
   }, [currentFolderId, getDemoData]);
 
