@@ -7,7 +7,7 @@ interface DriveBreadcrumbsProps {
 
 const DriveBreadcrumbs = ({ breadcrumbs, onNavigate }: DriveBreadcrumbsProps) => {
   return (
-    <div className="flex items-center gap-1 text-sm mb-1">
+    <div className="flex items-center gap-1 text-sm mb-3 px-2 py-1.5 bg-muted/40 rounded-lg w-fit">
       {breadcrumbs.map((crumb, i) => (
         <div key={crumb.id || 'root'} className="flex items-center gap-1">
           {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />}
