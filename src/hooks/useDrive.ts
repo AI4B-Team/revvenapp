@@ -249,12 +249,15 @@ export const useDrive = () => {
     const { data: session } = await supabase.auth.getSession();
     const now = new Date().toISOString();
     if (!session?.session?.user) {
-      // Demo mode: add a local folder
+      // Demo mode: add a local folder + auto-populate with dummy contents
       const newId = `demo-new-${Date.now()}`;
+      newFolderDummyCache[newId] = buildDummyContents(newId);
+      const dummyCount = newFolderDummyCache[newId].folders.length + newFolderDummyCache[newId].files.length;
       setFolders((prev) => [
         { id: newId, user_id: 'demo', name, parent_folder_id: currentFolderId, color: 'blue', is_favorite: false, created_at: now, updated_at: now },
         ...prev,
       ]);
+      setFolderCounts((prev) => ({ ...prev, [newId]: dummyCount }));
       return newId;
     }
 
