@@ -898,42 +898,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           ) : navLink;
         })}
 
-        {/* Library Section */}
-        <div className="pt-2">
-          {isCollapsed ? (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <NavLink
-                    to="/assets"
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
-                    activeClassName="bg-sidebar-active"
-                  >
-                    <span className="text-sidebar-muted">
-                      <FolderOpen size={18} />
-                    </span>
-                    {!isCollapsed && <span className="flex-1 text-left text-sm">Assets</span>}
-                  </NavLink>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Assets</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : (
-            <NavLink
-              to="/assets"
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
-              activeClassName="bg-sidebar-active"
-            >
-              <span className="text-sidebar-muted">
-                <FolderOpen size={18} />
-              </span>
-              <span className="flex-1 text-left text-sm">Assets</span>
-            </NavLink>
-          )}
-        </div>
-
         {/* Apps Link */}
         <div className="pt-2">
           {isCollapsed ? (
