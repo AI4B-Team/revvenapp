@@ -1186,6 +1186,40 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         {/* Onboarding Progress */}
         {!isCollapsed && <OnboardingProgress />}
 
+        {/* Drive Link - anchored at the very bottom */}
+        <div className="px-3 pb-3 pt-2">
+          {isCollapsed ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <NavLink
+                    to="/drive"
+                    className="w-full flex items-center justify-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+                    activeClassName="bg-sidebar-active"
+                  >
+                    <span className="text-sidebar-muted">
+                      <HardDrive size={18} />
+                    </span>
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Drive</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <NavLink
+              to="/drive"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+              activeClassName="bg-sidebar-active"
+            >
+              <span className="text-sidebar-muted">
+                <HardDrive size={18} />
+              </span>
+              <span className="flex-1 text-left text-sm">Drive</span>
+            </NavLink>
+          )}
+        </div>
       </div>
 
       </div>
