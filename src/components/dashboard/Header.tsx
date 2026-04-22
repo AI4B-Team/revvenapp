@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import HelpMenu from './HelpMenu';
 import { NotificationsDropdown } from './NotificationsDropdown';
@@ -217,29 +218,61 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         <AppTabs className="flex-1" />
 
       <div className="flex items-center justify-end gap-2 h-10">
-        {/* Credits pill with Upgrade button */}
-        <div className="hidden sm:flex items-center bg-foreground/[0.06] rounded-lg pl-3 pr-1 py-1 gap-2">
-          <span className="text-brand-green text-[0.8rem]">◆</span>
-          <span className="text-[0.82rem] font-semibold tabular-nums text-foreground">10,000</span>
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="text-muted-foreground hover:text-foreground transition-colors" title="Credit info">
-                  <HelpCircle className="w-3.5 h-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Your monthly credits will be refilled when your subscription renews.</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <Link 
-            to="/pricing" 
-            className="bg-destructive text-destructive-foreground text-[0.76rem] font-semibold px-3 py-1 rounded-lg hover:bg-destructive/85 transition-colors no-underline"
+        {/* Credits pill with Upgrade button + usage popover */}
+        <Popover>
+          <div className="hidden sm:flex items-center bg-foreground/[0.06] rounded-lg pl-3 pr-1 py-1 gap-2">
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center gap-2 focus:outline-none">
+                      <span className="text-brand-green text-[0.8rem]">◆</span>
+                      <span className="text-[0.82rem] font-semibold tabular-nums text-foreground">10,000</span>
+                      <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Your monthly credits will be refilled when your subscription renews.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Link
+              to="/pricing"
+              className="bg-destructive text-destructive-foreground text-[0.76rem] font-semibold px-3 py-1 rounded-lg hover:bg-destructive/85 transition-colors no-underline"
+            >
+              {t('nav.upgrade')}
+            </Link>
+          </div>
+          <PopoverContent
+            align="end"
+            sideOffset={8}
+            className="w-[320px] p-5 bg-card border-2 border-brand-green/60 rounded-2xl shadow-xl"
           >
-            {t('nav.upgrade')}
-          </Link>
-        </div>
+            <div className="flex items-center gap-2 mb-3">
+              <h3 className="text-base font-bold text-foreground">Usage Credits</h3>
+              <HelpCircle className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-sm text-muted-foreground mb-2 tabular-nums">
+              <span className="font-medium text-foreground">10,000</span> / 98,000 Used
+            </p>
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden mb-4">
+              <div
+                className="h-full bg-brand-green rounded-full transition-all"
+                style={{ width: `${(10000 / 98000) * 100}%` }}
+              />
+            </div>
+            <p className="text-base font-bold text-brand-green mb-4 tabular-nums">
+              88,000 Credits Remaining
+            </p>
+            <Link
+              to="/pricing"
+              className="block w-full text-center bg-brand-green/30 hover:bg-brand-green/40 text-foreground font-semibold py-3 rounded-xl transition-colors no-underline"
+            >
+              Purchase Extra Credit
+            </Link>
+          </PopoverContent>
+        </Popover>
 
         <TooltipProvider delayDuration={100}>
           <Tooltip>
