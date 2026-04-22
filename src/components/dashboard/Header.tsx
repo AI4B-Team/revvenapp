@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import HelpMenu from './HelpMenu';
 import { NotificationsDropdown } from './NotificationsDropdown';
@@ -220,33 +220,35 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
       <div className="flex items-center justify-end gap-2 h-10">
         {/* Credits pill with Upgrade button + usage popover */}
         <Popover>
-          <div className="hidden sm:flex items-center bg-foreground/[0.06] rounded-lg pl-3 pr-1 py-1 gap-2">
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <PopoverTrigger asChild>
-                    <button className="flex items-center gap-2 focus:outline-none">
-                      <span className="text-brand-green text-[0.8rem]">◆</span>
-                      <span className="text-[0.82rem] font-semibold tabular-nums text-foreground">10,000</span>
-                      <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
-                    </button>
-                  </PopoverTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Your monthly credits will be refilled when your subscription renews.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <Link
-              to="/pricing"
-              className="bg-destructive text-destructive-foreground text-[0.76rem] font-semibold px-3 py-1 rounded-lg hover:bg-destructive/85 transition-colors no-underline"
-            >
-              {t('nav.upgrade')}
-            </Link>
-          </div>
+          <PopoverAnchor asChild>
+            <div className="hidden sm:flex items-center bg-foreground/[0.06] rounded-lg pl-3 pr-1 py-1 gap-2">
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <button className="flex items-center gap-2 focus:outline-none">
+                        <span className="text-brand-green text-[0.8rem]">◆</span>
+                        <span className="text-[0.82rem] font-semibold tabular-nums text-foreground">88,000</span>
+                        <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                      </button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Your monthly credits will be refilled when your subscription renews.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Link
+                to="/pricing"
+                className="bg-destructive text-destructive-foreground text-[0.76rem] font-semibold px-3 py-1 rounded-lg hover:bg-destructive/85 transition-colors no-underline"
+              >
+                {t('nav.upgrade')}
+              </Link>
+            </div>
+          </PopoverAnchor>
           <PopoverContent
             align="center"
-            sideOffset={8}
+            sideOffset={12}
             className="w-[320px] p-5 bg-card border-2 border-brand-green/60 rounded-2xl shadow-xl"
           >
             <div className="flex items-center gap-2 mb-3">
