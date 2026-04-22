@@ -245,7 +245,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
             </Link>
           </div>
           <PopoverContent
-            align="end"
+            align="center"
             sideOffset={8}
             className="w-[320px] p-5 bg-card border-2 border-brand-green/60 rounded-2xl shadow-xl"
           >
