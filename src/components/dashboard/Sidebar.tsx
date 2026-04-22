@@ -1006,41 +1006,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           )}
         </div>
 
-        {/* Drive Link */}
-        <div className="pt-2">
-          {isCollapsed ? (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <NavLink
-                    to="/drive"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-                    activeClassName="bg-sidebar-active"
-                  >
-                    <span className="text-sidebar-muted">
-                      <HardDrive size={18} />
-                    </span>
-                    {!isCollapsed && <span className="flex-1 text-left text-sm">Drive</span>}
-                  </NavLink>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Drive</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : (
-            <NavLink
-              to="/drive"
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-              activeClassName="bg-sidebar-active"
-            >
-              <span className="text-sidebar-muted">
-                <HardDrive size={18} />
-              </span>
-              <span className="flex-1 text-left text-sm">Drive</span>
-            </NavLink>
-          )}
-        </div>
 
         {/* Separator */}
         <div className="pt-4 pb-2 px-3">
