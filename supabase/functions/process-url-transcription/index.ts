@@ -44,16 +44,59 @@ function cleanCaptionText(text: string): string {
     .trim();
 }
 
+function extractJsonObjectAfter(source: string, marker: string): any | null {
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) return null;
+  const start = source.indexOf('{', markerIndex + marker.length);
+  if (start < 0) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = start; i < source.length; i++) {
+    const char = source[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === '\\') {
+        escaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+    } else if (char === '{') {
+      depth++;
+    } else if (char === '}') {
+      depth--;
+      if (depth === 0) {
+        try {
+          return JSON.parse(source.slice(start, i + 1));
+        } catch {
+          return null;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 async function fetchYouTubeCaptionTranscript(cleanUrl: string): Promise<{ title: string; transcriptText: string; duration: number } | null> {
   const videoId = extractYouTubeVideoId(cleanUrl);
   if (!videoId) return null;
 
   console.log(`[BG-TRANSCRIBE] Checking YouTube captions for ${videoId}...`);
 
-  const pageResponse = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+  const pageResponse = await fetch(`https://www.youtube.com/watch?v=${videoId}&hl=en&gl=US&has_verified=1&bpctr=9999999999`, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       'Accept-Language': 'en-US,en;q=0.9',
+      'Cookie': 'CONSENT=YES+cb; SOCS=CAI; PREF=hl=en&gl=US',
     },
   });
 
@@ -65,17 +108,24 @@ async function fetchYouTubeCaptionTranscript(cleanUrl: string): Promise<{ title:
   const html = await pageResponse.text();
   const titleMatch = html.match(/<title>(.*?)<\/title>/i);
   const title = cleanCaptionText((titleMatch?.[1] || 'YouTube Transcript').replace(/ - YouTube$/i, ''));
-  const tracksMatch = html.match(/"captionTracks":(\[.*?\])/);
-  if (!tracksMatch?.[1]) {
-    console.log('[BG-TRANSCRIBE] No YouTube caption tracks found; falling back to audio transcription.');
-    return null;
+
+  const playerResponse = extractJsonObjectAfter(html, 'ytInitialPlayerResponse =')
+    || extractJsonObjectAfter(html, 'ytInitialPlayerResponse=');
+  let tracks = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks as Array<{ baseUrl?: string; languageCode?: string; kind?: string; name?: { simpleText?: string } }> | undefined;
+
+  if (!tracks?.length) {
+    const tracksMatch = html.match(/"captionTracks":(\[.*?\])/);
+    if (tracksMatch?.[1]) {
+      try {
+        tracks = JSON.parse(tracksMatch[1].replace(/\\u0026/g, '&'));
+      } catch (error) {
+        console.log('[BG-TRANSCRIBE] Failed to parse YouTube captionTracks regex:', error);
+      }
+    }
   }
 
-  let tracks: Array<{ baseUrl?: string; languageCode?: string; kind?: string; name?: { simpleText?: string } }> = [];
-  try {
-    tracks = JSON.parse(tracksMatch[1]);
-  } catch (error) {
-    console.log('[BG-TRANSCRIBE] Failed to parse YouTube caption tracks:', error);
+  if (!tracks?.length) {
+    console.log('[BG-TRANSCRIBE] No YouTube caption tracks found; falling back to audio transcription.');
     return null;
   }
 
