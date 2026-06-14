@@ -708,84 +708,16 @@ serve(async (req) => {
           original_url: cleanUrl, // Store original URL for YouTube/Vimeo embedding
         }).eq('id', recordId);
 
-        // Step 3: Transcribe using ElevenLabs Scribe
-        console.log(`[BG-TRANSCRIBE] Step 3: Transcribing audio with ElevenLabs...`);
-        
-        const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-        if (!ELEVENLABS_API_KEY) {
-          throw new Error("ELEVENLABS_API_KEY not configured");
-        }
-
-        // Fetch audio from Cloudinary - extract audio using Cloudinary transformation
-        // Use fl_attachment to force download and f_mp3 to convert to audio
-        const audioExtractUrl = audioUrl.replace('/upload/', '/upload/f_mp3,q_auto/').replace('.mp4', '.mp3');
-        console.log(`[BG-TRANSCRIBE] Extracting audio from: ${audioExtractUrl}`);
-        
-        let audioBlob: Blob;
-        let audioFileName: string;
-        
-        const audioResponse = await fetch(audioExtractUrl);
-        if (audioResponse.ok) {
-          const audioArrayBuffer = await audioResponse.arrayBuffer();
-          audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
-          audioFileName = "audio.mp3";
-          console.log(`[BG-TRANSCRIBE] Audio extracted: ${audioArrayBuffer.byteLength} bytes`);
-        } else {
-          // Fallback: fetch original and let ElevenLabs handle it
-          console.log(`[BG-TRANSCRIBE] Audio extraction failed (${audioResponse.status}), trying original...`);
-          const originalResponse = await fetch(audioUrl);
-          if (!originalResponse.ok) {
-            throw new Error(`Failed to fetch media: ${originalResponse.status}`);
-          }
-          const audioArrayBuffer = await originalResponse.arrayBuffer();
-          audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
-          audioFileName = "audio.mp3";
-          console.log(`[BG-TRANSCRIBE] Original fetched: ${audioArrayBuffer.byteLength} bytes`);
-        }
-
-        // Send to ElevenLabs
-        const transcribeFormData = new FormData();
-        transcribeFormData.append("file", audioBlob, audioFileName);
-        transcribeFormData.append("model_id", "scribe_v1");
-        transcribeFormData.append("tag_audio_events", "false");
-        transcribeFormData.append("diarize", "false");
-
-        const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
-          method: "POST",
-          headers: {
-            "xi-api-key": ELEVENLABS_API_KEY,
-          },
-          body: transcribeFormData,
+        // Step 4: Transcribe in chunks so long videos don't exceed backend/provider limits.
+        console.log(`[BG-TRANSCRIBE] Step 4: Starting chunked transcription...`);
+        await processTranscriptionSegment(supabase, supabaseUrl, supabaseServiceKey, {
+          recordId,
+          audioUrl,
+          title,
+          duration,
+          cleanUrl,
+          segmentStart: 0,
         });
-
-        if (!transcribeResponse.ok) {
-          const errorText = await transcribeResponse.text();
-          console.error("[BG-TRANSCRIBE] ElevenLabs error:", transcribeResponse.status, errorText);
-          throw new Error(`Transcription failed: ${transcribeResponse.status}`);
-        }
-
-        const transcribeResult = await transcribeResponse.json();
-        const transcriptText = transcribeResult.text || "";
-
-        console.log(`[BG-TRANSCRIBE] Transcription complete: ${transcriptText.substring(0, 100)}...`);
-
-        // Step 4: Update database record with completed status
-        const { error: updateError } = await supabase.from('user_voices').update({
-          status: 'completed',
-          type: 'transcription',
-          prompt: transcriptText,
-          url: audioUrl,
-          duration: duration,
-          name: title,
-          original_url: cleanUrl, // Preserve original URL for video embedding
-        }).eq('id', recordId);
-
-        if (updateError) {
-          console.error("[BG-TRANSCRIBE] Database update error:", updateError);
-          throw updateError;
-        }
-
-        console.log(`[BG-TRANSCRIBE] ✅ Successfully completed processing for record ${recordId}`);
 
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
