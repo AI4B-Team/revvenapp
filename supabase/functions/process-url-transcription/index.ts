@@ -169,6 +169,41 @@ async function fetchYouTubeCaptionTranscript(cleanUrl: string): Promise<{ title:
   return { title, transcriptText, duration: maxSeconds };
 }
 
+function buildCloudinaryAudioSegmentUrl(audioUrl: string, startSeconds: number, endSeconds: number): string {
+  const transform = `so_${Math.max(0, Math.floor(startSeconds))},eo_${Math.max(1, Math.ceil(endSeconds))},f_mp3,q_auto`;
+  return audioUrl.replace('/upload/', `/upload/${transform}/`).replace(/\.(mp4|mov|webm|m4a|wav)$/i, '.mp3');
+}
+
+async function transcribeAudioBlob(audioBlob: Blob, filename: string): Promise<string> {
+  const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+  if (!ELEVENLABS_API_KEY) {
+    throw new Error("ELEVENLABS_API_KEY not configured");
+  }
+
+  const transcribeFormData = new FormData();
+  transcribeFormData.append("file", audioBlob, filename);
+  transcribeFormData.append("model_id", "scribe_v1");
+  transcribeFormData.append("tag_audio_events", "false");
+  transcribeFormData.append("diarize", "false");
+
+  const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+    method: "POST",
+    headers: {
+      "xi-api-key": ELEVENLABS_API_KEY,
+    },
+    body: transcribeFormData,
+  });
+
+  if (!transcribeResponse.ok) {
+    const errorText = await transcribeResponse.text();
+    console.error("[BG-TRANSCRIBE] ElevenLabs error:", transcribeResponse.status, errorText);
+    throw new Error(`Transcription failed: ${transcribeResponse.status}`);
+  }
+
+  const transcribeResult = await transcribeResponse.json();
+  return transcribeResult.text || "";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
