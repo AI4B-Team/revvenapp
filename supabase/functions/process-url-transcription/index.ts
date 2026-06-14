@@ -281,7 +281,29 @@ serve(async (req) => {
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
-    const { url, recordId, userId } = await req.json();
+    const requestBody = await req.json();
+    const { url, recordId, userId, mode } = requestBody;
+
+    if (mode === 'transcribe-segment') {
+      const { audioUrl, title, duration, cleanUrl, segmentStart } = requestBody;
+      if (!recordId || !audioUrl || !title || !duration || !cleanUrl) {
+        throw new Error("Missing required segment transcription parameters");
+      }
+
+      EdgeRuntime.waitUntil(processTranscriptionSegment(supabase, supabaseUrl, supabaseServiceKey, {
+        recordId,
+        audioUrl,
+        title,
+        duration,
+        cleanUrl,
+        segmentStart,
+      }));
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Segment transcription started", recordId }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
     if (!url || !recordId || !userId) {
       throw new Error("Missing required parameters: url, recordId, userId");
