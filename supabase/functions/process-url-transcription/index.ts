@@ -204,6 +204,73 @@ async function transcribeAudioBlob(audioBlob: Blob, filename: string): Promise<s
   return transcribeResult.text || "";
 }
 
+async function processTranscriptionSegment(
+  supabase: ReturnType<typeof createClient>,
+  supabaseUrl: string,
+  supabaseServiceKey: string,
+  params: { recordId: string; audioUrl: string; title: string; duration: number; cleanUrl: string; segmentStart?: number }
+) {
+  const chunkSeconds = 600;
+  const segmentStart = Math.max(0, Math.floor(params.segmentStart || 0));
+  const segmentEnd = Math.min(Math.ceil(params.duration || segmentStart + chunkSeconds), segmentStart + chunkSeconds);
+  const segmentUrl = buildCloudinaryAudioSegmentUrl(params.audioUrl, segmentStart, segmentEnd);
+
+  console.log(`[BG-TRANSCRIBE] Transcribing segment ${formatCaptionTime(segmentStart)}-${formatCaptionTime(segmentEnd)} from ${segmentUrl.substring(0, 100)}...`);
+
+  const segmentResponse = await fetch(segmentUrl);
+  if (!segmentResponse.ok) {
+    throw new Error(`Failed to fetch audio segment: ${segmentResponse.status}`);
+  }
+
+  const segmentBuffer = await segmentResponse.arrayBuffer();
+  const segmentBlob = new Blob([segmentBuffer], { type: 'audio/mpeg' });
+  const segmentText = await transcribeAudioBlob(segmentBlob, `segment-${segmentStart}-${segmentEnd}.mp3`);
+  const segmentTranscript = segmentText.trim() ? `[${formatCaptionTime(segmentStart)}] ${segmentText.trim()}` : '';
+
+  const { data: currentRecord } = await supabase
+    .from('user_voices')
+    .select('prompt')
+    .eq('id', params.recordId)
+    .single();
+
+  const existingText = typeof currentRecord?.prompt === 'string' ? currentRecord.prompt : '';
+  const combinedText = [existingText, segmentTranscript].filter(Boolean).join('\n\n');
+  const isComplete = segmentEnd >= (params.duration || segmentEnd);
+
+  await supabase.from('user_voices').update({
+    status: isComplete ? 'completed' : 'processing',
+    type: 'transcription',
+    prompt: combinedText,
+    url: params.audioUrl,
+    duration: params.duration,
+    name: params.title,
+    original_url: params.cleanUrl,
+  }).eq('id', params.recordId);
+
+  if (!isComplete) {
+    console.log(`[BG-TRANSCRIBE] Segment complete; queueing next segment at ${formatCaptionTime(segmentEnd)}.`);
+    await fetch(`${supabaseUrl}/functions/v1/process-url-transcription`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'apikey': supabaseServiceKey,
+      },
+      body: JSON.stringify({
+        mode: 'transcribe-segment',
+        recordId: params.recordId,
+        audioUrl: params.audioUrl,
+        title: params.title,
+        duration: params.duration,
+        cleanUrl: params.cleanUrl,
+        segmentStart: segmentEnd,
+      }),
+    });
+  } else {
+    console.log(`[BG-TRANSCRIBE] ✅ Successfully completed chunked transcription for record ${params.recordId}`);
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
