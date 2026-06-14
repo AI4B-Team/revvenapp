@@ -210,7 +210,7 @@ async function processTranscriptionSegment(
   supabaseServiceKey: string,
   params: { recordId: string; audioUrl: string; title: string; duration: number; cleanUrl: string; segmentStart?: number }
 ) {
-  const chunkSeconds = 600;
+  const chunkSeconds = 300;
   const segmentStart = Math.max(0, Math.floor(params.segmentStart || 0));
   const segmentEnd = Math.min(Math.ceil(params.duration || segmentStart + chunkSeconds), segmentStart + chunkSeconds);
   const segmentUrl = buildCloudinaryAudioSegmentUrl(params.audioUrl, segmentStart, segmentEnd);
