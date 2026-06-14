@@ -11,6 +11,114 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function extractYouTubeVideoId(input: string): string | null {
+  try {
+    const parsed = new URL(input);
+    if (parsed.hostname.includes('youtu.be')) {
+      return parsed.pathname.split('/').filter(Boolean)[0] || null;
+    }
+    if (parsed.hostname.includes('youtube.com')) {
+      if (parsed.pathname.startsWith('/shorts/')) {
+        return parsed.pathname.split('/').filter(Boolean)[1] || null;
+      }
+      return parsed.searchParams.get('v');
+    }
+  } catch {
+    const match = input.match(/(?:v=|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+    return match?.[1] || null;
+  }
+  return null;
+}
+
+function formatCaptionTime(seconds: number): string {
+  const total = Math.max(0, Math.floor(seconds));
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function cleanCaptionText(text: string): string {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.!?;:])/g, '$1')
+    .trim();
+}
+
+async function fetchYouTubeCaptionTranscript(cleanUrl: string): Promise<{ title: string; transcriptText: string; duration: number } | null> {
+  const videoId = extractYouTubeVideoId(cleanUrl);
+  if (!videoId) return null;
+
+  console.log(`[BG-TRANSCRIBE] Checking YouTube captions for ${videoId}...`);
+
+  const pageResponse = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept-Language': 'en-US,en;q=0.9',
+    },
+  });
+
+  if (!pageResponse.ok) {
+    console.log(`[BG-TRANSCRIBE] YouTube page fetch failed: ${pageResponse.status}`);
+    return null;
+  }
+
+  const html = await pageResponse.text();
+  const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+  const title = cleanCaptionText((titleMatch?.[1] || 'YouTube Transcript').replace(/ - YouTube$/i, ''));
+  const tracksMatch = html.match(/"captionTracks":(\[.*?\])/);
+  if (!tracksMatch?.[1]) {
+    console.log('[BG-TRANSCRIBE] No YouTube caption tracks found; falling back to audio transcription.');
+    return null;
+  }
+
+  let tracks: Array<{ baseUrl?: string; languageCode?: string; kind?: string; name?: { simpleText?: string } }> = [];
+  try {
+    tracks = JSON.parse(tracksMatch[1]);
+  } catch (error) {
+    console.log('[BG-TRANSCRIBE] Failed to parse YouTube caption tracks:', error);
+    return null;
+  }
+
+  const track = tracks.find(t => t.languageCode === 'en' && t.kind !== 'asr')
+    || tracks.find(t => t.languageCode === 'en')
+    || tracks[0];
+
+  if (!track?.baseUrl) return null;
+
+  const captionsUrl = new URL(track.baseUrl.replace(/\\u0026/g, '&'));
+  captionsUrl.searchParams.set('fmt', 'json3');
+
+  const captionsResponse = await fetch(captionsUrl.toString(), {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    },
+  });
+
+  if (!captionsResponse.ok) {
+    console.log(`[BG-TRANSCRIBE] YouTube captions fetch failed: ${captionsResponse.status}`);
+    return null;
+  }
+
+  const captionsData = await captionsResponse.json();
+  const lines: string[] = [];
+  let maxSeconds = 0;
+
+  for (const event of captionsData?.events || []) {
+    const text = cleanCaptionText((event.segs || []).map((seg: { utf8?: string }) => seg.utf8 || '').join(''));
+    if (!text) continue;
+    const startSeconds = Number(event.tStartMs || 0) / 1000;
+    const durationSeconds = Number(event.dDurationMs || 0) / 1000;
+    maxSeconds = Math.max(maxSeconds, startSeconds + durationSeconds);
+    lines.push(`[${formatCaptionTime(startSeconds)}] ${text}`);
+  }
+
+  const transcriptText = lines.join('\n');
+  if (!transcriptText.trim()) return null;
+
+  console.log(`[BG-TRANSCRIBE] YouTube captions transcript found: ${lines.length} caption lines.`);
+  return { title, transcriptText, duration: maxSeconds };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
