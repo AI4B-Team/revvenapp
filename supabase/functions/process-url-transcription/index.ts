@@ -11,6 +11,266 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function extractYouTubeVideoId(input: string): string | null {
+  try {
+    const parsed = new URL(input);
+    if (parsed.hostname.includes('youtu.be')) {
+      return parsed.pathname.split('/').filter(Boolean)[0] || null;
+    }
+    if (parsed.hostname.includes('youtube.com')) {
+      if (parsed.pathname.startsWith('/shorts/')) {
+        return parsed.pathname.split('/').filter(Boolean)[1] || null;
+      }
+      return parsed.searchParams.get('v');
+    }
+  } catch {
+    const match = input.match(/(?:v=|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+    return match?.[1] || null;
+  }
+  return null;
+}
+
+function formatCaptionTime(seconds: number): string {
+  const total = Math.max(0, Math.floor(seconds));
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function cleanCaptionText(text: string): string {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.!?;:])/g, '$1')
+    .trim();
+}
+
+function extractJsonObjectAfter(source: string, marker: string): any | null {
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) return null;
+  const start = source.indexOf('{', markerIndex + marker.length);
+  if (start < 0) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = start; i < source.length; i++) {
+    const char = source[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === '\\') {
+        escaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+    } else if (char === '{') {
+      depth++;
+    } else if (char === '}') {
+      depth--;
+      if (depth === 0) {
+        try {
+          return JSON.parse(source.slice(start, i + 1));
+        } catch {
+          return null;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+async function fetchYouTubeCaptionTranscript(cleanUrl: string): Promise<{ title: string; transcriptText: string; duration: number } | null> {
+  const videoId = extractYouTubeVideoId(cleanUrl);
+  if (!videoId) return null;
+
+  console.log(`[BG-TRANSCRIBE] Checking YouTube captions for ${videoId}...`);
+
+  const pageResponse = await fetch(`https://www.youtube.com/watch?v=${videoId}&hl=en&gl=US&has_verified=1&bpctr=9999999999`, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Cookie': 'CONSENT=YES+cb; SOCS=CAI; PREF=hl=en&gl=US',
+    },
+  });
+
+  if (!pageResponse.ok) {
+    console.log(`[BG-TRANSCRIBE] YouTube page fetch failed: ${pageResponse.status}`);
+    return null;
+  }
+
+  const html = await pageResponse.text();
+  const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+  const title = cleanCaptionText((titleMatch?.[1] || 'YouTube Transcript').replace(/ - YouTube$/i, ''));
+
+  const playerResponse = extractJsonObjectAfter(html, 'ytInitialPlayerResponse =')
+    || extractJsonObjectAfter(html, 'ytInitialPlayerResponse=');
+  let tracks = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks as Array<{ baseUrl?: string; languageCode?: string; kind?: string; name?: { simpleText?: string } }> | undefined;
+
+  if (!tracks?.length) {
+    const tracksMatch = html.match(/"captionTracks":(\[.*?\])/);
+    if (tracksMatch?.[1]) {
+      try {
+        tracks = JSON.parse(tracksMatch[1].replace(/\\u0026/g, '&'));
+      } catch (error) {
+        console.log('[BG-TRANSCRIBE] Failed to parse YouTube captionTracks regex:', error);
+      }
+    }
+  }
+
+  if (!tracks?.length) {
+    console.log('[BG-TRANSCRIBE] No YouTube caption tracks found; falling back to audio transcription.');
+    return null;
+  }
+
+  const track = tracks.find(t => t.languageCode === 'en' && t.kind !== 'asr')
+    || tracks.find(t => t.languageCode === 'en')
+    || tracks[0];
+
+  if (!track?.baseUrl) return null;
+
+  const captionsUrl = new URL(track.baseUrl.replace(/\\u0026/g, '&'));
+  captionsUrl.searchParams.set('fmt', 'json3');
+
+  const captionsResponse = await fetch(captionsUrl.toString(), {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    },
+  });
+
+  if (!captionsResponse.ok) {
+    console.log(`[BG-TRANSCRIBE] YouTube captions fetch failed: ${captionsResponse.status}`);
+    return null;
+  }
+
+  const captionsData = await captionsResponse.json();
+  const lines: string[] = [];
+  let maxSeconds = 0;
+
+  for (const event of captionsData?.events || []) {
+    const text = cleanCaptionText((event.segs || []).map((seg: { utf8?: string }) => seg.utf8 || '').join(''));
+    if (!text) continue;
+    const startSeconds = Number(event.tStartMs || 0) / 1000;
+    const durationSeconds = Number(event.dDurationMs || 0) / 1000;
+    maxSeconds = Math.max(maxSeconds, startSeconds + durationSeconds);
+    lines.push(`[${formatCaptionTime(startSeconds)}] ${text}`);
+  }
+
+  const transcriptText = lines.join('\n');
+  if (!transcriptText.trim()) return null;
+
+  console.log(`[BG-TRANSCRIBE] YouTube captions transcript found: ${lines.length} caption lines.`);
+  return { title, transcriptText, duration: maxSeconds };
+}
+
+function buildCloudinaryAudioSegmentUrl(audioUrl: string, startSeconds: number, endSeconds: number): string {
+  const transform = `so_${Math.max(0, Math.floor(startSeconds))},eo_${Math.max(1, Math.ceil(endSeconds))},f_mp3,q_auto`;
+  return audioUrl.replace('/upload/', `/upload/${transform}/`).replace(/\.(mp4|mov|webm|m4a|wav)$/i, '.mp3');
+}
+
+async function transcribeAudioBlob(audioBlob: Blob, filename: string): Promise<string> {
+  const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+  if (!ELEVENLABS_API_KEY) {
+    throw new Error("ELEVENLABS_API_KEY not configured");
+  }
+
+  const transcribeFormData = new FormData();
+  transcribeFormData.append("file", audioBlob, filename);
+  transcribeFormData.append("model_id", "scribe_v1");
+  transcribeFormData.append("tag_audio_events", "false");
+  transcribeFormData.append("diarize", "false");
+
+  const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+    method: "POST",
+    headers: {
+      "xi-api-key": ELEVENLABS_API_KEY,
+    },
+    body: transcribeFormData,
+  });
+
+  if (!transcribeResponse.ok) {
+    const errorText = await transcribeResponse.text();
+    console.error("[BG-TRANSCRIBE] ElevenLabs error:", transcribeResponse.status, errorText);
+    throw new Error(`Transcription failed: ${transcribeResponse.status}`);
+  }
+
+  const transcribeResult = await transcribeResponse.json();
+  return transcribeResult.text || "";
+}
+
+async function processTranscriptionSegment(
+  supabase: ReturnType<typeof createClient>,
+  supabaseUrl: string,
+  supabaseServiceKey: string,
+  params: { recordId: string; audioUrl: string; title: string; duration: number; cleanUrl: string; segmentStart?: number }
+) {
+  const chunkSeconds = 300;
+  const segmentStart = Math.max(0, Math.floor(params.segmentStart || 0));
+  const segmentEnd = Math.min(Math.ceil(params.duration || segmentStart + chunkSeconds), segmentStart + chunkSeconds);
+  const segmentUrl = buildCloudinaryAudioSegmentUrl(params.audioUrl, segmentStart, segmentEnd);
+
+  console.log(`[BG-TRANSCRIBE] Transcribing segment ${formatCaptionTime(segmentStart)}-${formatCaptionTime(segmentEnd)} from ${segmentUrl.substring(0, 100)}...`);
+
+  const segmentResponse = await fetch(segmentUrl);
+  if (!segmentResponse.ok) {
+    throw new Error(`Failed to fetch audio segment: ${segmentResponse.status}`);
+  }
+
+  const segmentBuffer = await segmentResponse.arrayBuffer();
+  const segmentBlob = new Blob([segmentBuffer], { type: 'audio/mpeg' });
+  const segmentText = await transcribeAudioBlob(segmentBlob, `segment-${segmentStart}-${segmentEnd}.mp3`);
+  const segmentTranscript = segmentText.trim() ? `[${formatCaptionTime(segmentStart)}] ${segmentText.trim()}` : '';
+
+  const { data: currentRecord } = await supabase
+    .from('user_voices')
+    .select('prompt')
+    .eq('id', params.recordId)
+    .single();
+
+  const existingText = typeof currentRecord?.prompt === 'string' ? currentRecord.prompt : '';
+  const combinedText = [existingText, segmentTranscript].filter(Boolean).join('\n\n');
+  const isComplete = segmentEnd >= (params.duration || segmentEnd);
+
+  await supabase.from('user_voices').update({
+    status: isComplete ? 'completed' : 'processing',
+    type: 'transcription',
+    prompt: combinedText,
+    url: params.audioUrl,
+    duration: params.duration,
+    name: params.title,
+    original_url: params.cleanUrl,
+  }).eq('id', params.recordId);
+
+  if (!isComplete) {
+    console.log(`[BG-TRANSCRIBE] Segment complete; queueing next segment at ${formatCaptionTime(segmentEnd)}.`);
+    await fetch(`${supabaseUrl}/functions/v1/process-url-transcription`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'apikey': supabaseServiceKey,
+      },
+      body: JSON.stringify({
+        mode: 'transcribe-segment',
+        recordId: params.recordId,
+        audioUrl: params.audioUrl,
+        title: params.title,
+        duration: params.duration,
+        cleanUrl: params.cleanUrl,
+        segmentStart: segmentEnd,
+      }),
+    });
+  } else {
+    console.log(`[BG-TRANSCRIBE] ✅ Successfully completed chunked transcription for record ${params.recordId}`);
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -21,7 +281,29 @@ serve(async (req) => {
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
-    const { url, recordId, userId } = await req.json();
+    const requestBody = await req.json();
+    const { url, recordId, userId, mode } = requestBody;
+
+    if (mode === 'transcribe-segment') {
+      const { audioUrl, title, duration, cleanUrl, segmentStart } = requestBody;
+      if (!recordId || !audioUrl || !title || !duration || !cleanUrl) {
+        throw new Error("Missing required segment transcription parameters");
+      }
+
+      EdgeRuntime.waitUntil(processTranscriptionSegment(supabase, supabaseUrl, supabaseServiceKey, {
+        recordId,
+        audioUrl,
+        title,
+        duration,
+        cleanUrl,
+        segmentStart,
+      }));
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Segment transcription started", recordId }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
     if (!url || !recordId || !userId) {
       throw new Error("Missing required parameters: url, recordId, userId");
@@ -73,6 +355,29 @@ serve(async (req) => {
         }
         
         console.log("[BG-TRANSCRIBE] Cleaned URL:", cleanUrl);
+
+        if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+          const captionResult = await fetchYouTubeCaptionTranscript(cleanUrl);
+          if (captionResult) {
+            const { error: captionUpdateError } = await supabase.from('user_voices').update({
+              status: 'completed',
+              type: 'transcription',
+              prompt: captionResult.transcriptText,
+              duration: captionResult.duration,
+              name: captionResult.title,
+              original_url: cleanUrl,
+              source: 'youtube-captions',
+            }).eq('id', recordId);
+
+            if (captionUpdateError) {
+              console.error('[BG-TRANSCRIBE] Database update error for captions:', captionUpdateError);
+              throw captionUpdateError;
+            }
+
+            console.log(`[BG-TRANSCRIBE] ✅ Completed from YouTube captions for record ${recordId}`);
+            return;
+          }
+        }
         
         // Check if this is an Instagram URL - use dedicated Instagram API
         const isInstagramUrl = cleanUrl.includes('instagram.com');
@@ -403,84 +708,16 @@ serve(async (req) => {
           original_url: cleanUrl, // Store original URL for YouTube/Vimeo embedding
         }).eq('id', recordId);
 
-        // Step 3: Transcribe using ElevenLabs Scribe
-        console.log(`[BG-TRANSCRIBE] Step 3: Transcribing audio with ElevenLabs...`);
-        
-        const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-        if (!ELEVENLABS_API_KEY) {
-          throw new Error("ELEVENLABS_API_KEY not configured");
-        }
-
-        // Fetch audio from Cloudinary - extract audio using Cloudinary transformation
-        // Use fl_attachment to force download and f_mp3 to convert to audio
-        const audioExtractUrl = audioUrl.replace('/upload/', '/upload/f_mp3,q_auto/').replace('.mp4', '.mp3');
-        console.log(`[BG-TRANSCRIBE] Extracting audio from: ${audioExtractUrl}`);
-        
-        let audioBlob: Blob;
-        let audioFileName: string;
-        
-        const audioResponse = await fetch(audioExtractUrl);
-        if (audioResponse.ok) {
-          const audioArrayBuffer = await audioResponse.arrayBuffer();
-          audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
-          audioFileName = "audio.mp3";
-          console.log(`[BG-TRANSCRIBE] Audio extracted: ${audioArrayBuffer.byteLength} bytes`);
-        } else {
-          // Fallback: fetch original and let ElevenLabs handle it
-          console.log(`[BG-TRANSCRIBE] Audio extraction failed (${audioResponse.status}), trying original...`);
-          const originalResponse = await fetch(audioUrl);
-          if (!originalResponse.ok) {
-            throw new Error(`Failed to fetch media: ${originalResponse.status}`);
-          }
-          const audioArrayBuffer = await originalResponse.arrayBuffer();
-          audioBlob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' });
-          audioFileName = "audio.mp3";
-          console.log(`[BG-TRANSCRIBE] Original fetched: ${audioArrayBuffer.byteLength} bytes`);
-        }
-
-        // Send to ElevenLabs
-        const transcribeFormData = new FormData();
-        transcribeFormData.append("file", audioBlob, audioFileName);
-        transcribeFormData.append("model_id", "scribe_v1");
-        transcribeFormData.append("tag_audio_events", "false");
-        transcribeFormData.append("diarize", "false");
-
-        const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
-          method: "POST",
-          headers: {
-            "xi-api-key": ELEVENLABS_API_KEY,
-          },
-          body: transcribeFormData,
+        // Step 4: Transcribe in chunks so long videos don't exceed backend/provider limits.
+        console.log(`[BG-TRANSCRIBE] Step 4: Starting chunked transcription...`);
+        await processTranscriptionSegment(supabase, supabaseUrl, supabaseServiceKey, {
+          recordId,
+          audioUrl,
+          title,
+          duration,
+          cleanUrl,
+          segmentStart: 0,
         });
-
-        if (!transcribeResponse.ok) {
-          const errorText = await transcribeResponse.text();
-          console.error("[BG-TRANSCRIBE] ElevenLabs error:", transcribeResponse.status, errorText);
-          throw new Error(`Transcription failed: ${transcribeResponse.status}`);
-        }
-
-        const transcribeResult = await transcribeResponse.json();
-        const transcriptText = transcribeResult.text || "";
-
-        console.log(`[BG-TRANSCRIBE] Transcription complete: ${transcriptText.substring(0, 100)}...`);
-
-        // Step 4: Update database record with completed status
-        const { error: updateError } = await supabase.from('user_voices').update({
-          status: 'completed',
-          type: 'transcription',
-          prompt: transcriptText,
-          url: audioUrl,
-          duration: duration,
-          name: title,
-          original_url: cleanUrl, // Preserve original URL for video embedding
-        }).eq('id', recordId);
-
-        if (updateError) {
-          console.error("[BG-TRANSCRIBE] Database update error:", updateError);
-          throw updateError;
-        }
-
-        console.log(`[BG-TRANSCRIBE] ✅ Successfully completed processing for record ${recordId}`);
 
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error";

@@ -606,7 +606,7 @@ export default function TranscribeApp() {
       };
 
       let attempts = 0;
-      const maxAttempts = 60; // 3 minutes max
+      const maxAttempts = 360; // 30 minutes max for long-form videos
       let sizeAttempts = 0;
 
       const checkStatus = async () => {
@@ -684,12 +684,16 @@ export default function TranscribeApp() {
         if (attempts < maxAttempts) {
           setTimeout(checkStatus, 3000);
         } else {
-          // Timeout - mark as error
+          // Keep the record processing instead of showing a false failure for long videos.
           setTranscripts(prev => prev.map(t => 
             t.id === recordId 
-              ? { ...t, status: 'error', title: 'Processing timeout' } 
+              ? { ...t, status: 'processing', title: 'Still Processing In Background' } 
               : t
           ));
+          toast({
+            title: "Still Processing",
+            description: "Long videos can take extra time. This transcript will update when processing finishes.",
+          });
         }
       };
       
