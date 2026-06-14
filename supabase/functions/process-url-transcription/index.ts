@@ -181,6 +181,29 @@ serve(async (req) => {
         }
         
         console.log("[BG-TRANSCRIBE] Cleaned URL:", cleanUrl);
+
+        if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+          const captionResult = await fetchYouTubeCaptionTranscript(cleanUrl);
+          if (captionResult) {
+            const { error: captionUpdateError } = await supabase.from('user_voices').update({
+              status: 'completed',
+              type: 'transcription',
+              prompt: captionResult.transcriptText,
+              duration: captionResult.duration,
+              name: captionResult.title,
+              original_url: cleanUrl,
+              source: 'youtube-captions',
+            }).eq('id', recordId);
+
+            if (captionUpdateError) {
+              console.error('[BG-TRANSCRIBE] Database update error for captions:', captionUpdateError);
+              throw captionUpdateError;
+            }
+
+            console.log(`[BG-TRANSCRIBE] ✅ Completed from YouTube captions for record ${recordId}`);
+            return;
+          }
+        }
         
         // Check if this is an Instagram URL - use dedicated Instagram API
         const isInstagramUrl = cleanUrl.includes('instagram.com');
