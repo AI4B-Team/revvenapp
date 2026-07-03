@@ -1353,6 +1353,13 @@ export type Database = {
             referencedRelation: "investor_deals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "investor_deals_parent_deal_id_fkey"
+            columns: ["parent_deal_id"]
+            isOneToOne: false
+            referencedRelation: "shared_investor_deals"
+            referencedColumns: ["id"]
+          },
         ]
       }
       invite_codes: {
@@ -2270,7 +2277,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      shared_investor_deals: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          share_token: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          share_token?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          share_token?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_invite_code: {
