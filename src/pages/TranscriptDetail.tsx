@@ -640,6 +640,50 @@ const TranscriptDetail = () => {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
+
+  // Compute all keyword matches across all transcript segments
+  const searchMatches = useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return [] as { segmentIndex: number; start: number; end: number }[];
+    const matches: { segmentIndex: number; start: number; end: number }[] = [];
+    const source = translatedContent ?? editedContent;
+    const needle = q.toLowerCase();
+    source.forEach((line, segIdx) => {
+      const hay = (line.text || '').toLowerCase();
+      let from = 0;
+      while (from <= hay.length) {
+        const idx = hay.indexOf(needle, from);
+        if (idx === -1) break;
+        matches.push({ segmentIndex: segIdx, start: idx, end: idx + needle.length });
+        from = idx + Math.max(1, needle.length);
+      }
+    });
+    return matches;
+  }, [searchQuery, editedContent, translatedContent]);
+
+  // Reset match index and scroll to first match when query changes
+  useEffect(() => {
+    setCurrentMatchIndex(0);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (!searchMatches.length) return;
+    const m = searchMatches[Math.min(currentMatchIndex, searchMatches.length - 1)];
+    const el = segmentTextRefs.current[m.segmentIndex];
+    if (el && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [currentMatchIndex, searchMatches]);
+
+  const gotoNextMatch = () => {
+    if (!searchMatches.length) return;
+    setCurrentMatchIndex((i) => (i + 1) % searchMatches.length);
+  };
+  const gotoPrevMatch = () => {
+    if (!searchMatches.length) return;
+    setCurrentMatchIndex((i) => (i - 1 + searchMatches.length) % searchMatches.length);
+  };
+
   // Render text with word-level highlighting (karaoke-style), user highlights, text-level highlights, and active selection preview
   const renderHighlightedText = (item: TranscriptLine, segmentIndex: number) => {
     const highlightColor = lineHighlights[segmentIndex];
@@ -651,6 +695,8 @@ const TranscriptDetail = () => {
       green: 'bg-green-200',
       blue: 'bg-blue-200',
       pink: 'bg-pink-200',
+      searchMatch: 'bg-yellow-300',
+      searchActive: 'bg-orange-400 text-black',
     };
     
     const baseHighlightClass = highlightColor ? highlightClasses[highlightColor] : '';
@@ -662,6 +708,19 @@ const TranscriptDetail = () => {
     // Add active selection as a temporary highlight preview (light blue)
     if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
       allHighlights.push({ start: textSelection.start, end: textSelection.end, color: 'selection' });
+    }
+
+    // Add search match highlights for this segment
+    if (searchMatches.length) {
+      const activeMatch = searchMatches[currentMatchIndex];
+      searchMatches.forEach((m, mi) => {
+        if (m.segmentIndex !== segmentIndex) return;
+        allHighlights.push({
+          start: m.start,
+          end: m.end,
+          color: activeMatch && mi === currentMatchIndex ? 'searchActive' : 'searchMatch',
+        });
+      });
     }
     
     // If there are any highlights to render (persisted or selection preview)
