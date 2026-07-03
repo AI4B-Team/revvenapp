@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -427,6 +427,11 @@ const TranscriptDetail = () => {
   const editTextareaRefs = useRef<Record<number, HTMLTextAreaElement | null>>({});
   // Ref to preserve text selection when clicking highlight toolbar button
   const pendingHighlightSelectionRef = useRef<{ segmentIndex: number; start: number; end: number } | null>(null);
+
+  // Transcript keyword search
+  const [showSearchPopover, setShowSearchPopover] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   
   // Segment images state
   const [segmentImages, setSegmentImages] = useState<Record<number, string[]>>({});
@@ -635,6 +640,50 @@ const TranscriptDetail = () => {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
+
+  // Compute all keyword matches across all transcript segments
+  const searchMatches = useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return [] as { segmentIndex: number; start: number; end: number }[];
+    const matches: { segmentIndex: number; start: number; end: number }[] = [];
+    const source = translatedContent ?? editedContent;
+    const needle = q.toLowerCase();
+    source.forEach((line, segIdx) => {
+      const hay = (line.text || '').toLowerCase();
+      let from = 0;
+      while (from <= hay.length) {
+        const idx = hay.indexOf(needle, from);
+        if (idx === -1) break;
+        matches.push({ segmentIndex: segIdx, start: idx, end: idx + needle.length });
+        from = idx + Math.max(1, needle.length);
+      }
+    });
+    return matches;
+  }, [searchQuery, editedContent, translatedContent]);
+
+  // Reset match index and scroll to first match when query changes
+  useEffect(() => {
+    setCurrentMatchIndex(0);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (!searchMatches.length) return;
+    const m = searchMatches[Math.min(currentMatchIndex, searchMatches.length - 1)];
+    const el = segmentTextRefs.current[m.segmentIndex];
+    if (el && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [currentMatchIndex, searchMatches]);
+
+  const gotoNextMatch = () => {
+    if (!searchMatches.length) return;
+    setCurrentMatchIndex((i) => (i + 1) % searchMatches.length);
+  };
+  const gotoPrevMatch = () => {
+    if (!searchMatches.length) return;
+    setCurrentMatchIndex((i) => (i - 1 + searchMatches.length) % searchMatches.length);
+  };
+
   // Render text with word-level highlighting (karaoke-style), user highlights, text-level highlights, and active selection preview
   const renderHighlightedText = (item: TranscriptLine, segmentIndex: number) => {
     const highlightColor = lineHighlights[segmentIndex];
@@ -646,6 +695,8 @@ const TranscriptDetail = () => {
       green: 'bg-green-200',
       blue: 'bg-blue-200',
       pink: 'bg-pink-200',
+      searchMatch: 'bg-yellow-300',
+      searchActive: 'bg-orange-400 text-black',
     };
     
     const baseHighlightClass = highlightColor ? highlightClasses[highlightColor] : '';
@@ -657,6 +708,19 @@ const TranscriptDetail = () => {
     // Add active selection as a temporary highlight preview (light blue)
     if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
       allHighlights.push({ start: textSelection.start, end: textSelection.end, color: 'selection' });
+    }
+
+    // Add search match highlights for this segment
+    if (searchMatches.length) {
+      const activeMatch = searchMatches[currentMatchIndex];
+      searchMatches.forEach((m, mi) => {
+        if (m.segmentIndex !== segmentIndex) return;
+        allHighlights.push({
+          start: m.start,
+          end: m.end,
+          color: activeMatch && mi === currentMatchIndex ? 'searchActive' : 'searchMatch',
+        });
+      });
     }
     
     // If there are any highlights to render (persisted or selection preview)
@@ -2826,6 +2890,74 @@ ${content.map((item, index) => {
                       
                       {/* Vertical Divider */}
                       <div className="h-6 w-px bg-gray-300" />
+
+                      {/* Search Transcript Button */}
+                      <Popover open={showSearchPopover} onOpenChange={setShowSearchPopover}>
+                        <PopoverTrigger asChild>
+                          <button className="px-3 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-1.5">
+                            <Search className="w-3.5 h-3.5" />
+                            Search
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-3 bg-white" align="end">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Input
+                              autoFocus
+                              placeholder="Search Transcript..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  if (e.shiftKey) gotoPrevMatch(); else gotoNextMatch();
+                                } else if (e.key === 'Escape') {
+                                  setShowSearchPopover(false);
+                                }
+                              }}
+                              className="pl-9 pr-8"
+                            />
+                            {searchQuery && (
+                              <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                                aria-label="Clear search"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="text-xs text-gray-500">
+                              {searchQuery.trim()
+                                ? searchMatches.length > 0
+                                  ? `${currentMatchIndex + 1} of ${searchMatches.length} match${searchMatches.length === 1 ? '' : 'es'}`
+                                  : 'No matches'
+                                : 'Type to search all keywords'}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={gotoPrevMatch}
+                                disabled={!searchMatches.length}
+                                className="p-1.5 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                                aria-label="Previous match"
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={gotoNextMatch}
+                                disabled={!searchMatches.length}
+                                className="p-1.5 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                                aria-label="Next match"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+
                       
                       {/* Translate Button */}
                       <Popover open={showTranslatePopover} onOpenChange={setShowTranslatePopover}>
