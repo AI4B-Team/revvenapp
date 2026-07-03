@@ -2890,6 +2890,74 @@ ${content.map((item, index) => {
                       
                       {/* Vertical Divider */}
                       <div className="h-6 w-px bg-gray-300" />
+
+                      {/* Search Transcript Button */}
+                      <Popover open={showSearchPopover} onOpenChange={setShowSearchPopover}>
+                        <PopoverTrigger asChild>
+                          <button className="px-3 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-1.5">
+                            <Search className="w-3.5 h-3.5" />
+                            Search
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-3 bg-white" align="end">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Input
+                              autoFocus
+                              placeholder="Search Transcript..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  if (e.shiftKey) gotoPrevMatch(); else gotoNextMatch();
+                                } else if (e.key === 'Escape') {
+                                  setShowSearchPopover(false);
+                                }
+                              }}
+                              className="pl-9 pr-8"
+                            />
+                            {searchQuery && (
+                              <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                                aria-label="Clear search"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="text-xs text-gray-500">
+                              {searchQuery.trim()
+                                ? searchMatches.length > 0
+                                  ? `${currentMatchIndex + 1} of ${searchMatches.length} match${searchMatches.length === 1 ? '' : 'es'}`
+                                  : 'No matches'
+                                : 'Type to search all keywords'}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={gotoPrevMatch}
+                                disabled={!searchMatches.length}
+                                className="p-1.5 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                                aria-label="Previous match"
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={gotoNextMatch}
+                                disabled={!searchMatches.length}
+                                className="p-1.5 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                                aria-label="Next match"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+
                       
                       {/* Translate Button */}
                       <Popover open={showTranslatePopover} onOpenChange={setShowTranslatePopover}>
