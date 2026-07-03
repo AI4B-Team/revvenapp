@@ -427,6 +427,11 @@ const TranscriptDetail = () => {
   const editTextareaRefs = useRef<Record<number, HTMLTextAreaElement | null>>({});
   // Ref to preserve text selection when clicking highlight toolbar button
   const pendingHighlightSelectionRef = useRef<{ segmentIndex: number; start: number; end: number } | null>(null);
+
+  // Transcript keyword search
+  const [showSearchPopover, setShowSearchPopover] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   
   // Segment images state
   const [segmentImages, setSegmentImages] = useState<Record<number, string[]>>({});
