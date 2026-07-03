@@ -349,6 +349,74 @@ export default function TranscribeApp() {
     setShowTranscribeConfirmModal(true);
   };
 
+  const pollUploadedTranscriptionStatus = useCallback((recordId: string, isVideoFile: boolean) => {
+    let attempts = 0;
+    const maxAttempts = 360; // 30 minutes max for long uploads
+
+    const checkStatus = async () => {
+      attempts++;
+
+      const { data: record, error: queryError } = await supabase
+        .from('user_voices')
+        .select('*')
+        .eq('id', recordId)
+        .single();
+
+      if (queryError) {
+        console.error('Error checking upload transcription status:', queryError);
+      }
+
+      if (record?.status === 'completed') {
+        setTranscripts(prev => prev.map(t =>
+          t.id === recordId
+            ? {
+                ...t,
+                title: record.name || t.title,
+                status: 'completed',
+                duration: formatTime(Math.floor(record.duration || 0)),
+                language: 'English',
+                words: record.prompt?.split(' ').length || 0,
+                summary: record.prompt || 'Transcription completed',
+                audioUrl: record.url || t.audioUrl,
+              }
+            : t
+        ));
+
+        toast({
+          title: "Transcription complete",
+          description: isVideoFile ? "Your video has been transcribed successfully." : "Your audio has been transcribed successfully.",
+        });
+        return;
+      }
+
+      if (record?.status === 'error') {
+        setTranscripts(prev => prev.map(t =>
+          t.id === recordId
+            ? { ...t, status: 'error', summary: record.prompt || 'Transcription failed' }
+            : t
+        ));
+
+        toast({
+          title: "Transcription failed",
+          description: record.prompt?.startsWith('Error:') ? record.prompt.replace(/^Error:\s*/, '') : "There was an error transcribing your media.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (attempts < maxAttempts) {
+        setTimeout(checkStatus, 3000);
+      } else {
+        toast({
+          title: "Still Processing",
+          description: "Long uploads can take extra time. This transcript will update when processing finishes.",
+        });
+      }
+    };
+
+    setTimeout(checkStatus, 3000);
+  }, [toast]);
+
   // Handle transcription from TranscribeConfirmModal
   const handleTranscribe = async (numSpeakers: number, fileName?: string) => {
     if (!pendingAudioFile) return;
@@ -466,10 +534,22 @@ export default function TranscribeApp() {
           audioBase64: finalAudioUrl ? undefined : pendingAudioFile.base64,
           filename: pendingAudioFile.name,
           contentType: pendingAudioFile.contentType,
+          recordId: newTranscriptId,
+          title,
+          duration: finalDuration,
         }
       });
       
       if (transcribeError) throw transcribeError;
+
+      if (transcribeData?.processing) {
+        toast({
+          title: "Processing started",
+          description: "Long audio is being transcribed in smaller chunks so it does not time out.",
+        });
+        pollUploadedTranscriptionStatus(newTranscriptId, isVideoFile);
+        return;
+      }
       
       // Update database with results
       await supabase.from('user_voices')
