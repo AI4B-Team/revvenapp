@@ -11,11 +11,64 @@ const SUPPORTED_PLATFORMS = [
   'buzzfeed', 'capcut', 'chingari', 'dailymotion', 'douyin', 'espn', 'facebook',
   'fb.watch', 'febspot', 'flickr', 'gaana', 'ifunny', 'imdb', 'imgur', 'instagram',
   'izlesene', 'kickstarter', 'kinemaster', 'kuaishou', 'kwai', 'likee', 'linkedin',
-  'mashable', 'mixcloud', 'mxtakatak', 'ok.ru', 'odnoklassniki', 'periscope',
+  'loom.com', 'mashable', 'mixcloud', 'mxtakatak', 'ok.ru', 'odnoklassniki', 'periscope',
   'pinterest', 'puhutv', 'reddit', 'rumble', 'snapchat', 'soundcloud', 'streamable',
   'ted', 'threads', 'tiktok', 'tumblr', 'twitch', 'twitter', 'x.com', 'vimeo',
   'vk', 'weibo', 'xiaohongshu', 'youtube', 'youtu.be', 'zingmp3'
 ];
+
+function isLoomUrl(url: string): boolean {
+  return /loom\.com\/(share|embed)\//i.test(url);
+}
+
+function extractLoomId(url: string): string | null {
+  const m = url.match(/loom\.com\/(?:share|embed)\/([a-f0-9]{20,})/i);
+  return m ? m[1] : null;
+}
+
+async function extractLoomMedia(url: string): Promise<{ downloadUrl: string; title: string; extension: string; contentType: string; duration: string; }> {
+  const videoId = extractLoomId(url);
+  if (!videoId) throw new Error("Invalid Loom URL - could not parse video ID");
+
+  // Loom's transcoded-url endpoint returns a signed CDN mp4 URL
+  const res = await fetch(`https://www.loom.com/api/campaigns/sessions/${videoId}/transcoded-url`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Loom API error:", res.status, errorText);
+    throw new Error(`Loom video is private, password-protected, or unavailable (${res.status})`);
+  }
+
+  const data = await res.json();
+  const downloadUrl = data.url;
+  if (!downloadUrl) throw new Error("No downloadable URL returned by Loom");
+
+  // Try to fetch title from the share page
+  let title = `loom_${videoId}`;
+  try {
+    const pageRes = await fetch(url);
+    if (pageRes.ok) {
+      const html = await pageRes.text();
+      const titleMatch = html.match(/<meta property="og:title" content="([^"]+)"/i);
+      if (titleMatch) title = titleMatch[1];
+    }
+  } catch (_) { /* ignore */ }
+
+  return {
+    downloadUrl,
+    title,
+    extension: "mp4",
+    contentType: "video/mp4",
+    duration: "0:00",
+  };
+}
 
 function isSupportedPlatform(url: string): boolean {
   const urlLower = url.toLowerCase();
@@ -25,6 +78,7 @@ function isSupportedPlatform(url: string): boolean {
 function getPlatformName(url: string): string {
   const urlLower = url.toLowerCase();
   
+  if (urlLower.includes('loom.com')) return 'Loom';
   if (urlLower.includes('youtube') || urlLower.includes('youtu.be')) return 'YouTube';
   if (urlLower.includes('tiktok')) return 'TikTok';
   if (urlLower.includes('instagram')) return 'Instagram';
@@ -76,6 +130,25 @@ serve(async (req) => {
 
     const platformName = getPlatformName(cleanUrl);
     console.log(`Extracting media from ${platformName}:`, cleanUrl);
+
+    // Loom uses its own API, not snap-video3
+    if (isLoomUrl(cleanUrl)) {
+      const loom = await extractLoomMedia(cleanUrl);
+      const safeTitle = loom.title.replace(/[^a-zA-Z0-9\s-]/g, '').substring(0, 50);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          downloadUrl: loom.downloadUrl,
+          filename: `${safeTitle || 'loom'}.${loom.extension}`,
+          contentType: loom.contentType,
+          title: loom.title,
+          duration: loom.duration,
+          platform: 'Loom',
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
 
     const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY");
     if (!RAPIDAPI_KEY) {
