@@ -131,6 +131,25 @@ serve(async (req) => {
     const platformName = getPlatformName(cleanUrl);
     console.log(`Extracting media from ${platformName}:`, cleanUrl);
 
+    // Loom uses its own API, not snap-video3
+    if (isLoomUrl(cleanUrl)) {
+      const loom = await extractLoomMedia(cleanUrl);
+      const safeTitle = loom.title.replace(/[^a-zA-Z0-9\s-]/g, '').substring(0, 50);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          downloadUrl: loom.downloadUrl,
+          filename: `${safeTitle || 'loom'}.${loom.extension}`,
+          contentType: loom.contentType,
+          title: loom.title,
+          duration: loom.duration,
+          platform: 'Loom',
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+
     const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY");
     if (!RAPIDAPI_KEY) {
       throw new Error("RAPIDAPI_KEY not configured");
