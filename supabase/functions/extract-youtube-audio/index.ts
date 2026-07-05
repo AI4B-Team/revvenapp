@@ -78,6 +78,7 @@ function isSupportedPlatform(url: string): boolean {
 function getPlatformName(url: string): string {
   const urlLower = url.toLowerCase();
   
+  if (urlLower.includes('loom.com')) return 'Loom';
   if (urlLower.includes('youtube') || urlLower.includes('youtu.be')) return 'YouTube';
   if (urlLower.includes('tiktok')) return 'TikTok';
   if (urlLower.includes('instagram')) return 'Instagram';
