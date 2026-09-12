@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ChevronDown, 
   Search, 
@@ -38,6 +39,8 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [anchorPos, setAnchorPos] = useState<{ top: number; left: number } | null>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [projects, setProjects] = useState<Project[]>([]);
@@ -52,7 +55,10 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const insideTrigger = dropdownRef.current?.contains(target);
+      const insidePortal = portalRef.current?.contains(target);
+      if (!insideTrigger && !insidePortal) {
         setIsOpen(false);
       }
     };
@@ -83,16 +89,105 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
     setSearchQuery('');
   };
 
+  const dropdownContent = (
+    <>
+      {/* Search Header */}
+      <div className="p-3 border-b border-border">
+        <div className="relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search Projects"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-ring"
+          />
+        </div>
+      </div>
+
+      <div className="max-h-[280px] overflow-y-auto">
+        {/* Favorites Section */}
+        {favoriteProjects.length > 0 && (
+          <div className="p-2">
+            <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Favorites
+            </p>
+            {favoriteProjects.map((project) => (
+              <ProjectItem
+                key={project.id}
+                project={project}
+                isSelected={selectedProject?.id === project.id}
+                onSelect={selectProject}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* All Projects Section */}
+        {otherProjects.length > 0 && (
+          <div className="p-2">
+            <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {favoriteProjects.length > 0 ? 'Other Projects' : 'All Projects'}
+            </p>
+            {otherProjects.map((project) => (
+              <ProjectItem
+                key={project.id}
+                project={project}
+                isSelected={selectedProject?.id === project.id}
+                onSelect={selectProject}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {filteredProjects.length === 0 && (
+          <div className="p-6 text-center">
+            <FolderKanban size={32} className="mx-auto text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">No Projects Found</p>
+          </div>
+        )}
+      </div>
+
+      {/* Create New Project */}
+      <div className="p-2 border-t border-border bg-muted/30">
+        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent transition text-foreground group">
+          <div className="w-8 h-8 bg-brand-green rounded-lg flex items-center justify-center">
+            <Plus size={16} className="text-white" />
+          </div>
+          <span className="text-sm font-medium">Create New Project</span>
+        </button>
+      </div>
+    </>
+  );
+
   if (isCollapsed) {
     return (
-      <div className="px-4 mb-2 flex-shrink-0">
+      <div className="px-4 mb-2 flex-shrink-0 relative" ref={dropdownRef}>
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setAnchorPos({ top: rect.top, left: rect.right + 8 });
+            setIsOpen(!isOpen);
+          }}
           className="w-full flex items-center justify-center py-2.5 hover:bg-sidebar-hover rounded-lg transition"
           title={selectedProject?.name ?? "Projects"}
         >
           <FolderKanban size={18} className="text-sidebar-muted" />
         </button>
+        {isOpen && anchorPos && createPortal(
+          <div
+            ref={portalRef}
+            className="fixed w-72 bg-popover border border-border rounded-xl shadow-xl z-[100] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
+            style={{ top: anchorPos.top, left: anchorPos.left }}
+          >
+            {dropdownContent}
+          </div>,
+          document.body
+        )}
       </div>
     );
   }
@@ -122,76 +217,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
     
       {isOpen && (
         <div className="absolute top-full left-4 right-4 mt-2 bg-popover border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
-          {/* Search Header */}
-          <div className="p-3 border-b border-border">
-            <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search Projects"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-ring"
-              />
-            </div>
-          </div>
-          
-          <div className="max-h-[280px] overflow-y-auto">
-            {/* Favorites Section */}
-            {favoriteProjects.length > 0 && (
-              <div className="p-2">
-                <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Favorites
-                </p>
-                {favoriteProjects.map((project) => (
-                  <ProjectItem
-                    key={project.id}
-                    project={project}
-                    isSelected={selectedProject?.id === project.id}
-                    onSelect={selectProject}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* All Projects Section */}
-            {otherProjects.length > 0 && (
-              <div className="p-2">
-                <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  {favoriteProjects.length > 0 ? 'Other Projects' : 'All Projects'}
-                </p>
-                {otherProjects.map((project) => (
-                  <ProjectItem
-                    key={project.id}
-                    project={project}
-                    isSelected={selectedProject?.id === project.id}
-                    onSelect={selectProject}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Empty State */}
-            {filteredProjects.length === 0 && (
-              <div className="p-6 text-center">
-                <FolderKanban size={32} className="mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No Projects Found</p>
-              </div>
-            )}
-          </div>
-
-          {/* Create New Project */}
-          <div className="p-2 border-t border-border bg-muted/30">
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent transition text-foreground group">
-              <div className="w-8 h-8 bg-brand-green rounded-lg flex items-center justify-center">
-                <Plus size={16} className="text-white" />
-              </div>
-              <span className="text-sm font-medium">Create New Project</span>
-            </button>
-          </div>
+          {dropdownContent}
         </div>
       )}
     </div>
