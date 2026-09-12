@@ -169,7 +169,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
           <FolderKanban size={18} className="text-sidebar-muted" />
         </button>
         {isOpen && (
-          <div className="fixed left-16 top-auto mt-0 w-72 bg-popover border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200" style={{ top: 'auto', transform: 'translateY(-100%)' }}>
+          <div className="absolute left-full top-0 ml-2 w-72 bg-popover border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
             {dropdownContent}
           </div>
         )}
