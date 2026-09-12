@@ -38,6 +38,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [anchorPos, setAnchorPos] = useState<{ top: number; left: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [projects, setProjects] = useState<Project[]>([]);
