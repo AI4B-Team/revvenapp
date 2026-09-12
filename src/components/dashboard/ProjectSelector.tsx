@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ChevronDown, 
   Search, 
@@ -173,13 +174,15 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
         >
           <FolderKanban size={18} className="text-sidebar-muted" />
         </button>
-        {isOpen && anchorPos && (
+        {isOpen && anchorPos && createPortal(
           <div
+            ref={portalRef}
             className="fixed w-72 bg-popover border border-border rounded-xl shadow-xl z-[100] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
             style={{ top: anchorPos.top, left: anchorPos.left }}
           >
             {dropdownContent}
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     );
