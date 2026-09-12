@@ -162,14 +162,21 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
     return (
       <div className="px-4 mb-2 flex-shrink-0 relative" ref={dropdownRef}>
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setAnchorPos({ top: rect.top, left: rect.right + 8 });
+            setIsOpen(!isOpen);
+          }}
           className="w-full flex items-center justify-center py-2.5 hover:bg-sidebar-hover rounded-lg transition"
           title={selectedProject?.name ?? "Projects"}
         >
           <FolderKanban size={18} className="text-sidebar-muted" />
         </button>
-        {isOpen && (
-          <div className="absolute left-full top-0 ml-2 w-72 bg-popover border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
+        {isOpen && anchorPos && (
+          <div
+            className="fixed w-72 bg-popover border border-border rounded-xl shadow-xl z-[100] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
+            style={{ top: anchorPos.top, left: anchorPos.left }}
+          >
             {dropdownContent}
           </div>
         )}
