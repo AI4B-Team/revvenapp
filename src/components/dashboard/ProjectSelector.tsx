@@ -40,6 +40,7 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [anchorPos, setAnchorPos] = useState<{ top: number; left: number } | null>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [projects, setProjects] = useState<Project[]>([]);
@@ -54,7 +55,10 @@ const ProjectSelector = ({ isCollapsed = false }: ProjectSelectorProps) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const insideTrigger = dropdownRef.current?.contains(target);
+      const insidePortal = portalRef.current?.contains(target);
+      if (!insideTrigger && !insidePortal) {
         setIsOpen(false);
       }
     };
