@@ -127,7 +127,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.suggest-ebook-images]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-social-content]
 verify_jwt = true
@@ -151,10 +151,10 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.generate-website]
-verify_jwt = false
+verify_jwt = true
 
 [functions.aiva-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-business-plan]
 verify_jwt = true
@@ -172,10 +172,10 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.analyze-deal]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-sales-copy]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-whitepaper]
 verify_jwt = true

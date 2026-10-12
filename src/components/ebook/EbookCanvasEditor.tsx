@@ -827,25 +827,15 @@ const EbookCanvasEditor = ({
     }));
     
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/suggest-ebook-images`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            pageTitle,
-            pageContent,
-            bookTitle,
-            pageType: selectedPage?.type || 'chapter'
-          }),
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch suggestions');
-      }
-      
-      const data = await response.json();
+      const { data, error } = await supabase.functions.invoke('suggest-ebook-images', {
+        body: {
+          pageTitle,
+          pageContent,
+          bookTitle,
+          pageType: selectedPage?.type || 'chapter'
+        },
+      });
+      if (error) throw error;
       
       setSmartSuggestionsCache(prev => ({
         ...prev,
