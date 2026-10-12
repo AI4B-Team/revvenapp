@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.0';
-import { validateWebhookUrl, logWebhookCallback, getClientIp } from "../_shared/webhook-security.ts";
+import { validateWebhookUrl, logWebhookCallback, getClientIp, tokensMatch } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -64,13 +64,17 @@ serve(async (req) => {
     // Verify the record exists and is in pending state
     const { data: existingRecord, error: findError } = await supabase
       .from('user_voices')
-      .select('id, status, user_id')
+      .select('id, status, user_id, callback_token')
       .eq('id', recordId)
       .single();
 
     if (findError || !existingRecord) {
       console.error('Record not found:', recordId);
       throw new Error('Record not found - invalid callback');
+    }
+
+    if (!tokensMatch(url.searchParams.get('token'), existingRecord.callback_token)) {
+      return new Response(JSON.stringify({ error: 'Invalid callback token' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     if (existingRecord.status !== 'pending' && existingRecord.status !== 'processing') {

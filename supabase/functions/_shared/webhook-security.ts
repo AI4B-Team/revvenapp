@@ -33,6 +33,16 @@ export function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 /**
+ * Timing-safe match of a caller-supplied token (query param / header) against the
+ * expected value (job row column / env secret). False when either side is missing.
+ */
+export function tokensMatch(provided: string | null | undefined, expected: string | null | undefined): boolean {
+  if (!provided || !expected) return false;
+  const enc = new TextEncoder();
+  return timingSafeEqual(enc.encode(provided), enc.encode(expected));
+}
+
+/**
  * Verify HMAC-SHA256 signature for webhook callbacks
  * Used to verify that callbacks originate from legitimate services
  */

@@ -26,6 +26,7 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const requestData = await req.json();
+    const callbackToken = crypto.randomUUID();
     console.log("Request data:", JSON.stringify(requestData));
 
     // Check if this is a Story mode request (KIE.AI sora-2-pro-storyboard)
@@ -75,7 +76,8 @@ serve(async (req) => {
           character_bio: shotsToProcess.map((s: any, i: number) => `Scene ${i + 1}: ${s.Scene}`).join(' | '),
           character_image_url: imageUrls?.[0] || '',
           status: 'processing',
-          scenes: scenesData
+          scenes: scenesData,
+          callback_token: callbackToken
         })
         .select()
         .single();
@@ -89,7 +91,7 @@ serve(async (req) => {
       console.log("Image URLs to use:", JSON.stringify(imageUrls));
 
       // Build callback URL for KIE.AI
-      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie`;
+      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie&token=${callbackToken}`;
 
       // Normalize shot durations to sum exactly to nFrames (required by KIE.AI)
       const targetDuration = parseInt(nFrames || "15");
@@ -205,7 +207,8 @@ serve(async (req) => {
           character_name: 'Motion-Sync',
           character_bio: prompt || '',
           character_image_url: imageUrl,
-          status: 'processing'
+          status: 'processing',
+          callback_token: callbackToken
         })
         .select()
         .single();
@@ -218,7 +221,7 @@ serve(async (req) => {
       console.log("Created Motion-Sync video record:", videoRecord.id);
 
       // Build callback URL for KIE.AI
-      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie`;
+      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie&token=${callbackToken}`;
 
       // Call KIE.AI API for Motion-Sync
       const kieRequestBody: any = {
@@ -313,7 +316,8 @@ serve(async (req) => {
           character_name: 'Recast',
           character_bio: '',
           character_image_url: imageUrl,
-          status: 'processing'
+          status: 'processing',
+          callback_token: callbackToken
         })
         .select()
         .single();
@@ -326,7 +330,7 @@ serve(async (req) => {
       console.log("Created video record:", videoRecord.id);
 
       // Build callback URL for KIE.AI
-      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie`;
+      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie&token=${callbackToken}`;
 
       // Call KIE.AI API for Recast
       const kieRequestBody = {

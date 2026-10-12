@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { tokensMatch } from "../_shared/webhook-security.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -67,6 +68,15 @@ serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    const { data: existing } = await supabase
+      .from('whitepapers')
+      .select('callback_token')
+      .eq('id', whitepaperId)
+      .single();
+    if (!tokensMatch(new URL(req.url).searchParams.get('token'), existing?.callback_token)) {
+      return new Response(JSON.stringify({ error: 'Invalid callback token' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     if (status === 'SUCCESS' || status === 'success' || status === 'completed' || status === 'COMPLETED') {

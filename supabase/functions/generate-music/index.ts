@@ -118,9 +118,18 @@ serve(async (req) => {
       requestBody.audioWeight = Math.round(aw * 100) / 100;
     }
 
-    // Add recordId to callback URL if provided
+    // Add recordId and a per-task token to the callback URL if provided
     if (recordId) {
-      requestBody.callBackUrl = `${callBackUrl}?recordId=${recordId}`;
+      if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+        throw new Error('Supabase configuration missing');
+      }
+      const callbackToken = crypto.randomUUID();
+      const { error: tokenError } = await createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+        .from('user_voices')
+        .update({ callback_token: callbackToken })
+        .eq('id', recordId);
+      if (tokenError) throw tokenError;
+      requestBody.callBackUrl = `${callBackUrl}?recordId=${recordId}&token=${callbackToken}`;
     }
 
     console.log('Creating music generation task:', {

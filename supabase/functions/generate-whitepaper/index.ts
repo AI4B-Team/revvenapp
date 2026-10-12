@@ -30,8 +30,14 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Build callback URL for async image generation
-    const callbackUrl = `${supabaseUrl}/functions/v1/whitepaper-image-callback`;
+    // Build callback URL for async image generation, carrying a per-task token
+    const callbackToken = crypto.randomUUID();
+    const { error: tokenError } = await supabase
+      .from("whitepapers")
+      .update({ callback_token: callbackToken })
+      .eq("id", whitepaperId);
+    if (tokenError) throw tokenError;
+    const callbackUrl = `${supabaseUrl}/functions/v1/whitepaper-image-callback?token=${callbackToken}`;
     console.log("Callback URL:", callbackUrl);
 
     // Enhance prompt for whitepaper-style infographic image

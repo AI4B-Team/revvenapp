@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { validateWebhookUrl, logWebhookCallback, getClientIp } from "../_shared/webhook-security.ts";
+import { validateWebhookUrl, logWebhookCallback, getClientIp, tokensMatch } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -47,13 +47,17 @@ serve(async (req) => {
       // Verify the video exists and is in pending/processing state
       const { data: existingVideo, error: findError } = await supabase
         .from('ai_videos')
-        .select('id, status, user_id')
+        .select('id, status, user_id, callback_token')
         .eq('id', videoId)
         .single();
 
       if (findError || !existingVideo) {
         console.error('Video not found:', videoId);
         throw new Error('Video not found - invalid callback');
+      }
+
+      if (!tokensMatch(url.searchParams.get('token'), existingVideo.callback_token)) {
+        return new Response(JSON.stringify({ error: 'Invalid callback token' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
       if (existingVideo.status !== 'pending' && existingVideo.status !== 'processing' && existingVideo.status !== 'generating') {
@@ -179,7 +183,12 @@ serve(async (req) => {
       }
     }
 
-    // Original n8n webhook flow for AI Story jobs
+    // Original n8n webhook flow for AI Story jobs. n8n owns the callback URL, so it
+    // authenticates with a shared secret header instead of a per-task token.
+    if (!tokensMatch(req.headers.get('x-callback-secret'), Deno.env.get('N8N_CALLBACK_SECRET'))) {
+      return new Response(JSON.stringify({ error: 'Invalid callback token' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     let job_id: string;
     let videoBlob: Blob | null = null;
 

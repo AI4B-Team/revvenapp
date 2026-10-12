@@ -164,10 +164,12 @@ serve(async (req) => {
       console.log(`Generating image ${i + 1} of ${numberOfImages}`);
       
       // Create database record first with pending status
+      const callbackToken = crypto.randomUUID();
       const { data: dbData, error: dbError } = await supabaseClient
         .from("generated_images")
         .insert({
           user_id: user.id,
+          callback_token: callbackToken,
           prompt: prompt,
           model: modelConfig.name,
           aspect_ratio: aspectRatio,
@@ -187,7 +189,7 @@ serve(async (req) => {
 
       // Build callback URL
       const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const callbackUrl = `${supabaseUrl}/functions/v1/image-webhook-callback`;
+      const callbackUrl = `${supabaseUrl}/functions/v1/image-webhook-callback?token=${callbackToken}`;
       console.log("Callback URL:", callbackUrl);
 
       // Call KIE.AI to start generation with callback
