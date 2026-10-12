@@ -177,9 +177,6 @@ verify_jwt = false
 [functions.generate-sales-copy]
 verify_jwt = false
 
-[functions.get-secrets]
-verify_jwt = false
-
 [functions.generate-whitepaper]
 verify_jwt = true
 
