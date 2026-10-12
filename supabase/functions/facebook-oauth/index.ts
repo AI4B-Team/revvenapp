@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCallerUserId } from "../_shared/auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -48,6 +49,39 @@ async function verifyMetaSignature({
   return timingSafeEqual(macBytes, sigBytes);
 }
 
+async function hmacHex(secret: string, data: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(mac), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+// OAuth state = base64url("<userId>.<nonce>.<hmac(userId.nonce)>") so the callback
+// cannot be replayed with an arbitrary user id.
+async function signState(secret: string, userId: string): Promise<string> {
+  const payload = `${userId}.${crypto.randomUUID()}`;
+  const raw = `${payload}.${await hmacHex(secret, payload)}`;
+  return btoa(raw).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function verifyState(secret: string, state: string): Promise<string | null> {
+  try {
+    const raw = atob(state.replace(/-/g, '+').replace(/_/g, '/'));
+    const [userId, nonce, sig] = raw.split('.');
+    if (!userId || !nonce || !sig) return null;
+    const expected = await hmacHex(secret, `${userId}.${nonce}`);
+    const enc = new TextEncoder();
+    return timingSafeEqual(enc.encode(sig), enc.encode(expected)) ? userId : null;
+  } catch {
+    return null;
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -61,6 +95,7 @@ serve(async (req) => {
   const instagramVerifyToken = Deno.env.get('INSTAGRAM_VERIFY_TOKEN')!;
   const instagramClientId = Deno.env.get('INSTAGRAM_CLIENT_ID')!;
   const instagramClientSecret = Deno.env.get('INSTAGRAM_CLIENT_SECRET')!;
+  const stateSecret = Deno.env.get('FACEBOOK_STATE_SECRET') || facebookAppSecret;
 
   const url = new URL(req.url);
   const redirectUri = `${supabaseUrl}/functions/v1/facebook-oauth`;
@@ -101,14 +136,18 @@ serve(async (req) => {
     const code = url.searchParams.get('code')!;
     const state = url.searchParams.get('state') || '';
     const isInstagram = state.startsWith('ig:');
+    const provider = isInstagram ? 'Instagram' : 'Facebook';
+    const userId = await verifyState(stateSecret, isInstagram ? state.slice(3) : state);
+    if (!userId) {
+      console.error('OAuth callback with invalid state');
+      return Response.redirect(`${APP_URL}/oauth/callback?success=false&error=${encodeURIComponent('Invalid OAuth state')}&provider=${provider}`, 302);
+    }
     
-    console.log(`${isInstagram ? 'Instagram' : 'Facebook'} OAuth callback received with code`);
+    console.log(`${provider} OAuth callback received with code`);
 
     try {
       // --- Instagram OAuth Callback (for IG DMs / Messaging API) ---
       if (isInstagram) {
-        const userId = state.replace(/^ig:/, '');
-
         // Use Instagram-specific token exchange endpoint (not Graph API)
         const tokenUrl = 'https://api.instagram.com/oauth/access_token';
         const tokenBody = new URLSearchParams({
@@ -255,7 +294,6 @@ serve(async (req) => {
 
       // Store pages in database with token expiration
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
-      const userId = state; // User ID passed in state
 
       let savedPageName = '';
       for (const page of pagesData.data) {
@@ -585,11 +623,20 @@ User's custom instructions: ${aiReply.system_prompt}`;
       return new Response('OK', { status: 200 });
     }
 
-    const { action, userId, pageId, message, link, videoUrl } = body;
+    // Every remaining action is user-invoked: identify the caller from the JWT, never from the body.
+    const userId = await getCallerUserId(req);
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { action, pageId, message, link, videoUrl } = body;
 
     if (action === 'get_auth_url') {
       const scopes = 'pages_manage_posts,pages_read_engagement,pages_show_list';
-      const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${facebookAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scopes}&state=${userId}`;
+      const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${facebookAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scopes}&state=${await signState(stateSecret, userId)}`;
       
       console.log('Generated Facebook auth URL');
       
@@ -599,13 +646,6 @@ User's custom instructions: ${aiReply.system_prompt}`;
     }
 
     if (action === 'get_instagram_auth_url') {
-      if (!userId) {
-        return new Response(JSON.stringify({ error: 'Missing userId' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
       const scopes = [
         'instagram_business_basic',
         'instagram_business_manage_messages',
@@ -614,7 +654,7 @@ User's custom instructions: ${aiReply.system_prompt}`;
         'instagram_business_manage_insights',
       ].join(',');
 
-      const authUrl = `https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=${instagramClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(`ig:${userId}`)}`;
+      const authUrl = `https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=${instagramClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(`ig:${await signState(stateSecret, userId)}`)}`;
 
       console.log('Generated Instagram auth URL');
 
@@ -629,7 +669,7 @@ User's custom instructions: ${aiReply.system_prompt}`;
       
       // For Facebook, the best way to refresh is to re-authorize
       const scopes = 'pages_manage_posts,pages_read_engagement,pages_show_list';
-      const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${facebookAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scopes}&state=${userId}&auth_type=reauthorize`;
+      const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${facebookAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scopes}&state=${await signState(stateSecret, userId)}&auth_type=reauthorize`;
       
       return new Response(JSON.stringify({ 
         auth_url: authUrl,
@@ -649,6 +689,7 @@ User's custom instructions: ${aiReply.system_prompt}`;
         .from('facebook_pages')
         .select('page_access_token, token_expires_at, page_name')
         .eq('page_id', pageId)
+        .eq('user_id', userId)
         .single();
 
       if (pageError || !pageData) {
