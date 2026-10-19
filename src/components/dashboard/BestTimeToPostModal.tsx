@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -41,6 +41,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
+import { withTimeout } from '@/utils/withTimeout';
 
 interface TimeSlot {
   id: string;
@@ -116,6 +117,8 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const loadController = useRef<AbortController | null>(null);
 
   const [newTimeDay, setNewTimeDay] = useState<string>('everyday');
   const [newTimeHour, setNewTimeHour] = useState('9:00 AM');
@@ -131,35 +134,9 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
   useEffect(() => {
     if (isOpen) {
       loadSchedules();
-      loadPreferences();
     }
+    return () => loadController.current?.abort();
   }, [isOpen]);
-
-  const loadPreferences = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('user_posting_preferences')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading preferences:', error);
-        return;
-      }
-
-      if (data) {
-        setAutoScheduleEnabled(data.auto_schedule_enabled);
-        setSmartSuggestionsEnabled(data.smart_suggestions_enabled);
-        setSelectedTimezone(data.timezone || 'utc-8');
-      }
-    } catch (error) {
-      console.error('Error loading preferences:', error);
-    }
-  };
 
   const toggleAutoSchedule = async () => {
     const newValue = !autoScheduleEnabled;
@@ -227,21 +204,36 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
   };
 
   const loadSchedules = async () => {
+    loadController.current?.abort();
+    const controller = new AbortController();
+    loadController.current = controller;
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        // If no user, use default AI suggestions
-        initializeWithAISuggestions();
-        return;
+      const { schedules, preferences } = await withTimeout((async () => {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (controller.signal.aborted) throw new Error('Canceled');
+        if (authError) throw authError;
+        if (!user) throw new Error('Please sign in to load your posting schedule.');
+        const [schedules, preferences] = await Promise.all([
+          supabase.from('posting_schedules')
+            .select('id, day, time, engagement')
+            .eq('user_id', user.id).abortSignal(controller.signal),
+          supabase.from('user_posting_preferences')
+            .select('auto_schedule_enabled, smart_suggestions_enabled, timezone')
+            .eq('user_id', user.id).maybeSingle().abortSignal(controller.signal),
+        ]);
+        if (schedules.error) throw schedules.error;
+        if (preferences.error) throw preferences.error;
+        return { schedules, preferences };
+      })(), 12000);
+      if (controller.signal.aborted) return;
+      const data = schedules.data;
+      if (preferences.data) {
+        setAutoScheduleEnabled(preferences.data.auto_schedule_enabled);
+        setSmartSuggestionsEnabled(preferences.data.smart_suggestions_enabled);
+        setSelectedTimezone(preferences.data.timezone || 'utc-8');
       }
-
-      const { data, error } = await supabase
-        .from('posting_schedules')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
 
       if (data && data.length > 0) {
         const slots: TimeSlot[] = data.map(item => ({
@@ -256,10 +248,14 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
         initializeWithAISuggestions();
       }
     } catch (error) {
+      if (controller.signal.aborted) return;
       console.error('Error loading schedules:', error);
-      initializeWithAISuggestions();
+      setLoadError('We couldn’t load your saved schedule. Your account or schedule request may have timed out. Please try again.');
     } finally {
-      setIsLoading(false);
+      if (loadController.current === controller && !controller.signal.aborted) {
+        setIsLoading(false);
+        controller.abort();
+      }
     }
   };
 
@@ -423,7 +419,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
+      <DialogContent aria-describedby={undefined} className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
         {/* Compact Header */}
         <div className="pl-6 pr-14 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
@@ -433,7 +429,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
                   <Clock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-lg">Posting Schedule</h2>
+                  <DialogTitle className="font-semibold text-lg">Posting Schedule</DialogTitle>
                   <p className="text-xs text-muted-foreground">Optimize When You Post For Maximum Reach</p>
                 </div>
               </div>
@@ -474,6 +470,15 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
               <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mx-auto mb-3" />
               <p className="text-muted-foreground">Loading your schedule...</p>
             </div>
+          </div>
+        ) : loadError ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6 py-16 text-center" role="alert">
+            <p className="font-semibold">Unable To Load Schedule</p>
+            <p className="max-w-md text-sm text-muted-foreground">{loadError}</p>
+            <Button variant="outline" onClick={loadSchedules}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
           </div>
         ) : (
           <>
