@@ -104,6 +104,8 @@ const Assistant = () => {
                 onSubTypeChange={handleSubTypeChange}
                 onStyleClick={() => setStylesModalOpen(true)}
                 onReferenceClick={() => setReferencesModalOpen(true)}
+                selectedReferences={selectedReferences}
+                onRemoveReference={(index) => setSelectedReferences(prev => prev.filter((_, i) => i !== index))}
                 onCharacterClick={() => setCharactersModalOpen(true)}
               />
             </div>

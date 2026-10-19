@@ -9,6 +9,7 @@ import { SiZoom, SiAirplayvideo } from 'react-icons/si';
 import { toast } from "sonner";
 import { validateFile, createPreviewUrl, MAX_IMAGES } from "@/utils/imageUtils";
 import FileFormatIcons from '@/components/ui/FileFormatIcons';
+import { withTimeout } from '@/utils/withTimeout';
 
 
 interface PexelsPhoto {
@@ -39,6 +40,8 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const referenceRequestRef = useRef<AbortController | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -67,9 +70,11 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
       setMediaFilter(initialMediaFilter);
     } else if (!isOpen) {
       // Reset when modal closes
+      referenceRequestRef.current?.abort();
       hasFetchedRef.current = false;
       setSelectedImages([]);
     }
+    return () => { referenceRequestRef.current?.abort(); };
   }, [isOpen, initialMediaFilter]);
   
   // Handle initial selected images separately to avoid infinite loops
@@ -119,22 +124,40 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   };
 
   const fetchReferences = async () => {
+    referenceRequestRef.current?.abort();
+    const controller = new AbortController();
+    referenceRequestRef.current = controller;
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const { data, error } = await supabase
+      const { data: sessionData, error: sessionError } = await withTimeout(supabase.auth.getSession(), 10000);
+      if (controller.signal.aborted) return;
+      if (sessionError) throw sessionError;
+      const user = sessionData.session?.user;
+      if (!user) throw new Error('Please Sign In To Load Your Reference Images.');
+      const { data, error } = await withTimeout(supabase
         .from('reference_images')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('id, image_url, thumbnail_url, original_filename')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .abortSignal(controller.signal), 15000);
 
       if (error) throw error;
+      if (controller.signal.aborted) return;
       
       // Use the actual user's uploaded reference images
       setReferences(data || []);
     } catch (error) {
+      if (controller.signal.aborted) return;
       console.error('Error fetching references:', error);
-      toast.error('Failed to load reference images');
+      setLoadError(error instanceof Error && error.message.includes('Sign In')
+        ? error.message
+        : 'Reference Images Could Not Load. Please Try Again.');
     } finally {
-      setIsLoading(false);
+      if (referenceRequestRef.current === controller) {
+        controller.abort();
+        setIsLoading(false);
+      }
     }
   };
 
@@ -463,6 +486,11 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 {isLoading ? (
                   <div className="flex justify-center py-12">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : loadError ? (
+                  <div role="alert" className="flex flex-col items-center gap-3 py-12 text-foreground">
+                    <p>{loadError}</p>
+                    <Button variant="outline" onClick={fetchReferences}>Retry</Button>
                   </div>
                 ) : filteredReferences.length === 0 && uploadedFiles.length === 0 ? (
                   <div className="text-center py-12">
