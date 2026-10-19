@@ -221,7 +221,7 @@ const BestTimeToPostModal: React.FC<BestTimeToPostModalProps> = ({ isOpen, onClo
             .eq('user_id', user.id).abortSignal(controller.signal),
           supabase.from('user_posting_preferences')
             .select('auto_schedule_enabled, smart_suggestions_enabled, timezone')
-            .eq('user_id', user.id).maybeSingle().abortSignal(controller.signal),
+            .eq('user_id', user.id).abortSignal(controller.signal).maybeSingle(),
         ]);
         if (schedules.error) throw schedules.error;
         if (preferences.error) throw preferences.error;
