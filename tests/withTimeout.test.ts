@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { withTimeout } from './withTimeout';
+import { withTimeout } from '../src/utils/withTimeout';
 
 describe('bounded schedule requests', () => {
   it('rejects a request that never settles', async () => {
