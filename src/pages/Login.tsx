@@ -10,6 +10,7 @@ import AuthShowcase from '@/components/auth/AuthShowcase';
 import { Eye, EyeOff, Check, Circle, ChevronDown, Search } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useTranslation } from '@/hooks/useTranslation';
+import { withTimeout } from '@/utils/withTimeout';
 
 export const LANGUAGES = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -129,12 +130,16 @@ export default function LoginPage() {
 
   useEffect(() => {
     const checkInviteCodeValidation = async (userId: string): Promise<boolean> => {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('invite_code_validated')
-        .eq('id', userId)
-        .single();
-      
+      const { data: profile, error } = await withTimeout(
+        supabase
+          .from('profiles')
+          .select('invite_code_validated')
+          .eq('id', userId)
+          .single(),
+        15000,
+      );
+      // A failed read must not be treated as "not validated" and bounce the user to invite verification.
+      if (error) throw error;
       return profile?.invite_code_validated === true;
     };
 
@@ -149,7 +154,19 @@ export default function LoginPage() {
 
     const handleAuthRedirect = async (session: Session) => {
       setIsRedirecting(true);
-      const isValidated = await checkInviteCodeValidation(session.user.id);
+      let isValidated = false;
+      try {
+        isValidated = await checkInviteCodeValidation(session.user.id);
+      } catch (err) {
+        console.error('Could not load account after sign-in:', err);
+        setIsRedirecting(false);
+        toast({
+          title: 'Signed In, But Your Account Is Slow To Load',
+          description: 'Please refresh the page or try again in a moment.',
+          variant: 'destructive',
+        });
+        return;
+      }
       if (!isValidated) {
         navigate('/invite-verification');
         return;
@@ -199,12 +216,21 @@ export default function LoginPage() {
     setIsLoading(true);
     setEmailNotFound(false);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    setIsLoading(false);
+    let error: { message: string } | null = null;
+    try {
+      const result = await withTimeout(
+        supabase.auth.signInWithPassword({ email: email.trim(), password }),
+        30000,
+      );
+      error = result.error;
+    } catch (err) {
+      error = {
+        message: 'The sign-in service is slow to respond right now. Your password was not rejected — please try again in a moment.',
+      };
+      console.error('Sign-in request failed:', err);
+    } finally {
+      setIsLoading(false);
+    }
 
     if (error) {
       // Check if error indicates user not found
@@ -592,7 +618,7 @@ export default function LoginPage() {
               />
               {emailNotFound && !isSignUp && (
                 <p className="mt-1.5 text-sm text-red-500">
-                  {t('auth.emailNotFound', 'Email Not Found,')}{' '}
+                  {t('auth.invalidCredentials', 'Incorrect Email Or Password. New Here?')}{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(true)}
