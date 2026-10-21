@@ -618,7 +618,7 @@ export default function LoginPage() {
               />
               {emailNotFound && !isSignUp && (
                 <p className="mt-1.5 text-sm text-red-500">
-                  {t('auth.emailNotFound', 'Email Not Found,')}{' '}
+                  {t('auth.invalidCredentials', 'Incorrect Email Or Password. New Here?')}{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(true)}
