@@ -1,98 +1,65 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+// Audio is stored in Lovable Cloud storage (the previous Cloudinary account was disabled).
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+const BUCKET = "audio-uploads";
+const SIGNED_URL_SECONDS = 60 * 60 * 24 * 365; // 1 year
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const { audioData, filename, contentType, remoteUrl } = await req.json();
-    
-    // Cloudinary credentials
-    const cloudName = "dszt275xv";
-    const uploadPreset = "revven";
-    
-    // Create form data for Cloudinary
-    const formData = new FormData();
+    let bytes: Uint8Array;
+    let type: string;
+    let name: string = filename || "audio.webm";
 
-    // Option 1: Upload from remote URL (faster for YouTube)
     if (remoteUrl) {
-      console.log("Uploading from remote URL:", remoteUrl.substring(0, 100));
-      formData.append("file", remoteUrl);
-      formData.append("upload_preset", uploadPreset);
-      formData.append("resource_type", "video");
-      formData.append("folder", "ugc-audio");
-    }
-    // Option 2: Upload from base64 data
-    else if (audioData) {
-      console.log("Uploading audio to Cloudinary:", filename, contentType);
-      
-      // Convert base64 to blob
-      const base64Data = audioData.split(',')[1] || audioData;
-      const binaryString = atob(base64Data);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      
-      // Determine if this is a video file
-      const isVideoFile = contentType?.includes('video') || filename?.endsWith('.mp4');
-      const actualContentType = contentType || (isVideoFile ? 'video/mp4' : 'audio/webm');
-      
-      const blob = new Blob([bytes], { type: actualContentType });
-      
-      formData.append("file", blob, filename || "audio.webm");
-      formData.append("upload_preset", uploadPreset);
-      formData.append("resource_type", "video");
-      formData.append("folder", "ugc-audio");
+      const u = new URL(remoteUrl);
+      if (u.protocol !== "https:") throw new Error("Only HTTPS URLs are allowed");
+      const res = await fetch(remoteUrl);
+      if (!res.ok) throw new Error(`Could not download remote audio (${res.status})`);
+      bytes = new Uint8Array(await res.arrayBuffer());
+      type = res.headers.get("content-type")?.split(";")[0] || contentType || "audio/mpeg";
+      if (!filename) name = u.pathname.split("/").pop() || "audio";
+    } else if (audioData) {
+      const base64Data = audioData.split(",")[1] || audioData;
+      const bin = atob(base64Data);
+      bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const isVideo = contentType?.includes("video") || name.endsWith(".mp4");
+      type = contentType || (isVideo ? "video/mp4" : "audio/webm");
     } else {
-      throw new Error("No audio data or URL provided");
+      return json({ error: "No audio data or URL provided" }, 400);
     }
 
-    // Upload to Cloudinary
-    const cloudinaryResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const safeName = name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120);
+    const path = `ugc-audio/${crypto.randomUUID()}-${safeName}`;
 
-    if (!cloudinaryResponse.ok) {
-      const errorText = await cloudinaryResponse.text();
-      console.error("Cloudinary upload error:", errorText);
-      throw new Error(`Cloudinary upload failed: ${errorText}`);
-    }
+    const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, bytes, { contentType: type, upsert: false });
+    if (upErr) throw new Error(`Storage upload failed: ${upErr.message}`);
 
-    const cloudinaryData = await cloudinaryResponse.json();
-    console.log("Cloudinary upload success:", cloudinaryData.secure_url);
+    const { data: signed, error: signErr } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_SECONDS);
+    if (signErr || !signed) throw new Error(`Could not create file link: ${signErr?.message}`);
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        url: cloudinaryData.secure_url,
-        publicId: cloudinaryData.public_id,
-        duration: cloudinaryData.duration,
-        format: cloudinaryData.format,
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    console.log("Audio uploaded:", path, bytes.length, "bytes");
+    return json({
+      success: true,
+      url: signed.signedUrl,
+      publicId: path,
+      duration: null,
+      format: safeName.split(".").pop() || null,
+    });
   } catch (error) {
     console.error("Error uploading audio:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return json({ error: error instanceof Error ? error.message : "Unknown error" }, 500);
   }
 });
